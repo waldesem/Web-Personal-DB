@@ -60,20 +60,3 @@ if not os.path.isdir(Config.BASE_PATH):
             letter_path = os.path.join(region_path, letter)
             if not os.path.isdir(letter_path):
                 os.mkdir(letter_path)
-
-
-if issubclass(Config, SqliteConfig):
-    if os.path.isfile(os.path.join(setting["SQLite"].get("uri"), "database.db")):
-        if (
-            date.fromtimestamp(
-                os.path.getmtime(os.path.join(setting["SQLite"].get("uri"), "database.db"))
-            ).day
-            != date.today().day
-        ):
-            backup_path = os.path.join(setting["SQLite"].get("uri"), "backup")
-            if not os.path.isdir(backup_path):
-                os.mkdir(backup_path)
-            shutil.copy(
-                os.path.join(setting["SQLite"].get("uri"), "database.db"),
-                os.path.join(backup_path, f"{date.today()}.db"),
-        )
