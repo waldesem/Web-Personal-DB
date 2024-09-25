@@ -1,11 +1,5 @@
-from email.mime.application import MIMEApplication
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.utils import formatdate
 import os
-from os.path import basename
 import re
-import smtplib
 
 from flask import abort, current_app
 from PIL import Image
@@ -231,27 +225,3 @@ def make_destination(region, surname, firstname, patronymic, person_id):
     if not os.path.isdir(destination):
         os.mkdir(destination)
     return destination
-
-
-def mail_handler(
-    send_from: str, send_to: list, subject: str, body: str, server: str, file=None
-):
-    msg = MIMEMultipart()
-    msg["From"] = send_from
-    msg["To"] = ",".join(send_to)
-    msg["Date"] = formatdate(localtime=True)
-    msg["Subject"] = subject
-
-    msg.attach(MIMEText(body, "plain"))
-
-    if file:
-        with open(file, "rb") as f:
-            part = MIMEApplication(f.read(), Name=basename(f))
-
-            part["Content-Disposition"] = 'attachment; filename="%s"' % basename(f)
-
-            msg.attach(part)
-
-    smtp = smtplib.SMTP(server)
-    smtp.sendmail(send_from, send_to, msg.as_string())
-    smtp.close()
