@@ -440,11 +440,6 @@ def get_item_id(item, item_id):
         Tuple[Response, int]: A tuple containing the JSON response containing
         the retrieved item(s) and an HTTP status code of 200.
     """
-    if item == "persons" and request.args.get("action") == "self":
-        person = db_session.get(Persons, item_id)
-        person.editable = not person.editable
-        person.user_id = current_user["id"]
-        db_session.commit()
     result = handle_get_item(item, item_id)
     return jsonify(result)
 
