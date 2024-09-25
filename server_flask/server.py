@@ -50,7 +50,7 @@ def main():
         wsgi_server(app, address=args.host, port=args.port)
     elif args.mode == "desktop":
         FlaskUI(
-            server_kwargs={"app": app, "address": args.host, "port": args.port},
+            server_kwargs={"app": app, "host": args.host, "port": args.port},
         ).run()
 
 
