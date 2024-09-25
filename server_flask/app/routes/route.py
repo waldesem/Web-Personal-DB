@@ -351,19 +351,13 @@ def post_json():
     anketa = handle_json_to_dict(json_dict)
     if not anketa:
         return abort(400)
-    person_id, destination = handle_post_resume(anketa["resume"])
+    person_id = handle_post_resume(anketa.pop("resume"))
     if not person_id:
         return abort(400)
-    if destination and os.path.isdir(destination):
-        with open(os.path.join(destination, file.filename), "wb") as f:
-            f.write(json.dumps(json_dict, ensure_ascii=False).encode("utf8"))
-            subprocess.run(f'explorer "{destination}"')
-            # subprocess.run(["xdg-open", destination])
+    
     for table, contents in anketa.items():
-        if contents and table != "resume":
-            for content in contents:
-                if content:
-                    handle_post_item(content, table, person_id)
+        for content in contents:
+            handle_post_item(content, table, person_id)
     return jsonify({"person_id": person_id}), 201
 
 
@@ -382,7 +376,7 @@ def post_resume():
     """
     json_data = request.get_json()
     resume = Person(**json_data).dict()
-    person_id, _ = handle_post_resume(resume)
+    person_id = handle_post_resume(resume)
     if not person_id:
         return abort(400)
     return jsonify({"person_id": person_id}), 201
