@@ -14,7 +14,6 @@ from threading import Thread
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Union
 from contextlib import suppress
-from wsgi import wsgi_server
 
 import psutil
 
@@ -104,7 +103,7 @@ class ServerFlask:
     def server(**server_kwargs):
         app = server_kwargs.pop("app", None)
         server_kwargs.pop("debug", None)
-        wsgi_server(app, **server_kwargs)
+        app.run(**server_kwargs)
 
 @dataclass
 class FlaskUI:
