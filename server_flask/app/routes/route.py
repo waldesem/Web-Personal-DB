@@ -291,34 +291,14 @@ def post_file(item, item_id):
         return abort(400)
 
 
-@bp.get("/folder/<int:item_id>")
-@roles_required(Roles.user.value)
-def get_folder(item_id):
-    """
-    Opens the folder associated with a person in the file explorer.
-
-    Parameters:
-        item_id (int): The ID of the person.
-
-    Returns:
-        An empty string and a status code of 200 if the folder is opened
-        successfully.
-
-    Raises:
-        None
-    """
-    person = db_session.get(Persons, item_id)
-    if not person.destination:
-        person.destination = make_destination(
-            current_user["region"],
-            person.surname,
-            person.firstname,
-            person.patronymic,
-            person.id,
-        )
-        db_session.commit()
-    subprocess.run(f'explorer "{person.destination}"')
-    # subprocess.run(["xdg-open", person.destination])
+@bp.get("/folder")
+@jwt_required()
+def get_folder():
+    folder_path = request.args.get("folder")
+    if not os.isdir(folder_path):
+        os.mkdir(folder_path)
+    subprocess.run(f'explorer "{folder_path}"')
+    # subprocess.run(["xdg-open", folder_path])
     return "", 200
 
 
