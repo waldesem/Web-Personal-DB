@@ -455,14 +455,13 @@ def delete_item(item, item_id):
 
     Returns:
         Tuple[str, int]: A tuple containing an empty string and an HTTP status
-        code of 204 if the operation is successful or an HTTP status
-        code of 400.
+        code of 204.
     """
-    item = db_session.get(tables_models[item], item_id)
-    if not item:
-        return abort(400)
-    db_session.delete(item)
-    db_session.commit()
+    table = tables_models.get(item)
+    if table:
+        item = db_session.get(table, item_id)
+        db_session.delete(item)
+        db_session.commit()
     return "", 204
 
 
