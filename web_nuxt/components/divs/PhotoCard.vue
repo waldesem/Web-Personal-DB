@@ -28,7 +28,7 @@ const { refresh } = await useAsyncData("image", async () => {
     },
     responseType: "blob",
   });
-  imageUrl.value = window.URL.createObjectURL(new Blob([response] as never));
+  imageUrl.value = response ? window.URL.createObjectURL(new Blob([response] as never)) : "/api/static/no-photo.png";
 });
 
 async function submitImage(filelist: FileList) {
