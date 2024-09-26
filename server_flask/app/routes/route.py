@@ -318,7 +318,8 @@ def get_image():
         file_path = os.path.join(image_path, "image", "image.jpg")
         if os.path.isfile(file_path):
             return send_file(file_path, as_attachment=True, mimetype="image/jpg")
-    return send_file("static/no-photo.png", as_attachment=True, mimetype="image/jpg")
+    return "", 204
+    # return send_file("static/no-photo.png", as_attachment=True, mimetype="image/jpg")
 
 
 @bp.post("/json")
