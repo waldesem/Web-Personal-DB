@@ -11,17 +11,9 @@ setting.read(os.path.join(basedir, "settings.ini"), encoding="utf-8")
 class Configuration:
     SECRET_KEY = secrets.token_hex(16)
     JWT_SECRET_KEY = secrets.token_hex(16)
-    BASE_PATH = (
-        setting["Destination"].get("path")
-        if setting["Destination"].get("path")
-        else os.path.join(basedir, "PersonalDB")
-    )
+    BASE_PATH = setting["Destination"].get("path")
+    DATABASE_URI = "sqlite:///" + setting["SQLite"].get("uri")
     DEFAULT_PASSWORD = "8" * 8
-    DATABASE_URI = (
-        "sqlite:///" + os.path.join(setting["SQLite"].get("uri"), "database.db")
-        if setting["SQLite"].get("uri")
-        else os.path.join("sqlite:///", "database.db")
-    )
 
 
 class SqliteConfig(Configuration):

@@ -39,6 +39,18 @@ GRANT ALL PRIVILEGES ON DATABASE personal TO flask;
 \q
 ```
 
+### Settings
+
+For creating new user run the command in terminal:
+```
+export FLASK_APP=app
+flask user 'Super Admin' super email@example.com --role=admin --region=main
+```
+For creating default folders destination run the command in terminal:
+```
+flask folder # optional add 'path/to/folder'
+```
+
 ### Build frontend
 
 Change directory to web_nuxt and run the command to install packages:
@@ -58,18 +70,6 @@ npx nuxi build
 ```
 Builded files can be found in `server_flask/app/static`.
 
-### Settings
-
-For creating new user run the command in terminal:
-```
-flask user fullname username email --role type=admin --region type=Главный офис
-```
-See more options in `server_flask/app/click.py`
-
-For creating default folders destination run the command in terminal:
-```
-flask folder # optional add path/to/folder
-```
 
 Also you can change DATABASE_URI and base_path in config.py and settings.ini
 
