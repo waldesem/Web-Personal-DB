@@ -83,6 +83,11 @@ async function switchSelf(): Promise<void> {
   await authFetch('/api/self/' + candId.value);
   refresh();
 }
+
+onBeforeRouteLeave((to, from, next) => {
+  clearNuxtData();
+  next();
+})
 </script>
 
 <template>

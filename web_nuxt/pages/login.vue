@@ -5,6 +5,8 @@ definePageMeta({
   layout: false,
 });
 
+preloadRouteComponents('/persons');
+
 const loginAction = ref("create");
 const loginForm = ref({} as Login);
 
@@ -65,7 +67,7 @@ async function submitLogin(): Promise<void> {
   )) as { message: string; user_token: string };
   if (message === "Success") {
     userToken.value = user_token;
-    navigateTo("/persons");
+    await navigateTo("/persons");
   } else if (message === "Updated") {
     loginAction.value = "create";
     alertMessage.setAlert("blue", "Информация", "Войдите с новым паролем.");

@@ -5,6 +5,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   ssr: false,
   app: {
+    pageTransition: { name: "page", mode: "out-in" },
     head: {
       htmlAttrs: { lang: "ru" },
       meta: [
@@ -20,7 +21,7 @@ export default defineNuxtConfig({
         {
           children: "An application doesn't work without JavaScript",
         },
-      ]
+      ],
     },
   },
 
@@ -32,20 +33,20 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
-    '/api/**': { proxy: 'http://127.0.0.1:5000/api/**' }
+    "/api/**": { proxy: "http://127.0.0.1:5000/api/**" },
   },
-  
+
   nitro: {
     compressPublicAssets: true,
     output: {
       publicDir: "../server_flask/app/static",
-    }
+    },
   },
 
   vite: {
     build: {
       emptyOutDir: true,
-    }
+    },
   },
 
   modules: [

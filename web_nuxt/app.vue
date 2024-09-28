@@ -1,17 +1,15 @@
 <script setup lang="ts">
 useHead({
   title: "StaffSec - кадровая безопасность",
-  meta: [
-    { name: 'description', content: 'Кадровая безопасность' }
-  ],
-})
+  meta: [{ name: "description", content: "Кадровая безопасность" }],
+});
 
 useSeoMeta({
-  title: 'StaffSec - кадровая безопасность',
-  ogTitle: 'StaffSec - кадровая безопасность',
-  description: 'Кадровая безопасность, проверка персонала',
-  ogDescription: 'Кадровая безопасность, проверка персонала',
-})
+  title: "StaffSec - кадровая безопасность",
+  ogTitle: "StaffSec - кадровая безопасность",
+  description: "Кадровая безопасность, проверка персонала",
+  ogDescription: "Кадровая безопасность, проверка персонала",
+});
 </script>
 
 <template>
@@ -19,10 +17,19 @@ useSeoMeta({
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>
-  <UNotifications />  
+  <UNotifications />
 </template>
 
 <style>
+.page-enter-active,
+.page-leave-active {
+  transition: all 0.2s;
+}
+.page-enter-from,
+.page-leave-to {
+  opacity: 0;
+}
+
 .slide-fade-enter-active {
   transition: all 0.1s ease-out;
 }

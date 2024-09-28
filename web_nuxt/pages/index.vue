@@ -1,8 +1,10 @@
 <script setup lang="ts">
-
 definePageMeta({
   layout: false,
 });
+
+preloadRouteComponents("/persons");
+preloadRouteComponents('/login');
 
 await useAsyncData("index", async () => {
   if (!userToken.value) {

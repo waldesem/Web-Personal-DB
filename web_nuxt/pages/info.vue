@@ -10,22 +10,22 @@ const tableData = ref({
     .toISOString()
     .slice(0, 10),
   end: todayDate.toISOString().slice(0, 10),
+  stat: [] as Record<string, string>[]
 });
 
 /**
  * Get statistics from server
  */
-const { refresh, data, status } = await useLazyAsyncData(
+const { refresh, status } = await useLazyAsyncData(
   "statistics",
   async () => {
-    const stat = await authFetch("/api/information", {
+    tableData.value.stat = await authFetch("/api/information", {
       params: {
         start: tableData.value.start,
         end: tableData.value.end,
         region: tableData.value.region,
       },
     });
-    return stat;
   }
 );
 </script>
@@ -48,7 +48,7 @@ const { refresh, data, status } = await useLazyAsyncData(
           icon: 'i-heroicons-circle-stack-20-solid',
           label: 'Статистика за указанный период отсутствует.',
         }"
-        :rows="(data as Record<string, string>[])"
+        :rows="(tableData.stat as Record<string, string>[])"
         :columns="[
           { key: 'conclusion', label: 'Решение' },
           { key: 'count', label: 'Количество' },
