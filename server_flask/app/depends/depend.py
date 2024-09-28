@@ -68,7 +68,9 @@ def create_token(user):
         str: The JWT token.
     """
 
-    return jwt.encode(user, current_app.config["JWT_SECRET_KEY"], algorithm="HS256")
+    return "Bearer " + jwt.encode(
+        user, current_app.config["JWT_SECRET_KEY"], algorithm="HS256"
+    )
 
 
 def jwt_required():

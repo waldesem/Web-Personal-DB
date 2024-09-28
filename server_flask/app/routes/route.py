@@ -76,7 +76,7 @@ def post_login(action):
         return jsonify(
             {
                 "message": "Success",
-                "user_token": "Bearer " + create_token(User(**user.to_dict()).dict()),
+                "user_token": create_token(User(**user.to_dict()).dict()),
             }
         )
     return {"message": "Denied"}
@@ -102,8 +102,7 @@ def get_users():
         else:
             stmt = stmt.filter(Users.fullname.like("%" + search_data + "%"))
     users = db_session.execute(stmt.order_by(desc(Users.id))).scalars()
-    result = [user.to_dict() for user in users]
-    return jsonify(result)
+    return jsonify([user.to_dict() for user in users]), 200
 
 
 @bp.post("/users")
@@ -150,7 +149,7 @@ def post_user():
 @roles_required(Roles.admin.value)
 def get_user_actions(user_id):
     if current_user.get("id") == user_id:
-        return ""
+        return abort(400)
     """
     Change a user's information in the database based on their user ID.
 
@@ -180,8 +179,7 @@ def get_user_actions(user_id):
             user.region = item
         get_current_user.cache_clear()
         db_session.commit()
-        return "", 201
-    return abort(400)
+    return "", 201
 
 
 @bp.get("/index/<int:page>")
@@ -464,8 +462,7 @@ def post_item_id(item, item_id):
 
     Returns:
         Tuple[str, int]: A tuple containing an empty string and an HTTP status
-        code of 201 if the operation is successful,
-        otherwise a string containing the exception message and an HTTP status code of 400.
+        code of 201.
     """
     json_data = request.get_json()
     handle_post_item(json_data, item, item_id)
