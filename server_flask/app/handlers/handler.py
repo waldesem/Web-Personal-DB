@@ -42,7 +42,7 @@ def handle_get_item(item, item_id):
     return result[0] if item == "persons" else result
 
 
-def handle_post_item(json_data, item, item_id=""):
+def handle_post_item(json_data, item, item_id=None):
     """
     Updates an item in the database based on the provided JSON data, item, and item_id.
 
@@ -57,12 +57,15 @@ def handle_post_item(json_data, item, item_id=""):
     table, model = tables_models.get(item), models_tables.get(item)
     if not model or not table:
         return abort(400)
-    json_dict = model(**json_data).dict()
-    if item != "persons":
-        json_dict["person_id"] = item_id
-    json_dict["user_id"] = current_user.get("id")
-    db_session.merge(model(**json_dict))
-    db_session.commit()
+    try:
+        json_dict = model(**json_data).dict()
+        if item != "persons":
+            json_dict["person_id"] = item_id
+        json_dict["user_id"] = current_user.get("id")
+        db_session.merge(model(**json_dict))
+        db_session.commit()
+    except ValidationError:
+        abort(400)
 
 
 def handle_post_resume(resume):

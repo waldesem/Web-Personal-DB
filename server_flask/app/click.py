@@ -22,6 +22,17 @@ app = create_app()
 @click.option("--region", type=click.Choice([region.value for region in Regions]))
 @with_appcontext
 def create_user(fullname, username, email, region, role):
+    """Create a new user.
+
+    The user is created with a default password given in DEFAULT_PASSWORD config
+    variable. The user is created only if it does not exist in the database.
+
+    :param fullname: The full name of the user.
+    :param username: The username of the user.
+    :param email: The email of the user.
+    :param region: The region of the user.
+    :param role: The role of the user.
+    """
     if not db_session.execute(select(Users).filter(Users.username == username)).all():
         db_session.add(
             Users(
@@ -40,9 +51,19 @@ def create_user(fullname, username, email, region, role):
 
 
 @app.cli.command("folder")
-@click.argument("folder" , default=None)
+@click.argument("folder", default=None)
 @with_appcontext
 def create_folders(folder):
+    """Create the folders structure according to the current configuration.
+
+    The folders structure is as follows: BASE_PATH/REGION/LETTER, where BASE_PATH
+    is the base path defined in the configuration, REGION is one of the regions
+    defined in the Regions enum, and LETTER is one of the letters defined in the
+    configuration.
+
+    :param folder: The folder to create the structure in. If not provided, the
+        current BASE_PATH is used.
+    """
     if folder:
         setting["Destination"]["path"] = folder
     if not os.path.isdir(current_app.config["BASE_PATH"]):

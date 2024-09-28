@@ -1,4 +1,4 @@
-""" Original code see here https://github.com/ClimenteA/flaskwebgui """
+"""Original code see here https://github.com/ClimenteA/flaskwebgui"""
 
 import os
 import shutil
@@ -102,6 +102,7 @@ class ServerFlask:
         app = server_kwargs.pop("app", None)
         server_kwargs.pop("debug", None)
         app.run(**server_kwargs)
+
 
 @dataclass
 class FlaskUI:

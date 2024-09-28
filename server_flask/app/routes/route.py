@@ -202,7 +202,6 @@ def get_index(page):
     Raises:
         None
     """
-    cur_user = current_user
     pagination = 12
     search_data = request.args.get("search")
     stmt = select(Persons, Users.fullname)
@@ -214,8 +213,8 @@ def get_index(page):
             stmt = stmt.filter(Persons.firstname.ilike(f"%{query[1]}%"))
         if len(query) > 2:
             stmt = stmt.filter(Persons.patronymic.ilike(f"%{query[2]}%"))
-    if cur_user["region"] != Regions.main.value:
-        stmt = stmt.filter(Persons.region == cur_user["region"])
+    if current_user.get("region") != Regions.main.value:
+        stmt = stmt.filter(Persons.region == current_user.get("region"))
     query = db_session.execute(
         stmt.filter(Persons.user_id == Users.id)
         .order_by(desc(Persons.id))
@@ -291,6 +290,18 @@ def post_file(item, item_id):
 @bp.get("/folder")
 @jwt_required()
 def get_folder():
+    """
+    Opens a folder in the default file manager.
+
+    Parameters:
+        folder (str): The path to the folder to open.
+
+    Returns:
+        None
+
+    Raises:
+        None
+    """
     folder_path = request.args.get("folder")
     if not os.path.isdir(folder_path):
         os.mkdir(folder_path)
@@ -322,6 +333,23 @@ def get_image():
 @bp.post("/json")
 @roles_required(Roles.user.value)
 def post_json():
+    """
+    Upload a json file with a person's data.
+
+    Args:
+        file: json file with a person's data.
+
+    Returns:
+        a json response with a person id, if the person was successfully added to the database.
+
+    The json file should contain the following keys:
+        - resume: a resume of a person
+        - education: a list of education institutions of a person
+        - work: a list of work places of a person
+        - staff: a list of staff positions of a person
+        - document: a list of documents of a person
+        - address: a list of addresses of a person
+    """
     file = request.files.get("file")
     if not file or not file.filename.endswith(".json"):
         return abort(400)
@@ -390,6 +418,15 @@ def change_region(person_id):
 @bp.get("/self/<int:item_id>")
 @roles_required(Roles.user.value)
 def change_self_id(item_id):
+    """
+    Toggle the editable status of a person with the given item ID.
+
+    The person ID is the ID of the person to toggle the editable status.
+    The user ID is the ID of the user currently logged in.
+
+    Returns:
+        The HTTP status code is 200.
+    """
     person = db_session.get(Persons, item_id)
     person.editable = not person.editable
     person.user_id = current_user.get("id")

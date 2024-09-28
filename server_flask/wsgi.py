@@ -6,13 +6,14 @@ import tornado.web
 import tornado.wsgi
 
 
-def wsgi_server(app, address="127.0.0.1", port=5000, workers=8):
+def wsgi_server(app, address, port, workers):
     """
-    Runs a WSGI application using the Tornado webserver.
+    Start a WSGI server using Tornado.
 
-    :param app: The WSGI application to run.
-    :param address: The address to listen on. Defaults to 127.0.0.1.
-    :param port: The port to listen on. Defaults to 5000.
+    :param app: A WSGI application object
+    :param address: The address to listen on
+    :param port: The port to listen on
+    :param workers: The number of worker threads to use
     """
     container = tornado.wsgi.WSGIContainer(app)
     http_server = tornado.httpserver.HTTPServer(container)
