@@ -1,10 +1,6 @@
 from configparser import ConfigParser
-from datetime import date
 import os
 import secrets
-import shutil
-
-from app.model.classes import Regions
 
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -28,7 +24,6 @@ class Configuration:
     )
 
 
-
 class SqliteConfig(Configuration):
     pass
 
@@ -45,15 +40,3 @@ class PostgreConfig(Configuration):
 
 class Config(SqliteConfig):
     pass
-
-
-if not os.path.isdir(Config.BASE_PATH):
-    os.mkdir(Config.BASE_PATH)
-    for region in Regions:
-        region_path = os.path.join(Config.BASE_PATH, region.value)
-        if not os.path.isdir(region_path):
-            os.mkdir(region_path)
-        for letter in "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЫЭЮЯ":
-            letter_path = os.path.join(region_path, letter)
-            if not os.path.isdir(letter_path):
-                os.mkdir(letter_path)

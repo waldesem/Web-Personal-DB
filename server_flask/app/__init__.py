@@ -3,12 +3,9 @@ import logging
 from flask import Flask
 
 # from flask_cors import CORS
-from sqlalchemy import select
-from werkzeug.security import generate_password_hash
 
-from config import Config
-from .model.classes import Regions, Roles
-from .model.tables import db_session, Users
+from .config import Config
+from .model.tables import db_session
 from .routes.route import bp as route_bp
 
 file_handler = logging.FileHandler("error.log")
@@ -33,21 +30,6 @@ def create_app(config_class=Config):
     app.register_blueprint(route_bp)
     app.logger.addHandler(file_handler)
     # CORS(app, resources={r"/*": {"origins": "*"}})
-
-    if not db_session.execute(
-        select(Users).filter(Users.role == Roles.admin.value)
-    ).all():
-        admin = Users(
-            fullname="Администратор",
-            username="superadmin",
-            email="admin@localhost.ru",
-            role=Roles.admin.value,
-            passhash=generate_password_hash(Config.DEFAULT_PASSWORD),
-            region=Regions.main.value,
-        )
-        db_session.add(admin)
-        db_session.commit()
-    db_session.remove()
 
     @app.teardown_appcontext
     def shutdown_session(exception=None):

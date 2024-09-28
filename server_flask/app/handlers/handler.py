@@ -156,19 +156,19 @@ def handle_json_to_dict(data):
             }
         ]
         anketa["addresses"] = [
-                {
-                    "view": "Адрес проживания",
-                    "addresses": anketa.pop("validAddress", ""),
-                },
-                {
-                    "view": "Адрес регистрации",
-                    "addresses": anketa.pop("regAddress", ""),
-                },
-            ]
+            {
+                "view": "Адрес проживания",
+                "addresses": anketa.pop("validAddress", ""),
+            },
+            {
+                "view": "Адрес регистрации",
+                "addresses": anketa.pop("regAddress", ""),
+            },
+        ]
         anketa["contacts"] = [
-                {"view": "Телефон", "contact": anketa.pop("contactPhone", "")},
-                {"view": "Электронная почта", "contact": anketa.pop("email", "")},
-            ]
+            {"view": "Телефон", "contact": anketa.pop("contactPhone", "")},
+            {"view": "Электронная почта", "contact": anketa.pop("email", "")},
+        ]
         anketa["affilations"] = (
             anketa.pop("organizations")
             + anketa.pop("stateOrganizations")
