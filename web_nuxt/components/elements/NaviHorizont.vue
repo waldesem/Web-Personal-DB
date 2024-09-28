@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useFetchAuth } from "@/utils/auth";
 
 const toast = useToast();
 

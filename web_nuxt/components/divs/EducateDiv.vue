@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Education } from "@/types/interfaces";
-import { useFetchAuth } from "@/utils/auth";
 
 const authFetch = useFetchAuth();
 

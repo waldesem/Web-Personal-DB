@@ -1,6 +1,9 @@
 <script setup lang="ts">
-import { userToken } from "@/utils/auth";
 import type { Login } from "@/types/interfaces";
+
+definePageMeta({
+  layout: false,
+});
 
 const loginAction = ref("create");
 const loginForm = ref({} as Login);
@@ -28,7 +31,10 @@ const validate = (state: Login) => {
         message: "Старый и новый пароли совпадают",
       });
     }
-    if (!state.new_pswd.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*d).{8,16}$/)) {
+    if (
+      state.new_pswd &&
+      !state.new_pswd.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,16}$/)
+    ) {
       errors.push({
         path: "new_pswd",
         message:
@@ -118,7 +124,12 @@ async function submitLogin(): Promise<void> {
             />
           </UFormGroup>
           <div v-if="loginAction === 'update'">
-            <UFormGroup class="mb-3" size="md" label="Новый пароль" name="new_pswd">
+            <UFormGroup
+              class="mb-3"
+              size="md"
+              label="Новый пароль"
+              name="new_pswd"
+            >
               <UInput
                 v-model="loginForm['new_pswd']"
                 type="password"
@@ -127,7 +138,12 @@ async function submitLogin(): Promise<void> {
                 required
               />
             </UFormGroup>
-            <UFormGroup class="mb-3" size="md" label="Повтор пароля" name="conf_pswd">
+            <UFormGroup
+              class="mb-3"
+              size="md"
+              label="Повтор пароля"
+              name="conf_pswd"
+            >
               <UInput
                 v-model="loginForm['conf_pswd']"
                 type="password"

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useFetchAuth } from "@/utils/auth";
 import type { Persons } from "@/types/interfaces";
 
 const toast = useToast();
@@ -30,7 +29,7 @@ async function submitResume(form: Persons) {
 </script>
 
 <template>
-  <LayoutsMenu>
+  <div>
     <ElementsHeaderDiv :div="'mb-6'" :header="'НОВАЯ АНКЕТА'" />
     <ElementsSkeletonDiv
       v-if="upload"
@@ -39,5 +38,5 @@ async function submitResume(form: Persons) {
     <ElementsCardDiv v-else>
       <FormsResumeForm @cancel="openPersons" @update="submitResume" />
     </ElementsCardDiv>
-  </LayoutsMenu>
+  </div>
 </template>

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Relation } from "@/types/interfaces";
-import { useFetchAuth } from "@/utils/auth";
 
 const authFetch = useFetchAuth();
 

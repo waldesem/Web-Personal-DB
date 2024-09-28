@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useFetchAuth, stateUser } from "@/utils/auth";
 
 const authFetch = useFetchAuth();
 const userState = stateUser();
@@ -32,7 +31,7 @@ const { refresh, data, status } = await useLazyAsyncData(
 </script>
 
 <template>
-  <LayoutsMenu>
+  <div>
     <ElementsHeaderDiv
       :div="'py-1'"
       :header="`Информация по региону ${tableData.region.toLocaleUpperCase()} за период с ${new Date(
@@ -45,6 +44,10 @@ const { refresh, data, status } = await useLazyAsyncData(
       <UTable
         :loading="status == 'pending'"
         :progress="{ color: 'red', animation: 'swing' }"
+        :empty-state="{
+          icon: 'i-heroicons-circle-stack-20-solid',
+          label: 'Статистика за указанный период отсутствует.',
+        }"
         :rows="(data as Record<string, string>[])"
         :columns="[
           { key: 'conclusion', label: 'Решение' },
@@ -84,5 +87,5 @@ const { refresh, data, status } = await useLazyAsyncData(
         </div>
       </div>
     </div>
-  </LayoutsMenu>
+  </div>
 </template>

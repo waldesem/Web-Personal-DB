@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { stateUser, useFetchAuth } from "@/utils/auth";
 import type { Persons } from "@/types/interfaces";
 
 const authFetch = useFetchAuth();
@@ -87,7 +86,7 @@ async function switchSelf(): Promise<void> {
 </script>
 
 <template>
-  <LayoutsMenu>
+  <div>
     <DivsPhotoCard
       :cand-id="candId"
       :destination="person['destination']"
@@ -136,5 +135,5 @@ async function switchSelf(): Promise<void> {
         ><TabsInquiryTab :cand-id="candId" :editable="editState"
       /></template>
     </UTabs>
-  </LayoutsMenu>
+  </div>
 </template>

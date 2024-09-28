@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Needs } from "@/types/interfaces";
-import { useFetchAuth } from "@/utils/auth";
 
 const authFetch = useFetchAuth();
 

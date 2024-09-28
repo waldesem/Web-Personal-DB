@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { debounce } from "@/utils/utilities";
 import type { User } from "@/types/interfaces";
-import { useFetchAuth } from "@/utils/auth";
 
 const toast = useToast();
 
@@ -35,7 +33,6 @@ const users = computed(() => {
  * @return {User[]} An array of user objects
  */
 async function getUsers() {
-  const fetchAuth = useFetchAuth();
   dataUsers.value.users = (await fetchAuth("/api/users", {
     params: {
       search: dataUsers.value.search,
@@ -160,7 +157,7 @@ await getUsers();
 </script>
 
 <template>
-  <LayoutsMenu>
+  <div>
     <ElementsHeaderDiv
       :div="'py-1'"
       :cls="'text-2xl text-gray-500'"
@@ -294,5 +291,5 @@ await getUsers();
         </div>
       </template>
     </UTable>
-  </LayoutsMenu>
+  </div>
 </template>

@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { userToken } from "@/utils/auth";
+
+definePageMeta({
+  layout: false,
+});
 
 await useAsyncData("index", async () => {
   if (!userToken.value) {

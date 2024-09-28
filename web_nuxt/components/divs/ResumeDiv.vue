@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useFetchAuth } from "@/utils/auth";
 import type { Persons } from "@/types/interfaces";
 
 const emit = defineEmits(["update"]);

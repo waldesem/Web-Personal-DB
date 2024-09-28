@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { debounce } from "@/utils/utilities";
-import { useFetchAuth, stateUser } from "@/utils/auth";
 import type { Persons } from "@/types/interfaces";
 
 const authFetch = useFetchAuth();
@@ -69,7 +67,7 @@ async function uploadJson(filelist: FileList) {
 </script>
 
 <template>
-  <LayoutsMenu>
+  <div>
     <div v-if="userState.role == 'user'" class="relative">
       <div
         class="absolute inset-y-0 right-0"
@@ -104,10 +102,6 @@ async function uploadJson(filelist: FileList) {
     </div>
     <UTable
       :loading="status == 'pending' || persons.upload"
-      :loading-state="{
-        icon: 'i-heroicons-arrow-path-20-solid',
-        label: 'Загрузка...',
-      }"
       :progress="{ color: 'red', animation: 'swing' }"
       :empty-state="{
         icon: 'i-heroicons-circle-stack-20-solid',
@@ -197,5 +191,5 @@ async function uploadJson(filelist: FileList) {
         />
       </UButtonGroup>
     </div>
-  </LayoutsMenu>
+  </div>
 </template>

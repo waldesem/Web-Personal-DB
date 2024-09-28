@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { stateUser, userToken } from "@/utils/auth";
 
 const userState = stateUser();
 
@@ -47,6 +46,9 @@ const links = [
 ];
 
 const filtredLinks = computed(() => {
+  if (!userState.value) {
+    return links;
+  }
   if (userState.value.role !== "user") {
     return links.filter((item) => item[0].to !== "/resume");
   } else if (userState.value.role !== "admin") {
@@ -68,11 +70,15 @@ const filtredLinks = computed(() => {
     <header class="sticky pt-8 pb-16">
       <div class="flex justify-between relative">
         <div class="absolute top-0 left-0 inline-flex">
-          <UButton icon="i-heroicons-bars-4" @click="swowMenu = !showMenu"
+          <UButton
+            icon="i-heroicons-bars-4"
+            variant="ghost"
+            @click="showNav = !showNav"
+          />
         </div>
         <div class="absolute top-0 left-12 inline-flex text-2xl font-bold">
           <h3 class="text-primary">STAFFSEC</h3>
-            &nbsp;
+          &nbsp;
           <h3 class="text-red-800">ФИНТЕХ</h3>
         </div>
         <UButton
@@ -87,7 +93,11 @@ const filtredLinks = computed(() => {
           :variant="$colorMode.preference == 'light' ? 'soft' : 'ghost'"
           @click="$colorMode.preference = 'light'"
         />
-        <UPopover class="absolute top-0 right-24" mode="hover" :popper="{ placement: 'top-start' }">
+        <UPopover
+          class="absolute top-0 right-24"
+          mode="hover"
+          :popper="{ placement: 'top-start' }"
+        >
           <UAvatar :alt="userState.fullname" />
           <template #panel>
             <ElementsCardDiv>
@@ -109,7 +119,6 @@ const filtredLinks = computed(() => {
       </div>
     </header>
     <div class="grid grid-cols-12 gap-6">
-      <Transition name="slide-fade">
       <div
         v-if="showNav"
         class="flex flex-col h-full col-span-2 pt-3 border-r border-gray-200"
@@ -125,8 +134,10 @@ const filtredLinks = computed(() => {
           }"
         />
       </div>
-      </Transition>
-      <div class="flex flex-col col-span-10 py-8">
+      <div
+        class="flex flex-col col-span-10 py-8"
+        :class="showNav ? 'col-span-10' : 'col-span-12'"
+      >
         <slot />
       </div>
     </div>

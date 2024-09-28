@@ -21,5 +21,5 @@ const props = defineProps({
       <USkeleton class="h-4 w-[300px]" />
     </div>
   </div>
-  </Card>
+  </UCard>
 </template>

@@ -1,4 +1,9 @@
 /**
+ * Get the user token from ref.
+*/
+export const userToken = ref("");
+
+/**
  * Debounces a function, ensuring it's not called again until a certain amount of time has passed.
  *
  * @param {Function} func - The function to be debounced
@@ -20,3 +25,4 @@ export function debounce(
     }, delay);
   };
 }
+

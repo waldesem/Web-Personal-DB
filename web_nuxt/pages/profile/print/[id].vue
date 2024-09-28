@@ -1,6 +1,9 @@
 <script setup lang="ts">
-import { useFetchAuth } from "@/utils/auth";
 import type { Persons } from "@/types/interfaces";
+
+definePageMeta({
+  layout: false,
+});
 
 const authFetch = useFetchAuth();
 
