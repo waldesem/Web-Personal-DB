@@ -4,6 +4,7 @@ from app import create_app
 from webgui import FlaskUI
 from wsgi import wsgi_server
 
+
 def main():
     """
     A function that runs the application server based on the provided arguments.
@@ -13,10 +14,10 @@ def main():
             python server.py --host 127.0.0.1 --port 5000 --mode debug
 
         For development:
-            python server.py --host 127.0.0.1 --port 5000 --mode develop
+            python server.py --host 127.0.0.1 --port 5000 --mode devel
 
         For production:
-            python server.py --host 127.0.0.1 --port 5000 --mode waitress
+            python server.py --host 127.0.0.1 --port 5000 --workers 8 --mode serve
 
         For desktop:
             python server.py
@@ -30,13 +31,13 @@ def main():
         "--port", default=5000, type=int, help="The port to run the server on."
     )
     parser.add_argument(
-        "--threads", default=8, type=int, help="The number of threads to use."
+        "--workers", default=8, type=int, help="The number of workers to use."
     )
     parser.add_argument(
         "--mode",
-        choices=["debug", "develop", "tornado", "desktop"],
+        choices=["debug", "devel", "serve", "desktop"],
         default="desktop",
-        help="The mode to run the server in (debug, develop, tornado, desktop).",
+        help="The mode to run the server in (debug, devel, serve, desktop).",
     )
     args = parser.parse_args()
 
@@ -44,10 +45,10 @@ def main():
 
     if args.mode == "debug":
         app.run(host=args.host, port=args.port, debug=True)
-    elif args.mode == "develop":
+    elif args.mode == "devel":
         app.run(host=args.host, port=args.port, debug=False)
-    elif args.mode == "tornado":
-        wsgi_server(app, address=args.host, port=args.port)
+    elif args.mode == "serve":
+        wsgi_server(app, address=args.host, port=args.port, workers=args.workers)
     elif args.mode == "desktop":
         FlaskUI(
             server_kwargs={"app": app, "host": args.host, "port": args.port},

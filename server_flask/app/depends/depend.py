@@ -10,7 +10,8 @@ from ..model.tables import Users, db_session
 current_user = LocalProxy(lambda: get_current_user(g.user_id))
 
 
-def get_auth(token: str):
+@lru_cache(maxsize=2)
+def get_auth(header):
     """
     Validates a JWT token and stores the user ID in the g object.
 
@@ -20,18 +21,17 @@ def get_auth(token: str):
     Returns:
         bool: True if the token is valid, False if not.
     """
-    payload = token.split(' ')[1]
+    payload = header.split(" ")[1]
     try:
         decoded = jwt.decode(
             payload, current_app.config["JWT_SECRET_KEY"], algorithms=["HS256"]
         )
-        g.user_id = decoded["id"]
-        return True
+        return decoded["id"]
     except jwt.exceptions.InvalidTokenError:
-        return False
+        return None
 
 
-@lru_cache(maxsize=4)
+@lru_cache(maxsize=2)
 def get_current_user(user_id):
     """
     Retrieve the current user based on the user ID stored in the global variable 'g.user_id'.
@@ -90,7 +90,9 @@ def jwt_required():
         @wraps(func)
         def wrapper(*args, **kwargs):
             header = request.headers.get("Authorization")
-            if header and get_auth(header):
+            user_id = get_auth(header)
+            if user_id:
+                g.user_id = user_id
                 return func(*args, **kwargs)
             abort(401)
 
@@ -101,15 +103,12 @@ def jwt_required():
 
 def roles_required(*roles):
     def decorator(func):
+        @jwt_required()
         @wraps(func)
         def wrapper(*args, **kwargs):
-            header = request.headers.get("Authorization")
-            if header and get_auth(header):
-                cur_user = current_user
-                if cur_user and cur_user["role"] in roles:
-                    return func(*args, **kwargs)
-                abort(403)
-            abort(401)
+            if current_user.get("role") in roles:
+                return func(*args, **kwargs)
+            abort(403)
 
         return wrapper
 

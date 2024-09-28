@@ -42,10 +42,6 @@ def create_app(config_class=Config):
     @app.get("/<path:path>")
     def static_file(path=""):
         return app.send_static_file(path)
-    
-    @app.errorhandler(404)
-    def page_not_found(e):
-        return app.redirect("/")
 
     @app.errorhandler(Exception)
     def handle_error(error):

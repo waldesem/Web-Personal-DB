@@ -49,15 +49,13 @@ def close_application():
 
 def find_browser_on_linux():
     paths = [
-        r"/usr/bin/google-chrome",
-        r"/usr/bin/microsoft-edge-stable",
-        r"/usr/bin/microsoft-edge",
         r"/usr/bin/chromium",
+        r"/usr/bin/microsoft-edge",
+        r"/usr/bin/microsoft-edge-stable",
         # Web browsers installed via snap
         r"/snap/bin/chromium",
-        r"/snap/bin/google-chrome",
-        r"/snap/bin/microsoft-edge-stable",
         r"/snap/bin/microsoft-edge",
+        r"/snap/bin/microsoft-edge-stable",
     ]
     for path in paths:
         if os.path.exists(path):

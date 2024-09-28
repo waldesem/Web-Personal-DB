@@ -1,5 +1,4 @@
 from datetime import datetime
-import imghdr
 import json
 import os
 import re
@@ -18,7 +17,7 @@ from ..depends.depend import (
     roles_required,
 )
 from ..model.classes import Regions, Roles
-from ..model.models import Person, User, models_tables
+from ..model.models import Person, User
 from ..model.tables import Checks, Persons, Users, db_session, tables_models
 from ..handlers.handler import (
     handle_image,
@@ -150,7 +149,7 @@ def post_user():
 @bp.get("/users/<int:user_id>")
 @roles_required(Roles.admin.value)
 def get_user_actions(user_id):
-    if current_user["id"] == user_id:
+    if current_user.get("id") == user_id:
         return ""
     """
     Change a user's information in the database based on their user ID.
@@ -254,7 +253,7 @@ def post_file(item, item_id):
     try:
         if not person.destination:
             destination = make_destination(
-                current_user["region"],
+                current_user.get("region"),
                 person.surname,
                 person.firstname,
                 person.patronymic,
@@ -270,10 +269,8 @@ def post_file(item, item_id):
             os.mkdir(item_dir)
 
         if item == "image":
-            if imghdr.what(files[0]) is not None:
-                handle_image(files[0], item_dir)
-                return "", 201
-            return abort(400)
+            handle_image(files[0], item_dir)
+            return "", 201
 
         date_subfolder = os.path.join(
             item_dir,
@@ -295,7 +292,7 @@ def post_file(item, item_id):
 @jwt_required()
 def get_folder():
     folder_path = request.args.get("folder")
-    if not os.isdir(folder_path):
+    if not os.path.isdir(folder_path):
         os.mkdir(folder_path)
     subprocess.run(f'explorer "{folder_path}"')
     # subprocess.run(["xdg-open", folder_path])
@@ -335,7 +332,7 @@ def post_json():
     person_id = handle_post_resume(anketa.pop("resume"))
     if not person_id:
         return abort(400)
-    
+
     for table, contents in anketa.items():
         for content in contents:
             handle_post_item(content, table, person_id)
@@ -376,7 +373,7 @@ def change_region(person_id):
         The HTTP status code is 200.
     """
     region = request.args.get("region")
-    if region:
+    if region in [region.value for region in Regions]:
         person = db_session.get(Persons, person_id)
         if person.destination:
             destination = make_destination(
@@ -387,8 +384,7 @@ def change_region(person_id):
         person.region = region
         person.editable = False
         db_session.commit()
-        return "", 200
-    return abort(400)
+    return "", 200
 
 
 @bp.get("/self/<int:item_id>")
@@ -396,7 +392,7 @@ def change_region(person_id):
 def change_self_id(item_id):
     person = db_session.get(Persons, item_id)
     person.editable = not person.editable
-    person.user_id = current_user["id"]
+    person.user_id = current_user.get("id")
     db_session.commit()
     return "", 200
 
@@ -435,11 +431,7 @@ def post_item_id(item, item_id):
         otherwise a string containing the exception message and an HTTP status code of 400.
     """
     json_data = request.get_json()
-    model = models_tables.get(item)
-    if not model:
-        return abort(400)
-    json_dict = model(**json_data).dict()
-    handle_post_item(json_dict, item, item_id)
+    handle_post_item(json_data, item, item_id)
     return "", 201
 
 
@@ -493,12 +485,12 @@ def get_information():
     data = request.args
     results = db_session.execute(
         select(Checks.conclusion, func.count(Checks.id))
-        .filter(Checks.person_id == Persons.id)
-        .filter(Checks.created.between(data["start"], data["end"]))
-        .filter(
+        .where(
+            Checks.person_id == Persons.id,
+            Checks.created.between(data["start"], data["end"]),
             Persons.region == data.get("region")
             if data.get("region")
-            else current_user["region"],
+            else current_user.get("region"),
         )
         .group_by(Checks.conclusion)
     ).all()

@@ -60,7 +60,18 @@ Builded files can be found in `server_flask/app/static`.
 
 ### Settings
 
-Change DATABASE_URI and base_path in config.py and settings.ini
+For creating new user run the command in terminal:
+```
+flask user fullname username email --role type=admin --region type=Главный офис
+```
+See more options in `server_flask/app/click.py`
+
+For creating default folders destination run the command in terminal:
+```
+flask folder # optional add path/to/folder
+```
+
+Also you can change DATABASE_URI and base_path in config.py and settings.ini
 
 ### Start backend
 
@@ -72,7 +83,6 @@ To start a frontend server run the command in terminal:
 ```
 HOST=127.0.0.1 PORT=8000 node .output/server/index.mjs
 ```
-Default admin user for application has name `superadmin`.
 DEFAULT_PASSWORD for created user - `88888888`.
 
 ### License
