@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Inquisition } from "@/types/interfaces";
 
+prefetchComponents('FormsInvestigationForm');
+
 const authFetch = useFetchAuth();
 
 const toast = useToast();

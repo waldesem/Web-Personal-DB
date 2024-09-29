@@ -107,11 +107,6 @@ onBeforeRouteLeave((to, from, next) => {
           </div>
         </UButton>
       </div>
-      <div v-if="!person['editable']" class="absolute top-0 right-10">
-        <UButton variant="link" size="xl" :to="`/profile/print/${candId}`">
-          <UIcon name="i-heroicons-printer" class="w-8 h-8" />
-        </UButton>
-      </div>
     </div>
     <ElementsHeaderDiv
       :div="'py-3'"

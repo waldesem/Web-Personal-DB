@@ -62,7 +62,7 @@ def handle_post_item(json_data, item, item_id=None):
         if item != "persons":
             json_dict["person_id"] = item_id
         json_dict["user_id"] = current_user.get("id")
-        db_session.merge(model(**json_dict))
+        db_session.merge(table(**json_dict))
         db_session.commit()
     except ValidationError:
         abort(400)

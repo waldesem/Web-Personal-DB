@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Pfo } from "@/types/interfaces";
 
+prefetchComponents('FormsPoligrafForm');
+
 const authFetch = useFetchAuth();
 
 const toast = useToast();

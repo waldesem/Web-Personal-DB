@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Needs } from "@/types/interfaces";
 
+prefetchComponents('FormsInquiryForm');
+
 const authFetch = useFetchAuth();
 
 const toast = useToast();

@@ -51,7 +51,7 @@ def create_app(config_class=Config):
 
     @app.errorhandler(Exception)
     def handle_error(error):
-        app.logger.error(error)
+        # app.logger.error(error)
         return app.redirect("/")
 
     @app.cli.command("user")

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Verification } from "@/types/interfaces";
 
+prefetchComponents('FormsCheckForm');
+
 const authFetch = useFetchAuth();
 
 const toast = useToast();

@@ -6,9 +6,10 @@ const showNav = ref(true);
 
 async function removeToken(): Promise<void> {
   if (confirm("Вы действительно хотите выйти?")) {
-    navigateTo("/login");
     clearNuxtData();
+    clearNuxtState();
     userToken.value = "";
+    navigateTo("/login");
   }
 }
 
@@ -62,12 +63,6 @@ const filtredLinks = computed(() => {
     return links;
   }
 });
-
-const reloadApp = () => {
-  if (confirm("Вы действительно хотите перезагрузить приложение?")) {
-    reloadNuxtApp();
-  }
-}
 </script>
 
 <template>
@@ -123,12 +118,6 @@ const reloadApp = () => {
             </ElementsCardDiv>
           </template>
         </UPopover>
-        <UButton
-          class="absolute top-0 right-36"
-          icon="i-heroicons-arrow-path"
-          variant="ghost"
-          @click="reloadApp"
-        />
       </div>
     </header>
     <div class="grid grid-cols-12 gap-6">

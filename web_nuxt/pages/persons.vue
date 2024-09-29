@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { Persons } from "@/types/interfaces";
 
-const authFetch = useFetchAuth();
+preloadRouteComponents('/profile/[id]');
 
+const authFetch = useFetchAuth();
 const userState = stateUser();
 const toast = useToast();
 
