@@ -1,1 +1,0 @@
-import{u as a}from"./Cthp-bJU.js";import{u as o}from"./Bv7hFFh9.js";import{f as r,g as s,c,o as i,n as t}from"./BL57t9pv.js";const d=r({__name:"index",async setup(u){let e,n;return[e,n]=s(()=>o("index",async()=>a.value?t("/persons"):t("/login"))),await e,n(),(_,m)=>(i(),c("div",null,"Index"))}});export{d as default};
