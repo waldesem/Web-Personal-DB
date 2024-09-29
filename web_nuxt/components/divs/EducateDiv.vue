@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Education } from "@/types/interfaces";
 
+prefetchComponents(['FormsEducationForm', 'ElementsSkeletonDiv']);
+
 const authFetch = useFetchAuth();
 
 const toast = useToast();

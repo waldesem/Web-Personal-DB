@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Work } from "@/types/interfaces";
 
+prefetchComponents(['FormsWorkForm', 'ElementsSkeletonDiv']);
+
 const authFetch = useFetchAuth();
 
 const toast = useToast();

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Document } from "@/types/interfaces";
 
+prefetchComponents(['FormsDocumentForm', 'ElementsSkeletonDiv']);
+
 const authFetch = useFetchAuth();
 
 const toast = useToast();

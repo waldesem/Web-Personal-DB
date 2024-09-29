@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 const authFetch = useFetchAuth();
 const userState = stateUser();
 const todayDate = new Date();
@@ -10,31 +9,29 @@ const tableData = ref({
     .toISOString()
     .slice(0, 10),
   end: todayDate.toISOString().slice(0, 10),
-  stat: [] as Record<string, string>[]
+  stat: [] as Record<string, string>[],
 });
 
 /**
  * Get statistics from server
  */
-const { refresh, status } = await useLazyAsyncData(
-  "statistics",
-  async () => {
-    tableData.value.stat = await authFetch("/api/information", {
-      params: {
-        start: tableData.value.start,
-        end: tableData.value.end,
-        region: tableData.value.region,
-      },
-    });
-  }
-);
+const { refresh, status } = await useLazyAsyncData("statistics", async () => {
+  const response = await authFetch("/api/information", {
+    params: {
+      start: tableData.value.start,
+      end: tableData.value.end,
+      region: tableData.value.region,
+    },
+  });
+  tableData.value.stat = response as Record<string, string>[];
+});
 </script>
 
 <template>
   <div>
     <ElementsHeaderDiv
       :div="'py-1'"
-      :header="`Информация по региону ${tableData.region.toLocaleUpperCase()} за период с ${new Date(
+      :header="`Информация по региону ${tableData.region} за период с ${new Date(
         tableData.start
       ).toLocaleDateString()} г. по ${new Date(
         tableData.end

@@ -17,6 +17,8 @@ from contextlib import suppress
 
 import psutil
 
+from wsgi import wsgi_server
+
 FLASKWEBGUI_USED_PORT = None
 FLASKWEBGUI_BROWSER_PROCESS = None
 
@@ -101,7 +103,8 @@ class ServerFlask:
     def server(**server_kwargs):
         app = server_kwargs.pop("app", None)
         server_kwargs.pop("debug", None)
-        app.run(**server_kwargs)
+        wsgi_server(app, **server_kwargs)
+        # app.run(**server_kwargs)
 
 
 @dataclass

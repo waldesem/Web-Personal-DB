@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Affilation } from "@/types/interfaces";
 
+prefetchComponents(['FormsAffilationForm', 'ElementsSkeletonDiv']);
+
 const authFetch = useFetchAuth();
 
 const toast = useToast();

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Inquisition } from "@/types/interfaces";
 
-prefetchComponents('FormsInvestigationForm');
+prefetchComponents(['FormsInvestigationForm', 'ElementsSkeletonDiv']);
 
 const authFetch = useFetchAuth();
 

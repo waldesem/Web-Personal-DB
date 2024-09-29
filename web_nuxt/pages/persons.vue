@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Persons } from "@/types/interfaces";
 
-preloadRouteComponents('/profile/[id]');
+preloadRouteComponents("/profile/[id]");
 
 const authFetch = useFetchAuth();
 const userState = stateUser();
@@ -19,11 +19,7 @@ const persons = ref({
   )} в ${new Date().toLocaleTimeString("ru-RU")}`,
 });
 
-const { refresh, status } = await useAsyncData("candidates", async () => {
-  if (persons.value.page < 1) {
-    persons.value.page = 1;
-    return;
-  }
+const { refresh, status } = await useLazyAsyncData("candidates", async () => {
   const response = await authFetch("/api/index/" + persons.value.page, {
     params: {
       search: persons.value.search,
@@ -106,7 +102,7 @@ async function uploadJson(filelist: FileList) {
       :progress="{ color: 'red', animation: 'swing' }"
       :empty-state="{
         icon: 'i-heroicons-circle-stack-20-solid',
-        label: 'Ничего не найдено.',
+        label: 'Данные не найдены.',
       }"
       :columns="[
         { key: 'id', label: '#' },

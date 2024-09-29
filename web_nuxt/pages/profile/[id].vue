@@ -7,10 +7,10 @@ const route = useRoute();
 
 const candId = computed(() => route.params.id) as Ref<string>;
 
-const person = ref({} as Persons)
+const person = ref({} as Persons);
 
 const { refresh } = await useAsyncData("anketa", async () => {
-  const response = await authFetch('/api/persons/' + candId.value);
+  const response = await authFetch("/api/persons/" + candId.value);
   person.value = response as Persons;
 });
 
@@ -80,14 +80,14 @@ async function switchSelf(): Promise<void> {
   if (!confirm("Вы действительно хотите включить/выключить режим правки")) {
     return;
   }
-  await authFetch('/api/self/' + candId.value);
+  await authFetch("/api/self/" + candId.value);
   refresh();
 }
 
 onBeforeRouteLeave((to, from, next) => {
   clearNuxtData();
   next();
-})
+});
 </script>
 
 <template>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Verification } from "@/types/interfaces";
 
-prefetchComponents('FormsCheckForm');
+prefetchComponents(['FormsCheckForm', 'ElementsSkeletonDiv']);
 
 const authFetch = useFetchAuth();
 

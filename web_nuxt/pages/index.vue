@@ -3,8 +3,8 @@ definePageMeta({
   layout: false,
 });
 
-preloadRouteComponents("/persons");
-preloadRouteComponents('/login');
+preloadRouteComponents("/persons")
+preloadRouteComponents("/login");
 
 await useAsyncData("index", async () => {
   if (!userToken.value) {

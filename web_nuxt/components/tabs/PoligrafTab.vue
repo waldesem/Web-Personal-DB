@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Pfo } from "@/types/interfaces";
 
-prefetchComponents('FormsPoligrafForm');
+prefetchComponents(['FormsPoligrafForm', 'ElementsSkeletonDiv']);
 
 const authFetch = useFetchAuth();
 

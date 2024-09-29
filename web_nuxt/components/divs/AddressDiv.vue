@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Address } from "@/types/interfaces";
 
+prefetchComponents(['FormsAddressForm', 'ElementsSkeletonDiv']);
+
 const authFetch = useFetchAuth();
 
 const toast = useToast();
@@ -28,7 +30,7 @@ const {
   status,
 } = await useLazyAsyncData("addresses", async () => {
   const response = await authFetch("/api/addresses/" + props.candId);
-  return response as Address[];
+  return response as typeof address.value[];
 });
 
 async function submitAddress(form: Address) {

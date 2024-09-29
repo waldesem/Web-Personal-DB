@@ -27,9 +27,6 @@ export default defineNuxtConfig({
 
   alias: {
     "@/": fileURLToPath(new URL("./src", import.meta.url)),
-    "@/components": fileURLToPath(new URL("./components", import.meta.url)),
-    "@/pages": fileURLToPath(new URL("./pages", import.meta.url)),
-    "@/utils": fileURLToPath(new URL("./utils", import.meta.url)),
   },
 
   routeRules: {

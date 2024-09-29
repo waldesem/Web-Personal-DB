@@ -21,7 +21,6 @@ def main():
 
         For desktop:
             python server.py
-
     """
     parser = argparse.ArgumentParser(description="Run the application server.")
     parser.add_argument(
@@ -51,7 +50,7 @@ def main():
         wsgi_server(app, address=args.host, port=args.port, workers=args.workers)
     else:
         FlaskUI(
-            server_kwargs={"app": app, "host": args.host, "port": args.port},
+            server_kwargs={"app": app, "address": args.host, "port": args.port, "workers": args.workers},
         ).run()
 
 

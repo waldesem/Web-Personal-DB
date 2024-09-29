@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Persons } from "@/types/interfaces";
 
+prefetchComponents(['FormsResumeForm', 'ElementsSkeletonDiv']);
+
 const emit = defineEmits(["update"]);
 
 const toast = useToast();

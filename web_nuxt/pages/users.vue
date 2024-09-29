@@ -27,18 +27,14 @@ const users = computed(() => {
   );
 });
 
-/**
- * Fetches a list of users from the server based on the current search query.
- *
- * @return {User[]} An array of user objects
- */
-async function getUsers() {
-  dataUsers.value.users = (await fetchAuth("/api/users", {
-    params: {
-      search: dataUsers.value.search,
-    },
-  })) as unknown as User[];
-}
+ const { refresh, status } = await useLazyAsyncData("users", async () => {
+  dataUsers.value.users = await fetchAuth("/api/users", {
+      params: {
+        search: dataUsers.value.search,
+      },
+    }) as User[];
+  }
+);
 
 /**
  * Performs an action on a user, such as blocking or deleting them.
@@ -64,7 +60,7 @@ async function userAction(
     region: "",
     role: "",
   });
-  await getUsers();
+  await refresh();
   toast.add({
     icon: "i-heroicons-check-circle",
     title: "Информация",
@@ -87,7 +83,7 @@ async function submitUser(): Promise<void> {
     fullname: "",
     username: "",
   });
-  await getUsers();
+  await refresh();
   toast.add({
     icon: "i-heroicons-check-circle",
     title: "Информация",
@@ -96,11 +92,11 @@ async function submitUser(): Promise<void> {
   });
 }
 
-const validate = (state: User): FormError[] => {
+const validate = (state: User) => {
   const errors = [];
   if (state.fullname && !state.fullname.match(/^[а-яёЁА-Я-\s]+$/)) {
     errors.push({
-      path: "surname",
+      path: "fullname",
       message: "Поле должно содержать только русские буквы",
     });
   }
@@ -126,7 +122,7 @@ const validate = (state: User): FormError[] => {
  * Searches for users based on the current search query.
  */
 const searchUser = debounce(async () => {
-  await getUsers();
+  await refresh();
 }, 500);
 
 /**
@@ -152,8 +148,6 @@ const items = [
     },
   ],
 ];
-
-await getUsers();
 </script>
 
 <template>
@@ -221,6 +215,12 @@ await getUsers();
       </UForm>
     </Transition>
     <UTable
+      :loading="status === 'pending'"
+      :progress="{ color: 'red', animation: 'swing' }"
+      :empty-state="{
+        icon: 'i-heroicons-circle-stack-20-solid',
+        label: 'Пользователи не найдены.',
+      }"
       :columns="[
         { key: 'id', label: '#' },
         { key: 'fullname', label: 'Пользователь' },

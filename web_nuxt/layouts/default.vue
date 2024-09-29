@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 const userState = stateUser();
 
 const showNav = ref(true);
@@ -9,7 +8,7 @@ async function removeToken(): Promise<void> {
     clearNuxtData();
     clearNuxtState();
     userToken.value = "";
-    navigateTo("/login");
+    navigateTo("/");
   }
 }
 
@@ -51,16 +50,12 @@ const filtredLinks = computed(() => {
   if (!userState.value) {
     return links;
   }
-  if (userState.value.role !== "user") {
+  if (userState.value.role === "admin") {
     return links.filter((item) => item[0].to !== "/resume");
-  } else if (userState.value.role !== "admin") {
+  } else if (userState.value.role === "user") {
     return links.filter((item) => item[0].to !== "/users");
-  } else if (userState.value.role !== "guest") {
-    return links.filter(
-      (item) => item[0].to !== "/users" && item[0].to !== "/resume"
-    );
   } else {
-    return links;
+    return links.filter((item) => item[0].to !== "/users" && item[0].to !== "/resume");
   }
 });
 </script>

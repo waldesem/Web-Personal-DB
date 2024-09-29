@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Previous } from "@/types/interfaces";
 
+prefetchComponents(['FormsPreviousForm', 'ElementsSkeletonDiv']);
+
 const authFetch = useFetchAuth();
 
 const toast = useToast();

@@ -31,10 +31,7 @@ async function submitResume(form: Persons) {
 <template>
   <div>
     <ElementsHeaderDiv :div="'mb-6'" :header="'НОВАЯ АНКЕТА'" />
-    <ElementsSkeletonDiv
-      v-if="upload"
-      :rows="16"
-    />
+    <ElementsSkeletonDiv v-if="upload" :rows="16" />
     <ElementsCardDiv v-else>
       <FormsResumeForm @cancel="openPersons" @update="submitResume" />
     </ElementsCardDiv>

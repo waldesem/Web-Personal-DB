@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Needs } from "@/types/interfaces";
 
-prefetchComponents('FormsInquiryForm');
+prefetchComponents(['FormsInquiryForm', 'ElementsSkeletonDiv']);
 
 const authFetch = useFetchAuth();
 

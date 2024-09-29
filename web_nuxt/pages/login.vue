@@ -5,8 +5,6 @@ definePageMeta({
   layout: false,
 });
 
-preloadRouteComponents('/persons');
-
 const loginAction = ref("create");
 const loginForm = ref({} as Login);
 
