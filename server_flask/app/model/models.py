@@ -235,14 +235,14 @@ class AnketaSchemaJson(BaseModel):
     contactPhone: Optional[str] = None
     educations: Optional[list[EducationJson]] = Field(
         alias="education",
-        default=None,
+        default=[],
     )
     workplaces: Optional[list[ExperienceJson]] = Field(
         alias="experience",
-        default=None,
+        default=[],
     )
     previous: Optional[list[NameWasChangedJson]] = Field(
-        alias="nameWasChanged", default=None
+        alias="nameWasChanged", default=[]
     )
     organizations: Optional[list[OrganizationsJson]] = []
     relatedPersonsOrganizations: Optional[list[RelatedPersonsOrganizationsJson]] = []
