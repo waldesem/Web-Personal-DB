@@ -42,12 +42,12 @@ def handle_get_item(item, item_id):
     return result[0] if item == "persons" else result
 
 
-def handle_post_item(json_data, item, item_id=None):
+def handle_post_item(data, item, item_id=None):
     """
     Updates an item in the database based on the provided JSON data, item, and item_id.
 
     Args:
-        json_data (dict): A dictionary containing the data to update the item.
+        data (dict): A dictionary containing the data to update the item.
         item (str): The type of item to update in the database.
         item_id (int): The ID of the item to update.
 
@@ -57,15 +57,14 @@ def handle_post_item(json_data, item, item_id=None):
     table, model = tables_models.get(item), models_tables.get(item)
     if not model or not table:
         return abort(400)
-    try:
-        json_dict = model(**json_data).dict()
-        if item != "persons":
-            json_dict["person_id"] = item_id
-            json_dict["user_id"] = current_user.get("id")
-        db_session.merge(table(**json_dict))
-        db_session.commit()
-    except ValidationError:
-        abort(400)
+    if item != "persons":
+        try:
+            data = model(**data).dict()
+        except ValidationError:
+            abort(400)
+        data.update({"person_id": item_id, "user_id": current_user.get("id")})
+    db_session.merge(table(**data))
+    db_session.commit()
 
 
 def handle_post_resume(resume):
@@ -129,9 +128,9 @@ def handle_json_to_dict(data):
         anketa = AnketaSchemaJson(**data).dict()
         anketa["resume"] = {
             "region": current_user.get("region"),
-            "surname": anketa.pop("surname", "").upper().strip(),
-            "firstname": anketa.pop("firstname", "").upper().strip(),
-            "patronymic": anketa.pop("patronymic", "").upper().strip()
+            "surname": anketa.pop("surname", ""),
+            "firstname": anketa.pop("firstname", ""),
+            "patronymic": anketa.pop("patronymic", "")
             if anketa.get("patronymic")
             else "",
             "birthday": anketa.pop("birthday", ""),
