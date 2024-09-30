@@ -46,6 +46,8 @@ class Person(Name):
     addition: Optional[str] = None
     destination: Optional[str] = None
     region: Optional[Regions] = None
+    editable: Optional[bool] = False
+    user_id: str | int
 
 
 class Prev(Name):
