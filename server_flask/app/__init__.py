@@ -108,7 +108,7 @@ def create_app(config_class=Config):
         setting = ConfigParser()
         setting.read(os.path.join(basedir, "settings.ini"), encoding="utf-8")
         setting.set("Destination", "path", base_path)
-        setting.set("SQLite", "uri", os.path.join(base_path, "database.db"))
+        setting.set("SQLite", "uri", base_path)
         with open(os.path.join(basedir, "settings.ini"), "w") as config_file:
             setting.write(config_file)
         if not os.path.isdir(base_path):
