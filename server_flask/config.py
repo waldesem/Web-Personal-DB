@@ -12,7 +12,7 @@ class Configuration:
     SECRET_KEY = secrets.token_hex(16)
     JWT_SECRET_KEY = secrets.token_hex(16)
     BASE_PATH = setting["Destination"].get("path")
-    DATABASE_URI = "sqlite:///" + setting["SQLite"].get("uri")
+    DATABASE_URI = "sqlite:///" + os.path.join(setting["SQLite"].get("uri"), "database.db")
     DEFAULT_PASSWORD = "8" * 8
 
 
