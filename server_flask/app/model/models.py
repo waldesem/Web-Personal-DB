@@ -250,3 +250,7 @@ class AnketaSchemaJson(BaseModel):
     relatedPersonsOrganizations: Optional[list[RelatedPersonsOrganizationsJson]] = []
     stateOrganizations: Optional[list[StateOrganizationsJson]] = []
     publicOfficeOrganizations: Optional[list[PublicOfficeOrganizationsJson]] = []
+
+    @validator("surname", "firstname", "patronymic")
+    def check_names(cls, v):
+        return v.upper().strip() if v else None
