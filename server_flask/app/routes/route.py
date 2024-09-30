@@ -303,6 +303,8 @@ def get_folder():
     folder = request.args.get("folder")
     if folder and not os.path.isdir(folder):
         os.mkdir(folder)
+    if not folder:
+        return abort(400)
     subprocess.run(f'explorer "{folder}"')
     # subprocess.run(["xdg-open", folder_path])
     return "", 200

@@ -1,0 +1,1 @@
+import{u as t}from"./qGH1BmY5.js";import{n as o}from"./C4_eX3-n.js";const c=()=>async(n,e={})=>{if(t.value)e.headers={...e.headers,Authorization:`${t.value}`};else return o("/login");try{return await $fetch(n,e)}catch(r){return console.error(r),o("/login")}};export{c as u};

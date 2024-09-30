@@ -3,11 +3,7 @@ from typing import Optional, Union
 
 from pydantic import BaseModel, Field, validator
 
-from .classes import (
-    Regions,
-    Conclusions,
-    Roles
-)
+from .classes import Regions, Conclusions, Roles
 
 
 class QueryModel(BaseModel):

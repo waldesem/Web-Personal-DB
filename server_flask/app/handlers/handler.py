@@ -1,6 +1,7 @@
 import imghdr
 import os
 import re
+import shutil
 
 from flask import abort, current_app
 from PIL import Image
@@ -27,17 +28,17 @@ def handle_get_item(item, item_id):
     Raises:
         None
     """
-    model = tables_models.get(item)
-    if not model:
+    table = tables_models.get(item)
+    if not table:
         return abort(400)
-    stmt = select(model, Users.fullname)
+    stmt = select(table, Users.fullname)
     stmt = (
         stmt.filter(Persons.id == item_id)
         if item == "persons"
-        else stmt.filter(model.person_id == item_id)
+        else stmt.filter(table.person_id == item_id)
     )
-    stmt = stmt.filter(model.user_id == Users.id)
-    query = db_session.execute(stmt.order_by(desc(model.id))).all()
+    stmt = stmt.filter(table.user_id == Users.id)
+    query = db_session.execute(stmt.order_by(desc(table.id))).all()
     result = [row[0].to_dict() | {"username": row[1]} for row in query]
     return result[0] if item == "persons" else result
 
@@ -61,13 +62,13 @@ def handle_post_item(data, item, item_id=None):
         try:
             data = model(**data).dict()
         except ValidationError:
-            abort(400)
+            return abort(400)
         data.update({"person_id": item_id, "user_id": current_user.get("id")})
     db_session.merge(table(**data))
     db_session.commit()
 
 
-def handle_post_resume(resume):
+def handle_post_resume(resume: dict):
     """
     Updates a resume in the database with the provided data.
 
@@ -107,18 +108,22 @@ def handle_post_resume(resume):
         )
         db_session.commit()
         return person.id
+    
     if person.editable:
         return person.id
-    if not person.destination:
-        person.destination = make_destination(
-            resume["region"],
-            resume["surname"],
-            resume["firstname"],
-            resume.get("patronymic", ""),
-            person.id,
-        )
-        db_session.commit()
-    resume["id"] = person.id
+    
+    destination = make_destination(
+        resume["region"],
+        resume["surname"],
+        resume["firstname"],
+        resume.get("patronymic", ""),
+        person.id,
+    )
+    if person.destination and not os.path.isdir(person.destination):
+        os.mkdir(person.destination)
+    if person.destination and resume['region'] != person.region:
+        shutil.move(person.destination, destination)
+    resume.update({"destination": destination, "id": person.id})
     handle_post_item(resume, "persons")
     return resume["id"]
 

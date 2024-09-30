@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Persons } from "@/types/interfaces";
 
-prefetchComponents(['FormsResumeForm', 'ElementsSkeletonDiv']);
+prefetchComponents(["FormsResumeForm", "ElementsSkeletonDiv"]);
 
 const emit = defineEmits(["update"]);
 
@@ -45,10 +45,10 @@ async function changeRegion(): Promise<void> {
 }
 
 async function openFolder() {
-  await authFetch('/api/folder/' + props.candId, {
+  await authFetch("/api/folder/" + props.candId, {
     params: {
-      folder: props.person['destination']
-    }
+      folder: props.person["destination"],
+    },
   });
 }
 
@@ -128,7 +128,9 @@ function cancelAction() {
         </ElementsLabelSlot>
         <ElementsLabelSlot :label="'Дата рождения'">
           {{
-            new Date(String(props.person["birthday"])).toLocaleDateString("ru-RU")
+            new Date(String(props.person["birthday"])).toLocaleDateString(
+              "ru-RU"
+            )
           }}
         </ElementsLabelSlot>
         <ElementsLabelSlot :label="'Место рождения'">
@@ -155,7 +157,9 @@ function cancelAction() {
         <ElementsLabelSlot :label="'Дата записи'">
           {{
             props.person["created"]
-              ? new Date(props.person["created"] + " UTC").toLocaleString("ru-RU")
+              ? new Date(props.person["created"] + " UTC").toLocaleString(
+                  "ru-RU"
+                )
               : ""
           }}
         </ElementsLabelSlot>
@@ -163,8 +167,9 @@ function cancelAction() {
           {{ props.person["username"] ? props.person["username"] : "" }}
         </ElementsLabelSlot>
         <ElementsLabelSlot
-            v-if="props.person['addition']"
-           :label="'Дополнительная информация'">
+          v-if="props.person['addition']"
+          :label="'Дополнительная информация'"
+        >
           {{ props.person["addition"] }}
         </ElementsLabelSlot>
         <ElementsLabelSlot :label="'Материалы'">
