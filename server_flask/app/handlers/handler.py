@@ -39,6 +39,15 @@ def handle_get_item(item, item_id):
     )
     stmt = stmt.filter(table.user_id == Users.id)
     query = db_session.execute(stmt.order_by(desc(table.id))).all()
+    if item == "persons" and query[0].surname not in query[0].destination:
+        query[0].destination = make_destination(
+            query[0].region,
+            query[0].surname,
+            query[0].firstname,
+            query[0].patronymic,
+            item_id,
+        )
+        db_session.commit()
     result = [row[0].to_dict() | {"username": row[1]} for row in query]
     return result[0] if item == "persons" else result
 
