@@ -247,42 +247,35 @@ def post_file(item, item_id):
     person = db_session.get(Persons, item_id)
     if not person:
         return abort(400)
-    try:
-        if not person.destination:
-            destination = make_destination(
+    destination = make_destination(
                 current_user.get("region"),
                 person.surname,
                 person.firstname,
                 person.patronymic,
                 person.id,
-            )
-            person.destination = destination
-            db_session.commit()
-        if not os.path.isdir(person.destination):
-            os.mkdir(person.destination)
+    )
+    person.destination = destination
+    db_session.commit()
 
-        item_dir = os.path.join(person.destination, item)
-        if not os.path.isdir(item_dir):
-            os.mkdir(item_dir)
+    item_dir = os.path.join(destination, item)
+    if not os.path.isdir(item_dir):
+        os.mkdir(item_dir)
 
-        if item == "image":
-            handle_image(files[0], item_dir)
-            return "", 201
+    if item == "image":
+        handle_image(files[0], item_dir)
+        return "", 201
 
-        date_subfolder = os.path.join(
+    date_subfolder = os.path.join(
             item_dir,
             datetime.now().strftime("%Y-%m-%d"),
         )
-        if not os.path.isdir(date_subfolder):
-            os.mkdir(date_subfolder)
-        for file in files:
-            file_path = os.path.join(date_subfolder, file.filename)
-            if not os.path.isfile(file_path):
-                file.save(file_path)
-        return "", 201
-    except OSError as e:
-        print(e)
-        return abort(400)
+    if not os.path.isdir(date_subfolder):
+        os.mkdir(date_subfolder)
+    for file in files:
+        file_path = os.path.join(date_subfolder, file.filename)
+        if not os.path.isfile(file_path):
+            file.save(file_path)
+    return "", 201
 
 
 @bp.get("/folder")
