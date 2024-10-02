@@ -247,7 +247,10 @@ def post_file(item, item_id):
     person = db_session.get(Persons, item_id)
     if not person:
         return abort(400)
-    destination = make_destination(
+    if person.destination and not os.path.isdir(person.destination):
+        os.mkdir(person.destination)
+    if not person.destination or (person.destination and person.surname.upper() not in person.destination.upper()):
+        destination = make_destination(
                 current_user.get("region"),
                 person.surname,
                 person.firstname,
