@@ -257,8 +257,8 @@ def post_file(item, item_id):
                 person.patronymic,
                 person.id,
     )
-    person.destination = destination
-    db_session.commit()
+        person.destination = destination
+        db_session.commit()
 
     item_dir = os.path.join(destination, item)
     if not os.path.isdir(item_dir):
