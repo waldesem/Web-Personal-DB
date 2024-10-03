@@ -120,7 +120,6 @@ onBeforeRouteLeave((to, from, next) => {
           :cand-id="candId"
           :editable="editState"
           :person="person"
-          @update="refresh"
       /></template>
       <template #checkTab
         ><TabsCheckTab :cand-id="candId" :editable="editState"
