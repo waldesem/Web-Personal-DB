@@ -83,15 +83,6 @@ const validate = (state: Persons): FormError[] => {
       message: "Поле должно содержать 12 цифр",
     });
   }
-  if (
-    state.designation &&
-    !state.designation.match(/^([a-zA-Z]:)?[/\\][\w.-]+(\/|\\)[\w.-]+$/)
-  ) {
-    errors.push({
-      path: "designation",
-      message: "Поле должно содержать корректный путь",
-    });
-  }
   return errors;
 };
 
@@ -161,17 +152,6 @@ async function submitResume() {
       <UTextarea
         v-model.trim.lazy="resumeForm['addition']"
         placeholder="Дополнительно"
-      />
-    </UFormGroup>
-    <UFormGroup
-      help="Следует использовать только в режиме редактирования иначе данные будут перезаписаны"
-      class="mb-3"
-      label="Материалы"
-      name="destination"
-    >
-      <UInput
-        v-model.trim.lazy="resumeForm['destination']"
-        placeholder="Материалы"
       />
     </UFormGroup>
     <ElementsBtnGroup @cancel="cancelOperation" />
