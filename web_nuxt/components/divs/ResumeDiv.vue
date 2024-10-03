@@ -3,7 +3,7 @@ import type { Persons } from "@/types/interfaces";
 
 prefetchComponents(["FormsResumeForm", "ElementsSkeletonDiv"]);
 
-const emit = defineEmits(["update"]);
+//const emit = defineEmits(["update"]);
 
 const toast = useToast();
 
@@ -36,7 +36,8 @@ async function changeRegion(): Promise<void> {
       region: region.value,
     },
   });
-  emit("update");
+  refreshNuxtData("anketa");
+  //emit("update");
   toast.add({
     icon: "i-heroicons-check-circle",
     title: "Информация",
