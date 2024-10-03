@@ -16,7 +16,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["update"]);
+// const emit = defineEmits(["update"]);
 
 const items = [
   {
@@ -80,7 +80,6 @@ const items = [
         :cand-id="props.candId"
         :editable="props.editable"
         :person="props.person"
-        @update="emit('update')"
     /></template>
     <template #staff=""
       ><DivsStaffDiv :cand-id="props.candId" :editable="props.editable"
