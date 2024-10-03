@@ -103,7 +103,7 @@ function closeAction() {
       class="text-sm text-gray-500 dark:text-gray-400 py-1"
     >
       <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="18" />
-      <ElementsCardDiv>
+      <ElementsCardDiv v-else>
         <template #header>
           <div class="tex-base text-red-800 dark:text-gray-400 font-medium">
             {{ "Проверка кандидата ID #" + item["id"] }}
