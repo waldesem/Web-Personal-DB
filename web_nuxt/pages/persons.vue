@@ -59,6 +59,7 @@ async function uploadJson(filelist: FileList) {
     color: "green",
   });
   persons.value.upload = false;
+  refreshNuxtData("persons");
   return navigateTo("/profile/" + person_id);
 }
 </script>
