@@ -41,6 +41,7 @@ function clearForm() {
       <UTextarea
         v-model.trim.lazy="inquiryForm['info']"
         required
+        autoresize
         placeholder="Информация"
       />
     </UFormGroup>
