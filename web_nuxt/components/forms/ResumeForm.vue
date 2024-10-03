@@ -119,7 +119,7 @@ async function submitResume() {
       <UInput v-model="resumeForm['birthday']" required type="date" />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Место рождения">
-      <UTextarea
+      <UInput
         v-model.trim.lazy="resumeForm['birthplace']"
         placeholder="Место рождения"
       />
@@ -143,7 +143,7 @@ async function submitResume() {
       <UInput v-model.trim.lazy="resumeForm['inn']" placeholder="ИНН" />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Семейное положение" name="marital">
-      <UTextarea
+      <UInput
         v-model.trim.lazy="resumeForm['marital']"
         placeholder="Семейное положение"
       />
