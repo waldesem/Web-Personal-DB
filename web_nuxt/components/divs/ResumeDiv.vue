@@ -27,6 +27,7 @@ const props = defineProps({
 const edit = ref(false);
 const region = ref("");
 const pending = ref(false);
+const opening = ref(false);
 
 async function changeRegion(): Promise<void> {
   if (!confirm("Вы действительно хотите изменить регион?")) return;
@@ -45,11 +46,14 @@ async function changeRegion(): Promise<void> {
 }
 
 async function openFolder() {
+  if (!props.person.destination) return; 
+  opening.value = true;
   await authFetch("/api/folder", {
     params: {
       folder: props.person["destination"],
     },
   });
+  opening.value=false; 
 }
 
 async function submitResume(form: Persons) {
@@ -71,16 +75,18 @@ async function submitResume(form: Persons) {
 
 async function deleteItem() {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
+  pending.value = true; 
   await authFetch(`/api/persons/${props.candId}`, {
     method: "DELETE",
   });
+  await navigateTo("/persons");
   toast.add({
     icon: "i-heroicons-information-circle",
     title: "Информация",
     description: `Запись с ID ${props.candId} удалена`,
     color: "primary",
   });
-  navigateTo("/persons");
+  pending.value=false;
 }
 
 function cancelAction() {
@@ -174,7 +180,8 @@ function cancelAction() {
         </ElementsLabelSlot>
         <ElementsLabelSlot :label="'Материалы'">
           <UButton
-            :label="props.person['destination']"
+            :loading="opening"
+            label="Открыть"
             variant="link"
             @click="openFolder"
           />
