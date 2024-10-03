@@ -92,7 +92,8 @@ async function deleteItem() {
 
 function cancelAction() {
   edit.value = false;
-  emit("update");
+  refreshNuxtData("anketa");
+  // emit("update");
 }
 </script>
 
