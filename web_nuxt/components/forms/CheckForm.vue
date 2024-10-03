@@ -63,84 +63,98 @@ watch(noNegative, () => {
     <UFormGroup class="mb-3" label="Проверка по местам работы">
       <UTextarea
         v-model.trim.lazy="checkForm['workplace']"
+        autoresize
         placeholder="Проверка по местам работы"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Проверка документов">
       <UTextarea
         v-model.trim.lazy="checkForm['document']"
+        autoresize
         placeholder="Проверка документов"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Проверка ИНН">
       <UTextarea
         v-model.trim.lazy="checkForm['inn']"
+        autoresize
         placeholder="Проверка ИНН"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Проверка задолженностей">
       <UTextarea
         v-model.trim.lazy="checkForm['debt']"
+        autoresize
         placeholder="Проверка задолженностей"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Проверка банкротства">
       <UTextarea
         v-model.trim.lazy="checkForm['bankruptcy']"
+        autoresize
         placeholder="Проверка банкротства"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Проверка Кредитной истории">
       <UTextarea
         v-model.trim.lazy="checkForm['bki']"
+        autoresize
         placeholder="Проверка Кредитной истории"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Проверка судебных дел">
       <UTextarea
         v-model.trim.lazy="checkForm['courts']"
+        autoresize
         placeholder="Проверка судебных дел"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Проверка аффилированности">
       <UTextarea
         v-model.trim.lazy="checkForm['affilation']"
+        autoresize
         placeholder="Проверка аффилированности"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Проверка в списке террористов">
       <UTextarea
         v-model.trim.lazy="checkForm['terrorist']"
+        autoresize
         placeholder="Проверка в списке террористов"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Проверка в розыск">
       <UTextarea
         v-model.trim.lazy="checkForm['mvd']"
+        autoresize
         placeholder="Проверка в розыск"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Проверка в открытых источниках">
       <UTextarea
         v-model.trim.lazy="checkForm['internet']"
+        autoresize
         placeholder="Проверка в открытых источниках"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Проверка в Кронос">
       <UTextarea
         v-model.trim.lazy="checkForm['cronos']"
+        autoresize
         placeholder="Проверка в Кронос/Крос"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Дополнительная информация">
       <UTextarea
         v-model.trim.lazy="checkForm['addition']"
+        autoresize
         placeholder="Дополнительная информация"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Комментарии">
       <UTextarea
         v-model.trim.lazy="checkForm['comment']"
+        autoresize
         placeholder="Комментарии"
       />
     </UFormGroup>
