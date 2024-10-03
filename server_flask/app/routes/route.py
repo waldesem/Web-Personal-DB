@@ -249,18 +249,17 @@ def post_file(item, item_id):
         return abort(400)
     if person.destination and not os.path.isdir(person.destination):
         os.mkdir(person.destination)
-    if not person.destination or (person.destination and person.surname.upper() not in person.destination.upper()):
-        destination = make_destination(
+    if not person.destination:
+        person.destination = make_destination(
                 current_user.get("region"),
                 person.surname,
                 person.firstname,
                 person.patronymic,
                 person.id,
     )
-        person.destination = destination
         db_session.commit()
 
-    item_dir = os.path.join(destination, item)
+    item_dir = os.path.join(person.destination, item)
     if not os.path.isdir(item_dir):
         os.mkdir(item_dir)
 
