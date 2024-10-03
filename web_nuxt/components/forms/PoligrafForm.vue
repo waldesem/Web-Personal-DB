@@ -47,6 +47,7 @@ function cancelAction() {
       <UTextarea
         v-model.trim.lazy="poligrafForm['results']"
         required
+        autoresize 
         placeholder="Результат"
       />
     </UFormGroup>
