@@ -11,7 +11,7 @@ const persons = ref({
   candidates: [] as Persons[],
   page: 1,
   prev: false,
-  next: true,
+  next: false,
   search: "",
   upload: false,
   updated: `${new Date().toLocaleDateString(
@@ -189,5 +189,24 @@ async function uploadJson(filelist: FileList) {
         />
       </UButtonGroup>
     </div>
+
+  <UPagination v-model="persons.page" :total="0" :ui="{ rounded: 'first-of-type:rounded-s-md last-of-type:rounded-e-md' }">
+    <template #prev="{ onClick }">
+      <UTooltip text="Previous page">
+        <UButton icon="i-heroicons-arrow-small-left-20-solid"
+label: "Назад"
+:disabled="!persons.prev" color="primary" :ui="{ rounded: 'rounded-full' }" class="rtl:[&_span:first-child]:rotate-180 me-2" @click="refresh" />
+      </UTooltip>
+    </template>
+
+    <template #next="{ onClick }">
+      <UTooltip text="Next page">
+        <UButton icon="i-heroicons-arrow-small-right-20-solid"
+label="Вперед"
+:disabled="!persons.next" color="primary" :ui="{ rounded: 'rounded-full' }" class="rtl:[&_span:last-child]:rotate-180 ms-2" @click="refresh" />
+      </UTooltip>
+    </template>
+  </UPagination>
+
   </div>
 </template>
