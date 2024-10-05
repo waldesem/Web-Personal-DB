@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import { useFileDialog } from "@vueuse/core";
 
 const toast = useToast();
 
 const authFetch = useFetchAuth();
 
-const emit = defineEmits(["delete", "update", "upload"]);
+const emit = defineEmits(["delete", "update"]);
 
 const props = defineProps({
   navlen: {
@@ -25,29 +26,15 @@ const props = defineProps({
   },
 });
 
-const links = [
-  {
-    label: "Изменить",
-    icon: "i-heroicons-pencil-square",
-    click: () => emit("update"),
-  },
-  {
-    label: "Удалить",
-    icon: "i-heroicons-trash",
-    click: () => emit("delete"),
-  },
-  {
-    label: "Загрузить",
-    icon: "i-heroicons-cloud-arrow-up",
-    slot: "upload",
-    click: () => document.getElementById(props.inputId)?.click(),
-  },
-];
+const { open, reset, onCancel, onChange } = useFileDialog({
+  multiple: true,
+});
 
-async function submitFile(fileList: FileList): Promise<void> {
+onChange(async (files) => {
+  if (!files) return;
   const formData = new FormData();
-  if (fileList) {
-    for (const file of fileList) {
+  if (files) {
+    for (const file of files) {
       formData.append("file", file);
     }
     await authFetch(
@@ -64,20 +51,33 @@ async function submitFile(fileList: FileList): Promise<void> {
       color: "green",
     });
   }
-  formData.delete("file");
-}
+  reset();
+});
+
+onCancel(() => {
+  reset();
+});
+
+const links = [
+  {
+    label: "Изменить",
+    icon: "i-heroicons-pencil-square",
+    click: () => emit("update"),
+  },
+  {
+    label: "Удалить",
+    icon: "i-heroicons-trash",
+    click: () => emit("delete"),
+  },
+  {
+    label: "Загрузить",
+    icon: "i-heroicons-cloud-arrow-up",
+    slot: "upload",
+    click: () => open(),
+  },
+];
 </script>
 
 <template>
   <UHorizontalNavigation :links="links.slice(0, props.navlen)" />
-  <div v-if="navlen == 3">
-    <UInput
-      v-show="false"
-      :id="props.inputId"
-      type="file"
-      accept="*"
-      multiple
-      @change="submitFile($event)"
-    />
-  </div>
 </template>

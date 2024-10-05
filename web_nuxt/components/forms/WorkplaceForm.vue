@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Work } from "@/types/interfaces";
+import { useDateFormat } from "@vueuse/core";
 
 const emit = defineEmits(["cancel", "update"]);
 
@@ -17,10 +18,10 @@ const props = defineProps({
 const workForm = toRef(props.work as Work);
 
 workForm.value.starts = workForm.value.starts
-  ? new Date(workForm.value.starts).toISOString().slice(0, 10)
+  ? useDateFormat(workForm.value.starts, "YYYY-MM-DD").value
   : "";
 workForm.value.finished = workForm.value.finished
-  ? new Date(workForm.value.finished).toISOString().slice(0, 10)
+  ? useDateFormat(workForm.value.finished, "YYYY-MM-DD").value
   : "";
 
 function submitWorkplace() {

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Persons } from "@/types/interfaces";
+import { useDateFormat } from "@vueuse/core";
 
 prefetchComponents(["FormsResumeForm", "ElementsSkeletonDiv"]);
 
@@ -71,7 +72,8 @@ async function submitResume(form: Persons) {
     color: "green",
   });
   pending.value = false;
-  emit("update");
+  // emit("update");
+  refreshNuxtData("anketa");
 }
 
 async function deleteItem() {
@@ -135,11 +137,7 @@ function cancelAction() {
           {{ props.person["patronymic"] }}
         </ElementsLabelSlot>
         <ElementsLabelSlot :label="'Дата рождения'">
-          {{
-            new Date(String(props.person["birthday"])).toLocaleDateString(
-              "ru-RU"
-            )
-          }}
+          {{ useDateFormat(props.person["birthday"], "DD.MM.YYYY") }}
         </ElementsLabelSlot>
         <ElementsLabelSlot :label="'Место рождения'">
           {{ props.person["birthplace"] }}
@@ -163,13 +161,7 @@ function cancelAction() {
           {{ props.person["marital"] }}
         </ElementsLabelSlot>
         <ElementsLabelSlot :label="'Дата записи'">
-          {{
-            props.person["created"]
-              ? new Date(props.person["created"] + " UTC").toLocaleString(
-                  "ru-RU"
-                )
-              : ""
-          }}
+          {{ useDateFormat(props.person["created"], "DD.MM.YYYY HH:mm") }}
         </ElementsLabelSlot>
         <ElementsLabelSlot :label="'Пользователь'">
           {{ props.person["username"] ? props.person["username"] : "" }}
@@ -193,8 +185,7 @@ function cancelAction() {
     <template v-if="props.editable && !edit" #footer>
       <ElementsNaviHorizont
         :cand-id="props.candId"
-        :input-id="'resume-file'"
-        :item="'persons'"
+        item="persons"
         @delete="deleteItem"
         @update="edit = true"
       />

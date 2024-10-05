@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Persons } from "@/types/interfaces";
-import { watchDebounced, useFileDialog } from "@vueuse/core";
+import { watchDebounced, useFileDialog, useDateFormat } from "@vueuse/core";
 
 preloadRouteComponents("/profile/[id]");
 
@@ -15,9 +15,7 @@ const persons = ref({
   next: false,
   search: "",
   upload: false,
-  updated: `${new Date().toLocaleDateString(
-    "ru-RU"
-  )} в ${new Date().toLocaleTimeString("ru-RU")}`,
+  updated: useDateFormat(useNow(), "YYYY-MM-DD в HH:mm").value,
 });
 
 const { refresh, status } = await useLazyAsyncData("candidates", async () => {
@@ -30,9 +28,7 @@ const { refresh, status } = await useLazyAsyncData("candidates", async () => {
   [persons.value.candidates, persons.value.next, persons.value.prev] =
     response as [Persons[], boolean, boolean];
 
-  persons.value.updated = `${new Date().toLocaleDateString(
-    "ru-RU"
-  )} в ${new Date().toLocaleTimeString("ru-RU")}`;
+  persons.value.updated = useDateFormat(useNow(), "YYYY-MM-DD в HH:mm").value;
 });
 
 watchDebounced(
@@ -66,6 +62,7 @@ onChange(async (files) => {
     method: "POST",
     body: formData,
   })) as Record<string, string>;
+  if (!person_id) return;
   toast.add({
     icon: "i-heroicons-check-circle",
     title: "Информация",
@@ -92,9 +89,8 @@ onCancel(() => {
         <UTooltip text="Загрузить json файл">
           <UButton
             icon="i-heroicons-cloud-arrow-up"
-            size="lg"
+            size="xl"
             variant="ghost"
-            title="Загрузить файл"
             class="w-8 h-8"
             @click="open"
           />

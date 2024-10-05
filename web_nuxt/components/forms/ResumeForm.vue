@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Persons } from "@/types/interfaces";
+import { useDateFormat } from "@vueuse/core";
 
 const emit = defineEmits(["cancel", "update"]);
 
@@ -13,7 +14,7 @@ const props = defineProps({
 const resumeForm = toRef(props.resume);
 
 resumeForm.value.birthday = resumeForm.value.birthday
-  ? new Date(resumeForm.value.birthday).toISOString().slice(0, 10)
+  ? useDateFormat(resumeForm.value.birthday, "YYYY-MM-DD").value
   : "";
 
 function cancelOperation() {
@@ -37,7 +38,7 @@ function cancelEdit() {
   } as Persons);
 }
 
-const validate = (state: Persons): FormError[] => {
+const validate = (state: Persons) => {
   const errors = [];
   if (state.surname && !state.surname.match(/^[а-яёЁА-Я-\s]+$/)) {
     errors.push({

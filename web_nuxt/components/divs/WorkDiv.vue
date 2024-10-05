@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { Work } from "@/types/interfaces";
+import { useDateFormat } from "@vueuse/core";
 
-prefetchComponents(['FormsWorkForm', 'ElementsSkeletonDiv']);
+prefetchComponents(["FormsWorkForm", "ElementsSkeletonDiv"]);
 
 const authFetch = useFetchAuth();
 
@@ -111,13 +112,13 @@ function closeAction() {
             {{ item["now_work"] ? "Да" : "Нет" }}
           </ElementsLabelSlot>
           <ElementsLabelSlot :label="'Начало работы'">
-            {{ new Date(item["starts"]).toLocaleDateString("ru-RU") }}
+            {{ useDateFormat(item["starts"], "DD.MM.YYYY") }}
           </ElementsLabelSlot>
           <ElementsLabelSlot
             v-if="!item['now_work']"
             :label="'Окончание работы'"
           >
-            {{ new Date(item["finished"]).toLocaleDateString("ru-RU") }}
+            {{ useDateFormat(item["finished"], "DD.MM.YYYY") }}
           </ElementsLabelSlot>
           <ElementsLabelSlot :label="'Место работы'">
             {{ item["workplace"] }}

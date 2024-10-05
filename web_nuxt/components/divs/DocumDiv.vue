@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Document } from "@/types/interfaces";
+import { useDateFormat } from "@vueuse/core";
 
 prefetchComponents(['FormsDocumentForm', 'ElementsSkeletonDiv']);
 
@@ -117,11 +118,7 @@ function closeAction() {
             item["series"]
           }}</ElementsLabelSlot>
           <ElementsLabelSlot :label="'Дата выдачи'">
-            {{
-              item["issue"]
-                ? new Date(String(item["issue"])).toLocaleDateString("ru-RU")
-                : ""
-            }}
+            {{ useDateFormat(item["issue"], "DD.MM.YYYY") }}
           </ElementsLabelSlot>
           <ElementsLabelSlot :label="'Кем выдан'">{{
             item["agency"]

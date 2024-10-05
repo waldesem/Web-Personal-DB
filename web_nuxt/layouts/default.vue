@@ -6,7 +6,7 @@ const showNav = ref(true);
 async function removeToken(): Promise<void> {
   if (confirm("Вы действительно хотите выйти?")) {
     clearNuxtData();
-    userToken.value = "";
+    userToken.value = null;
     navigateTo("/");
   }
 }

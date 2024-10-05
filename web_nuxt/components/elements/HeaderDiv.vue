@@ -20,5 +20,6 @@ const props = defineProps({
     <h3 class="font-bold" :class="props.cls">
       {{ props.header }}
     </h3>
+    <slot />
   </div>
 </template>

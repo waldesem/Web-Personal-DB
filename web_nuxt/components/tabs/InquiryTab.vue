@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Needs } from "@/types/interfaces";
+import { useDateFormat } from "@vueuse/core";
 
 prefetchComponents(['FormsInquiryForm', 'ElementsSkeletonDiv']);
 
@@ -130,7 +131,7 @@ function cancelOperation() {
             item["username"]
           }}</ElementsLabelSlot>
           <ElementsLabelSlot :label="'Дата записи'">
-            {{ new Date(item["created"] + " UTC").toLocaleString("ru-RU") }}
+            {{ useDateFormat(item["created"], "YYYY-MM-DD HH:mm:ss") }}
           </ElementsLabelSlot>
         </div>
         <template
