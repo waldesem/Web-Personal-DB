@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { User } from "@/types/interfaces";
+import { watchDebounced } from "@vueuse/core";
 
 const toast = useToast();
 
@@ -118,12 +119,17 @@ const validate = (state: User) => {
   }
   return errors;
 };
-/**
- * Searches for users based on the current search query.
- */
-const searchUser = debounce(async () => {
-  await refresh();
-}, 500);
+
+watchDebounced(
+  () => dataUsers.value.search,
+  () => {
+    refresh();
+  },
+  {
+    debounce: 500,
+    maxWait: 1000,
+  }
+);
 
 /**
  * The dropdown menu items for a user action.
@@ -162,7 +168,6 @@ const items = [
         v-model="dataUsers.search"
         size="lg"
         placeholder="Поиск по имени пользователя"
-        @input.prevent="searchUser"
       />
     </div>
     <div class="flex items-center justify-between mb-4">

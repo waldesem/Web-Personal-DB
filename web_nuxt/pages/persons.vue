@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Persons } from "@/types/interfaces";
+import { watchDebounced, useFileDialog } from "@vueuse/core";
 
 preloadRouteComponents("/profile/[id]");
 
@@ -34,20 +35,33 @@ const { refresh, status } = await useLazyAsyncData("candidates", async () => {
   )} в ${new Date().toLocaleTimeString("ru-RU")}`;
 });
 
-const searchPerson = debounce(async () => {
-  await refresh();
-}, 500);
+watchDebounced(
+  () => persons.value.search,
+  () => {
+    refresh();
+  },
+  {
+    debounce: 500,
+    maxWait: 1000,
+  }
+);
 
-const switchPage = async (page: number = 1) => {
-  persons.value.page = page;
-  await refresh();
-};
+watch(
+  () => persons.value.page,
+  () => {
+    refresh();
+  }
+);
 
-async function uploadJson(filelist: FileList) {
-  if (!filelist) return;
-  persons.value.upload = true;
+const { open, reset, onCancel, onChange } = useFileDialog({
+  accept: "*.json",
+  multiple: false,
+});
+
+onChange(async (files) => {
+  if (!files) return;
   const formData = new FormData();
-  formData.append("file", filelist[0]);
+  formData.append("file", files[0]);
   const { person_id } = (await authFetch("/api/json", {
     method: "POST",
     body: formData,
@@ -61,7 +75,11 @@ async function uploadJson(filelist: FileList) {
   persons.value.upload = false;
   refreshNuxtData("persons");
   return navigateTo("/profile/" + person_id);
-}
+});
+
+onCancel(() => {
+  reset();
+});
 </script>
 
 <template>
@@ -70,34 +88,29 @@ async function uploadJson(filelist: FileList) {
       <div
         class="absolute inset-y-0 right-0"
         :class="{ 'animate-pulse': status == 'pending' || persons.upload }"
-        title="Загрузить json"
       >
-        <UFormGroup class="mb-3" size="md">
-          <template #label>
-            <UIcon
-              name="i-heroicons-cloud-arrow-up"
-              class="w-8 h-8"
-              style="cursor: pointer; color: dodgerblue"
-            />
-          </template>
-          <UInput
-            v-show="false"
-            type="file"
-            accept=".json"
-            @change="uploadJson($event)"
+        <UTooltip text="Загрузить json файл">
+          <UButton
+            icon="i-heroicons-cloud-arrow-up"
+            size="lg"
+            variant="ghost"
+            title="Загрузить файл"
+            class="w-8 h-8"
+            @click="open"
           />
-        </UFormGroup>
+        </UTooltip>
       </div>
     </div>
+
     <ElementsHeaderDiv :header="'КАНДИДАТЫ'" />
     <div class="my-6">
       <UInput
         v-model="persons.search"
         placeholder="поиск по фамилии, имени, отчеству"
         size="lg"
-        @input.prevent="searchPerson"
       />
     </div>
+
     <UTable
       :loading="status == 'pending' || persons.upload"
       :progress="{ color: 'red', animation: 'swing' }"
@@ -130,9 +143,6 @@ async function uploadJson(filelist: FileList) {
       </template>
       <template #birthday-data="{ row }">{{
         new Date(row.birthday).toLocaleDateString()
-      }}</template>
-      <template #birthplace-data="{ row }">{{
-        row.birthplace ? row.birthplace : ""
       }}</template>
       <template #created-data="{ row }">{{
         new Date(row.created).toLocaleDateString()
@@ -167,46 +177,26 @@ async function uploadJson(filelist: FileList) {
         </caption>
       </template>
     </UTable>
-    <div
-      v-if="persons.prev || persons.next"
-      class="grid place-items-center py-8"
-    >
-      <UButtonGroup orientation="horizontal">
+
+    <div v-if="persons.prev || persons.next" class="justify-center flex py-8">
+      <UTooltip text="Предыдущая страница">
         <UButton
+          icon="i-heroicons-arrow-small-left-20-solid"
           :disabled="!persons.prev"
-          label="Назад"
-          variant="link"
-          icon="i-heroicons-chevron-double-left"
-          @click="switchPage(persons.page - 1)"
+          :ui="{ rounded: 'rounded-full' }"
+          class="me-2"
+          @click="persons.page--"
         />
+      </UTooltip>
+      <UTooltip text="Следующая страница">
         <UButton
+          icon="i-heroicons-arrow-small-right-20-solid"
           :disabled="!persons.next"
-          label="Вперед"
-          variant="link"
-          trailing
-          icon="i-heroicons-chevron-double-right"
-          @click="switchPage(persons.page + 1)"
+          :ui="{ rounded: 'rounded-full' }"
+          class="ms-2"
+          @click="persons.page++"
         />
-      </UButtonGroup>
+      </UTooltip>
     </div>
-
-  <UPagination v-model="persons.page" :total="0" :ui="{ rounded: 'first-of-type:rounded-s-md last-of-type:rounded-e-md' }">
-    <template #prev="{ onClick }">
-      <UTooltip text="Previous page">
-        <UButton icon="i-heroicons-arrow-small-left-20-solid"
-label: "Назад"
-:disabled="!persons.prev" color="primary" :ui="{ rounded: 'rounded-full' }" class="rtl:[&_span:first-child]:rotate-180 me-2" @click="refresh" />
-      </UTooltip>
-    </template>
-
-    <template #next="{ onClick }">
-      <UTooltip text="Next page">
-        <UButton icon="i-heroicons-arrow-small-right-20-solid"
-label="Вперед"
-:disabled="!persons.next" color="primary" :ui="{ rounded: 'rounded-full' }" class="rtl:[&_span:last-child]:rotate-180 ms-2" @click="refresh" />
-      </UTooltip>
-    </template>
-  </UPagination>
-
   </div>
 </template>

@@ -15,9 +15,7 @@ useSeoMeta({
 <template>
   <NuxtLoadingIndicator color="red" />
   <NuxtLayout>
-    <KeepAlive :include="persons">
-    <NuxtPage />
-    </KeepAlive>
+    <NuxtPage :keepalive="{ include: 'persons' }" />
   </NuxtLayout>
   <UNotifications />
 </template>

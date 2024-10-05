@@ -52,5 +52,6 @@ export default defineNuxtConfig({
     "@nuxt/eslint",
     "@nuxtjs/color-mode",
     "@nuxt/icon",
+    '@vueuse/nuxt',
   ],
 });

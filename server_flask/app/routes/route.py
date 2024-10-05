@@ -200,7 +200,7 @@ def get_index(page):
     Raises:
         None
     """
-    pagination = 12
+    pagination = 1#0
     search_data = request.args.get("search")
     stmt = select(Persons, Users.fullname)
     if search_data and len(search_data) > 2:
@@ -251,12 +251,12 @@ def post_file(item, item_id):
         os.mkdir(person.destination)
     if not person.destination:
         person.destination = make_destination(
-                current_user.get("region"),
-                person.surname,
-                person.firstname,
-                person.patronymic,
-                person.id,
-    )
+            current_user.get("region"),
+            person.surname,
+            person.firstname,
+            person.patronymic,
+            person.id,
+        )
         db_session.commit()
 
     item_dir = os.path.join(person.destination, item)
@@ -268,9 +268,9 @@ def post_file(item, item_id):
         return "", 201
 
     date_subfolder = os.path.join(
-            item_dir,
-            datetime.now().strftime("%Y-%m-%d"),
-        )
+        item_dir,
+        datetime.now().strftime("%Y-%m-%d"),
+    )
     if not os.path.isdir(date_subfolder):
         os.mkdir(date_subfolder)
     for file in files:

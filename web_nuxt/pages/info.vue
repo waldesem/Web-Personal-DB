@@ -1,14 +1,13 @@
 <script setup lang="ts">
+import { useDateFormat, useNow } from "@vueuse/core";
+
 const authFetch = useFetchAuth();
 const userState = stateUser();
-const todayDate = new Date();
 
 const tableData = ref({
   region: userState.value.region,
-  start: new Date(todayDate.getFullYear(), todayDate.getMonth(), 1)
-    .toISOString()
-    .slice(0, 10),
-  end: todayDate.toISOString().slice(0, 10),
+  start: useDateFormat(useNow(), "YYYY-MM").value + "-01",
+  end: useDateFormat(useNow(), "YYYY-MM-DD").value,
   stat: [] as Record<string, string>[],
 });
 
@@ -31,11 +30,12 @@ const { refresh, status } = await useLazyAsyncData("statistics", async () => {
   <div>
     <ElementsHeaderDiv
       :div="'py-1'"
-      :header="`Информация по региону ${tableData.region} за период с ${new Date(
-        tableData.start
-      ).toLocaleDateString()} г. по ${new Date(
-        tableData.end
-      ).toLocaleDateString()} г.`"
+      :header="`Информация по региону ${
+        tableData.region
+      } за период с ${useDateFormat(
+        tableData.start,
+        'DD.MM.YYYY'
+      )} г. по ${useDateFormat(tableData.end, 'DD.MM.YYYY')} г.`"
     />
     <div class="my-8">
       <UTable
