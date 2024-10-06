@@ -5,7 +5,7 @@ import { watchDebounced, useFileDialog, useDateFormat } from "@vueuse/core";
 preloadRouteComponents("/profile/[id]");
 
 const authFetch = useFetchAuth();
-const userState = stateUser();
+const userState = useUserState();
 const toast = useToast();
 
 const persons = ref({
@@ -70,7 +70,7 @@ onChange(async (files) => {
     color: "green",
   });
   persons.value.upload = false;
-  refreshNuxtData("persons");
+  await refresh();
   return navigateTo("/profile/" + person_id);
 });
 

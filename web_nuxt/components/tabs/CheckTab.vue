@@ -176,7 +176,6 @@ function closeAction() {
         >
           <ElementsNaviHorizont
             :cand-id="props.candId"
-            :input-id="'checks-file'"
             :item="'checks'"
             @update="
               check = item;

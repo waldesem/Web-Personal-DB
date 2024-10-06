@@ -82,6 +82,26 @@ def post_login(action):
     return {"message": "Denied"}
 
 
+@bp.get("/logout")
+@jwt_required()
+def get_logout():
+    """
+    A function that handles the logout process.
+
+    Parameters:
+        None
+
+    Returns:
+        The function returns a tuple containing an empty string and a status code.
+        The status code is either 204, or 205, depending on the outcome of the logout process.
+
+    Raises:
+        None
+    """
+    get_current_user.cache_clear()
+    return {"message": "Success"}
+
+
 @bp.get("/users")
 @roles_required(Roles.admin.value)
 def get_users():

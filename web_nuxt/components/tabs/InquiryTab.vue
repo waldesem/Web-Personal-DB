@@ -140,7 +140,6 @@ function cancelOperation() {
         >
           <ElementsNaviHorizont
             :cand-id="props.candId"
-            :input-id="'inquiries-file'"
             :item="'inquiries'"
             @delete="deleteNeed(item['id'])"
             @update="

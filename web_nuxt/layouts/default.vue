@@ -1,14 +1,18 @@
 <script setup lang="ts">
-const userState = stateUser();
+const authFetch = useFetchAuth();
+const userState = useUserState();
 
 const showNav = ref(true);
 
 async function removeToken(): Promise<void> {
   if (confirm("Вы действительно хотите выйти?")) {
+    await authFetch("/api/logout");
     clearNuxtData();
     userToken.value = null;
-    navigateTo("/");
+    userState.value = {} as UserState;
+    return navigateTo("/login");
   }
+  return;
 }
 
 const links = [

@@ -4,7 +4,7 @@ import { useDateFormat } from "@vueuse/core";
 
 prefetchComponents(["FormsResumeForm", "ElementsSkeletonDiv"]);
 
-//const emit = defineEmits(["update"]);
+const emit = defineEmits(["update"]);
 
 const toast = useToast();
 
@@ -37,8 +37,7 @@ async function changeRegion(): Promise<void> {
       region: region.value,
     },
   });
-  refreshNuxtData("anketa");
-  //emit("update");
+  emit("update");
   toast.add({
     icon: "i-heroicons-check-circle",
     title: "Информация",
@@ -72,8 +71,7 @@ async function submitResume(form: Persons) {
     color: "green",
   });
   pending.value = false;
-  // emit("update");
-  refreshNuxtData("anketa");
+  emit("update");
 }
 
 async function deleteItem() {
@@ -92,10 +90,9 @@ async function deleteItem() {
   pending.value=false;
 }
 
-function cancelAction() {
+async function cancelAction() {
   edit.value = false;
-  refreshNuxtData("anketa");
-  // emit("update");
+  emit("update");
 }
 </script>
 

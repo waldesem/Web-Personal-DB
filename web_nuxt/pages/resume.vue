@@ -24,7 +24,6 @@ async function submitResume(form: Persons) {
     color: "green",
   });
   upload.value = false;
-  refreshNuxtData("persons");
   return navigateTo("/profile/" + person_id);
 }
 </script>

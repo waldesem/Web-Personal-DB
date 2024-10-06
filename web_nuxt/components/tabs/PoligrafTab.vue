@@ -137,7 +137,6 @@ function closeAction() {
         >
           <ElementsNaviHorizont
             :cand-id="props.candId"
-            :input-id="'poligrafs-file'"
             :item="'poligrafs'"
             @update="
               poligraf = item;

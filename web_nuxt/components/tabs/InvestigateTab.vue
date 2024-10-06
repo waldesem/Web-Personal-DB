@@ -137,7 +137,6 @@ function closeAction() {
         >
           <ElementsNaviHorizont
             :cand-id="props.candId"
-            :input-id="'investigations-file'"
             :item="'investigations'"
             @update="
               inquisition = item;

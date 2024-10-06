@@ -1,7 +1,7 @@
 /**
- * Get the user token from ref.
+ * Use this file to store global state
+ * such as user token, etc.
 */
-// export const userToken = ref("");
 
 import { useStorage } from '@vueuse/core'
 

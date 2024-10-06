@@ -2,7 +2,7 @@
 import { useDateFormat, useNow } from "@vueuse/core";
 
 const authFetch = useFetchAuth();
-const userState = stateUser();
+const userState = useUserState();
 
 const tableData = ref({
   region: userState.value.region,
@@ -30,12 +30,7 @@ const { refresh, status } = await useLazyAsyncData("statistics", async () => {
   <div>
     <ElementsHeaderDiv
       :div="'py-1'"
-      :header="`Информация по региону ${
-        tableData.region
-      } за период с ${useDateFormat(
-        tableData.start,
-        'DD.MM.YYYY'
-      )} г. по ${useDateFormat(tableData.end, 'DD.MM.YYYY')} г.`"
+      :header="`Информация по региону ${tableData.region} за период с ${tableData.start} г. по ${tableData.end} г.`"
     />
     <div class="my-8">
       <UTable

@@ -2,7 +2,7 @@
 import type { Persons } from "@/types/interfaces";
 
 const authFetch = useFetchAuth();
-const userState = stateUser();
+const userState = useUserState();
 const route = useRoute();
 
 const candId = computed(() => route.params.id) as Ref<string>;
@@ -120,6 +120,7 @@ onBeforeRouteLeave((to, from, next) => {
           :cand-id="candId"
           :editable="editState"
           :person="person"
+          @update="refresh()"
       /></template>
       <template #checkTab
         ><TabsCheckTab :cand-id="candId" :editable="editState"
