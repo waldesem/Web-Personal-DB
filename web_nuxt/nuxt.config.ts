@@ -38,6 +38,11 @@ export default defineNuxtConfig({
     output: {
       publicDir: "../server_flask/app/static",
     },
+    // runtimeConfig: {
+    //   public: {
+    //     baseURL: "http://127.0.0.1:3000",
+    //   },
+    // }
   },
 
   vite: {
