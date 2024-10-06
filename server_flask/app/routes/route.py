@@ -220,7 +220,7 @@ def get_index(page):
     Raises:
         None
     """
-    pagination = 1#0
+    pagination = 10
     search_data = request.args.get("search")
     stmt = select(Persons, Users.fullname)
     if search_data and len(search_data) > 2:

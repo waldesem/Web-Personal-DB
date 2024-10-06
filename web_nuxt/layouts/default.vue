@@ -1,15 +1,17 @@
 <script setup lang="ts">
+import type { User } from "@/types/interfaces";
+
 const authFetch = useFetchAuth();
 const userState = useUserState();
 
 const showNav = ref(true);
 
-async function removeToken(): Promise<void> {
+async function removeToken() {
   if (confirm("Вы действительно хотите выйти?")) {
     await authFetch("/api/logout");
     clearNuxtData();
     userToken.value = null;
-    userState.value = {} as UserState;
+    userState.value = {} as User;
     return navigateTo("/login");
   }
   return;
@@ -51,14 +53,16 @@ const links = [
 
 const filtredLinks = computed(() => {
   if (!userState.value) {
-    return links;
+    return [];
   }
   if (userState.value.role === "admin") {
     return links.filter((item) => item[0].to !== "/resume");
   } else if (userState.value.role === "user") {
     return links.filter((item) => item[0].to !== "/users");
   } else {
-    return links.filter((item) => item[0].to !== "/users" && item[0].to !== "/resume");
+    return links.filter(
+      (item) => item[0].to !== "/users" && item[0].to !== "/resume"
+    );
   }
 });
 </script>

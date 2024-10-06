@@ -49,9 +49,9 @@ def create_app(config_class=Config):
     def static_file(path=""):
         return app.send_static_file(path)
 
-    @app.errorhandler(Exception)
+    @app.errorhandler(404)
     def handle_error(error):
-        # app.logger.error(error)
+        app.logger.error(error)
         return app.redirect("/")
 
     @app.cli.command("user")

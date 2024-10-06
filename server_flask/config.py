@@ -20,6 +20,11 @@ class SqliteConfig(Configuration):
     pass
 
 
+class DesktopConfig(Configuration):
+    SECRET_KEY = "secret_key"
+    JWT_SECRET_KEY = "jwt_secret_key"
+
+
 class PostgreConfig(Configuration):
     DATABASE_URI = "postgresql://{}:{}@{}:{}/{}".format(
         setting["Postgre"]["user"],
@@ -30,5 +35,5 @@ class PostgreConfig(Configuration):
     )
 
 
-class Config(SqliteConfig):
+class Config(DesktopConfig):
     pass

@@ -15,7 +15,7 @@ const persons = ref({
   next: false,
   search: "",
   upload: false,
-  updated: useDateFormat(useNow(), "YYYY-MM-DD в HH:mm").value,
+  updated: useDateFormat(useNow(), "DD.MM.YYYY в HH:mm").value,
 });
 
 const { refresh, status } = await useLazyAsyncData("candidates", async () => {
@@ -28,7 +28,7 @@ const { refresh, status } = await useLazyAsyncData("candidates", async () => {
   [persons.value.candidates, persons.value.next, persons.value.prev] =
     response as [Persons[], boolean, boolean];
 
-  persons.value.updated = useDateFormat(useNow(), "YYYY-MM-DD в HH:mm").value;
+  persons.value.updated = useDateFormat(useNow(), "DD.MM.YYYY в HH:mm").value;
 });
 
 watchDebounced(
@@ -86,15 +86,14 @@ onCancel(() => {
         class="absolute inset-y-0 right-0"
         :class="{ 'animate-pulse': status == 'pending' || persons.upload }"
       >
-        <UTooltip text="Загрузить json файл">
-          <UButton
-            icon="i-heroicons-cloud-arrow-up"
-            size="xl"
-            variant="ghost"
-            class="w-8 h-8"
-            @click="open"
-          />
-        </UTooltip>
+        <UButton
+          icon="i-heroicons-cloud-arrow-up"
+          size="xl"
+          title="Загрузить json файл"
+          variant="ghost"
+          class="w-8 h-8"
+          @click="open"
+        />
       </div>
     </div>
 
