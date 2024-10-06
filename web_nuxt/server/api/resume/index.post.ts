@@ -1,3 +1,4 @@
-export default defineEventHandler(() => {
-    return { hello: 'API' }
-  })
+export default defineEventHandler(async(event) => {
+  const data = await readBody(event)
+  return { data: data }
+})
