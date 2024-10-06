@@ -6,9 +6,7 @@ useHead({
 
 useSeoMeta({
   title: "StaffSec - кадровая безопасность",
-  ogTitle: "StaffSec - кадровая безопасность",
   description: "Кадровая безопасность, проверка персонала",
-  ogDescription: "Кадровая безопасность, проверка персонала",
 });
 </script>
 
@@ -25,7 +23,7 @@ useSeoMeta({
 .page-leave-active,
 .slide-fade-enter-active,
 .slide-fade-leave-active {
-  transition: all 0.2s;
+  transition: all 0.1s;
 }
 .page-enter-from,
 .page-leave-to {

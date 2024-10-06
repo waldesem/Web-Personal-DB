@@ -3,6 +3,8 @@ import type { Address } from "@/types/interfaces";
 
 prefetchComponents(['FormsAddressForm', 'ElementsSkeletonDiv']);
 
+const authFetch = useFetchAuth();
+
 const toast = useToast();
 
 const props = defineProps({

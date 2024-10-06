@@ -10,7 +10,7 @@ from ..model.tables import Users, db_session
 current_user = LocalProxy(lambda: get_current_user(g.user_id))
 
 
-def get_auth(header):
+def get_payload(header):
     """
     Validates a JWT token and stores the user ID in the g object.
 
@@ -91,7 +91,7 @@ def jwt_required():
         @wraps(func)
         def wrapper(*args, **kwargs):
             header = request.headers.get("Authorization")
-            user_id = get_auth(header)
+            user_id = get_payload(header)
             if user_id:
                 g.user_id = user_id
                 return func(*args, **kwargs)

@@ -50,9 +50,13 @@ def create_app(config_class=Config):
         return app.send_static_file(path)
 
     @app.errorhandler(404)
-    def handle_error(error):
-        app.logger.error(error)
+    def handle_404(error):
         return app.redirect("/")
+    
+    @app.errorhandler(Exception)
+    def handle_exception(error):
+        app.logger.exception(error)
+        return error
 
     @app.cli.command("user")
     @click.argument("fullname")

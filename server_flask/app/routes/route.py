@@ -31,6 +31,12 @@ from ..handlers.handler import (
 bp = Blueprint("route", __name__, url_prefix="/api")
 
 
+@bp.get("/auth")
+@jwt_required()
+def get_auth():
+    return {"user": current_user}
+
+
 @bp.post("/login/<action>")
 def post_login(action):
     """
