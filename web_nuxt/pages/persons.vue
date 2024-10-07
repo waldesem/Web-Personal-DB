@@ -56,6 +56,7 @@ const { open, reset, onCancel, onChange } = useFileDialog({
 
 onChange(async (files) => {
   if (!files) return;
+  persons.value.upload = true;
   const formData = new FormData();
   formData.append("file", files[0]);
   const { person_id } = (await authFetch("/api/json", {
