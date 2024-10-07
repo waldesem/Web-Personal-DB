@@ -79,10 +79,6 @@ To start a server run the command in terminal:
 ```
 python server.py # for desktop mode; more options see in the server.py
 ```
-To start a frontend server run the command in terminal:
-```
-HOST=127.0.0.1 PORT=8000 node .output/server/index.mjs
-```
 DEFAULT_PASSWORD for created user - `88888888`.
 
 ### License
