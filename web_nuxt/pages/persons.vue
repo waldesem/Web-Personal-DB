@@ -14,7 +14,7 @@ const prev = ref(false);
 const next = ref(false);
 const upload = ref(false);
 const search = ref("");
-const updated = useDateFormat(useNow(), "DD.MM.YYYY в HH:mm");
+const updated = "Данные обновляются...";
 
 const { refresh, status } = await useLazyAsyncData("candidates", async () => {
   const response = await authFetch("/api/index/" + page.value, {
