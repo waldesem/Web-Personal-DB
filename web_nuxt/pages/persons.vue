@@ -89,10 +89,8 @@ onCancel(() => {
       >
         <UButton
           icon="i-heroicons-cloud-arrow-up"
-          size="xl"
           title="Загрузить json файл"
           variant="ghost"
-          class="w-8 h-8"
           @click="open"
         />
       </div>
