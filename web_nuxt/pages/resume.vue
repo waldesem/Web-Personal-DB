@@ -6,9 +6,8 @@ const authFetch = useFetchAuth();
 
 const upload = ref(false);
 const resume = ref({}l as Persons;
-function openPersons() {
-  return navigateTo("/persons");
-}
+
+const navigateToPersons = () => navigateTo("/persons");
 
 async function submitResume(form: Persons) {
   resume.value = form;
@@ -35,7 +34,7 @@ async function submitResume(form: Persons) {
     <ElementsHeaderDiv :div="'mb-6'" :header="!upload ? 'НОВАЯ АНКЕТА' : `${resume['surname']} {resume['firstname']} {resume['patronymic']}`.toUpperCase()" />
     <ElementsSkeletonDiv v-if="upload" :rows="16" />
     <ElementsCardDiv v-else>
-      <FormsResumeForm @cancel="openPersons" @update="submitResume" />
+      <FormsResumeForm @cancel="navigateToPersons" @update="submitResume" />
     </ElementsCardDiv>
   </div>
 </template>
