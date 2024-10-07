@@ -2,8 +2,6 @@
 import type { Persons } from "@/types/interfaces";
 import { watchDebounced, useFileDialog, useDateFormat } from "@vueuse/core";
 
-preloadRouteComponents("/profile/[id]");
-
 const authFetch = useFetchAuth();
 const userState = useUserState();
 const toast = useToast();
@@ -47,7 +45,7 @@ watch(
   }
 );
 
-const { open, reset, onCancel, onChange } = useFileDialog({
+const { open, reset, onChange } = useFileDialog({
   accept: "*.json",
   multiple: false,
 });
@@ -68,7 +66,6 @@ onChange(async (files) => {
       description: "Файл не был загружен",
       color: "red",
     });
-    reset();
     return;
   toast.add({
     icon: "i-heroicons-check-circle",
@@ -77,14 +74,11 @@ onChange(async (files) => {
     color: "green",
   });
   upload.value = false;
-  reset();
   await refresh();
-  return navigateTo("/profile/" + person_id);
+  await navigateTo("/profile/" + person_id);
 });
 
-onCancel(() => {
-  reset();
-});
+preloadRouteComponents("/profile/[id]");
 </script>
 
 <template>
