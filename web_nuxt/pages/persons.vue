@@ -61,7 +61,15 @@ onChange(async (files) => {
     method: "POST",
     body: formData,
   })) as Record<string, string>;
-  if (!person_id) return;
+  if (!person_id) {
+    toast.add({
+      icon: "i-heroiconsi-heroicons-information-circle",
+      title: "Внимание",
+      description: "Файл не был загружен",
+      color: "red",
+    });
+    reset();
+    return;
   toast.add({
     icon: "i-heroicons-check-circle",
     title: "Информация",
