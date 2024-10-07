@@ -1,4 +1,4 @@
 export default defineEventHandler(async(event) => {
-  const data = await readBody(event)
+  const data = await readJSONBody(event)
   return { data: data }
 })
