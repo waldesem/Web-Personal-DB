@@ -12,7 +12,7 @@ const prev = ref(false);
 const next = ref(false);
 const upload = ref(false);
 const search = ref("");
-const updated = "Данные обновляются...";
+const updated = ref("Данные обновляются...");
 
 const { refresh, status } = await useLazyAsyncData("candidates", async () => {
   const response = await authFetch("/api/index/" + page.value, {
@@ -21,9 +21,11 @@ const { refresh, status } = await useLazyAsyncData("candidates", async () => {
     },
   });
 
-  [candidates.value, next.value, prev.value] =
-    response as [Persons[], boolean, boolean];
-
+  [candidates.value, next.value, prev.value] = response as [
+    Persons[],
+    boolean,
+    boolean
+  ];
   updated.value = useDateFormat(useNow(), "DD.MM.YYYY в HH:mm").value;
 });
 
@@ -45,7 +47,7 @@ watch(
   }
 );
 
-const { open, onChange } = useFileDialog({
+const { open, reset, onCancel, onChange } = useFileDialog({
   accept: "*.json",
   multiple: false,
 });
@@ -59,6 +61,7 @@ onChange(async (files) => {
     method: "POST",
     body: formData,
   })) as Record<string, string>;
+  reset();
   if (!person_id) {
     toast.add({
       icon: "i-heroiconsi-heroicons-information-circle",
@@ -67,6 +70,7 @@ onChange(async (files) => {
       color: "red",
     });
     return;
+  }
   toast.add({
     icon: "i-heroicons-check-circle",
     title: "Информация",
@@ -75,7 +79,11 @@ onChange(async (files) => {
   });
   upload.value = false;
   await refresh();
-  await navigateTo("/profile/" + person_id);
+  return navigateTo("/profile/" + person_id);
+});
+
+onCancel(() => {
+  reset();
 });
 
 preloadRouteComponents("/profile/[id]");
@@ -167,7 +175,7 @@ preloadRouteComponents("/profile/[id]");
             variant="link"
             icon="i-heroicons-arrow-path"
             :label="`Обновлено: ${updated}`"
-            :loading="status == "pending"
+            :loading="status == 'pending'"
             @click="refresh"
           />
         </caption>

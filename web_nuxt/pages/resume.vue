@@ -5,7 +5,7 @@ const toast = useToast();
 const authFetch = useFetchAuth();
 
 const upload = ref(false);
-const resume = ref({}l as Persons;
+const resume = ref({}) as Persons;
 
 const navigateToPersons = () => navigateTo("/persons");
 
@@ -31,7 +31,14 @@ async function submitResume(form: Persons) {
 <template>
   <div>
     <USkeleton v-if="upload" class="h-44 w-44" />
-    <ElementsHeaderDiv :div="'mb-6'" :header="!upload ? 'НОВАЯ АНКЕТА' : `${resume['surname']} {resume['firstname']} {resume['patronymic']}`.toUpperCase()" />
+    <ElementsHeaderDiv
+      :div="'mb-6'"
+      :header="
+        !upload
+          ? 'НОВАЯ АНКЕТА'
+          : `${resume['surname']} {resume['firstname']} {resume['patronymic']}`.toUpperCase()
+      "
+    />
     <ElementsSkeletonDiv v-if="upload" :rows="16" />
     <ElementsCardDiv v-else>
       <FormsResumeForm @cancel="navigateToPersons" @update="submitResume" />

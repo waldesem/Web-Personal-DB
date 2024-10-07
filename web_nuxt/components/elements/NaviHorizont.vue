@@ -26,7 +26,7 @@ const props = defineProps({
   },
 });
 
-const { open, onChange } = useFileDialog({
+const { open, reset, onCancel, onChange } = useFileDialog({
   multiple: true,
 });
 
@@ -37,13 +37,10 @@ onChange(async (files) => {
     for (const file of files) {
       formData.append("file", file);
     }
-    await authFetch(
-      `/api/file/${props.item}/${props.candId}`,
-      {
-        method: "POST",
-        body: formData,
-      }
-    );
+    await authFetch(`/api/file/${props.item}/${props.candId}`, {
+      method: "POST",
+      body: formData,
+    });
     toast.add({
       icon: "i-heroicons-check-circle",
       title: "Информация",
@@ -51,6 +48,11 @@ onChange(async (files) => {
       color: "green",
     });
   }
+  reset();
+});
+
+onCancel(() => {
+  reset();
 });
 
 const links = [

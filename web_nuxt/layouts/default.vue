@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { User } from "@/types/interfaces";
 
 const authFetch = useFetchAuth();
 const userState = useUserState();
@@ -11,8 +10,8 @@ async function removeToken() {
     await authFetch("/api/logout");
     clearNuxtData();
     userToken.value = null;
-    //reloadNuxtApp();
-    clearNuxtState('user')
+    // reloadNuxtApp();
+    // clearNuxtState('user')
     return navigateTo("/login");
   }
   return;
@@ -74,7 +73,7 @@ const filtredLinks = computed(() => {
   >
     <header class="sticky pt-8 pb-16">
       <div class="flex justify-between relative">
-        <div class="absolute top-0 left-0 inline-flex">
+        <div class="absolute top-0 left-0">
           <UButton
             icon="i-heroicons-bars-4"
             variant="ghost"
@@ -82,9 +81,9 @@ const filtredLinks = computed(() => {
           />
         </div>
         <div class="absolute top-0 left-12 inline-flex text-xl font-bold">
-          <h3 class="text-primary">STAFFSEC</h3>
+          <h3 class="text-primary">StaffSec</h3>
           &nbsp;
-          <h3 class="text-red-800">ФИНТЕХ</h3>
+          <h3 class="text-red-800">Финтех</h3>
         </div>
         <UButton
           class="absolute top-0 right-0"
@@ -123,10 +122,10 @@ const filtredLinks = computed(() => {
         </UPopover>
       </div>
     </header>
-    <div class="grid grid-cols-12 gap-6">
+    <div class="grid grid-cols-10 gap-6">
       <div
         v-if="showNav"
-        class="flex flex-col h-full col-span-2 pt-3 border-r border-gray-200"
+        class="flex flex-col w-full h-full col-span-1 pt-3 border-r border-gray-200"
       >
         <UVerticalNavigation
           :links="filtredLinks"
@@ -141,7 +140,7 @@ const filtredLinks = computed(() => {
       </div>
       <div
         class="flex flex-col py-8"
-        :class="showNav ? 'col-span-10' : 'col-span-12'"
+        :class="showNav ? 'col-span-9' : 'col-span-10'"
       >
         <slot />
       </div>
