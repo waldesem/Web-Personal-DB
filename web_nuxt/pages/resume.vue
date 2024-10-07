@@ -2,7 +2,6 @@
 import type { Persons } from "@/types/interfaces";
 
 const toast = useToast();
-
 const authFetch = useFetchAuth();
 
 const upload = ref(false);
@@ -24,13 +23,14 @@ async function submitResume(form: Persons) {
     color: "green",
   });
   upload.value = false;
+  refreshNuxtData("candidates");
   return navigateTo("/profile/" + person_id);
 }
 </script>
 
 <template>
   <div>
-    <ElementsHeaderDiv :div="'mb-6'" :header="'НОВАЯ АНКЕТА'" />
+    <ElementsHeaderDiv :div="'mb-6'" :header="upload ? 'НОВАЯ АНКЕТА' : 'ФАМИЛИЯ ИМЯ ОТЧЕСТВО'" />
     <ElementsSkeletonDiv v-if="upload" :rows="16" />
     <ElementsCardDiv v-else>
       <FormsResumeForm @cancel="openPersons" @update="submitResume" />
