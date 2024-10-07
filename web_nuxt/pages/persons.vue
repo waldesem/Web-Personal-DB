@@ -167,6 +167,7 @@ onCancel(() => {
             variant="link"
             icon="i-heroicons-arrow-path"
             :label="`Обновлено: ${persons.updated}`"
+            :loading="status == "pending"
             @click="refresh"
           />
         </caption>
