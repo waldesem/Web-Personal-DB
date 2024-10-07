@@ -5,12 +5,13 @@ const toast = useToast();
 const authFetch = useFetchAuth();
 
 const upload = ref(false);
-
+const resume = ref({}l as Persons;
 function openPersons() {
   return navigateTo("/persons");
 }
 
 async function submitResume(form: Persons) {
+  resume.value = form;
   upload.value = true;
   const { person_id } = (await authFetch("/api/resume", {
     method: "POST",
@@ -30,7 +31,7 @@ async function submitResume(form: Persons) {
 
 <template>
   <div>
-    <ElementsHeaderDiv :div="'mb-6'" :header="!upload ? 'НОВАЯ АНКЕТА' : `${form['surname']} {form['firstname']} {form['patronymic']}`.toUpperCase()" />
+    <ElementsHeaderDiv :div="'mb-6'" :header="!upload ? 'НОВАЯ АНКЕТА' : `${resume['surname']} {resume['firstname']} {resume['patronymic']}`.toUpperCase()" />
     <ElementsSkeletonDiv v-if="upload" :rows="16" />
     <ElementsCardDiv v-else>
       <FormsResumeForm @cancel="openPersons" @update="submitResume" />
