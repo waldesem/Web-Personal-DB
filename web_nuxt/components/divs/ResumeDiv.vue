@@ -80,7 +80,6 @@ async function deleteItem() {
   await authFetch(`/api/persons/${props.candId}`, {
     method: "DELETE",
   });
-  await navigateTo("/persons");
   toast.add({
     icon: "i-heroicons-information-circle",
     title: "Информация",
@@ -88,6 +87,8 @@ async function deleteItem() {
     color: "primary",
   });
   pending.value=false;
+  refreshNuxtData("candidates");
+  return navigateTo("/persons");
 }
 
 async function cancelAction() {
