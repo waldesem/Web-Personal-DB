@@ -6,7 +6,7 @@ const props = defineProps({
   },
   cls: {
     type: String,
-    default: "text-2xl text-red-800",
+    default: "text-xl text-red-800",
   },
   header: {
     type: String,
