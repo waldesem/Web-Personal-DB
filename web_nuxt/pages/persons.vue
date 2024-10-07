@@ -71,6 +71,7 @@ onChange(async (files) => {
     color: "green",
   });
   persons.value.upload = false;
+  reset();
   await refresh();
   return navigateTo("/profile/" + person_id);
 });
