@@ -168,7 +168,7 @@ onCancel(() => {
         </div>
       </template>
       <template #caption>
-        <caption class="caption-bottom text-left">
+        <caption class="caption-bottom text-left mt-2">
           <UButton
             variant="link"
             icon="i-heroicons-arrow-path"
