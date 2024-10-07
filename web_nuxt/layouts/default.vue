@@ -140,7 +140,7 @@ const filtredLinks = computed(() => {
         />
       </div>
       <div
-        class="flex flex-col col-span-10 py-8"
+        class="flex flex-col py-8"
         :class="showNav ? 'col-span-10' : 'col-span-12'"
       >
         <slot />
