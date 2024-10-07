@@ -8,31 +8,29 @@ const authFetch = useFetchAuth();
 const userState = useUserState();
 const toast = useToast();
 
-const persons = ref({
-  candidates: [] as Persons[],
-  page: 1,
-  prev: false,
-  next: false,
-  search: "",
-  upload: false,
-  updated: useDateFormat(useNow(), "DD.MM.YYYY в HH:mm").value,
-});
+const candidates = ref([]) as Persons[];
+const page = ref(1);
+const prev = ref(false);
+const nexfalseef(false);
+const search = ref("");
+const upload = ref(false);
+const updated = useDateFormat(useNow(), "DD.MM.YYYY в HH:mm");
 
 const { refresh, status } = await useLazyAsyncData("candidates", async () => {
   const response = await authFetch("/api/index/" + persons.value.page, {
     params: {
-      search: persons.value.search,
+      search: search.value,
     },
   });
 
-  [persons.value.candidates, persons.value.next, persons.value.prev] =
+  [candidates.value, next.value, prev.value] =
     response as [Persons[], boolean, boolean];
 
-  persons.value.updated = useDateFormat(useNow(), "DD.MM.YYYY в HH:mm").value;
+  updated.value = useDateFormat(useNow(), "DD.MM.YYYY в HH:mm").value;
 });
 
 watchDebounced(
-  () => persons.value.search,
+  () => search.value,
   () => {
     refresh();
   },
@@ -43,7 +41,7 @@ watchDebounced(
 );
 
 watch(
-  () => persons.value.page,
+  () => page.value,
   () => {
     refresh();
   }
@@ -56,7 +54,7 @@ const { open, reset, onCancel, onChange } = useFileDialog({
 
 onChange(async (files) => {
   if (!files) return;
-  persons.value.upload = true;
+  upload.value = true;
   const formData = new FormData();
   formData.append("file", files[0]);
   const { person_id } = (await authFetch("/api/json", {
@@ -70,7 +68,7 @@ onChange(async (files) => {
     description: "Файл успешно загружен",
     color: "green",
   });
-  persons.value.upload = false;
+  upload.value = false;
   reset();
   await refresh();
   return navigateTo("/profile/" + person_id);
@@ -86,7 +84,7 @@ onCancel(() => {
     <div v-if="userState.role == 'user'" class="relative">
       <div
         class="absolute inset-y-0 right-0"
-        :class="{ 'animate-pulse': status == 'pending' || persons.upload }"
+        :class="{ 'animate-pulse': status == 'pending' || upload }"
       >
         <UButton
           icon="i-heroicons-cloud-arrow-up"
@@ -100,14 +98,14 @@ onCancel(() => {
     <ElementsHeaderDiv :header="'КАНДИДАТЫ'" />
     <div class="my-6">
       <UInput
-        v-model="persons.search"
+        v-model="search"
         placeholder="поиск по фамилии, имени, отчеству"
         size="lg"
       />
     </div>
 
     <UTable
-      :loading="status == 'pending' || persons.upload"
+      :loading="status == 'pending' || upload"
       :progress="{ color: 'red', animation: 'swing' }"
       :empty-state="{
         icon: 'i-heroicons-circle-stack-20-solid',
@@ -166,7 +164,7 @@ onCancel(() => {
           <UButton
             variant="link"
             icon="i-heroicons-arrow-path"
-            :label="`Обновлено: ${persons.updated}`"
+            :label="`Обновлено: ${updated}`"
             :loading="status == "pending"
             @click="refresh"
           />
@@ -174,23 +172,23 @@ onCancel(() => {
       </template>
     </UTable>
 
-    <div v-if="persons.prev || persons.next" class="justify-center flex pt-6">
+    <div v-if="prev || next" class="justify-center flex pt-6">
       <UTooltip text="Предыдущая страница">
         <UButton
           icon="i-heroicons-arrow-small-left-20-solid"
-          :disabled="!persons.prev"
+          :disabled="!prev"
           :ui="{ rounded: 'rounded-full' }"
           class="me-2"
-          @click="persons.page--"
+          @click="page--"
         />
       </UTooltip>
       <UTooltip text="Следующая страница">
         <UButton
           icon="i-heroicons-arrow-small-right-20-solid"
-          :disabled="!persons.next"
+          :disabled="!next"
           :ui="{ rounded: 'rounded-full' }"
           class="ms-2"
-          @click="persons.page++"
+          @click="page++"
         />
       </UTooltip>
     </div>
