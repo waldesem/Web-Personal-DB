@@ -9,9 +9,8 @@ const showNav = ref(true);
 async function removeToken() {
   if (confirm("Вы действительно хотите выйти?")) {
     await authFetch("/api/logout");
-    clearNuxtData();
     userToken.value = null;
-    userState.value = {} as User;
+    reloadNuxtApp();
     return navigateTo("/login");
   }
   return;
