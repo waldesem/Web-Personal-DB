@@ -81,7 +81,7 @@ const filtredLinks = computed(() => {
             @click="showNav = !showNav"
           />
         </div>
-        <div class="absolute top-0 left-12 inline-flex text-2xl font-bold">
+        <div class="absolute top-0 left-12 inline-flex text-xl font-bold">
           <h3 class="text-primary">STAFFSEC</h3>
           &nbsp;
           <h3 class="text-red-800">ФИНТЕХ</h3>
