@@ -11,13 +11,13 @@ const toast = useToast();
 const candidates = ref([]) as Persons[];
 const page = ref(1);
 const prev = ref(false);
-const nexfalseef(false);
-const search = ref("");
+const next = ref(false);
 const upload = ref(false);
+const search = ref("");
 const updated = useDateFormat(useNow(), "DD.MM.YYYY в HH:mm");
 
 const { refresh, status } = await useLazyAsyncData("candidates", async () => {
-  const response = await authFetch("/api/index/" + persons.value.page, {
+  const response = await authFetch("/api/index/" + page.value, {
     params: {
       search: search.value,
     },
@@ -122,7 +122,7 @@ onCancel(() => {
         { key: 'username', label: 'Сотрудник' },
         { key: 'editable', label: 'Статус' },
       ]"
-      :rows="persons.candidates"
+      :rows="candidates"
       @select="navigateTo(`/profile/${$event.id}`)"
     >
       <template #id-data="{ row }">{{ row.id }}</template>
