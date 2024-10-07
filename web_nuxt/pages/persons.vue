@@ -173,7 +173,7 @@ onCancel(() => {
       </template>
     </UTable>
 
-    <div v-if="persons.prev || persons.next" class="justify-center flex py-6">
+    <div v-if="persons.prev || persons.next" class="justify-center flex pt-6">
       <UTooltip text="Предыдущая страница">
         <UButton
           icon="i-heroicons-arrow-small-left-20-solid"
