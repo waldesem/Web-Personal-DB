@@ -45,7 +45,7 @@ watch(
   }
 );
 
-const { open, reset, onChange } = useFileDialog({
+const { open, onChange } = useFileDialog({
   accept: "*.json",
   multiple: false,
 });
