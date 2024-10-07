@@ -26,7 +26,7 @@ const props = defineProps({
   },
 });
 
-const { open, reset, onCancel, onChange } = useFileDialog({
+const { open, onChange } = useFileDialog({
   multiple: true,
 });
 
@@ -51,11 +51,6 @@ onChange(async (files) => {
       color: "green",
     });
   }
-  reset();
-});
-
-onCancel(() => {
-  reset();
 });
 
 const links = [
