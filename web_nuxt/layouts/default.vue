@@ -10,9 +10,9 @@ async function removeToken() {
     await authFetch("/api/logout");
     clearNuxtData();
     userToken.value = null;
-    // reloadNuxtApp();
+    reloadNuxtApp();
     // clearNuxtState('user')
-    return navigateTo("/login");
+    // return navigateTo("/login");
   }
   return;
 }
