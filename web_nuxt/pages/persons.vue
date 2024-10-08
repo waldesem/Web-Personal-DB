@@ -182,7 +182,7 @@ preloadRouteComponents("/profile/[id]");
       </template>
     </UTable>
 
-    <div v-if="prev || next" class="justify-center flex pt-6">
+    <div v-if="prev || next" class="justify-center flex pt-4">
       <UTooltip text="Предыдущая страница">
         <UButton
           icon="i-heroicons-arrow-small-left-20-solid"
