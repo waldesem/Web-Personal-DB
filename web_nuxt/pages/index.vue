@@ -7,10 +7,7 @@ preloadRouteComponents("/persons")
 preloadRouteComponents("/login");
 
 await useAsyncData("index", async () => {
-  if (!userToken.value) {
-    return navigateTo("/login");
-  }
-  return navigateTo("/persons");
+  await navigateTo("/persons");
 });
 </script>
 

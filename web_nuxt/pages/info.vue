@@ -14,7 +14,7 @@ const tableData = ref({
 /**
  * Get statistics from server
  */
-const { refresh, status } = await useLazyAsyncData("statistics", async () => {
+const { refresh, status } = await useLazyAsyncData("stats", async () => {
   const response = await authFetch("/api/information", {
     params: {
       start: tableData.value.start,
@@ -48,10 +48,10 @@ const { refresh, status } = await useLazyAsyncData("statistics", async () => {
       />
       <div class="flex grid grid-cols-12 gap-3 mt-8">
         <div class="col-span-2">
-          <UFormGroup class="mb-3" size="md" label="Регион">
+          <UFormGroup class="mb-3" label="Регион">
             <USelect
               v-model="tableData.region"
-              :disable="userState.region != 'main'"
+              :disabled="userState.region != 'Главный офис'"
               :options="[
                 'Главный офис',
                 'РЦ Юг',
@@ -65,14 +65,14 @@ const { refresh, status } = await useLazyAsyncData("statistics", async () => {
         </div>
         <div class="col-span-2">
           <div class="px-3">
-            <UFormGroup size="md" label="Начало периода">
+            <UFormGroup label="Начало периода">
               <UInput v-model="tableData.start" type="date" @change="refresh" />
             </UFormGroup>
           </div>
         </div>
         <div class="col-span-2">
           <div class="px-3">
-            <UFormGroup size="md" label="Конец периода">
+            <UFormGroup label="Конец периода">
               <UInput v-model="tableData.end" type="date" @change="refresh" />
             </UFormGroup>
           </div>

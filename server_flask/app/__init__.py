@@ -95,9 +95,8 @@ def create_app(config_class=Config):
             click.echo(f"User {username} already exists")
         db_session.remove()
 
-    @app.cli.command("folder")
-    @click.option("--folder", default=basedir)
-    def create_folders(folder):
+    @app.cli.command("folders")
+    def create_folders():
         """Create the folders structure according to the current configuration.
 
         The folders structure is as follows: BASE_PATH/REGION/LETTER, where BASE_PATH
@@ -108,15 +107,9 @@ def create_app(config_class=Config):
         :param folder: The folder to create the structure in. If not provided, the
             current BASE_PATH is used.
         """
-        base_path = os.path.join(folder, "PersonalDB")
         setting = ConfigParser()
         setting.read(os.path.join(basedir, "settings.ini"), encoding="utf-8")
-        setting.set("Destination", "path", base_path)
-        setting.set("SQLite", "uri", base_path)
-        with open(os.path.join(basedir, "settings.ini"), "w") as config_file:
-            setting.write(config_file)
-        if not os.path.isdir(base_path):
-            os.mkdir(base_path)
+        base_path = setting.get("Destination", "path")
         for region in Regions:
             region_path = os.path.join(base_path, region.value)
             if not os.path.isdir(region_path):

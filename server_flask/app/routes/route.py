@@ -382,8 +382,9 @@ def post_json():
         return abort(400)
 
     for table, contents in anketa.items():
-        for content in contents:
-            handle_post_item(content, table, person_id)
+        if contents:
+            for content in contents:
+                handle_post_item(content, table, person_id)
     return jsonify({"person_id": person_id}), 201
 
 

@@ -87,7 +87,6 @@ async function deleteItem() {
     color: "primary",
   });
   pending.value=false;
-  refreshNuxtData("candidates");
   return navigateTo("/persons");
 }
 

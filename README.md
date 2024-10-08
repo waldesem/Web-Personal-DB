@@ -41,14 +41,15 @@ GRANT ALL PRIVILEGES ON DATABASE personal TO flask;
 
 ### Settings
 
+For creating regions and alphabeth folders in destination directory add paths in settings.ini.
+Then run the command:
+```
+flask folders
+```
 For creating new user run the command in terminal:
 ```
 export FLASK_APP=app
-flask user 'Super Admin' super email@example.com --role=admin --region=main
-```
-For creating default folders destination run the command in terminal:
-```
-flask folder # optional add 'path/to/folder'
+flask user 'Super Admin' superadmin email@example.com --role=admin --region=main
 ```
 
 ### Build frontend

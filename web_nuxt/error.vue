@@ -12,8 +12,10 @@ const props = defineProps({
     <h1 class="text-5xl font-bold text-red-800 mb-4">
       {{ props.error.statusCode }}
     </h1>
-    <p class="text-red-800 mb-4">{{ props.error.message }}</p>
-    <p class="text-red-800 mb-4">{{ props.error.stack }}</p>
+    <div class="text-primary my-4">
+      <div>{{ props.error.message }}</div>
+      <div>{{ props.error.stack }}</div>
+    </div>
     <NuxtLink to="/">Go back home</NuxtLink>
   </div>
 </template>

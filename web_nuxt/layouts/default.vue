@@ -1,18 +1,13 @@
 <script setup lang="ts">
-
-const authFetch = useFetchAuth();
 const userState = useUserState();
 
 const showNav = ref(true);
 
-async function removeToken() {
+async function logout() {
   if (confirm("Вы действительно хотите выйти?")) {
-    await authFetch("/api/logout");
-    clearNuxtData();
     userToken.value = null;
-    reloadNuxtApp();
-    // clearNuxtState('user')
-    // return navigateTo("/login");
+    clearNuxtData();
+    return navigateTo("/login");
   }
   return;
 }
@@ -20,33 +15,38 @@ async function removeToken() {
 const links = [
   [
     {
-      label: "Кандидаты",
+      label: "кандидаты",
+      icon: "i-heroicons-user-circle",
       to: "/persons",
     },
   ],
   [
     {
-      label: "Создать",
+      label: "создать",
+      icon: "i-heroicons-newspaper",
       to: "/resume",
     },
   ],
   [
     {
-      label: "Информация",
-      to: "/info",
-    },
-  ],
-  [
-    {
-      label: "Пользователи",
+      label: "пользователи",
+      icon: "i-heroicons-user-group",
       to: "/users",
     },
   ],
   [
     {
-      label: "Выход",
+      label: "информация",
+      icon: "i-heroicons-information-circle",
+      to: "/info",
+    },
+  ],
+  [
+    {
+      label: "выход",
+      icon: "i-heroicons-arrow-left-end-on-rectangle",
       to: "/login",
-      click: () => removeToken(),
+      click: () => logout(),
     },
   ],
 ];
@@ -81,9 +81,9 @@ const filtredLinks = computed(() => {
           />
         </div>
         <div class="absolute top-0 left-12 inline-flex text-xl font-bold">
-          <h3 class="text-primary">StaffSec</h3>
+          <h3 class="text-blue-800">STAFFSEC</h3>
           &nbsp;
-          <h3 class="text-red-800">Финтех</h3>
+          <h3 class="text-red-600">ФИНТЕХ</h3>
         </div>
         <UButton
           class="absolute top-0 right-0"
@@ -104,43 +104,40 @@ const filtredLinks = computed(() => {
         >
           <UAvatar :alt="userState.fullname" />
           <template #panel>
-            <ElementsCardDiv>
-              <p class="text-center text-sm text-gray-500">
-                {{ userState.fullname }}
-              </p>
-              <p class="text-center text-sm text-gray-500">
-                Логин: {{ userState.username }}
-              </p>
-              <p class="text-center text-sm text-gray-500">
-                Регион: {{ userState.region }}
-              </p>
-              <p class="text-center text-sm text-gray-500">
-                Роль: {{ userState.role }}
-              </p>
-            </ElementsCardDiv>
+            <div class="m-3 text-center text-sm text-gray-600">
+              <div>{{ userState.fullname }}</div>
+              <div>Логин: {{ userState.username }}</div>
+              <div>Регион: {{ userState.region }}</div>
+              <div>Роль: {{ userState.role }}</div>
+            </div>
           </template>
         </UPopover>
       </div>
     </header>
-    <div class="grid grid-cols-10 gap-6">
+    <div class="grid grid-cols-12 gap-6">
       <div
         v-if="showNav"
-        class="flex flex-col w-full h-full col-span-1 pt-3 border-r border-gray-200"
+        class="flex flex-col w-full h-screen col-span-2 pt-3 border-r border-gray-200"
       >
         <UVerticalNavigation
           :links="filtredLinks"
           :ui="{
             active:
-              'text-red-900 dark:text-white before:bg-gray-0 dark:before:bg-gray-0',
+              'text-red-800 dark:text-white before:bg-gray-0 dark:before:bg-gray-0',
             inactive:
-              'text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-white hover:before:bg-gray-0 dark:hover:before:bg-gray-800/50',
-            size: 'text-xl text-primary mt-4',
+              'text-primary-800 dark:text-gray-400 hover:text-red-600 dark:hover:text-white hover:before:bg-gray-0 dark:hover:before:bg-gray-800/50',
+            size: 'text-xl mt-4',
+            icon: {
+              active: 'text-red-800 dark:text-white',
+              inactive:
+                'text-primary-800 dark:text-gray-400 hover:text-red-600 dark:hover:text-white',
+            },
           }"
         />
       </div>
       <div
         class="flex flex-col py-8"
-        :class="showNav ? 'col-span-9' : 'col-span-10'"
+        :class="showNav ? 'col-span-10' : 'col-span-12'"
       >
         <slot />
       </div>

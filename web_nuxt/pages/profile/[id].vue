@@ -3,6 +3,7 @@ import type { Persons } from "@/types/interfaces";
 
 const authFetch = useFetchAuth();
 const userState = useUserState();
+
 const route = useRoute();
 
 const candId = computed(() => route.params.id) as Ref<string>;

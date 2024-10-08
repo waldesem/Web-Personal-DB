@@ -104,16 +104,13 @@ preloadRouteComponents("/profile/[id]");
         />
       </div>
     </div>
-
     <ElementsHeaderDiv :header="'КАНДИДАТЫ'" />
     <div class="my-6">
       <UInput
         v-model="search"
         placeholder="поиск по фамилии, имени, отчеству"
-        size="lg"
       />
     </div>
-
     <UTable
       :loading="status == 'pending' || upload"
       :progress="{ color: 'red', animation: 'swing' }"
@@ -181,7 +178,6 @@ preloadRouteComponents("/profile/[id]");
         </caption>
       </template>
     </UTable>
-
     <div v-if="prev || next" class="justify-center flex pt-4">
       <UTooltip text="Предыдущая страница">
         <UButton
