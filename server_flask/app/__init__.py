@@ -52,6 +52,11 @@ def create_app(config_class=Config):
     @app.errorhandler(404)
     def handle_404(error):
         return app.redirect("/")
+
+    @app.errorhandler(400)
+    def handle_400(error):
+        app.logger.exception(error)
+        return app.redirect("/")
     
     @app.errorhandler(Exception)
     def handle_exception(error):
