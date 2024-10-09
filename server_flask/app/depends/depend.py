@@ -10,6 +10,7 @@ from ..model.tables import Users, db_session
 current_user = LocalProxy(lambda: get_current_user(g.user_id))
 
 
+@lru_cache(maxsize=2)
 def get_payload(header):
     """
     Validates a JWT token and stores the user ID in the g object.
@@ -20,17 +21,19 @@ def get_payload(header):
     Returns:
         bool: True if the token is valid, False if not.
     """
-    payload = header.split(" ")[1]
-    try:
-        decoded = jwt.decode(
-            payload, current_app.config["JWT_SECRET_KEY"], algorithms=["HS256"]
-        )
-        return decoded["id"]
-    except jwt.exceptions.InvalidTokenError:
-        return None
+    if isinstance(header, str):
+        payload = header.split(" ")[1]
+        try:
+            decoded = jwt.decode(
+                payload, current_app.config["JWT_SECRET_KEY"], algorithms=["HS256"]
+            )
+            return decoded.get("id", None)
+        except jwt.exceptions.InvalidTokenError:
+            return None
+    return None
 
 
-@lru_cache(maxsize=2)
+@lru_cache(maxsize=4)
 def get_current_user(user_id):
     """
     Retrieve the current user based on the user ID stored in the global variable 'g.user_id'.
@@ -66,10 +69,15 @@ def create_token(user):
     Returns:
         str: The JWT token.
     """
-
-    return "Bearer " + jwt.encode(
-        user, current_app.config["JWT_SECRET_KEY"], algorithm="HS256"
-    )
+    if isinstance(user, dict):
+        try:
+            token = "Bearer " + jwt.encode(
+                user, current_app.config["JWT_SECRET_KEY"], algorithm="HS256"
+            )
+            return token
+        except jwt.exceptions.InvalidTokenError:
+            return None
+    return None
 
 
 def jwt_required():
@@ -95,7 +103,6 @@ def jwt_required():
             if user_id:
                 g.user_id = user_id
                 return func(*args, **kwargs)
-            g.user_id = None
             abort(401)
 
         return wrapper

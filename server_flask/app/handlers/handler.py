@@ -39,11 +39,13 @@ def handle_get_item(item, item_id):
     )
     stmt = stmt.filter(table.user_id == Users.id)
     query = db_session.execute(stmt.order_by(desc(table.id))).all()
-    result = [row[0].to_dict() | {"username": row[1]} for row in query]
-    return result[0] if item == "persons" else result
+    if query:
+        result = [row[0].to_dict() | {"username": row[1]} for row in query]
+        return result[0] if item == "persons" else result
+    return abort(400)
 
 
-def handle_post_item(data, item, item_id=None):
+def handle_post_item(data: dict, item: str, item_id=None):
     """
     Updates an item in the database based on the provided JSON data, item, and item_id.
 
@@ -61,9 +63,9 @@ def handle_post_item(data, item, item_id=None):
     if item != "persons":
         try:
             data = model(**data).dict()
+            data.update({"person_id": item_id, "user_id": current_user.get("id")})
         except ValidationError:
             return abort(400)
-        data.update({"person_id": item_id, "user_id": current_user.get("id")})
     db_session.merge(table(**data))
     db_session.commit()
 
@@ -82,16 +84,16 @@ def handle_post_resume(resume: dict):
         Exception: If there is an error updating the resume.
 
     """
-    if not re.match(r"[А-ЯЁЙа-яё]", resume["surname"][0]):
+    if not re.match(r"[А-ЯЁЙ]", resume["surname"][0]):
         return abort(400)
     resume["editable"] = True
     resume["user_id"] = current_user.get("id")
     resume["region"] = current_user.get("region")
     person = db_session.execute(
         select(Persons).where(
-            Persons.surname.ilike("%{}%".format(resume["surname"])),
-            Persons.firstname.ilike("%{}%".format(resume["firstname"])),
-            Persons.patronymic.ilike("%{}%".format(resume["patronymic"])),
+            Persons.surname.ilike("%{}%".format(resume["surname"]))
+            and Persons.firstname.ilike("%{}%".format(resume["firstname"]))
+            and Persons.patronymic.ilike("%{}%".format(resume["patronymic"])),
             Persons.birthday == resume["birthday"],
         )
     ).scalar_one_or_none()
@@ -108,10 +110,10 @@ def handle_post_resume(resume: dict):
         )
         db_session.commit()
         return person.id
-    
+
     if person.editable:
         return person.id
-    
+
     destination = make_destination(
         resume["region"],
         resume["surname"],
@@ -121,7 +123,7 @@ def handle_post_resume(resume: dict):
     )
     if person.destination and not os.path.isdir(person.destination):
         os.mkdir(person.destination)
-    if person.destination and resume['region'] != person.region:
+    if person.destination and resume["region"] != person.region:
         shutil.move(person.destination, destination)
     resume.update({"destination": destination, "id": person.id})
     handle_post_item(resume, "persons")
@@ -229,7 +231,7 @@ def make_destination(region, surname, firstname, patronymic, person_id):
         region,
         surname[0],
         f"{person_id}-{surname} {firstname} "
-        f"{patronymic if patronymic else ''}".rstrip(),
+        f"{patronymic if patronymic else ''}".rstrip().upper(),
     )
     if not os.path.isdir(destination):
         os.mkdir(destination)

@@ -48,7 +48,7 @@ watch(
 );
 
 const { open, reset, onCancel, onChange } = useFileDialog({
-  accept: "*.json",
+  accept: ".json",
   multiple: false,
 });
 

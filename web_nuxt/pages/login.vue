@@ -3,6 +3,11 @@ import type { Login } from "@/types/interfaces";
 
 definePageMeta({
   layout: false,
+  middleware: [
+    function (_to) {
+      reloadNuxtApp();
+    },
+  ],
 });
 
 const loginAction = ref("create");

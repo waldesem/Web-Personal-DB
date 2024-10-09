@@ -31,12 +31,6 @@ from ..handlers.handler import (
 bp = Blueprint("route", __name__, url_prefix="/api")
 
 
-@bp.get("/auth")
-@jwt_required()
-def get_auth():
-    return {"user": current_user}
-
-
 @bp.post("/login/<action>")
 def post_login(action):
     """
@@ -76,15 +70,16 @@ def post_login(action):
 
     delta_change = datetime.now() - user.pswd_create
     if not user.change_pswd and delta_change.days < 365:
-        if user.attempt > 0:
-            user.attempt = 0
-            db_session.commit()
-        return jsonify(
-            {
-                "message": "Success",
-                "user_token": create_token(User(**user.to_dict()).dict()),
-            }
-        )
+        user.attempt = 0
+        db_session.commit()
+        token = create_token(User(**user.to_dict()).dict())
+        if token:
+            return jsonify(
+                {
+                    "message": "Success",
+                    "user_token": token,
+                }
+            )
     return {"message": "Denied"}
 
 

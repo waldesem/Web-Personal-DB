@@ -26,9 +26,7 @@ const props = defineProps({
   },
 });
 
-const { open, reset, onCancel, onChange } = useFileDialog({
-  multiple: true,
-});
+const { open, reset, onCancel, onChange } = useFileDialog();
 
 onChange(async (files) => {
   if (!files) return;

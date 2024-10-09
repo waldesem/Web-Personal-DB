@@ -1,4 +1,6 @@
-"""Original code see here https://github.com/ClimenteA/flaskwebgui"""
+"""
+Original code here https://github.com/ClimenteA/flaskwebgui
+"""
 
 import os
 import shutil
