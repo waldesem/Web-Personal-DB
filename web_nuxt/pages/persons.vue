@@ -2,6 +2,10 @@
 import type { Persons } from "@/types/interfaces";
 import { watchDebounced, useFileDialog, useDateFormat } from "@vueuse/core";
 
+definePageMeta({
+  keepalive: true,
+});
+
 const authFetch = useFetchAuth();
 const userState = useUserState();
 const toast = useToast();
@@ -14,17 +18,14 @@ const search = ref("");
 const updated = ref("Данные обновляются...");
 
 const { refresh, status } = await useLazyAsyncData("candidates", async () => {
-  const response = await authFetch("/api/index/" + page.value, {
-    params: {
-      search: search.value,
-    },
-  });
-
-  [candidates.value, hasNext.value] = response as [
-    Persons[],
-    boolean,
-    boolean
-  ];
+  [candidates.value, hasNext.value] = (await authFetch(
+    "/api/index/" + page.value,
+    {
+      params: {
+        search: search.value,
+      },
+    }
+  )) as [Persons[], boolean];
   updated.value = useDateFormat(useNow(), "DD.MM.YYYY в HH:mm").value;
 });
 
@@ -171,7 +172,7 @@ preloadRouteComponents("/profile/[id]");
         </caption>
       </template>
     </UTable>
-    <div v-if="page < 2 || hasNext" class="justify-center flex pt-4">
+    <div v-if="page > 1 || hasNext" class="justify-center flex pt-4">
       <UTooltip text="Предыдущая страница">
         <UButton
           icon="i-heroicons-arrow-small-left-20-solid"

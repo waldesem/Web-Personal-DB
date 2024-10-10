@@ -106,7 +106,6 @@ class ServerFlask:
         app = server_kwargs.pop("app", None)
         server_kwargs.pop("debug", None)
         wsgi_server(app, **server_kwargs)
-        # app.run(**server_kwargs)
 
 
 @dataclass
@@ -124,6 +123,7 @@ class FlaskUI:
     browser_path: str = None
     browser_command: List[str] = None
     profile_dir_prefix: str = "flaskwebgui"
+    browser_pid: int = None
 
     def __post_init__(self):
         self.__keyboard_interrupt = False
@@ -181,6 +181,7 @@ class FlaskUI:
         print("Command:", " ".join(self.browser_command))
         global FLASKWEBGUI_BROWSER_PROCESS
         FLASKWEBGUI_BROWSER_PROCESS = subprocess.Popen(self.browser_command)
+        self.browser_pid = FLASKWEBGUI_BROWSER_PROCESS.pid
         FLASKWEBGUI_BROWSER_PROCESS.wait()
 
         if self.browser_path is None:
@@ -190,11 +191,13 @@ class FlaskUI:
         if isinstance(server_process, Process):
             if self.on_shutdown is not None:
                 self.on_shutdown()
+            self.browser_pid = None
             shutil.rmtree(self.profile_dir, ignore_errors=True)
             server_process.kill()
         else:
             if self.on_shutdown is not None:
                 self.on_shutdown()
+            self.browser_pid = None
             shutil.rmtree(self.profile_dir, ignore_errors=True)
             kill_port(self.port)
 

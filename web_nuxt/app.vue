@@ -13,7 +13,7 @@ useSeoMeta({
 <template>
   <NuxtLoadingIndicator color="red" />
   <NuxtLayout>
-    <NuxtPage :keepalive="{ include: 'persons' }" :max="5" />
+    <NuxtPage />
   </NuxtLayout>
   <UNotifications />
 </template>
