@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useMouse, useWindowScroll } from "@vueuse/core";
 
+const toast = useToast();
+
 const authFetch = useFetchAuth();
 
 const props = defineProps({
@@ -30,21 +32,42 @@ const { refresh } = await useAsyncData("image", async () => {
   imageUrl.value = window.URL.createObjectURL(new Blob([response] as never));
 });
 
-async function submitImage(filelist: FileList) {
-  if (!filelist) return;
+const { open, reset, onCancel, onChange } = useFileDialog({
+  accept: ".json",
+  multiple: false,
+});
+
+onCancel(() => {
+  reset();
+});
+
+onChange(async (files) => {
+  if (!files) return;
   const formData = new FormData();
-  const file = filelist[0];
+  const file = files[0];
   formData.append("file", file);
-  await authFetch("/api/file/image/" + props.candId, {
+  const { message } = await authFetch("/api/file/image/" + props.candId, {
     method: "POST",
     body: formData,
-  });
+  }) as Record<string, string>;
+  if (message == 'success') {
+    toast.add({
+      icon: "i-heroicons-check-circle",
+      title: "Успешно",
+      description: "Фото добавлено",
+      color: "green",
+    });
+  } else {
+    toast.add({
+      icon: "i-heroiconsi-heroicons-information-circle",
+      title: "Внимание",
+      description: "Ошибка формата",
+      color: "red",
+    });
+  }
+  reset();
   await refresh();
-}
-
-function openFileForm(elementId: string) {
-  document.getElementById(elementId)?.click();
-}
+})
 
 const { x, y } = useMouse();
 const { y: windowY } = useWindowScroll();
@@ -73,26 +96,16 @@ function onContextMenu() {
       @contextmenu.prevent="onContextMenu"
     >
       <NuxtImg :src="imageUrl" width="180" height="180" />
-      <UInput
-        v-show="false"
-        id="image-file"
-        type="file"
-        accept="image/*"
-        multiple
-        @change="submitImage($event)"
-      />
       <UContextMenu
         v-if="props.editable"
         v-model="isOpen"
         :virtual-element="virtualElement"
       >
-        <div class="p-4">
-          <UButton
-            label="Загрузить"
-            variant="link"
-            @click="openFileForm('image-file')"
-          />
-        </div>
+        <UButton
+          label="Загрузить"
+          variant="link"
+          @click="open"
+        />
       </UContextMenu>
     </ElementsCardDiv>
   </div>

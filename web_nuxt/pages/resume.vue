@@ -5,7 +5,7 @@ const toast = useToast();
 const authFetch = useFetchAuth();
 
 const upload = ref(false);
-const resume = ref({}) as Persons;
+const resume = ref({} as Persons);
 
 const navigateToPersons = () => navigateTo("/persons");
 
@@ -23,7 +23,16 @@ async function submitResume(form: Persons) {
     color: "green",
   });
   upload.value = false;
-  return navigateTo("/profile/" + person_id);
+  if (person_id) {
+    return navigateTo("/profile/" + person_id);
+  } else {
+    toast.add({
+      icon: "i-heroiconsi-heroicons-information-circle",
+      title: "Внимание",
+      description: "Невозможно выполнить действие",
+      color: "red",
+    });
+  }
 }
 </script>
 

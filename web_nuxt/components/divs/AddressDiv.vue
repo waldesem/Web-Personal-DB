@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Address } from "@/types/interfaces";
 
-prefetchComponents(['FormsAddressForm', 'ElementsSkeletonDiv']);
+prefetchComponents(["FormsAddressForm", "ElementsSkeletonDiv"]);
 
 const authFetch = useFetchAuth();
 
@@ -30,22 +30,31 @@ const {
   status,
 } = await useLazyAsyncData("addresses", async () => {
   const response = await authFetch("/api/addresses/" + props.candId);
-  return response as typeof address.value[];
+  return response as (typeof address.value)[];
 });
 
 async function submitAddress(form: Address) {
   pending.value = true;
   closeAction();
-  await authFetch("/api/addresses/" + props.candId, {
+  const { message } = (await authFetch("/api/addresses/" + props.candId, {
     method: "POST",
     body: form,
-  });
-  toast.add({
-    icon: "i-heroicons-check-circle",
-    title: "Успешно",
-    description: "Информация обновлена",
-    color: "green",
-  });
+  })) as Record<string, string>;
+  if (message == "success") {
+    toast.add({
+      icon: "i-heroicons-check-circle",
+      title: "Успешно",
+      description: "Информация обновлена",
+      color: "green",
+    });
+  } else {
+    toast.add({
+      icon: "i-heroiconsi-heroicons-information-circle",
+      title: "Внимание",
+      description: "Ошибка при обновлении информации",
+      color: "red",
+    });
+  }
   pending.value = false;
   refresh();
 }
@@ -53,16 +62,25 @@ async function submitAddress(form: Address) {
 async function deleteAddress(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  await authFetch("/api/addresses/" + id, {
+  const { message } = (await authFetch("/api/addresses/" + id, {
     method: "DELETE",
-  });
-  toast.add({
-    icon: "i-heroicons-information-circle",
-    title: "Информация",
-    description: `Запись с ID ${id} удалена`,
-    color: "primary",
-  });
-  refresh();
+  })) as Record<string, string>;
+  if (message == "success") {
+    toast.add({
+      icon: "i-heroicons-information-circle",
+      title: "Информация",
+      description: `Запись с ID ${id} удалена`,
+      color: "primary",
+    });
+    refresh();
+  } else {
+    toast.add({
+      icon: "i-heroiconsi-heroicons-information-circle",
+      title: "Внимание",
+      description: "Ошибка при удалении информации",
+      color: "red",
+    });
+  }
 }
 
 async function cancelOperation() {

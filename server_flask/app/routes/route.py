@@ -6,6 +6,7 @@ import shutil
 import subprocess
 
 from flask import Blueprint, abort, current_app, jsonify, request, send_file
+from pydantic import ValidationError
 from sqlalchemy import desc, func, select
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -17,7 +18,7 @@ from ..depends.depend import (
     roles_required,
 )
 from ..model.classes import Regions, Roles
-from ..model.models import Person, User
+from ..model.models import Person, User, Login
 from ..model.tables import Checks, Persons, Users, db_session, tables_models
 from ..handlers.handler import (
     handle_image,
@@ -47,8 +48,12 @@ def post_login(action):
         None
     """
     json_data = request.get_json()
+    try:
+        json_data = Login(**json_data).dict()
+    except ValidationError:
+        return {"message": "Denied"}
     user = db_session.execute(
-        select(Users).where(Users.username == json_data.get("username"))
+        select(Users).filter(Users.username == json_data["username"])
     ).scalar_one_or_none()
     if not user or user.blocked or user.deleted:
         return {"message": "Invalid"}
@@ -100,7 +105,7 @@ def get_logout():
         None
     """
     get_current_user.cache_clear()
-    return {"message": "Success"}
+    return "", 205
 
 
 @bp.get("/users")
@@ -145,32 +150,29 @@ def post_user():
         - If an exception occurs during the execution of the function,
         returns an empty response with status code 400.
     """
-    json_data = request.get_json()
+    json_dict = request.get_json()
     try:
-        json_dict = User(**json_data).dict()
-        user = db_session.execute(
-            select(Users).filter(Users.username == json_dict.get("username"))
-        ).all()
-        if not user:
-            json_dict["role"] = Roles.guest.value
-            json_dict["region"] = Regions.main.value
-            json_dict["passhash"] = generate_password_hash(
-                current_app.config["DEFAULT_PASSWORD"]
-            )
-            db_session.add(Users(**json_dict))
-            db_session.commit()
-            return "", 201
-        return abort(400)
-    except Exception as e:
-        print(e)
-        return abort(400)
+        json_dict = User(**json_dict).dict()
+    except ValidationError:
+        return jsonify({"message": "error"}), 204
+    user = db_session.execute(
+        select(Users).filter(Users.username == json_dict["username"])
+    ).all()
+    if not user:
+        json_dict["role"] = Roles.guest.value
+        json_dict["region"] = Regions.main.value
+        json_dict["passhash"] = generate_password_hash(
+            current_app.config["DEFAULT_PASSWORD"]
+        )
+        db_session.add(Users(**json_dict))
+        db_session.commit()
+        return jsonify({"message": "success"}), 201
+    return jsonify({"message": "error"}), 200
 
 
 @bp.get("/users/<int:user_id>")
 @roles_required(Roles.admin.value)
 def get_user_actions(user_id):
-    if current_user.get("id") == user_id:
-        return abort(400)
     """
     Change a user's information in the database based on their user ID.
 
@@ -180,6 +182,8 @@ def get_user_actions(user_id):
     Returns:
         The HTTP status code is 201.
     """
+    if current_user.get("id") == user_id:
+        return abort(400)
     user = db_session.get(Users, user_id)
     item = request.args.get("item")
     if user and item:
@@ -224,14 +228,15 @@ def get_index(page):
     pagination = 10
     search_data = request.args.get("search")
     stmt = select(Persons, Users.fullname)
-    if search_data and len(search_data) > 2:
-        query = list(map(str.upper, search_data.split(maxsplit=2)))
-        if len(query):
-            stmt = stmt.filter(Persons.surname.ilike(f"%{query[0]}%"))
-        if len(query) > 1:
-            stmt = stmt.filter(Persons.firstname.ilike(f"%{query[1]}%"))
-        if len(query) > 2:
-            stmt = stmt.filter(Persons.patronymic.ilike(f"%{query[2]}%"))
+    if search_data:
+        query = list(map(str.upper, search_data.split()))[:3]
+        if query and len(query)[0] > 2:
+            if len(query):
+                stmt = stmt.filter(Persons.surname.ilike(f"%{query[0]}%"))
+            if len(query) > 1:
+                stmt = stmt.filter(Persons.firstname.ilike(f"%{query[1]}%"))
+            if len(query) > 2:
+                stmt = stmt.filter(Persons.patronymic.ilike(f"%{query[2]}%"))
     if current_user.get("region") != Regions.main.value:
         stmt = stmt.filter(Persons.region == current_user.get("region"))
     query = db_session.execute(
@@ -243,7 +248,7 @@ def get_index(page):
     result = [row[0].to_dict() | {"username": row[1]} for row in query]
     has_next = len(result) > pagination
     result = result[:pagination] if has_next else result
-    return jsonify([result, has_next, page > 1])
+    return jsonify([result, has_next])
 
 
 @bp.post("/file/<item>/<int:item_id>")
@@ -262,11 +267,8 @@ def post_file(item, item_id):
         None.
     """
     files = request.files.getlist("file")
-    if not files:
-        return abort(400)
-
     person = db_session.get(Persons, item_id)
-    if not person:
+    if not files or not person:
         return abort(400)
     if person.destination and not os.path.isdir(person.destination):
         os.mkdir(person.destination)
@@ -285,8 +287,9 @@ def post_file(item, item_id):
         os.mkdir(item_dir)
 
     if item == "image":
-        handle_image(files[0], item_dir)
-        return "", 201
+        if handle_image(files[0], item_dir):
+            return jsonify({"message": "success"}), 201
+        return jsonify({"message": "error"}), 200
 
     date_subfolder = os.path.join(
         item_dir,
@@ -317,11 +320,12 @@ def get_folder():
         None
     """
     folder = request.args.get("folder")
-    if folder and not os.path.isdir(folder):
-        os.mkdir(folder)
     if not folder:
-        return abort(400)
-    subprocess.run(f'explorer "{folder}"')
+        subprocess.run(f'explorer "{current_app.config["BASE_PATH"]}"')    
+    else:
+        if not os.path.isdir(folder):
+            os.mkdir(folder)
+        subprocess.run(f'explorer "{folder}"')
     # subprocess.run(["xdg-open", folder_path])
     return "", 200
 
@@ -367,14 +371,14 @@ def post_json():
     """
     file = request.files.get("file")
     if not file or not file.filename.endswith(".json"):
-        return abort(400)
+        return jsonify({"person_id": None})
     json_dict = json.load(file)
     anketa = handle_json_to_dict(json_dict)
     if not anketa:
-        return abort(400)
+        return jsonify({"person_id": None})
     person_id = handle_post_resume(anketa.pop("resume"))
     if not person_id:
-        return abort(400)
+        jsonify({"person_id": None})
 
     for table, contents in anketa.items():
         if contents:
@@ -397,10 +401,13 @@ def post_resume():
         The person ID is the ID of the newly created user, person, or contact.
     """
     json_data = request.get_json()
-    resume = Person(**json_data).dict()
-    person_id = handle_post_resume(resume)
+    try:
+        json_data = Person(**json_data).dict()
+    except ValidationError:
+        return jsonify({"person_id": None})
+    person_id = handle_post_resume(json_data)
     if not person_id:
-        return abort(400)
+        return jsonify({"person_id": None})
     return jsonify({"person_id": person_id}), 201
 
 
@@ -428,7 +435,8 @@ def change_region(person_id):
         person.region = region
         person.editable = False
         db_session.commit()
-    return "", 200
+        return jsonify({"message": "success"}), 201
+    return jsonify({"message": "error"}), 200
 
 
 @bp.get("/self/<int:item_id>")
@@ -483,8 +491,9 @@ def post_item_id(item, item_id):
         code of 201.
     """
     json_data = request.get_json()
-    handle_post_item(json_data, item, item_id)
-    return "", 201
+    if handle_post_item(json_data, item, item_id):
+        return jsonify({"message": "success"}), 201
+    return jsonify({"message": "error"}), 200
 
 
 @bp.delete("/<item>/<int:item_id>")
@@ -506,7 +515,8 @@ def delete_item(item, item_id):
         item = db_session.get(table, item_id)
         db_session.delete(item)
         db_session.commit()
-    return "", 204
+        return jsonify({"message": "success"}), 201
+    return jsonify({"message": "error"}), 200
 
 
 @bp.get("/information")
@@ -538,9 +548,9 @@ def get_information():
     results = db_session.execute(
         select(Checks.conclusion, func.count(Checks.id))
         .where(
-            Checks.person_id == Persons.id,
-            Checks.created.between(data["start"], data["end"]),
-            Persons.region == data.get("region")
+            Checks.person_id == Persons.id
+            and Checks.created.between(data["start"], data["end"])
+            and Persons.region == data.get("region")
             if data.get("region")
             else current_user.get("region"),
         )

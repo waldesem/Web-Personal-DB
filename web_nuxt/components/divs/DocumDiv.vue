@@ -37,16 +37,25 @@ const {
 async function submitDocument(form: Document) {
   pending.value = true;
   closeAction();
-  await authFetch("/api/documents/" + props.candId, {
+  const { message } = await authFetch("/api/documents/" + props.candId, {
     method: "POST",
     body: form,
-  });
-  toast.add({
-    icon: "i-heroicons-check-circle",
-    title: "Успешно",
-    description: "Информация обновлена",
-    color: "green",
-  });
+  }) as Record<string, string>;
+  if (message == 'success') {
+    toast.add({
+      icon: "i-heroicons-check-circle",
+      title: "Успешно",
+      description: "Информация обновлена",
+      color: "green",
+    });
+  } else {
+    toast.add({
+      icon: "i-heroiconsi-heroicons-information-circle",
+      title: "Внимание",
+      description: "Ошибка при обновлении информации",
+      color: "red",
+    });
+  }
   pending.value = false;
   refresh();
 }
@@ -54,16 +63,25 @@ async function submitDocument(form: Document) {
 async function deleteDocument(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  await authFetch("/api/documents/" + id, {
+  const { message } = await authFetch("/api/documents/" + id, {
     method: "DELETE",
-  });
-  toast.add({
-    icon: "i-heroicons-information-circle",
-    title: "Информация",
-    description: `Запись с ID ${id} удалена`,
-    color: "primary",
-  });
-  refresh();
+  }) as Record<string, string>;
+    if (message == 'success') {
+    toast.add({
+      icon: "i-heroicons-information-circle",
+      title: "Информация",
+      description: `Запись с ID ${id} удалена`,
+      color: "primary",
+    });
+    refresh();
+  } else {
+    toast.add({
+      icon: "i-heroiconsi-heroicons-information-circle",
+      title: "Внимание",
+      description: "Ошибка при удалении информации",
+      color: "red",
+    });
+  }
 }
 
 async function cancelOperation() {

@@ -6,10 +6,9 @@ const authFetch = useFetchAuth();
 const userState = useUserState();
 const toast = useToast();
 
-const candidates = ref([]) as Persons[];
+const candidates = ref([] as Persons[]);
 const page = ref(1);
-const prev = ref(false);
-const next = ref(false);
+const hasNext = ref(false);
 const upload = ref(false);
 const search = ref("");
 const updated = ref("Данные обновляются...");
@@ -21,7 +20,7 @@ const { refresh, status } = await useLazyAsyncData("candidates", async () => {
     },
   });
 
-  [candidates.value, next.value, prev.value] = response as [
+  [candidates.value, hasNext.value] = response as [
     Persons[],
     boolean,
     boolean
@@ -62,24 +61,18 @@ onChange(async (files) => {
     body: formData,
   })) as Record<string, string>;
   reset();
-  if (!person_id) {
+  upload.value = false;
+  if (person_id) {
+    await refresh();
+    return navigateTo("/profile/" + person_id);
+  } else {
     toast.add({
       icon: "i-heroiconsi-heroicons-information-circle",
       title: "Внимание",
       description: "Файл не был загружен",
       color: "red",
     });
-    return;
   }
-  toast.add({
-    icon: "i-heroicons-check-circle",
-    title: "Информация",
-    description: "Файл успешно загружен",
-    color: "green",
-  });
-  upload.value = false;
-  await refresh();
-  return navigateTo("/profile/" + person_id);
 });
 
 onCancel(() => {
@@ -178,11 +171,11 @@ preloadRouteComponents("/profile/[id]");
         </caption>
       </template>
     </UTable>
-    <div v-if="prev || next" class="justify-center flex pt-4">
+    <div v-if="page < 2 || hasNext" class="justify-center flex pt-4">
       <UTooltip text="Предыдущая страница">
         <UButton
           icon="i-heroicons-arrow-small-left-20-solid"
-          :disabled="!prev"
+          :disabled="page < 2"
           :ui="{ rounded: 'rounded-full' }"
           class="me-2"
           @click="page--"
@@ -191,7 +184,7 @@ preloadRouteComponents("/profile/[id]");
       <UTooltip text="Следующая страница">
         <UButton
           icon="i-heroicons-arrow-small-right-20-solid"
-          :disabled="!next"
+          :disabled="!hasNext"
           :ui="{ rounded: 'rounded-full' }"
           class="ms-2"
           @click="page++"

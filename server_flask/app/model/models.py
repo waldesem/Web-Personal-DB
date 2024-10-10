@@ -6,6 +6,12 @@ from pydantic import BaseModel, Field, validator
 from .classes import Regions, Conclusions, Roles
 
 
+class Login(BaseModel):
+    username: str
+    password: str
+    new_pswd: Optional[str] = None
+
+
 class QueryModel(BaseModel):
     id: Optional[str | int] = None
 

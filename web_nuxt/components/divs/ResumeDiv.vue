@@ -32,62 +32,89 @@ const opening = ref(false);
 
 async function changeRegion(): Promise<void> {
   if (!confirm("Вы действительно хотите изменить регион?")) return;
-  await authFetch(`/api/region/${props.candId}`, {
+  const { message } = (await authFetch(`/api/region/${props.candId}`, {
     params: {
       region: region.value,
     },
-  });
-  emit("update");
-  toast.add({
-    icon: "i-heroicons-check-circle",
-    title: "Информация",
-    description: "Изменение региона успешно",
-    color: "green",
-  });
+  })) as Record<string, string>;
+  if (message == "success") {
+    emit("update");
+    toast.add({
+      icon: "i-heroicons-check-circle",
+      title: "Информация",
+      description: "Изменение региона успешно",
+      color: "green",
+    });
+  } else {
+    toast.add({
+      icon: "i-heroiconsi-heroicons-information-circle",
+      title: "Внимание",
+      description: "Регион не был изменен",
+      color: "red",
+    });
+  }
 }
 
 async function openFolder() {
-  if (!props.person.destination) return; 
+  if (!props.person.destination) return;
   opening.value = true;
   await authFetch("/api/folder", {
     params: {
       folder: props.person["destination"],
     },
   });
-  opening.value=false; 
+  opening.value = false;
 }
 
 async function submitResume(form: Persons) {
   pending.value = true;
   edit.value = false;
-  await authFetch("/api/persons/" + props.candId, {
+  const { message } = (await authFetch("/api/persons/" + props.candId, {
     method: "POST",
     body: form,
-  });
-  toast.add({
-    icon: "i-heroicons-check-circle",
-    title: "Успешно",
-    description: "Информация обновлена",
-    color: "green",
-  });
+  })) as Record<string, string>;
   pending.value = false;
   emit("update");
+  if (message == "success") {
+    toast.add({
+      icon: "i-heroicons-check-circle",
+      title: "Успешно",
+      description: "Информация обновлена",
+      color: "green",
+    });
+  } else {
+    toast.add({
+      icon: "i-heroiconsi-heroicons-information-circle",
+      title: "Внимание",
+      description: "Ошибка при обновлении информации",
+      color: "red",
+    });
+  }
 }
 
 async function deleteItem() {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  pending.value = true; 
-  await authFetch(`/api/persons/${props.candId}`, {
+  pending.value = true;
+  const { message } = (await authFetch(`/api/persons/${props.candId}`, {
     method: "DELETE",
-  });
-  toast.add({
-    icon: "i-heroicons-information-circle",
-    title: "Информация",
-    description: `Запись с ID ${props.candId} удалена`,
-    color: "primary",
-  });
-  pending.value=false;
-  return navigateTo("/persons");
+  })) as Record<string, string>;
+  pending.value = false;
+  if (message == "success") {
+    toast.add({
+      icon: "i-heroicons-information-circle",
+      title: "Информация",
+      description: `Запись удалена`,
+      color: "primary",
+    });
+    return navigateTo("/persons");
+  } else {
+    toast.add({
+      icon: "i-heroiconsi-heroicons-information-circle",
+      title: "Внимание",
+      description: "Ошибка при удалении информации",
+      color: "red",
+    });
+  }
 }
 
 async function cancelAction() {

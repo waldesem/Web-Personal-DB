@@ -5,6 +5,7 @@ import { watchDebounced, useDateFormat } from "@vueuse/core";
 const toast = useToast();
 
 const fetchAuth = useFetchAuth();
+const userState = useUserState();
 
 const dataUsers = ref({
   search: "",
@@ -28,14 +29,13 @@ const users = computed(() => {
   );
 });
 
- const { refresh, status } = await useLazyAsyncData("users", async () => {
-  dataUsers.value.users = await fetchAuth("/api/users", {
-      params: {
-        search: dataUsers.value.search,
-      },
-    }) as User[];
-  }
-);
+const { refresh, status } = await useLazyAsyncData("users", async () => {
+  dataUsers.value.users = (await fetchAuth("/api/users", {
+    params: {
+      search: dataUsers.value.search,
+    },
+  })) as User[];
+});
 
 /**
  * Performs an action on a user, such as blocking or deleting them.
@@ -48,6 +48,15 @@ async function userAction(
   item: string,
   id: string = dataUsers.value.userId
 ): Promise<void> {
+  if (id == userState.value.id) {
+    toast.add({
+      icon: "i-heroiconsi-heroicons-information-circle",
+      title: "Внимание",
+      description: "Невозможно  выполнить действие",
+      color: "red",
+    });
+    return;
+  }
   if (!confirm("Подтвердите действие!")) {
     return;
   }
@@ -75,22 +84,31 @@ async function userAction(
  * @returns {Promise<void>}
  */
 async function submitUser(): Promise<void> {
-  await fetchAuth("/api/users", {
+  const { message } = (await fetchAuth("/api/users", {
     method: "POST",
     body: dataUsers.value.form,
-  });
+  })) as Record<string, string>;
   dataUsers.value.collapsed = false;
   Object.assign(dataUsers.value.form, {
     fullname: "",
     username: "",
   });
-  await refresh();
-  toast.add({
-    icon: "i-heroicons-check-circle",
-    title: "Информация",
-    description: "Пользователь успешно добавлен",
-    color: "green",
-  });
+  if (message === "success") {
+    await refresh();
+    toast.add({
+      icon: "i-heroicons-check-circle",
+      title: "Информация",
+      description: "Пользователь успешно добавлен",
+      color: "green",
+    });
+  } else {
+    toast.add({
+      icon: "i-heroiconsi-heroicons-information-circle",
+      title: "Внимание",
+      description: "Ошибка данных или пользователь уже существует",
+      color: "red",
+    });
+  }
 }
 
 const validate = (state: User) => {

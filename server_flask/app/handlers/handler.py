@@ -29,19 +29,18 @@ def handle_get_item(item, item_id):
         None
     """
     table = tables_models.get(item)
-    if not table:
-        return abort(400)
-    stmt = select(table, Users.fullname)
-    stmt = (
-        stmt.filter(Persons.id == item_id)
-        if item == "persons"
-        else stmt.filter(table.person_id == item_id)
-    )
-    stmt = stmt.filter(table.user_id == Users.id)
-    query = db_session.execute(stmt.order_by(desc(table.id))).all()
-    if query:
-        result = [row[0].to_dict() | {"username": row[1]} for row in query]
-        return result[0] if item == "persons" else result
+    if table:
+        stmt = select(table, Users.fullname)
+        stmt = (
+            stmt.filter(Persons.id == item_id)
+            if item == "persons"
+            else stmt.filter(table.person_id == item_id)
+        )
+        stmt = stmt.filter(table.user_id == Users.id)
+        query = db_session.execute(stmt.order_by(desc(table.id))).all()
+        if query:
+            result = [row[0].to_dict() | {"username": row[1]} for row in query]
+            return result[0] if item == "persons" else result
     return abort(400)
 
 
@@ -58,16 +57,17 @@ def handle_post_item(data: dict, item: str, item_id=None):
         None
     """
     table, model = tables_models.get(item), models_tables.get(item)
-    if not model or not table:
-        return abort(400)
-    if item != "persons":
-        try:
-            data = model(**data).dict()
-            data.update({"person_id": item_id, "user_id": current_user.get("id")})
-        except ValidationError:
-            return abort(400)
-    db_session.merge(table(**data))
-    db_session.commit()
+    if model and table:
+        if item != "persons":
+            try:
+                data = model(**data).dict()
+                data.update({"person_id": item_id, "user_id": current_user.get("id")})
+            except ValidationError:
+                return False
+        db_session.merge(table(**data))
+        db_session.commit()
+        return True
+    return False
 
 
 def handle_post_resume(resume: dict):
@@ -93,8 +93,8 @@ def handle_post_resume(resume: dict):
         select(Persons).where(
             Persons.surname.ilike("%{}%".format(resume["surname"]))
             and Persons.firstname.ilike("%{}%".format(resume["firstname"]))
-            and Persons.patronymic.ilike("%{}%".format(resume["patronymic"])),
-            Persons.birthday == resume["birthday"],
+            and Persons.patronymic.ilike("%{}%".format(resume["patronymic"]))
+            and Persons.birthday == resume["birthday"],
         )
     ).scalar_one_or_none()
     if not person:
@@ -130,63 +130,61 @@ def handle_post_resume(resume: dict):
     return resume["id"]
 
 
-def handle_json_to_dict(data):
+def handle_json_to_dict(anketa):
     try:
-        anketa = AnketaSchemaJson(**data).dict()
-        anketa["resume"] = {
-            "region": current_user.get("region"),
-            "surname": anketa.pop("surname", ""),
-            "firstname": anketa.pop("firstname", ""),
-            "patronymic": anketa.pop("patronymic", "")
-            if anketa.get("patronymic")
-            else "",
-            "birthday": anketa.pop("birthday", ""),
-            "birthplace": anketa.pop("birthplace", ""),
-            "citizenship": anketa.pop("citizenship", ""),
-            "dual": anketa.pop("dual", ""),
-            "marital": anketa.pop("marital", ""),
-            "inn": anketa.pop("inn", ""),
-            "snils": anketa.pop("snils", ""),
-        }
-        anketa["staffs"] = [
-            {
-                "position": anketa.pop("positionName", ""),
-                "department": anketa.pop("department", ""),
-            }
-        ]
-        anketa["documents"] = [
-            {
-                "view": "Паспорт",
-                "digits": anketa.pop("passportNumber", ""),
-                "series": anketa.pop("passportSerial", ""),
-                "issue": anketa.pop("passportIssueDate", ""),
-                "agency": anketa.pop("passportIssuedBy", ""),
-            }
-        ]
-        anketa["addresses"] = [
-            {
-                "view": "Адрес проживания",
-                "addresses": anketa.pop("validAddress", ""),
-            },
-            {
-                "view": "Адрес регистрации",
-                "addresses": anketa.pop("regAddress", ""),
-            },
-        ]
-        anketa["contacts"] = [
-            {"view": "Телефон", "contact": anketa.pop("contactPhone", "")},
-            {"view": "Электронная почта", "contact": anketa.pop("email", "")},
-        ]
-        anketa["affilations"] = (
-            anketa.pop("organizations")
-            + anketa.pop("stateOrganizations")
-            + anketa.pop("publicOfficeOrganizations")
-            + anketa.pop("relatedPersonsOrganizations")
-        )
-        return anketa
+        anketa = AnketaSchemaJson(**anketa).dict()
     except ValidationError as e:
         print(e)
         return None
+    anketa["resume"] = {
+        "region": current_user.get("region"),
+        "surname": anketa.pop("surname", ""),
+        "firstname": anketa.pop("firstname", ""),
+        "patronymic": anketa.pop("patronymic", "") if anketa.get("patronymic") else "",
+        "birthday": anketa.pop("birthday", ""),
+        "birthplace": anketa.pop("birthplace", ""),
+        "citizenship": anketa.pop("citizenship", ""),
+        "dual": anketa.pop("dual", ""),
+        "marital": anketa.pop("marital", ""),
+        "inn": anketa.pop("inn", ""),
+        "snils": anketa.pop("snils", ""),
+    }
+    anketa["staffs"] = [
+        {
+            "position": anketa.pop("positionName", ""),
+            "department": anketa.pop("department", ""),
+        }
+    ]
+    anketa["documents"] = [
+        {
+            "view": "Паспорт",
+            "digits": anketa.pop("passportNumber", ""),
+            "series": anketa.pop("passportSerial", ""),
+            "issue": anketa.pop("passportIssueDate", ""),
+            "agency": anketa.pop("passportIssuedBy", ""),
+        }
+    ]
+    anketa["addresses"] = [
+        {
+            "view": "Адрес проживания",
+            "addresses": anketa.pop("validAddress", ""),
+        },
+        {
+            "view": "Адрес регистрации",
+            "addresses": anketa.pop("regAddress", ""),
+        },
+    ]
+    anketa["contacts"] = [
+        {"view": "Телефон", "contact": anketa.pop("contactPhone", "")},
+        {"view": "Электронная почта", "contact": anketa.pop("email", "")},
+    ]
+    anketa["affilations"] = (
+        anketa.pop("organizations")
+        + anketa.pop("stateOrganizations")
+        + anketa.pop("publicOfficeOrganizations")
+        + anketa.pop("relatedPersonsOrganizations")
+    )
+    return anketa
 
 
 def handle_image(file, item_dir):
@@ -207,6 +205,8 @@ def handle_image(file, item_dir):
         if os.path.isfile(new_file):
             os.remove(new_file)
         image.save(new_file, format="JPEG", quality=90)
+        return True
+    return False
 
 
 def make_destination(region, surname, firstname, patronymic, person_id):
