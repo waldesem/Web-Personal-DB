@@ -71,9 +71,9 @@ def create_token(user):
     """
     if isinstance(user, dict):
         try:
-            token = "Bearer " + jwt.encode(
+            token = " ".join(["Bearer", jwt.encode(
                 user, current_app.config["JWT_SECRET_KEY"], algorithm="HS256"
-            )
+            )])
             return token
         except jwt.exceptions.InvalidTokenError:
             return None
