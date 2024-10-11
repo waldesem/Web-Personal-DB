@@ -547,9 +547,9 @@ def get_information():
     results = db_session.execute(
         select(Checks.conclusion, func.count(Checks.id))
         .where(
-            Checks.person_id == Persons.id
-            and Checks.created.between(data["start"], data["end"])
-            and Persons.region == data.get("region")
+            Checks.person_id == Persons.id,
+            Checks.created.between(data["start"], data["end"]),
+            Persons.region == data.get("region")
             if data.get("region")
             else current_user.get("region"),
         )
