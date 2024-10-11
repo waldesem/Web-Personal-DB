@@ -124,9 +124,9 @@ def get_users():
     stmt = select(Users)
     if search_data and len(search_data) > 2:
         if re.match(r"^[a-zA-z_]+", search_data):
-            stmt = stmt.filter(Users.username.like("%" + search_data + "%"))
+            stmt = stmt.filter(Users.username.like(f"%{search_data}%"))
         else:
-            stmt = stmt.filter(Users.fullname.like("%" + search_data + "%"))
+            stmt = stmt.filter(Users.fullname.like(f"%{search_data}%"))
     users = db_session.execute(stmt.order_by(desc(Users.id))).scalars()
     return jsonify([user.to_dict() for user in users]), 200
 
