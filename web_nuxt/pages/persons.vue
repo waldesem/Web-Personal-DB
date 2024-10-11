@@ -3,7 +3,9 @@ import type { Persons } from "@/types/interfaces";
 import { watchDebounced, useFileDialog, useDateFormat } from "@vueuse/core";
 
 definePageMeta({
-  keepalive: true,
+  keepalive: {
+    max: "10",
+  },
 });
 
 const authFetch = useFetchAuth();
