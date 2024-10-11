@@ -22,14 +22,15 @@ def get_payload(header):
         bool: True if the token is valid, False if not.
     """
     if isinstance(header, str):
-        payload = header.split(" ")[1]
-        try:
-            decoded = jwt.decode(
-                payload, current_app.config["JWT_SECRET_KEY"], algorithms=["HS256"]
+        payload = header.split(" ")
+        if len(payload) == 2:
+            try:
+                decoded = jwt.decode(
+                payload[1】, current_app.config["JWT_SECRET_KEY"], algorithms=["HS256"]
             )
-            return decoded.get("id", None)
-        except jwt.exceptions.InvalidTokenError:
-            return None
+                return decoded.get("id", None)
+            except jwt.exceptions.InvalidTokenError:
+                return None
     return None
 
 
