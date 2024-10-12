@@ -7,8 +7,6 @@ from flask import Flask
 from sqlalchemy import select
 from werkzeug.security import generate_password_hash
 
-# from flask_cors import CORS
-
 from config import Config, basedir
 from .model.tables import db_session, Users
 from .model.classes import Roles, Regions
