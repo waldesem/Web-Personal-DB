@@ -89,6 +89,7 @@ preloadRouteComponents("/profile/[id]");
         <UButton
           icon="i-heroicons-cloud-arrow-up"
           title="Загрузить json файл"
+          size="xl"
           variant="ghost"
           @click="open"
         />
