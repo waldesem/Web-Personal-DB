@@ -2,7 +2,7 @@
 import type { Verification } from "@/types/interfaces";
 import { useDateFormat } from "@vueuse/core";
 
-prefetchComponents(['FormsCheckForm', 'ElementsSkeletonDiv']);
+prefetchComponents(["FormsCheckForm", "ElementsSkeletonDiv"]);
 
 const authFetch = useFetchAuth();
 
@@ -118,46 +118,70 @@ function closeAction() {
           @update="submitCheck"
         />
         <div v-else>
-          <ElementsLabelSlot :label="'Проверка по местам работы'">
+          <ElementsLabelSlot
+            v-if="item['workplace']"
+            :label="'Проверка по местам работы'"
+          >
             {{ item["workplace"] }}
           </ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Проверка паспорта'">
+          <ElementsLabelSlot
+            v-if="item['document']"
+            :label="'Проверка паспорта'"
+          >
             {{ item["document"] }}
           </ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Проверка ИНН'">{{
+          <ElementsLabelSlot v-if="item['inn']" :label="'Проверка ИНН'">{{
             item["inn"]
           }}</ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Проверка ФССП'">{{
+          <ElementsLabelSlot v-if="item['debt']" :label="'Проверка ФССП'">{{
             item["debt"]
           }}</ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Проверка банкротства'">
+          <ElementsLabelSlot
+            v-if="item['bankruptcy']"
+            :label="'Проверка банкротства'"
+          >
             {{ item["bankruptcy"] }}
           </ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Проверка БКИ'">{{
+          <ElementsLabelSlot v-if="item['bki']" :label="'Проверка БКИ'">{{
             item["bki"]
           }}</ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Проверка судебных решений'">
+          <ElementsLabelSlot
+            v-if="item['courts']"
+            :label="'Проверка судебных решений'"
+          >
             {{ item["courts"] }}
           </ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Проверка аффилированности'">
+          <ElementsLabelSlot
+            v-if="item['affilation']"
+            :label="'Проверка аффилированности'"
+          >
             {{ item["affilation"] }}
           </ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Проверка по списку террористов'">
+          <ElementsLabelSlot
+            v-if="item['terrorist']"
+            :label="'Проверка по списку террористов'"
+          >
             {{ item["terrorist"] }}
           </ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Проверка в розыск'">{{
+          <ElementsLabelSlot v-if="item['mvd']" :label="'Проверка в розыск'">{{
             item["mvd"]
           }}</ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Проверка в открытых источниках'">
+          <ElementsLabelSlot
+            v-if="item['internet']"
+            :label="'Проверка в открытых источниках'"
+          >
             {{ item["internet"] }}
           </ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Проверка в Кронос'">
+          <ElementsLabelSlot v-if="item['cronos']" :label="'Проверка в Кронос'">
             {{ item["cronos"] }}
           </ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Дополнительная информация'">
+          <ElementsLabelSlot
+            v-if="item['addition']"
+            :label="'Дополнительная информация'"
+          >
             {{ item["addition"] }}
           </ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Комментарии'"
+          <ElementsLabelSlot v-if="item['comment']" :label="'Комментарии'"
             >{{ item["comment"] }}
           </ElementsLabelSlot>
           <ElementsLabelSlot :label="'Результат'">{{

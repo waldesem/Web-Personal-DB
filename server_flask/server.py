@@ -30,7 +30,7 @@ def main():
         "--port", default=5000, type=int, help="The port to run the server on."
     )
     parser.add_argument(
-        "--workers", default=8, type=int, help="The number of workers to use."
+        "--workers", default=16, type=int, help="The number of workers to use."
     )
     parser.add_argument(
         "--mode",

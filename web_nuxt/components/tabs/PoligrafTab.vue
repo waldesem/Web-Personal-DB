@@ -118,10 +118,10 @@ function closeAction() {
           @update="submitPoligraf"
         />
         <div v-else>
-          <ElementsLabelSlot :label="'Тема проверки'">{{
+          <ElementsLabelSlot v-if="item['theme']" :label="'Тема проверки'">{{
             item["theme"]
           }}</ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Результат'">{{
+          <ElementsLabelSlot v-if="item['results']" :label="'Результат'">{{
             item["results"]
           }}</ElementsLabelSlot>
           <ElementsLabelSlot :label="'Сотрудник'">{{

@@ -37,7 +37,7 @@ function clearForm() {
 
 <template>
   <UForm :state="inquiryForm" @submit.prevent="submitIquiry">
-    <UFormGroup class="mb-3" label="Информация">
+    <UFormGroup class="mb-3" label="Информация*">
       <UTextarea
         v-model.trim.lazy="inquiryForm['info']"
         required
@@ -45,7 +45,7 @@ function clearForm() {
         placeholder="Информация"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Инициатор">
+    <UFormGroup class="mb-3" label="Инициатор*">
       <UInput
         v-model.trim.lazy="inquiryForm['initiator']"
         required

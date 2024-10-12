@@ -118,10 +118,10 @@ function closeAction() {
           @update="submitInvestigations"
         />
         <div v-else>
-          <ElementsLabelSlot :label="'Тема проверки'">{{
+          <ElementsLabelSlot v-if="item['theme']" :label="'Тема проверки'">{{
             item["theme"]
           }}</ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Информация'">{{
+          <ElementsLabelSlot v-if="item['info']" :label="'Информация'">{{
             item["info"]
           }}</ElementsLabelSlot>
           <ElementsLabelSlot :label="'Сотрудник'">{{

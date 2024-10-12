@@ -2,7 +2,7 @@
 import type { Needs } from "@/types/interfaces";
 import { useDateFormat } from "@vueuse/core";
 
-prefetchComponents(['FormsInquiryForm', 'ElementsSkeletonDiv']);
+prefetchComponents(["FormsInquiryForm", "ElementsSkeletonDiv"]);
 
 const authFetch = useFetchAuth();
 
@@ -118,13 +118,13 @@ function cancelOperation() {
           @update="submitIquiry"
         />
         <div v-else>
-          <ElementsLabelSlot :label="'Информация'">{{
+          <ElementsLabelSlot v-if="item['info']" :label="'Информация'">{{
             item["info"]
           }}</ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Иннициатор'">{{
+          <ElementsLabelSlot v-if="item['initiator']" :label="'Иннициатор'">{{
             item["initiator"]
           }}</ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Источники'"
+          <ElementsLabelSlot v-if="item['origins']" :label="'Источники'"
             >{{ item["origins"] }}
           </ElementsLabelSlot>
           <ElementsLabelSlot :label="'Сотрудник'">{{
