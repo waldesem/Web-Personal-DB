@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import lru_cache, wraps
 
 from flask import abort, current_app, g, request
@@ -12,25 +12,23 @@ current_user = LocalProxy(lambda: get_current_user(g.user_id))
 
 @lru_cache(maxsize=2)
 def get_payload(header):
-    """
-    Validates a JWT token and stores the user ID in the g object.
+    """Validates a JWT token and returns the user ID.
 
     Parameters:
-        token (str): The JWT token to validate.
+        header (str): The JWT token to validate.
 
     Returns:
-        bool: True if the token is valid, False if not.
+        int or None: The user ID if the token is valid, None if not.
     """
-    if isinstance(header, str):
-        payload = header.split(" ")
-        if len(payload) == 2:
-            try:
-                decoded = jwt.decode(
-                payload[1】, current_app.config["JWT_SECRET_KEY"], algorithms=["HS256"]
-            )
-                return decoded.get("id", None)
-            except jwt.exceptions.InvalidTokenError:
-                return None
+    if isinstance(header, str) and header.startswith("Bearer "):
+        try:
+            return jwt.decode(
+                header[7:],
+                current_app.config["JWT_SECRET_KEY"],
+                algorithms=["HS256"],
+            )["id"]
+        except jwt.exceptions.InvalidTokenError:
+            return None
     return None
 
 
@@ -48,13 +46,12 @@ def get_current_user(user_id):
             Otherwise, returns None.
     """
     user = db_session.get(Users, user_id)
-    delta_change = datetime.now() - user.pswd_create
     if (
         user
         and not user.blocked
         and not user.deleted
         and not user.change_pswd
-        and delta_change.days < 365
+        and user.pswd_create + timedelta(days=365) > datetime.now()
     ):
         return user.to_dict()
     return None
@@ -72,10 +69,9 @@ def create_token(user):
     """
     if isinstance(user, dict):
         try:
-            token = " ".join(["Bearer", jwt.encode(
+            return "Bearer " + jwt.encode(
                 user, current_app.config["JWT_SECRET_KEY"], algorithm="HS256"
-            )])
-            return token
+            )
         except jwt.exceptions.InvalidTokenError:
             return None
     return None

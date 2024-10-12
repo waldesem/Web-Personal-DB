@@ -82,7 +82,7 @@ class Persons(Base):
     citizenship: Mapped[str] = mapped_column(String(255), nullable=True)
     dual: Mapped[str] = mapped_column(String(255), nullable=True)
     snils: Mapped[str] = mapped_column(String(11), nullable=True)
-    inn: Mapped[str] = mapped_column(String(12), nullable=True, index=True)
+    inn: Mapped[str] = mapped_column(String(12), nullable=True)
     marital: Mapped[str] = mapped_column(String(255), nullable=True)
     addition: Mapped[str] = mapped_column(Text, nullable=True)
     destination: Mapped[str] = mapped_column(Text, nullable=True)

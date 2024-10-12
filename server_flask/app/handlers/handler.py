@@ -111,7 +111,7 @@ def handle_post_resume(resume: dict):
         return person.id
 
     if person.editable:
-        return person.id
+        return None
 
     destination = make_destination(
         resume["region"],
