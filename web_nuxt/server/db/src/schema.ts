@@ -1,181 +1,229 @@
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const usersTable = sqliteTable("users", {
-  id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
-  fullname: text('fullname', { mode: 'text' }).notNull(),
-  username: text('username', { mode: 'text' }).notNull().unique(),
-  email: text('email', { mode: 'text' }).notNull().unique(),
-  passhash: text('passhash', { mode: 'text' }).notNull(),
-  pswd_create: integer('pswd_create', { mode: 'timestamp_ms' }).notNull(),
-  change_pswd: integer('change_pswd', { mode: 'boolean' }).notNull(),
-  blocked: integer('blocked', { mode: 'boolean' }).notNull(),
-  deleted: integer('deleted', { mode: 'boolean' }).notNull(),
-  attempt: integer('attempt', { mode: 'number' }).notNull(),
-  role: text('role', { mode: 'text' }).notNull(),
-  created: integer('created', { mode: 'timestamp_ms' }).notNull(),
+  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  fullname: text("fullname", { mode: "text" }).notNull(),
+  username: text("username", { mode: "text" }).notNull().unique(),
+  email: text("email", { mode: "text" }).notNull().unique(),
+  passhash: text("passhash", { mode: "text" }).notNull(),
+  pswd_create: integer("pswd_create", { mode: "timestamp_ms" }).notNull(),
+  change_pswd: integer("change_pswd", { mode: "boolean" }).notNull(),
+  blocked: integer("blocked", { mode: "boolean" }).notNull(),
+  deleted: integer("deleted", { mode: "boolean" }).notNull(),
+  attempt: integer("attempt", { mode: "number" }).notNull(),
+  role: text("role", { mode: "text" }).notNull(),
+  created: integer("created", { mode: "timestamp_ms" }).notNull(),
 });
 
 export const personsTable = sqliteTable("persons", {
-  id: integer('number').primaryKey({ autoIncrement: true }),
-  surname: text('text').notNull(),
-  firstname: text('text').notNull(),
-  patronymic: text('text'),
-  birthday: integer('timestamp').notNull(),
-  birthplace: text('text'),
-  citizenship: text('text'),
-  dual: text('text'),
-  snils: text('text'),
-  inn: text('text'),
-  marital: text('text'),
-  addition: text('text'),
-  destination: text('text'),
-  created: integer('timestamp_ms').notNull(),
-  region: text('text'),
-  editable: integer('boolean').notNull(),
-  user_id: integer('number').references(() => usersTable.id),
-})
+  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  surname: text("surname", { mode: "text" }).notNull(),
+  firstname: text("firstname", { mode: "text" }).notNull(),
+  patronymic: text("patronymic", { mode: "text" }),
+  birthday: integer("birthday", { mode: "timestamp" }).notNull(),
+  birthplace: text("birthplace", { mode: "text" }),
+  citizenship: text("citizenship", { mode: "text" }),
+  dual: text("dual", { mode: "text" }),
+  snils: text("snils", { mode: "text" }),
+  inn: text("inn", { mode: "text" }),
+  marital: text("marital", { mode: "text" }),
+  addition: text("addition", { mode: "text" }),
+  destination: text("destination", { mode: "text" }),
+  created: integer("created", { mode: "timestamp_ms" }).notNull(),
+  region: text("region", { mode: "text" }),
+  editable: integer("editable", { mode: "boolean" }).notNull().default(false),
+  user_id: integer("number").references(() => usersTable.id),
+});
 
 export const previousTable = sqliteTable("previous", {
-  id: integer('number').primaryKey({ autoIncrement: true }),
-  surname: text('text'),
-  firstname: text('text'),
-  patronymic: text('text'),
-  changed: text('text'),
-  reason: text('text'),
-  created: integer('timestamp_ms').notNull(),
-  person_id: integer('number').references(() => personsTable.id),
-  user_id: integer('number').references(() => usersTable.id),
-})
+  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  surname: text("surname", { mode: "text" }).notNull(),
+  firstname: text("firstname", { mode: "text" }).notNull(),
+  patronymic: text("patronymic", { mode: "text" }),
+  changed: text("changed", { mode: "text" }),
+  reason: text("reason", { mode: "text" }),
+  created: integer("created", { mode: "timestamp_ms" }).notNull(),
+  person_id: integer("person_id", { mode: "number" }).references(
+    () => personsTable.id
+  ),
+  user_id: integer("user_id", { mode: "number" }).references(
+    () => usersTable.id
+  ),
+});
 
 export const educationsTable = sqliteTable("educations", {
-  id: integer('number').primaryKey({ autoIncrement: true }),
-  view: text('text'),
-  institution: text('text'),
-  finished: integer('number'),
-  specialty: text('text'),
-  created: integer('timestamp_ms').notNull(),
-  person_id: integer('number').references(() => personsTable.id),
-  user_id: integer('number').references(() => usersTable.id),
-})
+  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  view: text("view", { mode: "text" }).notNull(),
+  institution: text("institution", { mode: "text" }).notNull(),
+  finished: text("finished", { mode: "text" }).notNull(),
+  specialty: text("specialty", { mode: "text" }),
+  created: integer("created", { mode: "timestamp_ms" }).notNull(),
+  person_id: integer("person_id", { mode: "number" }).references(
+    () => personsTable.id
+  ),
+  user_id: integer("user_id", { mode: "number" }).references(
+    () => usersTable.id
+  ),
+});
 
 export const staffsTable = sqliteTable("staffs", {
-  id: integer('number').primaryKey({ autoIncrement: true }),
-  position: text('text'),
-  department: text('text'),
-  created: integer('timestamp_ms').notNull(),
-  person_id: integer('number').references(() => personsTable.id),
-  user_id: integer('number').references(() => usersTable.id),
-})
+  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  position: text("position", { mode: "text" }).notNull(),
+  department: text("department", { mode: "text" }).notNull(),
+  created: integer("created", { mode: "timestamp_ms" }).notNull(),
+  person_id: integer("person_id", { mode: "number" }).references(
+    () => personsTable.id
+  ),
+  user_id: integer("user_id", { mode: "number" }).references(
+    () => usersTable.id
+  ),
+});
 
 export const addressesTable = sqliteTable("documents", {
-  id: integer('number').primaryKey({ autoIncrement: true }),
-  view: text('text'),
-  series: text('text'),
-  digits: text('text'),
-  agency: text('text'),
-  issue: integer('timestamp'),
-  created: integer('timestamp_ms').notNull(),
-  person_id: integer('number').references(() => personsTable.id),
-  user_id: integer('number').references(() => usersTable.id),
-})
+  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  view: text("view", { mode: "text" }).notNull(),
+  series: text("series", { mode: "text" }),
+  digits: text("digits", { mode: "text" }),
+  agency: text("agency", { mode: "text" }),
+  issue: integer("issue", { mode: "timestamp" }),
+  created: integer("created", { mode: "timestamp_ms" }).notNull(),
+  person_id: integer("person_id", { mode: "number" }).references(
+    () => personsTable.id
+  ),
+  user_id: integer("user_id", { mode: "number" }).references(
+    () => usersTable.id
+  ),
+});
 
 export const contactsTable = sqliteTable("addresses", {
-  id: integer('number').primaryKey({ autoIncrement: true }),
-  view: text('text'),
-  addresses: text('text'),
-  created: integer('timestamp_ms').notNull(),
-  person_id: integer('number').references(() => personsTable.id),
-  user_id: integer('number').references(() => usersTable.id),
-})
+  id: integer("number").primaryKey({ autoIncrement: true }),
+  view: text("text"),
+  addresses: text("text"),
+  created: integer("timestamp_ms").notNull(),
+  person_id: integer("number").references(() => personsTable.id),
+  user_id: integer("number").references(() => usersTable.id),
+});
 
 export const documentsTable = sqliteTable("contacts", {
-  id: integer('number').primaryKey({ autoIncrement: true }),
-  view: text('text'),
-  created: integer('timestamp_ms').notNull(),
-  person_id: integer('number').references(() => personsTable.id),
-  user_id: integer('number').references(() => usersTable.id),
-})
+  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  view: text("view", { mode: "text" }).notNull(),
+  created: integer("created", { mode: "timestamp_ms" }).notNull(),
+  person_id: integer("person_id", { mode: "number" }).references(
+    () => personsTable.id
+  ),
+  user_id: integer("user_id", { mode: "number" }).references(
+    () => usersTable.id
+  ),
+});
 
 export const workplacesTable = sqliteTable("workplaces", {
-  id: integer('number').primaryKey({ autoIncrement: true }),
-  now_work: integer('boolean'),
-  starts: integer('timestamp'),
-  finished: integer('timestamp'),
-  workplace: text('text'),
-  addresses: text('text'),
-  position: text('text'),
-  reason: text('text'),
-  created: integer('timestamp_ms').notNull(),
-  person_id: integer('number').references(() => personsTable.id),
-  user_id: integer('number').references(() => usersTable.id),
-})
+  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  now_work: integer("now_work", { mode: "boolean" }).notNull().default(false),
+  starts: integer("starts", { mode: "timestamp" }).notNull(),
+  finished: integer("finished", { mode: "timestamp" }),
+  workplace: text("workplace", { mode: "text" }).notNull(),
+  addresses: text("addresses", { mode: "text" }),
+  position: text("position", { mode: "text" }),
+  reason: text("reason", { mode: "text" }),
+  created: integer("created", { mode: "timestamp_ms" }).notNull(),
+  person_id: integer("person_id", { mode: "number" }).references(
+    () => personsTable.id
+  ),
+  user_id: integer("user_id", { mode: "number" }).references(
+    () => usersTable.id
+  ),
+});
 
 export const affilationsTable = sqliteTable("affilations", {
-  id: integer('number').primaryKey({ autoIncrement: true }),
-  view: text('text'),
-  organization: text('text'),
-  inn: text('text'),
-  created: integer('timestamp_ms').notNull(),
-  person_id: integer('number').references(() => personsTable.id),
-  user_id: integer('number').references(() => usersTable.id),
-})
+  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  view: text("view", { mode: "text" }).notNull(),
+  organization: text("organization", { mode: "text" }).notNull(),
+  inn: text("inn", { mode: "text" }),
+  created: integer("created", { mode: "timestamp_ms" }).notNull(),
+  person_id: integer("person_id", { mode: "number" }).references(
+    () => personsTable.id
+  ),
+  user_id: integer("user_id", { mode: "number" }).references(
+    () => usersTable.id
+  ),
+});
 
 export const relationsTable = sqliteTable("relations", {
-  id: integer('number').primaryKey({ autoIncrement: true }),
-  relation: text('text'),
-  relation_id: integer('number'),
-  created: integer('timestamp_ms').notNull(),
-  person_id: integer('number').references(() => personsTable.id),
-  user_id: integer('number').references(() => usersTable.id),
-})
+  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  relation: text("relation", { mode: "text" }).notNull(),
+  relation_id: integer("relation_id", { mode: "number" }).notNull(),
+  created: integer("created", { mode: "timestamp_ms" }).notNull(),
+  person_id: integer("person_id", { mode: "number" }).references(
+    () => personsTable.id
+  ),
+  user_id: integer("user_id", { mode: "number" }).references(
+    () => usersTable.id
+  ),
+});
 
 export const checksTable = sqliteTable("checks", {
-  id: integer('number').primaryKey({ autoIncrement: true }),
-  workplace: text('text'),
-  document: text('text'),
-  inn: text('text'),
-  debt: text('text'),
-  bankruptcy: text('text'),
-  bki: text('text'),
-  courts: text('text'),
-  affilation: text('text'),
-  terrorist: text('text'),
-  mvd: text('text'),
-  internet: text('text'),
-  cronos: text('text'),
-  cros: text('text'),
-  addition: text('text'),
-  comment: text('text'),
-  conclusion: text('text'),
-  created: integer('timestamp_ms').notNull(),
-  person_id: integer('number').references(() => personsTable.id),
-  user_id: integer('number').references(() => usersTable.id),
-})
+  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  workplace: text("workplace", { mode: "text" }),
+  document: text("document", { mode: "text" }),
+  inn: text("inn", { mode: "text" }),
+  debt: text("debt", { mode: "text" }),
+  bankruptcy: text("bankruptcy", { mode: "text" }),
+  bki: text("bki", { mode: "text" }),
+  courts: text("courts", { mode: "text" }),
+  affilation: text("affilation", { mode: "text" }),
+  terrorist: text("terrorist", { mode: "text" }),
+  mvd: text("mvd", { mode: "text" }),
+  internet: text("internet", { mode: "text" }),
+  cronos: text("cronos", { mode: "text" }),
+  cros: text("cros", { mode: "text" }),
+  addition: text("addition", { mode: "text" }),
+  comment: text("comment", { mode: "text" }),
+  conclusion: text("conclusion", { mode: "text" }),
+  created: integer("created", { mode: "timestamp_ms" }).notNull(),
+  person_id: integer("person_id", { mode: "number" }).references(
+    () => personsTable.id
+  ),
+  user_id: integer("user_id", { mode: "number" }).references(
+    () => usersTable.id
+  ),
+});
 
 export const poligrafsTable = sqliteTable("poligrafs", {
-  id: integer('number').primaryKey({ autoIncrement: true }),
-  theme: text('text'),
-  results: text('text'),
-  created: integer('timestamp_ms').notNull(),
-  person_id: integer('number').references(() => personsTable.id),
-  user_id: integer('number').references(() => usersTable.id),
-})
+  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  theme: text("theme", { mode: "text" }),
+  results: text("results", { mode: "text" }),
+  created: integer("created", { mode: "timestamp_ms" }).notNull(),
+  person_id: integer("person_id", { mode: "number" }).references(
+    () => personsTable.id
+  ),
+  user_id: integer("user_id", { mode: "number" }).references(
+    () => usersTable.id
+  ),
+});
 
 export const investigationsTable = sqliteTable("investigations", {
-  id: integer('number').primaryKey({ autoIncrement: true }),
-  theme: text('text'),
-  info: text('text'),
-  created: integer('timestamp_ms').notNull(),
-  person_id: integer('number').references(() => personsTable.id),
-  user_id: integer('number').references(() => usersTable.id),
-})
+  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  theme: text("theme", { mode: "text" }),
+  info: text("info", { mode: "text" }),
+  created: integer("created", { mode: "timestamp_ms" }).notNull(),
+  person_id: integer("person_id", { mode: "number" }).references(
+    () => personsTable.id
+  ),
+  user_id: integer("user_id", { mode: "number" }).references(
+    () => usersTable.id
+  ),
+});
 
 export const inquiriesTable = sqliteTable("inquiries", {
-  id: integer('number').primaryKey({ autoIncrement: true }),
-  info: text('text'),
-  initiator: text('text'),
-  origins: text('text'),
-  created: integer('timestamp_ms').notNull(),
-  person_id: integer('number').references(() => personsTable.id),
-  user_id: integer('number').references(() => usersTable.id),
-})
+  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  info: text("info", { mode: "text" }),
+  initiator: text("initiator", { mode: "text" }),
+  origins: text("origins", { mode: "text" }),
+  created: integer("created", { mode: "timestamp_ms" }).notNull(),
+  person_id: integer("person_id", { mode: "number" }).references(
+    () => personsTable.id
+  ),
+  user_id: integer("user_id", { mode: "number" }).references(
+    () => usersTable.id
+  ),
+});

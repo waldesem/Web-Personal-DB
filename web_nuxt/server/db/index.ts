@@ -3,6 +3,6 @@ import sqlite from "db0/connectors/better-sqlite3";
 
 export const db = createDatabase(
   sqlite({
-    path: process.env.DB_FILE_NAME,
+    path: process.env.DATABASE_URL,
   })
 );

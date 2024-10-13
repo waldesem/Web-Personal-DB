@@ -1,15 +1,15 @@
-import { drizzle } from "drizzle-orm/better-sqlite3";
+import { drizzle } from "db0/integrations/drizzle";
 import { like } from "drizzle-orm";
 import { db } from "~/server/db/index";
 import { usersTable } from "~/server/db/src/schema";
 
-export default defineEventHandler(async(event) => {
+export default defineEventHandler(async (event) => {
   const search = getQuery(event).search as string;
   const drizzleDb = drizzle(db);
   const results = await drizzleDb
     .select()
     .from(usersTable)
     .where(like(usersTable.username, `%${search}%`))
-    // .all();
+    .all();
   return { search: results };
 });
