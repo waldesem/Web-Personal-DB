@@ -57,7 +57,7 @@ async function submitWorkplace(form: Work) {
     });
   }
   pending.value = false;
-  refresh();
+  await refresh();
 }
 
 async function deleteWork(id: string) {
@@ -73,7 +73,7 @@ async function deleteWork(id: string) {
       description: `Запись с ID ${id} удалена`,
       color: "primary",
     });
-    refresh();
+    await refresh();
   } else {
     toast.add({
       icon: "i-heroiconsi-heroicons-information-circle",
@@ -84,7 +84,7 @@ async function deleteWork(id: string) {
   }
 }
 
-async function cancelOperation() {
+function cancelOperation() {
   closeAction();
   refresh();
 }

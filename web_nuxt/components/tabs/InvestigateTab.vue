@@ -48,7 +48,7 @@ async function submitInvestigations(form: Inquisition) {
     color: "green",
   });
   pending.value = false;
-  refresh();
+  await refresh();
 }
 
 async function deleteInquisition(id: string) {
@@ -63,10 +63,10 @@ async function deleteInquisition(id: string) {
     description: `Запись с ID ${id} удалена`,
     color: "primary",
   });
-  refresh();
+  await refresh();
 }
 
-async function cancelOperation() {
+function cancelOperation() {
   closeAction();
   refresh();
 }

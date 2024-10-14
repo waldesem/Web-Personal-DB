@@ -48,7 +48,7 @@ async function submitPoligraf(form: Pfo) {
     color: "green",
   });
   pending.value = false;
-  refresh();
+  await refresh();
 }
 
 async function deletePoligraf(id: string) {
@@ -63,10 +63,10 @@ async function deletePoligraf(id: string) {
     description: `Запись с ID ${id} удалена`,
     color: "primary",
   });
-  refresh();
+  await refresh();
 }
 
-async function cancelOperation() {
+function cancelOperation() {
   closeAction();
   refresh();
 }

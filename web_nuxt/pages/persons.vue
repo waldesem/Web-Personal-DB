@@ -23,7 +23,10 @@ const { refresh, status } = await useLazyAsyncData("candidates", async () => {
     }
   )) as [Persons[], boolean];
   updated.value = useDateFormat(useNow(), "DD.MM.YYYY в HH:mm").value;
-});
+}, {
+    watch: [page]
+  }
+);
 
 watchDebounced(
   () => search.value,
@@ -33,13 +36,6 @@ watchDebounced(
   {
     debounce: 500,
     maxWait: 1000,
-  }
-);
-
-watch(
-  () => page.value,
-  () => {
-    refresh();
   }
 );
 

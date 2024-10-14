@@ -48,7 +48,7 @@ async function submitIquiry(form: Needs) {
     color: "green",
   });
   pending.value = false;
-  refresh();
+  await refresh();
 }
 
 async function deleteNeed(id: string) {
@@ -63,7 +63,7 @@ async function deleteNeed(id: string) {
     description: `Запись с ID ${id} удалена`,
     color: "primary",
   });
-  refresh();
+  await refresh();
 }
 
 function closeAction() {

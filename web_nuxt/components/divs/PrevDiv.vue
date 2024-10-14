@@ -56,7 +56,7 @@ async function submitPrevious(form: Previous) {
     });
   }
   pending.value = false;
-  refresh();
+  await refresh();
 }
 
 async function deletePrevious(id: string) {
@@ -72,7 +72,7 @@ async function deletePrevious(id: string) {
       description: `Запись с ID ${id} удалена`,
       color: "primary",
     });
-    refresh();
+    await refresh();
   } else {
     toast.add({
       icon: "i-heroiconsi-heroicons-information-circle",
@@ -83,7 +83,7 @@ async function deletePrevious(id: string) {
   }
 }
 
-async function cancelOperation() {
+function cancelOperation() {
   closeAction();
   refresh();
 }

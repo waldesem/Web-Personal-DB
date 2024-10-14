@@ -82,7 +82,7 @@ async function switchSelf(): Promise<void> {
     return;
   }
   await authFetch("/api/self/" + candId.value);
-  refresh();
+  await refresh();
 }
 
 onBeforeRouteLeave((to, from, next) => {

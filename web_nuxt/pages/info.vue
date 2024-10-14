@@ -4,33 +4,37 @@ import { useDateFormat, useNow } from "@vueuse/core";
 const authFetch = useFetchAuth();
 const userState = useUserState();
 
-const tableData = ref({
-  region: userState.value.region,
-  start: useDateFormat(useNow(), "YYYY-MM").value + "-01",
-  end: useDateFormat(useNow(), "YYYY-MM-DD").value,
-  stat: [] as Record<string, string>[],
-});
+const region = ref(userState.value.region);
+const start = ref(useDateFormat(useNow(), "YYYY-MM").value + "-01");
+const end = ref(useDateFormat(useNow(), "YYYY-MM-DD").value);
+const stat = ref([] as Record<string, string>[]);
 
 /**
  * Get statistics from server
  */
-const { refresh, status } = await useLazyAsyncData("stats", async () => {
-  const response = await authFetch("/api/information", {
-    params: {
-      start: tableData.value.start,
-      end: tableData.value.end,
-      region: tableData.value.region,
-    },
-  });
-  tableData.value.stat = response as Record<string, string>[];
-});
+const { status } = await useLazyAsyncData(
+  "stats",
+  async () => {
+    const response = await authFetch("/api/information", {
+      params: {
+        start: start.value,
+        end: end.value,
+        region: region.value,
+      },
+    });
+    stat.value = response as Record<string, string>[];
+  },
+  {
+    watch: [region, start, end],
+  }
+);
 </script>
 
 <template>
   <div>
     <ElementsHeaderDiv
       :div="'py-1'"
-      :header="`Информация по региону ${tableData.region} за период с ${tableData.start} г. по ${tableData.end} г.`"
+      :header="`Информация по региону ${region} за период с ${start} г. по ${end} г.`"
     />
     <div class="my-8">
       <UTable
@@ -40,7 +44,7 @@ const { refresh, status } = await useLazyAsyncData("stats", async () => {
           icon: 'i-heroicons-circle-stack-20-solid',
           label: 'Статистика за указанный период отсутствует.',
         }"
-        :rows="(tableData.stat as Record<string, string>[])"
+        :rows="(stat as Record<string, string>[])"
         :columns="[
           { key: 'conclusion', label: 'Решение' },
           { key: 'count', label: 'Количество' },
@@ -50,7 +54,7 @@ const { refresh, status } = await useLazyAsyncData("stats", async () => {
         <div class="col-span-2">
           <UFormGroup class="mb-3" label="Регион">
             <USelect
-              v-model="tableData.region"
+              v-model="region"
               :disabled="userState.region != 'Главный офис'"
               :options="[
                 'Главный офис',
@@ -59,21 +63,20 @@ const { refresh, status } = await useLazyAsyncData("stats", async () => {
                 'РЦ Урал',
                 'РЦ Восток',
               ]"
-              @change="refresh"
             />
           </UFormGroup>
         </div>
         <div class="col-span-2">
           <div class="px-3">
             <UFormGroup label="Начало периода">
-              <UInput v-model="tableData.start" type="date" @change="refresh" />
+              <UInput v-model="start" type="date" />
             </UFormGroup>
           </div>
         </div>
         <div class="col-span-2">
           <div class="px-3">
             <UFormGroup label="Конец периода">
-              <UInput v-model="tableData.end" type="date" @change="refresh" />
+              <UInput v-model="end" type="date" />
             </UFormGroup>
           </div>
         </div>

@@ -56,7 +56,7 @@ async function submitAddress(form: Address) {
     });
   }
   pending.value = false;
-  refresh();
+  await refresh();
 }
 
 async function deleteAddress(id: string) {
@@ -72,7 +72,7 @@ async function deleteAddress(id: string) {
       description: `Запись с ID ${id} удалена`,
       color: "primary",
     });
-    refresh();
+    await refresh();
   } else {
     toast.add({
       icon: "i-heroiconsi-heroicons-information-circle",
@@ -83,7 +83,7 @@ async function deleteAddress(id: string) {
   }
 }
 
-async function cancelOperation() {
+function cancelOperation() {
   closeAction();
   refresh();
 }

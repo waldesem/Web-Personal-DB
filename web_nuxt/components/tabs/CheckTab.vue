@@ -48,7 +48,7 @@ async function submitCheck(form: Verification) {
     color: "green",
   });
   pending.value = false;
-  refresh();
+  await refresh();
 }
 
 async function deleteCheck(id: string) {
@@ -63,10 +63,10 @@ async function deleteCheck(id: string) {
     description: `Запись с ID ${id} удалена`,
     color: "primary",
   });
-  refresh();
+  await refresh();
 }
 
-async function cancelOperation() {
+function cancelOperation() {
   closeAction();
   refresh();
 }
