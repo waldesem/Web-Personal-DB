@@ -1,0 +1,1 @@
+import{d as s,p as a,w as t,c as o,o as r,n as c}from"./DfFwspTN.js";import{u as p}from"./CifMPHan.js";const u=s({__name:"index",async setup(i){let e,n;return a("/persons"),a("/login"),[e,n]=t(async()=>p("index",async()=>{await c("/persons")})),await e,n(),(_,m)=>(r(),o("div",null,"Index"))}});export{u as default};
