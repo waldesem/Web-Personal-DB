@@ -24,14 +24,10 @@ const pending = ref(false);
 const edit = ref(false);
 const itemId = ref("");
 const need = ref({} as Needs);
+const inquiries = ref<Needs[]>([]);
 
-const {
-  data: inquiries,
-  refresh,
-  status,
-} = await useLazyAsyncData("inquiries", async () => {
-  const response = await authFetch(`/api/inquiries/${props.candId}`);
-  return response as Needs[];
+const { refresh, status } = await useLazyAsyncData("inquiries", async () => {
+  inquiries.value = await authFetch(`/api/inquiries/${props.candId}`);
 });
 
 async function submitIquiry(form: Needs) {

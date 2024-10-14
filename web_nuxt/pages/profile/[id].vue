@@ -11,8 +11,7 @@ const candId = computed(() => route.params.id) as Ref<string>;
 const person = ref({} as Persons);
 
 const { refresh } = await useAsyncData("anketa", async () => {
-  const response = await authFetch("/api/persons/" + candId.value);
-  person.value = response as Persons;
+  person.value = await authFetch("/api/persons/" + candId.value);
 });
 
 const tabs = [

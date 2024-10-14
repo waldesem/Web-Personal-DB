@@ -24,24 +24,20 @@ const pending = ref(false);
 const edit = ref(false);
 const itemId = ref("");
 const workplace = ref({} as Work);
+const workplaces = ref<Work[]>([]);
 
-const {
-  data: workplaces,
-  refresh,
-  status,
-} = await useLazyAsyncData("workplaces", async () => {
-  const response = await authFetch("/api/workplaces/" + props.candId);
-  return response as Work[];
+const { refresh, status } = await useLazyAsyncData("workplaces", async () => {
+  workplaces.value = await authFetch("/api/workplaces/" + props.candId);
 });
 
 async function submitWorkplace(form: Work) {
   pending.value = false;
   closeAction();
-  const { message } = await authFetch("/api/workplaces/" + props.candId, {
+  const { message } = (await authFetch("/api/workplaces/" + props.candId, {
     method: "POST",
     body: form,
-  }) as Record<string, string>;
-    if (message == 'success') {
+  })) as Record<string, string>;
+  if (message == "success") {
     toast.add({
       icon: "i-heroicons-check-circle",
       title: "Успешно",
@@ -63,10 +59,10 @@ async function submitWorkplace(form: Work) {
 async function deleteWork(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = await authFetch("/api/workplaces/" + id, {
+  const { message } = (await authFetch("/api/workplaces/" + id, {
     method: "DELETE",
-  }) as Record<string, string>;
-    if (message == 'success') {
+  })) as Record<string, string>;
+  if (message == "success") {
     toast.add({
       icon: "i-heroicons-information-circle",
       title: "Информация",

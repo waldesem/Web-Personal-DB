@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Staff } from "@/types/interfaces";
 
-prefetchComponents(['FormsStaffForm', 'ElementsSkeletonDiv']);
+prefetchComponents(["FormsStaffForm", "ElementsSkeletonDiv"]);
 
 const authFetch = useFetchAuth();
 
@@ -23,24 +23,20 @@ const pending = ref(false);
 const edit = ref(false);
 const itemId = ref("");
 const staff = ref({} as Staff);
+const staffs = ref<Staff[]>([]);
 
-const {
-  data: staffs,
-  refresh,
-  status,
-} = await useLazyAsyncData("staffs", async () => {
-  const response = await authFetch("/api/staffs/" + props.candId);
-  return response as Staff[];
+const { refresh, status } = await useLazyAsyncData("staffs", async () => {
+  staffs.value = await authFetch("/api/staffs/" + props.candId);
 });
 
 async function submitStaff(form: Staff) {
   pending.value = true;
   closeAction();
-  const { message } = await authFetch("/api/staffs/" + props.candId, {
+  const { message } = (await authFetch("/api/staffs/" + props.candId, {
     method: "POST",
     body: form,
-  }) as Record<string, string>;
-    if (message == 'success') {
+  })) as Record<string, string>;
+  if (message == "success") {
     toast.add({
       icon: "i-heroicons-check-circle",
       title: "Успешно",
@@ -62,10 +58,10 @@ async function submitStaff(form: Staff) {
 async function deleteStaff(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = await authFetch("/api/staffs/" + id, {
+  const { message } = (await authFetch("/api/staffs/" + id, {
     method: "DELETE",
-  }) as Record<string, string>;
-  if (message == 'success') {
+  })) as Record<string, string>;
+  if (message == "success") {
     toast.add({
       icon: "i-heroicons-information-circle",
       title: "Информация",

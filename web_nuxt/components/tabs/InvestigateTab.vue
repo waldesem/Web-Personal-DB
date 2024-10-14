@@ -2,7 +2,7 @@
 import type { Inquisition } from "@/types/interfaces";
 import { useDateFormat } from "@vueuse/core";
 
-prefetchComponents(['FormsInvestigationForm', 'ElementsSkeletonDiv']);
+prefetchComponents(["FormsInvestigationForm", "ElementsSkeletonDiv"]);
 
 const authFetch = useFetchAuth();
 
@@ -24,15 +24,16 @@ const pending = ref(false);
 const edit = ref(false);
 const itemId = ref("");
 const inquisition = ref({} as Inquisition);
+const investigations = ref<Inquisition[]>([]);
 
-const {
-  data: investigations,
-  refresh,
-  status,
-} = await useLazyAsyncData("investigations", async () => {
-  const response = await authFetch("/api/investigations/" + props.candId);
-  return response as Inquisition[];
-});
+const { refresh, status } = await useLazyAsyncData(
+  "investigations",
+  async () => {
+    investigations.value = await authFetch(
+      "/api/investigations/" + props.candId
+    );
+  }
+);
 
 async function submitInvestigations(form: Inquisition) {
   pending.value = true;

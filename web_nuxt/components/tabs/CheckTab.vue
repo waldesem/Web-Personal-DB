@@ -24,14 +24,10 @@ const pending = ref(false);
 const collapse = ref(false);
 const itemId = ref("");
 const check = ref({} as Verification);
+const checks = ref<Verification[]>([]);
 
-const {
-  data: checks,
-  refresh,
-  status,
-} = await useLazyAsyncData("checks", async () => {
-  const response = await authFetch(`/api/checks/${props.candId}`);
-  return response as Verification[];
+const { refresh, status } = await useLazyAsyncData("checks", async () => {
+  checks.value = await authFetch(`/api/checks/${props.candId}`);
 });
 
 async function submitCheck(form: Verification) {

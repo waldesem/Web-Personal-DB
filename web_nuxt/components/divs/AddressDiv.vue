@@ -23,14 +23,10 @@ const pending = ref(false);
 const edit = ref(false);
 const itemId = ref("");
 const address = ref({} as Address);
+const addresses = ref<Address[]>([]);
 
-const {
-  data: addresses,
-  refresh,
-  status,
-} = await useLazyAsyncData("addresses", async () => {
-  const response = await authFetch("/api/addresses/" + props.candId);
-  return response as (typeof address.value)[];
+const { refresh, status } = await useLazyAsyncData("addresses", async () => {
+  addresses.value = await authFetch("/api/addresses/" + props.candId);
 });
 
 async function submitAddress(form: Address) {

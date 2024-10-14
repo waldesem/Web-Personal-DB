@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Relation } from "@/types/interfaces";
 
-prefetchComponents(['FormsRelationForm', 'ElementsSkeletonDiv']);
+prefetchComponents(["FormsRelationForm", "ElementsSkeletonDiv"]);
 
 const authFetch = useFetchAuth();
 
@@ -23,24 +23,20 @@ const pending = ref(false);
 const edit = ref(false);
 const itemId = ref("");
 const relation = ref({} as Relation);
+const relations = ref<Relation[]>([]);
 
-const {
-  data: relations,
-  refresh,
-  status,
-} = await useLazyAsyncData("relations", async () => {
-  const response = await authFetch("/api/relations/" + props.candId);
-  return response as Relation[];
+const { refresh, status } = await useLazyAsyncData("relations", async () => {
+  relations.value = await authFetch("/api/relations/" + props.candId);
 });
 
 async function submitRelation(form: Relation) {
   pending.value = true;
   closeAction();
-  const { message } = await authFetch("/api/relations/" + props.candId, {
+  const { message } = (await authFetch("/api/relations/" + props.candId, {
     method: "POST",
     body: form,
-  }) as Record<string, string>;
-    if (message == 'success') {
+  })) as Record<string, string>;
+  if (message == "success") {
     toast.add({
       icon: "i-heroicons-check-circle",
       title: "Успешно",
@@ -62,10 +58,10 @@ async function submitRelation(form: Relation) {
 async function deleteRelation(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = await authFetch("/api/relations/" + id, {
+  const { message } = (await authFetch("/api/relations/" + id, {
     method: "DELETE",
-  }) as Record<string, string>;
-  if (message == 'success') {
+  })) as Record<string, string>;
+  if (message == "success") {
     toast.add({
       icon: "i-heroicons-information-circle",
       title: "Информация",

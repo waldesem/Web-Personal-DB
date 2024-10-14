@@ -2,7 +2,7 @@
 import type { Pfo } from "@/types/interfaces";
 import { useDateFormat } from "@vueuse/core";
 
-prefetchComponents(['FormsPoligrafForm', 'ElementsSkeletonDiv']);
+prefetchComponents(["FormsPoligrafForm", "ElementsSkeletonDiv"]);
 
 const authFetch = useFetchAuth();
 
@@ -24,14 +24,10 @@ const pending = ref(false);
 const collapse = ref(false);
 const itemId = ref("");
 const poligraf = ref({} as Pfo);
+const poligrafs = ref<Pfo[]>([]);
 
-const {
-  data: poligrafs,
-  refresh,
-  status,
-} = await useLazyAsyncData("poligrafs", async () => {
-  const response = await authFetch("/api/poligrafs/" + props.candId);
-  return response as Pfo[];
+const { refresh, status } = await useLazyAsyncData("poligrafs", async () => {
+  poligrafs.value = await authFetch("/api/poligrafs/" + props.candId);
 });
 
 async function submitPoligraf(form: Pfo) {

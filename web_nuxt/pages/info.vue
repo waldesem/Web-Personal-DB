@@ -15,14 +15,13 @@ const stat = ref([] as Record<string, string>[]);
 const { status } = await useLazyAsyncData(
   "stats",
   async () => {
-    const response = await authFetch("/api/information", {
+    stat.value = await authFetch("/api/information", {
       params: {
         start: start.value,
         end: end.value,
         region: region.value,
       },
     });
-    stat.value = response as Record<string, string>[];
   },
   {
     watch: [region, start, end],

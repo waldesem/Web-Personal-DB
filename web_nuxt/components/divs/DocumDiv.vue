@@ -2,7 +2,7 @@
 import type { Document } from "@/types/interfaces";
 import { useDateFormat } from "@vueuse/core";
 
-prefetchComponents(['FormsDocumentForm', 'ElementsSkeletonDiv']);
+prefetchComponents(["FormsDocumentForm", "ElementsSkeletonDiv"]);
 
 const authFetch = useFetchAuth();
 
@@ -24,24 +24,20 @@ const pending = ref(false);
 const itemId = ref("");
 const edit = ref(false);
 const doc = ref({} as Document);
+const documents = ref<Document[]>([]);
 
-const {
-  data: documents,
-  refresh,
-  status,
-} = await useLazyAsyncData("documents", async () => {
-  const response = await authFetch("/api/documents/" + props.candId);
-  return response as Document[];
+const { refresh, status } = await useLazyAsyncData("documents", async () => {
+  documents.value = await authFetch("/api/documents/" + props.candId);
 });
 
 async function submitDocument(form: Document) {
   pending.value = true;
   closeAction();
-  const { message } = await authFetch("/api/documents/" + props.candId, {
+  const { message } = (await authFetch("/api/documents/" + props.candId, {
     method: "POST",
     body: form,
-  }) as Record<string, string>;
-  if (message == 'success') {
+  })) as Record<string, string>;
+  if (message == "success") {
     toast.add({
       icon: "i-heroicons-check-circle",
       title: "Успешно",
@@ -63,10 +59,10 @@ async function submitDocument(form: Document) {
 async function deleteDocument(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = await authFetch("/api/documents/" + id, {
+  const { message } = (await authFetch("/api/documents/" + id, {
     method: "DELETE",
-  }) as Record<string, string>;
-    if (message == 'success') {
+  })) as Record<string, string>;
+  if (message == "success") {
     toast.add({
       icon: "i-heroicons-information-circle",
       title: "Информация",

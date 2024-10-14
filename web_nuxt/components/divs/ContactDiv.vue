@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Contact } from "@/types/interfaces";
 
-prefetchComponents(['FormsContactForm', 'ElementsSkeletonDiv']);
+prefetchComponents(["FormsContactForm", "ElementsSkeletonDiv"]);
 
 const authFetch = useFetchAuth();
 
@@ -23,24 +23,20 @@ const pending = ref(false);
 const itemId = ref("");
 const edit = ref(false);
 const contact = ref({} as Contact);
+const contacts = ref<Contact[]>([]);
 
-const {
-  data: contacts,
-  refresh,
-  status,
-} = await useLazyAsyncData("contacts", async () => {
-  const response = await authFetch("/api/contacts/" + props.candId);
-  return response as Contact[];
+const { refresh, status } = await useLazyAsyncData("contacts", async () => {
+  contacts.value = await authFetch("/api/contacts/" + props.candId);
 });
 
 async function submitContact(form: Contact) {
   pending.value = true;
   closeAction();
-  const { message } = await authFetch("/api/contacts/" + props.candId, {
+  const { message } = (await authFetch("/api/contacts/" + props.candId, {
     method: "POST",
     body: form,
-  }) as Record<string, string>;
-    if (message == 'success') {
+  })) as Record<string, string>;
+  if (message == "success") {
     toast.add({
       icon: "i-heroicons-check-circle",
       title: "Успешно",
@@ -62,10 +58,10 @@ async function submitContact(form: Contact) {
 async function deleteContact(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = await authFetch("/api/contacts/" + id, {
+  const { message } = (await authFetch("/api/contacts/" + id, {
     method: "DELETE",
-  }) as Record<string, string>;
-  if (message == 'success') {
+  })) as Record<string, string>;
+  if (message == "success") {
     toast.add({
       icon: "i-heroicons-information-circle",
       title: "Информация",

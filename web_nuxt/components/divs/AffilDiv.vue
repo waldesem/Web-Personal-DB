@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Affilation } from "@/types/interfaces";
 
-prefetchComponents(['FormsAffilationForm', 'ElementsSkeletonDiv']);
+prefetchComponents(["FormsAffilationForm", "ElementsSkeletonDiv"]);
 
 const authFetch = useFetchAuth();
 
@@ -23,24 +23,20 @@ const pending = ref(false);
 const edit = ref(false);
 const itemId = ref("");
 const affilation = ref({} as Affilation);
+const affilations = ref<Affilation[]>([]);
 
-const {
-  data: affilations,
-  refresh,
-  status,
-} = await useLazyAsyncData("affilations", async () => {
-  const response = await authFetch("/api/affilations/" + props.candId);
-  return response as Affilation[];
+const { refresh, status } = await useLazyAsyncData("affilations", async () => {
+  affilations.value = await authFetch("/api/affilations/" + props.candId);
 });
 
 async function submitAffilation(form: Affilation) {
   pending.value = true;
   closeAction();
-  const { message } = await authFetch("/api/affilations/" + props.candId, {
+  const { message } = (await authFetch("/api/affilations/" + props.candId, {
     method: "POST",
     body: form,
-  }) as Record<string, string>;
-  if (message == 'success') {
+  })) as Record<string, string>;
+  if (message == "success") {
     toast.add({
       icon: "i-heroicons-check-circle",
       title: "Успешно",
@@ -62,10 +58,10 @@ async function submitAffilation(form: Affilation) {
 async function deleteAffilation(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = await authFetch("/api/affilations/" + id, {
+  const { message } = (await authFetch("/api/affilations/" + id, {
     method: "DELETE",
-  }) as Record<string, string>;
-  if (message == 'success') {
+  })) as Record<string, string>;
+  if (message == "success") {
     toast.add({
       icon: "i-heroicons-information-circle",
       title: "Информация",

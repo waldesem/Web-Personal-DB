@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Education } from "@/types/interfaces";
 
-prefetchComponents(['FormsEducationForm', 'ElementsSkeletonDiv']);
+prefetchComponents(["FormsEducationForm", "ElementsSkeletonDiv"]);
 
 const authFetch = useFetchAuth();
 
@@ -23,24 +23,20 @@ const pending = ref(false);
 const itemId = ref("");
 const edit = ref(false);
 const education = ref({} as Education);
+const educations = ref<Education[]>([]);
 
-const {
-  data: educations,
-  refresh,
-  status,
-} = await useLazyAsyncData("educations", async () => {
-  const response = await authFetch("/api/educations/" + props.candId);
-  return response as Education[];
+const { refresh, status } = await useLazyAsyncData("educations", async () => {
+  educations.value = await authFetch("/api/educations/" + props.candId);
 });
 
 async function submitEducation(form: Education) {
   pending.value = true;
   closeAction();
-  const { message } = await authFetch("/api/educations/" + props.candId, {
+  const { message } = (await authFetch("/api/educations/" + props.candId, {
     method: "POST",
     body: form,
-  }) as Record<string, string>;
-    if (message == 'success') {
+  })) as Record<string, string>;
+  if (message == "success") {
     toast.add({
       icon: "i-heroicons-check-circle",
       title: "Успешно",
@@ -62,10 +58,10 @@ async function submitEducation(form: Education) {
 async function deleteEducation(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = await authFetch("/api/educations/" + id, {
+  const { message } = (await authFetch("/api/educations/" + id, {
     method: "DELETE",
-  }) as Record<string, string>;
-  if (message == 'success') {
+  })) as Record<string, string>;
+  if (message == "success") {
     toast.add({
       icon: "i-heroicons-information-circle",
       title: "Информация",

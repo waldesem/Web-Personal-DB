@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Previous } from "@/types/interfaces";
 
-prefetchComponents(['FormsPreviousForm', 'ElementsSkeletonDiv']);
+prefetchComponents(["FormsPreviousForm", "ElementsSkeletonDiv"]);
 
 const authFetch = useFetchAuth();
 
@@ -23,24 +23,20 @@ const pending = ref(false);
 const edit = ref(false);
 const itemId = ref("");
 const prev = ref({} as Previous);
+const previous = ref<Previous[]>([]);
 
-const {
-  data: previous,
-  refresh,
-  status,
-} = await useLazyAsyncData("previous", async () => {
-  const response = await authFetch("/api/previous/" + props.candId);
-  return response as Previous[];
+const { refresh, status } = await useLazyAsyncData("previous", async () => {
+  previous.value = await authFetch("/api/previous/" + props.candId);
 });
 
 async function submitPrevious(form: Previous) {
   pending.value = true;
   closeAction();
-  const { message } = await authFetch("/api/previous/" + props.candId, {
+  const { message } = (await authFetch("/api/previous/" + props.candId, {
     method: "POST",
     body: form,
-  }) as Record<string, string>;
-  if (message == 'success') {
+  })) as Record<string, string>;
+  if (message == "success") {
     toast.add({
       icon: "i-heroicons-check-circle",
       title: "Успешно",
@@ -62,10 +58,10 @@ async function submitPrevious(form: Previous) {
 async function deletePrevious(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = await authFetch("/api/previous/" + id, {
+  const { message } = (await authFetch("/api/previous/" + id, {
     method: "DELETE",
-  }) as Record<string, string>;
-    if (message == 'success') {
+  })) as Record<string, string>;
+  if (message == "success") {
     toast.add({
       icon: "i-heroicons-information-circle",
       title: "Информация",
