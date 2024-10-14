@@ -228,9 +228,9 @@ def get_index(page):
     pagination = 10
     search_data = request.args.get("search")
     stmt = select(Persons, Users.fullname)
-    if search_data:
+    if search_data and len(search_data) > 2:
         query = [search.upper() for search in search_data.split()][:3]
-        if query and len(query[0]) > 2:
+        if query:
             stmt = stmt.filter(Persons.surname.ilike(f"%{query[0]}%"))
             if len(query) > 1:
                 stmt = stmt.filter(Persons.firstname.ilike(f"%{query[1]}%"))
