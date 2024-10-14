@@ -32,7 +32,7 @@ export const personsTable = sqliteTable("persons", {
   created: integer("created", { mode: "timestamp_ms" }).notNull(),
   region: text("region", { mode: "text" }),
   editable: integer("editable", { mode: "boolean" }).notNull().default(false),
-  user_id: integer("number").references(() => usersTable.id),
+  user_id: integer("user_id", { mode: "number" }).references(() => usersTable.id),
 });
 
 export const previousTable = sqliteTable("previous", {

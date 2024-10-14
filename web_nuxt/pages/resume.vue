@@ -44,7 +44,7 @@ async function submitResume(form: Persons) {
       :header="
         !upload
           ? 'НОВАЯ АНКЕТА'
-          : `${resume['surname']} {resume['firstname']} {resume['patronymic']}`.toUpperCase()
+          : `${resume['surname']} ${resume['firstname']} ${resume['patronymic']}`.toUpperCase()
       "
     />
     <ElementsSkeletonDiv v-if="upload" :rows="16" />

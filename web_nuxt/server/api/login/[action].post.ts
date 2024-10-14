@@ -10,7 +10,7 @@ import {
 } from "~/server/utils";
 
 export default defineEventHandler(async (event) => {
-  const action = getQuery(event).action;
+  const action = getRouterParam(event, "action");
   const json_data = await readBody(event);
   const drizzleDb = drizzle(db);
   const query = drizzleDb
