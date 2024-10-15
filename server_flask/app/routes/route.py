@@ -7,7 +7,8 @@ import subprocess
 
 from flask import Blueprint, abort, current_app, jsonify, request, send_file
 from pydantic import ValidationError
-from sqlalchemy import desc, func, select
+from sqlalchemy import desc, func, select, text
+from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from ..depends.depend import (
@@ -19,7 +20,7 @@ from ..depends.depend import (
 )
 from ..model.classes import Regions, Roles
 from ..model.models import Person, User, Login
-from ..model.tables import Checks, Persons, Users, db_session, tables_models
+from ..model.tables import Checks, Persons, Users, db_session
 from ..handlers.handler import (
     handle_image,
     handle_json_to_dict,
@@ -320,7 +321,7 @@ def get_folder():
     """
     folder = request.args.get("folder")
     if not folder:
-        subprocess.run(f'explorer "{current_app.config["BASE_PATH"]}"')    
+        subprocess.run(f'explorer "{current_app.config["BASE_PATH"]}"')
     else:
         if not os.path.isdir(folder):
             os.mkdir(folder)
@@ -509,9 +510,12 @@ def delete_item(item, item_id):
         Tuple[str, int]: A tuple containing an empty string and an HTTP status
         code of 204.
     """
-    db_session.execute(text("DELETE FROM {} WHERE id = {}".format(item, item_id)))
-    db_session.commit()
-    return jsonify({"message": "success"}), 204
+    try:
+        db_session.execute(text("DELETE FROM {} WHERE id = {}".format(item, item_id)))
+        db_session.commit()
+    except SQLAlchemyError:
+        return jsonify({"message": "error"}), 204
+    return jsonify({"message": "success"}), 201
 
 
 @bp.get("/information")

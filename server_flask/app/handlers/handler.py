@@ -28,9 +28,6 @@ def handle_get_item(item, item_id):
     Raises:
         None
     """
-    stmt ≈ "SELECT *, users.fullname FROM {} JOIN uses ON persons.user_id = users.id".format(item)
-    stmt = " ".join(stmt, "WHERE", "id = {}".format(item_id) if item == "persons" else "item_id = {}.format(item_id)", "ORDER_BY id DESC"
-    query = db_session.execute(stmt).all()
     table = tables_models.get(item)
     if table:
         stmt = select(table, Users.fullname)
@@ -60,12 +57,14 @@ def handle_post_item(data: dict, item: str, item_id=None):
     """
     table, model = tables_models.get(item), models_tables.get(item)
     if model and table:
+        try:
+            data = model(**data).dict()      
+        except ValidationError as e:
+            print(e)
+            return False
         if item != "persons":
-            try:
-                data = model(**data).dict()
-                data.update({"person_id": item_id, "user_id": current_user.get("id")})
-            except ValidationError:
-                return False
+            data["person_id"] = item_id
+            data["user_id"] = current_user.get("id")
         db_session.merge(table(**data))
         db_session.commit()
         return True

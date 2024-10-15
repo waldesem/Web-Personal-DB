@@ -40,7 +40,7 @@ class Name(QueryModel):
 class Person(Name):
     birthday: date
     birthplace: Optional[str] = None
-    citizenship: str = None
+    citizenship: Optional[str] = None
     dual: Optional[str] = None
     snils: Optional[str] = None
     inn: Optional[str] = None
