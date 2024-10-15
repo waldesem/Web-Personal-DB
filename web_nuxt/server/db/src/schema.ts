@@ -33,6 +33,11 @@ export const personsTable = sqliteTable("persons", {
   region: text("region", { mode: "text" }),
   editable: integer("editable", { mode: "boolean" }).notNull().default(false),
   user_id: integer("user_id", { mode: "number" }).references(() => usersTable.id),
+}, (table) => {
+  return {
+    surnameIdx: index("surname_idx").on(table.surname),
+    firstnameIdx: index("firstname_idx").on(table.firstname),
+  };
 });
 
 export const previousTable = sqliteTable("previous", {
