@@ -518,7 +518,7 @@ def delete_item(item, item_id):
     return jsonify({"message": "success"}), 201
 
 
-@bp.get("/information")
+@bp.get("/info")
 @jwt_required()
 def get_information():
     """
