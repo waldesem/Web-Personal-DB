@@ -27,13 +27,13 @@ const workplace = ref({} as Work);
 const workplaces = ref<Work[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("workplaces", async () => {
-  workplaces.value = await authFetch("/api/workplaces/" + props.candId);
+  workplaces.value = await authFetch("/api/items/workplaces/" + props.candId) as Work[];
 });
 
 async function submitWorkplace(form: Work) {
   pending.value = false;
   closeAction();
-  const { message } = (await authFetch("/api/workplaces/" + props.candId, {
+  const { message } = (await authFetch("/api/items/workplaces/" + props.candId, {
     method: "POST",
     body: form,
   })) as Record<string, string>;
@@ -59,7 +59,7 @@ async function submitWorkplace(form: Work) {
 async function deleteWork(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = (await authFetch("/api/workplaces/" + id, {
+  const { message } = (await authFetch("/api/items/workplaces/" + id, {
     method: "DELETE",
   })) as Record<string, string>;
   if (message == "success") {

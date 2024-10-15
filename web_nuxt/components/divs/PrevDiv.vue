@@ -26,13 +26,13 @@ const prev = ref({} as Previous);
 const previous = ref<Previous[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("previous", async () => {
-  previous.value = await authFetch("/api/previous/" + props.candId);
+  previous.value = await authFetch("/api/items/previous/" + props.candId) as Previous[];
 });
 
 async function submitPrevious(form: Previous) {
   pending.value = true;
   closeAction();
-  const { message } = (await authFetch("/api/previous/" + props.candId, {
+  const { message } = (await authFetch("/api/items/previous/" + props.candId, {
     method: "POST",
     body: form,
   })) as Record<string, string>;
@@ -58,7 +58,7 @@ async function submitPrevious(form: Previous) {
 async function deletePrevious(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = (await authFetch("/api/previous/" + id, {
+  const { message } = (await authFetch("/api/items/previous/" + id, {
     method: "DELETE",
   })) as Record<string, string>;
   if (message == "success") {

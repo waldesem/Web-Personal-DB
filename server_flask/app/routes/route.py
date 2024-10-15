@@ -458,7 +458,7 @@ def change_self_id(item_id):
     return "", 200
 
 
-@bp.get("/<item>/<int:item_id>")
+@bp.get("/items/<item>/<int:item_id>")
 @jwt_required()
 def get_item_id(item, item_id):
     """
@@ -476,7 +476,7 @@ def get_item_id(item, item_id):
     return jsonify(result)
 
 
-@bp.post("/<item>/<int:item_id>")
+@bp.post("/items/<item>/<int:item_id>")
 @roles_required(Roles.user.value)
 def post_item_id(item, item_id):
     """
@@ -496,7 +496,7 @@ def post_item_id(item, item_id):
     return jsonify({"message": "error"}), 200
 
 
-@bp.delete("/<item>/<int:item_id>")
+@bp.delete("/items/<item>/<int:item_id>")
 @roles_required(Roles.user.value)
 def delete_item(item, item_id):
     """

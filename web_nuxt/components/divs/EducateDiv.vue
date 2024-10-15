@@ -26,13 +26,13 @@ const education = ref({} as Education);
 const educations = ref<Education[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("educations", async () => {
-  educations.value = await authFetch("/api/educations/" + props.candId);
+  educations.value = await authFetch("/api/items/educations/" + props.candId) as Education[];
 });
 
 async function submitEducation(form: Education) {
   pending.value = true;
   closeAction();
-  const { message } = (await authFetch("/api/educations/" + props.candId, {
+  const { message } = (await authFetch("/api/items/educations/" + props.candId, {
     method: "POST",
     body: form,
   })) as Record<string, string>;
@@ -58,7 +58,7 @@ async function submitEducation(form: Education) {
 async function deleteEducation(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = (await authFetch("/api/educations/" + id, {
+  const { message } = (await authFetch("/api/items/educations/" + id, {
     method: "DELETE",
   })) as Record<string, string>;
   if (message == "success") {

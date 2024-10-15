@@ -27,13 +27,13 @@ const doc = ref({} as Document);
 const documents = ref<Document[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("documents", async () => {
-  documents.value = await authFetch("/api/documents/" + props.candId);
+  documents.value = await authFetch("/api/items/documents/" + props.candId) as Document[];
 });
 
 async function submitDocument(form: Document) {
   pending.value = true;
   closeAction();
-  const { message } = (await authFetch("/api/documents/" + props.candId, {
+  const { message } = (await authFetch("/api/items/documents/" + props.candId, {
     method: "POST",
     body: form,
   })) as Record<string, string>;
@@ -59,7 +59,7 @@ async function submitDocument(form: Document) {
 async function deleteDocument(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = (await authFetch("/api/documents/" + id, {
+  const { message } = (await authFetch("/api/items/documents/" + id, {
     method: "DELETE",
   })) as Record<string, string>;
   if (message == "success") {

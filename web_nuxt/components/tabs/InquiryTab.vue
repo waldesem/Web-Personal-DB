@@ -27,13 +27,13 @@ const need = ref({} as Needs);
 const inquiries = ref<Needs[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("inquiries", async () => {
-  inquiries.value = await authFetch(`/api/inquiries/${props.candId}`);
+  inquiries.value = await authFetch(`/api/items/inquiries/${props.candId}`) as Needs[];
 });
 
 async function submitIquiry(form: Needs) {
   pending.value = true;
   closeAction();
-  await authFetch("/api/inquiries/" + props.candId, {
+  await authFetch("/api/items/inquiries/" + props.candId, {
     method: "POST",
     body: form,
   });
@@ -50,7 +50,7 @@ async function submitIquiry(form: Needs) {
 async function deleteNeed(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  await authFetch(`/api/inquiries/${id}`, {
+  await authFetch(`/api/items/inquiries/${id}`, {
     method: "DELETE",
   });
   toast.add({

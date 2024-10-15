@@ -26,13 +26,13 @@ const staff = ref({} as Staff);
 const staffs = ref<Staff[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("staffs", async () => {
-  staffs.value = await authFetch("/api/staffs/" + props.candId);
+  staffs.value = await authFetch("/api/items/staffs/" + props.candId) as Staff[];
 });
 
 async function submitStaff(form: Staff) {
   pending.value = true;
   closeAction();
-  const { message } = (await authFetch("/api/staffs/" + props.candId, {
+  const { message } = (await authFetch("/api/items/staffs/" + props.candId, {
     method: "POST",
     body: form,
   })) as Record<string, string>;
@@ -58,7 +58,7 @@ async function submitStaff(form: Staff) {
 async function deleteStaff(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = (await authFetch("/api/staffs/" + id, {
+  const { message } = (await authFetch("/api/items/staffs/" + id, {
     method: "DELETE",
   })) as Record<string, string>;
   if (message == "success") {

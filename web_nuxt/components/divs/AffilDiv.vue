@@ -26,13 +26,13 @@ const affilation = ref({} as Affilation);
 const affilations = ref<Affilation[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("affilations", async () => {
-  affilations.value = await authFetch("/api/affilations/" + props.candId);
+  affilations.value = await authFetch("/api/items/affilations/" + props.candId) as Affilation[];
 });
 
 async function submitAffilation(form: Affilation) {
   pending.value = true;
   closeAction();
-  const { message } = (await authFetch("/api/affilations/" + props.candId, {
+  const { message } = (await authFetch("/api/items/affilations/" + props.candId, {
     method: "POST",
     body: form,
   })) as Record<string, string>;
@@ -58,7 +58,7 @@ async function submitAffilation(form: Affilation) {
 async function deleteAffilation(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = (await authFetch("/api/affilations/" + id, {
+  const { message } = (await authFetch("/api/items/affilations/" + id, {
     method: "DELETE",
   })) as Record<string, string>;
   if (message == "success") {

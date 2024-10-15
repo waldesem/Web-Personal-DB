@@ -48,6 +48,7 @@ class Person(Name):
     addition: Optional[str] = None
     destination: Optional[str] = None
     region: Optional[Regions] = None
+    editable: Optional[bool] = False
 
 
 class Prev(Name):

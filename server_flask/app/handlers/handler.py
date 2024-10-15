@@ -127,8 +127,7 @@ def handle_post_resume(resume: dict):
     if person.destination and resume["region"] != person.region:
         shutil.move(person.destination, destination)
     resume.update({"destination": destination, "id": person.id})
-    handle_post_item(resume, "persons")
-    return resume["id"]
+    return resume["id"] if handle_post_item(resume, "persons") else None
 
 
 def handle_json_to_dict(anketa):

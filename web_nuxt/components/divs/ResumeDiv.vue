@@ -69,7 +69,7 @@ async function openFolder() {
 async function submitResume(form: Persons) {
   pending.value = true;
   edit.value = false;
-  const { message } = (await authFetch("/api/persons/" + props.candId, {
+  const { message } = (await authFetch("/api/items/persons/" + props.candId, {
     method: "POST",
     body: form,
   })) as Record<string, string>;
@@ -95,7 +95,7 @@ async function submitResume(form: Persons) {
 async function deleteItem() {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   pending.value = true;
-  const { message } = (await authFetch(`/api/persons/${props.candId}`, {
+  const { message } = (await authFetch(`/api/items/persons/${props.candId}`, {
     method: "DELETE",
   })) as Record<string, string>;
   pending.value = false;

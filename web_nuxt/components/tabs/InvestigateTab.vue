@@ -30,15 +30,15 @@ const { refresh, status } = await useLazyAsyncData(
   "investigations",
   async () => {
     investigations.value = await authFetch(
-      "/api/investigations/" + props.candId
-    );
+      "/api/items/investigations/" + props.candId
+    ) as Inquisition[];
   }
 );
 
 async function submitInvestigations(form: Inquisition) {
   pending.value = true;
   closeAction();
-  await authFetch("/api/investigations/" + props.candId, {
+  await authFetch("/api/items/investigations/" + props.candId, {
     method: "POST",
     body: form,
   });
@@ -55,7 +55,7 @@ async function submitInvestigations(form: Inquisition) {
 async function deleteInquisition(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  await authFetch(`/api/investigations/${id}`, {
+  await authFetch(`/api/items/investigations/${id}`, {
     method: "DELETE",
   });
   toast.add({

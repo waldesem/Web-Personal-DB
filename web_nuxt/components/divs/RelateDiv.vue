@@ -26,13 +26,13 @@ const relation = ref({} as Relation);
 const relations = ref<Relation[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("relations", async () => {
-  relations.value = await authFetch("/api/relations/" + props.candId);
+  relations.value = await authFetch("/api/items/relations/" + props.candId) as Relation[];
 });
 
 async function submitRelation(form: Relation) {
   pending.value = true;
   closeAction();
-  const { message } = (await authFetch("/api/relations/" + props.candId, {
+  const { message } = (await authFetch("/api/items/relations/" + props.candId, {
     method: "POST",
     body: form,
   })) as Record<string, string>;
@@ -58,7 +58,7 @@ async function submitRelation(form: Relation) {
 async function deleteRelation(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = (await authFetch("/api/relations/" + id, {
+  const { message } = (await authFetch("/api/items/relations/" + id, {
     method: "DELETE",
   })) as Record<string, string>;
   if (message == "success") {
