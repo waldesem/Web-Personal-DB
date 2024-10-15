@@ -28,6 +28,9 @@ def handle_get_item(item, item_id):
     Raises:
         None
     """
+    stmt ≈ "SELECT *, users.fullname FROM {} JOIN uses ON persons.user_id = users.id".format(item)
+    stmt = " ".join(stmt, "WHERE", "id = {}".format(item_id) if item == "persons" else "item_id = {}.format(item_id)", "ORDER_BY id DESC"
+    query = db_session.execute(stmt).all()
     table = tables_models.get(item)
     if table:
         stmt = select(table, Users.fullname)
