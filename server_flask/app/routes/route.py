@@ -509,13 +509,9 @@ def delete_item(item, item_id):
         Tuple[str, int]: A tuple containing an empty string and an HTTP status
         code of 204.
     """
-    table = tables_models.get(item)
-    if table:
-        item = db_session.get(table, item_id)
-        db_session.delete(item)
-        db_session.commit()
-        return jsonify({"message": "success"}), 201
-    return jsonify({"message": "error"}), 200
+    db_session.execute(text("DELETE FROM {} WHERE id = {}".format(item, item_id)))
+    db_session.commit()
+    return jsonify({"message": "success"}), 204
 
 
 @bp.get("/information")
