@@ -1,6 +1,6 @@
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
-export const usersTable = sqliteTable("users", {
+export const users = sqliteTable("users", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
   fullname: text("fullname", { mode: "text" }).notNull(),
   username: text("username", { mode: "text" }).notNull().unique(),
@@ -15,7 +15,11 @@ export const usersTable = sqliteTable("users", {
   created: integer("created", { mode: "timestamp_ms" }).notNull(),
 });
 
-export const personsTable = sqliteTable("persons", {
+export const usersRelations = relations(users, ({ many }) => ({
+  persons: many(persons),
+}));
+
+export const persons = sqliteTable("persons", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
   surname: text("surname", { mode: "text" }).notNull(),
   firstname: text("firstname", { mode: "text" }).notNull(),
@@ -40,7 +44,14 @@ export const personsTable = sqliteTable("persons", {
   };
 });
 
-export const previousTable = sqliteTable("previous", {
+export const personsRelations = relations(persons, ({ one }) => ({
+  user: one(users, {
+    fields: [persons.user_id],
+    references: [users.id],
+  }),
+}));
+
+export const previous = sqliteTable("previous", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
   surname: text("surname", { mode: "text" }).notNull(),
   firstname: text("firstname", { mode: "text" }).notNull(),
@@ -56,7 +67,7 @@ export const previousTable = sqliteTable("previous", {
   ),
 });
 
-export const educationsTable = sqliteTable("educations", {
+export const educations = sqliteTable("educations", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
   view: text("view", { mode: "text" }).notNull(),
   institution: text("institution", { mode: "text" }).notNull(),
@@ -71,7 +82,7 @@ export const educationsTable = sqliteTable("educations", {
   ),
 });
 
-export const staffsTable = sqliteTable("staffs", {
+export const staffs = sqliteTable("staffs", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
   position: text("position", { mode: "text" }).notNull(),
   department: text("department", { mode: "text" }).notNull(),
@@ -84,7 +95,7 @@ export const staffsTable = sqliteTable("staffs", {
   ),
 });
 
-export const addressesTable = sqliteTable("documents", {
+export const addresses = sqliteTable("documents", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
   view: text("view", { mode: "text" }).notNull(),
   series: text("series", { mode: "text" }),
@@ -100,7 +111,7 @@ export const addressesTable = sqliteTable("documents", {
   ),
 });
 
-export const contactsTable = sqliteTable("addresses", {
+export const contacts = sqliteTable("addresses", {
   id: integer("number").primaryKey({ autoIncrement: true }),
   view: text("text"),
   addresses: text("text"),
@@ -109,7 +120,7 @@ export const contactsTable = sqliteTable("addresses", {
   user_id: integer("number").references(() => usersTable.id),
 });
 
-export const documentsTable = sqliteTable("contacts", {
+export const documents = sqliteTable("contacts", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
   view: text("view", { mode: "text" }).notNull(),
   created: integer("created", { mode: "timestamp_ms" }).notNull(),
@@ -121,7 +132,7 @@ export const documentsTable = sqliteTable("contacts", {
   ),
 });
 
-export const workplacesTable = sqliteTable("workplaces", {
+export const workplaces = sqliteTable("workplaces", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
   now_work: integer("now_work", { mode: "boolean" }).notNull().default(false),
   starts: integer("starts", { mode: "timestamp" }).notNull(),
@@ -139,7 +150,7 @@ export const workplacesTable = sqliteTable("workplaces", {
   ),
 });
 
-export const affilationsTable = sqliteTable("affilations", {
+export const affilations = sqliteTable("affilations", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
   view: text("view", { mode: "text" }).notNull(),
   organization: text("organization", { mode: "text" }).notNull(),
@@ -153,7 +164,7 @@ export const affilationsTable = sqliteTable("affilations", {
   ),
 });
 
-export const relationsTable = sqliteTable("relations", {
+export const relations = sqliteTable("relations", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
   relation: text("relation", { mode: "text" }).notNull(),
   relation_id: integer("relation_id", { mode: "number" }).notNull(),
@@ -166,7 +177,7 @@ export const relationsTable = sqliteTable("relations", {
   ),
 });
 
-export const checksTable = sqliteTable("checks", {
+export const checks = sqliteTable("checks", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
   workplace: text("workplace", { mode: "text" }),
   document: text("document", { mode: "text" }),
@@ -193,7 +204,7 @@ export const checksTable = sqliteTable("checks", {
   ),
 });
 
-export const poligrafsTable = sqliteTable("poligrafs", {
+export const poligrafs = sqliteTable("poligrafs", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
   theme: text("theme", { mode: "text" }),
   results: text("results", { mode: "text" }),
@@ -206,7 +217,7 @@ export const poligrafsTable = sqliteTable("poligrafs", {
   ),
 });
 
-export const investigationsTable = sqliteTable("investigations", {
+export const investigations = sqliteTable("investigations", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
   theme: text("theme", { mode: "text" }),
   info: text("info", { mode: "text" }),
@@ -219,7 +230,7 @@ export const investigationsTable = sqliteTable("investigations", {
   ),
 });
 
-export const inquiriesTable = sqliteTable("inquiries", {
+export const inquiries = sqliteTable("inquiries", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
   info: text("info", { mode: "text" }),
   initiator: text("initiator", { mode: "text" }),
