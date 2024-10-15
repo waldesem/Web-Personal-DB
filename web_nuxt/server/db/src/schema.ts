@@ -15,10 +15,6 @@ export const users = sqliteTable("users", {
   created: integer("created", { mode: "timestamp_ms" }).notNull(),
 });
 
-export const usersRelations = relations(users, ({ many }) => ({
-  persons: many(persons),
-}));
-
 export const persons = sqliteTable("persons", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
   surname: text("surname", { mode: "text" }).notNull(),
@@ -43,13 +39,6 @@ export const persons = sqliteTable("persons", {
     firstnameIdx: index("firstname_idx").on(table.firstname),
   };
 });
-
-export const personsRelations = relations(persons, ({ one }) => ({
-  user: one(users, {
-    fields: [persons.user_id],
-    references: [users.id],
-  }),
-}));
 
 export const previous = sqliteTable("previous", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
