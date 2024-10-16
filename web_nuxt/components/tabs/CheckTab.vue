@@ -4,9 +4,9 @@ import { useDateFormat } from "@vueuse/core";
 
 prefetchComponents(["FormsCheckForm", "ElementsSkeletonDiv"]);
 
-const authFetch = useFetchAuth();
+const emit = defineEmits(["delete", "submit"]);
 
-const toast = useToast();
+const authFetch = useFetchAuth();
 
 const props = defineProps({
   candId: {
@@ -31,34 +31,16 @@ const { refresh, status } = await useLazyAsyncData("checks", async () => {
 });
 
 async function submitCheck(form: Verification) {
-  pending.value = true;
   closeAction();
-  await authFetch("/api/items/checks/" + props.candId, {
-    method: "POST",
-    body: form,
-  });
-  toast.add({
-    icon: "i-heroicons-check-circle",
-    title: "Успешно",
-    description: "Информация обновлена",
-    color: "green",
-  });
+  pending.value = true;
+  await emit("submit", form, "checks");
   pending.value = false;
   await refresh();
 }
 
 async function deleteCheck(id: string) {
   closeAction();
-  if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  await authFetch(`/api/items/checks/${id}`, {
-    method: "DELETE",
-  });
-  toast.add({
-    icon: "i-heroicons-information-circle",
-    title: "Информация",
-    description: `Запись с ID ${id} удалена`,
-    color: "primary",
-  });
+  await emit("delete", id, "checks");
   await refresh();
 }
 

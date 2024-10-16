@@ -4,9 +4,9 @@ import { useDateFormat } from "@vueuse/core";
 
 prefetchComponents(["FormsDocumentForm", "ElementsSkeletonDiv"]);
 
-const authFetch = useFetchAuth();
+const emit = defineEmits(["delete", "submit"]);
 
-const toast = useToast();
+const authFetch = useFetchAuth();
 
 const props = defineProps({
   candId: {
@@ -31,53 +31,17 @@ const { refresh, status } = await useLazyAsyncData("documents", async () => {
 });
 
 async function submitDocument(form: Document) {
-  pending.value = true;
   closeAction();
-  const { message } = (await authFetch("/api/items/documents/" + props.candId, {
-    method: "POST",
-    body: form,
-  })) as Record<string, string>;
-  if (message == "success") {
-    toast.add({
-      icon: "i-heroicons-check-circle",
-      title: "Успешно",
-      description: "Информация обновлена",
-      color: "green",
-    });
-  } else {
-    toast.add({
-      icon: "i-heroiconsi-heroicons-information-circle",
-      title: "Внимание",
-      description: "Ошибка при обновлении информации",
-      color: "red",
-    });
-  }
+  pending.value = true;
+  await emit("submit", form, "documents");
   pending.value = false;
   await refresh();
 }
 
 async function deleteDocument(id: string) {
   closeAction();
-  if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = (await authFetch("/api/items/documents/" + id, {
-    method: "DELETE",
-  })) as Record<string, string>;
-  if (message == "success") {
-    toast.add({
-      icon: "i-heroicons-information-circle",
-      title: "Информация",
-      description: `Запись с ID ${id} удалена`,
-      color: "primary",
-    });
-    await refresh();
-  } else {
-    toast.add({
-      icon: "i-heroiconsi-heroicons-information-circle",
-      title: "Внимание",
-      description: "Ошибка при удалении информации",
-      color: "red",
-    });
-  }
+  await emit("delete", id, "documents");
+  await refresh();
 }
 
 function cancelOperation() {

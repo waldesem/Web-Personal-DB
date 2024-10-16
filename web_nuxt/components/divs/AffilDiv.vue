@@ -3,9 +3,9 @@ import type { Affilation } from "@/types/interfaces";
 
 prefetchComponents(["FormsAffilationForm", "ElementsSkeletonDiv"]);
 
-const authFetch = useFetchAuth();
+const emit = defineEmits(["delete", "submit"]);
 
-const toast = useToast();
+const authFetch = useFetchAuth();
 
 const props = defineProps({
   candId: {
@@ -30,53 +30,17 @@ const { refresh, status } = await useLazyAsyncData("affilations", async () => {
 });
 
 async function submitAffilation(form: Affilation) {
-  pending.value = true;
   closeAction();
-  const { message } = (await authFetch("/api/items/affilations/" + props.candId, {
-    method: "POST",
-    body: form,
-  })) as Record<string, string>;
-  if (message == "success") {
-    toast.add({
-      icon: "i-heroicons-check-circle",
-      title: "Успешно",
-      description: "Информация обновлена",
-      color: "green",
-    });
-  } else {
-    toast.add({
-      icon: "i-heroiconsi-heroicons-information-circle",
-      title: "Внимание",
-      description: "Ошибка при обновлении информации",
-      color: "red",
-    });
-  }
+  pending.value = true;
+  await emit("submit", form, "affilations");
   pending.value = false;
   await refresh();
 }
 
 async function deleteAffilation(id: string) {
   closeAction();
-  if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = (await authFetch("/api/items/affilations/" + id, {
-    method: "DELETE",
-  })) as Record<string, string>;
-  if (message == "success") {
-    toast.add({
-      icon: "i-heroicons-information-circle",
-      title: "Информация",
-      description: `Запись с ID ${id} удалена`,
-      color: "primary",
-    });
-    await refresh();
-  } else {
-    toast.add({
-      icon: "i-heroiconsi-heroicons-information-circle",
-      title: "Внимание",
-      description: "Ошибка при удалении информации",
-      color: "red",
-    });
-  }
+  await emit("delete", id, "affilations");
+  await refresh();
 }
 
 function cancelOperation() {

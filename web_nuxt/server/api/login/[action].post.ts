@@ -1,7 +1,7 @@
 import { drizzle } from "db0/integrations/drizzle";
 import { like } from "drizzle-orm";
 import { db } from "~/server/db/index";
-import { usersTable } from "~/server/db/src/schema";
+import { users } from "~/server/db/src/schema";
 import {
   JWT_SECRET_KEY,
   checkPasswordHash,
@@ -15,8 +15,8 @@ export default defineEventHandler(async (event) => {
   const drizzleDb = drizzle(db);
   const query = drizzleDb
     .select()
-    .from(usersTable)
-    .where(like(usersTable.username, `%${json_data["username"]}%`));
+    .from(users)
+    .where(like(users.username, `%${json_data["username"]}%`));
   const results = await query.all();
   const user = results[0];
   if (!user || user.blocked || user.deleted) {

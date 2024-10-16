@@ -16,7 +16,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["update"]);
+const emit = defineEmits(["update", "delete", "submit"]);
 
 const items = [
   {
@@ -71,43 +71,99 @@ const items = [
     slot: "relate",
   },
 ];
+
+function submitItem(form: Record<string, string>, item: string) {
+  emit("submit", form, item);
+}
+
+function delteItem(id: string, item: string) {
+  emit("delete", id, item);
+}
 </script>
 
 <template>
   <UAccordion :items="items" size="lg" multiple>
-    <template #resume=""
-      ><DivsResumeDiv
+    <template #resume="">
+      <DivsResumeDiv
         :cand-id="props.candId"
         :editable="props.editable"
         :person="props.person"
         @update="emit('update')"
-    /></template>
-    <template #staff=""
-      ><DivsStaffDiv :cand-id="props.candId" :editable="props.editable"
-    /></template>
-    <template #education=""
-      ><DivsEducateDiv :cand-id="props.candId" :editable="props.editable"
-    /></template>
-    <template #work=""
-      ><DivsWorkDiv :cand-id="props.candId" :editable="props.editable"
-    /></template>
-    <template #document=""
-      ><DivsDocumDiv :cand-id="props.candId" :editable="props.editable"
-    /></template>
-    <template #address=""
-      ><DivsAddressDiv :cand-id="props.candId" :editable="props.editable"
-    /></template>
-    <template #contact=""
-      ><DivsContactDiv :cand-id="props.candId" :editable="props.editable"
-    /></template>
-    <template #affiliation=""
-      ><DivsAffilDiv :cand-id="props.candId" :editable="props.editable"
-    /></template>
-    <template #prev=""
-      ><DivsPrevDiv :cand-id="props.candId" :editable="props.editable"
-    /></template>
-    <template #relate=""
-      ><DivsRelateDiv :cand-id="props.candId" :editable="props.editable"
-    /></template>
+        @delete="delteItem"
+        @submit="submitItem"
+      />
+    </template>
+    <template #staff="">
+      <DivsStaffDiv
+        :cand-id="props.candId"
+        :editable="props.editable"
+        @submit="submitItem"
+        @delete="delteItem"
+      />
+    </template>
+    <template #education="">
+      <DivsEducateDiv
+        :cand-id="props.candId"
+        :editable="props.editable"
+        @submit="submitItem"
+        @delete="delteItem"
+      />
+    </template>
+    <template #work="">
+      <DivsWorkDiv
+        :cand-id="props.candId"
+        :editable="props.editable"
+        @submit="submitItem"
+        @delete="delteItem"
+      />
+    </template>
+    <template #document="">
+      <DivsDocumDiv
+        :cand-id="props.candId"
+        :editable="props.editable"
+        @submit="submitItem"
+        @delete="delteItem"
+      />
+    </template>
+    <template #address="">
+      <DivsAddressDiv
+        :cand-id="props.candId"
+        :editable="props.editable"
+        @submit="submitItem"
+        @delete="delteItem"
+      />
+    </template>
+    <template #contact="">
+      <DivsContactDiv
+        :cand-id="props.candId"
+        :editable="props.editable"
+        @submit="submitItem"
+        @delete="delteItem"
+      />
+    </template>
+    <template #affiliation="">
+      <DivsAffilDiv
+        :cand-id="props.candId"
+        :editable="props.editable"
+        @submit="submitItem"
+        @delete="delteItem"
+      />
+    </template>
+    <template #prev="">
+      <DivsPrevDiv
+        :cand-id="props.candId"
+        :editable="props.editable"
+        @submit="submitItem"
+        @delete="delteItem"
+      />
+    </template>
+    <template #relate="">
+      <DivsRelateDiv
+        :cand-id="props.candId"
+        :editable="props.editable"
+        @submit="submitItem"
+        @delete="delteItem"
+      />
+    </template>
   </UAccordion>
 </template>

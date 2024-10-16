@@ -11,7 +11,9 @@ const candId = computed(() => route.params.id) as Ref<string>;
 const person = ref({} as Persons);
 
 const { refresh } = await useAsyncData("anketa", async () => {
-  person.value = await authFetch("/api/items/persons/" + candId.value) as Persons;
+  person.value = (await authFetch(
+    "/api/items/persons/" + candId.value
+  )) as Persons;
 });
 
 const tabs = [
@@ -84,6 +86,29 @@ async function switchSelf(): Promise<void> {
   await refresh();
 }
 
+async function submitItem(form: Record<string, string>, item: string) {
+  const { message } = await authFetch(`/api/items/${item}/${candId.value}`, {
+    method: "POST",
+    body: form,
+  });
+  if (message == "success") {
+    toast.add({
+      icon: "i-heroicons-check-circle",
+      title: "Успешно",
+      description: "Информация обновлена",
+      color: "green",
+    });
+  } else {
+    toast.add({
+      icon: "i-heroiconsi-heroicons-information-circle",
+      title: "Внимание",
+      description: "Ошибка при обновлении информации",
+      color: "red",
+    });
+  }
+  pending.value = false;
+}
+
 async function deleteItem(id: string, item: string) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   const { message } = (await authFetch(`/api/items/${item}/${id}`, {
@@ -105,11 +130,6 @@ async function deleteItem(id: string, item: string) {
     });
   }
 }
-
-onBeforeRouteLeave((to, from, next) => {
-  clearNuxtData();
-  next();
-});
 </script>
 
 <template>
@@ -137,25 +157,47 @@ onBeforeRouteLeave((to, from, next) => {
       }`"
     />
     <UTabs :items="tabs">
-      <template #anketaTab
-        ><TabsAnketaTab
+      <template #anketaTab>
+        <TabsAnketaTab
           :cand-id="candId"
           :editable="editState"
           :person="person"
+          @delete="deleteItem"
           @update="refresh()"
-      /></template>
-      <template #checkTab
-        ><TabsCheckTab :cand-id="candId" :editable="editState"
-      /></template>
-      <template #poligrafTab
-        ><TabsPoligrafTab :cand-id="candId" :editable="editState"
-      /></template>
-      <template #investigateTab
-        ><TabsInvestigateTab :cand-id="candId" :editable="editState"
-      /></template>
-      <template #inquiryTab
-        ><TabsInquiryTab :cand-id="candId" :editable="editState"
-      /></template>
+        />
+      </template>
+      <template #checkTab>
+        <TabsCheckTab
+          :cand-id="candId"
+          :editable="editState"
+          @submit="submitItem"
+          @delete="deleteItem"
+        />
+      </template>
+      <template #poligrafTab>
+        <TabsPoligrafTab
+          :cand-id="candId"
+          :editable="editState"
+          @submit="submitItem"
+          @delete="deleteItem"
+        />
+      </template>
+      <template #investigateTab>
+        <TabsInvestigateTab
+          :cand-id="candId"
+          :editable="editState"
+          @submit="submitItem"
+          @delete="deleteItem"
+        />
+      </template>
+      <template #inquiryTab>
+        <TabsInquiryTab
+          :cand-id="candId"
+          :editable="editState"
+          @submit="submitItem"
+          @delete="deleteItem"
+        />
+      </template>
     </UTabs>
   </div>
 </template>
