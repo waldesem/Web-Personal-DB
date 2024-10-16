@@ -4,11 +4,18 @@ import type { Persons } from "@/types/interfaces";
 const authFetch = useFetchAuth();
 const userState = useUserState();
 
+const toast = useToast();
 const route = useRoute();
 
 const candId = computed(() => route.params.id) as Ref<string>;
 
 const person = ref({} as Persons);
+
+const fullname = computed(() => {
+  return `${person.value["surname"]} ${person.value["firstname"]} ${
+    person.value["patronymic"] ? person.value["patronymic"] : ""
+  }`;
+});
 
 const { refresh } = await useAsyncData("anketa", async () => {
   person.value = (await authFetch(
@@ -134,11 +141,7 @@ async function deleteItem(id: string, item: string) {
 
 <template>
   <div>
-    <DivsPhotoCard
-      :cand-id="candId"
-      :destination="person['destination']"
-      :editable="editState"
-    />
+    <UAvatar size="3xl" :alt="fullname" />
     <div v-if="userState.role == 'user'" class="relative">
       <div class="absolute bottom-0 right-20">
         <UButton variant="link" size="xl" @click="switchSelf">
@@ -150,12 +153,7 @@ async function deleteItem(id: string, item: string) {
         </UButton>
       </div>
     </div>
-    <ElementsHeaderDiv
-      :div="'py-3'"
-      :header="`${person['surname']} ${person['firstname']} ${
-        person['patronymic'] ? person['patronymic'] : ''
-      }`"
-    />
+    <ElementsHeaderDiv :div="'py-3'" :header="fullname" />
     <UTabs :items="tabs">
       <template #anketaTab>
         <TabsAnketaTab

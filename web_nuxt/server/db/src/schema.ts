@@ -1,4 +1,4 @@
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const users = sqliteTable("users", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
@@ -15,30 +15,35 @@ export const users = sqliteTable("users", {
   created: integer("created", { mode: "timestamp_ms" }).notNull(),
 });
 
-export const persons = sqliteTable("persons", {
-  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-  surname: text("surname", { mode: "text" }).notNull(),
-  firstname: text("firstname", { mode: "text" }).notNull(),
-  patronymic: text("patronymic", { mode: "text" }),
-  birthday: integer("birthday", { mode: "timestamp" }).notNull(),
-  birthplace: text("birthplace", { mode: "text" }),
-  citizenship: text("citizenship", { mode: "text" }),
-  dual: text("dual", { mode: "text" }),
-  snils: text("snils", { mode: "text" }),
-  inn: text("inn", { mode: "text" }),
-  marital: text("marital", { mode: "text" }),
-  addition: text("addition", { mode: "text" }),
-  destination: text("destination", { mode: "text" }),
-  created: integer("created", { mode: "timestamp_ms" }).notNull(),
-  region: text("region", { mode: "text" }),
-  editable: integer("editable", { mode: "boolean" }).notNull().default(false),
-  user_id: integer("user_id", { mode: "number" }).references(() => usersTable.id),
-}, (table) => {
-  return {
-    surnameIdx: index("surname_idx").on(table.surname),
-    firstnameIdx: index("firstname_idx").on(table.firstname),
-  };
-});
+export const persons = sqliteTable(
+  "persons",
+  {
+    id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+    surname: text("surname", { mode: "text" }).notNull(),
+    firstname: text("firstname", { mode: "text" }).notNull(),
+    patronymic: text("patronymic", { mode: "text" }),
+    birthday: integer("birthday", { mode: "timestamp" }).notNull(),
+    birthplace: text("birthplace", { mode: "text" }),
+    citizenship: text("citizenship", { mode: "text" }),
+    dual: text("dual", { mode: "text" }),
+    snils: text("snils", { mode: "text" }),
+    inn: text("inn", { mode: "text" }),
+    marital: text("marital", { mode: "text" }),
+    addition: text("addition", { mode: "text" }),
+    destination: text("destination", { mode: "text" }),
+    created: integer("created", { mode: "timestamp_ms" }).notNull(),
+    region: text("region", { mode: "text" }),
+    editable: integer("editable", { mode: "boolean" }).notNull().default(false),
+    user_id: integer("user_id", { mode: "number" }).references(() => users.id),
+  },
+  (table) => {
+    return {
+      surnameIdx: index("surname_idx").on(table.surname),
+      firstnameIdx: index("firstname_idx").on(table.firstname),
+      patronymicIdx: index("patronymic_idx").on(table.patronymic),
+    };
+  }
+);
 
 export const previous = sqliteTable("previous", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
@@ -49,10 +54,10 @@ export const previous = sqliteTable("previous", {
   reason: text("reason", { mode: "text" }),
   created: integer("created", { mode: "timestamp_ms" }).notNull(),
   person_id: integer("person_id", { mode: "number" }).references(
-    () => personsTable.id
+    () => persons.id
   ),
   user_id: integer("user_id", { mode: "number" }).references(
-    () => usersTable.id
+    () => users.id
   ),
 });
 
@@ -64,10 +69,10 @@ export const educations = sqliteTable("educations", {
   specialty: text("specialty", { mode: "text" }),
   created: integer("created", { mode: "timestamp_ms" }).notNull(),
   person_id: integer("person_id", { mode: "number" }).references(
-    () => personsTable.id
+    () => persons.id
   ),
   user_id: integer("user_id", { mode: "number" }).references(
-    () => usersTable.id
+    () => users.id
   ),
 });
 
@@ -77,10 +82,10 @@ export const staffs = sqliteTable("staffs", {
   department: text("department", { mode: "text" }).notNull(),
   created: integer("created", { mode: "timestamp_ms" }).notNull(),
   person_id: integer("person_id", { mode: "number" }).references(
-    () => personsTable.id
+    () => persons.id
   ),
   user_id: integer("user_id", { mode: "number" }).references(
-    () => usersTable.id
+    () => users.id
   ),
 });
 
@@ -93,10 +98,10 @@ export const addresses = sqliteTable("documents", {
   issue: integer("issue", { mode: "timestamp" }),
   created: integer("created", { mode: "timestamp_ms" }).notNull(),
   person_id: integer("person_id", { mode: "number" }).references(
-    () => personsTable.id
+    () => persons.id
   ),
   user_id: integer("user_id", { mode: "number" }).references(
-    () => usersTable.id
+    () => users.id
   ),
 });
 
@@ -105,8 +110,8 @@ export const contacts = sqliteTable("addresses", {
   view: text("text"),
   addresses: text("text"),
   created: integer("timestamp_ms").notNull(),
-  person_id: integer("number").references(() => personsTable.id),
-  user_id: integer("number").references(() => usersTable.id),
+  person_id: integer("number").references(() => persons.id),
+  user_id: integer("number").references(() => users.id),
 });
 
 export const documents = sqliteTable("contacts", {
@@ -114,10 +119,10 @@ export const documents = sqliteTable("contacts", {
   view: text("view", { mode: "text" }).notNull(),
   created: integer("created", { mode: "timestamp_ms" }).notNull(),
   person_id: integer("person_id", { mode: "number" }).references(
-    () => personsTable.id
+    () => persons.id
   ),
   user_id: integer("user_id", { mode: "number" }).references(
-    () => usersTable.id
+    () => users.id
   ),
 });
 
@@ -132,10 +137,10 @@ export const workplaces = sqliteTable("workplaces", {
   reason: text("reason", { mode: "text" }),
   created: integer("created", { mode: "timestamp_ms" }).notNull(),
   person_id: integer("person_id", { mode: "number" }).references(
-    () => personsTable.id
+    () => persons.id
   ),
   user_id: integer("user_id", { mode: "number" }).references(
-    () => usersTable.id
+    () => users.id
   ),
 });
 
@@ -146,10 +151,10 @@ export const affilations = sqliteTable("affilations", {
   inn: text("inn", { mode: "text" }),
   created: integer("created", { mode: "timestamp_ms" }).notNull(),
   person_id: integer("person_id", { mode: "number" }).references(
-    () => personsTable.id
+    () => persons.id
   ),
   user_id: integer("user_id", { mode: "number" }).references(
-    () => usersTable.id
+    () => users.id
   ),
 });
 
@@ -159,10 +164,10 @@ export const relations = sqliteTable("relations", {
   relation_id: integer("relation_id", { mode: "number" }).notNull(),
   created: integer("created", { mode: "timestamp_ms" }).notNull(),
   person_id: integer("person_id", { mode: "number" }).references(
-    () => personsTable.id
+    () => persons.id
   ),
   user_id: integer("user_id", { mode: "number" }).references(
-    () => usersTable.id
+    () => users.id
   ),
 });
 
@@ -186,10 +191,10 @@ export const checks = sqliteTable("checks", {
   conclusion: text("conclusion", { mode: "text" }),
   created: integer("created", { mode: "timestamp_ms" }).notNull(),
   person_id: integer("person_id", { mode: "number" }).references(
-    () => personsTable.id
+    () => persons.id
   ),
   user_id: integer("user_id", { mode: "number" }).references(
-    () => usersTable.id
+    () => users.id
   ),
 });
 
@@ -199,10 +204,10 @@ export const poligrafs = sqliteTable("poligrafs", {
   results: text("results", { mode: "text" }),
   created: integer("created", { mode: "timestamp_ms" }).notNull(),
   person_id: integer("person_id", { mode: "number" }).references(
-    () => personsTable.id
+    () => persons.id
   ),
   user_id: integer("user_id", { mode: "number" }).references(
-    () => usersTable.id
+    () => users.id
   ),
 });
 
@@ -212,10 +217,10 @@ export const investigations = sqliteTable("investigations", {
   info: text("info", { mode: "text" }),
   created: integer("created", { mode: "timestamp_ms" }).notNull(),
   person_id: integer("person_id", { mode: "number" }).references(
-    () => personsTable.id
+    () => persons.id
   ),
   user_id: integer("user_id", { mode: "number" }).references(
-    () => usersTable.id
+    () => users.id
   ),
 });
 
@@ -226,9 +231,26 @@ export const inquiries = sqliteTable("inquiries", {
   origins: text("origins", { mode: "text" }),
   created: integer("created", { mode: "timestamp_ms" }).notNull(),
   person_id: integer("person_id", { mode: "number" }).references(
-    () => personsTable.id
+    () => persons.id
   ),
   user_id: integer("user_id", { mode: "number" }).references(
-    () => usersTable.id
+    () => users.id
   ),
 });
+
+export const itemsTables = {
+  persons: persons,
+  previous: previous,
+  educations: educations,
+  staffs: staffs,
+  addresses: addresses,
+  contacts: contacts,
+  documents: documents,
+  workplaces: workplaces,
+  affilations: affilations,
+  relations: relations,
+  checks: checks,
+  poligrafs: poligrafs,
+  investigations: investigations,
+  inquiries: inquiries,
+};
