@@ -84,6 +84,28 @@ async function switchSelf(): Promise<void> {
   await refresh();
 }
 
+async function deleteItem(id: string, item: string) {
+  if (!confirm(`Вы действительно хотите удалить запись?`)) return;
+  const { message } = (await authFetch(`/api/items/${item}/${id}`, {
+    method: "DELETE",
+  })) as Record<string, string>;
+  if (message == "success") {
+    toast.add({
+      icon: "i-heroicons-information-circle",
+      title: "Информация",
+      description: `Запись с ID ${id} удалена`,
+      color: "primary",
+    });
+  } else {
+    toast.add({
+      icon: "i-heroiconsi-heroicons-information-circle",
+      title: "Внимание",
+      description: "Ошибка при удалении информации",
+      color: "red",
+    });
+  }
+}
+
 onBeforeRouteLeave((to, from, next) => {
   clearNuxtData();
   next();
