@@ -1,8 +1,7 @@
 export default defineEventHandler(async(event) => {
-  const file = await readBody(event)
+  const files = await readBody(event)
   const reader = new FileReader();
-  reader.readAsText(file.file);
-
+  reader.readAsText(files[0].file);
   try {
     const jsonData = await new Promise((resolve) => {
       reader.onload = () => {

@@ -18,9 +18,12 @@
     "db0": "^0.2.1",
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.29.5",
+    "drizzle-zod": "^0.5.1",
     "jsonwebtoken": "^9.0.2",
     "nuxt": "^3.13.2",
-    "vue": "^3.5.12"
+    "sharp": "^0.33.5",
+    "vue": "^3.5.12",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@nuxt/eslint": "^0.5.7",
