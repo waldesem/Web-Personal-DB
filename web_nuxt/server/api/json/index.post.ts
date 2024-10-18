@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
     const validated = anketaSchema.parse(jsonData);
     const anketa = {
       persons: {
-        region: "current_user",
+        region: "current_user.region",
         surname: validated.lastName,
         firstname: validated.firstName,
         patronymic: validated.midName,
@@ -44,14 +44,12 @@ export default defineEventHandler(async (event) => {
           digits: validated.passportNumber,
           agency: validated.passportIssuedBy,
           issue: validated.passportIssueDate,
-          created: Date.now(),
         },
       ],
       addresses: [
         {
           view: "Адрес регистрации",
           address: validated.regAddress,
-          created: Date.now(),
         },
         {
           view: "Адрес проживания",
@@ -158,8 +156,8 @@ export default defineEventHandler(async (event) => {
     if (results.length == 0) {
       Object.assign(anketa.persons, {
         editable: true,
-        user_id: "event.context.user.id",
-        region: "event.context.user.region",
+        user_id: "current_user.id",
+        region: "current_user.region",
       });
       const personId = await drizzleDb
         .insert(persons)
@@ -168,7 +166,7 @@ export default defineEventHandler(async (event) => {
         .returning()
         .then((rows) => rows[0].id);
       const folderName = makeDestinationFolder(
-        "event.context.user.region",
+        "current_user.region",
         personId.toString(),
         anketa.persons.surname,
         anketa.persons.firstname,
@@ -199,7 +197,7 @@ export default defineEventHandler(async (event) => {
     }
     const person = results[0];
     const folderName = makeDestinationFolder(
-      "event.context.user.region",
+      "current_user.region",
       person.id.toString(),
       anketa.persons.surname,
       anketa.persons.firstname,

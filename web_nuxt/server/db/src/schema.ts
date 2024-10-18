@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { createInsertSchema } from "drizzle-zod";
+import { sql } from "drizzle-orm";
 
 export const users = sqliteTable("users", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
@@ -8,13 +9,14 @@ export const users = sqliteTable("users", {
   username: text("username", { mode: "text" }).notNull().unique(),
   email: text("email", { mode: "text" }).notNull().unique(),
   passhash: text("passhash", { mode: "text" }).notNull(),
-  pswd_create: integer("pswd_create", { mode: "timestamp_ms" }).notNull(),
-  change_pswd: integer("change_pswd", { mode: "boolean" }).notNull(),
-  blocked: integer("blocked", { mode: "boolean" }).notNull(),
-  deleted: integer("deleted", { mode: "boolean" }).notNull(),
-  attempt: integer("attempt", { mode: "number" }).notNull(),
+  pswd_create: text("pswd_create", { mode: "text" }).default(
+    sql`(CURRENT_TIMESTAMP)`
+  ),
+  change_pswd: integer("change_pswd", { mode: "boolean" }).default(true),
+  blocked: integer("blocked", { mode: "boolean" }).default(false),
+  deleted: integer("deleted", { mode: "boolean" }).default(false),
+  attempt: integer("attempt", { mode: "number" }).default(0),
   role: text("role", { mode: "text" }).notNull(),
-  created: integer("created", { mode: "timestamp_ms" }).notNull(),
 });
 
 export const userSchema = createInsertSchema(users);
@@ -35,9 +37,9 @@ export const persons = sqliteTable(
     marital: text("marital", { mode: "text" }),
     addition: text("addition", { mode: "text" }),
     destination: text("destination", { mode: "text" }),
-    created: integer("created", { mode: "timestamp_ms" }).notNull(),
+    created: text("text", { mode: "text" }).default(sql`(CURRENT_TIMESTAMP)`),
     region: text("region", { mode: "text" }),
-    editable: integer("editable", { mode: "boolean" }).notNull().default(false),
+    editable: integer("editable", { mode: "boolean" }).default(false),
     user_id: integer("user_id", { mode: "number" }).references(() => users.id),
   },
   (table) => {
@@ -60,14 +62,12 @@ export const previous = sqliteTable("previous", {
   patronymic: text("patronymic", { mode: "text" }),
   changed: text("changed", { mode: "text" }),
   reason: text("reason", { mode: "text" }),
-  created: integer("created", { mode: "timestamp_ms" }).notNull(),
+  created: text("text", { mode: "text" }).default(sql`(CURRENT_TIMESTAMP)`),
   person_id: integer("person_id", { mode: "number" }).references(
     () => persons.id
   ),
   user_id: integer("user_id", { mode: "number" }).references(() => users.id),
 });
-
-export const previousSchema = createInsertSchema(previous);
 
 export const educations = sqliteTable("educations", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
@@ -75,27 +75,23 @@ export const educations = sqliteTable("educations", {
   institution: text("institution", { mode: "text" }).notNull(),
   finished: text("finished", { mode: "text" }).notNull(),
   specialty: text("specialty", { mode: "text" }),
-  created: integer("created", { mode: "timestamp_ms" }).notNull(),
+  created: text("text", { mode: "text" }).default(sql`(CURRENT_TIMESTAMP)`),
   person_id: integer("person_id", { mode: "number" }).references(
     () => persons.id
   ),
   user_id: integer("user_id", { mode: "number" }).references(() => users.id),
 });
-
-export const educationSchema = createInsertSchema(educations);
 
 export const staffs = sqliteTable("staffs", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
   position: text("position", { mode: "text" }).notNull(),
   department: text("department", { mode: "text" }).notNull(),
-  created: integer("created", { mode: "timestamp_ms" }).notNull(),
+  created: text("text", { mode: "text" }).default(sql`(CURRENT_TIMESTAMP)`),
   person_id: integer("person_id", { mode: "number" }).references(
     () => persons.id
   ),
   user_id: integer("user_id", { mode: "number" }).references(() => users.id),
 });
-
-export const staffSchema = createInsertSchema(staffs);
 
 export const addresses = sqliteTable("documents", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
@@ -104,14 +100,12 @@ export const addresses = sqliteTable("documents", {
   digits: text("digits", { mode: "text" }),
   agency: text("agency", { mode: "text" }),
   issue: integer("issue", { mode: "timestamp" }),
-  created: integer("created", { mode: "timestamp_ms" }).notNull(),
+  created: text("text", { mode: "text" }).default(sql`(CURRENT_TIMESTAMP)`),
   person_id: integer("person_id", { mode: "number" }).references(
     () => persons.id
   ),
   user_id: integer("user_id", { mode: "number" }).references(() => users.id),
 });
-
-export const addressSchema = createInsertSchema(addresses);
 
 export const contacts = sqliteTable("addresses", {
   id: integer("number").primaryKey({ autoIncrement: true }),
@@ -122,64 +116,53 @@ export const contacts = sqliteTable("addresses", {
   user_id: integer("number").references(() => users.id),
 });
 
-export const contactSchema = createInsertSchema(contacts);
-
 export const documents = sqliteTable("contacts", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
   view: text("view", { mode: "text" }).notNull(),
-  created: integer("created", { mode: "timestamp_ms" }).notNull(),
+  created: text("text", { mode: "text" }).default(sql`(CURRENT_TIMESTAMP)`),
   person_id: integer("person_id", { mode: "number" }).references(
     () => persons.id
   ),
   user_id: integer("user_id", { mode: "number" }).references(() => users.id),
 });
-
-export const documentSchema = createInsertSchema(documents);
-
 export const workplaces = sqliteTable("workplaces", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-  now_work: integer("now_work", { mode: "boolean" }).notNull().default(false),
+  now_work: integer("now_work", { mode: "boolean" }).default(false),
   starts: integer("starts", { mode: "timestamp" }).notNull(),
   finished: integer("finished", { mode: "timestamp" }),
   workplace: text("workplace", { mode: "text" }).notNull(),
   addresses: text("addresses", { mode: "text" }),
   position: text("position", { mode: "text" }),
   reason: text("reason", { mode: "text" }),
-  created: integer("created", { mode: "timestamp_ms" }).notNull(),
+  created: text("text", { mode: "text" }).default(sql`(CURRENT_TIMESTAMP)`),
   person_id: integer("person_id", { mode: "number" }).references(
     () => persons.id
   ),
   user_id: integer("user_id", { mode: "number" }).references(() => users.id),
 });
-
-export const workplaceSchema = createInsertSchema(workplaces);
 
 export const affilations = sqliteTable("affilations", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
   view: text("view", { mode: "text" }).notNull(),
   organization: text("organization", { mode: "text" }).notNull(),
   inn: text("inn", { mode: "text" }),
-  created: integer("created", { mode: "timestamp_ms" }).notNull(),
+  created: text("text", { mode: "text" }).default(sql`(CURRENT_TIMESTAMP)`),
   person_id: integer("person_id", { mode: "number" }).references(
     () => persons.id
   ),
   user_id: integer("user_id", { mode: "number" }).references(() => users.id),
 });
-
-export const affilationsSchema = createInsertSchema(affilations);
 
 export const relations = sqliteTable("relations", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
   relation: text("relation", { mode: "text" }).notNull(),
   relation_id: integer("relation_id", { mode: "number" }).notNull(),
-  created: integer("created", { mode: "timestamp_ms" }).notNull(),
+  created: text("text", { mode: "text" }).default(sql`(CURRENT_TIMESTAMP)`),
   person_id: integer("person_id", { mode: "number" }).references(
     () => persons.id
   ),
   user_id: integer("user_id", { mode: "number" }).references(() => users.id),
 });
-
-export const relationSchema = createInsertSchema(relations);
 
 export const checks = sqliteTable("checks", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
@@ -199,54 +182,46 @@ export const checks = sqliteTable("checks", {
   addition: text("addition", { mode: "text" }),
   comment: text("comment", { mode: "text" }),
   conclusion: text("conclusion", { mode: "text" }),
-  created: integer("created", { mode: "timestamp_ms" }).notNull(),
+  created: text("text", { mode: "text" }).default(sql`(CURRENT_TIMESTAMP)`),
   person_id: integer("person_id", { mode: "number" }).references(
     () => persons.id
   ),
   user_id: integer("user_id", { mode: "number" }).references(() => users.id),
 });
-
-export const checkSchema = createInsertSchema(checks);
 
 export const poligrafs = sqliteTable("poligrafs", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
   theme: text("theme", { mode: "text" }),
   results: text("results", { mode: "text" }),
-  created: integer("created", { mode: "timestamp_ms" }).notNull(),
+  created: text("text", { mode: "text" }).default(sql`(CURRENT_TIMESTAMP)`),
   person_id: integer("person_id", { mode: "number" }).references(
     () => persons.id
   ),
   user_id: integer("user_id", { mode: "number" }).references(() => users.id),
 });
-
-export const poligrafSchema = createInsertSchema(poligrafs);
 
 export const investigations = sqliteTable("investigations", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
   theme: text("theme", { mode: "text" }),
   info: text("info", { mode: "text" }),
-  created: integer("created", { mode: "timestamp_ms" }).notNull(),
+  created: text("text", { mode: "text" }).default(sql`(CURRENT_TIMESTAMP)`),
   person_id: integer("person_id", { mode: "number" }).references(
     () => persons.id
   ),
   user_id: integer("user_id", { mode: "number" }).references(() => users.id),
 });
-
-export const investigationSchema = createInsertSchema(investigations);
 
 export const inquiries = sqliteTable("inquiries", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
   info: text("info", { mode: "text" }),
   initiator: text("initiator", { mode: "text" }),
   origins: text("origins", { mode: "text" }),
-  created: integer("created", { mode: "timestamp_ms" }).notNull(),
+  created: text("text", { mode: "text" }).default(sql`(CURRENT_TIMESTAMP)`),
   person_id: integer("person_id", { mode: "number" }).references(
     () => persons.id
   ),
   user_id: integer("user_id", { mode: "number" }).references(() => users.id),
 });
-
-export const inquirySchema = createInsertSchema(inquiries);
 
 export const itemsTables = {
   persons: persons,
@@ -267,17 +242,17 @@ export const itemsTables = {
 
 export const itemsSchemas = {
   persons: personSchema,
-  previous: previousSchema,
-  educations: educationSchema,
-  staffs: staffSchema,
-  addresses: addressSchema,
-  contacts: contactSchema,
-  documents: documentSchema,
-  workplaces: workplaceSchema,
-  affilations: affilationsSchema,
-  relations: relationSchema,
-  checks: checkSchema,
-  poligrafs: poligrafSchema,
-  investigations: investigationSchema,
-  inquiries: inquirySchema,
+  previous: createInsertSchema(previous),
+  educations: createInsertSchema(educations),
+  staffs: createInsertSchema(staffs),
+  addresses: createInsertSchema(addresses),
+  contacts: createInsertSchema(contacts),
+  documents: createInsertSchema(documents),
+  workplaces: createInsertSchema(workplaces),
+  affilations: createInsertSchema(affilations),
+  relations: createInsertSchema(relations),
+  checks: createInsertSchema(checks),
+  poligrafs: createInsertSchema(poligrafs),
+  investigations: createInsertSchema(investigations),
+  inquiries: createInsertSchema(inquiries),
 };
