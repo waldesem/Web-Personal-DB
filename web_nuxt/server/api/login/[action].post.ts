@@ -41,6 +41,10 @@ export default defineEventHandler(async (event) => {
   if (delta > 86400000) {
     user.attempt = 0;
     const token = createJwtToken(user, JWT_SECRET_KEY);
+    const session = await useSession(event, {
+      password: SECRET_KEY",
+    });
+    await session.update({...user});
     if (token) {
       return { message: "Success", user_token: token };
     }
