@@ -5,6 +5,7 @@ import { drizzle } from "db0/integrations/drizzle";
 import { eq } from "drizzle-orm";
 import { db } from "~/server/db/index";
 import { persons } from "~/server/db/src/schema";
+import { makeDestinationFolder } from "~/server/utils";
 
 export default defineEventHandler(async (event) => {
   const item = getRouterParam(event, "item") as string;
@@ -18,20 +19,14 @@ export default defineEventHandler(async (event) => {
   }
   const person = results[0];
   if (!person.destination || !fs.existsSync(person.destination)) {
-    const folderName = path.join(
+    const folderName = makeDestinationFolder(
       'current_user.get("region")',
-      person.surname[0],
-      `${person.id}-${person.surname} ${person.firstname} ${person.patronymic}`
+      (person.id).toString(),
+      person.surname,
+      person.firstname,
+      person.patronymic || "",
     );
-    try {
-      if (!fs.existsSync(folderName)) {
-        fs.mkdirSync(folderName);
-      }
-    } catch (err) {
-      return { message: err };
-    }
     Object.assign(person, { destination: folderName });
-    const drizzleDb = drizzle(db);
     await drizzleDb
       .update(persons)
       .set({ destination: folderName })

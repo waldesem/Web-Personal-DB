@@ -10,6 +10,10 @@ const props = defineProps({
     type: String,
     default: "",
   },
+  fullname: {
+    type: String,
+    default: "",
+  },
   destination: {
     type: String,
     default: "",
@@ -95,7 +99,7 @@ function onContextMenu() {
       :ui="{ body: { padding: 'p-1 sm:p-1' } }"
       @contextmenu.prevent="onContextMenu"
     >
-      <NuxtImg :src="imageUrl" width="180" height="180" />
+      <UAvatar size="3xl" :src="imageUrl" :alt="fullname" />
       <UContextMenu
         v-if="props.editable"
         v-model="isOpen"

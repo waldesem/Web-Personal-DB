@@ -4,6 +4,7 @@ import { db } from "~/server/db/index";
 import { users } from "~/server/db/src/schema";
 import {
   JWT_SECRET_KEY,
+  SECRET_KEY,
   checkPasswordHash,
   createPasswordHash,
   createJwtToken,
@@ -42,7 +43,7 @@ export default defineEventHandler(async (event) => {
     user.attempt = 0;
     const token = createJwtToken(user, JWT_SECRET_KEY);
     const session = await useSession(event, {
-      password: SECRET_KEY",
+      password: SECRET_KEY,
     });
     await session.update({...user});
     if (token) {

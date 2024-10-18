@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import crypto from "node:crypto";
 import jwt from "jsonwebtoken";
 
@@ -5,7 +7,7 @@ export const Roles = {
   admin: "admin",
   user: "user",
   guest: "guest",
-}
+};
 
 export const Regions = {
   main: "Главный офис",
@@ -13,15 +15,16 @@ export const Regions = {
   west: "РЦ Запад",
   ural: "РЦ Урал",
   east: "РЦ Восток",
-}
+};
 
 export const Conclusions = {
   agreed: "Согласовано",
   comments: "Согласовано с комментарием",
   denied: "Отклонено",
-}
+};
 
 export const JWT_SECRET_KEY = crypto.randomBytes(16).toString("hex");
+export const SECRET_KEY = crypto.randomBytes(16).toString("hex");
 
 /**
  * Creates a password hash using the crypto module.
@@ -61,4 +64,33 @@ export function createJwtToken(
   options: object = {}
 ): string {
   return jwt.sign(payload, secret, options);
+}
+
+/**
+ * Creates a folder for a given user in the specified region.
+ * @param {string} region - The region to create the folder in.
+ * @param {string} id - The id of the user.
+ * @param {string} surname - The surname of the user.
+ * @param {string} firstname - The firstname of the user.
+ * @param {string} [patronymic] - The patronymic of the user.
+ * @returns {string} The path of the created folder.
+ */
+export function makeDestinationFolder(
+  region: string,
+  id: string,
+  surname: string,
+  firstname: string,
+  patronymic: string
+): string {
+  const folderName = path.join(
+    region,
+    surname[0],
+    `${id}-${surname} ${firstname} ${patronymic ? patronymic : ""}`
+      .trim()
+      .toUpperCase()
+  );
+  if (!fs.existsSync(folderName)) {
+    fs.mkdirSync(folderName);
+  }
+  return folderName;
 }

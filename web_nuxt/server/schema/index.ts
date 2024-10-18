@@ -47,7 +47,7 @@ const publicOfficeOrganizationsJson = z.object({
   name: z.string().optional(),
 });
 
-export const anketaSchemaJson = z.object({
+export const anketaSchema = z.object({
   lastName: z.string().max(255),
   firstName: z.string().max(255),
   midName: z.string().max(255).optional(),

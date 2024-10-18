@@ -1,14 +1,10 @@
 import fs from "node:fs";
-import path from "node:path";
 import { drizzle } from "db0/integrations/drizzle";
 import { and, ilike, eq } from "drizzle-orm";
 import { db } from "~/server/db/index";
-import {
-  itemsInsertModels,
-  itemsTables,
-  persons,
-} from "~/server/db/src/schema";
-import { anketaSchemaJson } from "~/server/schema";
+import { itemsSchemas, itemsTables, persons } from "~/server/db/src/schema";
+import { anketaSchema } from "~/server/schema";
+import { makeDestinationFolder } from "~/server/utils";
 
 export default defineEventHandler(async (event) => {
   const files = await readBody(event);
@@ -20,9 +16,9 @@ export default defineEventHandler(async (event) => {
         resolve(JSON.parse(reader.result as string));
       };
     });
-    const validated = anketaSchemaJson.parse(jsonData);
+    const validated = anketaSchema.parse(jsonData);
     const anketa = {
-      resume: {
+      persons: {
         region: "current_user",
         surname: validated.lastName,
         firstname: validated.firstName,
@@ -151,41 +147,40 @@ export default defineEventHandler(async (event) => {
       .from(persons)
       .where(
         and(
-          ilike(persons.surname, anketa.resume.surname),
-          ilike(persons.firstname, anketa.resume.firstname),
-          ilike(persons.patronymic, anketa.resume.patronymic || "%%"),
-          eq(persons.birthday, anketa.resume.birthday)
+          ilike(persons.surname, anketa.persons.surname),
+          ilike(persons.firstname, anketa.persons.firstname),
+          ilike(persons.patronymic, anketa.persons.patronymic || "%%"),
+          eq(persons.birthday, anketa.persons.birthday)
         )
       );
     const results = await query.all();
-    const validResume = itemsInsertModels["persons"].parse(anketa.resume);
+    const validpersons = itemsSchemas["persons"].parse(anketa.persons);
     if (results.length == 0) {
-      Object.assign(anketa.resume, {
+      Object.assign(anketa.persons, {
         editable: true,
         user_id: "event.context.user.id",
         region: "event.context.user.region",
       });
       const personId = await drizzleDb
         .insert(persons)
-        .values(validResume)
+        .values(validpersons)
         .onConflictDoNothing()
         .returning()
         .then((rows) => rows[0].id);
-      const folderName = path.join(
+      const folderName = makeDestinationFolder(
         "event.context.user.region",
-        anketa.resume.surname[0],
-        `${personId}-${anketa.resume.surname} ${anketa.resume.firstname} ${anketa.resume.patronymic}`
+        personId.toString(),
+        anketa.persons.surname,
+        anketa.persons.firstname,
+        anketa.persons.patronymic || ""
       );
-      if (!fs.existsSync(folderName)) {
-        fs.mkdirSync(folderName);
-      }
       await drizzleDb
         .update(persons)
         .set({ destination: folderName })
         .execute();
       for (const [key, values] of Object.entries(anketa)) {
         const table = itemsTables[key as keyof typeof itemsTables];
-        if (!table || key == "resume") continue;
+        if (!table || key == "persons") continue;
         for (const value in values) {
           Object.assign(value, {
             person_id: personId,
@@ -193,10 +188,8 @@ export default defineEventHandler(async (event) => {
           });
           try {
             const validItem =
-              itemsInsertModels[key as keyof typeof itemsInsertModels].parse(
-                value
-              );
-            await drizzleDb.insert(table).values(validItem);
+              itemsSchemas[key as keyof typeof itemsSchemas].parse(value);
+            await drizzleDb.insert(table).values(validItem).execute();
           } catch (error) {
             console.error(error);
           }
@@ -205,15 +198,14 @@ export default defineEventHandler(async (event) => {
       return { person_id: personId };
     }
     const person = results[0];
-    const folderName = path.join(
+    const folderName = makeDestinationFolder(
       "event.context.user.region",
-      anketa.resume.surname[0],
-      `${person.id}-${person.surname} ${person.firstname} ${person.patronymic}`
+      person.id.toString(),
+      anketa.persons.surname,
+      anketa.persons.firstname,
+      anketa.persons.patronymic || ""
     );
-    if (!fs.existsSync(folderName)) {
-      fs.mkdirSync(folderName);
-    }
-    if (anketa.resume.region != person.region && person.destination) {
+    if (anketa.persons.region != person.region && person.destination) {
       try {
         fs.cpSync(person.destination, folderName);
       } catch (err) {
@@ -224,7 +216,7 @@ export default defineEventHandler(async (event) => {
     try {
       await drizzleDb
         .update(persons)
-        .set({ ...anketa.resume, destination: folderName })
+        .set({ ...anketa.persons, destination: folderName })
         .where(eq(persons.id, person.id))
         .execute();
     } catch (err) {
@@ -232,7 +224,7 @@ export default defineEventHandler(async (event) => {
     }
     for (const [key, values] of Object.entries(anketa)) {
       const table = itemsTables[key as keyof typeof itemsTables];
-      if (!table || key == "resume") continue;
+      if (key == "persons") continue;
       for (const value in values) {
         Object.assign(value, {
           person_id: person.id,
@@ -240,10 +232,8 @@ export default defineEventHandler(async (event) => {
         });
         try {
           const validItem =
-            itemsInsertModels[key as keyof typeof itemsInsertModels].parse(
-              value
-            );
-          await drizzleDb.insert(table).values(validItem);
+            itemsSchemas[key as keyof typeof itemsSchemas].parse(value);
+          await drizzleDb.insert(table).values(validItem).execute();
         } catch (error) {
           console.error(error);
         }

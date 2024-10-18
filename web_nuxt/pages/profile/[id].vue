@@ -141,12 +141,12 @@ async function deleteItem(id: string, item: string) {
 
 <template>
   <div>
-    <!-- <DivsPhotoCard
+    <DivsPhotoCard
       :cand-id="candId"
       :destination="person['destination']"
       :editable="editState"
-    /-->
-    <UAvatar size="3xl" :alt="fullname" />
+      :fullname="fullname"
+    />
     <div v-if="userState.role == 'user'" class="relative">
       <div class="absolute bottom-0 right-20">
         <UButton variant="link" size="xl" @click="switchSelf">

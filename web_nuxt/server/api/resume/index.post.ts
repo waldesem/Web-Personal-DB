@@ -4,6 +4,7 @@ import { drizzle } from "db0/integrations/drizzle";
 import { and, ilike, eq } from "drizzle-orm";
 import { db } from "~/server/db/index";
 import { persons } from "~/server/db/src/schema";
+import { makeDestinationFolder } from "~/server/utils";
 
 export default defineEventHandler(async (event) => {
   const data = await readBody(event);
@@ -32,14 +33,13 @@ export default defineEventHandler(async (event) => {
       .onConflictDoNothing()
       .returning()
       .then((rows) => rows[0].id);
-    const folderName = path.join(
-      "event.context.user.region",
-      data.surname[0],
-      `${personId}-${data.surname} ${data.firstname} ${data.patronymic}`
+    const folderName = makeDestinationFolder(
+      data.region,
+      data.id,
+      data.surname,
+      data.firstname,
+      data.patronymic
     );
-    if (!fs.existsSync(folderName)) {
-      fs.mkdirSync(folderName);
-    }
     await drizzleDb.update(persons).set({ destination: folderName }).execute();
     return { person_id: personId };
   }

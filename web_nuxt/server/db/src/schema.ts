@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
-import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import { createInsertSchema } from "drizzle-zod";
 
 export const users = sqliteTable("users", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
@@ -17,8 +17,7 @@ export const users = sqliteTable("users", {
   created: integer("created", { mode: "timestamp_ms" }).notNull(),
 });
 
-export const insertUserSchema = createInsertSchema(users);
-export const selectUserSchema = createSelectSchema(users);
+export const userSchema = createInsertSchema(users);
 
 export const persons = sqliteTable(
   "persons",
@@ -50,10 +49,9 @@ export const persons = sqliteTable(
   }
 );
 
-export const insertPersonSchema = createInsertSchema(persons).extend({
+export const personSchema = createInsertSchema(persons).extend({
   username: z.string(),
 });
-export const selectPersonSchema = createSelectSchema(persons);
 
 export const previous = sqliteTable("previous", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
@@ -69,8 +67,7 @@ export const previous = sqliteTable("previous", {
   user_id: integer("user_id", { mode: "number" }).references(() => users.id),
 });
 
-export const insertPreviousSchema = createInsertSchema(previous);
-export const selectPreviousSchema = createSelectSchema(previous);
+export const previousSchema = createInsertSchema(previous);
 
 export const educations = sqliteTable("educations", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
@@ -85,8 +82,7 @@ export const educations = sqliteTable("educations", {
   user_id: integer("user_id", { mode: "number" }).references(() => users.id),
 });
 
-export const insertEducationSchema = createInsertSchema(educations);
-export const selectEducationSchema = createSelectSchema(educations);
+export const educationSchema = createInsertSchema(educations);
 
 export const staffs = sqliteTable("staffs", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
@@ -99,8 +95,7 @@ export const staffs = sqliteTable("staffs", {
   user_id: integer("user_id", { mode: "number" }).references(() => users.id),
 });
 
-export const insertStaffSchema = createInsertSchema(staffs);
-export const selectStaffSchema = createSelectSchema(staffs);
+export const staffSchema = createInsertSchema(staffs);
 
 export const addresses = sqliteTable("documents", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
@@ -116,8 +111,7 @@ export const addresses = sqliteTable("documents", {
   user_id: integer("user_id", { mode: "number" }).references(() => users.id),
 });
 
-export const insertAddressSchema = createInsertSchema(addresses);
-export const selectAddressSchema = createSelectSchema(addresses);
+export const addressSchema = createInsertSchema(addresses);
 
 export const contacts = sqliteTable("addresses", {
   id: integer("number").primaryKey({ autoIncrement: true }),
@@ -128,8 +122,7 @@ export const contacts = sqliteTable("addresses", {
   user_id: integer("number").references(() => users.id),
 });
 
-export const insertContactSchema = createInsertSchema(contacts);
-export const selectContactSchema = createSelectSchema(contacts);
+export const contactSchema = createInsertSchema(contacts);
 
 export const documents = sqliteTable("contacts", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
@@ -141,8 +134,7 @@ export const documents = sqliteTable("contacts", {
   user_id: integer("user_id", { mode: "number" }).references(() => users.id),
 });
 
-export const insertDocumentSchema = createInsertSchema(documents);
-export const selectDocumentSchema = createSelectSchema(documents);
+export const documentSchema = createInsertSchema(documents);
 
 export const workplaces = sqliteTable("workplaces", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
@@ -160,8 +152,7 @@ export const workplaces = sqliteTable("workplaces", {
   user_id: integer("user_id", { mode: "number" }).references(() => users.id),
 });
 
-export const insertWorkplaceSchema = createInsertSchema(workplaces);
-export const selectWorkplaceSchema = createSelectSchema(workplaces);
+export const workplaceSchema = createInsertSchema(workplaces);
 
 export const affilations = sqliteTable("affilations", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
@@ -175,8 +166,7 @@ export const affilations = sqliteTable("affilations", {
   user_id: integer("user_id", { mode: "number" }).references(() => users.id),
 });
 
-export const insertAffilationsSchema = createInsertSchema(affilations);
-export const selectAffilationsSchema = createSelectSchema(affilations);
+export const affilationsSchema = createInsertSchema(affilations);
 
 export const relations = sqliteTable("relations", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
@@ -189,8 +179,7 @@ export const relations = sqliteTable("relations", {
   user_id: integer("user_id", { mode: "number" }).references(() => users.id),
 });
 
-export const insertRelationSchema = createInsertSchema(relations);
-export const selectRelationSchema = createSelectSchema(relations);
+export const relationSchema = createInsertSchema(relations);
 
 export const checks = sqliteTable("checks", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
@@ -217,8 +206,7 @@ export const checks = sqliteTable("checks", {
   user_id: integer("user_id", { mode: "number" }).references(() => users.id),
 });
 
-export const insertCheckSchema = createInsertSchema(checks);
-export const selectCheckSchema = createSelectSchema(checks);
+export const checkSchema = createInsertSchema(checks);
 
 export const poligrafs = sqliteTable("poligrafs", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
@@ -231,8 +219,7 @@ export const poligrafs = sqliteTable("poligrafs", {
   user_id: integer("user_id", { mode: "number" }).references(() => users.id),
 });
 
-export const insertPoligrafSchema = createInsertSchema(poligrafs);
-export const selectPoligrafSchema = createSelectSchema(poligrafs);
+export const poligrafSchema = createInsertSchema(poligrafs);
 
 export const investigations = sqliteTable("investigations", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
@@ -245,8 +232,7 @@ export const investigations = sqliteTable("investigations", {
   user_id: integer("user_id", { mode: "number" }).references(() => users.id),
 });
 
-export const insertInvestigationSchema = createInsertSchema(investigations);
-export const selectInvestigationSchema = createSelectSchema(investigations);
+export const investigationSchema = createInsertSchema(investigations);
 
 export const inquiries = sqliteTable("inquiries", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
@@ -260,8 +246,7 @@ export const inquiries = sqliteTable("inquiries", {
   user_id: integer("user_id", { mode: "number" }).references(() => users.id),
 });
 
-export const insertInquirySchema = createInsertSchema(inquiries);
-export const selectInquirySchema = createSelectSchema(inquiries);
+export const inquirySchema = createInsertSchema(inquiries);
 
 export const itemsTables = {
   persons: persons,
@@ -280,19 +265,19 @@ export const itemsTables = {
   inquiries: inquiries,
 };
 
-export const itemsInsertModels = {
-  persons: insertPersonSchema,
-  previous: insertPreviousSchema,
-  educations: insertEducationSchema,
-  staffs: insertStaffSchema,
-  addresses: insertAddressSchema,
-  contacts: insertContactSchema,
-  documents: insertDocumentSchema,
-  workplaces: insertWorkplaceSchema,
-  affilations: insertAffilationsSchema,
-  relations: insertRelationSchema,
-  checks: insertCheckSchema,
-  poligrafs: insertPoligrafSchema,
-  investigations: insertInvestigationSchema,
-  inquiries: insertInquirySchema,
+export const itemsSchemas = {
+  persons: personSchema,
+  previous: previousSchema,
+  educations: educationSchema,
+  staffs: staffSchema,
+  addresses: addressSchema,
+  contacts: contactSchema,
+  documents: documentSchema,
+  workplaces: workplaceSchema,
+  affilations: affilationsSchema,
+  relations: relationSchema,
+  checks: checkSchema,
+  poligrafs: poligrafSchema,
+  investigations: investigationSchema,
+  inquiries: inquirySchema,
 };

@@ -52,7 +52,6 @@ export default defineNuxtConfig({
   },
 
   modules: [
-    "@nuxt/image",
     "@nuxt/ui",
     "@nuxt/eslint",
     "@nuxtjs/color-mode",

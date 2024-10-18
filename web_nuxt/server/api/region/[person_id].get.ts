@@ -1,10 +1,10 @@
 import fs from "node:fs";
-import path from 'node:path';
 
 import { drizzle } from "db0/integrations/drizzle";
 import { eq } from "drizzle-orm";
 import { db } from "~/server/db/index";
 import { persons } from "~/server/db/src/schema";
+import { makeDestinationFolder } from "~/server/utils";
 
 export default defineEventHandler(async (event) => {
   const person_id = parseInt(getRouterParam(event, "person_id") as string);
@@ -19,16 +19,13 @@ export default defineEventHandler(async (event) => {
     return { message: "error" };
   }
   const person = results[0];
-  const folderName = path.join(
-    region, person.surname[0], `${person.id}-${person.surname} ${person.firstname} ${person.patronymic}`
+  const folderName = makeDestinationFolder(
+    region,
+    person.id.toString(),
+    person.surname,
+    person.firstname,
+    person.patronymic || ""
   );
-  try {
-    if (!fs.existsSync(folderName)) {
-      fs.mkdirSync(folderName);
-    }
-  } catch (err) {
-    return {"message": err};
-  }
   if (person.destination) {
     try {
       fs.cpSync(person.destination, folderName);
