@@ -26,15 +26,15 @@ const props = defineProps({
 
 const imageUrl = ref("");
 
-const { refresh } = await useAsyncData("image", async () => {
-  const response = await $fetch("/api/image", {
-    params: {
-      image: props.destination,
-    },
-    responseType: "blob",
-  });
-  imageUrl.value = window.URL.createObjectURL(new Blob([response] as never));
-});
+// const { refresh } = await useAsyncData("image", async () => {
+//   const response = await $fetch("/api/image", {
+//     params: {
+//       image: props.destination,
+//     },
+//     responseType: "blob",
+//   });
+//   imageUrl.value = window.URL.createObjectURL(new Blob([response] as never));
+// });
 
 const { open, reset, onCancel, onChange } = useFileDialog({
   accept: ".json",
