@@ -11,7 +11,5 @@ export default defineEventHandler((event) => {
     );
   }
   const buffer = fs.readFileSync(imagePath);
-  event.respondWith(
-    new Response(buffer, { headers: { "Content-Type": "image/jpeg" } })
-  );
+  send(event, buffer, "image/jpeg");
 });
