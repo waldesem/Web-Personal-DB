@@ -3,7 +3,7 @@ import type { Address } from "@/types/interfaces";
 
 prefetchComponents(["FormsAddressForm", "ElementsSkeletonDiv"]);
 
-const emit = defineEmits(["delete", "submit"]);
+const emit = defineEmits(["message"]);
 
 const authFetch = useFetchAuth();
 
@@ -26,21 +26,31 @@ const address = ref({} as Address);
 const addresses = ref<Address[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("addresses", async () => {
-  addresses.value = await authFetch("/api/items/addresses/" + props.candId) as Address[];
+  addresses.value = (await authFetch(
+    "/api/items/addresses/" + props.candId
+  )) as Address[];
 });
 
 async function submitAddress(form: Address) {
   closeAction();
   pending.value = true;
-  await emit("submit", form, "addresses");
+  const { message } = (await authFetch(`/api/items/addresses/${props.candId}`, {
+    method: "POST",
+    body: form,
+  })) as Record<string, string>;
   pending.value = false;
   await refresh();
+  emit("message", message);
 }
 
 async function deleteAddress(id: string) {
   closeAction();
-  await emit("delete", id, "addresses");
+  if (!confirm(`Вы действительно хотите удалить запись?`)) return;
+  const { message } = (await authFetch(`/api/items/addresses/${id}`, {
+    method: "DELETE",
+  })) as Record<string, string>;
   await refresh();
+  emit("message", message);
 }
 
 function cancelOperation() {

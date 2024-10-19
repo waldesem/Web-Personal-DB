@@ -3,7 +3,7 @@ import type { Affilation } from "@/types/interfaces";
 
 prefetchComponents(["FormsAffilationForm", "ElementsSkeletonDiv"]);
 
-const emit = defineEmits(["delete", "submit"]);
+const emit = defineEmits(["message"]);
 
 const authFetch = useFetchAuth();
 
@@ -30,17 +30,25 @@ const { refresh, status } = await useLazyAsyncData("affilations", async () => {
 });
 
 async function submitAffilation(form: Affilation) {
-  closeAction();
+  closeAction();  
   pending.value = true;
-  await emit("submit", form, "affilations");
+  const { message } = await authFetch(`/api/items/affilations/${props.candId}`, {
+    method: "POST",
+    body: form,
+  }) as Record<string, string>;
   pending.value = false;
   await refresh();
+  emit("message", message);
 }
 
 async function deleteAffilation(id: string) {
   closeAction();
-  await emit("delete", id, "affilations");
-  await refresh();
+  if (!confirm(`Вы действительно хотите удалить запись?`)) return;
+  const { message } = (await authFetch(`/api/items/affilations/${id}`, {
+    method: "DELETE",
+  })) as Record<string, string>;
+  await refresh();  
+  emit("message", message);
 }
 
 function cancelOperation() {

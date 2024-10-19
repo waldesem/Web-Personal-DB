@@ -3,7 +3,7 @@ import type { Education } from "@/types/interfaces";
 
 prefetchComponents(["FormsEducationForm", "ElementsSkeletonDiv"]);
 
-const emit = defineEmits(["delete", "submit"]);
+const emit = defineEmits(["message"]);
 
 const authFetch = useFetchAuth();
 
@@ -26,21 +26,34 @@ const education = ref({} as Education);
 const educations = ref<Education[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("educations", async () => {
-  educations.value = await authFetch("/api/items/educations/" + props.candId) as Education[];
+  educations.value = (await authFetch(
+    "/api/items/educations/" + props.candId
+  )) as Education[];
 });
 
 async function submitEducation(form: Education) {
   closeAction();
   pending.value = true;
-  await emit("submit", form, "educations");
+  const { message } = (await authFetch(
+    `/api/items/educations/${props.candId}`,
+    {
+      method: "POST",
+      body: form,
+    }
+  )) as Record<string, string>;
   pending.value = false;
   await refresh();
+  emit("message", message);
 }
 
 async function deleteEducation(id: string) {
   closeAction();
-  await emit("delete", id, "educations");
+  if (!confirm(`Вы действительно хотите удалить запись?`)) return;
+  const { message } = (await authFetch(`/api/items/educations/${id}`, {
+    method: "DELETE",
+  })) as Record<string, string>;
   await refresh();
+  emit("message", message);
 }
 
 function cancelOperation() {

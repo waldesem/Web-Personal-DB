@@ -1,6 +1,4 @@
 import fs from "node:fs";
-
-import { drizzle } from "db0/integrations/drizzle";
 import { eq } from "drizzle-orm";
 import { db } from "~/server/db/index";
 import { persons } from "~/server/db/src/schema";
@@ -9,12 +7,10 @@ import { makeDestinationFolder } from "~/server/utils";
 export default defineEventHandler(async (event) => {
   const person_id = parseInt(getRouterParam(event, "person_id") as string);
   const region = getQuery(event).region as string;
-  const drizzleDb = drizzle(db);
-  const query = drizzleDb
+  const results = await db
     .select()
     .from(persons)
-    .where(eq(persons.id, person_id));
-  const results = await query.all();
+    .where(eq(persons.id, person_id)).execute();
   if (results.length == 0) {
     return { message: "error" };
   }
@@ -34,11 +30,10 @@ export default defineEventHandler(async (event) => {
     }
   }
   try {
-    drizzleDb
+    db
       .update(persons)
       .set({ destination: folderName, editable: false })
-      .where(eq(persons.id, person_id));
-    await query.run();
+      .where(eq(persons.id, person_id)).execute();
     return {"message": "success"};
   } catch (err) {
     return {"message": err};

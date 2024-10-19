@@ -4,7 +4,7 @@ import { useDateFormat } from "@vueuse/core";
 
 prefetchComponents(["FormsResumeForm", "ElementsSkeletonDiv"]);
 
-const emit = defineEmits(["update", "delete", "submit"]);
+const emit = defineEmits(["update", "message"]);
 
 const toast = useToast();
 
@@ -69,13 +69,20 @@ async function openFolder() {
 async function submitResume(form: Persons) {
   pending.value = true;
   edit.value = false;
-  await emit("submit", form, "persons");
-  await emit("update");
+  const { message } = (await authFetch(`/api/items/persons/${props.candId}`, {
+    method: "POST",
+    body: form,
+  })) as Record<string, string>;
+  pending.value = false;
+  emit("update");
+  emit("message", message);
 }
 
 async function deleteItem() {
   pending.value = true;
-  await emit("delete", props.candId, "persons");
+  await authFetch(`/api/items/persons/${props.candId}`, {
+    method: "DELETE",
+  });
   pending.value = false;
   return navigateTo("/persons");
 }
@@ -175,7 +182,7 @@ async function cancelAction() {
         item="persons"
         @delete="deleteItem"
         @update="edit = true"
-        @upgrade="refresh()"
+        @upgrade="emit('update')"
       />
     </template>
   </ElementsCardDiv>

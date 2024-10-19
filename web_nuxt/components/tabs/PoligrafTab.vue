@@ -4,7 +4,7 @@ import { useDateFormat } from "@vueuse/core";
 
 prefetchComponents(["FormsPoligrafForm", "ElementsSkeletonDiv"]);
 
-const emit = defineEmits(["delete", "submit"]);
+const emit = defineEmits(["message"]);
 
 const authFetch = useFetchAuth();
 
@@ -27,21 +27,31 @@ const poligraf = ref({} as Pfo);
 const poligrafs = ref<Pfo[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("poligrafs", async () => {
-  poligrafs.value = await authFetch("/api/items/poligrafs/" + props.candId) as Pfo[];
+  poligrafs.value = (await authFetch(
+    "/api/items/poligrafs/" + props.candId
+  )) as Pfo[];
 });
 
 async function submitPoligraf(form: Pfo) {
   closeAction();
   pending.value = true;
-  await emit("submit", form, "poligrafs");
+  const { message } = (await authFetch(`/api/items/poligrafs/${props.candId}`, {
+    method: "POST",
+    body: form,
+  })) as Record<string, string>;
   pending.value = false;
   await refresh();
+  emit("message", message);
 }
 
 async function deletePoligraf(id: string) {
   closeAction();
-  emit("delete", id, "poligrafs");
+  if (!confirm(`Вы действительно хотите удалить запись?`)) return;
+  const { message } = (await authFetch(`/api/items/poligrafs/${id}`, {
+    method: "DELETE",
+  })) as Record<string, string>;
   await refresh();
+  emit("message", message);
 }
 
 function cancelOperation() {

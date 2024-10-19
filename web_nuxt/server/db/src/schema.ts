@@ -9,13 +9,13 @@ export const users = sqliteTable("users", {
   username: text("username", { mode: "text" }).notNull().unique(),
   email: text("email", { mode: "text" }).notNull().unique(),
   passhash: text("passhash", { mode: "text" }).notNull(),
-  pswd_create: text("pswd_create", { mode: "text" }).default(
+  pswd_create: text("pswd_create", { mode: "text" }).notNull().default(
     sql`(CURRENT_TIMESTAMP)`
   ),
-  change_pswd: integer("change_pswd", { mode: "boolean" }).default(true),
-  blocked: integer("blocked", { mode: "boolean" }).default(false),
-  deleted: integer("deleted", { mode: "boolean" }).default(false),
-  attempt: integer("attempt", { mode: "number" }).default(0),
+  change_pswd: integer("change_pswd", { mode: "boolean" }).notNull().default(true),
+  blocked: integer("blocked", { mode: "boolean" }).notNull().default(false),
+  deleted: integer("deleted", { mode: "boolean" }).notNull().default(false),
+  attempt: integer("attempt", { mode: "number" }).notNull().default(0),
   role: text("role", { mode: "text" }).notNull(),
 });
 

@@ -16,7 +16,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["update", "delete", "submit"]);
+const emit = defineEmits(["update", "message"]);
 
 const items = [
   {
@@ -72,12 +72,8 @@ const items = [
   },
 ];
 
-function submitItem(form: Record<string, string>, item: string) {
-  emit("submit", form, item);
-}
-
-function delteItem(id: string, item: string) {
-  emit("delete", id, item);
+function emitMessage(message: string) {
+  emit("message", message);
 }
 </script>
 
@@ -89,80 +85,70 @@ function delteItem(id: string, item: string) {
         :editable="props.editable"
         :person="props.person"
         @update="emit('update')"
-        @delete="delteItem"
-        @submit="submitItem"
+        @message="emitMessage"
       />
     </template>
     <template #staff="">
       <DivsStaffDiv
         :cand-id="props.candId"
         :editable="props.editable"
-        @submit="submitItem"
-        @delete="delteItem"
+        @message="emitMessage"
       />
     </template>
     <template #education="">
       <DivsEducateDiv
         :cand-id="props.candId"
         :editable="props.editable"
-        @submit="submitItem"
-        @delete="delteItem"
+        @message="emitMessage"
       />
     </template>
     <template #work="">
       <DivsWorkDiv
         :cand-id="props.candId"
         :editable="props.editable"
-        @submit="submitItem"
-        @delete="delteItem"
+        @message="emitMessage"
       />
     </template>
     <template #document="">
       <DivsDocumDiv
         :cand-id="props.candId"
         :editable="props.editable"
-        @submit="submitItem"
-        @delete="delteItem"
+        @message="emitMessage"
       />
     </template>
     <template #address="">
       <DivsAddressDiv
         :cand-id="props.candId"
         :editable="props.editable"
-        @submit="submitItem"
-        @delete="delteItem"
+        @message="emitMessage"
       />
     </template>
     <template #contact="">
       <DivsContactDiv
         :cand-id="props.candId"
         :editable="props.editable"
-        @submit="submitItem"
-        @delete="delteItem"
+        @message="emitMessage"
       />
     </template>
     <template #affiliation="">
       <DivsAffilDiv
         :cand-id="props.candId"
         :editable="props.editable"
-        @submit="submitItem"
-        @delete="delteItem"
+        @message="emitMessage"
       />
     </template>
     <template #prev="">
       <DivsPrevDiv
         :cand-id="props.candId"
         :editable="props.editable"
-        @submit="submitItem"
-        @delete="delteItem"
+        @message="emitMessage"
       />
     </template>
     <template #relate="">
       <DivsRelateDiv
         :cand-id="props.candId"
         :editable="props.editable"
-        @submit="submitItem"
-        @delete="delteItem"
+        @message="emitMessage"
       />
     </template>
   </UAccordion>

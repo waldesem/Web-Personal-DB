@@ -1,4 +1,3 @@
-import { drizzle } from "db0/integrations/drizzle";
 import { db } from "~/server/db/index";
 import { itemsTables, itemsSchemas } from "~/server/db/src/schema";
 
@@ -9,7 +8,6 @@ export default defineEventHandler(async (event) => {
   const schema = itemsSchemas[item as keyof typeof itemsSchemas];
   const table = itemsTables[item as keyof typeof itemsTables];
   const validated = schema.parse(data);
-  const drizzleDb = drizzle(db);
   Object.assign(validated, { user_id: "current_user" });
   if (item !== "persons") {
     Object.assign(validated, { person_id: item_id });
@@ -17,10 +15,10 @@ export default defineEventHandler(async (event) => {
     Object.assign(validated, { id: item_id });
   }
   try {
-    await drizzleDb.insert(table).values(validated).onConflictDoUpdate({
+    await db.insert(table).values(validated).onConflictDoUpdate({
       target: table.id,
       set: validated,
-    });
+    }).execute();
     return { message: "success" };
   } catch (error) {
     return { error: error };

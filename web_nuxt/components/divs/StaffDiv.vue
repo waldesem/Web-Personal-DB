@@ -3,7 +3,7 @@ import type { Staff } from "@/types/interfaces";
 
 prefetchComponents(["FormsStaffForm", "ElementsSkeletonDiv"]);
 
-const emit = defineEmits(["delete", "submit"]);
+const emit = defineEmits(["message"]);
 
 const authFetch = useFetchAuth();
 
@@ -32,15 +32,23 @@ const { refresh, status } = await useLazyAsyncData("staffs", async () => {
 async function submitStaff(form: Staff) {
   closeAction();  
   pending.value = true;
-  await emit("submit", form, "staffs");
+  const { message } = await authFetch(`/api/items/staffs/${props.candId}`, {
+    method: "POST",
+    body: form,
+  }) as Record<string, string>;
   pending.value = false;
   await refresh();
+  emit("message", message);
 }
 
 async function deleteStaff(id: string) {
   closeAction();
-  await emit("delete", id, "staffs");
-  await refresh();
+  if (!confirm(`Вы действительно хотите удалить запись?`)) return;
+  const { message } = (await authFetch(`/api/items/staffs/${id}`, {
+    method: "DELETE",
+  })) as Record<string, string>;
+  await refresh();  
+  emit("message", message);
 }
 
 function cancelOperation() {

@@ -4,7 +4,7 @@ import { useDateFormat } from "@vueuse/core";
 
 prefetchComponents(["FormsWorkForm", "ElementsSkeletonDiv"]);
 
-const emit = defineEmits(["delete", "submit"]);
+const emit = defineEmits(["message"]);
 
 const authFetch = useFetchAuth();
 
@@ -27,21 +27,34 @@ const workplace = ref({} as Work);
 const workplaces = ref<Work[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("workplaces", async () => {
-  workplaces.value = await authFetch("/api/items/workplaces/" + props.candId) as Work[];
+  workplaces.value = (await authFetch(
+    "/api/items/workplaces/" + props.candId
+  )) as Work[];
 });
 
 async function submitWorkplace(form: Work) {
   closeAction();
-  pending.value = false;
-  await emit("submit", form, "workplaces");
+  pending.value = true;
+  const { message } = (await authFetch(
+    `/api/items/workplaces/${props.candId}`,
+    {
+      method: "POST",
+      body: form,
+    }
+  )) as Record<string, string>;
   pending.value = false;
   await refresh();
+  emit("message", message);
 }
 
 async function deleteWork(id: string) {
   closeAction();
-  await emit("delete", id, "workplaces");
+  if (!confirm(`Вы действительно хотите удалить запись?`)) return;
+  const { message } = (await authFetch(`/api/items/workplaces/${id}`, {
+    method: "DELETE",
+  })) as Record<string, string>;
   await refresh();
+  emit("message", message);
 }
 
 function cancelOperation() {

@@ -1,12 +1,10 @@
-import { drizzle } from "db0/integrations/drizzle";
 import { db } from "~/server/db/index";
 import { users } from "~/server/db/src/schema";
 
 export default defineEventHandler(async (event) => {
   const data = await readBody(event);
-  const drizzleDb = drizzle(db);
   try {
-    const resut = await drizzleDb
+    const resut = await db
       .insert(users)
       .values(data)
       .onConflictDoNothing({

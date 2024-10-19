@@ -93,45 +93,19 @@ async function switchSelf(): Promise<void> {
   await refresh();
 }
 
-async function submitItem(form: Record<string, string>, item: string) {
-  const { message } = await authFetch(`/api/items/${item}/${candId.value}`, {
-    method: "POST",
-    body: form,
-  });
-  if (message == "success") {
-    toast.add({
-      icon: "i-heroicons-check-circle",
-      title: "Успешно",
-      description: "Информация обновлена",
-      color: "green",
-    });
-  } else {
-    toast.add({
-      icon: "i-heroiconsi-heroicons-information-circle",
-      title: "Внимание",
-      description: "Ошибка при обновлении информации",
-      color: "red",
-    });
-  }
-}
-
-async function deleteItem(id: string, item: string) {
-  if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = (await authFetch(`/api/items/${item}/${id}`, {
-    method: "DELETE",
-  })) as Record<string, string>;
+function emitMessage(message: string) {
   if (message == "success") {
     toast.add({
       icon: "i-heroicons-information-circle",
       title: "Информация",
-      description: `Запись с ID ${id} удалена`,
+      description: `Информация обновлена`,
       color: "primary",
     });
   } else {
     toast.add({
       icon: "i-heroiconsi-heroicons-information-circle",
       title: "Внимание",
-      description: "Ошибка при удалении информации",
+      description: "Ошибка обновления информации",
       color: "red",
     });
   }
@@ -164,41 +138,36 @@ async function deleteItem(id: string, item: string) {
           :cand-id="candId"
           :editable="editState"
           :person="person"
-          @delete="deleteItem"
+          @message="emitMessage"
           @update="refresh()"
-          @submit="submitItem"
         />
       </template>
       <template #checkTab>
         <TabsCheckTab
           :cand-id="candId"
           :editable="editState"
-          @submit="submitItem"
-          @delete="deleteItem"
+          @message="emitMessage"
         />
       </template>
       <template #poligrafTab>
         <TabsPoligrafTab
           :cand-id="candId"
           :editable="editState"
-          @submit="submitItem"
-          @delete="deleteItem"
+          @message="emitMessage"
         />
       </template>
       <template #investigateTab>
         <TabsInvestigateTab
           :cand-id="candId"
           :editable="editState"
-          @submit="submitItem"
-          @delete="deleteItem"
+          @message="emitMessage"
         />
       </template>
       <template #inquiryTab>
         <TabsInquiryTab
           :cand-id="candId"
           :editable="editState"
-          @submit="submitItem"
-          @delete="deleteItem"
+          @message="emitMessage"
         />
       </template>
     </UTabs>

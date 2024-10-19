@@ -1,5 +1,4 @@
 import fs from "node:fs";
-import { drizzle } from "db0/integrations/drizzle";
 import { and, ilike, eq } from "drizzle-orm";
 import { db } from "~/server/db/index";
 import { itemsSchemas, itemsTables, persons } from "~/server/db/src/schema";
@@ -139,8 +138,7 @@ export default defineEventHandler(async (event) => {
         },
       ]);
     }
-    const drizzleDb = drizzle(db);
-    const query = drizzleDb
+    const query = db
       .select()
       .from(persons)
       .where(
@@ -159,7 +157,7 @@ export default defineEventHandler(async (event) => {
         user_id: "current_user.id",
         region: "current_user.region",
       });
-      const personId = await drizzleDb
+      const personId = await db
         .insert(persons)
         .values(validpersons)
         .onConflictDoNothing()
@@ -172,7 +170,7 @@ export default defineEventHandler(async (event) => {
         anketa.persons.firstname,
         anketa.persons.patronymic || ""
       );
-      await drizzleDb
+      await db
         .update(persons)
         .set({ destination: folderName })
         .execute();
@@ -187,7 +185,7 @@ export default defineEventHandler(async (event) => {
           try {
             const validItem =
               itemsSchemas[key as keyof typeof itemsSchemas].parse(value);
-            await drizzleDb.insert(table).values(validItem).execute();
+            await db.insert(table).values(validItem).execute();
           } catch (error) {
             console.error(error);
           }
@@ -212,7 +210,7 @@ export default defineEventHandler(async (event) => {
     }
     Object.assign(person, { destination: folderName, id: person.id });
     try {
-      await drizzleDb
+      await db
         .update(persons)
         .set({ ...anketa.persons, destination: folderName })
         .where(eq(persons.id, person.id))
@@ -231,7 +229,7 @@ export default defineEventHandler(async (event) => {
         try {
           const validItem =
             itemsSchemas[key as keyof typeof itemsSchemas].parse(value);
-          await drizzleDb.insert(table).values(validItem).execute();
+          await db.insert(table).values(validItem).execute();
         } catch (error) {
           console.error(error);
         }

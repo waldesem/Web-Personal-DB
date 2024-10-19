@@ -4,7 +4,7 @@ import { useDateFormat } from "@vueuse/core";
 
 prefetchComponents(["FormsDocumentForm", "ElementsSkeletonDiv"]);
 
-const emit = defineEmits(["delete", "submit"]);
+const emit = defineEmits(["message"]);
 
 const authFetch = useFetchAuth();
 
@@ -27,21 +27,31 @@ const doc = ref({} as Document);
 const documents = ref<Document[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("documents", async () => {
-  documents.value = await authFetch("/api/items/documents/" + props.candId) as Document[];
+  documents.value = (await authFetch(
+    "/api/items/documents/" + props.candId
+  )) as Document[];
 });
 
 async function submitDocument(form: Document) {
   closeAction();
   pending.value = true;
-  await emit("submit", form, "documents");
+  const { message } = (await authFetch(`/api/items/documents/${props.candId}`, {
+    method: "POST",
+    body: form,
+  })) as Record<string, string>;
   pending.value = false;
   await refresh();
+  emit("message", message);
 }
 
 async function deleteDocument(id: string) {
   closeAction();
-  await emit("delete", id, "documents");
+  if (!confirm(`Вы действительно хотите удалить запись?`)) return;
+  const { message } = (await authFetch(`/api/items/documents/${id}`, {
+    method: "DELETE",
+  })) as Record<string, string>;
   await refresh();
+  emit("message", message);
 }
 
 function cancelOperation() {

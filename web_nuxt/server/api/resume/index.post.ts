@@ -1,6 +1,5 @@
 import fs from "node:fs";
 import path from "node:path";
-import { drizzle } from "db0/integrations/drizzle";
 import { and, ilike, eq } from "drizzle-orm";
 import { db } from "~/server/db/index";
 import { persons } from "~/server/db/src/schema";
@@ -8,8 +7,7 @@ import { makeDestinationFolder } from "~/server/utils";
 
 export default defineEventHandler(async (event) => {
   const data = await readBody(event);
-  const drizzleDb = drizzle(db);
-  const query = drizzleDb
+  const results = await db
     .select()
     .from(persons)
     .where(
@@ -20,14 +18,13 @@ export default defineEventHandler(async (event) => {
         eq(persons.birthday, data.birthday)
       )
     );
-  const results = await query.all();
   if (results.length == 0) {
     Object.assign(data, {
       editable: true,
       user_id: "event.context.user.id",
       region: "event.context.user.region",
     });
-    const personId = await drizzleDb
+    const personId = await db
       .insert(persons)
       .values(data)
       .onConflictDoNothing()
@@ -40,7 +37,7 @@ export default defineEventHandler(async (event) => {
       data.firstname,
       data.patronymic
     );
-    await drizzleDb.update(persons).set({ destination: folderName }).execute();
+    await db.update(persons).set({ destination: folderName }).execute();
     return { person_id: personId };
   }
   const person = results[0];
@@ -64,7 +61,7 @@ export default defineEventHandler(async (event) => {
   }
   Object.assign(person, { destination: folderName, id: person.id });
   try {
-    await drizzleDb
+    await db
       .update(persons)
       .set({ ...data, destination: folderName })
       .where(eq(persons.id, person.id))

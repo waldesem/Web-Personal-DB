@@ -3,7 +3,7 @@ import type { Contact } from "@/types/interfaces";
 
 prefetchComponents(["FormsContactForm", "ElementsSkeletonDiv"]);
 
-const emit = defineEmits(["delete", "submit"]);
+const emit = defineEmits(["message"]);
 
 const authFetch = useFetchAuth();
 
@@ -26,21 +26,31 @@ const contact = ref({} as Contact);
 const contacts = ref<Contact[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("contacts", async () => {
-  contacts.value = await authFetch("/api/items/contacts/" + props.candId) as Contact[];
+  contacts.value = (await authFetch(
+    "/api/items/contacts/" + props.candId
+  )) as Contact[];
 });
 
 async function submitContact(form: Contact) {
   closeAction();
   pending.value = true;
-  await emit("submit", form, "contacts");
+  const { message } = (await authFetch(`/api/items/staffs/${props.candId}`, {
+    method: "POST",
+    body: form,
+  })) as Record<string, string>;
   pending.value = false;
   await refresh();
+  emit("message", message);
 }
 
 async function deleteContact(id: string) {
   closeAction();
-  await emit("delete", id, "contacts");
+  if (!confirm(`Вы действительно хотите удалить запись?`)) return;
+  const { message } = (await authFetch(`/api/items/staffs/${id}`, {
+    method: "DELETE",
+  })) as Record<string, string>;
   await refresh();
+  emit("message", message);
 }
 
 function cancelOperation() {

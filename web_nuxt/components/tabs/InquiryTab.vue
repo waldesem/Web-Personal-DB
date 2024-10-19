@@ -4,7 +4,7 @@ import { useDateFormat } from "@vueuse/core";
 
 prefetchComponents(["FormsInquiryForm", "ElementsSkeletonDiv"]);
 
-const emit = defineEmits(["delete", "submit"]);
+const emit = defineEmits(["message"]);
 
 const authFetch = useFetchAuth();
 
@@ -27,21 +27,31 @@ const need = ref({} as Needs);
 const inquiries = ref<Needs[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("inquiries", async () => {
-  inquiries.value = await authFetch(`/api/items/inquiries/${props.candId}`) as Needs[];
+  inquiries.value = (await authFetch(
+    `/api/items/inquiries/${props.candId}`
+  )) as Needs[];
 });
 
 async function submitIquiry(form: Needs) {
   closeAction();
   pending.value = true;
-  await emit("submit", form, "inquiries");
+  const { message } = (await authFetch(`/api/items/inquiries/${props.candId}`, {
+    method: "POST",
+    body: form,
+  })) as Record<string, string>;
   pending.value = false;
   await refresh();
+  emit("message", message);
 }
 
 async function deleteNeed(id: string) {
   closeAction();
-  await emit("delete", id, "inquiries");
+  if (!confirm(`Вы действительно хотите удалить запись?`)) return;
+  const { message } = (await authFetch(`/api/items/inquiries/${id}`, {
+    method: "DELETE",
+  })) as Record<string, string>;
   await refresh();
+  emit("message", message);
 }
 
 function closeAction() {

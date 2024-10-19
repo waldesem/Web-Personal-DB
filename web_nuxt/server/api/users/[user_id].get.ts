@@ -1,4 +1,3 @@
-import { drizzle } from "db0/integrations/drizzle";
 import { eq } from "drizzle-orm";
 import { db } from "~/server/db/index";
 import { users } from "~/server/db/src/schema";
@@ -7,9 +6,7 @@ import { createPasswordHash, Roles, Regions } from "~/server/utils";
 export default defineEventHandler(async (event) => {
   const user_id = parseInt(getRouterParam(event, "user_id") as string);
   const item = getQuery(event).item as string;
-  const drizzleDb = drizzle(db);
-  const query = drizzleDb.select().from(users).where(eq(users.id, user_id));
-  const results = await query.all();
+  const results = await db.select().from(users).where(eq(users.id, user_id));
   if (results.length == 0) {
     return { message: "error" };
   }
@@ -32,10 +29,10 @@ export default defineEventHandler(async (event) => {
     Object.assign(user, { regions: item });
   }
   try {
-    await drizzleDb
+    await db
       .update(users)
       .set(user)
-      .where(eq(users.id, user_id));
+      .where(eq(users.id, user_id)).execute();
     return { message: "success" };
   } catch (error) {
     return { error: error };
