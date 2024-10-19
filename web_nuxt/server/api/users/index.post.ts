@@ -1,21 +1,25 @@
+import { console } from "inspector";
 import { db } from "~/server/db/index";
-import { users } from "~/server/db/src/schema";
+import { users, userSchema } from "~/server/db/src/schema";
 
 export default defineEventHandler(async (event) => {
   const data = await readBody(event);
   try {
-    const resut = await db
-      .insert(users)
-      .values(data)
-      .onConflictDoNothing({
-        target: users.username,
-      })
-      .returning();
-    if (resut.length == 0) {
-      return { message: "error" };
+    const validated = userSchema.parse(data);
+    console.log(validated);
+    try {
+      await db
+        .insert(users)
+        .values({...validated})
+        .onConflictDoNothing({
+          target: users.username,
+        })
+        .execute();
+      return { message: "success" };
+    } catch (error) {
+      return { message: error };
     }
   } catch (error) {
-    return { error: error };
+    return { message: error };
   }
-  return { message: "success" };
 });

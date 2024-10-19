@@ -6,12 +6,12 @@ export default defineEventHandler(async (event) => {
   const search = getQuery(event).search as string;
   let query = db.select().from(users).$dynamic();
   if (search && search.length > 2) {
-    if (search.match(/^[a-zA-Z_]+$/)) {
-      query = query.where(like(users.username, `%${search}%`));
+    const buffered = Buffer.from(search, "ascii").toString("utf-8");
+    if (buffered.match(/^[a-zA-Z_]+$/)) {
+      query = query.where(like(users.username, `%${buffered}%`));
     } else {
-      query = query.where(like(users.fullname, `%${search}%`));
+      query = query.where(like(users.fullname, `%${buffered}%`));
     }
   }
-  const results = await query.execute();
-  return results;
+  return await query.execute();
 });

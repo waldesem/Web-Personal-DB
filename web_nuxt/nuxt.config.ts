@@ -28,21 +28,22 @@ export default defineNuxtConfig({
   alias: {
     "@/": fileURLToPath(new URL("./src", import.meta.url)),
   },
-
-  routeRules: {
-    "/api/**": { proxy: "http://127.0.0.1:5000/api/**" },
-  },
+  // eneable for CSR
+  // routeRules: {
+  //   "/api/**": { proxy: "http://127.0.0.1:5000/api/**" },
+  // },
 
   nitro: {
     compressPublicAssets: true,
     output: {
       publicDir: "../server_flask/app/static",
     },
-    // runtimeConfig: {
-    //   public: {
-    //     baseURL: "http://127.0.0.1:3000",
-    //   },
-    // }
+    // enabble for SSR
+    runtimeConfig: {
+      public: {
+        baseURL: "http://127.0.0.1:3000",
+      },
+    }
   },
 
   vite: {
