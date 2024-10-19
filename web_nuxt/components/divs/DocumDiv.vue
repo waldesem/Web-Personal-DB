@@ -107,13 +107,14 @@ function closeAction() {
           #footer
         >
           <ElementsNaviHorizont
-            :navlen="2"
+            :navlen="3"
             @delete="deleteDocument(item['id'])"
             @update="
               doc = item;
               itemId = item['id'].toString();
               edit = true;
             "
+            @upgrade="refresh()"
           />
         </template>
       </ElementsCardDiv>

@@ -100,13 +100,14 @@ function closeAction() {
           #footer
         >
           <ElementsNaviHorizont
-            :navlen="2"
+            :navlen="3"
             @delete="deleteAffilation(item['id'])"
             @update="
               affilation = item;
               itemId = item['id'].toString();
               edit = true;
             "
+            @upgrade="refresh()"
           />
         </template>
       </ElementsCardDiv>

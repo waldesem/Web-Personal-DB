@@ -97,13 +97,14 @@ function closeAction() {
           #footer
         >
           <ElementsNaviHorizont
-            :navlen="2"
+            :navlen="3"
             @delete="deleteContact(item['id'])"
             @update="
               contact = item;
               itemId = item['id'].toString();
               edit = true;
             "
+            @upgrade="refresh()"
           />
         </template>
       </ElementsCardDiv>

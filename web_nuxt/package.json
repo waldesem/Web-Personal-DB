@@ -10,13 +10,11 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@libsql/client": "^0.5.6",
     "@nuxt/icon": "^1.5.6",
     "@nuxt/ui": "^2.18.7",
-    "better-sqlite3": "^9.6.0",
-    "db0": "^0.2.1",
+    "better-sqlite3": "^11.4.0",
     "dotenv": "^16.4.5",
-    "drizzle-orm": "^0.29.5",
+    "drizzle-orm": "^0.35.2",
     "drizzle-zod": "^0.5.1",
     "jsonwebtoken": "^9.0.2",
     "nuxt": "^3.13.2",
@@ -26,11 +24,12 @@
   },
   "devDependencies": {
     "@nuxt/eslint": "^0.5.7",
+    "@types/better-sqlite3": "^7.6.11",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^22.7.5",
     "@vueuse/core": "^11.1.0",
     "@vueuse/nuxt": "^11.1.0",
-    "drizzle-kit": "^0.25.0",
+    "drizzle-kit": "^0.26.2",
     "tsx": "^4.19.1",
     "vue-tsc": "^2.0.29"
   }

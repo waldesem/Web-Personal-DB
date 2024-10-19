@@ -9,7 +9,7 @@ from pydantic import ValidationError
 from sqlalchemy import desc, select
 
 from ..depends.depend import current_user
-from ..model.models import AnketaSchemaJson, models_tables
+from ..model.models import Person, models_tables
 from ..model.tables import Users, db_session, Persons, tables_models
 
 
@@ -58,7 +58,7 @@ def handle_post_item(data: dict, item: str, item_id=None):
     table, model = tables_models.get(item), models_tables.get(item)
     if model and table:
         try:
-            data = model(**data).dict()      
+            data = model(**data).dict()
         except ValidationError as e:
             print(e)
             return False
@@ -85,16 +85,20 @@ def handle_post_resume(resume: dict):
         Exception: If there is an error updating the resume.
 
     """
+    try:
+        resume = Person(**resume).dict()
+    except ValidationError:
+        return None
     if not re.match(r"[А-ЯЁЙ]", resume["surname"][0]):
-        return abort(400)
+        return None
     resume["editable"] = True
     resume["user_id"] = current_user.get("id")
     resume["region"] = current_user.get("region")
     person = db_session.execute(
         select(Persons).where(
             Persons.surname.ilike("%{}%".format(resume["surname"])),
-             Persons.firstname.ilike("%{}%".format(resume["firstname"])),
-             Persons.patronymic.ilike("%{}%".format(resume["patronymic"])),
+            Persons.firstname.ilike("%{}%".format(resume["firstname"])),
+            Persons.patronymic.ilike("%{}%".format(resume["patronymic"])),
             Persons.birthday == resume["birthday"],
         )
     ).scalar_one_or_none()
@@ -130,61 +134,120 @@ def handle_post_resume(resume: dict):
     return resume["id"] if handle_post_item(resume, "persons") else None
 
 
-def handle_json_to_dict(anketa):
-    try:
-        anketa = AnketaSchemaJson(**anketa).dict()
-    except ValidationError as e:
-        print(e)
-        return None
-    anketa["resume"] = {
-        "region": current_user.get("region"),
-        "surname": anketa.pop("surname", ""),
-        "firstname": anketa.pop("firstname", ""),
-        "patronymic": anketa.pop("patronymic", "") if anketa.get("patronymic") else "",
-        "birthday": anketa.pop("birthday", ""),
-        "birthplace": anketa.pop("birthplace", ""),
-        "citizenship": anketa.pop("citizenship", ""),
-        "dual": anketa.pop("dual", ""),
-        "marital": anketa.pop("marital", ""),
-        "inn": anketa.pop("inn", ""),
-        "snils": anketa.pop("snils", ""),
+def json_to_dict(json_dict: dict):
+    return {
+        "resume": {
+            "region": current_user.get("region"),
+            "surname": json_dict.get("lastName"),
+            "firstname": json_dict.get("firstName"),
+            "patronymic": json_dict.get("midName"),
+            "birthday": json_dict.get("birthday"),
+            "birthplace": json_dict.get("birthplace"),
+            "citizenship": json_dict.get("citizen", ""),
+            "dual": json_dict.get("additionalCitizenship"),
+            "marital": json_dict.get("maritalStatus"),
+            "inn": json_dict.get("inn"),
+            "snils": json_dict.get("snils"),
+        },
+        "staffs": [
+            {
+                "position": json_dict.get("positionName"),
+                "department": json_dict.get("department"),
+            }
+        ],
+        "documents": [
+            {
+                "view": "Паспорт",
+                "digits": json_dict.get("passportNumber"),
+                "series": json_dict.get("passportSerial"),
+                "issue": json_dict.get("passportIssueDate"),
+                "agency": json_dict.get("passportIssuedBy"),
+            }
+        ],
+        "addresses": [
+            {
+                "view": "Адрес проживания",
+                "addresses": json_dict.get("validAddress"),
+            },
+            {
+                "view": "Адрес регистрации",
+                "addresses": json_dict.get("regAddress"),
+            },
+        ],
+        "contacts": [
+            {"view": "Телефон", "contact": json_dict.get("contactPhone")},
+            {"view": "Электронная почта", "contact": json_dict.get("email")},
+        ],
+        "educations": [
+            {
+                "view": edu.get("educationType"),
+                "institution": edu.get("institutionName"),
+                "finished": edu.get("endYear"),
+                "specialty": edu.get("specialty"),
+            }
+            for edu in json_dict.get("education")
+            if json_dict.get("education")
+        ],
+        "workplaces": [
+            {
+                "starts": work.get("beginDate"),
+                "finished": work.get("endDate"),
+                "now_work": work.get("currentJob"),
+                "workplace": work.get("name"),
+                "addresses": work.get("address"),
+                "reason": work.get("fireReason"),
+                "position": work.get("position"),
+            }
+            for work in json_dict.get("experience")
+            if json_dict.get("experience")
+        ],
+        "previous": [
+            {
+                "firstname": prev.get("firstNameBeforeChange"),
+                "surname": prev.get("lastNameBeforeChange"),
+                "patronymic": prev.get("midNameBeforeChange"),
+                "changed": prev.get("yearOfChange"),
+                "reason": prev.get("reason"),
+            }
+            for prev in json_dict.get("nameWasChanged")
+            if json_dict.get("nameWasChanged")
+        ],
+        "affilations": (
+            [
+                {
+                    "view": "Участвует в деятельности коммерческих организаций",
+                    "organization": aff.get("name"),
+                    "inn": aff.get("inn"),
+                }
+                for aff in json_dict.get("organizations")
+                if json_dict.get("organizations")
+            ]
+            + [
+                {
+                    "view": "Являлся государственным должностным лицом",
+                    "organization": aff.get("name"),
+                }
+                for aff in json_dict.get("stateOrganizations")
+                if json_dict.get("stateOrganizations")
+            ]
+            + [
+                {
+                    "view": "Связанные лица работают в государственных организациях",
+                    "organization": aff.get("name"),
+                }
+                for aff in json_dict.get("relatedPersonsOrganizations")
+                if json_dict.get("relatedPersonsOrganizations")
+            ]
+            + [
+                {
+                    "view": "Являлся государственным или муниципальным служащим",
+                    "organization": aff.get("name"),
+                }
+                for aff in json_dict.get("publicOfficeOrganizations")
+                if json_dict.get("publicOfficeOrganizations")
+            ]
+        ),
     }
-    anketa["staffs"] = [
-        {
-            "position": anketa.pop("positionName", ""),
-            "department": anketa.pop("department", ""),
-        }
-    ]
-    anketa["documents"] = [
-        {
-            "view": "Паспорт",
-            "digits": anketa.pop("passportNumber", ""),
-            "series": anketa.pop("passportSerial", ""),
-            "issue": anketa.pop("passportIssueDate", ""),
-            "agency": anketa.pop("passportIssuedBy", ""),
-        }
-    ]
-    anketa["addresses"] = [
-        {
-            "view": "Адрес проживания",
-            "addresses": anketa.pop("validAddress", ""),
-        },
-        {
-            "view": "Адрес регистрации",
-            "addresses": anketa.pop("regAddress", ""),
-        },
-    ]
-    anketa["contacts"] = [
-        {"view": "Телефон", "contact": anketa.pop("contactPhone", "")},
-        {"view": "Электронная почта", "contact": anketa.pop("email", "")},
-    ]
-    anketa["affilations"] = (
-        anketa.pop("organizations")
-        + anketa.pop("stateOrganizations")
-        + anketa.pop("publicOfficeOrganizations")
-        + anketa.pop("relatedPersonsOrganizations")
-    )
-    return anketa
 
 
 def handle_image(file, item_dir):

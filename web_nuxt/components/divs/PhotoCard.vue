@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { useMouse, useWindowScroll } from "@vueuse/core";
-
 const toast = useToast();
 
 const authFetch = useFetchAuth();
@@ -26,18 +24,18 @@ const props = defineProps({
 
 const imageUrl = ref("");
 
-// const { refresh } = await useAsyncData("image", async () => {
-//   const response = await $fetch("/api/image", {
-//     params: {
-//       image: props.destination,
-//     },
-//     responseType: "blob",
-//   });
-//   imageUrl.value = window.URL.createObjectURL(new Blob([response] as never));
-// });
+const { refresh } = await useAsyncData("image", async () => {
+  const response = await $fetch("/api/image", {
+    params: {
+      image: props.destination,
+    },
+    responseType: "blob",
+  });
+  imageUrl.value = window.URL.createObjectURL(new Blob([response] as never));
+});
 
 const { open, reset, onCancel, onChange } = useFileDialog({
-  accept: ".json",
+  accept: "image/*",
   multiple: false,
 });
 
@@ -50,11 +48,11 @@ onChange(async (files) => {
   const formData = new FormData();
   const file = files[0];
   formData.append("file", file);
-  const { message } = await authFetch("/api/file/image/" + props.candId, {
+  const { message } = (await authFetch("/api/file/image/" + props.candId, {
     method: "POST",
     body: formData,
-  }) as Record<string, string>;
-  if (message == 'success') {
+  })) as Record<string, string>;
+  if (message == "success") {
     toast.add({
       icon: "i-heroicons-check-circle",
       title: "Успешно",
@@ -71,46 +69,21 @@ onChange(async (files) => {
   }
   reset();
   await refresh();
-})
-
-const { x, y } = useMouse();
-const { y: windowY } = useWindowScroll();
-
-const isOpen = ref(false);
-const virtualElement = ref({ getBoundingClientRect: () => ({}) });
-
-function onContextMenu() {
-  const top = unref(y) - unref(windowY);
-  const left = unref(x);
-
-  virtualElement.value.getBoundingClientRect = () => ({
-    width: 0,
-    height: 0,
-    top,
-    left,
-  });
-  isOpen.value = true;
-}
+});
 </script>
 
 <template>
   <div class="flex justify-left">
-    <ElementsCardDiv
-      :ui="{ body: { padding: 'p-1 sm:p-1' } }"
-      @contextmenu.prevent="onContextMenu"
-    >
-      <UAvatar size="3xl" :src="imageUrl" :alt="fullname" />
-      <UContextMenu
-        v-if="props.editable"
-        v-model="isOpen"
-        :virtual-element="virtualElement"
-      >
-        <UButton
-          label="Загрузить"
-          variant="link"
-          @click="open"
-        />
-      </UContextMenu>
-    </ElementsCardDiv>
+    <UButton variant="link" @click="open">
+      <template #leading>
+        <img
+          :src="imageUrl"
+          :alt="fullname"
+          width="160"
+          height="160"
+          title="Загрузить"
+        >
+      </template>
+    </UButton>
   </div>
 </template>

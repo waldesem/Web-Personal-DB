@@ -49,9 +49,9 @@ function cancelOperation() {
 }
 
 function closeAction() {
+  collapse.value = false;
   edit.value = false;
   itemId.value = "";
-  collapse.value = false;
 }
 </script>
 
@@ -97,13 +97,14 @@ function closeAction() {
           #footer
         >
           <ElementsNaviHorizont
-            :navlen="2"
+            :navlen="3"
             @delete="deleteStaff(item['id'])"
             @update="
               staff = item;
               itemId = item['id'].toString();
               edit = true;
             "
+            @upgrade="refresh()"
           />
         </template>
       </ElementsCardDiv>

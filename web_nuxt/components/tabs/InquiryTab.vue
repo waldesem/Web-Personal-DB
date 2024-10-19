@@ -125,6 +125,7 @@ function cancelOperation() {
               itemId = item['id'].toString();
               edit = true;
             "
+            @upgrade="refresh()"
           />
         </template>
       </ElementsCardDiv>

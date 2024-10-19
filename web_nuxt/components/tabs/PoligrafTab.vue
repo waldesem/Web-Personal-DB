@@ -122,6 +122,7 @@ function closeAction() {
               edit = true;
             "
             @delete="deletePoligraf(item['id'])"
+            @upgrade="refresh()"
           />
         </template>
       </ElementsCardDiv>

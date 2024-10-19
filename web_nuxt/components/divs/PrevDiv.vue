@@ -106,13 +106,14 @@ function closeAction() {
           #footer
         >
           <ElementsNaviHorizont
-            :navlen="2"
+            :navlen="3"
             @delete="deletePrevious(item['id'].toString())"
             @update="
               prev = item;
               itemId = item['id'].toString();
               edit = true;
             "
+            @upgrade="refresh()"
           />
         </template>
       </ElementsCardDiv>

@@ -19,11 +19,11 @@ from ..depends.depend import (
     roles_required,
 )
 from ..model.classes import Regions, Roles
-from ..model.models import Person, User, Login
+from ..model.models import AnketaSchemaJson, User, Login
 from ..model.tables import Checks, Persons, Users, db_session
 from ..handlers.handler import (
     handle_image,
-    handle_json_to_dict,
+    json_to_dict,
     handle_get_item,
     handle_post_item,
     handle_post_resume,
@@ -373,7 +373,11 @@ def post_json():
     if not file or not file.filename.endswith(".json"):
         return jsonify({"person_id": None})
     json_dict = json.load(file)
-    anketa = handle_json_to_dict(json_dict)
+    try:
+        json_dict = AnketaSchemaJson(**json_dict).dict()
+    except ValidationError:
+        return jsonify({"person_id": None})
+    anketa = json_to_dict(json_dict)
     if not anketa:
         return jsonify({"person_id": None})
     person_id = handle_post_resume(anketa.pop("resume"))
@@ -401,10 +405,6 @@ def post_resume():
         The person ID is the ID of the newly created user, person, or contact.
     """
     json_data = request.get_json()
-    try:
-        json_data = Person(**json_data).dict()
-    except ValidationError:
-        return jsonify({"person_id": None})
     person_id = handle_post_resume(json_data)
     if not person_id:
         return jsonify({"person_id": None})

@@ -127,6 +127,7 @@ function closeAction() {
               edit = true;
             "
             @delete="deleteInquisition(item['id'])"
+            @upgrade="refresh()"
           />
         </template>
       </ElementsCardDiv>

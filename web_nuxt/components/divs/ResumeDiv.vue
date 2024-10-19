@@ -175,6 +175,7 @@ async function cancelAction() {
         item="persons"
         @delete="deleteItem"
         @update="edit = true"
+        @upgrade="refresh()"
       />
     </template>
   </ElementsCardDiv>

@@ -1,7 +1,7 @@
 from datetime import date
 from typing import Optional, Union
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, validator
 
 from .classes import Regions, Conclusions, Roles
 
@@ -161,69 +161,57 @@ models_tables = {
 
 
 class NameWasChangedJson(BaseModel):
-    firstname: Optional[str] = Field(
-        alias="firstNameBeforeChange", default=None, max_length=255
-    )
-    surname: Optional[str] = Field(
-        alias="lastNameBeforeChange", default=None, max_length=255
-    )
-    patronymic: Optional[str] = Field(
-        alias="midNameBeforeChange", default=None, max_length=255
-    )
-    changed: Union[str, int] = Field(alias="yearOfChange", default=None)
+    firstNameBeforeChange: Optional[str] = None
+    lastNameBeforeChange: Optional[str] = None
+    midNameBeforeChange: Optional[str] = None
+    yearOfChange: Union[str, int] = None
     reason: Optional[str] = None
 
 
 class EducationJson(BaseModel):
-    view: Optional[str] = Field(alias="educationType", default=None, max_length=255)
-    institution: Optional[str] = Field(alias="institutionName", default=None)
-    finished: Union[str, int] = Field(alias="endYear", default=None)
+    educationType: Optional[str] = None
+    institutionName: Optional[str] = None
+    endYear: Union[str, int] = None
     specialty: Optional[str] = None
 
 
 class ExperienceJson(BaseModel):
-    starts: Optional[date] = Field(alias="beginDate", default=None)
-    finished: Optional[date] = Field(alias="endDate", default=None)
-    now_work: Optional[bool] = Field(alias="currentJob", default=False)
-    workplace: Optional[str] = Field(alias="name", default=None, max_length=255)
-    addresses: Optional[str] = Field(alias="address", default=None, max_length=255)
+    beginDate: Optional[date] = None
+    endDate: Optional[date] = None
+    currentJob: Optional[bool] = None
+    name: Optional[str] = None
+    address: Optional[str] = None
     position: Optional[str] = None
-    reason: Optional[str] = Field(alias="fireReason", default=None)
+    fireReason: Optional[str] = None
 
 
 class OrganizationsJson(BaseModel):
-    view: str = "Участвует в деятельности коммерческих организаций"
-    organization: Optional[str] = Field(alias="name", default=None)
+    name: Optional[str] = None
     inn: Optional[str] = None
 
 
 class RelatedPersonsOrganizationsJson(BaseModel):
-    view: str = "Связанные лица работают в государственных организациях"
-    organization: Optional[str] = Field(alias="name", default=None)
+    name: Optional[str] = None
     inn: Optional[str] = None
 
 
 class StateOrganizationsJson(BaseModel):
-    view: str = "Являлся государственным должностным лицом"
-    organization: Optional[str] = Field(alias="name", default=None)
+    name: Optional[str] = None
 
 
 class PublicOfficeOrganizationsJson(BaseModel):
-    view: str = "Являлся государственным или муниципальным служащим"
-    organization: Optional[str] = Field(alias="name", default=None)
+    name: Optional[str] = None
 
 
 class AnketaSchemaJson(BaseModel):
-    surname: str = Field(alias="lastName", max_length=255)
-    firstname: str = Field(alias="firstName", max_length=255)
-    patronymic: Optional[str] = Field(alias="midName", default=None, max_length=255)
+    lastName: str
+    firstName: str
+    midName: Optional[str] = None
     birthday: date
     birthplace: Optional[str] = None
-    citizenship: Optional[str] = Field(alias="citizen", default=None, max_length=255)
-    dual: Optional[str] = Field(
-        alias="additionalCitizenship", default=None, max_length=255
-    )
-    marital: Optional[str] = Field(alias="maritalStatus", default=None, max_length=255)
+    citizen: Optional[str] = None
+    additionalCitizenship: Optional[str] = None
+    maritalStatus: Optional[str] = None
     inn: Optional[str] = None
     snils: Optional[str] = None
     positionName: Optional[str] = None
@@ -236,22 +224,14 @@ class AnketaSchemaJson(BaseModel):
     regAddress: Optional[str] = None
     email: Optional[str] = None
     contactPhone: Optional[str] = None
-    educations: Optional[list[EducationJson]] = Field(
-        alias="education",
-        default=[],
-    )
-    workplaces: Optional[list[ExperienceJson]] = Field(
-        alias="experience",
-        default=[],
-    )
-    previous: Optional[list[NameWasChangedJson]] = Field(
-        alias="nameWasChanged", default=[]
-    )
+    education: Optional[list[EducationJson]] = []
+    experience: Optional[list[ExperienceJson]] = []
+    nameWasChanged: Optional[list[NameWasChangedJson]] = []
     organizations: Optional[list[OrganizationsJson]] = []
     relatedPersonsOrganizations: Optional[list[RelatedPersonsOrganizationsJson]] = []
     stateOrganizations: Optional[list[StateOrganizationsJson]] = []
     publicOfficeOrganizations: Optional[list[PublicOfficeOrganizationsJson]] = []
 
-    @validator("surname", "firstname", "patronymic")
+    @validator("lastName", "firstName", "midName")
     def check_names(cls, v):
         return v.upper().strip() if v else None

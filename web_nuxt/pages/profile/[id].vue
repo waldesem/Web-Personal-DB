@@ -113,7 +113,6 @@ async function submitItem(form: Record<string, string>, item: string) {
       color: "red",
     });
   }
-  pending.value = false;
 }
 
 async function deleteItem(id: string, item: string) {
@@ -167,6 +166,7 @@ async function deleteItem(id: string, item: string) {
           :person="person"
           @delete="deleteItem"
           @update="refresh()"
+          @submit="submitItem"
         />
       </template>
       <template #checkTab>

@@ -5,12 +5,12 @@ const toast = useToast();
 
 const authFetch = useFetchAuth();
 
-const emit = defineEmits(["delete", "update"]);
+const emit = defineEmits(["delete", "update", "upgrade"]);
 
 const props = defineProps({
   navlen: {
     type: Number,
-    default: 3,
+    default: 4,
   },
   candId: {
     type: String,
@@ -63,6 +63,11 @@ const links = [
     label: "Удалить",
     icon: "i-heroicons-trash",
     click: () => emit("delete"),
+  },
+  {
+    label: "Обновить",
+    icon: "i-heroicons-arrow-path",
+    click: () => emit("upgrade"),
   },
   {
     label: "Загрузить",
