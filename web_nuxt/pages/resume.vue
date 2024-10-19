@@ -27,7 +27,7 @@ async function submitResume(form: Persons) {
     return navigateTo("/profile/" + person_id);
   } else {
     toast.add({
-      icon: "i-heroiconsi-heroicons-information-circle",
+      icon: "i-heroicons-information-circle",
       title: "Внимание",
       description: "Невозможно выполнить действие",
       color: "red",

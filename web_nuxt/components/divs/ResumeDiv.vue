@@ -47,7 +47,7 @@ async function changeRegion(): Promise<void> {
     });
   } else {
     toast.add({
-      icon: "i-heroiconsi-heroicons-information-circle",
+      icon: "i-heroicons-information-circle",
       title: "Внимание",
       description: "Регион не был изменен",
       color: "red",

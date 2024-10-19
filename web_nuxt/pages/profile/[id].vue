@@ -11,12 +11,6 @@ const candId = computed(() => route.params.id) as Ref<string>;
 
 const person = ref({} as Persons);
 
-const fullname = computed(() => {
-  return `${person.value["surname"]} ${person.value["firstname"]} ${
-    person.value["patronymic"] ? person.value["patronymic"] : ""
-  }`;
-});
-
 const { refresh } = await useAsyncData("anketa", async () => {
   person.value = (await authFetch(
     "/api/items/persons/" + candId.value
@@ -98,12 +92,12 @@ function emitMessage(message: string) {
     toast.add({
       icon: "i-heroicons-information-circle",
       title: "Информация",
-      description: `Информация обновлена`,
+      description: "Информация обновлена",
       color: "primary",
     });
   } else {
     toast.add({
-      icon: "i-heroiconsi-heroicons-information-circle",
+      icon: "i-heroicons-exclamation-triangle",
       title: "Внимание",
       description: "Ошибка обновления информации",
       color: "red",
@@ -118,7 +112,7 @@ function emitMessage(message: string) {
       :cand-id="candId"
       :destination="person['destination']"
       :editable="editState"
-      :fullname="fullname"
+      @message="emitMessage"
     />
     <div v-if="userState.role == 'user'" class="relative">
       <div class="absolute bottom-0 right-20">
@@ -131,7 +125,12 @@ function emitMessage(message: string) {
         </UButton>
       </div>
     </div>
-    <ElementsHeaderDiv :div="'py-3'" :header="fullname" />
+    <ElementsHeaderDiv
+      :div="'py-3'"
+      :header="`${person['surname']} ${person['firstname']} ${
+        person['patronymic'] ? person['patronymic'] : ''
+      }`"
+    />
     <UTabs :items="tabs">
       <template #anketaTab>
         <TabsAnketaTab

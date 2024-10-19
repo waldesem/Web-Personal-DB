@@ -50,7 +50,7 @@ async function userAction(
 ): Promise<void> {
   if (id == userState.value.id) {
     toast.add({
-      icon: "i-heroiconsi-heroicons-information-circle",
+      icon: "i-heroicons-information-circle",
       title: "Внимание",
       description: "Невозможно  выполнить действие",
       color: "red",
@@ -103,7 +103,7 @@ async function submitUser(): Promise<void> {
     });
   } else {
     toast.add({
-      icon: "i-heroiconsi-heroicons-information-circle",
+      icon: "i-heroicons-information-circle",
       title: "Внимание",
       description: "Ошибка данных или пользователь уже существует",
       color: "red",

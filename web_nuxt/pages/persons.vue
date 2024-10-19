@@ -60,7 +60,7 @@ onChange(async (files) => {
     return navigateTo("/profile/" + person_id);
   } else {
     toast.add({
-      icon: "i-heroiconsi-heroicons-information-circle",
+      icon: "i-heroicons-information-circle",
       title: "Внимание",
       description: "Файл не был загружен",
       color: "red",
@@ -141,6 +141,7 @@ preloadRouteComponents("/profile/[id]");
         <div
           class="text-start"
           :class="row.editable ? 'text-red-600' : 'text-primary'"
+          :title="row.editable ? 'Анкета редактируется' : 'Анкета обновлена'"
         >
           <UIcon
             :name="

@@ -1,14 +1,11 @@
 <script setup lang="ts">
-const toast = useToast();
 
 const authFetch = useFetchAuth();
 
+const emit = defineEmits(["message"]);
+
 const props = defineProps({
   candId: {
-    type: String,
-    default: "",
-  },
-  fullname: {
     type: String,
     default: "",
   },
@@ -52,23 +49,9 @@ onChange(async (files) => {
     method: "POST",
     body: formData,
   })) as Record<string, string>;
-  if (message == "success") {
-    toast.add({
-      icon: "i-heroicons-check-circle",
-      title: "Успешно",
-      description: "Фото добавлено",
-      color: "green",
-    });
-  } else {
-    toast.add({
-      icon: "i-heroiconsi-heroicons-information-circle",
-      title: "Внимание",
-      description: "Ошибка формата",
-      color: "red",
-    });
-  }
-  reset();
   await refresh();
+  emit("message", message);
+  reset();
 });
 </script>
 
@@ -78,10 +61,9 @@ onChange(async (files) => {
       <template #leading>
         <img
           :src="imageUrl"
-          :alt="fullname"
           width="160"
           height="160"
-          title="Загрузить"
+          title="Загрузить фото"
         >
       </template>
     </UButton>
