@@ -75,10 +75,11 @@ async function submitResume(form: Persons) {
 
 async function deleteItem() {
   pending.value = true;
-  await authFetch(`/api/items/persons/${props.candId}`, {
+  const { message } = await authFetch(`/api/items/persons/${props.candId}`, {
     method: "DELETE",
   });
   pending.value = false;
+  emit("message", message);
   return navigateTo("/persons");
 }
 

@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from typing import List, Optional
+from typing import Optional
 
 from sqlalchemy import (
     Boolean,
@@ -16,7 +16,6 @@ from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
     mapped_column,
-    relationship,
     scoped_session,
     sessionmaker,
 )
@@ -50,22 +49,6 @@ class Users(Base):
         DateTime, default=func.now(), onupdate=func.now()
     )
     region: Mapped[str] = mapped_column(String(255), nullable=True)
-    persons: Mapped[List["Persons"]] = relationship(back_populates="users")
-    staffs: Mapped[List["Staffs"]] = relationship(back_populates="users")
-    previous: Mapped[List["Previous"]] = relationship(back_populates="users")
-    educations: Mapped[List["Educations"]] = relationship(back_populates="users")
-    documents: Mapped[List["Documents"]] = relationship(back_populates="users")
-    addresses: Mapped[List["Addresses"]] = relationship(back_populates="users")
-    contacts: Mapped[List["Contacts"]] = relationship(back_populates="users")
-    workplaces: Mapped[List["Workplaces"]] = relationship(back_populates="users")
-    affilations: Mapped[List["Affilations"]] = relationship(back_populates="users")
-    relations: Mapped[List["Relations"]] = relationship(back_populates="users")
-    checks: Mapped[List["Checks"]] = relationship(back_populates="users")
-    poligrafs: Mapped[List["Poligrafs"]] = relationship(back_populates="users")
-    investigations: Mapped[List["Investigations"]] = relationship(
-        back_populates="users"
-    )
-    inquiries: Mapped[List["Inquiries"]] = relationship(back_populates="users")
 
 
 class Persons(Base):
@@ -94,46 +77,6 @@ class Persons(Base):
     user_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("users.id"), nullable=True
     )
-    previous: Mapped[List["Previous"]] = relationship(
-        back_populates="persons", cascade="all, delete, delete-orphan"
-    )
-    educations: Mapped[List["Educations"]] = relationship(
-        back_populates="persons", cascade="all, delete, delete-orphan"
-    )
-    staffs: Mapped[List["Staffs"]] = relationship(
-        back_populates="persons", cascade="all, delete, delete-orphan"
-    )
-    documents: Mapped[List["Documents"]] = relationship(
-        back_populates="persons", cascade="all, delete, delete-orphan"
-    )
-    addresses: Mapped[List["Addresses"]] = relationship(
-        back_populates="persons", cascade="all, delete, delete-orphan"
-    )
-    workplaces: Mapped[List["Workplaces"]] = relationship(
-        back_populates="persons", cascade="all, delete, delete-orphan"
-    )
-    contacts: Mapped[List["Contacts"]] = relationship(
-        back_populates="persons", cascade="all, delete, delete-orphan"
-    )
-    affilations: Mapped[List["Affilations"]] = relationship(
-        back_populates="persons", cascade="all, delete, delete-orphan"
-    )
-    relations: Mapped[List["Relations"]] = relationship(
-        back_populates="persons", cascade="all, delete, delete-orphan"
-    )
-    checks: Mapped[List["Checks"]] = relationship(
-        back_populates="persons", cascade="all, delete, delete-orphan"
-    )
-    inquiries: Mapped[List["Inquiries"]] = relationship(
-        back_populates="persons", cascade="all, delete, delete-orphan"
-    )
-    poligrafs: Mapped[List["Poligrafs"]] = relationship(
-        back_populates="persons", cascade="all, delete, delete-orphan"
-    )
-    investigations: Mapped[List["Investigations"]] = relationship(
-        back_populates="persons", cascade="all, delete, delete-orphan"
-    )
-    users: Mapped[List["Users"]] = relationship(back_populates="persons")
 
 
 class Previous(Base):
@@ -150,11 +93,8 @@ class Previous(Base):
     created: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), onupdate=func.now(), nullable=True
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    persons: Mapped[List["Persons"]] = relationship(back_populates="previous")
-    users: Mapped[List["Users"]] = relationship(back_populates="previous")
-
+    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
 
 class Educations(Base):
     __tablename__ = "educations"
@@ -169,10 +109,8 @@ class Educations(Base):
     created: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), onupdate=func.now(), nullable=True
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    persons: Mapped[List["Persons"]] = relationship(back_populates="educations")
-    users: Mapped[List["Users"]] = relationship(back_populates="educations")
+    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
 
 
 class Staffs(Base):
@@ -186,10 +124,8 @@ class Staffs(Base):
     created: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), onupdate=func.now(), nullable=True
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    persons: Mapped[List["Persons"]] = relationship(back_populates="staffs")
-    users: Mapped[List["Users"]] = relationship(back_populates="staffs")
+    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
 
 
 class Documents(Base):
@@ -206,10 +142,8 @@ class Documents(Base):
     created: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), onupdate=func.now(), nullable=True
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    persons: Mapped[List["Persons"]] = relationship(back_populates="documents")
-    users: Mapped[List["Users"]] = relationship(back_populates="documents")
+    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
 
 
 class Addresses(Base):
@@ -223,10 +157,8 @@ class Addresses(Base):
     created: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), onupdate=func.now(), nullable=True
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    persons: Mapped[List["Persons"]] = relationship(back_populates="addresses")
-    users: Mapped[List["Users"]] = relationship(back_populates="addresses")
+    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
 
 
 class Contacts(Base):
@@ -242,10 +174,8 @@ class Contacts(Base):
     created: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), onupdate=func.now(), nullable=True
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    persons: Mapped[List["Persons"]] = relationship(back_populates="contacts")
-    users: Mapped[List["Users"]] = relationship(back_populates="contacts")
+    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
 
 
 class Workplaces(Base):
@@ -264,10 +194,8 @@ class Workplaces(Base):
     created: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), onupdate=func.now(), nullable=True
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    persons: Mapped[List["Persons"]] = relationship(back_populates="workplaces")
-    users: Mapped[List["Users"]] = relationship(back_populates="workplaces")
+    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
 
 
 class Affilations(Base):
@@ -282,10 +210,8 @@ class Affilations(Base):
     created: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), onupdate=func.now(), nullable=True
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    persons: Mapped[List["Persons"]] = relationship(back_populates="affilations")
-    users: Mapped[List["Users"]] = relationship(back_populates="affilations")
+    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
 
 
 class Relations(Base):
@@ -299,10 +225,8 @@ class Relations(Base):
     created: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), onupdate=func.now(), nullable=True
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    persons: Mapped[List["Persons"]] = relationship(back_populates="relations")
-    users: Mapped[List["Users"]] = relationship(back_populates="relations")
+    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
 
 
 class Checks(Base):
@@ -330,12 +254,10 @@ class Checks(Base):
     created: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), onupdate=func.now(), nullable=True
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     user_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("users.id"), nullable=True
     )
-    persons: Mapped[List["Persons"]] = relationship(back_populates="checks")
-    users: Mapped[List["Users"]] = relationship(back_populates="checks")
+    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
 
 
 class Poligrafs(Base):
@@ -353,8 +275,6 @@ class Poligrafs(Base):
     user_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("users.id"), nullable=True
     )
-    persons: Mapped[List["Persons"]] = relationship(back_populates="poligrafs")
-    users: Mapped[List["Users"]] = relationship(back_populates="poligrafs")
 
 
 class Investigations(Base):
@@ -372,8 +292,6 @@ class Investigations(Base):
     user_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("users.id"), nullable=True
     )
-    persons: Mapped[List["Persons"]] = relationship(back_populates="investigations")
-    users: Mapped[List["Users"]] = relationship(back_populates="investigations")
 
 
 class Inquiries(Base):
@@ -392,8 +310,6 @@ class Inquiries(Base):
     user_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("users.id"), nullable=True
     )
-    persons: Mapped[List["Persons"]] = relationship(back_populates="inquiries")
-    users: Mapped[List["Users"]] = relationship(back_populates="inquiries")
 
 
 tables_models = {

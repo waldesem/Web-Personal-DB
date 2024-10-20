@@ -41,7 +41,7 @@ GRANT ALL PRIVILEGES ON DATABASE personal TO flask;
 \q
 ```
 
-<details open>
+<details>
 <summary> Upload Sqlite dump to PostgreSQL </summary>
 <br>
 For upload sqlite dump to PostgreSQL first replace in `/database.db.sql`:

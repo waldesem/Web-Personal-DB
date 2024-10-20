@@ -20,7 +20,7 @@ from ..depends.depend import (
 )
 from ..model.classes import Regions, Roles
 from ..model.models import AnketaSchemaJson, User, Login
-from ..model.tables import Checks, Persons, Users, db_session
+from ..model.tables import Checks, Persons, Users, db_session, tables_models
 from ..handlers.handler import (
     handle_image,
     json_to_dict,
@@ -325,7 +325,7 @@ def get_folder(item_id):
         if not os.path.isdir(folder):
             os.mkdir(folder)
         subprocess.run(f'explorer "{folder}"')
-        # subprocess.run(["xdg-open", folder_path])
+        # subprocess.run(["xdg-open", folder])
     return "", 200
 
 
@@ -512,6 +512,16 @@ def delete_item(item, item_id):
         code of 204.
     """
     try:
+        if item == "persons":
+            for item in tables_models.keys():
+                if item == "persons":
+                    continue
+                db_session.execute(
+                    text("DELETE FROM {} WHERE person_id = {}".format(item, item_id))
+                )
+            db_session.execute(text("DELETE FROM persons WHERE id = {}".format(item_id)))
+            db_session.commit()
+            jsonify({"message": "success"}), 201
         db_session.execute(text("DELETE FROM {} WHERE id = {}".format(item, item_id)))
         db_session.commit()
     except SQLAlchemyError:
