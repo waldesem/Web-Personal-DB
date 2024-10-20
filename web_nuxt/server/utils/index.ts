@@ -2,6 +2,9 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import jwt from "jsonwebtoken";
+import { eq } from "drizzle-orm";
+import { db } from "~/server/db/index";
+import { users } from "~/server/db/src/schema";
 
 export const Roles = {
   admin: "admin",
@@ -25,6 +28,11 @@ export const Conclusions = {
 
 export const JWT_SECRET_KEY = crypto.randomBytes(16).toString("hex");
 export const SECRET_KEY = crypto.randomBytes(16).toString("hex");
+
+export const currentUser =  async () => {
+  const results = await db.select().from(users).where(eq(users.id, 2))
+  return results[0];
+}; // TODO: refactor
 
 /**
  * Creates a password hash using the crypto module.
