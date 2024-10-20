@@ -1,10 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
-import sharp from "sharp";
 import { eq } from "drizzle-orm";
 import { db } from "~/server/db/index";
 import { persons } from "~/server/db/src/schema";
-import { makeDestinationFolder } from "~/server/utils";
 
 export default defineEventHandler(async (event) => {
   const item = getRouterParam(event, "item") as string;
@@ -33,35 +31,19 @@ export default defineEventHandler(async (event) => {
       .where(eq(persons.id, item_id));
   }
   const itemFolder = path.join(person.destination as string, item);
-  try {
-    if (!fs.existsSync(itemFolder)) {
-      fs.mkdirSync(itemFolder);
+  if (!fs.existsSync(itemFolder)) {
+    fs.mkdirSync(itemFolder);
+    if (item == "image") {
+      fs.writeFileSync(path.join(itemFolder, item), files.file);
+      return { message: "success" };
     }
-  } catch (err) {
-    return { message: err };
-  }
-  if (item == "image") {
-    sharp(files[0])
-      .toFormat("jpeg")
-      .toFile(path.join(item, "image.jpg"))
-      .then(() => {
-        return true;
-      })
-      .catch((err) => {
-        console.error(err);
-        return false;
-      });
   }
   const dateFolder = path.join(
     itemFolder,
     `${new Date().toLocaleDateString()}`
   );
-  try {
-    if (!fs.existsSync(dateFolder)) {
-      fs.mkdirSync(dateFolder);
-    }
-  } catch (err) {
-    return { message: err };
+  if (!fs.existsSync(dateFolder)) {
+    fs.mkdirSync(dateFolder);
   }
   fs.writeFileSync(path.join(dateFolder, item), files.file);
   return { message: "success" };

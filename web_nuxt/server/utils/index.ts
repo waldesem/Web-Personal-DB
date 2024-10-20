@@ -91,6 +91,7 @@ export function makeDestinationFolder(
   patronymic: string
 ): string {
   const folderName = path.join(
+    process.env.DESTINATION as string,
     region,
     surname[0],
     `${id}-${surname} ${firstname} ${patronymic ? patronymic : ""}`

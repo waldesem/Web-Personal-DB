@@ -12,14 +12,15 @@ export default defineEventHandler(async (event) => {
     .where(eq(persons.id, personId));
   if (result.length) {
     const person = result[0];
-    const imagePath = path.join(
-      person.destination as string,
-      "image",
-      "image.jpg"
-    );
-    if (fs.existsSync(imagePath)) {
-      const buffer = fs.readFileSync(imagePath);
-      return send(event, buffer, "image/jpeg");
+    const imagesFolder = path.join(person.destination as string, "image");
+    if (fs.existsSync(imagesFolder)) {
+      for (const file of fs.readdirSync(imagesFolder)) {
+        if (file.match(/\.(jpg|jpeg|png)$/i)) {
+          const imagePath = path.join(imagesFolder, file);
+          const buffer = fs.readFileSync(imagePath);
+          return send(event, buffer, "image/jpeg");
+        }
+      }
     }
   }
   const buffer = fs.readFileSync("static/no-photo.png");
