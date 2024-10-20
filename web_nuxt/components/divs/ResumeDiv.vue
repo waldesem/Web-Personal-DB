@@ -56,13 +56,8 @@ async function changeRegion(): Promise<void> {
 }
 
 async function openFolder() {
-  if (!props.person.destination) return;
   opening.value = true;
-  await authFetch("/api/folder", {
-    params: {
-      folder: props.person["destination"],
-    },
-  });
+  await authFetch("/api/folder/" + props.candId);
   opening.value = false;
 }
 

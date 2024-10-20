@@ -17,7 +17,7 @@ const props = defineProps({
 const imageUrl = ref("");
 
 const { refresh } = await useAsyncData("image", async () => {
-  const response = await $fetch("/api/image" + props.candId, {
+  const response = await $fetch("/api/image/" + props.candId, {
     responseType: "blob",
   });
   imageUrl.value = window.URL.createObjectURL(new Blob([response] as never));

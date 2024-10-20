@@ -304,29 +304,28 @@ def post_file(item, item_id):
     return "", 201
 
 
-@bp.get("/folder")
+@bp.get("/folder/<int:item_id>")
 @jwt_required()
-def get_folder():
+def get_folder(item_id):
     """
-    Opens a folder in the default file manager.
+    Get a folder of the person.
 
-    Parameters:
-        folder (str): The path to the folder to open.
+    Args:
+        item_id (int): The ID of the person.
 
     Returns:
-        None
-
-    Raises:
-        None
+        folder of the person
     """
-    folder = request.args.get("folder")
+    folder = db_session.execute(
+        text(f"SELECT destination FROM persons WHERE id = {item_id}")
+    ).scalar_one_or_none()
     if not folder:
         subprocess.run(f'explorer "{current_app.config["BASE_PATH"]}"')
     else:
         if not os.path.isdir(folder):
             os.mkdir(folder)
         subprocess.run(f'explorer "{folder}"')
-    # subprocess.run(["xdg-open", folder_path])
+        # subprocess.run(["xdg-open", folder_path])
     return "", 200
 
 
@@ -336,7 +335,7 @@ def get_image(item_id):
     Get a photo of the person.
 
     Args:
-        image: path to the folder of the person
+        item_id (int): The ID of the person.
 
     Returns:
         photo of the person or a default no-photo image
