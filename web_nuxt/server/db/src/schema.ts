@@ -7,20 +7,20 @@ export const users = sqliteTable("users", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
   fullname: text("fullname", { mode: "text" }).notNull(),
   username: text("username", { mode: "text" }).notNull().unique(),
-  email: text("email", { mode: "text" }).unique(),
-  passhash: text("passhash", { mode: "text" }).$default(
+  email: text("email", { mode: "text" }).notNull().unique(),
+  passhash: text("passhash", { mode: "text" }).notNull().$default(
     () => createPasswordHash("88888888")
   ),
-  pswd_create: text("pswd_create", { mode: "text" }).$default(
+  pswd_create: text("pswd_create", { mode: "text" }).notNull().$default(
     () => sql`(CURRENT_TIMESTAMP)`
   ),
-  change_pswd: integer("change_pswd", { mode: "boolean" }).default(true),
-  blocked: integer("blocked", { mode: "boolean" }).default(false),
-  deleted: integer("deleted", { mode: "boolean" }).default(false),
-  attempt: integer("attempt", { mode: "number" }).default(0),
-  role: text("role", { mode: "text" }).default("guest"),
-  region: text("region", { mode: "text" }).default("Главный офис"),
-  created: text("created", { mode: "text" }).default(sql`(CURRENT_TIMESTAMP)`),
+  change_pswd: integer("change_pswd", { mode: "boolean" }).notNull().default(true),
+  blocked: integer("blocked", { mode: "boolean" }).notNull().default(false),
+  deleted: integer("deleted", { mode: "boolean" }).notNull().default(false),
+  attempt: integer("attempt", { mode: "number" }).notNull().default(0),
+  role: text("role", { mode: "text" }).notNull().default("guest"),
+  region: text("region", { mode: "text" }).notNull().default("Главный офис"),
+  created: text("created", { mode: "text" }).notNull().default(sql`(CURRENT_TIMESTAMP)`),
 });
 
 export const userSchema = createInsertSchema(users);

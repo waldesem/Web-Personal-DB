@@ -5,6 +5,14 @@ export interface Login {
   conf_pswd: string;
 }
 
+export interface Token {
+  id: number;
+  fullname: string;
+  username: string;
+  role: string;
+  region: string;
+}
+
 export interface User {
   id: string;
   fullname: string;

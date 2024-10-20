@@ -1,15 +1,10 @@
 <script setup lang="ts">
-
 const authFetch = useFetchAuth();
 
 const emit = defineEmits(["message"]);
 
 const props = defineProps({
   candId: {
-    type: String,
-    default: "",
-  },
-  destination: {
     type: String,
     default: "",
   },
@@ -22,10 +17,7 @@ const props = defineProps({
 const imageUrl = ref("");
 
 const { refresh } = await useAsyncData("image", async () => {
-  const response = await $fetch("/api/image", {
-    params: {
-      image: props.destination,
-    },
+  const response = await $fetch("/api/image" + props.candId, {
     responseType: "blob",
   });
   imageUrl.value = window.URL.createObjectURL(new Blob([response] as never));
@@ -57,14 +49,9 @@ onChange(async (files) => {
 
 <template>
   <div class="flex justify-left">
-    <UButton variant="link" @click="open">
+    <UButton variant="link" :disabled="!editable" @click="open">
       <template #leading>
-        <img
-          :src="imageUrl"
-          width="160"
-          height="160"
-          title="Загрузить фото"
-        >
+        <img :src="imageUrl" width="160" height="160" title="Загрузить фото" >
       </template>
     </UButton>
   </div>

@@ -330,8 +330,8 @@ def get_folder():
     return "", 200
 
 
-@bp.get("/image")
-def get_image():
+@bp.get("/image/<int:item_id>")
+def get_image(item_id):
     """
     Get a photo of the person.
 
@@ -341,9 +341,11 @@ def get_image():
     Returns:
         photo of the person or a default no-photo image
     """
-    image_path = request.args.get("image")
-    if image_path:
-        file_path = os.path.join(image_path, "image", "image.jpg")
+    destination = db_session.execute(
+        text(f"SELECT destination FROM persons WHERE id = {item_id}")
+    ).scalar_one_or_none()
+    if destination:
+        file_path = os.path.join(destination, "image", "image.jpg")
         if os.path.isfile(file_path):
             return send_file(file_path, as_attachment=True, mimetype="image/jpg")
     return send_file("static/no-photo.png", as_attachment=True, mimetype="image/jpg")

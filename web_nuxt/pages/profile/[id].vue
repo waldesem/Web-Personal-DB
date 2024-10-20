@@ -110,7 +110,6 @@ function emitMessage(message: string) {
   <div>
     <DivsPhotoCard
       :cand-id="candId"
-      :destination="person['destination']"
       :editable="editState"
       @message="emitMessage"
     />

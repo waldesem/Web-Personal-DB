@@ -1,4 +1,4 @@
-import { like } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "~/server/db/index";
 import { users } from "~/server/db/src/schema";
 import {
@@ -15,33 +15,47 @@ export default defineEventHandler(async (event) => {
   const results = await db
     .select()
     .from(users)
-    .where(like(users.username, `%${json_data["username"]}%`));
+    .where(eq(users.username, json_data["username"]));
   const user = results[0];
   if (!user || user.blocked || user.deleted) {
     return { message: "Invalid" };
   }
   if (!checkPasswordHash(json_data["password"], user.passhash)) {
-    if (user.attempt < 5) {
-      user.attempt += 1;
+    if (user.attempt < 50) {
+      await db
+        .update(users)
+        .set({ attempt: (user.attempt += 1) })
+        .where(eq(users.id, user.id));
     } else {
-      user.blocked = true;
-      return { message: "Invalid" };
+      await db
+        .update(users)
+        .set({ blocked: true })
+        .where(eq(users.id, user.id));
     }
+    return { message: "Invalid" };
   }
   if (action == "update") {
-    user.attempt = 0;
-    user.change_pswd = false;
-    user.passhash = createPasswordHash(json_data["password"]);
+    await db
+      .update(users)
+      .set({
+        attempt: 0,
+        change_pswd: false,
+        passhash: createPasswordHash(json_data["new_pswd"]),
+      })
+      .where(eq(users.id, user.id));
     return { message: "Updated" };
   }
 
   const delta = new Date().getTime() - new Date(user.pswd_create).getTime();
-  if (delta > 86400000) {
-    user.attempt = 0;
-    const token = createJwtToken(user, JWT_SECRET_KEY);
+  if (delta > 86400000 * 365 || !user.change_pswd) {
+    const token = createJwtToken({user}, JWT_SECRET_KEY);
     const session = await useSession(event, {
       password: SECRET_KEY,
     });
+    await db
+      .update(users)
+      .set({ attempt: 0, pswd_create: new Date().toLocaleDateString() })
+      .where(eq(users.id, user.id));
     await session.update({ ...user });
     if (token) {
       return { message: "Success", user_token: token };

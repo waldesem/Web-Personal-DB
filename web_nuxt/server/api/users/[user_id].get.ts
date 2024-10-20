@@ -17,22 +17,19 @@ export default defineEventHandler(async (event) => {
       attempt: 0,
       blocked: false,
       change_pswd: true,
-    })
+    });
   }
   if (item == "block") {
     Object.assign(user, { blocked: !user.blocked });
   } else if (item == "delete") {
     Object.assign(user, { deleted: !user.deleted });
   } else if (Object.values(Roles).includes(item)) {
-    Object.assign(user, { roles: item });
-  } else if (Object.values(Regions).includes(item)) {
-    Object.assign(user, { regions: item });
+    Object.assign(user, { role: item });
+  } else if (Object.keys(Regions).includes(item)) {
+    Object.assign(user, { region: Regions[item as keyof typeof Regions] });
   }
   try {
-    await db
-      .update(users)
-      .set(user)
-      .where(eq(users.id, user_id)).execute();
+    await db.update(users).set(user).where(eq(users.id, user_id)).execute();
     return { message: "success" };
   } catch (error) {
     return { error: error };

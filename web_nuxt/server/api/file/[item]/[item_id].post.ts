@@ -42,11 +42,6 @@ export default defineEventHandler(async (event) => {
   }
   if (item == "image") {
     sharp(files[0])
-      .resize()
-      .jpeg({
-        quality: 90,
-        mozjpeg: true,
-      })
       .toFormat("jpeg")
       .toFile(path.join(item, "image.jpg"))
       .then(() => {
