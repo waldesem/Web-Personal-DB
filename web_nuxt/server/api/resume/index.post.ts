@@ -1,12 +1,12 @@
 import fs from "node:fs";
-import path from "node:path";
 import { and, ilike, eq } from "drizzle-orm";
 import { db } from "~/server/db/index";
 import { persons } from "~/server/db/src/schema";
-import { makeDestinationFolder } from "~/server/utils";
+import { makeDestinationFolder, currentUser } from "~/server/utils";
 
 export default defineEventHandler(async (event) => {
   const data = await readBody(event);
+  const curUser = await currentUser();
   const results = await db
     .select()
     .from(persons)
@@ -21,8 +21,8 @@ export default defineEventHandler(async (event) => {
   if (results.length == 0) {
     Object.assign(data, {
       editable: true,
-      user_id: "event.context.user.id",
-      region: "event.context.user.region",
+      user_id: curUser.id,
+      region: curUser.region,
     });
     const personId = await db
       .insert(persons)
@@ -37,37 +37,35 @@ export default defineEventHandler(async (event) => {
       data.firstname,
       data.patronymic
     );
-    await db.update(persons).set({ destination: folderName }).execute();
+    await db
+      .update(persons)
+      .set({ destination: folderName })
+      .where(eq(persons.id, personId));
     return { person_id: personId };
   }
   const person = results[0];
-  if (!person.destination || !fs.existsSync(person.destination)) {
+  if (person.editable) {
     return { person_id: null };
   }
-  const folderName = path.join(
-    "event.context.user.region",
-    data.surname[0],
-    `${data.id}-${data.surname} ${data.firstname} ${data.patronymic}`
+  const folderName = makeDestinationFolder(
+    curUser.region,
+    person.id.toString(),
+    person.surname,
+    person.firstname,
+    person.patronymic || ""
   );
   if (!fs.existsSync(folderName)) {
     fs.mkdirSync(folderName);
   }
   if (data.region != person.region) {
-    try {
+    if (person.destination) {
       fs.cpSync(person.destination, folderName);
-    } catch (err) {
-      console.error(err);
     }
   }
   Object.assign(person, { destination: folderName, id: person.id });
-  try {
-    await db
-      .update(persons)
-      .set({ ...data, destination: folderName })
-      .where(eq(persons.id, person.id))
-      .execute();
-  } catch (err) {
-    return { person_id: null, message: err };
-  }
+  await db
+    .update(persons)
+    .set({ ...data, destination: folderName })
+    .where(eq(persons.id, person.id));
   return { person_id: person.id };
 });

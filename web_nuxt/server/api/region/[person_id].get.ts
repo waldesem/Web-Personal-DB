@@ -10,7 +10,8 @@ export default defineEventHandler(async (event) => {
   const results = await db
     .select()
     .from(persons)
-    .where(eq(persons.id, person_id)).execute();
+    .where(eq(persons.id, person_id))
+    .execute();
   if (results.length == 0) {
     return { message: "error" };
   }
@@ -23,19 +24,11 @@ export default defineEventHandler(async (event) => {
     person.patronymic || ""
   );
   if (person.destination) {
-    try {
-      fs.cpSync(person.destination, folderName);
-    } catch (err) {
-      return {"message": err};
-    }
+    fs.cpSync(person.destination, folderName);
   }
-  try {
-    db
-      .update(persons)
-      .set({ destination: folderName, editable: false })
-      .where(eq(persons.id, person_id)).execute();
-    return {"message": "success"};
-  } catch (err) {
-    return {"message": err};
-  }
+  db.update(persons)
+    .set({ destination: folderName, editable: false })
+    .where(eq(persons.id, person_id))
+    .execute();
+  return { message: "success" };
 });

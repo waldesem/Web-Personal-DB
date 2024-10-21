@@ -3,11 +3,13 @@ import path from "node:path";
 import { eq } from "drizzle-orm";
 import { db } from "~/server/db/index";
 import { persons } from "~/server/db/src/schema";
+import { currentUser } from "~/server/utils";
 
 export default defineEventHandler(async (event) => {
   const item = getRouterParam(event, "item") as string;
   const item_id = parseInt(getRouterParam(event, "item_id") as string);
   const files = await readBody(event);
+  const curUser = await currentUser();
   const results = await db
     .select()
     .from(persons)
@@ -18,13 +20,12 @@ export default defineEventHandler(async (event) => {
   const person = results[0];
   if (!person.destination || !fs.existsSync(person.destination)) {
     const folderName = makeDestinationFolder(
-      'current_user.get("region")',
+      curUser.region,
       person.id.toString(),
       person.surname,
       person.firstname,
       person.patronymic || ""
     );
-    Object.assign(person, { destination: folderName });
     await db
       .update(persons)
       .set({ destination: folderName })

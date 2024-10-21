@@ -11,12 +11,6 @@ export default defineEventHandler(async (event) => {
   }
   const firstRow = editables[0] as Record<string, number>;
   const editable = firstRow["editable" as keyof typeof firstRow] ? 0 : 1;
-  try {
-    db.run(
-      sql`UPDATE persons SET editable = ${editable} WHERE id = ${item_id}`
-    );
-    return { message: "success" };
-  } catch (error) {
-    return { error: error };
-  }
+  db.run(sql`UPDATE persons SET editable = ${editable} WHERE id = ${item_id}`);
+  return { message: "success" };
 });

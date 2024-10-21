@@ -50,9 +50,7 @@ onChange(async (files) => {
 <template>
   <div class="flex justify-left">
     <UButton variant="link" :disabled="!editable" @click="open">
-      <template #leading>
-        <img :src="imageUrl" width="160" height="160" title="Загрузить фото" >
-      </template>
+      <img :src="imageUrl" width="160" height="160" title="Загрузить фото" >
     </UButton>
   </div>
 </template>

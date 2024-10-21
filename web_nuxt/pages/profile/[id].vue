@@ -11,6 +11,8 @@ const candId = computed(() => route.params.id) as Ref<string>;
 
 const person = ref({} as Persons);
 
+const pending = ref(false);
+
 const { refresh } = await useAsyncData("anketa", async () => {
   person.value = (await authFetch(
     "/api/items/persons/" + candId.value
@@ -83,8 +85,10 @@ async function switchSelf(): Promise<void> {
   if (!confirm("Вы действительно хотите включить/выключить режим правки")) {
     return;
   }
+  pending.value = true;
   await authFetch("/api/self/" + candId.value);
   await refresh();
+  pending.value = false;
 }
 
 function emitMessage(message: string) {
@@ -115,8 +119,16 @@ function emitMessage(message: string) {
     />
     <div v-if="userState.role == 'user'" class="relative">
       <div class="absolute bottom-0 right-20">
-        <UButton variant="link" size="xl" @click="switchSelf">
-          <div class="animate-pulse" style="width: 30px">
+        <UButton
+          :disabled="pending"
+          variant="link"
+          size="xl"
+          @click="switchSelf"
+        >
+          <div v-if="pending">
+            <UIcon name="i-heroicons-arrow-path animate-spin w-8 h-8" />
+          </div>
+          <div v-else class="animate-pulse w-16 h-16" >
             <UBadge :color="(badge.color as any)" variant="solid">
               {{ badge.label }}
             </UBadge>

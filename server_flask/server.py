@@ -30,7 +30,7 @@ def main():
         "--port", default=5000, type=int, help="The port to run the server on."
     )
     parser.add_argument(
-        "--workers", default=16, type=int, help="The number of workers to use."
+        "--workers", default=8, type=int, help="The number of workers to use."
     )
     parser.add_argument(
         "--mode",
@@ -42,16 +42,22 @@ def main():
 
     app = create_app()
 
-    if args.mode == "debug":
-        app.run(host=args.host, port=args.port, debug=True)
-    elif args.mode == "devel":
-        app.run(host=args.host, port=args.port, debug=False)
-    elif args.mode == "serve":
-        wsgi_server(app, address=args.host, port=args.port, workers=args.workers)
-    else:
-        FlaskUI(
-            server_kwargs={"app": app, "address": args.host, "port": args.port, "workers": args.workers},
-        ).run()
+    match args.mode:
+        case "debug":
+            app.run(host=args.host, port=args.port, debug=True)
+        case "devel":
+            app.run(host=args.host, port=args.port, debug=False)
+        case "serve":
+            wsgi_server(app, address=args.host, port=args.port, workers=args.workers)
+        case "desktop":
+            FlaskUI(
+                server_kwargs={
+                    "app": app,
+                    "address": args.host,
+                    "port": args.port,
+                    "workers": args.workers,
+                },
+            ).run()
 
 
 if __name__ == "__main__":

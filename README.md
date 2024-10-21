@@ -11,7 +11,7 @@ StaffSec is a web interface for managing a candidate database.
 
 ### Installation
 
-To use this project, you will need to have Python 3.10 or higher.
+To use this project, you will need to have Python 3.12 or higher.
 For installiing the required Python packages run commands:
 ```
 git clone https://github.com/waldesem/Web-Personal-DB.git

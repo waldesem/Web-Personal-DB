@@ -11,27 +11,23 @@ export default defineEventHandler(async (event) => {
     return { message: "error" };
   }
   const user = results[0];
+  const setData = {};
   if (item == "drop") {
-    Object.assign(user, {
-      passhash: createPasswordHash("88888888"),
+    Object.assign(setData, {
+      blocked: true,
       attempt: 0,
-      blocked: false,
       change_pswd: true,
+      passhash: createPasswordHash("12345678"),
     });
-  }
-  if (item == "block") {
-    Object.assign(user, { blocked: !user.blocked });
+  } else if (item == "block") {
+    Object.assign(setData, { blocked: !user.blocked });
   } else if (item == "delete") {
-    Object.assign(user, { deleted: !user.deleted });
+    Object.assign(setData, { deleted: !user.deleted });
   } else if (Object.values(Roles).includes(item)) {
-    Object.assign(user, { role: item });
+    Object.assign(setData, { role: item });
   } else if (Object.keys(Regions).includes(item)) {
-    Object.assign(user, { region: Regions[item as keyof typeof Regions] });
+    Object.assign(setData, { region: item });
   }
-  try {
-    await db.update(users).set(user).where(eq(users.id, user_id)).execute();
-    return { message: "success" };
-  } catch (error) {
-    return { error: error };
-  }
+  await db.update(users).set(setData).where(eq(users.id, user_id));
+  return { message: "success" };
 });
