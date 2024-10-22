@@ -2,11 +2,13 @@ import fs from "node:fs";
 import { and, ilike, eq } from "drizzle-orm";
 import { db } from "~/server/db/index";
 import { persons } from "~/server/db/src/schema";
-import { makeDestinationFolder, currentUser } from "~/server/utils";
+import { makeDestinationFolder } from "~/server/utils";
 
 export default defineEventHandler(async (event) => {
   const data = await readBody(event);
-  const curUser = await currentUser();
+  const session = await useSession(event, {
+    password: SECRET_KEY,
+  });
   const results = await db
     .select()
     .from(persons)
@@ -21,8 +23,8 @@ export default defineEventHandler(async (event) => {
   if (results.length == 0) {
     Object.assign(data, {
       editable: true,
-      user_id: curUser.id,
-      region: curUser.region,
+      user_id: session.data.id,
+      region: session.data.region,
     });
     const personId = await db
       .insert(persons)
@@ -48,7 +50,7 @@ export default defineEventHandler(async (event) => {
     return { person_id: null };
   }
   const folderName = makeDestinationFolder(
-    curUser.region,
+    session.data.region,
     person.id.toString(),
     person.surname,
     person.firstname,

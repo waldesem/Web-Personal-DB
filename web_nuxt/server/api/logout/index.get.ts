@@ -1,8 +1,7 @@
-import { SECRET_KEY } from "~~/server/utils";
-
-export default defineEventHandler((event) => {
-  clearSession(event, {
+export default defineEventHandler(async (event) => {
+  const session = await useSession(event, {
     password: SECRET_KEY,
   });
-  return "";
+  await session.clear();
+  return { message: "success" };
 });

@@ -79,11 +79,10 @@ preloadRouteComponents("/profile/[id]");
 <template>
   <div>
     <div v-if="userState.role == 'user'" class="relative">
-      <div
-        class="absolute inset-y-0 right-0"
-        :class="{ 'animate-pulse': status == 'pending' || upload }"
-      >
+      <div class="absolute inset-y-0 right-0">
         <UButton
+          :loading="status == 'pending' || upload"
+          :disabled="status == 'pending' || upload"
           icon="i-heroicons-cloud-arrow-up"
           title="Загрузить json файл"
           size="xl"

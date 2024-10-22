@@ -1,13 +1,14 @@
 import { desc, eq, like } from "drizzle-orm";
 import { db } from "~/server/db/index";
 import { persons } from "~/server/db/src/schema";
-import { currentUser } from "~/server/utils";
 
 export default defineEventHandler(async (event) => {
   const pagination = 10;
   const page = parseInt(getRouterParam(event, "page") as string);
   const search = getQuery(event).search as string;
-  const curUser = await currentUser(); // TODO: refactor
+  const session = await useSession(event, {
+    password: SECRET_KEY,
+  });
   let query = db.select().from(persons).$dynamic();
   if (search && search.length > 2) {
     const buffered = Buffer.from(search, "ascii").toString("utf-8");
@@ -22,8 +23,8 @@ export default defineEventHandler(async (event) => {
       query = query.where(like(persons.patronymic, `%${searchData[2]}%`));
     }
   }
-  if (curUser.region !== Regions.main) {
-    query = query.where(eq(persons.region, curUser.region));
+  if (session.data.region !== Regions.main) {
+    query = query.where(eq(persons.region, session.data.region));
   }
   query = query
     .limit(pagination + 1)

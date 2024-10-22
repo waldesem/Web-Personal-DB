@@ -1,11 +1,14 @@
 import fs from "node:fs";
 import { and, ilike, eq } from "drizzle-orm";
 import { db } from "~/server/db/index";
-import { itemsSchemas, itemsTables, persons } from "~/server/db/src/schema";
 import { anketaSchema } from "~/server/schema";
+import { itemsSchemas, itemsTables, persons } from "~/server/db/src/schema";
 import { makeDestinationFolder } from "~/server/utils";
 
 export default defineEventHandler(async (event) => {
+  const session = await useSession(event, {
+    password: SECRET_KEY,
+  });
   const files = await readBody(event);
   const reader = new FileReader();
   reader.readAsText(files[0].file);
@@ -18,7 +21,7 @@ export default defineEventHandler(async (event) => {
     const validated = anketaSchema.parse(jsonData);
     const anketa = {
       persons: {
-        region: "current_user.region",
+        region: session.data.region,
         surname: validated.lastName,
         firstname: validated.firstName,
         patronymic: validated.midName,
@@ -154,8 +157,8 @@ export default defineEventHandler(async (event) => {
     if (results.length == 0) {
       Object.assign(anketa.persons, {
         editable: true,
-        user_id: "current_user.id",
-        region: "current_user.region",
+        user_id: session.data.id,
+        region: session.data.region,
       });
       const personId = await db
         .insert(persons)
@@ -164,7 +167,7 @@ export default defineEventHandler(async (event) => {
         .returning()
         .then((rows) => rows[0].id);
       const folderName = makeDestinationFolder(
-        "current_user.region",
+        session.data.region,
         personId.toString(),
         anketa.persons.surname,
         anketa.persons.firstname,
@@ -180,7 +183,7 @@ export default defineEventHandler(async (event) => {
         for (const value in values) {
           Object.assign(value, {
             person_id: personId,
-            user_id: "current_user",
+            user_id: session.data.id,
           });
           try {
             const validItem =
@@ -195,7 +198,7 @@ export default defineEventHandler(async (event) => {
     }
     const person = results[0];
     const folderName = makeDestinationFolder(
-      "current_user.region",
+      session.data.region,
       person.id.toString(),
       anketa.persons.surname,
       anketa.persons.firstname,
@@ -224,7 +227,7 @@ export default defineEventHandler(async (event) => {
       for (const value in values) {
         Object.assign(value, {
           person_id: person.id,
-          user_id: "current_user",
+          user_id: session.data.id,
         });
         try {
           const validItem =
