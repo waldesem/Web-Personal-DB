@@ -23,7 +23,6 @@
   "devDependencies": {
     "@nuxt/eslint": "^0.5.7",
     "@types/better-sqlite3": "^7.6.11",
-    "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^22.7.5",
     "@vueuse/core": "^11.1.0",
     "@vueuse/nuxt": "^11.1.0",

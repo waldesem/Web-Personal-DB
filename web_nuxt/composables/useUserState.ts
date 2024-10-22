@@ -15,3 +15,15 @@ export const useUserState = () => {
   );
   return user as Ref<User>;
 };
+
+// export const useUserState = () => {
+//   if (!cookies.value) {
+//     return {} as Ref<User>;
+//   }
+//   const user = useState(
+//     "user",
+//     () =>
+//       cookies.value
+//   );
+//   return user as unknown as Ref<User>;
+// };

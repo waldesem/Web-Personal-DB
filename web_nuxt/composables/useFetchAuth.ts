@@ -29,6 +29,14 @@ export const useFetchAuth = () => {
     } else {
       return navigateTo("/login");
     }
+    // Add cookies to request headers if they exist
+    // if (cookies.value) {
+    //   options.credentials = "include";
+    //   options.headers = {
+    //     ...options.headers,
+    //     Cookie: `h3=${cookies.value}`,
+    //   };
+    // }
 
     try {
       const response = await $fetch(url, options);
