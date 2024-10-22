@@ -1,7 +1,8 @@
 import { eq } from "drizzle-orm";
 import { db } from "~/server/db/index";
 import { users } from "~/server/db/src/schema";
-import { createPasswordHash, Roles, Regions } from "~/server/utils";
+import { createPasswordHash } from "~/server/utils";
+import { Roles, Regions } from "~/types/objects";
 
 export default defineEventHandler(async (event) => {
   const user_id = parseInt(getRouterParam(event, "user_id") as string);

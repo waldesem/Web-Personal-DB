@@ -1,7 +1,6 @@
 import { and, count, gte, lte, eq } from "drizzle-orm";
 import { db } from "~/server/db/index";
 import { persons, checks } from "~/server/db/src/schema";
-import { Regions } from "~/server/utils";
 
 export default defineEventHandler(async (event) => {
   const session = await useSession(event, {
@@ -17,7 +16,7 @@ export default defineEventHandler(async (event) => {
         lte(checks.created, end),
         eq(
           persons.region,
-          region ? Regions[region as keyof typeof Regions] : session.data.region
+          region ? region : session.data.region
         )
       )
     )

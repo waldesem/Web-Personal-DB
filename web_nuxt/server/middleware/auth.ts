@@ -1,3 +1,5 @@
+import { Roles } from "~/types/objects";
+
 export default defineEventHandler(async (event) => {
   const requestURL = getRequestURL(event).pathname as string;
   const session = await useSession(event, {
