@@ -35,6 +35,7 @@ export default defineNuxtConfig({
 
   nitro: {
     compressPublicAssets: true,
+    errorHandler: "~/error",
     output: {
       publicDir: "../server_flask/app/static",
     },
