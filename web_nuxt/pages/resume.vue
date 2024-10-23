@@ -22,9 +22,8 @@ async function submitResume(form: Persons) {
     description: "Информация добавлена",
     color: "green",
   });
-  upload.value = false;
   if (person_id) {
-    return navigateTo("/profile/" + person_id);
+    await navigateTo("/profile/" + person_id);
   } else {
     toast.add({
       icon: "i-heroicons-information-circle",
@@ -33,6 +32,7 @@ async function submitResume(form: Persons) {
       color: "red",
     });
   }
+  upload.value = false;
 }
 </script>
 
