@@ -4,4 +4,4 @@ export const userToken = useStorage("userToken", "", localStorage, {
   mergeDefaults: true,
 });
 
-// export const cookies = useCookie("h3");
+export const cookies = useStorage("cookies", useCookie("h3"));

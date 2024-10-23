@@ -5,6 +5,9 @@ import { users } from "~/server/db/src/schema";
 export default defineEventHandler(async (event) => {
   const action = getRouterParam(event, "action");
   const json_data = await readBody(event);
+  if (!json_data) {
+    send(event, 400);
+  }
   const results = await db
     .select()
     .from(users)
