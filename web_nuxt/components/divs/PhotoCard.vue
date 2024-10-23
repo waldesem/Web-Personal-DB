@@ -19,8 +19,8 @@ const imageUrl = ref("");
 const { refresh } = await useLazyAsyncData("image", async () => {
   const response = await authFetch("/api/image/" + props.candId, {
     responseType: "blob",
-  });
-  imageUrl.value = window.URL.createObjectURL(new Blob([response] as never));
+  }) as Blob;
+  imageUrl.value = window.URL.createObjectURL(new Blob([response]));
 });
 
 const { open, reset, onCancel, onChange } = useFileDialog({
