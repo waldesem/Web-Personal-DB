@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { db } from "~/server/db/index";
 import { users } from "~/server/db/src/schema";
 import { createPasswordHash } from "~/server/utils";
-import { Roles, Regions } from "~/types/objects";
+import { Roles, Regions } from "~/server/utils/objects";
 
 export default defineEventHandler(async (event) => {
   const user_id = parseInt(getRouterParam(event, "user_id") as string);
@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
       blocked: true,
       attempt: 0,
       change_pswd: true,
-      passhash: createPasswordHash("12345678"),
+      passhash: createPasswordHash("88888888"),
     });
   } else if (item == "block") {
     Object.assign(setData, { blocked: !user.blocked });

@@ -16,20 +16,20 @@ export default defineEventHandler(async (event) => {
   if (!user || user.blocked || user.deleted) {
     return { message: "Invalid" };
   }
-  // if (!checkPasswordHash(json_data["password"], user.passhash)) {
-  //   if (user.attempt < 5) {
-  //     await db
-  //       .update(users)
-  //       .set({ attempt: (user.attempt += 1) })
-  //       .where(eq(users.id, user.id));
-  //   } else {
-  //     await db
-  //       .update(users)
-  //       .set({ blocked: true })
-  //       .where(eq(users.id, user.id));
-  //   }
-  //   return { message: "Invalid" };
-  // }
+  if (!checkPasswordHash(json_data["password"], user.passhash)) {
+    if (user.attempt < 5) {
+      await db
+        .update(users)
+        .set({ attempt: (user.attempt += 1) })
+        .where(eq(users.id, user.id));
+    } else {
+      await db
+        .update(users)
+        .set({ blocked: true })
+        .where(eq(users.id, user.id));
+    }
+    return { message: "Invalid" };
+  }
   if (action == "update") {
     await db
       .update(users)
@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
     });
     await db
       .update(users)
-      .set({ attempt: 0, pswd_create: new Date().toLocaleDateString() })
+      .set({ attempt: 0, pswd_create: new Date().toISOString() })
       .where(eq(users.id, user.id));
     await session.update({ ...user });
     return { message: "Success" };

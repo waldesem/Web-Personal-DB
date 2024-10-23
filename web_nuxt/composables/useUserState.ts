@@ -12,14 +12,6 @@ export const useUserState = () => {
         ) as User
     );
     return user as Ref<User>;
-  } else if (cookies.value) {
-    const authFetch = useFetchAuth();
-    const user = useState("user", async () => {
-      const response = (await authFetch(`/api/auth`)) as User;
-      return response;
-    });
-    return user as unknown as Ref<User>;
-  } else {
-    return {} as Ref<User>;
   }
+  return {} as Ref<User>;
 };

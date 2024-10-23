@@ -6,9 +6,7 @@ definePageMeta({
 preloadRouteComponents("/persons")
 preloadRouteComponents("/login");
 
-await useAsyncData("index", async () => {
-  await navigateTo("/persons");
-});
+await navigateTo("/persons");
 </script>
 
 <template><div>Index</div></template>

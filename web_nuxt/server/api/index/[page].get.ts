@@ -1,7 +1,7 @@
 import { desc, eq, like } from "drizzle-orm";
 import { db } from "~/server/db/index";
 import { persons } from "~/server/db/src/schema";
-import { Regions } from "~/types/objects";
+import { Regions } from "~/server/utils/objects";
 
 export default defineEventHandler(async (event) => {
   const pagination = 10;

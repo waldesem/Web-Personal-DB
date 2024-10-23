@@ -1,4 +1,4 @@
-import { Roles } from "~/types/objects";
+import { Roles } from "~/server/utils/objects";
 
 export default defineEventHandler(async (event) => {
   const requestURL = getRequestURL(event).pathname as string;

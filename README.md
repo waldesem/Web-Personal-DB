@@ -108,15 +108,8 @@ Change directory to web_nuxt and run the command to install packages:
 npm i
 ```
 To build Nuxt3 with Client-side Only Rendering:
-In nuxt.config.ts toggle `ssr: false` and then run the command:
 ```
 npx nuxi generate
-```
-To build Nuxt3 with Server-side Rendering:
-In nuxt.config.ts toggle `ssr: false` and comment `output - publicDir`
-Then run the command:
-```
-npx nuxi build
 ```
 Builded files can be found in `server_flask/app/static`.
 
