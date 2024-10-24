@@ -13,7 +13,7 @@ const person = ref({} as Persons);
 
 const pending = ref(false);
 
-const { refresh } = await useAsyncData("anketa", async () => {
+const { refresh, status } = await useLazyAsyncData("anketa", async () => {
   person.value = (await authFetch(
     "/api/items/persons/" + candId.value
   )) as Persons;
@@ -148,6 +148,7 @@ function emitMessage(message: string) {
           :cand-id="candId"
           :editable="editState"
           :person="person"
+          @status="status"
           @message="emitMessage"
           @update="refresh()"
         />
