@@ -28,11 +28,9 @@ const { refresh, status } = await useLazyAsyncData("candidates", async () => {
   }
 );
 
-watchDebounced(
-  () => search.value,
-  () => {
-    page.value = 1;
-    refresh();
+watchDebounced(search, () => {
+  page.value = 1;
+  refresh();
   },
   {
     debounce: 1000,
