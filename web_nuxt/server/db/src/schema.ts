@@ -1,52 +1,52 @@
 import { z } from "zod";
-import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { boolean, date, index, integer, serial, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { sql } from "drizzle-orm";
 
-export const users = sqliteTable("users", {
-  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-  fullname: text("fullname", { mode: "text" }).notNull(),
-  username: text("username", { mode: "text" }).notNull().unique(),
-  email: text("email", { mode: "text" }).notNull().unique(),
-  passhash: text("passhash", { mode: "text" }).notNull().$default(
+export const users = pgTable("users", {
+  id: serial('id').primaryKey(),
+  fullname: text("fullname").notNull(),
+  username: text("username").notNull().unique(),
+  email: text("email").notNull().unique(),
+  passhash: text("passhash").notNull().$default(
     () => createPasswordHash("88888888")
   ),
-  pswd_create: text("pswd_create", { mode: "text" }).notNull().$default(
+  pswd_create: timestamp("pswd_create").notNull().$default(
     () => sql`(CURRENT_TIMESTAMP)`
   ),
-  change_pswd: integer("change_pswd", { mode: "boolean" }).notNull().default(true),
-  blocked: integer("blocked", { mode: "boolean" }).notNull().default(false),
-  deleted: integer("deleted", { mode: "boolean" }).notNull().default(false),
-  attempt: integer("attempt", { mode: "number" }).notNull().default(0),
-  role: text("role", { mode: "text" }).notNull().default("guest"),
-  region: text("region", { mode: "text" }).notNull().default("Главный офис"),
-  created: text("created", { mode: "text" }).notNull().default(sql`(CURRENT_TIMESTAMP)`),
+  change_pswd: boolean("change_pswd").notNull().default(true),
+  blocked: boolean("blocked").notNull().default(false),
+  deleted: boolean("deleted").notNull().default(false),
+  attempt: integer("attempt").notNull().default(0),
+  role: text("role").notNull().default("guest"),
+  region: text("region").notNull().default("Главный офис"),
+  created: timestamp("created").notNull().default(sql`(CURRENT_TIMESTAMP)`),
 });
 
 export const userSchema = createInsertSchema(users);
 
-export const persons = sqliteTable(
+export const persons = pgTable(
   "persons",
   {
-    id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-    surname: text("surname", { mode: "text" }).notNull(),
-    firstname: text("firstname", { mode: "text" }).notNull(),
-    patronymic: text("patronymic", { mode: "text" }),
-    birthday: integer("birthday", { mode: "timestamp" }).notNull(),
-    birthplace: text("birthplace", { mode: "text" }),
-    citizenship: text("citizenship", { mode: "text" }),
-    dual: text("dual", { mode: "text" }),
-    snils: text("snils", { mode: "text" }),
-    inn: text("inn", { mode: "text" }),
-    marital: text("marital", { mode: "text" }),
-    addition: text("addition", { mode: "text" }),
-    destination: text("destination", { mode: "text" }),
-    created: text("created", { mode: "text" }).default(
+    id: serial('id').primaryKey(),
+    surname: text("surname").notNull(),
+    firstname: text("firstname").notNull(),
+    patronymic: text("patronymic"),
+    birthday: date("birthday").notNull(),
+    birthplace: text("birthplace"),
+    citizenship: text("citizenship"),
+    dual: text("dual"),
+    snils: text("snils"),
+    inn: text("inn"),
+    marital: text("marital"),
+    addition: text("addition"),
+    destination: text("destination"),
+    created: timestamp("created").default(
       sql`(CURRENT_TIMESTAMP)`
     ),
-    region: text("region", { mode: "text" }),
-    editable: integer("editable", { mode: "boolean" }).default(false),
-    user_id: integer("user_id", { mode: "number" }).references(() => users.id),
+    region: text("region"),
+    editable: boolean("editable").default(false),
+    user_id: integer("user_id").references(() => users.id),
   },
   (table) => {
     return {
@@ -61,172 +61,173 @@ export const personSchema = createInsertSchema(persons).extend({
   username: z.string(),
 });
 
-export const previous = sqliteTable("previous", {
-  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-  surname: text("surname", { mode: "text" }).notNull(),
-  firstname: text("firstname", { mode: "text" }).notNull(),
-  patronymic: text("patronymic", { mode: "text" }),
-  changed: text("changed", { mode: "text" }),
-  reason: text("reason", { mode: "text" }),
-  created: text("created", { mode: "text" }).default(sql`(CURRENT_TIMESTAMP)`),
-  person_id: integer("person_id", { mode: "number" }).references(
+export const previous = pgTable("previous", {
+  id: serial('id').primaryKey(),
+  surname: text("surname").notNull(),
+  firstname: text("firstname").notNull(),
+  patronymic: text("patronymic"),
+  changed: text("changed"),
+  reason: text("reason"),
+  created: timestamp("created").default(sql`(CURRENT_TIMESTAMP)`),
+  person_id: integer("person_id").references(
     () => persons.id
   ),
-  user_id: integer("user_id", { mode: "number" }).references(() => users.id),
+  user_id: integer("user_id").references(() => users.id),
 });
 
-export const educations = sqliteTable("educations", {
-  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-  view: text("view", { mode: "text" }).notNull(),
-  institution: text("institution", { mode: "text" }).notNull(),
-  finished: text("finished", { mode: "text" }).notNull(),
-  specialty: text("specialty", { mode: "text" }),
-  created: text("created", { mode: "text" }).default(sql`(CURRENT_TIMESTAMP)`),
-  person_id: integer("person_id", { mode: "number" }).references(
+export const educations = pgTable("educations", {
+  id: serial('id').primaryKey(),
+  view: text("view").notNull(),
+  institution: text("institution").notNull(),
+  finished: text("finished").notNull(),
+  specialty: text("specialty"),
+  created: timestamp("created").default(sql`(CURRENT_TIMESTAMP)`),
+  person_id: integer("person_id").references(
     () => persons.id
   ),
-  user_id: integer("user_id", { mode: "number" }).references(() => users.id),
+  user_id: integer("user_id").references(() => users.id),
 });
 
-export const staffs = sqliteTable("staffs", {
-  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-  position: text("position", { mode: "text" }).notNull(),
-  department: text("department", { mode: "text" }).notNull(),
-  created: text("created", { mode: "text" }).default(sql`(CURRENT_TIMESTAMP)`),
-  person_id: integer("person_id", { mode: "number" }).references(
+export const staffs = pgTable("staffs", {
+  id: serial('id').primaryKey(),
+  position: text("position").notNull(),
+  department: text("department").notNull(),
+  created: timestamp("created").default(sql`(CURRENT_TIMESTAMP)`),
+  person_id: integer("person_id").references(
     () => persons.id
   ),
-  user_id: integer("user_id", { mode: "number" }).references(() => users.id),
+  user_id: integer("user_id").references(() => users.id),
 });
 
-export const addresses = sqliteTable("documents", {
-  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-  view: text("view", { mode: "text" }).notNull(),
-  series: text("series", { mode: "text" }),
-  digits: text("digits", { mode: "text" }),
-  agency: text("agency", { mode: "text" }),
-  issue: integer("issue", { mode: "timestamp" }),
-  created: text("created", { mode: "text" }).default(sql`(CURRENT_TIMESTAMP)`),
-  person_id: integer("person_id", { mode: "number" }).references(
+export const addresses = pgTable("documents", {
+  id: serial('id').primaryKey(),
+  view: text("view").notNull(),
+  series: text("series"),
+  digits: text("digits"),
+  agency: text("agency"),
+  issue: date("issue"),
+  created: timestamp("created").default(sql`(CURRENT_TIMESTAMP)`),
+  person_id: integer("person_id").references(
     () => persons.id
   ),
-  user_id: integer("user_id", { mode: "number" }).references(() => users.id),
+  user_id: integer("user_id").references(() => users.id),
 });
 
-export const contacts = sqliteTable("addresses", {
-  id: integer("number").primaryKey({ autoIncrement: true }),
+export const contacts = pgTable("addresses", {
+  id: serial("number").primaryKey(),
   view: text("text"),
   addresses: text("text"),
-  created: text("created", { mode: "text" }).default(sql`(CURRENT_TIMESTAMP)`),
+  created: timestamp("created").default(sql`(CURRENT_TIMESTAMP)`),
   person_id: integer("number").references(() => persons.id),
   user_id: integer("number").references(() => users.id),
 });
 
-export const documents = sqliteTable("contacts", {
-  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-  view: text("view", { mode: "text" }).notNull(),
-  created: text("created", { mode: "text" }).default(sql`(CURRENT_TIMESTAMP)`),
-  person_id: integer("person_id", { mode: "number" }).references(
+export const documents = pgTable("contacts", {
+  id: serial('id').primaryKey(),
+  view: text("view").notNull(),
+  created: timestamp("created").default(sql`(CURRENT_TIMESTAMP)`),
+  person_id: integer("person_id").references(
     () => persons.id
   ),
-  user_id: integer("user_id", { mode: "number" }).references(() => users.id),
-});
-export const workplaces = sqliteTable("workplaces", {
-  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-  now_work: integer("now_work", { mode: "boolean" }).default(false),
-  starts: integer("starts", { mode: "timestamp" }).notNull(),
-  finished: integer("finished", { mode: "timestamp" }),
-  workplace: text("workplace", { mode: "text" }).notNull(),
-  addresses: text("addresses", { mode: "text" }),
-  position: text("position", { mode: "text" }),
-  reason: text("reason", { mode: "text" }),
-  created: text("created", { mode: "text" }).default(sql`(CURRENT_TIMESTAMP)`),
-  person_id: integer("person_id", { mode: "number" }).references(
-    () => persons.id
-  ),
-  user_id: integer("user_id", { mode: "number" }).references(() => users.id),
+  user_id: integer("user_id").references(() => users.id),
 });
 
-export const affilations = sqliteTable("affilations", {
-  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-  view: text("view", { mode: "text" }).notNull(),
-  organization: text("organization", { mode: "text" }).notNull(),
-  inn: text("inn", { mode: "text" }),
-  created: text("created", { mode: "text" }).default(sql`(CURRENT_TIMESTAMP)`),
-  person_id: integer("person_id", { mode: "number" }).references(
+export const workplaces = pgTable("workplaces", {
+  id: serial('id').primaryKey(),
+  now_work: boolean("now_work").default(false),
+  starts: date("starts").notNull(),
+  finished: date("finished"),
+  workplace: text("workplace").notNull(),
+  addresses: text("addresses"),
+  position: text("position"),
+  reason: text("reason"),
+  created: timestamp("created").default(sql`(CURRENT_TIMESTAMP)`),
+  person_id: integer("person_id").references(
     () => persons.id
   ),
-  user_id: integer("user_id", { mode: "number" }).references(() => users.id),
+  user_id: integer("user_id").references(() => users.id),
 });
 
-export const relations = sqliteTable("relations", {
-  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-  relation: text("relation", { mode: "text" }).notNull(),
-  relation_id: integer("relation_id", { mode: "number" }).notNull(),
-  created: text("created", { mode: "text" }).default(sql`(CURRENT_TIMESTAMP)`),
-  person_id: integer("person_id", { mode: "number" }).references(
+export const affilations = pgTable("affilations", {
+  id: serial('id').primaryKey(),
+  view: text("view").notNull(),
+  organization: text("organization").notNull(),
+  inn: text("inn"),
+  created: timestamp("created").default(sql`(CURRENT_TIMESTAMP)`),
+  person_id: integer("person_id").references(
     () => persons.id
   ),
-  user_id: integer("user_id", { mode: "number" }).references(() => users.id),
+  user_id: integer("user_id").references(() => users.id),
 });
 
-export const checks = sqliteTable("checks", {
-  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-  workplace: text("workplace", { mode: "text" }),
-  document: text("document", { mode: "text" }),
-  inn: text("inn", { mode: "text" }),
-  debt: text("debt", { mode: "text" }),
-  bankruptcy: text("bankruptcy", { mode: "text" }),
-  bki: text("bki", { mode: "text" }),
-  courts: text("courts", { mode: "text" }),
-  affilation: text("affilation", { mode: "text" }),
-  terrorist: text("terrorist", { mode: "text" }),
-  mvd: text("mvd", { mode: "text" }),
-  internet: text("internet", { mode: "text" }),
-  cronos: text("cronos", { mode: "text" }),
-  cros: text("cros", { mode: "text" }),
-  addition: text("addition", { mode: "text" }),
-  comment: text("comment", { mode: "text" }),
-  conclusion: text("conclusion", { mode: "text" }),
-  created: text("created", { mode: "text" }).default(sql`(CURRENT_TIMESTAMP)`),
-  person_id: integer("person_id", { mode: "number" }).references(
+export const relations = pgTable("relations", {
+  id: serial('id').primaryKey(),
+  relation: text("relation").notNull(),
+  relation_id: integer("relation_id").notNull(),
+  created: timestamp("created").default(sql`(CURRENT_TIMESTAMP)`),
+  person_id: integer("person_id").references(
     () => persons.id
   ),
-  user_id: integer("user_id", { mode: "number" }).references(() => users.id),
+  user_id: integer("user_id").references(() => users.id),
 });
 
-export const poligrafs = sqliteTable("poligrafs", {
-  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-  theme: text("theme", { mode: "text" }),
-  results: text("results", { mode: "text" }),
-  created: text("created", { mode: "text" }).default(sql`(CURRENT_TIMESTAMP)`),
-  person_id: integer("person_id", { mode: "number" }).references(
+export const checks = pgTable("checks", {
+  id: serial('id').primaryKey(),
+  workplace: text("workplace"),
+  document: text("document"),
+  inn: text("inn"),
+  debt: text("debt"),
+  bankruptcy: text("bankruptcy"),
+  bki: text("bki"),
+  courts: text("courts"),
+  affilation: text("affilation"),
+  terrorist: text("terrorist"),
+  mvd: text("mvd"),
+  internet: text("internet"),
+  cronos: text("cronos"),
+  cros: text("cros"),
+  addition: text("addition"),
+  comment: text("comment"),
+  conclusion: text("conclusion"),
+  created: timestamp("created").default(sql`(CURRENT_TIMESTAMP)`),
+  person_id: integer("person_id").references(
     () => persons.id
   ),
-  user_id: integer("user_id", { mode: "number" }).references(() => users.id),
+  user_id: integer("user_id").references(() => users.id),
 });
 
-export const investigations = sqliteTable("investigations", {
-  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-  theme: text("theme", { mode: "text" }),
-  info: text("info", { mode: "text" }),
-  created: text("created", { mode: "text" }).default(sql`(CURRENT_TIMESTAMP)`),
-  person_id: integer("person_id", { mode: "number" }).references(
+export const poligrafs = pgTable("poligrafs", {
+  id: serial('id').primaryKey(),
+  theme: text("theme"),
+  results: text("results"),
+  created: timestamp("created").default(sql`(CURRENT_TIMESTAMP)`),
+  person_id: integer("person_id").references(
     () => persons.id
   ),
-  user_id: integer("user_id", { mode: "number" }).references(() => users.id),
+  user_id: integer("user_id").references(() => users.id),
 });
 
-export const inquiries = sqliteTable("inquiries", {
-  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-  info: text("info", { mode: "text" }),
-  initiator: text("initiator", { mode: "text" }),
-  origins: text("origins", { mode: "text" }),
-  created: text("created", { mode: "text" }).default(sql`(CURRENT_TIMESTAMP)`),
-  person_id: integer("person_id", { mode: "number" }).references(
+export const investigations = pgTable("investigations", {
+  id: serial('id').primaryKey(),
+  theme: text("theme"),
+  info: text("info"),
+  created: timestamp("created").default(sql`(CURRENT_TIMESTAMP)`),
+  person_id: integer("person_id").references(
     () => persons.id
   ),
-  user_id: integer("user_id", { mode: "number" }).references(() => users.id),
+  user_id: integer("user_id").references(() => users.id),
+});
+
+export const inquiries = pgTable("inquiries", {
+  id: serial('id').primaryKey(),
+  info: text("info"),
+  initiator: text("initiator"),
+  origins: text("origins"),
+  created: timestamp("created").default(sql`(CURRENT_TIMESTAMP)`),
+  person_id: integer("person_id").references(
+    () => persons.id
+  ),
+  user_id: integer("user_id").references(() => users.id),
 });
 
 export const itemsTables = {
