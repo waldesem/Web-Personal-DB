@@ -125,7 +125,7 @@ function emitMessage(message: string) {
           size="xl"
           @click="switchSelf"
         >
-          <div v-if="pending">
+          <div v-if="pending || status === 'pending'">
             <UIcon name="i-heroicons-arrow-path animate-spin w-8 h-8" />
           </div>
           <div v-else class="animate-pulse w-16 h-16" >
@@ -136,7 +136,9 @@ function emitMessage(message: string) {
         </UButton>
       </div>
     </div>
+    <USkeleton v-if="status  === 'pending'" class="mb-6 h-16 w-96" />
     <ElementsHeaderDiv
+      v-else
       :div="'py-3'"
       :header="`${person['surname']} ${person['firstname']} ${
         person['patronymic'] ? person['patronymic'] : ''
