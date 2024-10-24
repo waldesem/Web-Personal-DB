@@ -2,6 +2,10 @@
 import type { Persons } from "@/types/interfaces";
 
 const props = defineProps({
+  status: {
+    type: String,
+    default: "",
+  },
   editable: {
     type: Boolean,
     default: false,
@@ -84,6 +88,7 @@ function emitMessage(message: string) {
         :cand-id="props.candId"
         :editable="props.editable"
         :person="props.person"
+        @status='props.props.status"
         @update="emit('update')"
         @message="emitMessage"
       />
