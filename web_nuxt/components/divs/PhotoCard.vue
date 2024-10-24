@@ -16,7 +16,7 @@ const props = defineProps({
 
 const imageUrl = ref("");
 
-const { refresh } = await useLazyAsyncData("image", async () => {
+const { refresh, status } = await useLazyAsyncData("image", async () => {
   const response = await authFetch("/api/image/" + props.candId, {
     responseType: "blob",
   }) as Blob;
@@ -49,7 +49,9 @@ onChange(async (files) => {
 
 <template>
   <div class="flex justify-left">
-    <UButton variant="link" :disabled="!editable" @click="open">
+    <USkeleton v-if="status === 'pending'" class="h-44 w-44" />
+    <UButton
+v-else variant="link" :disabled="!editable" @click="open">
       <img :src="imageUrl" width="160" height="160" title="Загрузить фото" >
     </UButton>
   </div>
