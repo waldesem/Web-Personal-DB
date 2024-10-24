@@ -14,12 +14,6 @@ async function submitResume(form: Persons) {
     method: "POST",
     body: form,
   })) as Record<string, string>;
-  toast.add({
-    icon: "i-heroicons-check-circle",
-    title: "Успешно",
-    description: "Информация добавлена",
-    color: "green",
-  });
   if (person_id) {
     await navigateTo("/profile/" + person_id);
   } else {
