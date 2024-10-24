@@ -11,6 +11,10 @@ const toast = useToast();
 const authFetch = useFetchAuth();
 
 const props = defineProps({
+  status: {
+    type: String,
+    default: "",
+  },
   editable: {
     type: Boolean,
     default: false,
@@ -99,7 +103,7 @@ async function cancelAction() {
       />
     </div>
     <div v-else>
-      <ElementsSkeletonDiv v-if="pending" :rows="14" />
+      <ElementsSkeletonDiv v-if="pending || props.status === 'pending'" :rows="14" />
       <div v-else>
         <ElementsLabelSlot :label="'Регион'">
           <USelect
