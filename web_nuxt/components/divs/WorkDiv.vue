@@ -6,7 +6,6 @@ prefetchComponents(["FormsWorkForm", "ElementsSkeletonDiv"]);
 
 const emit = defineEmits(["message"]);
 
-const authFetch = useFetchAuth();
 
 const props = defineProps({
   candId: {
@@ -27,7 +26,7 @@ const workplace = ref({} as Work);
 const workplaces = ref<Work[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("workplaces", async () => {
-  workplaces.value = (await authFetch(
+  workplaces.value = (await useFetch(
     "/api/items/workplaces/" + props.candId
   )) as Work[];
 });
@@ -35,7 +34,7 @@ const { refresh, status } = await useLazyAsyncData("workplaces", async () => {
 async function submitWorkplace(form: Work) {
   closeAction();
   pending.value = true;
-  const { message } = (await authFetch(
+  const { message } = (await useFetch(
     `/api/items/workplaces/${props.candId}`,
     {
       method: "POST",
@@ -50,7 +49,7 @@ async function submitWorkplace(form: Work) {
 async function deleteWork(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = (await authFetch(`/api/items/workplaces/${id}`, {
+  const { message } = (await useFetch(`/api/items/workplaces/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
   await refresh();

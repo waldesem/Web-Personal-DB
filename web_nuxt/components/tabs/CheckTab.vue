@@ -6,7 +6,6 @@ prefetchComponents(["FormsCheckForm", "ElementsSkeletonDiv"]);
 
 const emit = defineEmits(["message"]);
 
-const authFetch = useFetchAuth();
 
 const props = defineProps({
   candId: {
@@ -27,7 +26,7 @@ const check = ref({} as Verification);
 const checks = ref<Verification[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("checks", async () => {
-  checks.value = (await authFetch(
+  checks.value = (await useFetch(
     `/api/items/checks/${props.candId}`
   )) as Verification[];
 });
@@ -35,7 +34,7 @@ const { refresh, status } = await useLazyAsyncData("checks", async () => {
 async function submitCheck(form: Verification) {
   closeAction();
   pending.value = true;
-  const { message } = (await authFetch(`/api/items/checks/${props.candId}`, {
+  const { message } = (await useFetch(`/api/items/checks/${props.candId}`, {
     method: "POST",
     body: form,
   })) as Record<string, string>;
@@ -47,7 +46,7 @@ async function submitCheck(form: Verification) {
 async function deleteCheck(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = (await authFetch(`/api/items/checks/${id}`, {
+  const { message } = (await useFetch(`/api/items/checks/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
   await refresh();

@@ -5,7 +5,6 @@ prefetchComponents(["FormsPreviousForm", "ElementsSkeletonDiv"]);
 
 const emit = defineEmits(["message"]);
 
-const authFetch = useFetchAuth();
 
 const props = defineProps({
   candId: {
@@ -26,13 +25,13 @@ const prev = ref({} as Previous);
 const previous = ref<Previous[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("previous", async () => {
-  previous.value = await authFetch("/api/items/previous/" + props.candId) as Previous[];
+  previous.value = await useFetch("/api/items/previous/" + props.candId) as Previous[];
 });
 
 async function submitPrevious(form: Previous) {
   closeAction();  
   pending.value = true;
-  const { message } = await authFetch(`/api/items/previous/${props.candId}`, {
+  const { message } = await useFetch(`/api/items/previous/${props.candId}`, {
     method: "POST",
     body: form,
   }) as Record<string, string>;
@@ -44,7 +43,7 @@ async function submitPrevious(form: Previous) {
 async function deletePrevious(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = (await authFetch(`/api/items/previous/${id}`, {
+  const { message } = (await useFetch(`/api/items/previous/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
   await refresh();  

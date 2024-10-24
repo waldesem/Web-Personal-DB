@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useDateFormat, useNow } from "@vueuse/core";
 
-const authFetch = useFetchAuth();
 const userState = useUserState();
 
 const region = ref(userState.value.region);
@@ -15,7 +14,7 @@ const stat = ref([] as Record<string, string>[]);
 const { status } = await useLazyAsyncData(
   "stats",
   async () => {
-    stat.value = await authFetch("/api/info", {
+    stat.value = await useFetch("/api/info", {
       params: {
         start: start.value,
         end: end.value,

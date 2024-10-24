@@ -5,7 +5,6 @@ prefetchComponents(["FormsRelationForm", "ElementsSkeletonDiv"]);
 
 const emit = defineEmits(["message"]);
 
-const authFetch = useFetchAuth();
 
 const props = defineProps({
   candId: {
@@ -26,13 +25,13 @@ const relation = ref({} as Relation);
 const relations = ref<Relation[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("relations", async () => {
-  relations.value = await authFetch("/api/items/relations/" + props.candId) as Relation[];
+  relations.value = await useFetch("/api/items/relations/" + props.candId) as Relation[];
 });
 
 async function submitRelation(form: Relation) {
   closeAction();  
   pending.value = true;
-  const { message } = await authFetch(`/api/items/relations/${props.candId}`, {
+  const { message } = await useFetch(`/api/items/relations/${props.candId}`, {
     method: "POST",
     body: form,
   }) as Record<string, string>;
@@ -44,7 +43,7 @@ async function submitRelation(form: Relation) {
 async function deleteRelation(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = (await authFetch(`/api/items/relations/${id}`, {
+  const { message } = (await useFetch(`/api/items/relations/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
   await refresh();  

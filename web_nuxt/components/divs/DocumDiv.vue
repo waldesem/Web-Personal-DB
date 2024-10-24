@@ -6,7 +6,6 @@ prefetchComponents(["FormsDocumentForm", "ElementsSkeletonDiv"]);
 
 const emit = defineEmits(["message"]);
 
-const authFetch = useFetchAuth();
 
 const props = defineProps({
   candId: {
@@ -27,7 +26,7 @@ const doc = ref({} as Document);
 const documents = ref<Document[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("documents", async () => {
-  documents.value = (await authFetch(
+  documents.value = (await useFetch(
     "/api/items/documents/" + props.candId
   )) as Document[];
 });
@@ -35,7 +34,7 @@ const { refresh, status } = await useLazyAsyncData("documents", async () => {
 async function submitDocument(form: Document) {
   closeAction();
   pending.value = true;
-  const { message } = (await authFetch(`/api/items/documents/${props.candId}`, {
+  const { message } = (await useFetch(`/api/items/documents/${props.candId}`, {
     method: "POST",
     body: form,
   })) as Record<string, string>;
@@ -47,7 +46,7 @@ async function submitDocument(form: Document) {
 async function deleteDocument(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = (await authFetch(`/api/items/documents/${id}`, {
+  const { message } = (await useFetch(`/api/items/documents/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
   await refresh();

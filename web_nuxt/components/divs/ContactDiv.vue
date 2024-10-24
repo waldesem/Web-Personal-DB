@@ -5,7 +5,6 @@ prefetchComponents(["FormsContactForm", "ElementsSkeletonDiv"]);
 
 const emit = defineEmits(["message"]);
 
-const authFetch = useFetchAuth();
 
 const props = defineProps({
   candId: {
@@ -26,7 +25,7 @@ const contact = ref({} as Contact);
 const contacts = ref<Contact[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("contacts", async () => {
-  contacts.value = (await authFetch(
+  contacts.value = (await useFetch(
     "/api/items/contacts/" + props.candId
   )) as Contact[];
 });
@@ -34,7 +33,7 @@ const { refresh, status } = await useLazyAsyncData("contacts", async () => {
 async function submitContact(form: Contact) {
   closeAction();
   pending.value = true;
-  const { message } = (await authFetch(`/api/items/contacts/${props.candId}`, {
+  const { message } = (await useFetch(`/api/items/contacts/${props.candId}`, {
     method: "POST",
     body: form,
   })) as Record<string, string>;
@@ -46,7 +45,7 @@ async function submitContact(form: Contact) {
 async function deleteContact(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = (await authFetch(`/api/items/contacts/${id}`, {
+  const { message } = (await useFetch(`/api/items/contacts/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
   await refresh();

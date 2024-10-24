@@ -2,7 +2,6 @@
 import type { Persons } from "@/types/interfaces";
 import { watchDebounced, useFileDialog, useDateFormat } from "@vueuse/core";
 
-const authFetch = useFetchAuth();
 const userState = useUserState();
 const toast = useToast();
 
@@ -14,7 +13,7 @@ const search = ref("");
 const updated = ref("Данные обновляются...");
 
 const { refresh, status } = await useLazyAsyncData("candidates", async () => {
-  [candidates.value, hasNext.value] = (await authFetch(
+  [candidates.value, hasNext.value] = (await useFetch(
     "/api/index/" + page.value,
     {
       params: {
@@ -50,7 +49,7 @@ onChange(async (files) => {
   upload.value = true;
   const formData = new FormData();
   formData.append("file", files[0]);
-  const { person_id } = (await authFetch("/api/json", {
+  const { person_id } = (await useFetch("/api/json", {
     method: "POST",
     body: formData,
   })) as Record<string, string>;

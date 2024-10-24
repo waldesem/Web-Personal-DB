@@ -3,7 +3,6 @@ import { useFileDialog } from "@vueuse/core";
 
 const toast = useToast();
 
-const authFetch = useFetchAuth();
 
 const emit = defineEmits(["delete", "update", "upgrade"]);
 
@@ -35,7 +34,7 @@ onChange(async (files) => {
     for (const file of files) {
       formData.append("file", file);
     }
-    await authFetch(`/api/file/${props.item}/${props.candId}`, {
+    await useFetch(`/api/file/${props.item}/${props.candId}`, {
       method: "POST",
       body: formData,
     });

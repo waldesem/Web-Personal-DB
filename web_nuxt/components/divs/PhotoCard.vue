@@ -1,5 +1,4 @@
 <script setup lang="ts">
-const authFetch = useFetchAuth();
 
 const emit = defineEmits(["message"]);
 
@@ -17,7 +16,7 @@ const props = defineProps({
 const imageUrl = ref("");
 
 const { refresh } = await useLazyAsyncData("image", async () => {
-  const response = await authFetch("/api/image/" + props.candId, {
+  const response = await useFetch("/api/image/" + props.candId, {
     responseType: "blob",
   }) as Blob;
   imageUrl.value = window.URL.createObjectURL(new Blob([response]));
@@ -37,7 +36,7 @@ onChange(async (files) => {
   const formData = new FormData();
   const file = files[0];
   formData.append("file", file);
-  const { message } = (await authFetch("/api/file/image/" + props.candId, {
+  const { message } = (await useFetch("/api/file/image/" + props.candId, {
     method: "POST",
     body: formData,
   })) as Record<string, string>;

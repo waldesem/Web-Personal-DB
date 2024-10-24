@@ -6,7 +6,6 @@ prefetchComponents(["FormsPoligrafForm", "ElementsSkeletonDiv"]);
 
 const emit = defineEmits(["message"]);
 
-const authFetch = useFetchAuth();
 
 const props = defineProps({
   candId: {
@@ -27,7 +26,7 @@ const poligraf = ref({} as Pfo);
 const poligrafs = ref<Pfo[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("poligrafs", async () => {
-  poligrafs.value = (await authFetch(
+  poligrafs.value = (await useFetch(
     "/api/items/poligrafs/" + props.candId
   )) as Pfo[];
 });
@@ -35,7 +34,7 @@ const { refresh, status } = await useLazyAsyncData("poligrafs", async () => {
 async function submitPoligraf(form: Pfo) {
   closeAction();
   pending.value = true;
-  const { message } = (await authFetch(`/api/items/poligrafs/${props.candId}`, {
+  const { message } = (await useFetch(`/api/items/poligrafs/${props.candId}`, {
     method: "POST",
     body: form,
   })) as Record<string, string>;
@@ -47,7 +46,7 @@ async function submitPoligraf(form: Pfo) {
 async function deletePoligraf(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = (await authFetch(`/api/items/poligrafs/${id}`, {
+  const { message } = (await useFetch(`/api/items/poligrafs/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
   await refresh();

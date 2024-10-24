@@ -5,7 +5,6 @@ prefetchComponents(["FormsAffilationForm", "ElementsSkeletonDiv"]);
 
 const emit = defineEmits(["message"]);
 
-const authFetch = useFetchAuth();
 
 const props = defineProps({
   candId: {
@@ -26,13 +25,13 @@ const affilation = ref({} as Affilation);
 const affilations = ref<Affilation[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("affilations", async () => {
-  affilations.value = await authFetch("/api/items/affilations/" + props.candId) as Affilation[];
+  affilations.value = await useFetch("/api/items/affilations/" + props.candId) as Affilation[];
 });
 
 async function submitAffilation(form: Affilation) {
   closeAction();  
   pending.value = true;
-  const { message } = await authFetch(`/api/items/affilations/${props.candId}`, {
+  const { message } = await useFetch(`/api/items/affilations/${props.candId}`, {
     method: "POST",
     body: form,
   }) as Record<string, string>;
@@ -44,7 +43,7 @@ async function submitAffilation(form: Affilation) {
 async function deleteAffilation(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = (await authFetch(`/api/items/affilations/${id}`, {
+  const { message } = (await useFetch(`/api/items/affilations/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
   await refresh();  

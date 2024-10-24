@@ -6,7 +6,6 @@ prefetchComponents(["FormsInvestigationForm", "ElementsSkeletonDiv"]);
 
 const emit = defineEmits(["message"]);
 
-const authFetch = useFetchAuth();
 
 const props = defineProps({
   candId: {
@@ -29,7 +28,7 @@ const investigations = ref<Inquisition[]>([]);
 const { refresh, status } = await useLazyAsyncData(
   "investigations",
   async () => {
-    investigations.value = (await authFetch(
+    investigations.value = (await useFetch(
       "/api/items/investigations/" + props.candId
     )) as Inquisition[];
   }
@@ -38,7 +37,7 @@ const { refresh, status } = await useLazyAsyncData(
 async function submitInvestigations(form: Inquisition) {
   closeAction();
   pending.value = true;
-  const { message } = (await authFetch(
+  const { message } = (await useFetch(
     `/api/items/investigations/${props.candId}`,
     {
       method: "POST",
@@ -53,7 +52,7 @@ async function submitInvestigations(form: Inquisition) {
 async function deleteInquisition(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = (await authFetch(`/api/items/investigations/${id}`, {
+  const { message } = (await useFetch(`/api/items/investigations/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
   await refresh();

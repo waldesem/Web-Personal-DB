@@ -5,9 +5,9 @@ const showNav = ref(true);
 
 async function logout() {
   if (confirm("Вы действительно хотите выйти?")) {
-    userToken.value = null;
     clearNuxtData();
-    return navigateTo("/login");
+    await useFetch("/api/logout");
+    await navigateTo("/login");
   }
   return;
 }

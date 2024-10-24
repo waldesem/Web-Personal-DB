@@ -4,7 +4,6 @@ import { watchDebounced, useDateFormat } from "@vueuse/core";
 
 const toast = useToast();
 
-const fetchAuth = useFetchAuth();
 const userState = useUserState();
 
 const dataUsers = ref({
@@ -30,7 +29,7 @@ const users = computed(() => {
 });
 
 const { refresh, status } = await useLazyAsyncData("users", async () => {
-  dataUsers.value.users = (await fetchAuth("/api/users", {
+  dataUsers.value.users = (await useFetch("/api/users", {
     params: {
       search: dataUsers.value.search,
     },
@@ -60,7 +59,7 @@ async function userAction(
   if (!confirm("Подтвердите действие!")) {
     return;
   }
-  await fetchAuth("/api/users/" + id, {
+  await useFetch("/api/users/" + id, {
     params: {
       item: item,
     },
@@ -84,7 +83,7 @@ async function userAction(
  * @returns {Promise<void>}
  */
 async function submitUser(): Promise<void> {
-  const { message } = (await fetchAuth("/api/users", {
+  const { message } = (await useFetch("/api/users", {
     method: "POST",
     body: dataUsers.value.form,
   })) as Record<string, string>;

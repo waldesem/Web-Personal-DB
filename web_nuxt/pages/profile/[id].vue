@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { Persons } from "@/types/interfaces";
 
-const authFetch = useFetchAuth();
 const userState = useUserState();
 
 const toast = useToast();
@@ -14,7 +13,7 @@ const person = ref({} as Persons);
 const pending = ref(false);
 
 const { refresh } = await useAsyncData("anketa", async () => {
-  person.value = (await authFetch(
+  person.value = (await useFetch(
     "/api/items/persons/" + candId.value
   )) as Persons;
 });
@@ -86,7 +85,7 @@ async function switchSelf(): Promise<void> {
     return;
   }
   pending.value = true;
-  await authFetch("/api/self/" + candId.value);
+  await useFetch("/api/self/" + candId.value);
   await refresh();
   pending.value = false;
 }

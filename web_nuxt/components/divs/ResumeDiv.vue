@@ -8,7 +8,6 @@ const emit = defineEmits(["update", "message"]);
 
 const toast = useToast();
 
-const authFetch = useFetchAuth();
 
 const props = defineProps({
   editable: {
@@ -32,7 +31,7 @@ const opening = ref(false);
 
 async function changeRegion(): Promise<void> {
   if (!confirm("Вы действительно хотите изменить регион?")) return;
-  const { message } = (await authFetch(`/api/region/${props.candId}`, {
+  const { message } = (await useFetch(`/api/region/${props.candId}`, {
     params: {
       region: region.value,
     },
@@ -57,14 +56,14 @@ async function changeRegion(): Promise<void> {
 
 async function openFolder() {
   opening.value = true;
-  await authFetch("/api/folder/" + props.candId);
+  await useFetch("/api/folder/" + props.candId);
   opening.value = false;
 }
 
 async function submitResume(form: Persons) {
   pending.value = true;
   edit.value = false;
-  const { message } = (await authFetch(`/api/items/persons/${props.candId}`, {
+  const { message } = (await useFetch(`/api/items/persons/${props.candId}`, {
     method: "POST",
     body: form,
   })) as Record<string, string>;
@@ -75,7 +74,7 @@ async function submitResume(form: Persons) {
 
 async function deleteItem() {
   pending.value = true;
-  const { message } = await authFetch(`/api/items/persons/${props.candId}`, {
+  const { message } = await useFetch(`/api/items/persons/${props.candId}`, {
     method: "DELETE",
   });
   pending.value = false;
