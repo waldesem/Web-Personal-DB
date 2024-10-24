@@ -2,16 +2,15 @@
 import type { Persons } from "@/types/interfaces";
 
 const toast = useToast();
+const authFetch = useFetchAuth();
 
 const upload = ref(false);
-const resume = ref({} as Persons);
 
 const navigateToPersons = () => navigateTo("/persons");
 
 async function submitResume(form: Persons) {
-  resume.value = form;
   upload.value = true;
-  const { person_id } = (await useFetch("/api/resume", {
+  const { person_id } = (await authFetch("/api/resume", {
     method: "POST",
     body: form,
   })) as Record<string, string>;
@@ -36,18 +35,14 @@ async function submitResume(form: Persons) {
 </script>
 
 <template>
-  <div>
-    <USkeleton v-if="upload" class="h-44 w-44" />
-    <ElementsHeaderDiv
-      :div="'mb-6'"
-      :header="
-        !upload
-          ? 'НОВАЯ АНКЕТА'
-          : `${resume['surname']} ${resume['firstname']} ${resume['patronymic']}`.toUpperCase()
-      "
-    />
-    <ElementsSkeletonDiv v-if="upload" :rows="16" />
-    <ElementsCardDiv v-else>
+  <div v-if="upload">
+    <USkeleton class="h-44 w-44" />
+    <USkeleton class="mb-6 h-16 w-96" />
+    <ElementsSkeletonDiv :rows="16" />
+  </div>
+  <div v-else>
+    <ElementsHeaderDiv :div="'mb-6'" header="НОВАЯ АНКЕТА" />
+    <ElementsCardDiv>
       <FormsResumeForm @cancel="navigateToPersons" @update="submitResume" />
     </ElementsCardDiv>
   </div>
