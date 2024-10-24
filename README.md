@@ -4,24 +4,19 @@ StaffSec is a web interface for managing a candidate database.
 
 ### The technology stack used in this project:
 
-- Flask;
-- Tornado (as wsgi);
-- Sqlite3 (or PostgreSQL);
 - Nuxt3 and TailwindCSS;
+- Nitro as a server;
+- PostgreSQL;
 
 ### Installation
 
-To use this project, you will need to have Python 3.12 or higher.
-For installiing the required Python packages run commands:
+To use this project, you will need to have Node.js version 20 or higher.
+For installiing the required packages run commands:
 ```
 git clone https://github.com/waldesem/Web-Personal-DB.git
-cd Web-Personal-DB/server_flask
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
+cd Web-Personal-DB/web_nuxt
+npm install
 ```
-Also you must select SQLite3 or PostgreSQL in the config.py
-
 
 ### Database
 
@@ -36,8 +31,8 @@ Creating the PostgreSQL Database and User
 ```
 sudo -iu postgres psql
 CREATE DATABASE personal;
-CREATE USER flask WITH PASSWORD 'flask';
-GRANT ALL PRIVILEGES ON DATABASE personal TO flask;
+CREATE USER staffsec WITH PASSWORD 'staffsec';
+GRANT ALL PRIVILEGES ON DATABASE personal TO staffsec;
 \q
 ```
 
@@ -88,37 +83,18 @@ COMMIT;
 ```
 </details>
 
-### Settings
+### Build application
 
-For creating regions and alphabeth folders in destination directory add path in settings.ini.
-Then run the command:
+To build Nuxt3 as a Server-side Rendering Application run the command in terminal:
 ```
-flask folders
+npx nuxi build
 ```
-For creating new user run the command in terminal:
-```
-export FLASK_APP=app
-flask user 'Super Admin' superadmin email@example.com --role=admin --region=main
-```
-
-### Build frontend
-
-Change directory to web_nuxt and run the command to install packages:
-```
-npm i
-```
-To build Nuxt3 with Client-side Only Rendering:
-```
-npx nuxi generate
-```
-Builded files can be found in `server_flask/app/static`.
-
 
 ### Start backend
 
 To start a server run the command in terminal:
 ```
-python server.py # for desktop mode; more options see in the server.py
+HOST=127.0.0.1 PORT=8000 node .output/server/index.mjs
 ```
 DEFAULT_PASSWORD for created user - `88888888`.
 
