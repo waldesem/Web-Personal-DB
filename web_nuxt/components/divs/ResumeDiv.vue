@@ -81,7 +81,7 @@ async function deleteItem() {
   pending.value = true;
   const { message } = await authFetch(`/api/items/persons/${props.candId}`, {
     method: "DELETE",
-  });
+  }) as Record<string, string>;
   pending.value = false;
   emit("message", message);
   return navigateTo("/persons");

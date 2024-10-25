@@ -65,7 +65,12 @@ def handle_post_item(data: dict, item: str, item_id=None):
         if item != "persons":
             data["person_id"] = item_id
         data["user_id"] = current_user.get("id")
-        db_session.merge(table(**data))
+        if data.get("id"):
+            instance = db_session.get(table, data.get("id"))
+            for key, value in data.items():
+                setattr(instance, key, value)
+        else:
+            db_session.add(table(**data))
         db_session.commit()
         return True
     return False

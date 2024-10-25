@@ -21,7 +21,7 @@ const viewDeleted = ref(false);
  *
  * @return {User[]} An array of user objects
  */
-const users = computed(() => {
+const filtredUsers = computed(() => {
   return users.value.filter(
     (user: User) => user.deleted == viewDeleted.value
   );
@@ -252,7 +252,7 @@ const items = [
         { key: 'pswd_create', label: 'Обновлен' },
         { key: 'change_pswd', label: 'Изм.пароля' },
       ]"
-      :rows="users"
+      :rows="filtredUsers"
     >
       <template #id-data="{ row }">{{ row.id }}</template>
       <template #fullname-data="{ row }">{{ row.fullname }}</template>

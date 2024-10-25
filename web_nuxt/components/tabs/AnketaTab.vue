@@ -88,7 +88,7 @@ function emitMessage(message: string) {
         :cand-id="props.candId"
         :editable="props.editable"
         :person="props.person"
-        @status='props.props.status"
+        @status="props.status"
         @update="emit('update')"
         @message="emitMessage"
       />

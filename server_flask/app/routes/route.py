@@ -7,8 +7,7 @@ import subprocess
 
 from flask import Blueprint, abort, current_app, jsonify, request, send_file
 from pydantic import ValidationError
-from sqlalchemy import desc, func, select, text
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import desc, func, select
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from ..depends.depend import (
@@ -284,9 +283,9 @@ def post_file(item, item_id):
     return "", 201
 
 
-@bp.get("/folder/<int:item_id>")
+@bp.get("/folder/<int:person_id>")
 @jwt_required()
-def get_folder(item_id):
+def get_folder(person_id):
     """
     Get a folder of the person.
 
@@ -297,7 +296,7 @@ def get_folder(item_id):
         folder of the person
     """
     folder = db_session.execute(
-        text(f"SELECT destination FROM persons WHERE id = {item_id}")
+        select(Persons.destination).where(Persons.id == person_id)
     ).scalar_one_or_none()
     if not folder:
         subprocess.run(f'explorer "{current_app.config["BASE_PATH"]}"')
@@ -321,7 +320,7 @@ def get_image(item_id):
         photo of the person or a default no-photo image
     """
     destination = db_session.execute(
-        text(f"SELECT destination FROM persons WHERE id = {item_id}")
+        select(Persons.destination).where(Persons.id == item_id)
     ).scalar_one_or_none()
     if destination:
         file_path = os.path.join(destination, "image", "image.jpg")
@@ -420,9 +419,9 @@ def change_region(person_id):
     return jsonify({"message": "error"}), 200
 
 
-@bp.get("/self/<int:item_id>")
+@bp.get("/self/<int:person_id>")
 @roles_required(Roles.user.value)
-def change_self_id(item_id):
+def change_self_id(person_id):
     """
     Toggle the editable status of a person with the given item ID.
 
@@ -432,8 +431,9 @@ def change_self_id(item_id):
     Returns:
         The HTTP status code is 200.
     """
-    editable = db_session.execute(text(f"SELECT editable FROM persons WHERE id =  {item_id})).scalar_one_or_none()
-    db_session.execute(text(f"UPDATE persons SET editable = {!editable}, user_id  = {current_user.get("id")} WHERE id = {item_id}))
+    person = db_session.get(Persons, person_id)
+    person.editable = not person.editable
+    person.user_id = current_user.get("id")
     db_session.commit()
     return "", 200
 
@@ -490,21 +490,20 @@ def delete_item(item, item_id):
         Tuple[str, int]: A tuple containing an empty string and an HTTP status
         code of 204.
     """
-    try:
-        if item == "persons":
-            for item in tables_models.keys():
-                if item == "persons":
-                    continue
-                db_session.execute(
-                    text("DELETE FROM {} WHERE person_id = {}".format(item, item_id))
-                )
-            db_session.execute(text("DELETE FROM persons WHERE id = {}".format(item_id)))
-            db_session.commit()
-            jsonify({"message": "success"}), 201
-        db_session.execute(text("DELETE FROM {} WHERE id = {}".format(item, item_id)))
-        db_session.commit()
-    except SQLAlchemyError:
-        return jsonify({"message": "error"}), 204
+    if item == "persons":
+        for table, model in tables_models.items():
+            if table == "persons":
+                continue
+            instance = db_session.execute(
+                select(model).where(model.person_id == item_id)
+            )
+            db_session.delete(instance)
+        person = db_session.get(Persons, item_id)
+        db_session.delete(person)
+    else:
+        instance = db_session.get(tables_models.get(item), item_id)
+        db_session.delete(instance)
+    db_session.commit()
     return jsonify({"message": "success"}), 201
 
 
