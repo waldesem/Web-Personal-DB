@@ -138,8 +138,7 @@ const validate = (state: User) => {
   return errors;
 };
 
-watchDebounced(
-  () => dataUsers.value.search,
+watchDebounced(dataUsers.value.search,
   () => {
     refresh();
   },
