@@ -7,16 +7,14 @@ const toast = useToast();
 const fetchAuth = useFetchAuth();
 const userState = useUserState();
 
-const dataUsers = ref({
-  search: "",
-  userId: "",
-  region: "",
-  role: "",
-  users: [] as User[],
-  form: {} as User,
-  collapsed: false,
-  viewDeleted: false,
-});
+const search = ref("");
+const userId= ref("");
+const region = ref("");
+const role = ref("");
+const users = ref([] as User[]);
+const form = ref({} as User);
+const collapsed = ref(false);
+const viewDeleted = ref(false);
 
 /**
  * Filters the list of users based on the current search query.
@@ -24,15 +22,15 @@ const dataUsers = ref({
  * @return {User[]} An array of user objects
  */
 const users = computed(() => {
-  return dataUsers.value.users.filter(
-    (user: User) => user.deleted == dataUsers.value.viewDeleted
+  return users.value.filter(
+    (user: User) => user.deleted == viewDeleted.value
   );
 });
 
 const { refresh, status } = await useLazyAsyncData("users", async () => {
-  dataUsers.value.users = (await fetchAuth("/api/users", {
+  users.value = (await fetchAuth("/api/users", {
     params: {
-      search: dataUsers.value.search,
+      search: search.value,
     },
   })) as User[];
 });
@@ -46,7 +44,7 @@ const { refresh, status } = await useLazyAsyncData("users", async () => {
  */
 async function userAction(
   item: string,
-  id: string = dataUsers.value.userId
+  id: string = userId.value
 ): Promise<void> {
   if (id == userState.value.id) {
     toast.add({
@@ -65,11 +63,9 @@ async function userAction(
       item: item,
     },
   });
-  Object.assign(dataUsers.value, {
-    userId: "",
-    region: "",
-    role: "",
-  });
+  userId.value = "";
+  region.value = "";
+  role.value = "";
   await refresh();
   toast.add({
     icon: "i-heroicons-check-circle",
@@ -86,10 +82,10 @@ async function userAction(
 async function submitUser(): Promise<void> {
   const { message } = (await fetchAuth("/api/users", {
     method: "POST",
-    body: dataUsers.value.form,
+    body: form.value,
   })) as Record<string, string>;
-  dataUsers.value.collapsed = false;
-  Object.assign(dataUsers.value.form, {
+  collapsed.value = false;
+  Object.assign(form.value, {
     fullname: "",
     username: "",
   });
@@ -138,7 +134,7 @@ const validate = (state: User) => {
   return errors;
 };
 
-watchDebounced(dataUsers.value.search,
+watchDebounced(search,
   () => {
     refresh();
   },
@@ -182,23 +178,23 @@ const items = [
     />
     <div class="my-6">
       <UInput
-        v-model="dataUsers.search"
+        v-model="search"
         size="lg"
         placeholder="Поиск по имени пользователя"
       />
     </div>
     <div class="flex items-center justify-between mb-4">
-      <UToggle v-model="dataUsers.viewDeleted" :label="'Показать удаленные'" />
+      <UToggle v-model="viewDeleted" :label="'Показать удаленные'" />
       <UButton
         variant="link"
         label="Добавить пользователя"
-        @click="dataUsers.collapsed = !dataUsers.collapsed"
+        @click="collapsed = !collapsed"
       />
     </div>
     <Transition name="slide-fade">
       <UForm
-        v-if="dataUsers.collapsed"
-        :state="dataUsers.form"
+        v-if="collapsed"
+        :state="form"
         :validate="validate"
         @submit.prevent="submitUser"
       >
@@ -206,7 +202,7 @@ const items = [
           <div class="col-span-2">
             <UFormGroup required class="mb-3" name="fullname">
               <UInput
-                v-model="dataUsers.form['fullname']"
+                v-model="form['fullname']"
                 placeholder="Имя пользователя"
               />
             </UFormGroup>
@@ -214,14 +210,14 @@ const items = [
           <div class="col-span-2">
             <UFormGroup required class="mb-3" name="username">
               <UInput
-                v-model="dataUsers.form['username']"
+                v-model="form['username']"
                 placeholder="Логин"
               />
             </UFormGroup>
           </div>
           <div class="col-span-2">
             <UFormGroup required class="mb-3" name="email">
-              <UInput v-model="dataUsers.form['email']" placeholder="Email" />
+              <UInput v-model="form['email']" placeholder="Email" />
             </UFormGroup>
           </div>
           <div class="col-span-1">
@@ -265,13 +261,13 @@ const items = [
           <UButton
             variant="link"
             :label="row.username"
-            @click="dataUsers.userId = row.id"
+            @click="userId = row.id"
           />
         </UDropdown>
       </template>
       <template #region-data="{ row }">
         <USelect
-          v-model="dataUsers.region"
+          v-model="region"
           :placeholder="row.region"
           :options="[
             'Главный офис',
@@ -280,15 +276,15 @@ const items = [
             'РЦ Урал',
             'РЦ Восток',
           ]"
-          @change="userAction(dataUsers.region, row.id)"
+          @change="userAction(region, row.id)"
         />
       </template>
       <template #role-data="{ row }">
         <USelect
-          v-model="dataUsers.role"
+          v-model="role"
           :placeholder="row.role"
           :options="['admin', 'user', 'guest']"
-          @change="userAction(dataUsers.role, row.id)"
+          @change="userAction(role, row.id)"
         />
       </template>
       <template #created-data="{ row }">{{
