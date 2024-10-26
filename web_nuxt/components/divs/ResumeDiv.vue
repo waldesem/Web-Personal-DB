@@ -78,11 +78,12 @@ async function submitResume(form: Persons) {
 }
 
 async function deleteItem() {
-  if (!confirm("Вы действительно хотите удалить профиль и связанные записи?")) return;
+  if (!confirm("Вы действительно хотите удалить профиль и связанные записи?"))
+    return;
   pending.value = true;
-  const { message } = await authFetch(`/api/items/persons/${props.candId}`, {
+  const { message } = (await authFetch(`/api/items/persons/${props.candId}`, {
     method: "DELETE",
-  }) as Record<string, string>;
+  })) as Record<string, string>;
   pending.value = false;
   emit("message", message);
   return navigateTo("/persons");
@@ -104,7 +105,10 @@ async function cancelAction() {
       />
     </div>
     <div v-else>
-      <ElementsSkeletonDiv v-if="pending || props.status === 'pending'" :rows="14" />
+      <ElementsSkeletonDiv
+        v-if="pending || props.status === 'pending'"
+        :rows="14"
+      />
       <div v-else>
         <ElementsLabelSlot :label="'Регион'">
           <USelect
