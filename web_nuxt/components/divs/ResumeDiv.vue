@@ -78,6 +78,7 @@ async function submitResume(form: Persons) {
 }
 
 async function deleteItem() {
+  if (!confirm("Вы действительно хотите удалить профиль и связанные записи?")) return;
   pending.value = true;
   const { message } = await authFetch(`/api/items/persons/${props.candId}`, {
     method: "DELETE",

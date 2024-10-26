@@ -491,12 +491,10 @@ def delete_item(item, item_id):
     """
     if item == "persons":
         for table, model in tables_models.items():
-            if table == "persons":
-                continue
-            instance = db_session.execute(
-                select(model).where(model.person_id == item_id)
-            )
-            db_session.delete(instance)
+            if table != "persons":
+                db_session.query(model).filter(model.person_id == item_id).delete(
+                    synchronize_session=False
+                )
         person = db_session.get(Persons, item_id)
         db_session.delete(person)
     else:
