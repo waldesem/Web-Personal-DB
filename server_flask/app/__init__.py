@@ -1,4 +1,3 @@
-from configparser import ConfigParser
 import logging
 import os
 
@@ -7,7 +6,7 @@ from flask import Flask
 from sqlalchemy import select
 from werkzeug.security import generate_password_hash
 
-from config import Config, basedir
+from config import Config
 from .model.tables import db_session, Users
 from .model.classes import Roles, Regions
 from .routes.route import bp as route_bp
@@ -33,7 +32,6 @@ def create_app(config_class=Config):
     app.config.from_object(config_class)
     app.register_blueprint(route_bp)
     app.logger.addHandler(file_handler)
-    # CORS(app, resources={r"/*": {"origins": "*"}})
 
     @app.teardown_appcontext
     def shutdown_session(exception=None):
@@ -110,11 +108,8 @@ def create_app(config_class=Config):
         :param folder: The folder to create the structure in. If not provided, the
             current BASE_PATH is used.
         """
-        setting = ConfigParser()
-        setting.read(os.path.join(basedir, "settings.ini"), encoding="utf-8")
-        base_path = setting.get("Destination", "path")
         for region in Regions:
-            region_path = os.path.join(base_path, region.value)
+            region_path = os.path.join(config_class.BASE_PATH, region.value)
             if not os.path.isdir(region_path):
                 os.mkdir(region_path)
             for letter in "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЫЭЮЯ":

@@ -9,137 +9,142 @@ from .classes import Regions, Conclusions, Roles
 class Login(BaseModel):
     username: str
     password: str
-    new_pswd: Optional[str] = None
+    new_pswd: Optional[str]
 
 
-class QueryModel(BaseModel):
-    id: Optional[str | int] = None
+class MainModel(BaseModel):
+    id: Optional[str | int]
 
     class Config:
         use_enum_values = True
 
 
-class User(QueryModel):
+class User(MainModel):
     fullname: str
     username: str
-    email: Optional[str] = None
-    region: Optional[Regions] = None
-    role: Optional[Roles] = None
+    email: str
+    region: Optional[Regions]
+    role: Optional[Roles]
 
 
-class Name(QueryModel):
+class Person(MainModel):
     surname: str
     firstname: str
-    patronymic: Optional[str] = None
+    patronymic: Optional[str]
+    birthday: date
+    birthplace: Optional[str]
+    citizenship: Optional[str]
+    dual: Optional[str]
+    snils: Optional[str]
+    inn: Optional[str]
+    marital: Optional[str]
+    addition: Optional[str]
+    destination: Optional[str]
+    region: Optional[Regions]
+    editable: Optional[bool] = False
+    user_id: Optional[str | int]
 
     @validator("surname", "firstname", "patronymic")
     def check_names(cls, v):
         return v.upper().strip() if v else None
 
 
-class Person(Name):
-    birthday: date
-    birthplace: Optional[str] = None
-    citizenship: Optional[str] = None
-    dual: Optional[str] = None
-    snils: Optional[str] = None
-    inn: Optional[str] = None
-    marital: Optional[str] = None
-    addition: Optional[str] = None
-    destination: Optional[str] = None
-    region: Optional[Regions] = None
-    editable: Optional[bool] = False
+class Prev(MainModel):
+    surname: Optional[str]
+    firstname: Optional[str]
+    patronymic: Optional[str]
+    changed: Optional[str]
+    reason: Optional[str]
+
+    @validator("surname", "firstname", "patronymic")
+    def check_names(cls, v):
+        return v.upper().strip() if v else None
 
 
-class Prev(Name):
-    changed: Optional[str] = None
-    reason: Optional[str] = None
+class Education(MainModel):
+    view: Optional[str]
+    institution: Optional[str]
+    finished: Union[str, int]
+    specialty: Optional[str]
 
 
-class Education(QueryModel):
-    view: str
-    institution: str
-    finished: Union[str, int] = None
-    specialty: Optional[str] = None
-
-
-class Staff(QueryModel):
+class Staff(MainModel):
     position: str
     department: str = "Прямое подчинение"
 
 
-class Document(QueryModel):
-    view: str
-    series: Optional[str] = None
-    digits: str
-    agency: Optional[str] = None
-    issue: Optional[date] = None
+class Document(MainModel):
+    view: Optional[str]
+    series: Optional[str]
+    digits: Optional[str]
+    agency: Optional[str]
+    issue: Optional[date]
 
 
-class Address(QueryModel):
-    view: str
-    addresses: str
+class Address(MainModel):
+    view: Optional[str]
+    addresses: Optional[str]
 
 
-class Contact(QueryModel):
-    view: str
-    contact: str
+class Contact(MainModel):
+    view: Optional[str]
+    contact: Optional[str]
 
 
-class Workplace(QueryModel):
+class Workplace(MainModel):
     now_work: Optional[bool] = False
-    starts: date
-    finished: Optional[date] = None
-    workplace: str
-    addresses: Optional[str] = None
-    position: Optional[str] = None
-    reason: Optional[str] = None
+    starts: Optional[date]
+    finished: Optional[date]
+    workplace: Optional[str]
+    addresses: Optional[str]
+    position: Optional[str]
+    reason: Optional[str]
 
 
-class Affilation(QueryModel):
-    view: str
+class Affilation(MainModel):
+    view: Optional[str]
     organization: str
-    inn: Optional[str] = None
+    inn: Optional[str]
 
 
-class Relation(QueryModel):
+class Relation(MainModel):
     relation: str
     relation_id: Union[int, str]
 
 
-class Check(QueryModel):
-    workplace: Optional[str] = None
-    document: Optional[str] = None
-    inn: Optional[str] = None
-    debt: Optional[str] = None
-    bankruptcy: Optional[str] = None
-    bki: Optional[str] = None
-    courts: Optional[str] = None
-    affilation: Optional[str] = None
-    terrorist: Optional[str] = None
-    mvd: Optional[str] = None
-    internet: Optional[str] = None
-    cronos: Optional[str] = None
-    cros: Optional[str] = None
-    addition: Optional[str] = None
-    comment: Optional[str] = None
-    conclusion: Optional[Conclusions] = None
+class Check(MainModel):
+    workplace: Optional[str]
+    document: Optional[str]
+    inn: Optional[str]
+    debt: Optional[str]
+    bankruptcy: Optional[str]
+    bki: Optional[str]
+    courts: Optional[str]
+    affilation: Optional[str]
+    terrorist: Optional[str]
+    mvd: Optional[str]
+    internet: Optional[str]
+    cronos: Optional[str]
+    cros: Optional[str]
+    addition: Optional[str]
+    comment: Optional[str]
+    conclusion: Conclusions
 
 
-class Poligraf(QueryModel):
+class Poligraf(MainModel):
     theme: str
     results: str
 
 
-class Investigation(QueryModel):
+class Investigation(MainModel):
     theme: str
     info: str
 
 
-class Inquiry(QueryModel):
+class Inquiry(MainModel):
     info: str
     initiator: str
-    origins: Optional[str] = None
+    origins: Optional[str]
 
 
 models_tables = {
@@ -161,69 +166,69 @@ models_tables = {
 
 
 class NameWasChangedJson(BaseModel):
-    firstNameBeforeChange: Optional[str] = None
-    lastNameBeforeChange: Optional[str] = None
-    midNameBeforeChange: Optional[str] = None
-    yearOfChange: Union[str, int] = None
-    reason: Optional[str] = None
+    firstNameBeforeChange: Optional[str]
+    lastNameBeforeChange: Optional[str]
+    midNameBeforeChange: Optional[str]
+    yearOfChange: Union[str, int]
+    reason: Optional[str]
 
 
 class EducationJson(BaseModel):
-    educationType: Optional[str] = None
-    institutionName: Optional[str] = None
-    endYear: Union[str, int] = None
-    specialty: Optional[str] = None
+    educationType: Optional[str]
+    institutionName: Optional[str]
+    endYear: Union[str, int]
+    specialty: Optional[str]
 
 
 class ExperienceJson(BaseModel):
-    beginDate: Optional[date] = None
-    endDate: Optional[date] = None
-    currentJob: Optional[bool] = None
-    name: Optional[str] = None
-    address: Optional[str] = None
-    position: Optional[str] = None
-    fireReason: Optional[str] = None
+    beginDate: Optional[date]
+    endDate: Optional[date]
+    currentJob: Optional[bool]
+    name: Optional[str]
+    address: Optional[str]
+    position: Optional[str]
+    fireReason: Optional[str]
 
 
 class OrganizationsJson(BaseModel):
-    name: Optional[str] = None
-    inn: Optional[str] = None
+    name: Optional[str]
+    inn: Optional[str]
 
 
 class RelatedPersonsOrganizationsJson(BaseModel):
-    name: Optional[str] = None
-    inn: Optional[str] = None
+    name: Optional[str]
+    inn: Optional[str]
 
 
 class StateOrganizationsJson(BaseModel):
-    name: Optional[str] = None
+    name: Optional[str]
 
 
 class PublicOfficeOrganizationsJson(BaseModel):
-    name: Optional[str] = None
+    name: Optional[str]
 
 
 class AnketaSchemaJson(BaseModel):
     lastName: str
     firstName: str
-    midName: Optional[str] = None
+    midName: Optional[str]
     birthday: date
-    birthplace: Optional[str] = None
-    citizen: Optional[str] = None
-    additionalCitizenship: Optional[str] = None
-    maritalStatus: Optional[str] = None
-    inn: Optional[str] = None
-    snils: Optional[str] = None
-    positionName: Optional[str] = None
-    department: Optional[str] = None
-    passportSerial: Optional[str] = None
-    passportNumber: Optional[str] = None
-    passportIssueDate: Optional[date] = None
-    passportIssuedBy: Optional[str] = None
-    validAddress: Optional[str] = None
-    regAddress: Optional[str] = None
-    email: Optional[str] = None
-    contactPhone: Optional[str] = None
+    birthplace: Optional[str]
+    citizen: Optional[str]
+    additionalCitizenship: Optional[str]
+    maritalStatus: Optional[str]
+    inn: Optional[str]
+    snils: Optional[str]
+    positionName: Optional[str]
+    department: Optional[str]
+    passportSerial: Optional[str]
+    passportNumber: Optional[str]
+    passportIssueDate: Optional[date]
+    passportIssuedBy: Optional[str]
+    validAddress: Optional[str]
+    regAddress: Optional[str]
+    email: Optional[str]
+    contactPhone: Optional[str]
     education: Optional[list[EducationJson]] = []
     experience: Optional[list[ExperienceJson]] = []
     nameWasChanged: Optional[list[NameWasChangedJson]] = []

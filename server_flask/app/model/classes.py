@@ -19,3 +19,4 @@ class Conclusions(Enum):
     agreed = "СОГЛАСОВАНО"
     comments = "СОГЛАСОВАНО С КОММЕНТАРИЕМ"
     denied = "ОТКАЗАНО В СОГЛАСОВАНИИ"
+    cancel = "СНЯТ С ПРОВЕРКИ"

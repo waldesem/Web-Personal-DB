@@ -93,12 +93,13 @@ COMMIT;
 For creating regions and alphabeth folders in destination directory add path in settings.ini.
 Then run the command:
 ```
+export FLASK_APP=app
 flask folders
 ```
 For creating new user run the command in terminal:
 ```
 export FLASK_APP=app
-flask user 'Super Admin' superadmin email@example.com --role=admin --region=main
+flask user 'Super Admin' superadmin superadmin@elocalhost --role=admin --region=main
 ```
 
 ### Build frontend
@@ -122,6 +123,3 @@ python server.py # for desktop mode; more options see in the server.py
 ```
 DEFAULT_PASSWORD for created user - `88888888`.
 
-### License
-
-This project is licensed under the MIT License.
