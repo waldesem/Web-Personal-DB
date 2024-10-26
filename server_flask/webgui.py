@@ -53,10 +53,6 @@ def close_application():
 
 def find_browser_on_linux():
     paths = [
-        r"/usr/bin/chromium",
-        r"/usr/bin/microsoft-edge",
-        r"/usr/bin/microsoft-edge-stable",
-        # Web browsers installed via snap
         r"/snap/bin/chromium",
         r"/snap/bin/microsoft-edge",
         r"/snap/bin/microsoft-edge-stable",

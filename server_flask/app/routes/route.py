@@ -473,7 +473,7 @@ def post_item_id(item, item_id):
         code of 201.
     """
     json_data = request.get_json()
-    if handle_post_item(json_data, item, item_id):
+    if json_data and handle_post_item(json_data, item, item_id):
         return jsonify({"message": "success"}), 201
     return jsonify({"message": "error"}), 200
 
@@ -504,7 +504,7 @@ def delete_item(item, item_id):
         instance = db_session.get(tables_models.get(item), item_id)
         db_session.delete(instance)
     db_session.commit()
-    return "", 204
+    return jsonify({"message": "success"}), 201
 
 
 @bp.get("/info")

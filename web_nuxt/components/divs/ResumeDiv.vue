@@ -86,6 +86,7 @@ async function deleteItem() {
   })) as Record<string, string>;
   pending.value = false;
   emit("message", message);
+  refreshNuxtData("candidates");
   return navigateTo("/persons");
 }
 

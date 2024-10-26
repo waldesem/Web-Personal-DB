@@ -22,7 +22,10 @@ def wsgi_server(app, address, port, workers):
     loop = tornado.ioloop.IOLoop.current()
     loop.set_default_executor(executor)
     try:
+        print(f"Listening on http://{address}:{port}")
         loop.start()
     except KeyboardInterrupt:
         loop.stop()
         loop.close()
+        executor.shutdown(wait=True)
+        print("Stopped")
