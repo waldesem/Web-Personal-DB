@@ -409,7 +409,10 @@ def change_region(person_id):
             destination = make_destination(
                 region, person.surname, person.firstname, person.patronymic, person.id
             )
-            shutil.move(person.destination, destination)
+            try:
+                shutil.copytree(person.destination, destination)
+            except FileExistsError as e:
+                current_app.logger.warning(e)
             person.destination = destination
         person.region = region
         person.editable = False
@@ -501,7 +504,7 @@ def delete_item(item, item_id):
         instance = db_session.get(tables_models.get(item), item_id)
         db_session.delete(instance)
     db_session.commit()
-    return jsonify({"message": "success"}), 201
+    return "", 204
 
 
 @bp.get("/info")
