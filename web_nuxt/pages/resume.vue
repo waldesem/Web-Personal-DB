@@ -31,7 +31,8 @@ async function submitResume(form: Persons) {
 <template>
   <div v-if="upload">
     <USkeleton class="h-44 w-44" />
-    <USkeleton class="mb-6 h-16 w-96" />
+    <USkeleton class="my-6 h-8 w-96" />
+    <USkeleton class="my-6 h-8 w-full" />
     <ElementsSkeletonDiv :rows="16" />
   </div>
   <div v-else>

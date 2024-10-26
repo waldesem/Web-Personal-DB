@@ -128,7 +128,7 @@ function emitMessage(message: string) {
           <div v-if="pending || status === 'pending'">
             <UIcon name="i-heroicons-arrow-path animate-spin w-8 h-8" />
           </div>
-          <div v-else class="animate-pulse w-16 h-16" >
+          <div v-else class="animate-pulse w-16 h-16">
             <UBadge :color="(badge.color as any)" variant="solid">
               {{ badge.label }}
             </UBadge>
@@ -136,7 +136,7 @@ function emitMessage(message: string) {
         </UButton>
       </div>
     </div>
-    <USkeleton v-if="status  === 'pending'" class="mb-6 h-16 w-96" />
+    <USkeleton v-if="status === 'pending'" class="my-6 h-8 w-96" />
     <ElementsHeaderDiv
       v-else
       :div="'py-3'"

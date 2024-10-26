@@ -304,7 +304,6 @@ def get_folder(person_id):
         if not os.path.isdir(folder):
             os.mkdir(folder)
         subprocess.run(f'explorer "{folder}"')
-        # subprocess.run(["xdg-open", folder])
     return "", 200
 
 
