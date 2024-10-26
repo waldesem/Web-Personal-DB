@@ -87,8 +87,8 @@ async function switchSelf(): Promise<void> {
   }
   pending.value = true;
   await authFetch("/api/self/" + candId.value);
-  await refresh();
   pending.value = false;
+  await refresh();
 }
 
 function emitMessage(message: string) {

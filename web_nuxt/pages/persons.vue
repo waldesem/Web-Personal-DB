@@ -7,30 +7,35 @@ const userState = useUserState();
 const toast = useToast();
 
 const candidates = ref([] as Persons[]);
-const page = ref(1);
 const hasNext = ref(false);
-const upload = ref(false);
+const page = ref(1);
 const search = ref("");
+const upload = ref(false);
 const updated = ref("Данные обновляются...");
 
-const { refresh, status } = await useLazyAsyncData("candidates", async () => {
-  [candidates.value, hasNext.value] = (await authFetch(
-    "/api/index/" + page.value,
-    {
-      params: {
-        search: search.value,
-      },
-    }
-  )) as [Persons[], boolean];
-  updated.value = useDateFormat(useNow(), "DD.MM.YYYY в HH:mm").value;
-}, {
-    watch: [page]
+const { refresh, status } = await useLazyAsyncData(
+  "candidates",
+  async () => {
+    [candidates.value, hasNext.value] = (await authFetch(
+      "/api/index/" + page.value,
+      {
+        params: {
+          search: search.value,
+        },
+      }
+    )) as [Persons[], boolean];
+    updated.value = useDateFormat(useNow(), "DD.MM.YYYY в HH:mm").value;
+  },
+  {
+    watch: [page],
   }
 );
 
-watchDebounced(search, () => {
-  page.value = 1;
-  refresh();
+watchDebounced(
+  search,
+  () => {
+    page.value = 1;
+    refresh();
   },
   {
     debounce: 500,

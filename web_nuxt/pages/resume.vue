@@ -33,7 +33,7 @@ async function submitResume(form: Persons) {
     <USkeleton class="h-44 w-44" />
     <USkeleton class="my-6 h-8 w-96" />
     <USkeleton class="my-6 h-8 w-full" />
-    <ElementsSkeletonDiv :rows="16" />
+    <ElementsSkeletonDiv :rows="18" />
   </div>
   <div v-else>
     <ElementsHeaderDiv :div="'mb-6'" header="НОВАЯ АНКЕТА" />
