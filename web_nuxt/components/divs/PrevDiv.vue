@@ -114,7 +114,7 @@ function closeAction() {
           #footer
         >
           <ElementsNaviHorizont
-            :navlen="3"
+            :nav-items="3"
             @delete="deletePrevious(item['id'].toString())"
             @update="
               prev = item;

@@ -36,7 +36,7 @@ function clearForm() {
 
 <template>
   <UForm :state="staffForm" @submit.prevent="submitStaff">
-    <UFormGroup class="mb-3" label="Должность">
+    <UFormGroup class="mb-3" label="Должность" required>
       <UInput
         v-model.trim.lazy="staffForm['position']"
         required

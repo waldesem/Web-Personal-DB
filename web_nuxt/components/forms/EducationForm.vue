@@ -38,7 +38,7 @@ function clearForm() {
 
 <template>
   <UForm :state="educationForm" @submit.prevent="submitEducation">
-    <UFormGroup class="mb-3" label="Вид образования">
+    <UFormGroup class="mb-3" label="Вид образования" required>
       <USelect
         v-model="educationForm['view']"
         required
@@ -52,7 +52,7 @@ function clearForm() {
         ]"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Название учебного заведения">
+    <UFormGroup class="mb-3" label="Название учебного заведения" required>
       <UInput
         v-model.trim.lazy="educationForm['institution']"
         required

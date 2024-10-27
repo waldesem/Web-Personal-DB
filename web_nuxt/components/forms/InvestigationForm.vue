@@ -36,14 +36,14 @@ function clearForm() {
 
 <template>
   <UForm :state="investigationForm" @submit.prevent="submitInvestigations">
-    <UFormGroup class="mb-3" label="Тема проверки">
+    <UFormGroup class="mb-3" label="Тема проверки" required>
       <UInput
         v-model.trim.lazy="investigationForm['theme']"
         required
         placeholder="Тема проверки"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Информация">
+    <UFormGroup class="mb-3" label="Информация" required>
       <UTextarea
         v-model.trim.lazy="investigationForm['info']"
         required

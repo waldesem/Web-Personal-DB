@@ -107,7 +107,7 @@ function closeAction() {
           #footer
         >
           <ElementsNaviHorizont
-            :navlen="3"
+            :nav-items="3"
             @delete="deleteContact(item['id'])"
             @update="
               contact = item;

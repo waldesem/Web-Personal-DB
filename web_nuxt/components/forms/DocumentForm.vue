@@ -43,7 +43,7 @@ function clearForm() {
 
 <template>
   <UForm :state="docForm" @submit.prevent="submitDocument">
-    <UFormGroup class="mb-3" label="Вид документа">
+    <UFormGroup class="mb-3" label="Вид документа" required>
       <USelect
         v-model="docForm['view']"
         required
@@ -53,7 +53,7 @@ function clearForm() {
     <UFormGroup class="mb-3" label="Серия документа">
       <UInput v-model.trim.lazy="docForm['series']" placeholder="Серия документа" />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Номер документа">
+    <UFormGroup class="mb-3" label="Номер документа" required>
       <UInput
         v-model.trim.lazy="docForm['digits']"
         required
@@ -63,7 +63,7 @@ function clearForm() {
     <UFormGroup class="mb-3" label="Кем выдан">
       <UInput v-model.trim="docForm['agency']" placeholder="Кем выдан" />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Дата выдачи">
+    <UFormGroup class="mb-3" label="Дата выдачи" required>
       <UInput 
         v-model.trim.lazy="docForm['issue']" 
         required

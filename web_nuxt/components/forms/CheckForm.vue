@@ -158,7 +158,7 @@ watch(noNegative, () => {
         placeholder="Комментарии"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Результат">
+    <UFormGroup class="mb-3" label="Результат" required>
       <USelect
         v-model.trim.lazy="checkForm['conclusion']"
         required

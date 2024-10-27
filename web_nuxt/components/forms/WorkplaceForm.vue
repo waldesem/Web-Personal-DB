@@ -52,7 +52,7 @@ function clearForm() {
     <UFormGroup class="mb-3" label="Текущая работа">
       <UCheckbox v-model="workForm['now_work']" />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Начало работы">
+    <UFormGroup class="mb-3" label="Начало работы" required>
       <UInput
         v-model="workForm['starts']"
         required
@@ -60,7 +60,7 @@ function clearForm() {
         type="date"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Окончание работы">
+    <UFormGroup class="mb-3" label="Окончание работы" required>
       <UInput
         v-model="workForm['finished']"
         required
@@ -68,14 +68,14 @@ function clearForm() {
         type="date"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Место работы">
+    <UFormGroup class="mb-3" label="Место работы" required>
       <UInput
         v-model.trim.lazy="workForm['workplace']"
         required
         placeholder="Место работы"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Должность">
+    <UFormGroup class="mb-3" label="Должность" required>
       <UInput
         v-model.trim.lazy="workForm['position']"
         required

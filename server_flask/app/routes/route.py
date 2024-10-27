@@ -19,7 +19,7 @@ from ..depends.depend import (
 )
 from ..model.classes import Regions, Roles
 from ..model.models import AnketaSchemaJson, User, Login
-from ..model.tables import Checks, Persons, Users, db_session, tables_models
+from ..model.tables import Checks, Persons, Relations, Users, db_session, tables_models
 from ..handlers.handler import (
     handle_image,
     json_to_dict,
@@ -503,6 +503,9 @@ def delete_item(item, item_id):
     else:
         instance = db_session.get(tables_models.get(item), item_id)
         db_session.delete(instance)
+        if item == "relations":
+            relation = db_session.get(Relations, instance.relation_id)
+            db_session.delete(relation)
     db_session.commit()
     return jsonify({"message": "success"}), 201
 

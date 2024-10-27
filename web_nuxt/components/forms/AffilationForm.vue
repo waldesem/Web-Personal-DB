@@ -37,7 +37,7 @@ function clearForm() {
 
 <template>
   <UForm :state="affilationForm" @submit.prevent="submitAffilation">
-    <UFormGroup class="mb-3" label="Тип участия">
+    <UFormGroup class="mb-3" label="Тип участия" required>
       <USelect
         v-model.trim.lazy="affilationForm['view']"
         required
@@ -49,7 +49,7 @@ function clearForm() {
         ]"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Организация">
+    <UFormGroup class="mb-3" label="Организация" required>
       <UInput
         v-model.trim.lazy="affilationForm['organization']"
         required

@@ -26,16 +26,18 @@ const relation = ref({} as Relation);
 const relations = ref<Relation[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("relations", async () => {
-  relations.value = await authFetch("/api/items/relations/" + props.candId) as Relation[];
+  relations.value = (await authFetch(
+    "/api/items/relations/" + props.candId
+  )) as Relation[];
 });
 
 async function submitRelation(form: Relation) {
-  closeAction();  
+  closeAction();
   pending.value = true;
-  const { message } = await authFetch(`/api/items/relations/${props.candId}`, {
+  const { message } = (await authFetch(`/api/items/relations/${props.candId}`, {
     method: "POST",
     body: form,
-  }) as Record<string, string>;
+  })) as Record<string, string>;
   pending.value = false;
   await refresh();
   emit("message", message);
@@ -47,7 +49,7 @@ async function deleteRelation(id: string) {
   const { message } = (await authFetch(`/api/items/relations/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
-  await refresh();  
+  await refresh();
   emit("message", message);
 }
 
@@ -107,7 +109,7 @@ function closeAction() {
           #footer
         >
           <ElementsNaviHorizont
-            :navlen="3"
+            :nav-items="2"
             @delete="deleteRelation(item['id'].toString())"
             @update="
               relation = item;

@@ -99,14 +99,14 @@ async function submitResume() {
     :validate="validate"
     @submit.prevent="submitResume"
   >
-    <UFormGroup class="mb-3" label="Фамилия" name="surname">
+    <UFormGroup class="mb-3" label="Фамилия" name="surname" required>
       <UInput
         v-model.trim="resumeForm['surname']"
         required
         placeholder="Фамилия"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Имя" name="firstname">
+    <UFormGroup class="mb-3" label="Имя" name="firstname" required>
       <UInput
         v-model.trim="resumeForm['firstname']"
         required
@@ -116,7 +116,7 @@ async function submitResume() {
     <UFormGroup class="mb-3" label="Отчество" name="patronymic">
       <UInput v-model.trim="resumeForm['patronymic']" placeholder="Отчество" />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Дата рождения" name="birthday">
+    <UFormGroup class="mb-3" label="Дата рождения" name="birthday" required>
       <UInput v-model="resumeForm['birthday']" required type="date" />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Место рождения">

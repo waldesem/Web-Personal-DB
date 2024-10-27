@@ -68,7 +68,18 @@ def handle_post_item(data: dict, item: str, item_id=None):
         if data.get("id"):
             db_session.merge(table(**data))
         else:
-            db_session.add(table(**data))
+            if item != "relations":
+                db_session.add(table(**data))
+            else:
+                if item_id == data['relation_id']:
+                    return False
+                related_data = {
+                    "relation": data['relation'],
+                    "relation_id": item_id,
+                    "person_id": data['relation_id'],
+                    "user_id": current_user.get("id"),
+                }
+                db_session.add_all([table(**related_data), table(**data)])
         db_session.commit()
         return True
     return False
@@ -146,7 +157,7 @@ def json_to_dict(json_dict: dict):
             "patronymic": json_dict.get("midName"),
             "birthday": json_dict.get("birthday"),
             "birthplace": json_dict.get("birthplace"),
-            "citizenship": json_dict.get("citizen", ""),
+            "citizenship": json_dict.get("citizen"),
             "dual": json_dict.get("additionalCitizenship"),
             "marital": json_dict.get("maritalStatus"),
             "inn": json_dict.get("inn"),

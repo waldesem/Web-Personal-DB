@@ -36,14 +36,14 @@ function clearForm() {
 
 <template>
   <UForm :state="addressForm" @submit.prevent="submitAddress">
-    <UFormGroup class="mb-3" label="Вид адреса">
+    <UFormGroup class="mb-3" label="Вид адреса" required>
       <USelect
         v-model.trim.lazy="addressForm['view']"
         required
         :options="['Адрес регистрации', 'Адрес проживания', 'Другое']"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Адрес">
+    <UFormGroup class="mb-3" label="Адрес" required>
       <UInput
         v-model.trim.lazy="addressForm['addresses']"
         required

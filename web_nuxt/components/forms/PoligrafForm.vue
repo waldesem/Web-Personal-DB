@@ -31,7 +31,7 @@ function cancelAction() {
 
 <template>
   <UForm :state="poligrafForm" @submit.prevent="submitPoligraf">
-    <UFormGroup class="mb-3" label="Тема проверки">
+    <UFormGroup class="mb-3" label="Тема проверки" required>
       <USelect
         v-model="poligrafForm['theme']"
         required
@@ -43,7 +43,7 @@ function cancelAction() {
         ]"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Результат">
+    <UFormGroup class="mb-3" label="Результат" required>
       <UTextarea
         v-model.trim.lazy="poligrafForm['results']"
         required

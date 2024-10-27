@@ -39,14 +39,14 @@ function clearForm() {
 
 <template>
   <UForm :state="previousForm" @submit.prevent="submitPrevious">
-    <UFormGroup class="mb-3" label="Фамилия">
+    <UFormGroup class="mb-3" label="Фамилия" required>
       <UInput
         v-model.trim.lazy="previousForm['surname']"
         required
         placeholder="Фамилия"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Имя">
+    <UFormGroup class="mb-3" label="Имя" required>
       <UInput
         v-model.trim.lazy="previousForm['firstname']"
         required

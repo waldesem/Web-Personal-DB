@@ -36,7 +36,7 @@ function clearForm() {
 
 <template>
   <UForm :state="relationForm" @submit.prevent="submitRelation">
-    <UFormGroup class="mb-3" label="Тип связи">
+    <UFormGroup class="mb-3" label="Тип связи" required>
       <USelect
         v-model.trim.lazy="relationForm['relation']"
         required
@@ -50,7 +50,7 @@ function clearForm() {
         ]"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="ID связи">
+    <UFormGroup class="mb-3" label="ID связи" required>
       <UInput
         v-model.trim.lazy="relationForm['relation_id']"
         required

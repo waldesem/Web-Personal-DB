@@ -8,7 +8,7 @@ const authFetch = useFetchAuth();
 const emit = defineEmits(["delete", "update", "upgrade"]);
 
 const props = defineProps({
-  navlen: {
+  navItems: {
     type: Number,
     default: 4,
   },
@@ -55,9 +55,9 @@ onCancel(() => {
 
 const links = [
   {
-    label: "Изменить",
-    icon: "i-heroicons-pencil-square",
-    click: () => emit("update"),
+    label: "Обновить",
+    icon: "i-heroicons-arrow-path",
+    click: () => emit("upgrade"),
   },
   {
     label: "Удалить",
@@ -65,9 +65,9 @@ const links = [
     click: () => emit("delete"),
   },
   {
-    label: "Обновить",
-    icon: "i-heroicons-arrow-path",
-    click: () => emit("upgrade"),
+    label: "Изменить",
+    icon: "i-heroicons-pencil-square",
+    click: () => emit("update"),
   },
   {
     label: "Загрузить",
@@ -79,5 +79,5 @@ const links = [
 </script>
 
 <template>
-  <UHorizontalNavigation :links="links.slice(0, props.navlen)" />
+  <UHorizontalNavigation :links="links.slice(0, props.navItems)" />
 </template>

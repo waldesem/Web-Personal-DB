@@ -117,7 +117,7 @@ function closeAction() {
           #footer
         >
           <ElementsNaviHorizont
-            :navlen="3"
+            :nav-items="3"
             @delete="deleteDocument(item['id'])"
             @update="
               doc = item;
