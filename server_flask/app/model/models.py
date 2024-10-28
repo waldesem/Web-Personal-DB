@@ -22,7 +22,7 @@ class MainModel(BaseModel):
 class User(MainModel):
     fullname: str
     username: str
-    email: str
+    email: Optional[str]
     region: Optional[Regions]
     role: Optional[Roles]
 
