@@ -184,6 +184,7 @@ def get_user_actions(user_id):
             user.region = item
         db_session.commit()
         get_current_user.cache_clear()
+    get_payload.cache_clear()
     return "", 201
 
 
