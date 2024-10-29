@@ -85,20 +85,8 @@ const filtredLinks = computed(() => {
           &nbsp;
           <h3 class="text-red-600">ФИНТЕХ</h3>
         </div>
-        <UButton
-          class="absolute top-0 right-0"
-          icon="i-heroicons-moon"
-          :variant="$colorMode.preference == 'dark' ? 'soft' : 'ghost'"
-          @click="$colorMode.preference = 'dark'"
-        />
-        <UButton
-          class="absolute top-0 right-12"
-          icon="i-heroicons-sun"
-          :variant="$colorMode.preference == 'light' ? 'soft' : 'ghost'"
-          @click="$colorMode.preference = 'light'"
-        />
         <UPopover
-          class="absolute top-0 right-24"
+          class="absolute top-0 right-0"
           mode="hover"
           :popper="{ placement: 'top-start' }"
         >
