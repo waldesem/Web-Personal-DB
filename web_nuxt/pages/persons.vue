@@ -60,7 +60,6 @@ onChange(async (files) => {
   reset();
   upload.value = false;
   if (person_id) {
-    await refresh();
     return navigateTo("/profile/" + person_id);
   } else {
     toast.add({
