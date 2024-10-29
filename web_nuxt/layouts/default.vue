@@ -117,7 +117,7 @@ const filtredLinks = computed(() => {
     <div class="grid grid-cols-12 gap-6">
       <div
         v-if="showNav"
-        class="flex flex-col w-full h-screen col-span-2 pt-3 border-r border-gray-200"
+        class="flex flex-col w-full h-full col-span-2 pt-3 border-r border-gray-200"
       >
         <UVerticalNavigation
           :links="filtredLinks"
