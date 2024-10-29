@@ -136,7 +136,7 @@ function emitMessage(message: string) {
         </UButton>
       </div>
     </div>
-    <USkeleton v-if="status === 'pending'" class="my-6 h-8 w-full" />
+    <USkeleton v-if="status === 'pending'" class="my-6 h-8 w-1/3" />
     <ElementsHeaderDiv
       v-else
       :div="'py-3'"
