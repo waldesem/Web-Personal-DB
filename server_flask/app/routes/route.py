@@ -182,8 +182,8 @@ def get_user_actions(user_id):
             user.role = item
         elif item in [reg.value for reg in Regions]:
             user.region = item
-        get_current_user.cache_clear()
         db_session.commit()
+        get_current_user.cache_clear()
     return "", 201
 
 
