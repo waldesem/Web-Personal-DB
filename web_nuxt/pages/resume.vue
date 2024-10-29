@@ -15,7 +15,7 @@ async function submitResume(form: Persons) {
     body: form,
   })) as Record<string, string>;
   if (person_id) {
-    await navigateTo("/profile/" + person_id);
+    return navigateTo("/profile/" + person_id);
   } else {
     toast.add({
       icon: "i-heroicons-information-circle",
