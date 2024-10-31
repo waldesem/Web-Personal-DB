@@ -115,10 +115,7 @@ function cancelOperation() {
           <ElementsLabelSlot v-if="item['origins']" :label="'Источники'"
             >{{ item["origins"] }}
           </ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Сотрудник'">{{
-            item["username"]
-          }}</ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Дата записи'">
+           <ElementsLabelSlot :label="'Дата записи'">
             {{ useDateFormat(item["created"], "YYYY-MM-DD HH:mm:ss") }}
           </ElementsLabelSlot>
         </div>
