@@ -45,7 +45,6 @@ export interface Persons {
   editable: boolean;
   created: string;
   region: string;
-  user_id: string;
   username: string;
 }
 
@@ -145,8 +144,6 @@ export interface Verification {
   conclusion: string;
   comment: string;
   created: string;
-  user_id: string;
-  username: string;
 }
 
 export interface Pfo {
@@ -154,7 +151,6 @@ export interface Pfo {
   theme: string;
   results: string;
   user_id: string;
-  username: string;
   created: string;
 }
 
@@ -163,7 +159,6 @@ export interface Inquisition {
   theme: string;
   info: string;
   user_id: string;
-  username: string;
   created: string;
 }
 
@@ -173,36 +168,5 @@ export interface Needs {
   initiator: string;
   origins: string;
   user_id: string;
-  username: string;
   created: string;
-}
-
-export interface Profile {
-  persons: Persons;
-  previous: Previous[];
-  educations: Education[];
-  staffs: Staff[];
-  documents: Document[];
-  addresses: Address[];
-  contacts: Contact[];
-  relations: Relation[];
-  workplaces: Work[];
-  affilations: Affilation[];
-  checks: Verification[];
-  poligrafs: Pfo[];
-  investigations: Inquisition[];
-  inquiries: Needs[];
-}
-
-export interface Classes {
-  regions: Record<string, unknown>;
-  conclusions: Record<string, unknown>;
-  relations: Record<string, unknown>;
-  affiliates: Record<string, unknown>;
-  educations: Record<string, unknown>;
-  addresses: Record<string, unknown>;
-  contacts: Record<string, unknown>;
-  documents: Record<string, unknown>;
-  poligrafs: Record<string, unknown>;
-  roles: Record<string, unknown>;
 }
