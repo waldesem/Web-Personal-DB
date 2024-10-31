@@ -274,23 +274,6 @@ class Inquiries(Base):
     user_id: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id"))
 
 
-tables_models = {
-    "persons": Persons,
-    "previous": Previous,
-    "educations": Educations,
-    "staffs": Staffs,
-    "documents": Documents,
-    "addresses": Addresses,
-    "contacts": Contacts,
-    "relations": Relations,
-    "workplaces": Workplaces,
-    "affilations": Affilations,
-    "checks": Checks,
-    "poligrafs": Poligrafs,
-    "investigations": Investigations,
-    "inquiries": Inquiries,
-}
-
 engine = create_engine(Config.DATABASE_URI)
 db_session = scoped_session(sessionmaker(autoflush=False, bind=engine))
 Base.metadata.create_all(bind=engine)
