@@ -175,11 +175,8 @@ function closeAction() {
           <ElementsLabelSlot :label="'Результат'">{{
             item["conclusion"]
           }}</ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Сотрудник'">{{
-            item["username"]
-          }}</ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Дата записи'">
-            {{ useDateFormat(item["created"], "YYYY-MM-DD HH:mm:ss") }}
+           <ElementsLabelSlot :label="'Дата записи'">
+            {{ new Date(item["created"]).toLocaleString() }}
           </ElementsLabelSlot>
         </div>
         <template
