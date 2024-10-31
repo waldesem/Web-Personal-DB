@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Inquisition } from "@/types/interfaces";
-import { useDateFormat } from "@vueuse/core";
 
 prefetchComponents(["FormsInvestigationForm", "ElementsSkeletonDiv"]);
 
@@ -119,7 +118,7 @@ function closeAction() {
             item["info"]
           }}</ElementsLabelSlot>
            <ElementsLabelSlot :label="'Дата записи'">
-            {{ useDateFormat(item["created"], "YYYY-MM-DD HH:mm:ss") }}
+            {{ new Date(item["created"]).toLocaleString() }}
           </ElementsLabelSlot>
         </div>
         <template
