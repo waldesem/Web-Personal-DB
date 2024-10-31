@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Verification } from "@/types/interfaces";
-import { useDateFormat } from "@vueuse/core";
 
 prefetchComponents(["FormsCheckForm", "ElementsSkeletonDiv"]);
 
