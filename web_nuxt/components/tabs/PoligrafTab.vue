@@ -112,9 +112,6 @@ function closeAction() {
           <ElementsLabelSlot v-if="item['results']" :label="'Результат'">{{
             item["results"]
           }}</ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Сотрудник'">{{
-            item["username"]
-          }}</ElementsLabelSlot>
           <ElementsLabelSlot :label="'Дата записи'">
             {{ useDateFormat(item["created"], "YYYY-MM-DD HH:mm:ss") }}
           </ElementsLabelSlot>
