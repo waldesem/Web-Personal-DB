@@ -19,7 +19,7 @@ from ..depends.depend import (
 )
 from ..model.classes import Regions, Roles
 from ..model.models import AnketaSchemaJson, User, Login
-from ..model.tables import Checks, Persons, Relations, Users, db_session, tables_models
+from ..model.tables import Base, Checks, Persons, Relations, Users, db_session
 from ..handlers.handler import (
     handle_image,
     json_to_dict,
@@ -494,18 +494,18 @@ def delete_item(item, item_id):
         code of 204.
     """
     if item == "persons":
-        for table, model in tables_models.items():
-            if table != "persons":
-                db_session.query(model).filter(model.person_id == item_id).delete(
-                    synchronize_session=False
-                )
-        person = db_session.get(Persons, item_id)
+        for model, table in Base.metadata.tables.items():
+            if model in [""]:
+                stmt = table.delete().where(table.c.person_id == item_id)
+        db_session.execute(stmt)
+        if model == "persons":
+            persons = db_session.get(Persons, item_id)
         db_session.delete(person)
     else:
-        instance = db_session.get(tables_models.get(item), item_id)
-        db_session.delete(instance)
+        stmt = table.delete().where(table.c.person_id == item_id)
+        inst = db_session.execute(stmt).returning(table.c.id)
         if item == "relations":
-            relation = db_session.get(Relations, instance.relation_id)
+            relation = db_session.get(Relations, inst)
             db_session.delete(relation)
     db_session.commit()
     return jsonify({"message": "success"}), 201
