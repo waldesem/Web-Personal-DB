@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Persons } from "@/types/interfaces";
-import { useDateFormat } from "@vueuse/core";
 
 prefetchComponents(["FormsResumeForm", "ElementsSkeletonDiv"]);
 
@@ -86,7 +85,6 @@ async function deleteItem() {
   })) as Record<string, string>;
   pending.value = false;
   emit("message", message);
-  refreshNuxtData("candidates");
   return navigateTo("/persons");
 }
 
@@ -137,7 +135,7 @@ async function cancelAction() {
           {{ props.person["patronymic"] }}
         </ElementsLabelSlot>
         <ElementsLabelSlot :label="'Дата рождения'">
-          {{ useDateFormat(props.person["birthday"], "DD.MM.YYYY") }}
+          {{ new Date(props.person["birthday"]).toLocaleDateString("ru-RU") }}
         </ElementsLabelSlot>
         <ElementsLabelSlot :label="'Место рождения'">
           {{ props.person["birthplace"] }}
@@ -161,10 +159,7 @@ async function cancelAction() {
           {{ props.person["marital"] }}
         </ElementsLabelSlot>
         <ElementsLabelSlot :label="'Дата записи'">
-          {{ useDateFormat(props.person["created"], "DD.MM.YYYY HH:mm") }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Пользователь'">
-          {{ props.person["username"] ? props.person["username"] : "" }}
+          {{ new Date(props.person["created"]).toLocaleString("ru-RU") }}
         </ElementsLabelSlot>
         <ElementsLabelSlot
           v-if="props.person['addition']"

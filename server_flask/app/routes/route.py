@@ -14,6 +14,7 @@ from ..depends.depend import (
     create_token,
     current_user,
     get_current_user,
+    get_payload,
     jwt_required,
     roles_required,
 )
@@ -184,7 +185,7 @@ def get_user_actions(user_id):
             user.region = item
         db_session.commit()
         get_current_user.cache_clear()
-    get_payload.cache_clear()
+        get_payload.cache_clear()
     return "", 201
 
 
@@ -362,7 +363,7 @@ def post_json():
         return jsonify({"person_id": None})
     person_id = handle_post_resume(anketa.pop("resume"))
     if not person_id:
-        jsonify({"person_id": None})
+        return jsonify({"person_id": None})
 
     for table, contents in anketa.items():
         if contents:
@@ -493,20 +494,26 @@ def delete_item(item, item_id):
         Tuple[str, int]: A tuple containing an empty string and an HTTP status
         code of 204.
     """
+
+    def delete_relationships(item_id):
+        relationships = db_session.query(Relations).filter_by(relation_id=item_id).all()
+        for relationship in relationships:
+            db_session.delete(relationship)
+
     if item == "persons":
         for model, table in Base.metadata.tables.items():
-            if model in [""]:
+            if model not in ["users", "persons"]:
                 stmt = table.delete().where(table.c.person_id == item_id)
-        db_session.execute(stmt)
-        if model == "persons":
-            persons = db_session.get(Persons, item_id)
+                db_session.execute(stmt)
+            delete_relationships(item_id)
+        person = db_session.get(Persons, item_id)
         db_session.delete(person)
     else:
+        table = Base.metadata.tables.get(item)
         stmt = table.delete().where(table.c.person_id == item_id)
-        inst = db_session.execute(stmt).returning(table.c.id)
+        db_session.execute(stmt)
         if item == "relations":
-            relation = db_session.get(Relations, inst)
-            db_session.delete(relation)
+            delete_relationships(item_id)
     db_session.commit()
     return jsonify({"message": "success"}), 201
 

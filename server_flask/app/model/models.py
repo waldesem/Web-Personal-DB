@@ -28,6 +28,8 @@ class User(MainModel):
 
 
 class Person(MainModel):
+    __tablename__ = "persons"
+
     surname: str
     firstname: str
     patronymic: Optional[str]
@@ -50,6 +52,8 @@ class Person(MainModel):
 
 
 class Prev(MainModel):
+    __tablename__ = "previous"
+
     surname: Optional[str]
     firstname: Optional[str]
     patronymic: Optional[str]
@@ -62,6 +66,8 @@ class Prev(MainModel):
 
 
 class Education(MainModel):
+    __tablename__ = "educations"
+    
     view: Optional[str]
     institution: Optional[str]
     finished: Union[str, int]
@@ -69,11 +75,15 @@ class Education(MainModel):
 
 
 class Staff(MainModel):
+    __tablename__ = "staffs"
+
     position: str
     department: str = "Прямое подчинение"
 
 
 class Document(MainModel):
+    __tablename__ = "documents"
+
     view: Optional[str]
     series: Optional[str]
     digits: Optional[str]
@@ -82,16 +92,22 @@ class Document(MainModel):
 
 
 class Address(MainModel):
+    __tablename__ = "addresses"
+
     view: Optional[str]
     addresses: Optional[str]
 
 
 class Contact(MainModel):
+    __tablename__ = "contacts"
+
     view: Optional[str]
     contact: Optional[str]
 
 
 class Workplace(MainModel):
+    __tablename__ = "workplaces"
+
     now_work: Optional[bool] = False
     starts: Optional[date]
     finished: Optional[date]
@@ -102,17 +118,23 @@ class Workplace(MainModel):
 
 
 class Affilation(MainModel):
+    __tablename__ = "affilations"
+    
     view: Optional[str]
     organization: str
     inn: Optional[str]
 
 
 class Relation(MainModel):
+    __tablename__ = "relations"
+
     relation: str
     relation_id: Union[int, str]
 
 
 class Check(MainModel):
+    __tablename__ = "checks"
+
     workplace: Optional[str]
     document: Optional[str]
     inn: Optional[str]
@@ -132,36 +154,31 @@ class Check(MainModel):
 
 
 class Poligraf(MainModel):
+    __tablename__ = "poligrafs"
+
     theme: str
     results: str
 
 
 class Investigation(MainModel):
+    __tablename__ = "investigations"
+
     theme: str
     info: str
 
 
 class Inquiry(MainModel):
+    __tablename__ = "inquiries"
+
     info: str
     initiator: str
     origins: Optional[str]
 
 
 models_tables = {
-    "persons": Person,
-    "previous": Prev,
-    "educations": Education,
-    "staffs": Staff,
-    "documents": Document,
-    "addresses": Address,
-    "contacts": Contact,
-    "relations": Relation,
-    "workplaces": Workplace,
-    "affilations": Affilation,
-    "checks": Check,
-    "poligrafs": Poligraf,
-    "investigations": Investigation,
-    "inquiries": Inquiry,
+    cls.__tablename__: cls
+    for cls in MainModel.__subclasses__()
+    if hasattr(cls, "__tablename__")
 }
 
 

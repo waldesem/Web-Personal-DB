@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Persons } from "@/types/interfaces";
-import { watchDebounced, useFileDialog, useDateFormat } from "@vueuse/core";
+import { watchDebounced, useFileDialog } from "@vueuse/core";
 
 const authFetch = useFetchAuth();
 const userState = useUserState();
@@ -24,7 +24,7 @@ const { refresh, status } = await useLazyAsyncData(
         },
       }
     )) as [Persons[], boolean];
-    updated.value = useDateFormat(useNow(), "DD.MM.YYYY в HH:mm").value;
+    updated.value = new Date().toLocaleTimeString("ru-RU");
   },
   {
     watch: [page],
@@ -83,8 +83,8 @@ preloadRouteComponents("/profile/[id]");
     <div v-if="userState.role == 'user'" class="relative">
       <div class="absolute inset-y-0 right-0">
         <UButton
-          :loading="status == 'pending' || upload"
           :disabled="status == 'pending' || upload"
+          :loading="status == 'pending' || upload"
           icon="i-heroicons-cloud-arrow-up"
           title="Загрузить json файл"
           size="xl"
@@ -131,10 +131,10 @@ preloadRouteComponents("/profile/[id]");
         }}
       </template>
       <template #birthday-data="{ row }">{{
-        new Date(row.birthday).toLocaleDateString()
+        new Date(row.birthday).toLocaleDateString("ru-RU")
       }}</template>
       <template #created-data="{ row }">{{
-        new Date(row.created).toLocaleDateString()
+        new Date(row.created).toLocaleDateString("ru-RU")
       }}</template>
       <template #username-data="{ row }">{{
         row.username ? row.username.toString().split(" ")[0] : ""
@@ -152,7 +152,7 @@ preloadRouteComponents("/profile/[id]");
                 : 'i-heroicons-check-circle'
             "
             class="w-6 h-6"
-            :class="{ ' animate-spin': row.editable }"
+            :class="{ 'animate-spin': row.editable }"
           />
         </div>
       </template>
@@ -161,7 +161,7 @@ preloadRouteComponents("/profile/[id]");
           <UButton
             variant="link"
             icon="i-heroicons-arrow-path"
-            :label="`Обновлено: ${updated}`"
+            :label="`Обновлено в: ${updated}`"
             :loading="status == 'pending'"
             @click="refresh"
           />

@@ -118,7 +118,7 @@ function closeAction() {
             item["info"]
           }}</ElementsLabelSlot>
            <ElementsLabelSlot :label="'Дата записи'">
-            {{ new Date(item["created"]).toLocaleString() }}
+            {{ new Date(item["created"]).toLocaleString("ru-RU") }}
           </ElementsLabelSlot>
         </div>
         <template

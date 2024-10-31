@@ -10,7 +10,7 @@ from sqlalchemy import desc, select
 
 from ..depends.depend import current_user
 from ..model.models import Person, models_tables
-from ..model.tables import Users, db_session, Persons, Base
+from ..model.tables import db_session, Persons, Base
 
 
 def handle_get_item(item, item_id):
@@ -64,23 +64,28 @@ def handle_post_item(data: dict, item: str, item_id=None):
         if item != "persons":
             data["person_id"] = item_id
         data["user_id"] = current_user.get("id")
-        if data.get("id"):
-          stmt = table.update().where(table.c.id == item_id).values(data)
+        table_id = data.pop("id", None)
+        if table_id is not None:
+            stmt = table.update().where(table.c.id == table_id).values(data)
         else:
             if item != "relations":
-                stmt = table.insert().values(data)        else:
-                if item_id == data['relation_id']:
+                stmt = table.insert().values(data)
+            else:
+                if item_id == data["relation_id"] or not db_session.get(
+                    Persons, data["relation_id"]
+                ):
                     return False
                 related_data = {
-                    "relation": data['relation'],
+                    "relation": data["relation"],
                     "relation_id": item_id,
-                    "person_id": data['relation_id'],
+                    "person_id": data["relation_id"],
                     "user_id": current_user.get("id"),
                 }
                 stmt = table.insert().values([related_data, data])
-        db_session.execute(stmt)
-        db_session.commit()
-        return True
+        if stmt is not None:
+            db_session.execute(stmt)
+            db_session.commit()
+            return True
     return False
 
 

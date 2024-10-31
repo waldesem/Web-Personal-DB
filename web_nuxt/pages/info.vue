@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { useDateFormat, useNow } from "@vueuse/core";
 
 const authFetch = useFetchAuth();
 const userState = useUserState();
 
 const region = ref(userState.value.region);
-const start = ref(useDateFormat(useNow(), "YYYY-MM").value + "-01");
-const end = ref(useDateFormat(useNow(), "YYYY-MM-DD").value);
+const start = ref(new Date().toISOString().split("T")[0].slice(0, 7) + "-01");
+const end = ref(new Date().toISOString().split("T")[0]);
 const stat = ref([] as Record<string, string>[]);
 
 /**
