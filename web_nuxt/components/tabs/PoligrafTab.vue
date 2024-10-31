@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Pfo } from "@/types/interfaces";
-import { useDateFormat } from "@vueuse/core";
 
 prefetchComponents(["FormsPoligrafForm", "ElementsSkeletonDiv"]);
 
@@ -113,7 +112,7 @@ function closeAction() {
             item["results"]
           }}</ElementsLabelSlot>
           <ElementsLabelSlot :label="'Дата записи'">
-            {{ useDateFormat(item["created"], "YYYY-MM-DD HH:mm:ss") }}
+            {{ new Date(item["created"]).toLocaleString() }}
           </ElementsLabelSlot>
         </div>
         <template
