@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { User } from "@/types/interfaces";
-import { watchDebounced, useDateFormat } from "@vueuse/core";
+import { watchDebounced } from "@vueuse/core";
 
 const toast = useToast();
 
@@ -288,7 +288,7 @@ const items = [
         />
       </template>
       <template #created-data="{ row }">{{
-        useDateFormat(row.created).value
+        new Date(row.created).toLocaleDateString("ru-RU")
       }}</template>
       <template #attempt-data="{ row }">
         <div class="text-center">
@@ -301,7 +301,7 @@ const items = [
         </div>
       </template>
       <template #pswd_create-data="{ row }">{{
-        useDateFormat(row.pswd_create).value
+        new Date(row.pswd_create).toLocaleDateString("ru-RU")
       }}</template>
       <template #change_pswd-data="{ row }">
         <div class="text-center">
