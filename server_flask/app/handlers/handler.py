@@ -10,7 +10,7 @@ from sqlalchemy import desc, select
 
 from ..depends.depend import current_user
 from ..model.models import Person, models_tables
-from ..model.tables import Users, db_session, Persons, tables_models
+from ..model.tables import Users, db_session, Persons, Base
 
 
 def handle_get_item(item, item_id):
@@ -22,23 +22,21 @@ def handle_get_item(item, item_id):
         item_id (int): The ID of the item to retrieve.
 
     Returns:
-        dict or list: If item is "persons", a dictionary containing the item's data and the associated user's fullname.
-                      Otherwise, a list of dictionaries containing the item's data and the associated user's fullname,
+        dict or list: If item is "persons", a dictionary containing the item's data.
+                      Otherwise, a list of dictionaries containing the item's data,
                       ordered by descending item ID.
     Raises:
         None
     """
-    table = tables_models.get(item)
-    if table:
-        stmt = select(table, Users.fullname)
+    table = Base.metadata.tables.get(item)
+    if table is not None:
         stmt = (
-            stmt.filter(Persons.id == item_id)
+            table.select().filter(table.c.id == item_id)
             if item == "persons"
-            else stmt.filter(table.person_id == item_id)
+            else table.select().filter(table.c.person_id == item_id)
         )
-        stmt = stmt.filter(table.user_id == Users.id)
-        query = db_session.execute(stmt.order_by(desc(table.id))).all()
-        result = [row[0].to_dict() | {"username": row[1]} for row in query]
+        query = db_session.execute(stmt.order_by(desc(table.c.id)))
+        result = [row._asdict() for row in query]
         return result[0] if item == "persons" else result
     return abort(400)
 
@@ -55,22 +53,22 @@ def handle_post_item(data: dict, item: str, item_id=None):
     Returns:
         None
     """
-    table, model = tables_models.get(item), models_tables.get(item)
-    if model and table:
+    table, model = Base.metadata.tables.get(item), models_tables.get(item)
+    if model and table is not None:
         try:
             data = model(**data).dict()
         except ValidationError as e:
             print(e)
             return False
+        stmt = None
         if item != "persons":
             data["person_id"] = item_id
         data["user_id"] = current_user.get("id")
         if data.get("id"):
-            db_session.merge(table(**data))
+          stmt = table.update().where(table.c.id == item_id).values(data)
         else:
             if item != "relations":
-                db_session.add(table(**data))
-            else:
+                stmt = table.insert().values(data)        else:
                 if item_id == data['relation_id']:
                     return False
                 related_data = {
@@ -79,7 +77,8 @@ def handle_post_item(data: dict, item: str, item_id=None):
                     "person_id": data['relation_id'],
                     "user_id": current_user.get("id"),
                 }
-                db_session.add_all([table(**related_data), table(**data)])
+                stmt = table.insert().values([related_data, data])
+        db_session.execute(stmt)
         db_session.commit()
         return True
     return False
