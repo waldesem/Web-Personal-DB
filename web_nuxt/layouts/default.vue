@@ -2,6 +2,7 @@
 const userState = useUserState();
 
 const showNav = ref(true);
+const isOpen = ref(false)
 
 async function logout() {
   if (confirm("Вы действительно хотите выйти?")) {
@@ -85,8 +86,16 @@ const filtredLinks = computed(() => {
           &nbsp;
           <h3 class="text-red-600">ФИНТЕХ</h3>
         </div>
+        <div class="absolute top-0 right-0">
+          <UButton
+            icon="i-heroicons-bell"
+            variant="ghost"
+            @click="isOpen = !isOpen"
+          />
+          <USlideover v-model="isOpen"/>
+        </div>
         <UPopover
-          class="absolute top-0 right-0"
+          class="absolute top-0 right-12"
           mode="hover"
           :popper="{ placement: 'top-start' }"
         >

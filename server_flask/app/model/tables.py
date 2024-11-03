@@ -3,11 +3,13 @@ from typing import Optional
 
 from sqlalchemy import (
     Boolean,
+    Column,
     Date,
     DateTime,
     ForeignKey,
     Integer,
     String,
+    Table,
     Text,
     create_engine,
     func,
@@ -16,6 +18,7 @@ from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
     mapped_column,
+    relationship,
     scoped_session,
     sessionmaker,
 )
@@ -50,6 +53,15 @@ class Users(Base):
     region: Mapped[str] = mapped_column(String(255), default=Regions.main.value)
 
 
+association_table = Table(
+    "person_relationships",
+    Base.metadata,
+    Column("left_id", Integer, ForeignKey("persons.id")),
+    Column("right_id", Integer, ForeignKey("persons.id")),
+    Column("type", String(255), nullable=False),
+)
+
+
 class Persons(Base):
     __tablename__ = "persons"
 
@@ -72,6 +84,13 @@ class Persons(Base):
     region: Mapped[str] = mapped_column(String(255), default=Regions.main.value)
     editable: Mapped[bool] = mapped_column(Boolean(), default=False)
     user_id: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id"))
+    relationships = relationship(
+        "Persons",
+        secondary=association_table,
+        primaryjoin=(association_table.c.left_id == id),
+        secondaryjoin=(association_table.c.right_id == id),
+        backref="related",
+    )
 
 
 class Previous(Base):
@@ -187,19 +206,6 @@ class Affilations(Base):
     view: Mapped[str] = mapped_column(String(255), nullable=True)
     organization: Mapped[str] = mapped_column(Text, nullable=True)
     inn: Mapped[str] = mapped_column(String(255), nullable=True)
-    created: Mapped[datetime] = mapped_column(
-        DateTime, default=func.now(), onupdate=func.now()
-    )
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
-
-
-class Relations(Base):
-    __tablename__ = "relations"
-
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    relation: Mapped[str] = mapped_column(String(255), nullable=True)
-    relation_id: Mapped[int] = mapped_column(Integer(), nullable=True)
     created: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), onupdate=func.now()
     )

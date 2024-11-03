@@ -3,7 +3,7 @@ import type { Relation } from "@/types/interfaces";
 
 prefetchComponents(["FormsRelationForm", "ElementsSkeletonDiv"]);
 
-const emit = defineEmits(["message"]);
+const emit = defineEmits(["message", "update"]);
 
 const authFetch = useFetchAuth();
 
@@ -16,50 +16,45 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  relations: {
+    type: Array,
+    default: () => [] as Relation[],
+  },
 });
 
 const collapse = ref(false);
 const pending = ref(false);
-const edit = ref(false);
 const itemId = ref("");
 const relation = ref({} as Relation);
-const relations = ref<Relation[]>([]);
-
-const { refresh, status } = await useLazyAsyncData("relations", async () => {
-  relations.value = (await authFetch(
-    "/api/items/relations/" + props.candId
-  )) as Relation[];
-});
 
 async function submitRelation(form: Relation) {
   closeAction();
   pending.value = true;
-  const { message } = (await authFetch(`/api/items/relations/${props.candId}`, {
+  const { message } = (await authFetch(`/api/relations/${props.candId}`, {
     method: "POST",
     body: form,
   })) as Record<string, string>;
   pending.value = false;
-  await refresh();
+  emit("update");
   emit("message", message);
 }
 
 async function deleteRelation(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = (await authFetch(`/api/items/relations/${id}`, {
+  const { message } = (await authFetch(`/api/relations/${props.candId}/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
-  await refresh();
+  emit("update");
   emit("message", message);
 }
 
 function cancelOperation() {
   closeAction();
-  refresh();
+  emit("update");
 }
 
 function closeAction() {
-  edit.value = false;
   itemId.value = "";
   collapse.value = false;
 }
@@ -83,29 +78,20 @@ function closeAction() {
       </ElementsCardDiv>
     </div>
   </Transition>
-  <div v-if="relations && relations.length">
-    <div v-for="(item, idx) in relations" :key="idx" class="p-1">
-      <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="2" />
+  <div v-if="props.relations && props.relations.length">
+    <div v-for="(item, idx) in props.relations" :key="idx" class="p-1">
+      <ElementsSkeletonDiv v-if="pending" :rows="2" />
       <ElementsCardDiv v-else>
-        <FormsRelationForm
-          v-if="edit && itemId == item['id'].toString()"
-          :cand-id="props.candId"
-          :relation="relation"
-          @cancel="cancelOperation"
-          @update="submitRelation"
-        />
-        <div v-else>
-          <ElementsLabelSlot :label="'Тип'">{{
-            item["relation"]
-          }}</ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Связь'">
-            <NuxtLink :to="`/profile/${item['relation_id']}`">
-              ID #{{ item["relation_id"] }}
-            </NuxtLink>
-          </ElementsLabelSlot>
-        </div>
+        <ElementsLabelSlot :label="'Тип'">{{
+          item["type"]
+        }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Связь'">
+          <NuxtLink :to="`/profile/${item['right_id']}`">
+            ID #{{ item["right_id"] }}
+          </NuxtLink>
+        </ElementsLabelSlot>
         <template
-          v-if="props.editable && (!edit || itemId != item['id'].toString())"
+          v-if="props.editable"
           #footer
         >
           <ElementsNaviHorizont
@@ -114,7 +100,6 @@ function closeAction() {
             @update="
               relation = item;
               itemId = item['id'].toString();
-              edit = true;
             "
             @upgrade="refresh()"
           />

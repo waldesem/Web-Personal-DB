@@ -10,7 +10,7 @@ from sqlalchemy import desc, select
 
 from ..depends.depend import current_user
 from ..model.models import Person, models_tables
-from ..model.tables import db_session, Persons, Base
+from ..model.tables import association_table, db_session, Persons, Base
 
 
 def handle_get_item(item, item_id):
@@ -30,14 +30,28 @@ def handle_get_item(item, item_id):
     """
     table = Base.metadata.tables.get(item)
     if table is not None:
-        stmt = (
-            table.select().filter(table.c.id == item_id)
-            if item == "persons"
-            else table.select().filter(table.c.person_id == item_id)
-        )
-        query = db_session.execute(stmt.order_by(desc(table.c.id)))
-        result = [row._asdict() for row in query]
-        return result[0] if item == "persons" else result
+        if item == "persons":
+            stmt = (
+                select(Persons, association_table)
+                .filter(Persons.id == item_id)
+                .outerjoin(association_table, association_table.c.left_id == Persons.id)
+            )
+            query = db_session.execute(stmt).all()
+            relations = [
+                {
+                    "right_id": row[2],
+                    "type": row[3],
+                }
+                for row in query
+            ]
+            print(relations)            
+            result = [row[0].to_dict() for row in query]
+            return result[0] | {"relations": relations}
+        else:
+            stmt = table.select().filter(table.c.person_id == item_id)
+            query = db_session.execute(stmt.order_by(desc(table.c.id)))
+            result = [row._asdict() for row in query]
+            return result
     return abort(400)
 
 
@@ -68,24 +82,10 @@ def handle_post_item(data: dict, item: str, item_id=None):
         if table_id is not None:
             stmt = table.update().where(table.c.id == table_id).values(data)
         else:
-            if item != "relations":
-                stmt = table.insert().values(data)
-            else:
-                if item_id == data["relation_id"] or not db_session.get(
-                    Persons, data["relation_id"]
-                ):
-                    return False
-                related_data = {
-                    "relation": data["relation"],
-                    "relation_id": item_id,
-                    "person_id": data["relation_id"],
-                    "user_id": current_user.get("id"),
-                }
-                stmt = table.insert().values([related_data, data])
-        if stmt is not None:
-            db_session.execute(stmt)
-            db_session.commit()
-            return True
+            stmt = table.insert().values(data)
+        db_session.execute(stmt)
+        db_session.commit()
+        return True
     return False
 
 

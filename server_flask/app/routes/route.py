@@ -20,7 +20,7 @@ from ..depends.depend import (
 )
 from ..model.classes import Regions, Roles
 from ..model.models import AnketaSchemaJson, User, Login
-from ..model.tables import Base, Checks, Persons, Relations, Users, db_session
+from ..model.tables import association_table, Base, Checks, Persons, Users, db_session
 from ..handlers.handler import (
     handle_image,
     json_to_dict,
@@ -54,7 +54,9 @@ def post_login(action):
     except ValidationError:
         return {"message": "Denied"}
     user = db_session.execute(
-        select(Users).filter(func.lower(Users.username) == json_data["username"].lower())
+        select(Users).filter(
+            func.lower(Users.username) == json_data["username"].lower()
+        )
     ).scalar_one_or_none()
     if not user or user.blocked or user.deleted:
         return {"message": "Invalid"}
@@ -494,26 +496,62 @@ def delete_item(item, item_id):
         Tuple[str, int]: A tuple containing an empty string and an HTTP status
         code of 204.
     """
-
-    def delete_relationships(item_id):
-        relationships = db_session.query(Relations).filter_by(relation_id=item_id).all()
-        for relationship in relationships:
-            db_session.delete(relationship)
-
     if item == "persons":
         for model, table in Base.metadata.tables.items():
             if model not in ["users", "persons"]:
-                stmt = table.delete().where(table.c.person_id == item_id)
-                db_session.execute(stmt)
-            delete_relationships(item_id)
-        person = db_session.get(Persons, item_id)
-        db_session.delete(person)
+                db_session.execute(table.delete().where(table.c.person_id == item_id))
+        db_session.execute(table.delete().where(table.c.id == item_id))
     else:
         table = Base.metadata.tables.get(item)
-        stmt = table.delete().where(table.c.person_id == item_id)
-        db_session.execute(stmt)
-        if item == "relations":
-            delete_relationships(item_id)
+        db_session.execute(table.delete().where(table.c.id == item_id))
+    db_session.commit()
+    return jsonify({"message": "success"}), 201
+
+
+@bp.post("/relations/<int:person_id>")
+@roles_required(Roles.user.value)
+def post_relation(person_id):
+    """
+    Inserts or replaces a record in the specified table with the given item ID.
+
+    Parameters:
+        item (str): The name of the table to insert or replace the record in.
+        item_id (int): The ID of the record to insert or replace.
+
+    Returns:
+        Tuple[str, int]: A tuple containing an empty string and an HTTP status
+        code of 201.
+    """
+    json_data = request.get_json()
+    if json_data:
+        relationship = association_table.insert().values(
+        left_id=person_id,
+        right_id=json_data["right_id"],
+        type=json_data["type"],
+    )
+        db_session.execute(relationship)
+        db_session.commit()
+        return jsonify({"message": "success"}), 201
+    return jsonify({"message": "error"}), 200
+
+
+@bp.delete("/relations/<int:person_id>/<int:relation_id>")
+@roles_required(Roles.user.value)
+def delete_relation(person_id, relation_id):
+    """
+    Deletes an item from the database based on the provided item name and item ID.
+
+    Parameters:
+        item (str): The name of the table to delete the item from.
+        item_id (int): The ID of the item to delete.
+
+    Returns:
+        Tuple[str, int]: A tuple containing an empty string and an HTTP status
+        code of 204.
+    """
+    person = db_session.get(Persons, person_id)
+    related_person = db_session.get(Persons, relation_id)
+    person.relationships.remove(related_person)
     db_session.commit()
     return jsonify({"message": "success"}), 201
 

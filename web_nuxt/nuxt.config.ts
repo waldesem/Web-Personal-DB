@@ -4,9 +4,6 @@ export default defineNuxtConfig({
   compatibilityDate: "2024-04-03",
   devtools: { enabled: true },
   ssr: false,
-  colorMode: {
-    preference: 'system'
-  },
   app: {
     pageTransition: { name: "page", mode: "out-in" },
     head: {

@@ -13,6 +13,12 @@ export interface User {
   role: string;
 }
 
+
+export interface Relation {
+  right_id: string;
+  type: string;
+}
+
 export interface Persons {
   id: string;
   surname: string;
@@ -31,6 +37,7 @@ export interface Persons {
   created: string;
   region: string;
   username: string;
+  relationships: Relation[];
 }
 
 export interface Previous {
@@ -80,13 +87,6 @@ export interface Contact {
   id: string;
   view: string;
   contact: string;
-  created: string;
-}
-
-export interface Relation {
-  id: string;
-  relation: string;
-  relation_id: string;
   created: string;
 }
 
