@@ -54,7 +54,7 @@ def post_login(action):
     except ValidationError:
         return {"message": "Denied"}
     user = db_session.execute(
-        select(Users).filter(Users.username == json_data["username"])
+        select(Users).filter(func.lower(Users.username) == json_data["username"].lower())
     ).scalar_one_or_none()
     if not user or user.blocked or user.deleted:
         return {"message": "Invalid"}

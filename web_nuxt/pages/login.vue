@@ -1,31 +1,21 @@
 <script setup lang="ts">
-import type { Login } from "@/types/interfaces";
+definePageMeta({ layout: false });
 
-definePageMeta({
-  layout: false,
-  middleware: [
-    function (_to) {
-      reloadNuxtApp();
-    },
-  ],
-});
+interface Login {
+  username: string;
+  password: string;
+  new_pswd: string;
+  conf_pswd: string;
+}
 
 const loginAction = ref("create");
 const loginForm = ref({} as Login);
 
-const alertMessage = {
-  alert: ref({
-    color: "green",
-    variant: "subtle",
-    title: "Информация",
-    description: "Введите логин и пароль",
-  }),
-  setAlert(color: string, title: string, description: string) {
-    this.alert.value.color = color;
-    this.alert.value.title = title;
-    this.alert.value.description = description;
-  },
-};
+const alert = ref({
+  color: "green",
+  title: "Информация",
+  description: "Введите логин и пароль",
+});
 
 const validate = (state: Login) => {
   const errors = [];
@@ -70,15 +60,27 @@ async function submitLogin(): Promise<void> {
   )) as { message: string; user_token: string };
   if (message === "Success") {
     userToken.value = user_token;
-    await navigateTo("/persons");
+    return navigateTo("/persons");
   } else if (message === "Updated") {
     loginAction.value = "create";
-    alertMessage.setAlert("blue", "Информация", "Войдите с новым паролем.");
+    Object.assign(alert.value, {
+      color: "blue",
+      title: "Информация",
+      description: "Войдите с новым паролем.",
+    });
   } else if (message === "Denied") {
     loginAction.value = "update";
-    alertMessage.setAlert("red", "Предупреждение", "Пароль просрочен.");
+    Object.assign(alert.value, {
+      color: "red",
+      title: "Предупреждение",
+      description: "Пароль просрочен.",
+    });
   } else {
-    alertMessage.setAlert("red", "Внимание", "Неправильный логин или пароль.");
+    Object.assign(alert.value, {
+      color: "red",
+      title: "Внимание",
+      description: "Неправильный логин или пароль.",
+    });
   }
 }
 </script>
@@ -88,9 +90,9 @@ async function submitLogin(): Promise<void> {
     <div class="py-8">
       <UAlert
         variant="subtle"
-        :color="(alertMessage.alert.value.color as any)"
-        :title="alertMessage.alert.value.title"
-        :description="alertMessage.alert.value.description"
+        :color="alert.color"
+        :title="alert.title"
+        :description="alert.description"
       />
       <ElementsHeaderDiv
         :div="'py-5'"
@@ -111,7 +113,13 @@ async function submitLogin(): Promise<void> {
           class="mt-4"
           @submit.prevent="submitLogin"
         >
-          <UFormGroup class="mb-3" size="md" label="Логин" name="username">
+          <UFormGroup
+            class="mb-3"
+            size="md"
+            label="Логин"
+            name="username"
+            required
+          >
             <UInput
               v-model="loginForm['username']"
               placeholder="username"
@@ -119,7 +127,13 @@ async function submitLogin(): Promise<void> {
               required
             />
           </UFormGroup>
-          <UFormGroup class="mb-3" size="md" label="Пароль" name="password">
+          <UFormGroup
+            class="mb-3"
+            size="md"
+            label="Пароль"
+            name="password"
+            required
+          >
             <UInput
               v-model="loginForm['password']"
               type="password"
@@ -134,6 +148,7 @@ async function submitLogin(): Promise<void> {
               size="md"
               label="Новый пароль"
               name="new_pswd"
+              required
             >
               <UInput
                 v-model="loginForm['new_pswd']"
@@ -148,6 +163,7 @@ async function submitLogin(): Promise<void> {
               size="md"
               label="Повтор пароля"
               name="conf_pswd"
+              required
             >
               <UInput
                 v-model="loginForm['conf_pswd']"

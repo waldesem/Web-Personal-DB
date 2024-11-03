@@ -159,7 +159,7 @@ function closeAction() {
           >
             {{ item["internet"] }}
           </ElementsLabelSlot>
-          <ElementsLabelSlot v-if="item['cronos']" :label="'Проверка в Кронос'">
+          <ElementsLabelSlot v-if="item['cronos']" :label="'Проверка Кронос'">
             {{ item["cronos"] }}
           </ElementsLabelSlot>
           <ElementsLabelSlot
