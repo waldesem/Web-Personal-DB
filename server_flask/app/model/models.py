@@ -3,7 +3,7 @@ from typing import Optional, Union
 
 from pydantic import BaseModel, validator
 
-from .classes import Regions, Conclusions, Roles
+from .classes import Conclusions, Regions, Roles
 
 
 class Login(BaseModel):
@@ -175,7 +175,7 @@ class Inquiry(MainModel):
     origins: Optional[str]
 
 
-models_tables = {
+models = {
     cls.__tablename__: cls
     for cls in MainModel.__subclasses__()
     if hasattr(cls, "__tablename__")

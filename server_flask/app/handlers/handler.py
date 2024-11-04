@@ -9,8 +9,8 @@ from pydantic import ValidationError
 from sqlalchemy import desc, select
 
 from ..depends.depend import current_user
-from ..model.models import Person, models_tables
-from ..model.tables import association_table, db_session, Persons, Base
+from ..model.models import Person, models
+from ..model.tables import Persons, db_session, tables
 
 
 def handle_get_item(item, item_id):
@@ -28,25 +28,14 @@ def handle_get_item(item, item_id):
     Raises:
         None
     """
-    table = Base.metadata.tables.get(item)
+    table = tables.get(item)
     if table is not None:
-        if item == "persons":
-            result = db_session.get(Persons, item_id).to_dict()
-            relation = db_session.execute(
-                select(association_table).where(association_table.c.left_id == item_id)
-            ).all()
-            relationship = db_session.execute(
-                select(association_table).where(association_table.c.right_id == item_id)
-            ).all()
-            return result | {
-                "relations": [row._asdict() for row in relation],
-                "relationships": [row._asdict() for row in relationship],
-            }
+        if item == "persons":            
+            return db_session.get(Persons, item_id).to_dict()
         else:
             stmt = table.select().filter(table.c.person_id == item_id)
             query = db_session.execute(stmt.order_by(desc(table.c.id)))
-            result = [row._asdict() for row in query]
-            return result
+            return [row._asdict() for row in query]
     return abort(400)
 
 
@@ -62,7 +51,7 @@ def handle_post_item(data: dict, item: str, item_id=None):
     Returns:
         None
     """
-    table, model = Base.metadata.tables.get(item), models_tables.get(item)
+    table, model = tables.get(item), models.get(item)
     if model and table is not None:
         try:
             data = model(**data).dict()

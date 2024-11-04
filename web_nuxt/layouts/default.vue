@@ -92,7 +92,7 @@ const filtredLinks = computed(() => {
             variant="ghost"
             @click="isOpen = !isOpen"
           />
-          <USlideover v-model="isOpen"/>
+          <!-- <USlideover v-model="isOpen"/> -->
         </div>
         <UPopover
           class="absolute top-0 right-12"

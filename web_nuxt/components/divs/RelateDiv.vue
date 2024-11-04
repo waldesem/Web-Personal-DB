@@ -3,7 +3,7 @@ import type { Relation, Relationship } from "@/types/interfaces";
 
 prefetchComponents(["FormsRelationForm", "ElementsSkeletonDiv"]);
 
-const emit = defineEmits(["message", "update"]);
+const emit = defineEmits(["message"]);
 
 const authFetch = useFetchAuth();
 
@@ -16,19 +16,19 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  relations: {
-    type: Array as () => Relation[],
-    default: [] as Relation[],
-  },
-  relationships: {
-    type: Array as () => Relationship[],
-    default: [] as Relationship[],
-  },
 });
 
 const collapse = ref(false);
 const pending = ref(false);
 const itemId = ref("");
+const relations = ref([] as Relation[]);
+const relationships = ref([] as Relationship[]);
+
+const { refresh, status } = await useLazyAsyncData("relations", async () => {
+  [relations.value, relationships.value] = (await authFetch(
+    "/api/relations/" + props.candId
+  )) as [Relation[], Relationship[]];
+});
 
 async function submitRelation(form: Relation) {
   closeAction();
@@ -38,7 +38,7 @@ async function submitRelation(form: Relation) {
     body: form,
   })) as Record<string, string>;
   pending.value = false;
-  emit("update");
+  refresh();
   emit("message", message);
 }
 
@@ -48,13 +48,13 @@ async function deleteRelation(id: string) {
   const { message } = (await authFetch(`/api/relations/${props.candId}/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
-  emit("update");
+  refresh();
   emit("message", message);
 }
 
 function cancelOperation() {
   closeAction();
-  emit("update");
+  refresh();
 }
 
 function closeAction() {
@@ -81,9 +81,9 @@ function closeAction() {
       </ElementsCardDiv>
     </div>
   </Transition>
-  <div v-if="props.relations && props.relations.length">
-    <div v-for="(item, idx) in props.relations" :key="idx" class="p-1">
-      <ElementsSkeletonDiv v-if="pending" :rows="2" />
+  <div v-if="relations && relations.length">
+    <div v-for="(item, idx) in relations" :key="idx" class="p-1">
+      <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="2" />
       <ElementsCardDiv v-else>
         <ElementsLabelSlot :label="'Тип'">{{ item["type"] }}</ElementsLabelSlot>
         <ElementsLabelSlot :label="'Связан'">
@@ -95,19 +95,19 @@ function closeAction() {
           <ElementsNaviHorizont
             :nav-items="2"
             @delete="deleteRelation(item['right_id'].toString())"
-            @upgrade="emit('update')"
+            @upgrade="refresh()"
           />
         </template>
       </ElementsCardDiv>
     </div>
   </div>
   <div v-else class="p-3">
-    <ElementsSkeletonDiv v-if="pending" :rows="2" />
+    <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="2" />
   </div>
 
-  <div v-if="props.relationships && props.relationships.length">
-    <div v-for="(item, idx) in props.relationships" :key="idx" class="p-1">
-      <ElementsSkeletonDiv v-if="pending" :rows="2" />
+  <div v-if="relationships && relationships.length">
+    <div v-for="(item, idx) in relationships" :key="idx" class="p-1">
+      <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="2" />
       <ElementsCardDiv v-else>
         <ElementsLabelSlot :label="'Тип'">{{ item["type"] }}</ElementsLabelSlot>
         <ElementsLabelSlot :label="'Явяляется связью'">
@@ -118,7 +118,7 @@ function closeAction() {
       </ElementsCardDiv>
     </div>
   </div>
-  <p v-if="!props.relations && !props.relationships" class="text-primary">
+  <p v-if="!relations && !relationships" class="text-primary">
     Данные отсутствуют
   </p>
 </template>

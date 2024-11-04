@@ -1,9 +1,9 @@
-from datetime import datetime
 import json
 import os
 import re
 import shutil
 import subprocess
+from datetime import datetime
 
 from flask import Blueprint, abort, current_app, jsonify, request, send_file
 from pydantic import ValidationError
@@ -18,17 +18,17 @@ from ..depends.depend import (
     jwt_required,
     roles_required,
 )
-from ..model.classes import Regions, Roles
-from ..model.models import AnketaSchemaJson, Relation, User, Login
-from ..model.tables import association_table, Base, Checks, Persons, Users, db_session
 from ..handlers.handler import (
-    handle_image,
-    json_to_dict,
     handle_get_item,
+    handle_image,
     handle_post_item,
     handle_post_resume,
+    json_to_dict,
     make_destination,
 )
+from ..model.classes import Regions, Roles
+from ..model.models import AnketaSchemaJson, Login, Relation, User
+from ..model.tables import Checks, Persons, Users, association_table, db_session, tables
 
 bp = Blueprint("route", __name__, url_prefix="/api")
 
@@ -211,19 +211,21 @@ def get_index(page):
     """
     pagination = 10
     search_data = request.args.get("search")
-    stmt = select(Persons, Users.fullname)
-    if search_data and len(search_data) > 2:
-        query = [search.upper() for search in search_data.split()][:3]
-        if query:
-            stmt = stmt.filter(Persons.surname.ilike(f"%{query[0]}%"))
-            if len(query) > 1:
-                stmt = stmt.filter(Persons.firstname.ilike(f"%{query[1]}%"))
-            if len(query) > 2:
-                stmt = stmt.filter(Persons.patronymic.ilike(f"%{query[2]}%"))
-    if current_user.get("region") != Regions.main.value:
-        stmt = stmt.filter(Persons.region == current_user.get("region"))
     query = db_session.execute(
-        stmt.filter(Persons.user_id == Users.id)
+        select(Persons, Users.fullname)
+        .filter(Persons.user_id == Users.id)
+        .filter(
+            Persons.region == current_user.get("region")
+            if current_user.get("region") != Regions.main.value
+            else True
+        )
+        .filter(
+            func.concat_ws(
+                " ", Persons.surname, Persons.firstname, Persons.patronymic
+            ).ilike(f"%{' '.join(search.upper() for search in search_data.split()[:3])}%")
+            if search_data and len(search_data) > 2
+            else True
+        )
         .order_by(desc(Persons.id))
         .offset((page - 1) * pagination)
         .limit(pagination + 1)
@@ -299,9 +301,7 @@ def get_folder(person_id):
     Returns:
         folder of the person
     """
-    folder = db_session.execute(
-        select(Persons.destination).where(Persons.id == person_id)
-    ).scalar_one_or_none()
+    folder = db_session.get(Persons, person_id).destination
     if not folder:
         subprocess.run(f'explorer "{current_app.config["BASE_PATH"]}"')
     else:
@@ -311,8 +311,8 @@ def get_folder(person_id):
     return "", 200
 
 
-@bp.get("/image/<int:item_id>")
-def get_image(item_id):
+@bp.get("/image/<int:person_id>")
+def get_image(person_id):
     """
     Get a photo of the person.
 
@@ -322,9 +322,7 @@ def get_image(item_id):
     Returns:
         photo of the person or a default no-photo image
     """
-    destination = db_session.execute(
-        select(Persons.destination).where(Persons.id == item_id)
-    ).scalar_one_or_none()
+    destination = db_session.get(Persons, person_id).destination
     if destination:
         file_path = os.path.join(destination, "image", "image.jpg")
         if os.path.isfile(file_path):
@@ -497,7 +495,7 @@ def delete_item(item, item_id):
         code of 204.
     """
     if item == "persons":
-        for model, table in Base.metadata.tables.items():
+        for model, table in tables.items():
             if model not in ["users", "persons", "person_relationships"]:
                 db_session.execute(table.delete().where(table.c.person_id == item_id))
         db_session.execute(
@@ -506,13 +504,40 @@ def delete_item(item, item_id):
                 or association_table.c.right_id == item_id
             )
         )
-        table = Base.metadata.tables.get(item)
+        table = table.get(item)
         db_session.execute(table.delete().where(table.c.id == item_id))
     else:
-        table = Base.metadata.tables.get(item)
+        table = tables.get(item)
         db_session.execute(table.delete().where(table.c.id == item_id))
     db_session.commit()
     return jsonify({"message": "success"}), 201
+
+
+@bp.get("/relations/<int:person_id>")
+@roles_required(Roles.user.value)
+def get_relation(person_id):
+    """
+    Retrieves a person's relationships from the database based on their person ID.
+
+    Parameters:
+        person_id (int): The ID of the person.
+
+    Returns:
+        Tuple[Response, int]: A tuple containing the JSON response containing
+        the retrieved person's relationships and an HTTP status code of 200.
+    """
+    relation = db_session.execute(
+        association_table.select().where(association_table.c.left_id == person_id)
+    )
+    relationship = db_session.execute(
+        association_table.select().where(association_table.c.right_id == person_id)
+    )
+    return jsonify(
+        [
+            [i._asdict() for i in relation],
+            [i._asdict() for i in relationship],
+        ]
+    ), 200
 
 
 @bp.post("/relations/<int:person_id>")
@@ -531,10 +556,12 @@ def post_relation(person_id):
     """
     json_data = request.get_json()
     try:
-        json_data = Relation(**json_data).validate()
+        json_data = Relation(**json_data).dict()
     except ValidationError:
         return jsonify({"message": "error"}), 200
-    if json_data:
+    if json_data["right_id"] != person_id and db_session.get(
+        Persons, json_data["right_id"]
+    ):
         relationship = association_table.insert().values(
             left_id=person_id,
             right_id=json_data["right_id"],
