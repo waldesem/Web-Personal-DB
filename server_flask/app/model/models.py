@@ -128,8 +128,8 @@ class Affilation(MainModel):
 class Relation(MainModel):
     __tablename__ = "relations"
 
-    relation: str
-    relation_id: Union[int, str]
+    type: str
+    right_id: Union[int, str]
 
 
 class Check(MainModel):

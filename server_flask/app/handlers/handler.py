@@ -31,22 +31,17 @@ def handle_get_item(item, item_id):
     table = Base.metadata.tables.get(item)
     if table is not None:
         if item == "persons":
-            stmt = (
-                select(Persons, association_table)
-                .filter(Persons.id == item_id)
-                .outerjoin(association_table, association_table.c.left_id == Persons.id)
-            )
-            query = db_session.execute(stmt).all()
-            relations = [
-                {
-                    "right_id": row[2],
-                    "type": row[3],
-                }
-                for row in query
-            ]
-            print(relations)            
-            result = [row[0].to_dict() for row in query]
-            return result[0] | {"relations": relations}
+            result = db_session.get(Persons, item_id).to_dict()
+            relation = db_session.execute(
+                select(association_table).where(association_table.c.left_id == item_id)
+            ).all()
+            relationship = db_session.execute(
+                select(association_table).where(association_table.c.right_id == item_id)
+            ).all()
+            return result | {
+                "relations": [row._asdict() for row in relation],
+                "relationships": [row._asdict() for row in relationship],
+            }
         else:
             stmt = table.select().filter(table.c.person_id == item_id)
             query = db_session.execute(stmt.order_by(desc(table.c.id)))

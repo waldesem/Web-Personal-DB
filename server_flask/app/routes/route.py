@@ -19,7 +19,7 @@ from ..depends.depend import (
     roles_required,
 )
 from ..model.classes import Regions, Roles
-from ..model.models import AnketaSchemaJson, User, Login
+from ..model.models import AnketaSchemaJson, Relation, User, Login
 from ..model.tables import association_table, Base, Checks, Persons, Users, db_session
 from ..handlers.handler import (
     handle_image,
@@ -498,8 +498,15 @@ def delete_item(item, item_id):
     """
     if item == "persons":
         for model, table in Base.metadata.tables.items():
-            if model not in ["users", "persons"]:
+            if model not in ["users", "persons", "person_relationships"]:
                 db_session.execute(table.delete().where(table.c.person_id == item_id))
+        db_session.execute(
+            association_table.delete().where(
+                association_table.c.left_id == item_id
+                or association_table.c.right_id == item_id
+            )
+        )
+        table = Base.metadata.tables.get(item)
         db_session.execute(table.delete().where(table.c.id == item_id))
     else:
         table = Base.metadata.tables.get(item)
@@ -523,12 +530,16 @@ def post_relation(person_id):
         code of 201.
     """
     json_data = request.get_json()
+    try:
+        json_data = Relation(**json_data).validate()
+    except ValidationError:
+        return jsonify({"message": "error"}), 200
     if json_data:
         relationship = association_table.insert().values(
-        left_id=person_id,
-        right_id=json_data["right_id"],
-        type=json_data["type"],
-    )
+            left_id=person_id,
+            right_id=json_data["right_id"],
+            type=json_data["type"],
+        )
         db_session.execute(relationship)
         db_session.commit()
         return jsonify({"message": "success"}), 201

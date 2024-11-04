@@ -28,8 +28,8 @@ function cancelAction() {
 
 function clearForm() {
   Object.assign(relationForm.value, {
-    relation: "",
-    relation_id: "",
+    type: "",
+    right_id: "",
   } as Relation);
 }
 </script>
@@ -38,7 +38,7 @@ function clearForm() {
   <UForm :state="relationForm" @submit.prevent="submitRelation">
     <UFormGroup class="mb-3" label="Тип связи" required>
       <USelect
-        v-model.trim.lazy="relationForm['relation']"
+        v-model.trim.lazy="relationForm['type']"
         required
         :options="[
           'Одно лицо',
@@ -52,7 +52,7 @@ function clearForm() {
     </UFormGroup>
     <UFormGroup class="mb-3" label="ID связи" required>
       <UInput
-        v-model.trim.lazy="relationForm['relation_id']"
+        v-model.trim.lazy="relationForm['right_id']"
         required
         type="number"
       />

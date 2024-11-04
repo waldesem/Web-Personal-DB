@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Persons, Relation } from "@/types/interfaces";
+import type { Persons, Relation, Relationship } from "@/types/interfaces";
 
 const props = defineProps({
   status: {
@@ -19,8 +19,12 @@ const props = defineProps({
     default: {} as Persons,
   },
   relations: {
-    type: Array,
-    default: () => [] as Relation[],
+    type: Array as () => Relation[],
+    default: [] as Relation[],
+  },
+  relationships: {
+    type: Array as () => Relationship[],
+    default: [] as Relationship[],
   },
 });
 
@@ -158,6 +162,7 @@ function emitMessage(message: string) {
         :cand-id="props.candId"
         :editable="props.editable"
         :relations="props.relations"
+        :relationships="props.relationships"
         @update="emit('update')"
         @message="emitMessage"
       />

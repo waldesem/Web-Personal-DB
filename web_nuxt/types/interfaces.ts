@@ -19,6 +19,11 @@ export interface Relation {
   type: string;
 }
 
+export interface Relationship {
+  left_id: string;
+  type: string;
+}
+
 export interface Persons {
   id: string;
   surname: string;
@@ -37,7 +42,9 @@ export interface Persons {
   created: string;
   region: string;
   username: string;
-  relationships: Relation[];
+  user_id: string;
+  relations: Relation[];
+  relationships: Relationship[];
 }
 
 export interface Previous {
