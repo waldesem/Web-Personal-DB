@@ -28,7 +28,7 @@ from ..handlers.handler import (
 )
 from ..model.classes import Regions, Roles
 from ..model.models import AnketaSchemaJson, Login, Relation, User
-from ..model.tables import Checks, Persons, Users, association_table, db_session, tables
+from ..model.tables import Base, Checks, Persons, Users, association_table, db_session
 
 bp = Blueprint("route", __name__, url_prefix="/api")
 
@@ -494,6 +494,7 @@ def delete_item(item, item_id):
         Tuple[str, int]: A tuple containing an empty string and an HTTP status
         code of 204.
     """
+    tables = Base.metadata.tables
     if item == "persons":
         for model, table in tables.items():
             if model not in ["users", "persons", "person_relationships"]:
@@ -504,7 +505,7 @@ def delete_item(item, item_id):
                 or association_table.c.right_id == item_id
             )
         )
-        table = table.get(item)
+        table = tables.get(item)
         db_session.execute(table.delete().where(table.c.id == item_id))
     else:
         table = tables.get(item)
