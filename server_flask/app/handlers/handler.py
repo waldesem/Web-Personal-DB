@@ -10,7 +10,7 @@ from sqlalchemy import desc, select
 
 from ..depends.depend import current_user
 from ..model.models import Person, models
-from ..model.tables import Persons, db_session, tables
+from ..model.tables import Base, Persons, db_session
 
 
 def handle_get_item(item, item_id):
@@ -28,7 +28,7 @@ def handle_get_item(item, item_id):
     Raises:
         None
     """
-    table = tables.get(item)
+    table = Base.metadata.tables.get(item)
     if table is not None:
         if item == "persons":            
             return db_session.get(Persons, item_id).to_dict()
@@ -51,7 +51,7 @@ def handle_post_item(data: dict, item: str, item_id=None):
     Returns:
         None
     """
-    table, model = tables.get(item), models.get(item)
+    table, model = Base.metadata.tables.get(item), models.get(item)
     if model and table is not None:
         try:
             data = model(**data).dict()

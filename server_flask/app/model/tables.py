@@ -283,4 +283,3 @@ class Inquiries(Base):
 engine = create_engine(Config.DATABASE_URI)
 db_session = scoped_session(sessionmaker(autoflush=False, bind=engine))
 Base.metadata.create_all(bind=engine)
-tables = Base.metadata.tables

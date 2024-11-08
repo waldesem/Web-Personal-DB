@@ -211,7 +211,7 @@ def get_index(page):
     """
     pagination = 10
     search_data = request.args.get("search")
-    query = db_session.execute(
+    stmt = (
         select(Persons, Users.fullname)
         .filter(Persons.user_id == Users.id)
         .filter(
@@ -219,14 +219,20 @@ def get_index(page):
             if current_user.get("region") != Regions.main.value
             else True
         )
-        .filter(
-            func.concat_ws(
-                " ", Persons.surname, Persons.firstname, Persons.patronymic
-            ).ilike(f"%{' '.join(search.upper() for search in search_data.split()[:3])}%")
-            if search_data and len(search_data) > 2
-            else True
+    )
+    if search_data and len(search_data) > 2:
+        query = [search.upper() for search in search_data.split()][:3]
+        stmt = (
+            stmt.filter(Persons.surname.ilike(f"%{query[0]}%"))
+            .filter(
+                Persons.firstname.ilike(f"%{query[1]}%") if len(query) > 1 else True
+            )
+            .filter(
+                Persons.patronymic.ilike(f"%{query[2]}%") if len(query) > 2 else True
+            )
         )
-        .order_by(desc(Persons.id))
+    query = db_session.execute(
+        stmt.order_by(desc(Persons.id))
         .offset((page - 1) * pagination)
         .limit(pagination + 1)
     ).all()
@@ -364,11 +370,21 @@ def post_json():
     person_id = handle_post_resume(anketa.pop("resume"))
     if not person_id:
         return jsonify({"person_id": None})
-
-    for table, contents in anketa.items():
+    tables = {
+        cls.__tablename__: cls
+        for cls in Base.__subclasses__()
+        if hasattr(cls, "__tablename__")
+    }
+    items = []
+    for tbl, contents in anketa.items():
         if contents:
             for content in contents:
-                handle_post_item(content, table, person_id)
+                table = tables.get(tbl)
+                contents["person_id"] = person_id
+                content["user_id"] = current_user.get("id")
+                items.append(table(**content))
+    db_session.bulk_save_objects(items)
+    db_session.commit()
     return jsonify({"person_id": person_id}), 201
 
 

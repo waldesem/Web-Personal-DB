@@ -12,14 +12,14 @@ class Login(BaseModel):
     new_pswd: Optional[str]
 
 
-class MainModel(BaseModel):
+class Model(BaseModel):
     id: Optional[str | int]
 
     class Config:
         use_enum_values = True
 
 
-class User(MainModel):
+class User(Model):
     fullname: str
     username: str
     email: Optional[str]
@@ -27,8 +27,8 @@ class User(MainModel):
     role: Optional[Roles]
 
 
-class Person(MainModel):
-    __tablename__ = "persons"
+class Person(Model):
+    __modelname__ = "persons"
 
     surname: str
     firstname: str
@@ -51,8 +51,8 @@ class Person(MainModel):
         return v.upper().strip() if v else None
 
 
-class Prev(MainModel):
-    __tablename__ = "previous"
+class Prev(Model):
+    __modelname__ = "previous"
 
     surname: Optional[str]
     firstname: Optional[str]
@@ -65,8 +65,8 @@ class Prev(MainModel):
         return v.upper().strip() if v else None
 
 
-class Education(MainModel):
-    __tablename__ = "educations"
+class Education(Model):
+    __modelname__ = "educations"
     
     view: Optional[str]
     institution: Optional[str]
@@ -74,15 +74,15 @@ class Education(MainModel):
     specialty: Optional[str]
 
 
-class Staff(MainModel):
-    __tablename__ = "staffs"
+class Staff(Model):
+    __modelname__ = "staffs"
 
     position: str
     department: str = "Прямое подчинение"
 
 
-class Document(MainModel):
-    __tablename__ = "documents"
+class Document(Model):
+    __modelname__ = "documents"
 
     view: Optional[str]
     series: Optional[str]
@@ -91,22 +91,22 @@ class Document(MainModel):
     issue: Optional[date]
 
 
-class Address(MainModel):
-    __tablename__ = "addresses"
+class Address(Model):
+    __modelname__ = "addresses"
 
     view: Optional[str]
     addresses: Optional[str]
 
 
-class Contact(MainModel):
-    __tablename__ = "contacts"
+class Contact(Model):
+    __modelname__ = "contacts"
 
     view: Optional[str]
     contact: Optional[str]
 
 
-class Workplace(MainModel):
-    __tablename__ = "workplaces"
+class Workplace(Model):
+    __modelname__ = "workplaces"
 
     now_work: Optional[bool] = False
     starts: Optional[date]
@@ -117,23 +117,23 @@ class Workplace(MainModel):
     reason: Optional[str]
 
 
-class Affilation(MainModel):
-    __tablename__ = "affilations"
+class Affilation(Model):
+    __modelname__ = "affilations"
     
     view: Optional[str]
     organization: str
     inn: Optional[str]
 
 
-class Relation(MainModel):
-    __tablename__ = "relations"
+class Relation(Model):
+    __modelname__ = "relations"
 
     type: str
     right_id: Union[int, str]
 
 
-class Check(MainModel):
-    __tablename__ = "checks"
+class Check(Model):
+    __modelname__ = "checks"
 
     workplace: Optional[str]
     document: Optional[str]
@@ -153,22 +153,22 @@ class Check(MainModel):
     conclusion: Conclusions
 
 
-class Poligraf(MainModel):
-    __tablename__ = "poligrafs"
+class Poligraf(Model):
+    __modelname__ = "poligrafs"
 
     theme: str
     results: str
 
 
-class Investigation(MainModel):
-    __tablename__ = "investigations"
+class Investigation(Model):
+    __modelname__ = "investigations"
 
     theme: str
     info: str
 
 
-class Inquiry(MainModel):
-    __tablename__ = "inquiries"
+class Inquiry(Model):
+    __modelname__ = "inquiries"
 
     info: str
     initiator: str
@@ -176,9 +176,9 @@ class Inquiry(MainModel):
 
 
 models = {
-    cls.__tablename__: cls
-    for cls in MainModel.__subclasses__()
-    if hasattr(cls, "__tablename__")
+    cls.__modelname__: cls
+    for cls in Model.__subclasses__()
+    if hasattr(cls, "__modelname__")
 }
 
 

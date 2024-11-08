@@ -68,6 +68,7 @@ function closeAction() {
 <template>
   <UButton
     v-if="props.editable"
+    :disabled="status == 'pending' || pending"
     :label="!collapse ? 'Добавить запись' : 'Скрыть форму'"
     variant="link"
     @click="collapse = !collapse"

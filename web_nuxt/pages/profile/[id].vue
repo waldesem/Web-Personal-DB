@@ -150,7 +150,7 @@ function emitMessage(message: string) {
           :cand-id="candId"
           :editable="editState"
           :person="person"
-          @status="status"
+          :status="status"
           @message="emitMessage"
           @update="refresh()"
         />
