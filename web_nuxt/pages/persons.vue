@@ -65,7 +65,7 @@ onChange(async (files) => {
     toast.add({
       icon: "i-heroicons-information-circle",
       title: "Внимание",
-      description: "Файл не был загружен",
+      description: "Файл поврежден или анкета находится в другом регионе или редактируется",
       color: "red",
     });
   }

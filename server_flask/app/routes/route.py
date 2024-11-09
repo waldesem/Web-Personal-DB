@@ -20,11 +20,7 @@ from ..depends.depend import (
     jwt_required,
     roles_required,
 )
-from ..handlers.handler import (
-    handle_post_resume,
-    json_to_dict,
-    make_destination,
-)
+from ..utils.utils import upload_resume, json_to_dict
 from ..model.classes import Regions, Roles
 from ..model.models import AnketaSchemaJson, Login, Model, Relation, User
 from ..model.tables import Base, Checks, Persons, Users, association_table, db_session
@@ -265,13 +261,15 @@ def post_file(item, item_id):
     if person.destination and not os.path.isdir(person.destination):
         os.mkdir(person.destination)
     if not person.destination:
-        person.destination = make_destination(
+        person.destination = os.path.join(
+            current_app.config["BASE_PATH"],
             current_user.get("region"),
-            person.surname,
-            person.firstname,
-            person.patronymic,
-            person.id,
+            person.surname[0],
+            f"{person.id}-{person.surname} {person.firstname} "
+            f"{person.patronymic if person.patronymic else ''}".rstrip().upper(),
         )
+        if not os.path.isdir(person.destination):
+            os.mkdir(person.destination)
         db_session.commit()
 
     item_dir = os.path.join(person.destination, item)
@@ -364,13 +362,13 @@ def post_json():
     except ValidationError as e:
         current_app.logger.warning(e)
         return jsonify({"person_id": None})
-    
+
     anketa = json_to_dict(json_dict)
-    person_id = handle_post_resume(anketa.pop("resume"))
+    person_id = upload_resume(anketa.pop("resume"))
     if not person_id:
         current_app.logger.warning("person_id is None")
         return jsonify({"person_id": None})
-    
+
     tables = {
         cls.__tablename__: cls
         for cls in Base.__subclasses__()
@@ -403,7 +401,7 @@ def post_resume():
         The person ID is the ID of the newly created user, person, or contact.
     """
     json_data = request.get_json()
-    person_id = handle_post_resume(json_data)
+    person_id = upload_resume(json_data)
     if not person_id:
         return jsonify({"person_id": None})
     return jsonify({"person_id": person_id}), 201
@@ -425,8 +423,12 @@ def change_region(person_id):
     if region in [region.value for region in Regions]:
         person = db_session.get(Persons, person_id)
         if person.destination:
-            destination = make_destination(
-                region, person.surname, person.firstname, person.patronymic, person.id
+            destination = os.path.join(
+                current_app.config["BASE_PATH"],
+                region,
+                person.surname[0],
+                f"{person_id}-{person.surname} {person.firstname} "
+                f"{person.patronymic if person.patronymic else ''}".rstrip().upper(),
             )
             shutil.copytree(person.destination, destination, dirs_exist_ok=True)
             person.destination = destination
@@ -542,13 +544,10 @@ def delete_item(item, item_id):
             if model not in ["users", "persons", "person_relationships"]:
                 db_session.execute(table.delete().where(table.c.person_id == item_id))
         db_session.execute(
-            association_table.delete().where(
-                association_table.c.left_id == item_id)
+            association_table.delete().where(association_table.c.left_id == item_id)
         )
         db_session.execute(
-            association_table.delete().where(
-                association_table.c.right_id == item_id
-            )
+            association_table.delete().where(association_table.c.right_id == item_id)
         )
         table = tables.get(item)
         db_session.execute(table.delete().where(table.c.id == item_id))
@@ -648,7 +647,6 @@ def get_information():
 
     Returns:
         A JSON response containing the count of checks for each conclusion within the specified date range and region.
-        The JSON response has the following structure:
         The HTTP status code is 200 if the information is successfully retrieved.
 
     Raises:

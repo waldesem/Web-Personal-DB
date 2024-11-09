@@ -1,54 +1,16 @@
 import os
 import re
-import shutil
 
 from flask import current_app
 from pydantic import ValidationError
 from sqlalchemy import select
 
 from ..depends.depend import current_user
-from ..model.models import Person, Model
-from ..model.tables import Base, Persons, db_session
+from ..model.models import Person
+from ..model.tables import Persons, db_session
 
 
-def handle_post_item(data: dict, item: str, item_id=None):
-    """
-    Updates an item in the database based on the provided JSON data, item, and item_id.
-
-    Args:
-        data (dict): A dictionary containing the data to update the item.
-        item (str): The type of item to update in the database.
-        item_id (int): The ID of the item to update.
-
-    Returns:
-        None
-    """
-    models = {
-        cls.__modelname__: cls
-        for cls in Model.__subclasses__()
-        if hasattr(cls, "__modelname__")
-    }
-    table, model = Base.metadata.tables.get(item), models.get(item)
-    try:
-        data = model(**data).dict()
-    except ValidationError as e:
-        current_app.logger.warning(e)
-        return False
-    if item != "persons":
-        data["person_id"] = item_id
-    data["user_id"] = current_user.get("id")
-    table_id = data.pop("id", None)
-    stmt = None
-    if table_id is not None:
-        stmt = table.update().where(table.c.id == table_id).values(data)
-    else:
-        stmt = table.insert().values(data)
-    db_session.execute(stmt)
-    db_session.commit()
-    return True
-
-
-def handle_post_resume(resume: dict):
+def upload_resume(resume: dict):
     """
     Updates a resume in the database with the provided data.
 
@@ -84,31 +46,21 @@ def handle_post_resume(resume: dict):
         person = Persons(**resume)
         db_session.add(person)
         db_session.flush()
-        person.destination = make_destination(
+        person.destination = os.path.join(
+            current_app.config["BASE_PATH"],
             resume["region"],
-            resume["surname"],
-            resume["firstname"],
-            resume.get("patronymic", ""),
-            person.id,
+            resume["surname"][0],
+            f"{person.id}-{resume["surname"]} {resume["firstname"]} "
+            f"{resume.get("patronymic", "")}".rstrip().upper(),
         )
+        if not os.path.isdir(person.destination):
+            os.mkdir(person.destination)
         db_session.commit()
         return person.id
 
-    if person.editable:
+    if person.editable or resume["region"] != person.region:
         return None
 
-    destination = make_destination(
-        resume["region"],
-        resume["surname"],
-        resume["firstname"],
-        resume.get("patronymic", ""),
-        person.id,
-    )
-    if person.destination and not os.path.isdir(person.destination):
-        os.mkdir(person.destination)
-    if person.destination and resume["region"] != person.region:
-        shutil.copytree(person.destination, destination)
-    resume["destination"] = destination
     resume["id"] = person.id
     resume["user_id"] = current_user.get("id")
     db_session.merge(Persons(**resume))
@@ -231,31 +183,3 @@ def json_to_dict(json_dict: dict):
         ),
     }
 
-
-def make_destination(region, surname, firstname, patronymic, person_id):
-    """
-    Generate the destination directory path for a given set of parameters.
-
-    Args:
-        region (str): The region of the destination directory.
-        surname (str): The surname of the person.
-        firstname (str): The firstname of the person.
-        patronymic (str): The patronymic of the person.
-        person_id (str): The unique identifier of the person.
-
-    Returns:
-        str: The full path of the destination directory.
-
-    Raises:
-        None
-    """
-    destination = os.path.join(
-        current_app.config["BASE_PATH"],
-        region,
-        surname[0],
-        f"{person_id}-{surname} {firstname} "
-        f"{patronymic if patronymic else ''}".rstrip().upper(),
-    )
-    if not os.path.isdir(destination):
-        os.mkdir(destination)
-    return destination
