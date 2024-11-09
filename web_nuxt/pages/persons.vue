@@ -53,7 +53,7 @@ onChange(async (files) => {
   upload.value = true;
   const formData = new FormData();
   formData.append("file", files[0]);
-  const { person_id } = (await authFetch("/api/json", {
+  const { person_id } = (await authFetch("/api/anketa/json", {
     method: "POST",
     body: formData,
   })) as Record<string, string>;

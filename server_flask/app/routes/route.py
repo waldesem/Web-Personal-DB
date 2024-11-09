@@ -20,9 +20,9 @@ from ..depends.depend import (
     jwt_required,
     roles_required,
 )
-from ..utils.utils import upload_resume, json_to_dict
+from ..utils.utils import json_to_dict
 from ..model.classes import Regions, Roles
-from ..model.models import AnketaSchemaJson, Login, Model, Relation, User
+from ..model.models import AnketaSchemaJson, Login, Model, Person, Relation, User
 from ..model.tables import Base, Checks, Persons, Users, association_table, db_session
 
 bp = Blueprint("route", __name__, url_prefix="/api")
@@ -341,70 +341,102 @@ def get_image(person_id):
     return send_file("static/no-photo.png", as_attachment=True, mimetype="image/jpg")
 
 
-@bp.post("/json")
+@bp.post("/anketa/<item>")
 @roles_required(Roles.user.value)
-def post_json():
+def post_resume(item):
     """
-    Upload a json file with a person's data.
-
-    Args:
-        file: json file with a person's data.
-
-    Returns:
-        a json response with a person id, if the person was successfully added to the database.
-    """
-    file = request.files.get("file")
-    if not file or not file.filename.endswith(".json"):
-        return jsonify({"person_id": None})
-    json_dict = json.load(file)
-    try:
-        json_dict = AnketaSchemaJson(**json_dict).dict()
-    except ValidationError as e:
-        current_app.logger.warning(e)
-        return jsonify({"person_id": None})
-
-    anketa = json_to_dict(json_dict)
-    person_id = upload_resume(anketa.pop("resume"))
-    if not person_id:
-        current_app.logger.warning("person_id is None")
-        return jsonify({"person_id": None})
-
-    tables = {
-        cls.__tablename__: cls
-        for cls in Base.__subclasses__()
-        if hasattr(cls, "__tablename__")
-    }
-    items = []
-    for tbl, contents in anketa.items():
-        if contents:
-            for content in contents:
-                content["person_id"] = person_id
-                content["user_id"] = current_user.get("id")
-                table = tables.get(tbl)
-                items.append(table(**content))
-    db_session.bulk_save_objects(items)
-    db_session.commit()
-    return jsonify({"person_id": person_id}), 201
-
-
-@bp.post("/resume")
-@roles_required(Roles.user.value)
-def post_resume():
-    """
-    Creates a new user, person or contact based on the provided JSON data.
+    Creates a new person or updates an existing person based on the provided data.
 
     Parameters:
-        None
+        item (str): The name to create or update the person in. 
 
     Returns:
         A JSON response containing the person ID and an HTTP status code of 201.
-        The person ID is the ID of the newly created user, person, or contact.
     """
-    json_data = request.get_json()
-    person_id = upload_resume(json_data)
-    if not person_id:
-        return jsonify({"person_id": None})
-    return jsonify({"person_id": person_id}), 201
+    def upload_resume(resume: dict):
+        try:
+            resume = Person(**resume).dict()
+        except ValidationError as e:
+            current_app.logger.warning(e)
+            return None
+        if not re.match(r"[А-ЯЁЙ]", resume["surname"][0]):
+            return None
+        resume["editable"] = True
+        resume["user_id"] = current_user.get("id")
+        resume["region"] = current_user.get("region")
+        person = db_session.execute(
+            select(Persons).where(
+                Persons.surname.ilike("%{}%".format(resume["surname"])),
+                Persons.firstname.ilike("%{}%".format(resume["firstname"])),
+                Persons.patronymic.ilike("%{}%".format(resume["patronymic"])),
+                Persons.birthday == resume["birthday"],
+            )
+        ).scalar_one_or_none()
+        if not person:
+            person = Persons(**resume)
+            db_session.add(person)
+            db_session.flush()
+            person.destination = os.path.join(
+                current_app.config["BASE_PATH"],
+                resume["region"],
+                resume["surname"][0],
+                f"{person.id}-{resume["surname"]} {resume["firstname"]} "
+                f"{resume.get("patronymic", "")}".rstrip().upper(),
+            )
+            if not os.path.isdir(person.destination):
+                os.mkdir(person.destination)
+            db_session.commit()
+            return person.id
+
+        if person.editable or resume["region"] != person.region:
+            return None
+
+        resume["id"] = person.id
+        resume["user_id"] = current_user.get("id")
+        db_session.merge(Persons(**resume))
+        db_session.commit()
+        return person.id
+    
+    if item == "resume":
+        json_data = request.get_json()
+        person_id = upload_resume(json_data)
+        if not person_id:
+            return jsonify({"person_id": None})
+        return jsonify({"person_id": person_id}), 201
+
+    else:
+        file = request.files.get("file")
+        if not file or not file.filename.endswith(".json"):
+            return jsonify({"person_id": None})
+        json_dict = json.load(file)
+        try:
+            json_dict = AnketaSchemaJson(**json_dict).dict()
+        except ValidationError as e:
+            current_app.logger.warning(e)
+            return jsonify({"person_id": None})
+
+        anketa = json_to_dict(json_dict)
+        person_id = upload_resume(anketa.pop("resume"))
+        if not person_id:
+            current_app.logger.warning("person_id is None")
+            return jsonify({"person_id": None})
+
+        tables = {
+            cls.__tablename__: cls
+            for cls in Base.__subclasses__()
+            if hasattr(cls, "__tablename__")
+        }
+        items = []
+        for tbl, contents in anketa.items():
+            if contents:
+                for content in contents:
+                    content["person_id"] = person_id
+                    content["user_id"] = current_user.get("id")
+                    table = tables.get(tbl)
+                    items.append(table(**content))
+        db_session.bulk_save_objects(items)
+        db_session.commit()
+        return jsonify({"person_id": person_id}), 201
 
 
 @bp.get("/region/<int:person_id>")
