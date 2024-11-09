@@ -1,3 +1,4 @@
+import imghdr
 import json
 import os
 import re
@@ -7,6 +8,7 @@ from datetime import datetime
 
 from flask import Blueprint, abort, current_app, jsonify, request, send_file
 from pydantic import ValidationError
+from PIL import Image
 from sqlalchemy import desc, func, select
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -19,15 +21,12 @@ from ..depends.depend import (
     roles_required,
 )
 from ..handlers.handler import (
-    handle_get_item,
-    handle_image,
-    handle_post_item,
     handle_post_resume,
     json_to_dict,
     make_destination,
 )
 from ..model.classes import Regions, Roles
-from ..model.models import AnketaSchemaJson, Login, Relation, User
+from ..model.models import AnketaSchemaJson, Login, Model, Relation, User
 from ..model.tables import Base, Checks, Persons, Users, association_table, db_session
 
 bp = Blueprint("route", __name__, url_prefix="/api")
@@ -51,7 +50,8 @@ def post_login(action):
     json_data = request.get_json()
     try:
         json_data = Login(**json_data).dict()
-    except ValidationError:
+    except ValidationError as e:
+        current_app.logger.warning(e)
         return {"message": "Denied"}
     user = db_session.execute(
         select(Users).filter(
@@ -136,7 +136,8 @@ def post_user():
     json_dict = request.get_json()
     try:
         json_dict = User(**json_dict).dict()
-    except ValidationError:
+    except ValidationError as e:
+        current_app.logger.warning(e)
         return jsonify({"message": "error"}), 204
     user = db_session.execute(
         select(Users).filter(Users.username == json_dict["username"])
@@ -278,7 +279,13 @@ def post_file(item, item_id):
         os.mkdir(item_dir)
 
     if item == "image":
-        if handle_image(files[0], item_dir):
+        if imghdr.what(files[0]) is not None:
+            image = Image.open(files[0])
+            image = image.convert("RGB")
+            new_file = os.path.join(item_dir, "image.jpg")
+            if os.path.isfile(new_file):
+                os.remove(new_file)
+            image.save(new_file, format="JPEG", quality=90)
             return jsonify({"message": "success"}), 201
         return jsonify({"message": "error"}), 200
 
@@ -347,14 +354,6 @@ def post_json():
 
     Returns:
         a json response with a person id, if the person was successfully added to the database.
-
-    The json file should contain the following keys:
-        - resume: a resume of a person
-        - education: a list of education institutions of a person
-        - work: a list of work places of a person
-        - staff: a list of staff positions of a person
-        - document: a list of documents of a person
-        - address: a list of addresses of a person
     """
     file = request.files.get("file")
     if not file or not file.filename.endswith(".json"):
@@ -362,14 +361,16 @@ def post_json():
     json_dict = json.load(file)
     try:
         json_dict = AnketaSchemaJson(**json_dict).dict()
-    except ValidationError:
+    except ValidationError as e:
+        current_app.logger.warning(e)
         return jsonify({"person_id": None})
+    
     anketa = json_to_dict(json_dict)
-    if not anketa:
-        return jsonify({"person_id": None})
     person_id = handle_post_resume(anketa.pop("resume"))
     if not person_id:
+        current_app.logger.warning("person_id is None")
         return jsonify({"person_id": None})
+    
     tables = {
         cls.__tablename__: cls
         for cls in Base.__subclasses__()
@@ -379,9 +380,9 @@ def post_json():
     for tbl, contents in anketa.items():
         if contents:
             for content in contents:
-                table = tables.get(tbl)
                 contents["person_id"] = person_id
                 content["user_id"] = current_user.get("id")
+                table = tables.get(tbl)
                 items.append(table(**content))
     db_session.bulk_save_objects(items)
     db_session.commit()
@@ -431,6 +432,7 @@ def change_region(person_id):
                 shutil.copytree(person.destination, destination)
             except FileExistsError as e:
                 current_app.logger.warning(e)
+                return jsonify({"message": "error"}), 200
             person.destination = destination
         person.region = region
         person.editable = False
@@ -472,8 +474,14 @@ def get_item_id(item, item_id):
         Tuple[Response, int]: A tuple containing the JSON response containing
         the retrieved item(s) and an HTTP status code of 200.
     """
-    result = handle_get_item(item, item_id)
-    return jsonify(result)
+    if item == "persons":
+        person = db_session.get(Persons, item_id)
+        return jsonify(person.to_dict()), 200
+    else:
+        table = Base.metadata.tables.get(item)
+        stmt = table.select().filter(table.c.person_id == item_id)
+        query = db_session.execute(stmt.order_by(desc(table.c.id)))
+        return jsonify([row._asdict() for row in query])
 
 
 @bp.post("/items/<item>/<int:item_id>")
@@ -491,9 +499,29 @@ def post_item_id(item, item_id):
         code of 201.
     """
     json_data = request.get_json()
-    if json_data and handle_post_item(json_data, item, item_id):
-        return jsonify({"message": "success"}), 201
-    return jsonify({"message": "error"}), 200
+    models = {
+        cls.__modelname__: cls
+        for cls in Model.__subclasses__()
+        if hasattr(cls, "__modelname__")
+    }
+    table, model = Base.metadata.tables.get(item), models.get(item)
+    try:
+        json_data = model(**json_data).dict()
+    except ValidationError as e:
+        current_app.logger.warning(e)
+        return jsonify({"message": "error"}), 200
+    if item != "persons":
+        json_data["person_id"] = item_id
+    json_data["user_id"] = current_user.get("id")
+    table_id = json_data.pop("id", None)
+    stmt = None
+    if table_id is not None:
+        stmt = table.update().where(table.c.id == table_id).values(json_data)
+    else:
+        stmt = table.insert().values(json_data)
+    db_session.execute(stmt)
+    db_session.commit()
+    return jsonify({"message": "success"}), 201
 
 
 @bp.delete("/items/<item>/<int:item_id>")

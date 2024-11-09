@@ -1,42 +1,14 @@
-import imghdr
 import os
 import re
 import shutil
 
-from flask import abort, current_app
-from PIL import Image
+from flask import current_app
 from pydantic import ValidationError
-from sqlalchemy import desc, select
+from sqlalchemy import select
 
 from ..depends.depend import current_user
-from ..model.models import Person, models
+from ..model.models import Person, Model
 from ..model.tables import Base, Persons, db_session
-
-
-def handle_get_item(item, item_id):
-    """
-    Retrieves an item from the database based on the provided item and item_id.
-
-    Args:
-        item (str): The type of item to retrieve.
-        item_id (int): The ID of the item to retrieve.
-
-    Returns:
-        dict or list: If item is "persons", a dictionary containing the item's data.
-                      Otherwise, a list of dictionaries containing the item's data,
-                      ordered by descending item ID.
-    Raises:
-        None
-    """
-    table = Base.metadata.tables.get(item)
-    if table is not None:
-        if item == "persons":            
-            return db_session.get(Persons, item_id).to_dict()
-        else:
-            stmt = table.select().filter(table.c.person_id == item_id)
-            query = db_session.execute(stmt.order_by(desc(table.c.id)))
-            return [row._asdict() for row in query]
-    return abort(400)
 
 
 def handle_post_item(data: dict, item: str, item_id=None):
@@ -51,26 +23,29 @@ def handle_post_item(data: dict, item: str, item_id=None):
     Returns:
         None
     """
+    models = {
+        cls.__modelname__: cls
+        for cls in Model.__subclasses__()
+        if hasattr(cls, "__modelname__")
+    }
     table, model = Base.metadata.tables.get(item), models.get(item)
-    if model and table is not None:
-        try:
-            data = model(**data).dict()
-        except ValidationError as e:
-            print(e)
-            return False
-        stmt = None
-        if item != "persons":
-            data["person_id"] = item_id
-        data["user_id"] = current_user.get("id")
-        table_id = data.pop("id", None)
-        if table_id is not None:
-            stmt = table.update().where(table.c.id == table_id).values(data)
-        else:
-            stmt = table.insert().values(data)
-        db_session.execute(stmt)
-        db_session.commit()
-        return True
-    return False
+    try:
+        data = model(**data).dict()
+    except ValidationError as e:
+        current_app.logger.warning(e)
+        return False
+    if item != "persons":
+        data["person_id"] = item_id
+    data["user_id"] = current_user.get("id")
+    table_id = data.pop("id", None)
+    stmt = None
+    if table_id is not None:
+        stmt = table.update().where(table.c.id == table_id).values(data)
+    else:
+        stmt = table.insert().values(data)
+    db_session.execute(stmt)
+    db_session.commit()
+    return True
 
 
 def handle_post_resume(resume: dict):
@@ -89,7 +64,8 @@ def handle_post_resume(resume: dict):
     """
     try:
         resume = Person(**resume).dict()
-    except ValidationError:
+    except ValidationError as e:
+        current_app.logger.warning(e)
         return None
     if not re.match(r"[А-ЯЁЙ]", resume["surname"][0]):
         return None
@@ -131,9 +107,13 @@ def handle_post_resume(resume: dict):
     if person.destination and not os.path.isdir(person.destination):
         os.mkdir(person.destination)
     if person.destination and resume["region"] != person.region:
-        shutil.move(person.destination, destination)
-    resume.update({"destination": destination, "id": person.id})
-    return resume["id"] if handle_post_item(resume, "persons") else None
+        shutil.copytree(person.destination, destination)
+    resume["destination"] = destination
+    resume["id"] = person.id
+    resume["user_id"] = current_user.get("id")
+    db_session.merge(Persons(**resume))
+    db_session.commit()
+    return person.id
 
 
 def json_to_dict(json_dict: dict):
@@ -250,28 +230,6 @@ def json_to_dict(json_dict: dict):
             ]
         ),
     }
-
-
-def handle_image(file, item_dir):
-    """
-    Opens a file, reads the image data, saves it to a new file in a specified directory.
-
-    Args:
-        file (str): The path to the file containing the image.
-        item_dir (str): The directory where the new image file will be saved.
-
-    Returns:
-        None
-    """
-    if imghdr.what(file) is not None:
-        image = Image.open(file)
-        image = image.convert("RGB")
-        new_file = os.path.join(item_dir, "image.jpg")
-        if os.path.isfile(new_file):
-            os.remove(new_file)
-        image.save(new_file, format="JPEG", quality=90)
-        return True
-    return False
 
 
 def make_destination(region, surname, firstname, patronymic, person_id):

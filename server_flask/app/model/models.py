@@ -173,14 +173,7 @@ class Inquiry(Model):
     info: str
     initiator: str
     origins: Optional[str]
-
-
-models = {
-    cls.__modelname__: cls
-    for cls in Model.__subclasses__()
-    if hasattr(cls, "__modelname__")
-}
-
+    
 
 class NameWasChangedJson(BaseModel):
     firstNameBeforeChange: Optional[str]
