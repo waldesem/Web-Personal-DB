@@ -151,7 +151,7 @@ preloadRouteComponents("/profile/[id]");
                 ? 'i-heroicons-arrow-path'
                 : 'i-heroicons-check-circle'
             "
-            class="w-8 h-8"
+            class="w-4 h-4"
             :class="{ 'animate-spin': row.editable }"
           />
         </div>

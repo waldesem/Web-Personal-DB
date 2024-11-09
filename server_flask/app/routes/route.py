@@ -428,11 +428,7 @@ def change_region(person_id):
             destination = make_destination(
                 region, person.surname, person.firstname, person.patronymic, person.id
             )
-            try:
-                shutil.copytree(person.destination, destination)
-            except FileExistsError as e:
-                current_app.logger.warning(e)
-                return jsonify({"message": "error"}), 200
+            shutil.copytree(person.destination, destination, dirs_exist_ok=True)
             person.destination = destination
         person.region = region
         person.editable = False
