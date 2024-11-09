@@ -60,7 +60,7 @@ onChange(async (files) => {
   reset();
   upload.value = false;
   if (person_id) {
-    return navigateTo("/profile/" + person_id);
+    await navigateTo("/profile/" + person_id);
   } else {
     toast.add({
       icon: "i-heroicons-information-circle",
@@ -151,7 +151,7 @@ preloadRouteComponents("/profile/[id]");
                 ? 'i-heroicons-arrow-path'
                 : 'i-heroicons-check-circle'
             "
-            class="w-6 h-6"
+            class="w-8 h-8"
             :class="{ 'animate-spin': row.editable }"
           />
         </div>

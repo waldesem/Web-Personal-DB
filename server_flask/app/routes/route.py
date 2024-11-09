@@ -380,7 +380,7 @@ def post_json():
     for tbl, contents in anketa.items():
         if contents:
             for content in contents:
-                contents["person_id"] = person_id
+                content["person_id"] = person_id
                 content["user_id"] = current_user.get("id")
                 table = tables.get(tbl)
                 items.append(table(**content))
@@ -476,6 +476,8 @@ def get_item_id(item, item_id):
     """
     if item == "persons":
         person = db_session.get(Persons, item_id)
+        if not person:
+            return abort(404)
         return jsonify(person.to_dict()), 200
     else:
         table = Base.metadata.tables.get(item)
@@ -545,8 +547,11 @@ def delete_item(item, item_id):
                 db_session.execute(table.delete().where(table.c.person_id == item_id))
         db_session.execute(
             association_table.delete().where(
-                association_table.c.left_id == item_id
-                or association_table.c.right_id == item_id
+                association_table.c.left_id == item_id)
+        )
+        db_session.execute(
+            association_table.delete().where(
+                association_table.c.right_id == item_id
             )
         )
         table = tables.get(item)
