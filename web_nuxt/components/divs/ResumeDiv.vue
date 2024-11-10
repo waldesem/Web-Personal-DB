@@ -60,7 +60,7 @@ async function changeRegion(): Promise<void> {
 
 async function openFolder() {
   opening.value = true;
-  await authFetch("/api/folder/" + props.candId);
+  await authFetch("/api/file/folder/" + props.candId);
   opening.value = false;
 }
 

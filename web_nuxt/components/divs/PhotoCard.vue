@@ -17,7 +17,7 @@ const props = defineProps({
 const imageUrl = ref("");
 
 const { refresh, status } = await useLazyAsyncData("image", async () => {
-  const response = (await authFetch("/api/image/" + props.candId, {
+  const response = (await authFetch("/api/file/image/" + props.candId, {
     responseType: "blob",
   })) as Blob;
   imageUrl.value = window.URL.createObjectURL(new Blob([response]));

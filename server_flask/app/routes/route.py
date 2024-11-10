@@ -239,28 +239,25 @@ def get_index(page):
     return jsonify([result, has_next])
 
 
-@bp.post("/file/<item>/<int:item_id>")
+@bp.route("/file/<item>/<int:item_id>", methods=["GET", "POST"])
 @roles_required(Roles.user.value)
-def post_file(item, item_id):
+def use_filesystem(item, item_id):
     """
-    Retrieves an image file associated with a person's ID.
+    Handles the GET and POST requests for the file system.
 
     Args:
+        item (str): The name of the item.
         item_id (int): The ID of the person.
 
     Returns:
         Response: A Flask Response object containing the image file.
 
     Raises:
-        None.
+        None.   
     """
-    files = request.files.getlist("file")
+    
     person = db_session.get(Persons, item_id)
-    if not files or not person:
-        return jsonify({"message": "error"}), 200
-    if person.destination and not os.path.isdir(person.destination):
-        os.mkdir(person.destination)
-    if not person.destination:
+    if not person.destination or not os.path.isdir(person.destination):
         person.destination = os.path.join(
             current_app.config["BASE_PATH"],
             current_user.get("region"),
@@ -268,77 +265,51 @@ def post_file(item, item_id):
             f"{person.id}-{person.surname} {person.firstname} "
             f"{person.patronymic if person.patronymic else ''}".rstrip().upper(),
         )
-        if not os.path.isdir(person.destination):
-            os.mkdir(person.destination)
+        os.makedirs(person.destination, exist_ok=True)
         db_session.commit()
 
-    item_dir = os.path.join(person.destination, item)
-    if not os.path.isdir(item_dir):
-        os.mkdir(item_dir)
+    if request.method == "GET":
+        if item == "folder":
+            try:
+                subprocess.run(f'explorer "{person.destination}"', timeout=10)
+            except subprocess.CalledProcessError as e:
+                current_app.logger.exception(e)
+            return "", 200
+        elif item == "image":
+            file_path = os.path.join(person.destination, "image", "image.jpg")
+            if os.path.isfile(file_path):
+                return send_file(file_path, as_attachment=True, mimetype="image/jpg")
+            return send_file("static/no-photo.png", as_attachment=True, mimetype="image/jpg")
 
-    if item == "image":
-        if imghdr.what(files[0]) is not None:
-            image = Image.open(files[0])
-            image = image.convert("RGB")
-            new_file = os.path.join(item_dir, "image.jpg")
-            if os.path.isfile(new_file):
-                os.remove(new_file)
-            image.save(new_file, format="JPEG", quality=90)
-            return jsonify({"message": "success"}), 201
-        return jsonify({"message": "error"}), 200
-
-    date_subfolder = os.path.join(
-        item_dir,
-        datetime.now().strftime("%Y-%m-%d"),
-    )
-    if not os.path.isdir(date_subfolder):
-        os.mkdir(date_subfolder)
-    for file in files:
-        file_path = os.path.join(date_subfolder, file.filename)
-        if not os.path.isfile(file_path):
-            file.save(file_path)
-    return "", 201
-
-
-@bp.get("/folder/<int:person_id>")
-@jwt_required()
-def get_folder(person_id):
-    """
-    Get a folder of the person.
-
-    Args:
-        item_id (int): The ID of the person.
-
-    Returns:
-        folder of the person
-    """
-    folder = db_session.get(Persons, person_id).destination
-    if not folder:
-        subprocess.run(f'explorer "{current_app.config["BASE_PATH"]}"')
     else:
-        if not os.path.isdir(folder):
-            os.mkdir(folder)
-        subprocess.run(f'explorer "{folder}"')
-    return "", 200
+        item_dir = os.path.join(person.destination, item)
+        os.makedirs(item_dir, exist_ok=True)
 
+        files = request.files.getlist("file")
+        if not files:
+            return jsonify({"message": "error"}), 200
+        
+        if item == "image":
+            if imghdr.what(files[0]) is not None:
+                image = Image.open(files[0])
+                image = image.convert("RGB")
+                new_file = os.path.join(item_dir, "image.jpg")
+                if os.path.isfile(new_file):
+                    os.remove(new_file)
+                image.save(new_file, format="JPEG", quality=90)
+                return jsonify({"message": "success"}), 201
+            return jsonify({"message": "error"}), 200
 
-@bp.get("/image/<int:person_id>")
-def get_image(person_id):
-    """
-    Get a photo of the person.
-
-    Args:
-        item_id (int): The ID of the person.
-
-    Returns:
-        photo of the person or a default no-photo image
-    """
-    destination = db_session.get(Persons, person_id).destination
-    if destination:
-        file_path = os.path.join(destination, "image", "image.jpg")
-        if os.path.isfile(file_path):
-            return send_file(file_path, as_attachment=True, mimetype="image/jpg")
-    return send_file("static/no-photo.png", as_attachment=True, mimetype="image/jpg")
+        date_subfolder = os.path.join(
+            item_dir,
+            datetime.now().strftime("%Y-%m-%d"),
+        )
+        os.makedirs(date_subfolder, exist_ok=True)
+        for file in files:
+            file_path = os.path.join(date_subfolder, file.filename)
+            if not os.path.isfile(file_path):
+                file.save(file_path)
+        return "", 201
 
 
 @bp.post("/anketa/<item>")
@@ -452,9 +423,9 @@ def change_region(person_id):
         The HTTP status code is 200.
     """
     region = request.args.get("region")
-    if region in [region.value for region in Regions]:
-        person = db_session.get(Persons, person_id)
-        if person.destination:
+    person = db_session.get(Persons, person_id)
+    if region in [region.value for region in Regions] and region != person.region:
+        if person.destination and os.path.isdir(person.destination):
             destination = os.path.join(
                 current_app.config["BASE_PATH"],
                 region,

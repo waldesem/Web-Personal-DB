@@ -110,7 +110,7 @@ const filtredLinks = computed(() => {
           </template>
         </UPopover>
       </div>
-    </header>
+    </header> 
     <div class="grid grid-cols-12 gap-6">
       <div
         v-if="showNav"
