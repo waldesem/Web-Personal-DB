@@ -58,21 +58,30 @@ async function userAction(
   if (!confirm("Подтвердите действие!")) {
     return;
   }
-  await fetchAuth("/api/users/" + id, {
+  const { message } = await fetchAuth("/api/users/" + id, {
     params: {
       item: item,
     },
-  });
+  }) as Record<string, string>;
   userId.value = "";
   region.value = "";
   role.value = "";
   await refresh();
-  toast.add({
-    icon: "i-heroicons-check-circle",
-    title: "Информация",
-    description: "Действие успешно выполнено",
-    color: "green",
-  });
+  if (message != "success") {
+    toast.add({
+      icon: "i-heroicons-check-circle",
+      title: "Информация",
+      description: "Действие успешно выполнено",
+      color: "green",
+    });
+  } else {
+    toast.add({
+      icon: "i-heroicons-information-circle",
+      title: "Внимание",
+      description: "Действие не было выполнено",
+      color: "red",
+    });
+  }
 }
 
 /**

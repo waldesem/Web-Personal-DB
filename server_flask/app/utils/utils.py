@@ -1,10 +1,12 @@
-from ..depends.depend import current_user
-
-
 def json_to_dict(json_dict: dict):
+    """
+    Transforms a JSON-dictionary into a python-dictionary.
+
+    :param json_dict: A JSON-dictionary
+    :return: A python-dictionary
+    """
     return {
         "resume": {
-            "region": current_user.get("region"),
             "surname": json_dict.get("lastName"),
             "firstname": json_dict.get("firstName"),
             "patronymic": json_dict.get("midName"),

@@ -5,6 +5,7 @@ import click
 from flask import Flask
 from sqlalchemy import select
 from werkzeug.security import generate_password_hash
+from werkzeug.exceptions import HTTPException
 
 from config import Config
 from .model.tables import db_session, Users
@@ -44,17 +45,8 @@ def create_app(config_class=Config):
     @app.get("/<path:path>")
     def static_file(path=""):
         return app.send_static_file(path)
-
-    @app.errorhandler(404)
-    def handle_404(error):
-        return app.redirect("/")
-
-    @app.errorhandler(400)
-    def handle_400(error):
-        app.logger.exception(error)
-        return app.redirect("/")
     
-    @app.errorhandler(Exception)
+    @app.errorhandler(HTTPException)
     def handle_exception(error):
         app.logger.exception(error)
         return error
@@ -99,11 +91,6 @@ def create_app(config_class=Config):
     @app.cli.command("folders")
     def create_folders():
         """Create the folders structure according to the current configuration.
-
-        The folders structure is as follows: BASE_PATH/REGION/LETTER, where BASE_PATH
-        is the base path defined in the configuration, REGION is one of the regions
-        defined in the Regions enum, and LETTER is one of the letters defined in the
-        configuration.
 
         :param folder: The folder to create the structure in. If not provided, the
             current BASE_PATH is used.

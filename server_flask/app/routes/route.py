@@ -6,7 +6,7 @@ import shutil
 import subprocess
 from datetime import datetime
 
-from flask import Blueprint, abort, current_app, jsonify, request, send_file
+from flask import Blueprint, current_app, jsonify, request, send_file
 from pydantic import ValidationError
 from PIL import Image
 from sqlalchemy import desc, func, select
@@ -20,10 +20,10 @@ from ..depends.depend import (
     jwt_required,
     roles_required,
 )
-from ..utils.utils import json_to_dict
 from ..model.classes import Regions, Roles
 from ..model.models import AnketaSchemaJson, Login, Model, Person, Relation, User
 from ..model.tables import Base, Checks, Persons, Users, association_table, db_session
+from ..utils.utils import json_to_dict
 
 bp = Blueprint("route", __name__, url_prefix="/api")
 
@@ -47,7 +47,7 @@ def post_login(action):
     try:
         json_data = Login(**json_data).dict()
     except ValidationError as e:
-        current_app.logger.warning(e)
+        current_app.logger.exception(e)
         return {"message": "Denied"}
     user = db_session.execute(
         select(Users).filter(
@@ -127,13 +127,13 @@ def post_user():
         - Else generates a hashed password using the default password.
         Returns an empty response with status code 201.
         - If an exception occurs during the execution of the function,
-        returns an empty response with status code 400.
+        returns an empty response with status code 200.
     """
     json_dict = request.get_json()
     try:
         json_dict = User(**json_dict).dict()
     except ValidationError as e:
-        current_app.logger.warning(e)
+        current_app.logger.exception(e)
         return jsonify({"message": "error"}), 204
     user = db_session.execute(
         select(Users).filter(Users.username == json_dict["username"])
@@ -163,7 +163,7 @@ def get_user_actions(user_id):
         The HTTP status code is 201.
     """
     if current_user.get("id") == user_id:
-        return abort(400)
+        return jsonify({"message": "error"}), 200
     user = db_session.get(Users, user_id)
     item = request.args.get("item")
     if user and item:
@@ -257,7 +257,7 @@ def post_file(item, item_id):
     files = request.files.getlist("file")
     person = db_session.get(Persons, item_id)
     if not files or not person:
-        return abort(400)
+        return jsonify({"message": "error"}), 200
     if person.destination and not os.path.isdir(person.destination):
         os.mkdir(person.destination)
     if not person.destination:
@@ -357,7 +357,7 @@ def post_resume(item):
         try:
             resume = Person(**resume).dict()
         except ValidationError as e:
-            current_app.logger.warning(e)
+            current_app.logger.exception(e)
             return None
         if not re.match(r"[А-ЯЁЙ]", resume["surname"][0]):
             return None
@@ -372,6 +372,7 @@ def post_resume(item):
                 Persons.birthday == resume["birthday"],
             )
         ).scalar_one_or_none()
+
         if not person:
             person = Persons(**resume)
             db_session.add(person)
@@ -392,7 +393,6 @@ def post_resume(item):
             return None
 
         resume["id"] = person.id
-        resume["user_id"] = current_user.get("id")
         db_session.merge(Persons(**resume))
         db_session.commit()
         return person.id
@@ -412,7 +412,7 @@ def post_resume(item):
         try:
             json_dict = AnketaSchemaJson(**json_dict).dict()
         except ValidationError as e:
-            current_app.logger.warning(e)
+            current_app.logger.exception(e)
             return jsonify({"person_id": None})
 
         anketa = json_to_dict(json_dict)
@@ -507,7 +507,7 @@ def get_item_id(item, item_id):
     if item == "persons":
         person = db_session.get(Persons, item_id)
         if not person:
-            return abort(404)
+            return "", 404
         return jsonify(person.to_dict()), 200
     else:
         table = Base.metadata.tables.get(item)
@@ -540,7 +540,7 @@ def post_item_id(item, item_id):
     try:
         json_data = model(**json_data).dict()
     except ValidationError as e:
-        current_app.logger.warning(e)
+        current_app.logger.exception(e)
         return jsonify({"message": "error"}), 200
     if item != "persons":
         json_data["person_id"] = item_id
