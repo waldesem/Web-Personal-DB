@@ -352,8 +352,8 @@ def post_resume(item):
                 current_app.config["BASE_PATH"],
                 resume["region"],
                 resume["surname"][0],
-                f"{person.id}-{resume["surname"]} {resume["firstname"]} "
-                f"{resume.get("patronymic", "")}".rstrip().upper(),
+                f"{person.id}-{resume['surname']} {resume['firstname']} "
+                f"{resume.get('patronymic', '')}".rstrip().upper(),
             )
             if not os.path.isdir(person.destination):
                 os.mkdir(person.destination)
