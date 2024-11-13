@@ -25,7 +25,8 @@ def wsgi_server(app, address, port, workers):
         print(f"Listening on http://{address}:{port}")
         loop.start()
     except KeyboardInterrupt:
+        print("Stopped")
         loop.stop()
         loop.close()
         executor.shutdown(wait=True)
-        print("Stopped")
+        
