@@ -371,9 +371,7 @@ def post_resume(item):
     if item == "resume":
         json_data = request.get_json()
         person_id = upload_resume(json_data)
-        if not person_id:
-            return jsonify({"person_id": None})
-        return jsonify({"person_id": person_id}), 201
+        return jsonify({"person_id": person_id})
 
     else:
         file = request.files.get("file")
@@ -390,7 +388,7 @@ def post_resume(item):
         person_id = upload_resume(anketa.pop("resume"))
         if not person_id:
             current_app.logger.warning("person_id is None")
-            return jsonify({"person_id": None})
+            return jsonify({"person_id": person_id})
 
         tables = {
             cls.__tablename__: cls
