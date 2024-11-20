@@ -210,24 +210,14 @@ def get_index(page):
     search_data = request.args.get("search")
     stmt = (
         select(Persons, Users.fullname)
-        .filter(Persons.user_id == Users.id)
-        .filter(
-            Persons.region == current_user.get("region")
+        .filter(Persons.user_id == Users.id, Persons.region == current_user.get("region")
             if current_user.get("region") != Regions.main.value
             else True
-        )
     )
     if search_data and len(search_data) > 2:
         query = [search.upper() for search in search_data.split()][:3]
         stmt = (
-            stmt.filter(Persons.surname.ilike(f"%{query[0]}%"))
-            .filter(
-                Persons.firstname.ilike(f"%{query[1]}%") if len(query) > 1 else True
-            )
-            .filter(
-                Persons.patronymic.ilike(f"%{query[2]}%") if len(query) > 2 else True
-            )
-        )
+            stmt.filter(Persons.surname.ilike(f"%{query[0]}%"), Persons.firstname.ilike(f"%{query[1]}%") if len(query) > 1 else True, Persons.patronymic.ilike(f"%{query[2]}%") if len(query) > 2 else True)
     query = db_session.execute(
         stmt.order_by(desc(Persons.id))
         .offset((page - 1) * pagination)
