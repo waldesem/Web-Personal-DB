@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Document } from "@/types/interfaces";
-import { useDateFormat } from "@vueuse/core";
 
 const emit = defineEmits(["cancel", "update"]);
 
@@ -17,7 +16,7 @@ const props = defineProps({
 
 const docForm = toRef(props.docs as Document);
 docForm.value.issue = docForm.value.issue
-  ? useDateFormat(docForm.value.issue, "YYYY-MM-DD").value 
+  ? new Date(docForm.value.issue).toISOString().split("T", 1)[0]
   : "";
 
 function submitDocument() {
