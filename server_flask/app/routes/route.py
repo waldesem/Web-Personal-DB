@@ -208,16 +208,19 @@ def get_index(page):
     """
     pagination = 11
     search_data = request.args.get("search", "")
-    stmt = (
-        select(Persons, Users.fullname)
-        .filter(Persons.user_id == Users.id, Persons.region == current_user.get("region")
-            if current_user.get("region") != Regions.main.value
-            else True
-    ))
+    stmt = select(Persons, Users.fullname).filter(
+        Persons.user_id == Users.id,
+        Persons.region == current_user.get("region")
+        if current_user.get("region") != Regions.main.value
+        else True,
+    )
     if len(search_data) > 2:
         query = [search.upper() for search in search_data.split()][:3]
-        stmt = (
-            stmt.filter(Persons.surname.ilike(f"%{query[0]}%"), Persons.firstname.ilike(f"%{query[1]}%") if len(query) > 1 else True, Persons.patronymic.ilike(f"%{query[2]}%") if len(query) > 2 else True))
+        stmt = stmt.filter(
+            Persons.surname.ilike(f"%{query[0]}%"),
+            Persons.firstname.ilike(f"%{query[1]}%") if len(query) > 1 else True,
+            Persons.patronymic.ilike(f"%{query[2]}%") if len(query) > 2 else True,
+        )
     query = db_session.execute(
         stmt.order_by(desc(Persons.id))
         .offset((page - 1) * pagination)
@@ -243,9 +246,9 @@ def use_filesystem(item, item_id):
         Response: A Flask Response object containing the image file.
 
     Raises:
-        None.   
+        None.
     """
-    
+
     person = db_session.get(Persons, item_id)
     if not person.destination or not os.path.isdir(person.destination):
         person.destination = os.path.join(
@@ -269,7 +272,9 @@ def use_filesystem(item, item_id):
             file_path = os.path.join(person.destination, "image", "image.jpg")
             if os.path.isfile(file_path):
                 return send_file(file_path, as_attachment=True, mimetype="image/jpg")
-            return send_file("static/no-photo.png", as_attachment=True, mimetype="image/jpg")
+            return send_file(
+                "static/no-photo.png", as_attachment=True, mimetype="image/jpg"
+            )
 
     else:
         item_dir = os.path.join(person.destination, item)
@@ -278,7 +283,7 @@ def use_filesystem(item, item_id):
         files = request.files.getlist("file")
         if not files:
             return jsonify({"message": "error"}), 200
-        
+
         if item == "image":
             if imghdr.what(files[0]) is not None:
                 image = Image.open(files[0])
@@ -309,11 +314,12 @@ def post_resume(item):
     Creates a new person or updates an existing person based on the provided data.
 
     Parameters:
-        item (str): The name to create or update the person in. 
+        item (str): The name to create or update the person in.
 
     Returns:
         A JSON response containing the person ID and an HTTP status code of 201.
     """
+
     def upload_resume(resume: dict):
         try:
             resume = Person(**resume).dict()
@@ -357,7 +363,7 @@ def post_resume(item):
         db_session.merge(Persons(**resume))
         db_session.commit()
         return person.id
-    
+
     if item == "resume":
         json_data = request.get_json()
         person_id = upload_resume(json_data)

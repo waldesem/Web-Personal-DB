@@ -46,7 +46,7 @@ def create_app(config_class=Config):
     def static_file(path=""):
         return app.send_static_file(path)
 
-    @app.errorhandler(HTTPException)
+    @app.errorhandler(404)
     def handle_404(error):
         app.logger.exception(error)
         return app.redirect("/")

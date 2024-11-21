@@ -17,12 +17,10 @@ const props = defineProps({
 const workForm = toRef(props.work as Work);
 
 workForm.value.starts = workForm.value.starts
-  ?
-new Date(workForm.value.starts).toISOString().split("T", 1)[0]
+  ? new Date(workForm.value.starts).toISOString().split("T", 1)[0]
   : "";
 workForm.value.finished = workForm.value.finished
-  ?
-new Date(workForm.value.finished).toISOString().split("T", 1)[0]
+  ? new Date(workForm.value.finished).toISOString().split("T", 1)[0]
   : "";
 
 function submitWorkplace() {

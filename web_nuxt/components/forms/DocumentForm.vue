@@ -25,7 +25,7 @@ function submitDocument() {
 }
 
 function cancelAction() {
-  emit('cancel');
+  emit("cancel");
   clearForm();
 }
 
@@ -50,7 +50,10 @@ function clearForm() {
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Серия документа">
-      <UInput v-model.trim.lazy="docForm['series']" placeholder="Серия документа" />
+      <UInput
+        v-model.trim.lazy="docForm['series']"
+        placeholder="Серия документа"
+      />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Номер документа" required>
       <UInput
@@ -63,11 +66,7 @@ function clearForm() {
       <UInput v-model.trim="docForm['agency']" placeholder="Кем выдан" />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Дата выдачи" required>
-      <UInput 
-        v-model.trim.lazy="docForm['issue']" 
-        required
-        type="date" 
-      />
+      <UInput v-model.trim.lazy="docForm['issue']" required type="date" />
     </UFormGroup>
     <ElementsBtnGroup @cancel="cancelAction" />
   </UForm>
