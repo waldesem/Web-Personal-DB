@@ -4,7 +4,6 @@ definePageMeta({
 });
 
 preloadRouteComponents("/persons")
-preloadRouteComponents("/login");
 
 await navigateTo("/persons");
 </script>
