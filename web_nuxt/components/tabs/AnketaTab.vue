@@ -1,6 +1,19 @@
 <script setup lang="ts">
 import type { Persons } from "@/types/interfaces";
 
+await preloadComponents([
+  "DivsResumeDiv",
+  "DivsPrevDiv",
+  "DivsStaffDiv",
+  "DivsEducateDiv",
+  "DivsWorkDiv",
+  "DivsDocumDiv",
+  "DivsAddressDiv",
+  "DivsContactDiv",
+  "DivsRelateDiv",
+  "DivsAffilDiv",
+]);
+
 const props = defineProps({
   status: {
     type: String,
@@ -99,7 +112,7 @@ function emitMessage(message: string) {
         :editable="props.editable"
         @message="emitMessage"
       />
-    </template>    
+    </template>
     <template #staff="">
       <DivsStaffDiv
         :cand-id="props.candId"

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Education } from "@/types/interfaces";
 
-prefetchComponents(["FormsEducationForm", "ElementsSkeletonDiv"]);
+prefetchComponents("FormsEducationForm");
 
 const emit = defineEmits(["message"]);
 

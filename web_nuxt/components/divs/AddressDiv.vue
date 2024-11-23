@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Address } from "@/types/interfaces";
 
-prefetchComponents(["FormsAddressForm", "ElementsSkeletonDiv"]);
+prefetchComponents("FormsAddressForm");
 
 const emit = defineEmits(["message"]);
 

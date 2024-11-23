@@ -60,7 +60,7 @@ async function submitLogin(): Promise<void> {
   )) as { message: string; user_token: string };
   if (message === "Success") {
     userToken.value = user_token;
-    return navigateTo("/persons");
+    await navigateTo("/persons");
   } else if (message === "Updated") {
     loginAction.value = "create";
     Object.assign(alert.value, {
@@ -90,7 +90,7 @@ async function submitLogin(): Promise<void> {
     <div class="py-8">
       <UAlert
         variant="subtle"
-        :color="alert.color"
+        :color="(alert.color as any)"
         :title="alert.title"
         :description="alert.description"
       />

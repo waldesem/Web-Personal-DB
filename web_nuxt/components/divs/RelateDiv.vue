@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Relation, Relationship } from "@/types/interfaces";
 
-prefetchComponents(["FormsRelationForm", "ElementsSkeletonDiv"]);
+prefetchComponents("FormsRelationForm");
 
 const emit = defineEmits(["message"]);
 

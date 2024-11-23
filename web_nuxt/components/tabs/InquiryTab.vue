@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Needs } from "@/types/interfaces";
 
-prefetchComponents(["FormsInquiryForm", "ElementsSkeletonDiv"]);
+prefetchComponents("FormsInquiryForm");
 
 const emit = defineEmits(["message"]);
 

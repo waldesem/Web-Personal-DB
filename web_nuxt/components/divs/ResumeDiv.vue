@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Persons } from "@/types/interfaces";
 
-prefetchComponents(["FormsResumeForm", "ElementsSkeletonDiv"]);
+prefetchComponents("FormsResumeForm");
 
 const emit = defineEmits(["update", "message"]);
 

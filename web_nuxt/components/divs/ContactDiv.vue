@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Contact } from "@/types/interfaces";
 
-prefetchComponents(["FormsContactForm", "ElementsSkeletonDiv"]);
+prefetchComponents("FormsContactForm");
 
 const emit = defineEmits(["message"]);
 

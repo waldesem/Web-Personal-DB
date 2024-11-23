@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import type { Work } from "@/types/interfaces";
-import { useDateFormat } from "@vueuse/core";
 
-prefetchComponents(["FormsWorkForm", "ElementsSkeletonDiv"]);
+prefetchComponents("FormsWorkForm");
 
 const emit = defineEmits(["message"]);
 
@@ -103,14 +102,14 @@ function closeAction() {
           <ElementsLabelSlot v-if="item['now_work']" :label="'Текущая работа'">
             {{ item["now_work"] ? "Да" : "Нет" }}
           </ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Начало работы'">
-            {{ useDateFormat(item["starts"], "DD.MM.YYYY") }}
+          <ElementsLabelSlot v-if="item['now_work']" :label="'Начало работы'">
+            {{ new Date(item["starts"]).toLocaleDateString("ru-RU").split(",")[0] }}
           </ElementsLabelSlot>
           <ElementsLabelSlot
-            v-if="!item['now_work']"
+            v-if="!item['now_work'] && item['finished']"
             :label="'Окончание работы'"
           >
-            {{ useDateFormat(item["finished"], "DD.MM.YYYY") }}
+            {{ new Date(item["finished"]).toLocaleDateString("ru-RU").split(",")[0] }}
           </ElementsLabelSlot>
           <ElementsLabelSlot :label="'Место работы'">
             {{ item["workplace"] }}

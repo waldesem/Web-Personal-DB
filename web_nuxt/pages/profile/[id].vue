@@ -1,7 +1,14 @@
 <script setup lang="ts">
 import type { Persons } from "@/types/interfaces";
 
-prefetchComponents("ElementsSkeletonDiv");
+await preloadComponents([
+  "DivsPhotoCard",
+  "TabsAnketaTab",
+  "TabsCheckTab",
+  "TabsPoligrafTab",
+  "TabsInvestigateTab",
+  "TabsInquiryTab",
+]);
 
 const authFetch = useFetchAuth();
 const userState = useUserState();

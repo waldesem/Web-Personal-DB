@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Verification } from "@/types/interfaces";
 
-prefetchComponents(["FormsCheckForm", "ElementsSkeletonDiv"]);
+prefetchComponents("FormsCheckForm");
 
 const emit = defineEmits(["message"]);
 

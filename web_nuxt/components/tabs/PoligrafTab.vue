@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Pfo } from "@/types/interfaces";
 
-prefetchComponents(["FormsPoligrafForm", "ElementsSkeletonDiv"]);
+prefetchComponents("FormsPoligrafForm");
 
 const emit = defineEmits(["message"]);
 

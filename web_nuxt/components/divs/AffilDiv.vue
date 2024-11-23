@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Affilation } from "@/types/interfaces";
 
-prefetchComponents(["FormsAffilationForm", "ElementsSkeletonDiv"]);
+prefetchComponents("FormsAffilationForm");
 
 const emit = defineEmits(["message"]);
 

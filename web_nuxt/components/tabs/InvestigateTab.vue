@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Inquisition } from "@/types/interfaces";
 
-prefetchComponents(["FormsInvestigationForm", "ElementsSkeletonDiv"]);
+prefetchComponents("FormsInvestigationForm");
 
 const emit = defineEmits(["message"]);
 

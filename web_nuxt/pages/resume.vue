@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Persons } from "@/types/interfaces";
 
+prefetchComponents("FormsResumeForm");
+
 const toast = useToast();
 const authFetch = useFetchAuth();
 

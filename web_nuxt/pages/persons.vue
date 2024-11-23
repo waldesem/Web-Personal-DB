@@ -2,6 +2,8 @@
 import type { Persons } from "@/types/interfaces";
 import { watchDebounced, useFileDialog } from "@vueuse/core";
 
+preloadRouteComponents("/profile/[id]");
+
 const authFetch = useFetchAuth();
 const userState = useUserState();
 const toast = useToast();
@@ -74,8 +76,6 @@ onChange(async (files) => {
 onCancel(() => {
   reset();
 });
-
-preloadRouteComponents("/profile/[id]");
 </script>
 
 <template>

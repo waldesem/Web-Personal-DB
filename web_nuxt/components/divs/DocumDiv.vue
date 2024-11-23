@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import type { Document } from "@/types/interfaces";
-import { useDateFormat } from "@vueuse/core";
 
-prefetchComponents(["FormsDocumentForm", "ElementsSkeletonDiv"]);
+prefetchComponents("FormsDocumentForm");
 
 const emit = defineEmits(["message"]);
 
@@ -106,8 +105,8 @@ function closeAction() {
           <ElementsLabelSlot :label="'Серия документа'">{{
             item["series"]
           }}</ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Дата выдачи'">
-            {{ useDateFormat(item["issue"], "DD.MM.YYYY") }}
+          <ElementsLabelSlot v-if="item['issue']" :label="'Дата выдачи'">
+            {{ new Date(item["issue"]).toLocaleDateString("ru-RU").split(",")[0] }}
           </ElementsLabelSlot>
           <ElementsLabelSlot :label="'Кем выдан'">{{
             item["agency"]

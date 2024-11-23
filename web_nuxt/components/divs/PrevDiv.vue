@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Previous } from "@/types/interfaces";
 
-prefetchComponents(["FormsPreviousForm", "ElementsSkeletonDiv"]);
+prefetchComponents("FormsPreviousForm");
 
 const emit = defineEmits(["message"]);
 

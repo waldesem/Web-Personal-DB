@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Staff } from "@/types/interfaces";
 
-prefetchComponents(["FormsStaffForm", "ElementsSkeletonDiv"]);
+prefetchComponents("FormsStaffForm");
 
 const emit = defineEmits(["message"]);
 
