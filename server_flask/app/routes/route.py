@@ -511,11 +511,11 @@ def post_item_id(item, item_id):
         json_data["person_id"] = item_id
     json_data["user_id"] = current_user.get("id")
     table_id = json_data.pop("id", None)
-    stmt = None
-    if table_id is not None:
-        stmt = table.update().where(table.c.id == table_id).values(json_data)
-    else:
-        stmt = table.insert().values(json_data)
+    stmt = (
+        table.update().where(table.c.id == table_id).values(json_data)
+        if table_id
+        else table.insert().values(json_data)
+    )
     db_session.execute(stmt)
     db_session.commit()
     return jsonify({"message": "success"}), 201
@@ -536,21 +536,18 @@ def delete_item(item, item_id):
         code of 204.
     """
     tables = Base.metadata.tables
+    table = tables.get(item)
     if item == "persons":
-        for model, table in tables.items():
+        for model, tbl in tables.items():
             if model not in ["users", "persons", "person_relationships"]:
-                db_session.execute(table.delete().where(table.c.person_id == item_id))
+                db_session.execute(tbl.delete().where(tbl.c.person_id == item_id))
         db_session.execute(
             association_table.delete().where(association_table.c.left_id == item_id)
         )
         db_session.execute(
             association_table.delete().where(association_table.c.right_id == item_id)
         )
-        table = tables.get(item)
-        db_session.execute(table.delete().where(table.c.id == item_id))
-    else:
-        table = tables.get(item)
-        db_session.execute(table.delete().where(table.c.id == item_id))
+    db_session.execute(table.delete().where(table.c.id == item_id))
     db_session.commit()
     return jsonify({"message": "success"}), 201
 
