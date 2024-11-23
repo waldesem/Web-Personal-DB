@@ -3,7 +3,7 @@ Original code here https://github.com/ClimenteA/flaskwebgui
 """
 
 import os
-import shutil
+# import shutil
 import time
 import uuid
 import signal
@@ -188,13 +188,13 @@ class FlaskUI:
             if self.on_shutdown is not None:
                 self.on_shutdown()
             self.browser_pid = None
-            shutil.rmtree(self.profile_dir, ignore_errors=True)
+            # shutil.rmtree(self.profile_dir, ignore_errors=True)
             server_process.kill()
         else:
             if self.on_shutdown is not None:
                 self.on_shutdown()
             self.browser_pid = None
-            shutil.rmtree(self.profile_dir, ignore_errors=True)
+            # shutil.rmtree(self.profile_dir, ignore_errors=True)
             kill_port(self.port)
 
     def run(self):
