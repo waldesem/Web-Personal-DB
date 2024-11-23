@@ -8,8 +8,6 @@ useSeoMeta({
   title: "StaffSec - кадровая безопасность",
   description: "Кадровая безопасность, проверка персонала",
 });
-
-preloadRouteComponents("/index")
 </script>
 
 <template>

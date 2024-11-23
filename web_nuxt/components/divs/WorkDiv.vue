@@ -102,14 +102,20 @@ function closeAction() {
           <ElementsLabelSlot v-if="item['now_work']" :label="'Текущая работа'">
             {{ item["now_work"] ? "Да" : "Нет" }}
           </ElementsLabelSlot>
-          <ElementsLabelSlot v-if="item['now_work']" :label="'Начало работы'">
-            {{ new Date(item["starts"]).toLocaleDateString("ru-RU").split(",")[0] }}
+          <ElementsLabelSlot v-if="item['starts']" :label="'Начало работы'">
+            {{
+              new Date(item["starts"]).toLocaleDateString("ru-RU").split(",")[0]
+            }}
           </ElementsLabelSlot>
           <ElementsLabelSlot
-            v-if="!item['now_work'] && item['finished']"
+            v-if="item['finished']"
             :label="'Окончание работы'"
           >
-            {{ new Date(item["finished"]).toLocaleDateString("ru-RU").split(",")[0] }}
+            {{
+              new Date(item["finished"])
+                .toLocaleDateString("ru-RU")
+                .split(",")[0]
+            }}
           </ElementsLabelSlot>
           <ElementsLabelSlot :label="'Место работы'">
             {{ item["workplace"] }}
