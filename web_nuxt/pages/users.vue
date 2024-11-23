@@ -1,6 +1,27 @@
 <script setup lang="ts">
-import type { User } from "@/types/interfaces";
 import { watchDebounced } from "@vueuse/core";
+import { z } from "zod";
+import type { User } from "@/types/interfaces";
+
+const schema = z.object({
+  username: z
+    .string()
+    .regex(
+      /^[a-zA-Z_\s]+$/,
+      "Поле должно содержать только латинские буквы и знаки подчеркивания"
+    ),
+  fullname: z
+    .string()
+    .regex(/^[а-яёЁА-Я-\s]+$/, "Поле должно содержать только русские буквы"),
+  email: z
+    .string()
+    .regex(
+      /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/,
+      "Поле должно содержать корректную почту"
+    ),
+});
+
+type UserForm = z.infer<typeof schema>;
 
 const toast = useToast();
 
@@ -8,11 +29,11 @@ const fetchAuth = useFetchAuth();
 const userState = useUserState();
 
 const search = ref("");
-const userId= ref("");
+const userId = ref("");
 const region = ref("");
 const role = ref("");
 const users = ref([] as User[]);
-const form = ref({} as User);
+const form = ref({} as UserForm);
 const collapsed = ref(false);
 const viewDeleted = ref(false);
 
@@ -22,9 +43,7 @@ const viewDeleted = ref(false);
  * @return {User[]} An array of user objects
  */
 const filtredUsers = computed(() => {
-  return users.value.filter(
-    (user: User) => user.deleted == viewDeleted.value
-  );
+  return users.value.filter((user: User) => user.deleted == viewDeleted.value);
 });
 
 const { refresh, status } = await useLazyAsyncData("users", async () => {
@@ -58,11 +77,11 @@ async function userAction(
   if (!confirm("Подтвердите действие!")) {
     return;
   }
-  const { message } = await fetchAuth("/api/users/" + id, {
+  const { message } = (await fetchAuth("/api/users/" + id, {
     params: {
       item: item,
     },
-  }) as Record<string, string>;
+  })) as Record<string, string>;
   userId.value = "";
   region.value = "";
   role.value = "";
@@ -116,34 +135,8 @@ async function submitUser(): Promise<void> {
   }
 }
 
-const validate = (state: User) => {
-  const errors = [];
-  if (state.fullname && !state.fullname.match(/^[а-яёЁА-Я-\s]+$/)) {
-    errors.push({
-      path: "fullname",
-      message: "Поле должно содержать только русские буквы",
-    });
-  }
-  if (state.username && !state.username.match(/^[a-zA-Z_\s]+$/)) {
-    errors.push({
-      path: "username",
-      message:
-        "Поле должно содержать только латинские буквы и знаки подчеркивания",
-    });
-  }
-  if (
-    state.email &&
-    !state.email.match(/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/)
-  ) {
-    errors.push({
-      path: "email",
-      message: "Поле должно содержать корректную почту",
-    });
-  }
-  return errors;
-};
-
-watchDebounced(search,
+watchDebounced(
+  search,
   () => {
     refresh();
   },
@@ -203,8 +196,8 @@ const items = [
     <Transition name="slide-fade">
       <UForm
         v-if="collapsed"
+        :schema="schema"
         :state="form"
-        :validate="validate"
         @submit.prevent="submitUser"
       >
         <div class="flex grid grid-cols-7 gap-3 border rounded p-3">
@@ -218,10 +211,7 @@ const items = [
           </div>
           <div class="col-span-2">
             <UFormGroup required class="mb-3" name="username">
-              <UInput
-                v-model="form['username']"
-                placeholder="Логин"
-              />
+              <UInput v-model="form['username']" placeholder="Логин" />
             </UFormGroup>
           </div>
           <div class="col-span-2">

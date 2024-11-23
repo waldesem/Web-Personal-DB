@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// import { z } from "zod";
 import type { Persons } from "@/types/interfaces";
 
 const emit = defineEmits(["cancel", "update"]);
@@ -9,6 +10,20 @@ const props = defineProps({
     default: {} as Persons,
   },
 });
+
+// const schema = z.object({
+//   surname: z.string().min(1),
+//   firstname: z.string().min(1),
+//   patronymic: z.string().min(1),
+//   birthday: z.string().min(1),
+//   birthplace: z.string().min(1),
+//   citizenship: z.string().min(1),
+//   dual: z.string().min(1),
+//   inn: z.string().min(1),
+//   snils: z.string().min(1),
+//   marital: z.string().min(1),
+//   addition: z.string().min(1),
+// });
 
 const resumeForm = toRef(props.resume);
 

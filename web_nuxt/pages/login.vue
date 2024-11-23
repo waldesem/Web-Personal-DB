@@ -1,12 +1,22 @@
 <script setup lang="ts">
+import { z } from "zod";
+
 definePageMeta({ layout: false });
 
-interface Login {
-  username: string;
-  password: string;
-  new_pswd: string;
-  conf_pswd: string;
-}
+const schema = z.object({
+  username: z.string(),
+  password: z.string(),
+  new_pswd: z
+    .string()
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,16}$/,
+      "Пароль от 8 до 16 цифр и латинских букв в нижнем и верхнем регистре"
+    )
+    .optional(),
+  conf_pswd: z.string().optional(),
+});
+
+type Login = z.infer<typeof schema>;
 
 const loginAction = ref("create");
 const loginForm = ref({} as Login);
@@ -24,16 +34,6 @@ const validate = (state: Login) => {
       errors.push({
         path: "new_pswd",
         message: "Старый и новый пароли совпадают",
-      });
-    }
-    if (
-      state.new_pswd &&
-      !state.new_pswd.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,16}$/)
-    ) {
-      errors.push({
-        path: "new_pswd",
-        message:
-          "Пароль должен быть от 8 до 16 цифр и латинских букв в нижнем и верхнем регистре",
       });
     }
     if (state.conf_pswd !== state.new_pswd) {
@@ -108,6 +108,7 @@ async function submitLogin(): Promise<void> {
           "
         />
         <UForm
+          :schema="schema"
           :state="loginForm"
           :validate="validate"
           class="mt-4"
