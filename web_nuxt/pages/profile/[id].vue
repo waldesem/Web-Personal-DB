@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Persons } from "@/types/interfaces";
+import type { Persons } from "@/types";
 
 await preloadComponents([
   "DivsPhotoCard",

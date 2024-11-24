@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Inquisition } from "@/types/interfaces";
+import type { Inquisition } from "@/types";
 
 prefetchComponents("FormsInvestigationForm");
 

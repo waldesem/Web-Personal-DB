@@ -1,20 +1,23 @@
 <script setup lang="ts">
 import { watchDebounced } from "@vueuse/core";
 import { z } from "zod";
-import type { User } from "@/types/interfaces";
+import type { User } from "@/types";
 
 const schema = z.object({
   username: z
     .string()
+    .max(255)
     .regex(
       /^[a-zA-Z_\s]+$/,
       "Поле должно содержать только латинские буквы и знаки подчеркивания"
     ),
   fullname: z
     .string()
+    .max(255)
     .regex(/^[а-яёЁА-Я-\s]+$/, "Поле должно содержать только русские буквы"),
   email: z
     .string()
+    .max(255)
     .regex(
       /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/,
       "Поле должно содержать корректную почту"

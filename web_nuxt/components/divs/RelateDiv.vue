@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Relation, Relationship } from "@/types/interfaces";
+import type { Relation, Relationship } from "@/types";
 
 prefetchComponents("FormsRelationForm");
 

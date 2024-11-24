@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Contact } from "@/types/interfaces";
+import type { Contact } from "@/types";
 
 prefetchComponents("FormsContactForm");
 

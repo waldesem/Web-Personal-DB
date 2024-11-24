@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Verification } from "@/types/interfaces";
+import type { Verification } from "@/types";
 
 prefetchComponents("FormsCheckForm");
 

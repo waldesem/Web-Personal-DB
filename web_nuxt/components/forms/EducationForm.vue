@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Education } from "@/types/interfaces";
+import type { Education } from "@/types";
 
 const emit = defineEmits(["cancel", "update"]);
 

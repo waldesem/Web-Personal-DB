@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Previous } from "@/types/interfaces";
+import type { Previous } from "@/types";
 
 const emit = defineEmits(["cancel", "update"]);
 

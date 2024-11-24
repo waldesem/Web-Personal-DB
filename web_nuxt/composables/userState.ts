@@ -1,5 +1,5 @@
 import { Buffer } from "buffer";
-import type { User } from "@/types/interfaces";
+import type { User } from "@/types";
 
 export const useUserState = () => {
   if (userToken.value) {

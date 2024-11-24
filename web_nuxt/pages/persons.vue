@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Persons } from "@/types/interfaces";
+import type { Persons } from "@/types";
 import { watchDebounced, useFileDialog } from "@vueuse/core";
 
 preloadRouteComponents("/profile/[id]");

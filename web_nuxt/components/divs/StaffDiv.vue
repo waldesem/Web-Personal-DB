@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Staff } from "@/types/interfaces";
+import type { Staff } from "@/types";
 
 prefetchComponents("FormsStaffForm");
 

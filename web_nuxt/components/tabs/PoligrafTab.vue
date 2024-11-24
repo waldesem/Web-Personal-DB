@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Pfo } from "@/types/interfaces";
+import type { Pfo } from "@/types";
 
 prefetchComponents("FormsPoligrafForm");
 

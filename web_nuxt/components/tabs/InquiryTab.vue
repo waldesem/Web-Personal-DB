@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Needs } from "@/types/interfaces";
+import type { Needs } from "@/types";
 
 prefetchComponents("FormsInquiryForm");
 

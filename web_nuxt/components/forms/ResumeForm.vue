@@ -1,6 +1,6 @@
 <script setup lang="ts">
-// import { z } from "zod";
-import type { Persons } from "@/types/interfaces";
+import { z } from "zod";
+import type { Persons } from "@/types";
 
 const emit = defineEmits(["cancel", "update"]);
 
@@ -11,19 +11,40 @@ const props = defineProps({
   },
 });
 
-// const schema = z.object({
-//   surname: z.string().min(1),
-//   firstname: z.string().min(1),
-//   patronymic: z.string().min(1),
-//   birthday: z.string().min(1),
-//   birthplace: z.string().min(1),
-//   citizenship: z.string().min(1),
-//   dual: z.string().min(1),
-//   inn: z.string().min(1),
-//   snils: z.string().min(1),
-//   marital: z.string().min(1),
-//   addition: z.string().min(1),
-// });
+const schema = z.object({
+  surname: z
+    .string()
+    .max(255)
+    .regex(/^[а-яёЁА-Я-\s]+$/, "Поле должно содержать только русские буквы"),
+  firstname: z
+    .string()
+    .max(255)
+    .regex(/^[а-яёЁА-Я-\s]+$/, "Поле должно содержать только русские буквы"),
+  patronymic: z
+    .string()
+    .max(255)
+    .regex(/^[а-яёЁА-Я-\s]+$/, "Поле должно содержать только русские буквы")
+    .optional(),
+  birthday: z
+    .string()
+    .regex(
+      /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/,
+      "Поле должно содержать корректную дату"
+    ),
+  birthplace: z.string().max(255).optional(),
+  citizenship: z.string().max(255).optional(),
+  dual: z.string().max(255).optional(),
+  inn: z
+    .string()
+    .regex(/^[0-9]{12}$/, "Поле должно содержать 12 цифр")
+    .optional(),
+  snils: z
+    .string()
+    .regex(/^[0-9]{11}$/, "Поле должно содержать 11 цифр")
+    .optional(),
+  marital: z.string().max(255).optional(),
+  addition: z.string().optional(),
+});
 
 const resumeForm = toRef(props.resume);
 
@@ -52,55 +73,6 @@ function cancelEdit() {
   } as Persons);
 }
 
-const validate = (state: Persons) => {
-  const errors = [];
-  if (state.surname && !state.surname.match(/^[а-яёЁА-Я-\s]+$/)) {
-    errors.push({
-      path: "surname",
-      message: "Поле должно содержать только русские буквы",
-    });
-  }
-  if (state.firstname && !state.firstname.match(/^[а-яёЁА-Я-\s]+$/)) {
-    errors.push({
-      path: "firstname",
-      message: "Поле должно содержать только русские буквы",
-    });
-  }
-  if (state.patronymic && !state.patronymic.match(/^[а-яёЁА-Я-\s]+$/)) {
-    errors.push({
-      path: "patronymic",
-      message: "Поле должно содержать только русские буквы",
-    });
-  }
-  if (!Object.prototype.toString.call(state.birthday)) {
-    console.log(state.birthday);
-    errors.push({
-      path: "birthday",
-      message: "Поле должно содержать дату",
-    });
-  }
-  if (new Date(state.birthday) > new Date()) {
-    console.log(state.birthday);
-    errors.push({
-      path: "birthday",
-      message: "Поле должно содержать корректную дату",
-    });
-  }
-  if (state.snils && !state.snils.match(/^[0-9]{11}$/)) {
-    errors.push({
-      path: "snils",
-      message: "Поле должно содержать 11 цифр",
-    });
-  }
-  if (state.inn && !state.inn.match(/^[0-9]{12}$/)) {
-    errors.push({
-      path: "inn",
-      message: "Поле должно содержать 12 цифр",
-    });
-  }
-  return errors;
-};
-
 async function submitResume() {
   emit("update", resumeForm.value);
   cancelEdit();
@@ -108,11 +80,7 @@ async function submitResume() {
 </script>
 
 <template>
-  <UForm
-    :state="resumeForm"
-    :validate="validate"
-    @submit.prevent="submitResume"
-  >
+  <UForm :state="resumeForm" :schema="schema" @submit.prevent="submitResume">
     <UFormGroup class="mb-3" label="Фамилия" name="surname" required>
       <UInput
         v-model.trim="resumeForm['surname']"
