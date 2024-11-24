@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { z } from "zod";
 import type { Needs } from "@/types";
 
 const emit = defineEmits(["cancel", "update"]);
@@ -12,6 +13,14 @@ const props = defineProps({
     type: String,
     default: "",
   },
+});
+
+const schema = z.object({
+  info: z.string({ required_error: "Обязательное поле" }),
+  initiator: z
+    .string({ required_error: "Обязательное поле" })
+    .max(255, "Максимум 255 символов"),
+  origins: z.string().nullable().optional(),
 });
 
 const inquiryForm = toRef(props.inquiry as Needs);
@@ -36,8 +45,8 @@ function clearForm() {
 </script>
 
 <template>
-  <UForm :state="inquiryForm" @submit.prevent="submitIquiry">
-    <UFormGroup class="mb-3" label="Информация" required>
+  <UForm :state="inquiryForm" :schema="schema" @submit.prevent="submitIquiry">
+    <UFormGroup class="mb-3" label="Информация" name="info" required>
       <UTextarea
         v-model.trim.lazy="inquiryForm['info']"
         required
@@ -45,14 +54,14 @@ function clearForm() {
         placeholder="Информация"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Инициатор" required>
+    <UFormGroup class="mb-3" label="Инициатор" name="initiator" required>
       <UInput
         v-model.trim.lazy="inquiryForm['initiator']"
         required
         placeholder="Инициатор"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Источники">
+    <UFormGroup class="mb-3" label="Источники" name="origins">
       <UInput
         v-model.trim.lazy="inquiryForm['origins']"
         placeholder="Источники"

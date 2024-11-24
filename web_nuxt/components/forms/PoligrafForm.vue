@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { z } from "zod";
 import type { Pfo } from "@/types";
 
 const emit = defineEmits(["cancel", "update"]);
@@ -12,6 +13,13 @@ const props = defineProps({
     type: String,
     default: "",
   },
+});
+
+const schema = z.object({
+  theme: z
+    .string({ required_error: "Обязательное поле" })
+    .max(255, "Максимум 255 символов"),
+  results: z.string({ required_error: "Обязательное поле" }),
 });
 
 const poligrafForm = toRef(props.poligraf as Pfo);
@@ -30,8 +38,8 @@ function cancelAction() {
 </script>
 
 <template>
-  <UForm :state="poligrafForm" @submit.prevent="submitPoligraf">
-    <UFormGroup class="mb-3" label="Тема проверки" required>
+  <UForm :state="poligrafForm" :schema="schema" @submit.prevent="submitPoligraf">
+    <UFormGroup class="mb-3" label="Тема проверки" name="theme" required>
       <USelect
         v-model="poligrafForm['theme']"
         required
@@ -43,11 +51,11 @@ function cancelAction() {
         ]"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Результат" required>
+    <UFormGroup class="mb-3" label="Результат" name="results" required>
       <UTextarea
         v-model.trim.lazy="poligrafForm['results']"
         required
-        autoresize 
+        autoresize
         placeholder="Результат"
       />
     </UFormGroup>

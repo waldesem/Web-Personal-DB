@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { z } from "zod";
 import type { Relation } from "@/types";
 
 const emit = defineEmits(["cancel", "update"]);
@@ -12,6 +13,14 @@ const props = defineProps({
     type: String,
     default: "",
   },
+});
+
+const schema = z.object({
+  type: z
+    .string({ required_error: "Обязательное поле" })
+    .max(255, "Максимум 255 символов"),
+  right_id: z
+    .number({ required_error: "Обязательное поле" })
 });
 
 const relationForm = toRef(props.relation as Relation);
@@ -35,8 +44,8 @@ function clearForm() {
 </script>
 
 <template>
-  <UForm :state="relationForm" @submit.prevent="submitRelation">
-    <UFormGroup class="mb-3" label="Тип связи" required>
+  <UForm :state="relationForm" :schema="schema" @submit.prevent="submitRelation">
+    <UFormGroup class="mb-3" label="Тип связи" name="type" required>
       <USelect
         v-model.trim.lazy="relationForm['type']"
         required
@@ -50,7 +59,7 @@ function clearForm() {
         ]"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="ID связи" required>
+    <UFormGroup class="mb-3" label="ID связи" name="right_id" required>
       <UInput
         v-model.trim.lazy="relationForm['right_id']"
         required

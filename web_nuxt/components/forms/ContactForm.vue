@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { z } from "zod";
 import type { Contact } from "@/types";
 
 const emit = defineEmits(["cancel", "update"]);
@@ -12,6 +13,15 @@ const props = defineProps({
     type: String,
     default: "",
   },
+});
+
+const schema = z.object({
+  view: z
+    .string({ required_error: "Обязательное поле" })
+    .max(255, "Максимум 255 символов"),
+  contact: z
+    .string({ required_error: "Обязательное поле" })
+    .max(255, "Максимум 255 символов"),
 });
 
 const contactForm = toRef(props.contact as Contact);
@@ -35,15 +45,15 @@ function clearForm() {
 </script>
 
 <template>
-  <UForm :state="contactForm" @submit.prevent="submitContact">
-    <UFormGroup class="mb-3" label="Вид контакта" required>
+  <UForm :state="contactForm" :schema="schema" @submit.prevent="submitContact">
+    <UFormGroup class="mb-3" label="Вид контакта" name="view" required>
       <USelect
         v-model.trim.lazy="contactForm['view']"
         required
         :options="['Телефон', 'Электронная почта', 'Другое']"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Контакт" required>
+    <UFormGroup class="mb-3" label="Контакт" name="contact" required>
       <UInput
         v-model.trim.lazy="contactForm['contact']"
         required
