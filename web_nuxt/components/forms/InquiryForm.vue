@@ -20,7 +20,11 @@ const schema = z.object({
   initiator: z
     .string({ required_error: "Обязательное поле" })
     .max(255, "Максимум 255 символов"),
-  origins: z.string().nullable().optional(),
+  origins: z
+    .string()
+    .max(255, "Максимум 255 символов")
+    .nullable()
+    .optional(),
 });
 
 const inquiryForm = toRef(props.inquiry as Needs);
