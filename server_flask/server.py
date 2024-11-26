@@ -17,7 +17,7 @@ def main():
             python server.py --host 127.0.0.1 --port 5000 --mode devel
 
         For production:
-            python server.py --host 127.0.0.1 --port 5000 --workers 8 --mode serve
+            python server.py --host 127.0.0.1 --port 5000 --workers 8 --mode server
 
         For desktop:
             python server.py
@@ -34,9 +34,9 @@ def main():
     )
     parser.add_argument(
         "--mode",
-        choices=["debug", "devel", "serve", "desktop"],
+        choices=["debug", "devel", "server", "desktop"],
         default="desktop",
-        help="The mode to run the server in (debug, devel, serve, desktop).",
+        help="The mode to run the server in (debug, devel, server, desktop).",
     )
     args = parser.parse_args()
 
@@ -47,7 +47,7 @@ def main():
             app.run(host=args.host, port=args.port, debug=True)
         case "devel":
             app.run(host=args.host, port=args.port, debug=False)
-        case "serve":
+        case "server":
             wsgi_server(app, address=args.host, port=args.port, workers=args.workers)
         case "desktop":
             FlaskUI(
