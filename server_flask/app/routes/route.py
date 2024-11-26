@@ -217,9 +217,9 @@ def get_index(page):
     if len(search_data) > 2:
         query = [search.upper() for search in search_data.split()][:3]
         stmt = stmt.filter(
-            Persons.surname.ilike(f"%{query[0]}%"),
-            Persons.firstname.ilike(f"%{query[1]}%") if len(query) > 1 else True,
-            Persons.patronymic.ilike(f"%{query[2]}%") if len(query) > 2 else True,
+            Persons.surname.ilike(f"{query[0]}%"),
+            Persons.firstname.ilike(f"{query[1]}%") if len(query) > 1 else True,
+            Persons.patronymic.ilike(f"{query[2]}%") if len(query) > 2 else True,
         )
     query = db_session.execute(
         stmt.order_by(desc(Persons.id))
@@ -333,9 +333,9 @@ def post_resume(item):
         resume["region"] = current_user.get("region")
         person = db_session.execute(
             select(Persons).where(
-                Persons.surname.ilike("%{}%".format(resume["surname"])),
-                Persons.firstname.ilike("%{}%".format(resume["firstname"])),
-                Persons.patronymic.ilike("%{}%".format(resume["patronymic"])),
+                Persons.surname.ilike("{}".format(resume["surname"])),
+                Persons.firstname.ilike("{}".format(resume["firstname"])),
+                Persons.patronymic.ilike("{}".format(resume["patronymic"])),
                 Persons.birthday == resume["birthday"],
             )
         ).scalar_one_or_none()
