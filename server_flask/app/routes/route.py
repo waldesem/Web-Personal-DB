@@ -333,9 +333,9 @@ def post_resume(item):
         resume["region"] = current_user.get("region")
         person = db_session.execute(
             select(Persons).where(
-                Persons.surname.ilike("{}".format(resume["surname"])),
-                Persons.firstname.ilike("{}".format(resume["firstname"])),
-                Persons.patronymic.ilike("{}".format(resume["patronymic"])),
+                Persons.surname.ilike(resume["surname"]),
+                Persons.firstname.ilike(resume["firstname"]),
+                Persons.patronymic.ilike(resume["patronymic"]),
                 Persons.birthday == resume["birthday"],
             )
         ).scalar_one_or_none()
