@@ -215,11 +215,11 @@ def get_index(page):
         else True,
     )
     if len(search_data) > 2:
-        query = [search.upper() for search in search_data.split()][:3]
+        search = search_data.upper().split()[:3]
         stmt = stmt.filter(
-            Persons.surname.ilike(f"{query[0]}%"),
-            Persons.firstname.ilike(f"{query[1]}%") if len(query) > 1 else True,
-            Persons.patronymic.ilike(f"{query[2]}%") if len(query) > 2 else True,
+            Persons.surname.ilike(f"{search[0]}%"),
+            Persons.firstname.ilike(f"{search[1]}%") if len(query) > 1 else True,
+            Persons.patronymic.ilike(f"{search[2]}%") if len(query) > 2 else True,
         )
     query = db_session.execute(
         stmt.order_by(desc(Persons.id))
@@ -333,9 +333,9 @@ def post_resume(item):
         resume["region"] = current_user.get("region")
         person = db_session.execute(
             select(Persons).where(
-                Persons.surname.ilike(resume["surname"]),
-                Persons.firstname.ilike(resume["firstname"]),
-                Persons.patronymic.ilike(resume["patronymic"]),
+                Persons.surname == resume["surname"],
+                Persons.firstname == resume["firstname"],
+                Persons.patronymic == resume["patronymic"],
                 Persons.birthday == resume["birthday"],
             )
         ).scalar_one_or_none()
@@ -366,7 +366,7 @@ def post_resume(item):
 
     if item == "resume":
         json_data = request.get_json()
-        person_id = upload_resume(json_data)
+        person_id = upload_resume(json_data) if json_data else None
         return jsonify({"person_id": person_id})
 
     else:
