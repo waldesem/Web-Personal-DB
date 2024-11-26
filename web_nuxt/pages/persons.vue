@@ -40,8 +40,8 @@ watchDebounced(
     refresh();
   },
   {
-    debounce: 500,
-    maxWait: 1000,
+    debounce: 2000,
+    maxWait: 5000,
   }
 );
 
