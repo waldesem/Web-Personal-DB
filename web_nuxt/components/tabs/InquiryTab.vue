@@ -112,9 +112,6 @@ function cancelOperation() {
           <ElementsLabelSlot v-if="item['initiator']" :label="'Иннициатор'">{{
             item["initiator"]
           }}</ElementsLabelSlot>
-          <ElementsLabelSlot v-if="item['origins']" :label="'Источники'"
-            >{{ item["origins"] }}
-          </ElementsLabelSlot>
            <ElementsLabelSlot :label="'Дата записи'">
             {{ new Date(item["created"]).toLocaleString("ru-RU") }}
           </ElementsLabelSlot>
