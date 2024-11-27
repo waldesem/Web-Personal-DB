@@ -217,9 +217,9 @@ def get_index(page):
     if len(search_data) > 2:
         search = search_data.upper().split()[:3]
         stmt = stmt.filter(
-            Persons.surname.ilike(f"{search[0]}%"),
-            Persons.firstname.ilike(f"{search[1]}%") if len(query) > 1 else True,
-            Persons.patronymic.ilike(f"{search[2]}%") if len(query) > 2 else True,
+            Persons.surname = search[0],
+            Persons.firstname = search[1] if len(query) > 1 else True,
+            Persons.patronymic = search[2] if len(query) > 2 else True,
         )
     query = db_session.execute(
         stmt.order_by(desc(Persons.id))
