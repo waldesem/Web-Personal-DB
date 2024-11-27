@@ -20,11 +20,6 @@ const schema = z.object({
   initiator: z
     .string({ required_error: "Обязательное поле" })
     .max(255, "Максимум 255 символов"),
-  origins: z
-    .string()
-    .max(255, "Максимум 255 символов")
-    .nullable()
-    .optional(),
 });
 
 const inquiryForm = toRef(props.inquiry as Needs);
@@ -42,7 +37,6 @@ function cancelAction() {
 function clearForm() {
   Object.assign(inquiryForm.value, {
     info: "",
-    origins: "",
     initiator: "",
   } as Needs);
 }
@@ -63,12 +57,6 @@ function clearForm() {
         v-model.trim.lazy="inquiryForm['initiator']"
         required
         placeholder="Инициатор"
-      />
-    </UFormGroup>
-    <UFormGroup class="mb-3" label="Источники" name="origins">
-      <UInput
-        v-model.trim.lazy="inquiryForm['origins']"
-        placeholder="Источники"
       />
     </UFormGroup>
     <ElementsBtnGroup @cancel="cancelAction" />
