@@ -222,7 +222,7 @@ def get_index(page):
             Persons.patronymic = search[2] if len(query) > 2 else True,
         )
     query = db_session.execute(
-        stmt.order_by(desc(Persons.id))
+        stmt.order_by(desc(Persons.editable), desc(Persons.id))
         .offset((page - 1) * pagination)
         .limit(pagination + 1)
     ).all()
