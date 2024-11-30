@@ -1,20 +1,20 @@
 import { Buffer } from "buffer";
-import type { User } from "@/types";
+import type { Token } from "@/types";
 
 export const useUserState = () => {
-  if (userToken.value) {
-    const cridentials = userToken.value.split(" ");
+  if (accessToken.value) {
+    const cridentials = accessToken.value.split(" ");
     if (cridentials.length > 1) {
       const payloads = cridentials[1].split(".");
       if (payloads.length > 1) {
-        const user = useState(
+        const token = useState(
           "user",
           () =>
             JSON.parse(Buffer.from(payloads[1], "base64").toString())
         );
-        if (user.value) return user as Ref<User>;
+        if (token.value) return token as Ref<Token>;
       }
     }
   }
-  return {} as Ref<User>;
+  return {} as Ref<Token>;
 };

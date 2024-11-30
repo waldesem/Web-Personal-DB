@@ -4,7 +4,8 @@ export interface Token {
   email: string;
   region: string;
   role: string;
-  exp: string;
+  uid: string;
+  exp: number;
 }
 
 export interface User {

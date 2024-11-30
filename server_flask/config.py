@@ -12,6 +12,7 @@ setting.read(os.path.join(BASE, "settings.ini"), encoding="utf-8")
 class Configuration:
     SECRET_KEY = secrets.token_hex(16)
     JWT_SECRET_KEY = secrets.token_hex(16)
+    JWT_REFRESH_SECRET_KEY = secrets.token_hex(16)
     BASE_PATH = setting["Destination"].get("path")
     DATABASE_URI = "sqlite:///" + os.path.join(BASE_PATH, "database.db")
     DEFAULT_PASSWORD = "88888888"

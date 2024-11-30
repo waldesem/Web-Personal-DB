@@ -6,7 +6,7 @@ const isOpen = ref(false)
 
 async function logout() {
   if (confirm("Вы действительно хотите выйти?")) {
-    userToken.value = null;
+    accessToken.value = null;
     clearNuxtData();
     return navigateTo("/login");
   }

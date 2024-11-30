@@ -21,10 +21,10 @@ export const useFetchAuth = () => {
     url: string,
     options: NitroFetchOptions<ResponseType, Method> = {}
   ) => {
-    if (userToken.value) {
+    if (accessToken.value) {
       options.headers = {
         ...options.headers,
-        Authorization: `${userToken.value}`,
+        Authorization: `${accessToken.value}`,
       };
     } else {
       return navigateTo("/login");

@@ -14,6 +14,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from ..depends.depend import (
     create_token,
+    create_refresh_token,
     current_user,
     get_current_user,
     get_payload,
@@ -82,15 +83,34 @@ def post_login(action):
     if not user.change_pswd and delta_change.days < 365:
         user.attempt = 0
         db_session.commit()
-        token = create_token(Token(**user.to_dict()).dict())
-        if token:
-            return jsonify(
-                {
-                    "message": "Success",
-                    "user_token": token,
-                }
-            )
+        try:
+            token_validated = Token(**user.to_dict())
+            token = create_token(token_validated.dict())
+            refresh_token = create_refresh_token(user.id)
+            if token:
+                return jsonify(
+                    {
+                        "message": "Success",
+                        "access_token": token,
+                        "refresh_token": refresh_token,
+                    }
+                )
+        except Exception as e:
+            current_app.logger.exception(e)
     return {"message": "Denied"}
+
+
+@bp.get("/refresh")
+@jwt_required(refresh=True)
+def get_token():
+    """
+    A function that refreshes the token.
+
+    Returns:
+        The function returns a tuple containing the token and a status code.
+        The status code is 200.
+    """
+    return jsonify({"access_token": create_token(current_user)}), 200
 
 
 @bp.get("/users")

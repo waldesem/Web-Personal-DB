@@ -25,6 +25,8 @@ class Token(Model):
     email: Optional[str]
     region: Optional[Regions]
     role: Optional[Roles]
+    exp: int
+    uid: str
 
 
 class User(Model):

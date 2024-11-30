@@ -1,5 +1,9 @@
 import { useStorage } from "@vueuse/core";
 
-export const userToken = useStorage("userToken", "", localStorage, {
+export const accessToken = useStorage("accessToken", "", localStorage, {
+  mergeDefaults: true,
+});
+
+export const refreshToken = useStorage("refreshToken", "", localStorage, {
   mergeDefaults: true,
 });
