@@ -22,8 +22,16 @@ from ..depends.depend import (
 )
 from ..model.classes import Regions, Roles
 from ..model.models import AnketaSchemaJson, Login, Model, Person, Relation, User
-from ..model.tables import Base, Checks, Persons, Users, association_table, db_session
-from ..utils.utils import json_to_dict
+from ..model.tables import (
+    Base,
+    Checks,
+    Persons,
+    Users,
+    association_table,
+    db_session,
+    tables,
+)
+from ..utils.utils import json_to_dict, secure_filename
 
 bp = Blueprint("route", __name__, url_prefix="/api")
 
@@ -40,8 +48,6 @@ def post_login(action):
         The function returns a tuple containing an empty string and a status code.
         The status code is either 204, or 205, depending on the outcome of the login process.
 
-    Raises:
-        None
     """
     json_data = request.get_json()
     try:
@@ -103,9 +109,9 @@ def get_users():
     stmt = select(Users)
     if search_data and len(search_data) > 2:
         if re.match(r"^[a-zA-z_]+", search_data):
-            stmt = stmt.filter(Users.username.like(f"{search_data}%"))
+            stmt = stmt.filter(func.lower(Users.username) == search_data.lower())
         else:
-            stmt = stmt.filter(Users.fullname.like(f"{search_data}%"))
+            stmt = stmt.filter(func.lower(Users.fullname) == search_data.lower())
     users = db_session.execute(stmt.order_by(desc(Users.id))).scalars()
     return jsonify([user.to_dict() for user in users]), 200
 
@@ -119,11 +125,8 @@ def post_user():
     This function is a route handler for the '/users' endpoint with the HTTP method POST.
     It requires a valid token for authentication.
 
-    Parameters:
-        None
-
     Returns:
-        - If the user already exists returns an empty response with status code 205.
+        - If the user already exists returns an empty response with status code 200.
         - Else generates a hashed password using the default password.
         Returns an empty response with status code 201.
         - If an exception occurs during the execution of the function,
@@ -134,9 +137,11 @@ def post_user():
         json_dict = User(**json_dict).dict()
     except ValidationError as e:
         current_app.logger.exception(e)
-        return jsonify({"message": "error"}), 204
+        return jsonify({"message": "error"}), 200
     user = db_session.execute(
-        select(Users).filter(Users.username == json_dict["username"])
+        select(Users).filter(
+            func.lower(Users.username) == json_dict["username"].lower()
+        )
     ).all()
     if not user:
         json_dict["role"] = Roles.guest.value
@@ -203,8 +208,6 @@ def get_index(page):
         there are more results, and a boolean indicating if the page is greater
         than 1.
 
-    Raises:
-        None
     """
     pagination = 11
     search_data = request.args.get("search", "")
@@ -217,12 +220,12 @@ def get_index(page):
     if len(search_data) > 2:
         search = search_data.upper().split()[:3]
         stmt = stmt.filter(
-            Persons.surname = search[0],
-            Persons.firstname = search[1] if len(query) > 1 else True,
-            Persons.patronymic = search[2] if len(query) > 2 else True,
+            Persons.surname == search[0],
+            Persons.firstname == search[1] if len(search) > 1 else True,
+            Persons.patronymic == search[2] if len(search) > 2 else True,
         )
     query = db_session.execute(
-        stmt.order_by(desc(Persons.editable), desc(Persons.id))
+        stmt.order_by(desc(Persons.id))
         .offset((page - 1) * pagination)
         .limit(pagination + 1)
     ).all()
@@ -245,8 +248,6 @@ def use_filesystem(item, item_id):
     Returns:
         Response: A Flask Response object containing the image file.
 
-    Raises:
-        None.
     """
 
     person = db_session.get(Persons, item_id)
@@ -301,7 +302,8 @@ def use_filesystem(item, item_id):
         )
         os.makedirs(date_subfolder, exist_ok=True)
         for file in files:
-            file_path = os.path.join(date_subfolder, file.filename)
+            file_name = secure_filename(file.filename)
+            file_path = os.path.join(date_subfolder, file_name)
             if not os.path.isfile(file_path):
                 file.save(file_path)
         return "", 201
@@ -371,7 +373,8 @@ def post_resume(item):
 
     else:
         file = request.files.get("file")
-        if not file or not file.filename.endswith(".json"):
+        file_name = secure_filename(file.filename)
+        if not file or not file_name.endswith(".json"):
             return jsonify({"person_id": None})
         json_dict = json.load(file)
         try:
@@ -386,7 +389,7 @@ def post_resume(item):
             current_app.logger.warning("person_id is None")
             return jsonify({"person_id": person_id})
 
-        tables = {
+        tablenames = {
             cls.__tablename__: cls
             for cls in Base.__subclasses__()
             if hasattr(cls, "__tablename__")
@@ -397,7 +400,7 @@ def post_resume(item):
                 for content in contents:
                     content["person_id"] = person_id
                     content["user_id"] = current_user.get("id")
-                    table = tables.get(tbl)
+                    table = tablenames.get(tbl)
                     items.append(table(**content))
         db_session.bulk_save_objects(items)
         db_session.commit()
@@ -475,7 +478,7 @@ def get_item_id(item, item_id):
             return "", 404
         return jsonify(person.to_dict()), 200
     else:
-        table = Base.metadata.tables.get(item)
+        table = tables.get(item)
         stmt = table.select().filter(table.c.person_id == item_id)
         query = db_session.execute(stmt.order_by(desc(table.c.id)))
         return jsonify([row._asdict() for row in query])
@@ -501,7 +504,7 @@ def post_item_id(item, item_id):
         for cls in Model.__subclasses__()
         if hasattr(cls, "__modelname__")
     }
-    table, model = Base.metadata.tables.get(item), models.get(item)
+    table, model = tables.get(item), models.get(item)
     try:
         json_data = model(**json_data).dict()
     except ValidationError as e:
@@ -535,7 +538,6 @@ def delete_item(item, item_id):
         Tuple[str, int]: A tuple containing an empty string and an HTTP status
         code of 204.
     """
-    tables = Base.metadata.tables
     table = tables.get(item)
     if item == "persons":
         for model, tbl in tables.items():
@@ -642,14 +644,6 @@ def get_information():
     Returns:
         A JSON response containing the count of checks for each conclusion within the specified date range and region.
         The HTTP status code is 200 if the information is successfully retrieved.
-
-    Raises:
-        None
-
-    This function requires the user to be authenticated.
-
-    Parameters:
-        None
 
     Query Parameters:
         start (str): The start date of the date range in the format "YYYY-MM-DD".

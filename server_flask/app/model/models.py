@@ -29,20 +29,19 @@ class User(Model):
 
 class Person(Model):
     __modelname__ = "persons"
-
     surname: str
     firstname: str
-    patronymic: Optional[str]
+    patronymic: Optional[str] = ""
     birthday: date
-    birthplace: Optional[str]
-    citizenship: Optional[str]
-    dual: Optional[str]
-    snils: Optional[str]
-    inn: Optional[str]
-    marital: Optional[str]
-    addition: Optional[str]
-    destination: Optional[str]
-    region: Optional[Regions]
+    birthplace: Optional[str] = ""
+    citizenship: Optional[str] = ""
+    dual: Optional[str] = ""
+    snils: Optional[str] = ""
+    inn: Optional[str] = ""
+    marital: Optional[str] = ""
+    addition: Optional[str] = ""
+    destination: Optional[str] = ""
+    region: Optional[Regions] = ""
     editable: Optional[bool] = False
     user_id: Optional[str | int]
 
@@ -54,11 +53,11 @@ class Person(Model):
 class Prev(Model):
     __modelname__ = "previous"
 
-    surname: Optional[str]
-    firstname: Optional[str]
-    patronymic: Optional[str]
-    changed: Optional[str]
-    reason: Optional[str]
+    surname: str
+    firstname: str
+    patronymic: Optional[str] = ""
+    changed: Optional[str] = ""
+    reason: Optional[str] = ""
 
     @validator("surname", "firstname", "patronymic")
     def check_names(cls, v):
@@ -67,42 +66,42 @@ class Prev(Model):
 
 class Education(Model):
     __modelname__ = "educations"
-    
-    view: Optional[str]
-    institution: Optional[str]
-    finished: Union[str, int]
-    specialty: Optional[str]
+
+    view: str
+    institution: str
+    finished: Union[str, int] = ""
+    specialty: Optional[str] = ""
 
 
 class Staff(Model):
     __modelname__ = "staffs"
 
     position: str
-    department: str = "Прямое подчинение"
+    department: Optional[str] = ""
 
 
 class Document(Model):
     __modelname__ = "documents"
 
-    view: Optional[str]
-    series: Optional[str]
-    digits: Optional[str]
-    agency: Optional[str]
+    view: str
+    series: Optional[str] = ""
+    digits: str
+    agency: Optional[str] = ""
     issue: Optional[date]
 
 
 class Address(Model):
     __modelname__ = "addresses"
 
-    view: Optional[str]
-    addresses: Optional[str]
+    view: str
+    addresses: str
 
 
 class Contact(Model):
     __modelname__ = "contacts"
 
-    view: Optional[str]
-    contact: Optional[str]
+    view: str
+    contact: str
 
 
 class Workplace(Model):
@@ -111,18 +110,18 @@ class Workplace(Model):
     now_work: Optional[bool] = False
     starts: Optional[date]
     finished: Optional[date]
-    workplace: Optional[str]
-    addresses: Optional[str]
-    position: Optional[str]
-    reason: Optional[str]
+    workplace: str
+    addresses: Optional[str] = ""
+    position: str
+    reason: Optional[str] = ""
 
 
 class Affilation(Model):
     __modelname__ = "affilations"
-    
-    view: Optional[str]
+
+    view: str
     organization: str
-    inn: Optional[str]
+    inn: Optional[str] = ""
 
 
 class Relation(Model):
@@ -135,21 +134,21 @@ class Relation(Model):
 class Check(Model):
     __modelname__ = "checks"
 
-    workplace: Optional[str]
-    document: Optional[str]
-    inn: Optional[str]
-    debt: Optional[str]
-    bankruptcy: Optional[str]
-    bki: Optional[str]
-    courts: Optional[str]
-    affilation: Optional[str]
-    terrorist: Optional[str]
-    mvd: Optional[str]
-    internet: Optional[str]
-    cronos: Optional[str]
-    cros: Optional[str]
-    addition: Optional[str]
-    comment: Optional[str]
+    workplace: Optional[str] = ""
+    document: Optional[str] = ""
+    inn: Optional[str] = ""
+    debt: Optional[str] = ""
+    bankruptcy: Optional[str] = ""
+    bki: Optional[str] = ""
+    courts: Optional[str] = ""
+    affilation: Optional[str] = ""
+    terrorist: Optional[str] = ""
+    mvd: Optional[str] = ""
+    internet: Optional[str] = ""
+    cronos: Optional[str] = ""
+    cros: Optional[str] = ""
+    addition: Optional[str] = ""
+    comment: Optional[str] = ""
     conclusion: Conclusions
 
 
@@ -172,73 +171,73 @@ class Inquiry(Model):
 
     info: str
     initiator: str
-    origins: Optional[str]
-    
+    origins: Optional[str] = ""
+
 
 class NameWasChangedJson(BaseModel):
-    firstNameBeforeChange: Optional[str]
-    lastNameBeforeChange: Optional[str]
-    midNameBeforeChange: Optional[str]
-    yearOfChange: Union[str, int]
-    reason: Optional[str]
+    firstNameBeforeChange: Optional[str] = ""
+    lastNameBeforeChange: Optional[str] = ""
+    midNameBeforeChange: Optional[str] = ""
+    yearOfChange: Union[str, int] = ""
+    reason: Optional[str] = ""
 
 
 class EducationJson(BaseModel):
-    educationType: Optional[str]
-    institutionName: Optional[str]
-    endYear: Union[str, int]
-    specialty: Optional[str]
+    educationType: Optional[str] = ""
+    institutionName: Optional[str] = ""
+    endYear: Union[str, int] = ""
+    specialty: Optional[str] = ""
 
 
 class ExperienceJson(BaseModel):
     beginDate: Optional[date]
     endDate: Optional[date]
-    currentJob: Optional[bool]
-    name: Optional[str]
-    address: Optional[str]
-    position: Optional[str]
-    fireReason: Optional[str]
+    currentJob: Optional[bool] = False
+    name: Optional[str] = ""
+    address: Optional[str] = ""
+    position: Optional[str] = ""
+    fireReason: Optional[str] = ""
 
 
 class OrganizationsJson(BaseModel):
-    name: Optional[str]
-    inn: Optional[str]
+    name: Optional[str] = ""
+    inn: Optional[str] = ""
 
 
 class RelatedPersonsOrganizationsJson(BaseModel):
-    name: Optional[str]
-    inn: Optional[str]
+    name: Optional[str] = ""
+    inn: Optional[str] = ""
 
 
 class StateOrganizationsJson(BaseModel):
-    name: Optional[str]
+    name: Optional[str] = ""
 
 
 class PublicOfficeOrganizationsJson(BaseModel):
-    name: Optional[str]
+    name: Optional[str] = ""
 
 
 class AnketaSchemaJson(BaseModel):
     lastName: str
     firstName: str
-    midName: Optional[str]
+    midName: Optional[str] = ""
     birthday: date
-    birthplace: Optional[str]
-    citizen: Optional[str]
-    additionalCitizenship: Optional[str]
-    maritalStatus: Optional[str]
-    inn: Optional[str]
-    snils: Optional[str]
-    positionName: Optional[str]
-    department: Optional[str]
-    passportSerial: Optional[str]
-    passportNumber: Optional[str]
+    birthplace: Optional[str] = ""
+    citizen: Optional[str] = ""
+    additionalCitizenship: Optional[str] = ""
+    maritalStatus: Optional[str] = ""
+    inn: Optional[str] = ""
+    snils: Optional[str] = ""
+    positionName: Optional[str] = ""
+    department: Optional[str] = ""
+    passportSerial: Optional[str] = ""
+    passportNumber: Optional[str] = ""
     passportIssueDate: Optional[date]
-    passportIssuedBy: Optional[str]
-    validAddress: Optional[str]
-    regAddress: Optional[str]
-    email: Optional[str]
-    contactPhone: Optional[str]
+    passportIssuedBy: Optional[str] = ""
+    validAddress: Optional[str] = ""
+    regAddress: Optional[str] = ""
+    email: Optional[str] = ""
+    contactPhone: Optional[str] = ""
     education: Optional[list[EducationJson]] = []
     experience: Optional[list[ExperienceJson]] = []
     nameWasChanged: Optional[list[NameWasChangedJson]] = []

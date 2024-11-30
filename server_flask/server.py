@@ -1,7 +1,7 @@
 import argparse
 
 from app import create_app
-from webgui import FlaskUI
+from webgui import run_desktop
 from wsgi import wsgi_server
 
 
@@ -50,14 +50,7 @@ def main():
         case "server":
             wsgi_server(app, address=args.host, port=args.port, workers=args.workers)
         case "desktop":
-            FlaskUI(
-                server_kwargs={
-                    "app": app,
-                    "address": args.host,
-                    "port": args.port,
-                    "workers": args.workers,
-                },
-            ).run()
+            run_desktop(app, address=args.host, port=args.port, workers=args.workers)
 
 
 if __name__ == "__main__":
