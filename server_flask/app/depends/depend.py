@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from functools import lru_cache, wraps
 
 from flask import abort, current_app, g, request
@@ -10,7 +10,6 @@ from ..model.tables import Users, db_session
 current_user = LocalProxy(lambda: get_current_user(g.user_id))
 
 
-@lru_cache(maxsize=2)
 def get_payload(header):
     """Validates a JWT token and returns the user ID.
 
@@ -22,17 +21,22 @@ def get_payload(header):
     """
     if isinstance(header, str) and header.startswith("Bearer "):
         try:
-            return jwt.decode(
+            user_id = jwt.decode(
                 header[7:],
                 current_app.config["JWT_SECRET_KEY"],
                 algorithms=["HS256"],
             )["id"]
+            return user_id
+        except jwt.exceptions.ExpiredSignatureError:
+            current_app.logger.info("Token expired")
+            return None
         except jwt.exceptions.InvalidTokenError:
+            current_app.logger.info("Invalid token")
             return None
     return None
 
 
-@lru_cache(maxsize=4)
+@lru_cache(maxsize=2)
 def get_current_user(user_id):
     """
     Retrieve the current user based on the user ID stored in the global variable 'g.user_id'.
@@ -57,7 +61,7 @@ def get_current_user(user_id):
     return None
 
 
-def create_token(user):
+def create_token(user: dict):
     """
     Creates a JWT token containing the user's information.
 
@@ -70,7 +74,9 @@ def create_token(user):
     if isinstance(user, dict):
         try:
             return "Bearer " + jwt.encode(
-                user, current_app.config["JWT_SECRET_KEY"], algorithm="HS256"
+                user | {"exp": datetime.now(tz=timezone.utc) + timedelta(days=30)},
+                current_app.config["JWT_SECRET_KEY"],
+                algorithm="HS256",
             )
         except jwt.exceptions.InvalidTokenError:
             return None

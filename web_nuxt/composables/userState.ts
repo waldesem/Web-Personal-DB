@@ -10,7 +10,7 @@ export const useUserState = () => {
         const user = useState(
           "user",
           () =>
-            JSON.parse(Buffer.from(payloads[1], "base64").toString()) as User
+            JSON.parse(Buffer.from(payloads[1], "base64").toString())
         );
         if (user.value) return user as Ref<User>;
       }

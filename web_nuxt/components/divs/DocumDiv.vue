@@ -99,11 +99,11 @@ function closeAction() {
           <ElementsLabelSlot :label="'Вид документа'">{{
             item["view"]
           }}</ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Номер документа'">{{
-            item["digits"]
-          }}</ElementsLabelSlot>
           <ElementsLabelSlot :label="'Серия документа'">{{
             item["series"]
+          }}</ElementsLabelSlot>          
+          <ElementsLabelSlot :label="'Номер документа'">{{
+            item["digits"]
           }}</ElementsLabelSlot>
           <ElementsLabelSlot v-if="item['issue']" :label="'Дата выдачи'">
             {{ new Date(item["issue"]).toLocaleDateString("ru-RU").split(",")[0] }}

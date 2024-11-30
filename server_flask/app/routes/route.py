@@ -21,7 +21,7 @@ from ..depends.depend import (
     roles_required,
 )
 from ..model.classes import Regions, Roles
-from ..model.models import AnketaSchemaJson, Login, Model, Person, Relation, User
+from ..model.models import AnketaSchemaJson, Login, Model, Person, Relation, Token, User
 from ..model.tables import (
     Base,
     Checks,
@@ -82,7 +82,7 @@ def post_login(action):
     if not user.change_pswd and delta_change.days < 365:
         user.attempt = 0
         db_session.commit()
-        token = create_token(User(**user.to_dict()).dict())
+        token = create_token(Token(**user.to_dict()).dict())
         if token:
             return jsonify(
                 {

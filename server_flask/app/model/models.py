@@ -19,12 +19,18 @@ class Model(BaseModel):
         use_enum_values = True
 
 
-class User(Model):
+class Token(Model):
     fullname: str
     username: str
     email: Optional[str]
     region: Optional[Regions]
     role: Optional[Roles]
+
+
+class User(Model):
+    fullname: str
+    username: str
+    email: Optional[str]
 
 
 class Person(Model):

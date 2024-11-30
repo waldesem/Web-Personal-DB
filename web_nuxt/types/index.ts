@@ -1,3 +1,12 @@
+export interface Token {
+  fullname: string;
+  username: string;
+  email: string;
+  region: string;
+  role: string;
+  exp: string;
+}
+
 export interface User {
   id: string;
   fullname: string;
