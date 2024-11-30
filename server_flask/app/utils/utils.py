@@ -4,7 +4,7 @@ import re
 import unicodedata
 
 
-def json_to_dict(json_dict: dict):
+def json_to_dict(json_dict: dict) -> dict:
     """
     Transforms a JSON-dictionary into a python-dictionary.
 
@@ -126,6 +126,14 @@ def json_to_dict(json_dict: dict):
 
 
 def secure_filename(filename: str) -> str:
+    """Sanitize filename for secure storage.
+    
+    Args:
+        filename: Original filename to sanitize
+        
+    Returns:
+        Sanitized filename string
+    """
     filename_ascii_strip_re = re.compile(r"[^A-Za-zА-ЯЁа-яё0-9_.-]")
     windows_device_files = (
         "CON",
