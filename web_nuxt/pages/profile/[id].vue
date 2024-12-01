@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Persons } from "@/types";
+import { getPayload } from "@/utils";
 
 await preloadComponents([
   "DivsPhotoCard",
@@ -11,7 +12,7 @@ await preloadComponents([
 ]);
 
 const authFetch = useFetchAuth();
-const userState = useUserState();
+const userState = getPayload();
 
 const toast = useToast();
 const route = useRoute();
@@ -73,9 +74,9 @@ const badgeItems = {
 
 const badge = computed(() => {
   if (person.value["editable"]) {
-    if (person.value["user_id"] == userState.value.id) {
+    if (person.value["user_id"] == userState.id) {
       return badgeItems.current;
-    } else if (person.value["user_id"] != userState.value.id) {
+    } else if (person.value["user_id"] != userState.id) {
       return badgeItems.thirdparty;
     }
   }
@@ -85,8 +86,8 @@ const badge = computed(() => {
 const editState = computed(() => {
   return (
     person.value["editable"] &&
-    userState.value.role == "user" &&
-    userState.value.id == person.value["user_id"]
+    userState.role == "user" &&
+    userState.id == person.value["user_id"]
   );
 });
 

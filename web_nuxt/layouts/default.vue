@@ -1,5 +1,7 @@
 <script setup lang="ts">
-const userState = useUserState();
+import { getPayload } from '@/utils';
+
+const userState = getPayload();
 
 const showNav = ref(true);
 const isOpen = ref(false)
@@ -54,12 +56,12 @@ const links = [
 ];
 
 const filtredLinks = computed(() => {
-  if (!userState.value) {
+  if (!userState) {
     return [];
   }
-  if (userState.value.role === "admin") {
+  if (userState.role === "admin") {
     return links.filter((item) => item[0].to !== "/resume");
-  } else if (userState.value.role === "user") {
+  } else if (userState.role === "user") {
     return links.filter((item) => item[0].to !== "/users");
   } else {
     return links.filter(

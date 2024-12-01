@@ -110,7 +110,7 @@ def get_token():
         The status code is 200.
     """
     user_validated = User(**current_user).dict()
-    return jsonify({"access_token": create_token(user_validated, refresh=True)}), 200
+    return jsonify({"access_token": create_token(user_validated)}), 200
 
 
 @bp.get("/users")

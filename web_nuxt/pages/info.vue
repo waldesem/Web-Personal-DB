@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { getPayload } from '@/utils';
+
 
 const authFetch = useFetchAuth();
-const userState = useUserState();
+const userState = getPayload();
 
-const region = ref(userState.value.region);
+const region = ref(userState.region);
 const start = ref(new Date().toISOString().split("T")[0].slice(0, 7) + "-01");
 const end = ref(new Date().toISOString().split("T")[0]);
 const stat = ref([] as Record<string, string>[]);

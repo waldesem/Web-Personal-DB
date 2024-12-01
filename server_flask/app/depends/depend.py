@@ -72,7 +72,7 @@ def create_token(user: dict, refresh=False):
     Returns:
         str: The JWT token.
     """
-    access_expires = datetime.now(tz=timezone.utc) + timedelta(minutes=10)
+    access_expires = datetime.now(tz=timezone.utc) + timedelta(minutes=1)
     refresh_expires = datetime.now(tz=timezone.utc) + timedelta(days=30)
     if isinstance(user, dict):
         try:

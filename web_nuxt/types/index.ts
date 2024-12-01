@@ -1,4 +1,16 @@
+export type Method =
+  | "get"
+  | "post"
+  | "put"
+  | "delete"
+  | "patch"
+  | "head"
+  | "connect"
+  | "options"
+  | "trace";
+
 export interface Token {
+  id: string;
   fullname: string;
   username: string;
   email: string;
