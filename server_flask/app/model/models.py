@@ -27,6 +27,10 @@ class User(Model):
     role: Optional[Roles]
 
 
+class Token(User):
+    exp: int
+
+
 class Person(Model):
     __modelname__ = "persons"
     surname: str

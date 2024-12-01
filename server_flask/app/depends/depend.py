@@ -1,11 +1,12 @@
-import uuid
 from datetime import datetime, timedelta, timezone
 from functools import lru_cache, wraps
 
 from flask import abort, current_app, g, request
 import jwt
+from pydantic import ValidationError
 from werkzeug.local import LocalProxy
 
+from ..model.models import Token
 from ..model.tables import Users, db_session
 
 current_user = LocalProxy(lambda: get_current_user(g.user_id))
@@ -22,12 +23,17 @@ def get_payload(header):
     """
     if isinstance(header, str) and header.startswith("Bearer "):
         try:
-            user_id = jwt.decode(
+            payload = jwt.decode(
                 header[7:],
                 current_app.config["JWT_SECRET_KEY"],
                 algorithms=["HS256"],
-            )["id"]
-            return user_id
+            )
+            try:
+                payload = Token(**payload)
+            except ValidationError as e:
+                current_app.logger.exception(e)
+                return None
+            return payload.id
         except jwt.exceptions.ExpiredSignatureError:
             current_app.logger.info("Token expired")
             return None
@@ -80,7 +86,6 @@ def create_token(user: dict, refresh=False):
                 user
                 | {
                     "exp": access_expires if not refresh else refresh_expires,
-                    "uid": uuid.uuid4().hex,
                 },
                 current_app.config["JWT_SECRET_KEY"],
                 algorithm="HS256",

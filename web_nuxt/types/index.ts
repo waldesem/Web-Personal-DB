@@ -16,7 +16,6 @@ export interface Token {
   email: string;
   region: string;
   role: string;
-  uid: string;
   exp: number;
 }
 
