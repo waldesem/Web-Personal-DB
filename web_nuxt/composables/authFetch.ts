@@ -1,17 +1,6 @@
 import type { NitroFetchOptions } from "nitropack";
 import { getPayload } from "@/utils";
-
-type Method =
-  | "get"
-  | "post"
-  | "put"
-  | "delete"
-  | "patch"
-  | "head"
-  | "connect"
-  | "options"
-  | "trace";
-
+import type { Method } from "@/types";
 
 /**
  * Returns a function that wraps `$fetch` and adds an Authorization header if a user token is present.
@@ -42,7 +31,6 @@ export const useFetchAuth = () => {
 async function checkAuthTokens() {
   const options = ref({} as NitroFetchOptions<ResponseType, Method>);
   const access = getPayload(accessToken.value);
-  const refresh = getPayload(refreshToken.value);
   if (
     !accessToken.value ||
     (accessToken.value && access.exp < Date.now() / 1000)
@@ -50,6 +38,7 @@ async function checkAuthTokens() {
     if (!refreshToken.value) {
       return navigateTo("/login");
     } else {
+      const refresh = getPayload(refreshToken.value);
       if (refresh.exp < Date.now() / 1000) {
         return navigateTo("/login");
       } else {
