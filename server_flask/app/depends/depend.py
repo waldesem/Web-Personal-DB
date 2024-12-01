@@ -11,7 +11,7 @@ from ..model.tables import Users, db_session
 current_user = LocalProxy(lambda: get_current_user(g.user_id))
 
 
-def get_payload(header, refresh=False):
+def get_payload(header):
     """Validates a JWT token and returns the user ID.
 
     Parameters:
@@ -20,16 +20,11 @@ def get_payload(header, refresh=False):
     Returns:
         int or None: The user ID if the token is valid, None if not.
     """
-    secret_key = (
-        current_app.config["JWT_SECRET_KEY"]
-        if not refresh
-        else current_app.config["JWT_REFRESH_SECRET_KEY"]
-    )
     if isinstance(header, str) and header.startswith("Bearer "):
         try:
             user_id = jwt.decode(
                 header[7:],
-                secret_key,
+                current_app.config["JWT_SECRET_KEY"],
                 algorithms=["HS256"],
             )["id"]
             return user_id
@@ -67,7 +62,7 @@ def get_current_user(user_id):
     return None
 
 
-def create_token(user: dict):
+def create_token(user: dict, refresh=False):
     """
     Creates a JWT token containing the user's information.
 
@@ -77,12 +72,14 @@ def create_token(user: dict):
     Returns:
         str: The JWT token.
     """
+    access_expires = datetime.now(tz=timezone.utc) + timedelta(minutes=10)
+    refresh_expires = datetime.now(tz=timezone.utc) + timedelta(days=30)
     if isinstance(user, dict):
         try:
             token = "Bearer " + jwt.encode(
                 user
                 | {
-                    "exp": datetime.now(tz=timezone.utc) + timedelta(days=30),
+                    "exp": access_expires if not refresh else refresh_expires,
                     "uid": uuid.uuid4().hex,
                 },
                 current_app.config["JWT_SECRET_KEY"],
@@ -94,23 +91,7 @@ def create_token(user: dict):
     return None
 
 
-def create_refresh_token(user_id: int):
-    try:
-        refresh = "Bearer " + jwt.encode(
-            {
-                "id": user_id,
-                "exp": datetime.now(tz=timezone.utc) + timedelta(days=365),
-                "uid": uuid.uuid4().hex,
-            },
-            current_app.config["JWT_REFRESH_SECRET_KEY"],
-            algorithm="HS256",
-        )
-        return refresh
-    except jwt.exceptions.InvalidTokenError:
-        return None
-
-
-def jwt_required(refresh=False):
+def jwt_required():
     """
     Decorator function that checks if the request contains a valid JWT token.
 
@@ -129,7 +110,7 @@ def jwt_required(refresh=False):
         @wraps(func)
         def wrapper(*args, **kwargs):
             header = request.headers.get("Authorization")
-            user_id = get_payload(header, refresh)
+            user_id = get_payload(header)
             if user_id:
                 g.user_id = user_id
                 return func(*args, **kwargs)

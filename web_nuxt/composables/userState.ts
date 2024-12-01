@@ -18,3 +18,21 @@ export const useUserState = () => {
   }
   return {} as Ref<Token>;
 };
+
+export const useRefreshToken = () => {
+  if (refreshToken.value) {
+    const cridentials = refreshToken.value.split(" ");
+    if (cridentials.length > 1) {
+      const payloads = cridentials[1].split(".");
+      if (payloads.length > 1) {
+        const token = useState(
+          "token",
+          () =>
+            JSON.parse(Buffer.from(payloads[1], "base64").toString())
+        );
+        if (token.value) return token as Ref<Token>;
+      }
+    }
+  }
+  return {} as Ref<Token>;
+};

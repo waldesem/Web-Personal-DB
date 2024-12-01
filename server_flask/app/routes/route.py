@@ -14,7 +14,6 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from ..depends.depend import (
     create_token,
-    create_refresh_token,
     current_user,
     get_current_user,
     get_payload,
@@ -22,7 +21,7 @@ from ..depends.depend import (
     roles_required,
 )
 from ..model.classes import Regions, Roles
-from ..model.models import AnketaSchemaJson, Login, Model, Person, Relation, Token, User
+from ..model.models import AnketaSchemaJson, Login, Model, Person, Relation, User
 from ..model.tables import (
     Base,
     Checks,
@@ -84,9 +83,9 @@ def post_login(action):
         user.attempt = 0
         db_session.commit()
         try:
-            token_validated = Token(**user.to_dict())
-            token = create_token(token_validated.dict())
-            refresh_token = create_refresh_token(user.id)
+            user_validated = User(**user.to_dict())
+            token = create_token(user_validated.dict())
+            refresh_token = create_token(user_validated.dict(), refresh=True)
             if token:
                 return jsonify(
                     {
@@ -101,7 +100,7 @@ def post_login(action):
 
 
 @bp.get("/refresh")
-@jwt_required(refresh=True)
+@jwt_required()
 def get_token():
     """
     A function that refreshes the token.
@@ -110,7 +109,8 @@ def get_token():
         The function returns a tuple containing the token and a status code.
         The status code is 200.
     """
-    return jsonify({"access_token": create_token(current_user)}), 200
+    user_validated = User(**current_user).dict()
+    return jsonify({"access_token": create_token(user_validated, refresh=True)}), 200
 
 
 @bp.get("/users")

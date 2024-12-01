@@ -51,15 +51,16 @@ const validate = (state: Login) => {
  * @returns {Promise<void>}
  */
 async function submitLogin(): Promise<void> {
-  const { message, access_token } = (await $fetch(
+  const { message, access_token, refresh_token } = (await $fetch(
     "/api/login/" + loginAction.value,
     {
       method: "POST",
       body: loginForm.value,
     }
-  )) as { message: string; access_token: string };
+  )) as { message: string; access_token: string, refresh_token: string };
   if (message === "Success") {
     accessToken.value = access_token;
+    refreshToken.value = refresh_token;
     await navigateTo("/persons");
   } else if (message === "Updated") {
     loginAction.value = "create";
