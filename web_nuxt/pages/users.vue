@@ -2,7 +2,6 @@
 import { watchDebounced } from "@vueuse/core";
 import { z } from "zod";
 import type { User } from "@/types";
-import { getPayload } from "@/utils";
 
 const schema = z.object({
   username: z
@@ -30,7 +29,6 @@ type UserForm = z.infer<typeof schema>;
 const toast = useToast();
 
 const fetchAuth = useFetchAuth();
-const userState = getPayload();
 
 const search = ref("");
 const userId = ref("");
@@ -69,7 +67,7 @@ async function userAction(
   item: string,
   id: string = userId.value
 ): Promise<void> {
-  if (id == userState.id) {
+  if (id == stateUser.value.id) {
     toast.add({
       icon: "i-heroicons-information-circle",
       title: "Внимание",
