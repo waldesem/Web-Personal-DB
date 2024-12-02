@@ -7,3 +7,5 @@ export const accessToken = useStorage("accessToken", "", localStorage, {
 export const refreshToken = useStorage("refreshToken", "", localStorage, {
   mergeDefaults: true,
 });
+
+export const stateUser = useStorage("stateUser", {});
