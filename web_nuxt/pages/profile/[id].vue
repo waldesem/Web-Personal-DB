@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Persons } from "@/types";
-import { getPayload } from "@/utils";
 
 await preloadComponents([
   "DivsPhotoCard",
@@ -12,7 +11,6 @@ await preloadComponents([
 ]);
 
 const authFetch = useFetchAuth();
-const userState = getPayload();
 
 const toast = useToast();
 const route = useRoute();
@@ -86,8 +84,8 @@ const badge = computed(() => {
 const editState = computed(() => {
   return (
     person.value["editable"] &&
-    userState.role == "user" &&
-    userState.id == person.value["user_id"]
+stateUser.value.role == "user" &&
+    stateUser.value.id == person.value["user_id"]
   );
 });
 
@@ -127,7 +125,7 @@ function emitMessage(message: string) {
       :editable="editState"
       @message="emitMessage"
     />
-    <div v-if="userState.role == 'user'" class="relative">
+    <div v-if="stateUser.role == 'user'" class="relative">
       <div class="absolute bottom-0 right-20">
         <UButton
           :disabled="pending"
