@@ -7,7 +7,7 @@ export function getPayload(token: string | null = accessToken.value) {
     if (cridentials.length > 1) {
       const payloads = cridentials[1].split(".");
       if (payloads.length > 1) {
-        userState.value = JSON.parse(
+        stateUser.value = JSON.parse(
           Buffer.from(payloads[1], "base64").toString()
         ) as Token;
       }
