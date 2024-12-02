@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import type { Persons } from "@/types";
-import { getPayload } from "@/utils";
 import { watchDebounced, useFileDialog } from "@vueuse/core";
 
 
 preloadRouteComponents("/profile/[id]");
 
 const authFetch = useFetchAuth();
-const userState = getPayload();
 const toast = useToast();
 
 const candidates = ref([] as Persons[]);
@@ -82,7 +80,7 @@ onCancel(() => {
 
 <template>
   <div>
-    <div v-if="userState.role == 'user'" class="relative">
+    <div v-if="stateUser.role == 'user'" class="relative">
       <div class="absolute inset-y-0 right-0">
         <UButton
           :disabled="status == 'pending' || upload"
