@@ -13,7 +13,7 @@ class Login(BaseModel):
 
 
 class Search(BaseModel):
-    search: str
+    search: Optional[str]
 
 
 class Region(BaseModel):
@@ -52,11 +52,7 @@ class User(Model):
     email: Optional[str]
     region: Optional[Regions]
     role: Optional[Roles]
-
-
-class Token(User):
-    exp: int
-
+    
 
 class Person(Model):
     __modelname__ = "persons"

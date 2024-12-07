@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from functools import lru_cache, wraps
 from typing import Callable, Optional
 
@@ -7,7 +7,6 @@ from flask import abort, current_app, g, jsonify, make_response, request
 from pydantic import BaseModel, ValidationError
 from werkzeug.local import LocalProxy
 
-from ..model.models import Token
 from ..model.tables import Users, db_session
 
 current_user = LocalProxy(lambda: get_current_user(g.user_id))
@@ -25,20 +24,11 @@ def get_payload(header):
     """
     if isinstance(header, str) and header.startswith("Bearer "):
         try:
-            payload = jwt.decode(
+            return jwt.decode(
                 header[7:],
                 current_app.config["JWT_SECRET_KEY"],
                 algorithms=["HS256"],
-            )
-            try:
-                payload = Token(**payload)
-            except ValidationError as e:
-                current_app.logger.exception(e)
-                return None
-            return payload.id
-        except jwt.exceptions.ExpiredSignatureError:
-            current_app.logger.info("Token expired")
-            return None
+            )["id"]
         except jwt.exceptions.InvalidTokenError:
             current_app.logger.info("Invalid token")
             return None
@@ -70,7 +60,7 @@ def get_current_user(user_id):
     return None
 
 
-def create_token(user: dict, refresh=False):
+def create_token(user: dict):
     """
     Creates a JWT token containing the user's information.
 
@@ -80,15 +70,10 @@ def create_token(user: dict, refresh=False):
     Returns:
         str: The JWT token.
     """
-    access_expires = datetime.now(tz=timezone.utc) + timedelta(minutes=60)
-    refresh_expires = datetime.now(tz=timezone.utc) + timedelta(days=30)
     if isinstance(user, dict):
         try:
             token = "Bearer " + jwt.encode(
-                user
-                | {
-                    "exp": access_expires if not refresh else refresh_expires,
-                },
+                user,
                 current_app.config["JWT_SECRET_KEY"],
                 algorithm="HS256",
             )

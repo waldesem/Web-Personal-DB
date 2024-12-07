@@ -9,16 +9,6 @@ export type Method =
   | "options"
   | "trace";
 
-export interface Token {
-  id: string;
-  fullname: string;
-  username: string;
-  email: string;
-  region: string;
-  role: string;
-  exp: number;
-}
-
 export interface User {
   id: string;
   fullname: string;

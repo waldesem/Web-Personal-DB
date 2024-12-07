@@ -1,7 +1,7 @@
 from flask import Blueprint
 
 from .anketa import bp as anketa_bp
-from .auth import bp as auth_bp
+from .login import bp as auth_bp
 from .file import bp as file_bp
 from .items import bp as items_bp
 from .route import bp as route_bp

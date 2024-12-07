@@ -4,20 +4,15 @@ from flask import Blueprint, current_app, jsonify
 from sqlalchemy import func, select
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from ..depends.depend import (
-    create_token,
-    current_user,
-    jwt_required,
-    validate,
-)
+from ..depends.depend import create_token, validate
 from ..model.models import Login, User
 from ..model.tables import Users, db_session
 
 
-bp = Blueprint("auth", __name__, url_prefix="/auth")
+bp = Blueprint("login", __name__, url_prefix="/login")
 
 
-@bp.post("/login/<action>")
+@bp.post("/<action>")
 @validate()
 def post_login(action, json_data: Login):
     """
@@ -32,9 +27,7 @@ def post_login(action, json_data: Login):
 
     """
     user = db_session.execute(
-        select(Users).filter(
-            func.lower(Users.username) == json_data.username.lower()
-        )
+        select(Users).filter(func.lower(Users.username) == json_data.username.lower())
     ).scalar_one_or_none()
     if not user or user.blocked or user.deleted:
         return {"message": "Invalid"}
@@ -61,29 +54,13 @@ def post_login(action, json_data: Login):
         try:
             user_validated = User(**user.to_dict())
             token = create_token(user_validated.dict())
-            refresh_token = create_token(user_validated.dict(), refresh=True)
             if token:
                 return jsonify(
                     {
                         "message": "Success",
                         "access_token": token,
-                        "refresh_token": refresh_token,
                     }
                 )
         except Exception as e:
             current_app.logger.exception(e)
     return {"message": "Denied"}
-
-
-@bp.get("/refresh")
-@jwt_required()
-def get_token():
-    """
-    A function that refreshes the token.
-
-    Returns:
-        The function returns a tuple containing the token and a status code.
-        The status code is 200.
-    """
-    user_validated = User(**current_user).dict()
-    return jsonify({"access_token": create_token(user_validated)}), 200

@@ -52,7 +52,7 @@ const links = [
 ];
 
 const filtredLinks = computed(() => {
-  if (!userState) {
+  if (!stateUser.value) {
     return [];
   }
   if (stateUser.value.role === "admin") {
@@ -98,13 +98,13 @@ const filtredLinks = computed(() => {
           mode="hover"
           :popper="{ placement: 'top-start' }"
         >
-          <UAvatar :alt="userState.fullname" />
+          <UAvatar :alt="stateUser.fullname" />
           <template #panel>
             <div class="m-3 text-center text-sm text-gray-600">
-              <div>{{ userState.fullname }}</div>
-              <div>Логин: {{ userState.username }}</div>
-              <div>Регион: {{ userState.region }}</div>
-              <div>Роль: {{ userState.role }}</div>
+              <div>{{ stateUser.fullname }}</div>
+              <div>Логин: {{ stateUser.username }}</div>
+              <div>Регион: {{ stateUser.region }}</div>
+              <div>Роль: {{ stateUser.role }}</div>
             </div>
           </template>
         </UPopover>

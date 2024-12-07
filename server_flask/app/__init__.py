@@ -32,7 +32,7 @@ def create_app(config_class=Config):
     app.config.from_object(config_class)
     app.logger.addHandler(file_handler)
     
-    from .routes.route import bp as route_bp
+    from .routes import bp as route_bp
     app.register_blueprint(route_bp)
 
     @app.teardown_appcontext
