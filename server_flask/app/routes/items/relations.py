@@ -12,7 +12,7 @@ bp = Blueprint("relations", __name__, url_prefix="/relations")
 
 class RelationView(MethodView):
     @roles_required(Roles.user.value)
-    def get_relation(person_id: int):
+    def get(self, person_id: int):
         """
         Retrieves a person's relationships from the database based on their person ID.
 
@@ -38,13 +38,12 @@ class RelationView(MethodView):
 
     @validate()
     @roles_required(Roles.user.value)
-    def post_relation(person_id: int, json_data: Relation):
+    def post(self, person_id: int, json_data: Relation):
         """
         Inserts or replaces a record in the specified table with the given item ID.
 
         Parameters:
-            item (str): The name of the table to insert or replace the record in.
-            item_id (int): The ID of the record to insert or replace.
+            person_id (int): The ID of the record to insert or replace.
 
         Returns:
             Tuple[str, int]: A tuple containing an empty string and an HTTP status
@@ -64,13 +63,13 @@ class RelationView(MethodView):
         return jsonify({"message": "error"}), 200
 
     @roles_required(Roles.user.value)
-    def delete_relation(person_id: int, relation_id: int):
+    def delete_relation(self, person_id: int, relation_id: int):
         """
         Deletes an item from the database based on the provided item name and item ID.
 
         Parameters:
-            item (str): The name of the table to delete the item from.
-            item_id (int): The ID of the item to delete.
+            person_id (int): The ID of the item to delete.
+            relation_id (int): The ID of the item to delete.
 
         Returns:
             Tuple[str, int]: A tuple containing an empty string and an HTTP status
