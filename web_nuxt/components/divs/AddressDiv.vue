@@ -27,14 +27,14 @@ const addresses = ref<Address[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("addresses", async () => {
   addresses.value = (await authFetch(
-    "/api/items/addresses/" + props.candId
+    "/route/items/addresses/" + props.candId
   )) as Address[];
 });
 
 async function submitAddress(form: Address) {
   closeAction();
   pending.value = true;
-  const { message } = (await authFetch(`/api/items/addresses/${props.candId}`, {
+  const { message } = (await authFetch(`/route/items/addresses/${props.candId}`, {
     method: "POST",
     body: form,
   })) as Record<string, string>;
@@ -46,7 +46,7 @@ async function submitAddress(form: Address) {
 async function deleteAddress(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = (await authFetch(`/api/items/addresses/${id}`, {
+  const { message } = (await authFetch(`/route/items/addresses/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
   await refresh();

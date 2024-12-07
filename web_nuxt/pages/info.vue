@@ -16,7 +16,7 @@ const stat = ref([] as Record<string, string>[]);
 const { status } = await useLazyAsyncData(
   "stats",
   async () => {
-    stat.value = await authFetch("/api/info", {
+    stat.value = await authFetch("/route/info", {
       params: {
         start: start.value,
         end: end.value,

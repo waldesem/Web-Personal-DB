@@ -27,14 +27,14 @@ const poligrafs = ref<Pfo[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("poligrafs", async () => {
   poligrafs.value = (await authFetch(
-    "/api/items/poligrafs/" + props.candId
+    "/route/items/poligrafs/" + props.candId
   )) as Pfo[];
 });
 
 async function submitPoligraf(form: Pfo) {
   closeAction();
   pending.value = true;
-  const { message } = (await authFetch(`/api/items/poligrafs/${props.candId}`, {
+  const { message } = (await authFetch(`/route/items/poligrafs/${props.candId}`, {
     method: "POST",
     body: form,
   })) as Record<string, string>;
@@ -46,7 +46,7 @@ async function submitPoligraf(form: Pfo) {
 async function deletePoligraf(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = (await authFetch(`/api/items/poligrafs/${id}`, {
+  const { message } = (await authFetch(`/route/items/poligrafs/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
   await refresh();

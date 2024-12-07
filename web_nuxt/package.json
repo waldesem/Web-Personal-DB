@@ -10,16 +10,16 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@nuxt/icon": "^1.6.1",
-    "@nuxt/ui": "^2.18.7",
-    "nuxt": "^3.13.2",
-    "vue": "^3.5.12",
+    "@nuxt/icon": "^1.9.1",
+    "@nuxt/ui": "^2.19.2",
+    "nuxt": "^3.14.1592",
+    "vue": "^3.5.13",
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@nuxt/eslint": "^0.6.1",
-    "@vueuse/core": "^11.1.0",
-    "@vueuse/nuxt": "^11.1.0",
+    "@nuxt/eslint": "^0.7.2",
+    "@vueuse/core": "^12.0.0",
+    "@vueuse/nuxt": "^12.0.0",
     "tsx": "^4.19.1",
     "vue-tsc": "^2.0.29"
   }

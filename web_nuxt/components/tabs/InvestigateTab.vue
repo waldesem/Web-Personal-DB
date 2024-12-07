@@ -29,7 +29,7 @@ const { refresh, status } = await useLazyAsyncData(
   "investigations",
   async () => {
     investigations.value = (await authFetch(
-      "/api/items/investigations/" + props.candId
+      "/route/items/investigations/" + props.candId
     )) as Inquisition[];
   }
 );
@@ -38,7 +38,7 @@ async function submitInvestigations(form: Inquisition) {
   closeAction();
   pending.value = true;
   const { message } = (await authFetch(
-    `/api/items/investigations/${props.candId}`,
+    `/route/items/investigations/${props.candId}`,
     {
       method: "POST",
       body: form,
@@ -52,7 +52,7 @@ async function submitInvestigations(form: Inquisition) {
 async function deleteInquisition(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = (await authFetch(`/api/items/investigations/${id}`, {
+  const { message } = (await authFetch(`/route/items/investigations/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
   await refresh();

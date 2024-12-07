@@ -51,7 +51,7 @@ const filtredUsers = computed(() => {
 });
 
 const { refresh, status } = await useLazyAsyncData("users", async () => {
-  users.value = (await fetchAuth("/api/users", {
+  users.value = (await fetchAuth("/route/users", {
     params: {
       search: search.value,
     },
@@ -81,7 +81,7 @@ async function userAction(
   if (!confirm("Подтвердите действие!")) {
     return;
   }
-  const { message } = (await fetchAuth("/api/users/" + id, {
+  const { message } = (await fetchAuth("/route/users/" + id, {
     params: {
       item: item,
     },
@@ -112,7 +112,7 @@ async function userAction(
  * @returns {Promise<void>}
  */
 async function submitUser(): Promise<void> {
-  const { message } = (await fetchAuth("/api/users", {
+  const { message } = (await fetchAuth("/route/users", {
     method: "POST",
     body: form.value,
   })) as Record<string, string>;

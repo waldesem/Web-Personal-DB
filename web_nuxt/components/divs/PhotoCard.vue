@@ -17,7 +17,7 @@ const props = defineProps({
 const imageUrl = ref("");
 
 const { refresh, status } = await useLazyAsyncData("image", async () => {
-  const response = (await authFetch("/api/file/image/" + props.candId, {
+  const response = (await authFetch("/route/file/image/" + props.candId, {
     responseType: "blob",
   })) as Blob;
   imageUrl.value = window.URL.createObjectURL(new Blob([response]));
@@ -37,7 +37,7 @@ onChange(async (files) => {
   const formData = new FormData();
   const file = files[0];
   formData.append("file", file);
-  const { message } = (await authFetch("/api/file/image/" + props.candId, {
+  const { message } = (await authFetch("/route/file/image/" + props.candId, {
     method: "POST",
     body: formData,
   })) as Record<string, string>;

@@ -27,7 +27,7 @@ const workplaces = ref<Work[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("workplaces", async () => {
   workplaces.value = (await authFetch(
-    "/api/items/workplaces/" + props.candId
+    "/route/items/workplaces/" + props.candId
   )) as Work[];
 });
 
@@ -35,7 +35,7 @@ async function submitWorkplace(form: Work) {
   closeAction();
   pending.value = true;
   const { message } = (await authFetch(
-    `/api/items/workplaces/${props.candId}`,
+    `/route/items/workplaces/${props.candId}`,
     {
       method: "POST",
       body: form,
@@ -49,7 +49,7 @@ async function submitWorkplace(form: Work) {
 async function deleteWork(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = (await authFetch(`/api/items/workplaces/${id}`, {
+  const { message } = (await authFetch(`/route/items/workplaces/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
   await refresh();

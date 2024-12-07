@@ -27,14 +27,14 @@ const contacts = ref<Contact[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("contacts", async () => {
   contacts.value = (await authFetch(
-    "/api/items/contacts/" + props.candId
+    "/route/items/contacts/" + props.candId
   )) as Contact[];
 });
 
 async function submitContact(form: Contact) {
   closeAction();
   pending.value = true;
-  const { message } = (await authFetch(`/api/items/contacts/${props.candId}`, {
+  const { message } = (await authFetch(`/route/items/contacts/${props.candId}`, {
     method: "POST",
     body: form,
   })) as Record<string, string>;
@@ -46,7 +46,7 @@ async function submitContact(form: Contact) {
 async function deleteContact(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = (await authFetch(`/api/items/contacts/${id}`, {
+  const { message } = (await authFetch(`/route/items/contacts/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
   await refresh();

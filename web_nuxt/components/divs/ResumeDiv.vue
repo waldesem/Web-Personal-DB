@@ -35,7 +35,7 @@ const opening = ref(false);
 
 async function changeRegion(): Promise<void> {
   if (!confirm("Вы действительно хотите изменить регион?")) return;
-  const { message } = (await authFetch(`/api/region/${props.candId}`, {
+  const { message } = (await authFetch(`/route/region/${props.candId}`, {
     params: {
       region: region.value,
     },
@@ -60,14 +60,14 @@ async function changeRegion(): Promise<void> {
 
 async function openFolder() {
   opening.value = true;
-  await authFetch("/api/file/folder/" + props.candId);
+  await authFetch("/route/file/folder/" + props.candId);
   opening.value = false;
 }
 
 async function submitResume(form: Persons) {
   pending.value = true;
   edit.value = false;
-  const { message } = (await authFetch(`/api/items/persons/${props.candId}`, {
+  const { message } = (await authFetch(`/route/items/persons/${props.candId}`, {
     method: "POST",
     body: form,
   })) as Record<string, string>;
@@ -80,7 +80,7 @@ async function deleteItem() {
   if (!confirm("Вы действительно хотите удалить профиль и связанные записи?"))
     return;
   pending.value = true;
-  const { message } = (await authFetch(`/api/items/persons/${props.candId}`, {
+  const { message } = (await authFetch(`/route/items/persons/${props.candId}`, {
     method: "DELETE",
   })) as Record<string, string>;
   pending.value = false;

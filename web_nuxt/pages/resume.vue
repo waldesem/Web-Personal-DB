@@ -12,7 +12,7 @@ const navigateToPersons = () => navigateTo("/persons");
 
 async function submitResume(form: Persons) {
   upload.value = true;
-  const { person_id } = (await authFetch("/api/anketa/resume", {
+  const { person_id } = (await authFetch("/route/anketa/resume", {
     method: "POST",
     body: form,
   })) as Record<string, string>;

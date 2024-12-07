@@ -35,7 +35,7 @@ onChange(async (files) => {
     for (const file of files) {
       formData.append("file", file);
     }
-    await authFetch(`/api/file/${props.item}/${props.candId}`, {
+    await authFetch(`/route/file/${props.item}/${props.candId}`, {
       method: "POST",
       body: formData,
     });

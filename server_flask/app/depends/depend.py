@@ -1,9 +1,10 @@
 from datetime import datetime, timedelta, timezone
 from functools import lru_cache, wraps
+from typing import Callable, Optional
 
-from flask import abort, current_app, g, request
 import jwt
-from pydantic import ValidationError
+from flask import abort, current_app, g, jsonify, make_response, request
+from pydantic import BaseModel, ValidationError
 from werkzeug.local import LocalProxy
 
 from ..model.models import Token
@@ -12,6 +13,7 @@ from ..model.tables import Users, db_session
 current_user = LocalProxy(lambda: get_current_user(g.user_id))
 
 
+@lru_cache(maxsize=2)
 def get_payload(header):
     """Validates a JWT token and returns the user ID.
 
@@ -138,3 +140,73 @@ def roles_required(*roles):
         return wrapper
 
     return decorator
+
+
+def validate():
+    """
+    Decorator for validating request data using Pydantic models.
+
+    This decorator checks the request query, body and headers for validation errors.
+    If any errors are found, the decorator returns a 400 response with a JSON body
+    containing a dictionary with the validation errors.
+
+    The decorator accepts the following keyword arguments:
+
+        query_data: Optional[BaseModel]
+            The model to validate the query data with.
+        json_data: Optional[BaseModel]
+            The model to validate the body data with.
+        return: result
+            The model to validate the response data with.
+
+    The decorator can be used as follows:
+
+    @app.route("/endpoint", methods=["GET"])
+    @validate(query_data=QueryData, json_data=BodyData, return=ResponseData)
+    def endpoint(query_data, json_data):
+        # The query_data and json_data are validated and available here
+        # The return value of the function will be validated as well
+        pass
+
+    :param query_data: The model to validate the query data with.
+    :param json_data: The model to validate the body data with.
+    :return: The decorated function.
+    """
+
+    def decorate(func: Callable) -> Callable:
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            err = {}
+            query_model: Optional[BaseModel] = func.__annotations__.get("query_data")
+            if query_model:
+                query_data = request.args.to_dict()
+                try:
+                    kwargs["query_data"] = query_model(**query_data)
+                except ValidationError as ve:
+                    err["query_data"] = ve.errors()
+
+            json_model: Optional[BaseModel] = func.__annotations__.get("json_data")
+            if json_model:
+                content_type = request.headers.get("Content-Type", "").lower()
+                if content_type.split(";")[0] != "application/json":
+                    body = {"detail": f"Unsupported media type: '{content_type}'"}
+                    return make_response(jsonify(body), 415)
+
+                json_data = request.get_json()
+                try:
+                    kwargs["json_data"] = json_model(**json_data)
+                except ValidationError as ve:
+                    err["json_data"] = ve.errors()
+
+            if err:
+                return make_response(
+                    jsonify({"message": "error", "validation_error": err}), 400
+                )
+
+            res = func(*args, **kwargs)
+
+            return res
+
+        return wrapper
+
+    return decorate

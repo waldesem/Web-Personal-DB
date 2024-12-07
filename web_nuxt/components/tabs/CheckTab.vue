@@ -27,14 +27,14 @@ const checks = ref<Verification[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("checks", async () => {
   checks.value = (await authFetch(
-    `/api/items/checks/${props.candId}`
+    `/route/items/checks/${props.candId}`
   )) as Verification[];
 });
 
 async function submitCheck(form: Verification) {
   closeAction();
   pending.value = true;
-  const { message } = (await authFetch(`/api/items/checks/${props.candId}`, {
+  const { message } = (await authFetch(`/route/items/checks/${props.candId}`, {
     method: "POST",
     body: form,
   })) as Record<string, string>;
@@ -46,7 +46,7 @@ async function submitCheck(form: Verification) {
 async function deleteCheck(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = (await authFetch(`/api/items/checks/${id}`, {
+  const { message } = (await authFetch(`/route/items/checks/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
   await refresh();

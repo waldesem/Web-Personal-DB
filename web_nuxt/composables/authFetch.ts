@@ -19,7 +19,7 @@ export const useFetchAuth = () => {
         if (refresh.exp < Date.now() / 1000) {
           return navigateTo("/login");
         } else {
-          const { access_token } = (await $fetch("/api/refresh", {
+          const { access_token } = (await $fetch("/route/auth/refresh", {
             method: "GET",
             Authorization: `${refreshToken.value}`,
           })) as {

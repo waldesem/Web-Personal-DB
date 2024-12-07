@@ -25,7 +25,7 @@ const pending = ref(false);
 
 const { refresh, status } = await useLazyAsyncData("anketa", async () => {
   person.value = (await authFetch(
-    "/api/items/persons/" + candId.value
+    "/route/items/persons/" + candId.value
   )) as Persons;
 });
 
@@ -96,7 +96,7 @@ async function switchSelf(): Promise<void> {
     return;
   }
   pending.value = true;
-  await authFetch("/api/self/" + candId.value);
+  await authFetch("/route/self/" + candId.value);
   pending.value = false;
   await refresh();
 }

@@ -10,7 +10,6 @@ from werkzeug.exceptions import HTTPException
 from config import Config
 from .model.tables import db_session, Users
 from .model.classes import Roles, Regions
-from .routes.route import bp as route_bp
 
 file_handler = logging.FileHandler("error.log")
 file_handler.setLevel(logging.ERROR)
@@ -31,8 +30,10 @@ def create_app(config_class=Config):
     """
     app = Flask(__name__)
     app.config.from_object(config_class)
-    app.register_blueprint(route_bp)
     app.logger.addHandler(file_handler)
+    
+    from .routes.route import bp as route_bp
+    app.register_blueprint(route_bp)
 
     @app.teardown_appcontext
     def shutdown_session(exception=None):

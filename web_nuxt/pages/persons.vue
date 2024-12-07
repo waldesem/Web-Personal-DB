@@ -21,7 +21,7 @@ const { refresh, status } = await useLazyAsyncData(
   "candidates",
   async () => {
     [candidates.value, hasNext.value] = (await authFetch(
-      "/api/index/" + page.value,
+      "/route/index/" + page.value,
       {
         params: {
           search: search.value,
@@ -57,7 +57,7 @@ onChange(async (files) => {
   upload.value = true;
   const formData = new FormData();
   formData.append("file", files[0]);
-  const { person_id } = (await authFetch("/api/anketa/json", {
+  const { person_id } = (await authFetch("/route/anketa/json", {
     method: "POST",
     body: formData,
   })) as Record<string, string>;

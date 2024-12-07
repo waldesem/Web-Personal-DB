@@ -29,7 +29,7 @@ export default defineNuxtConfig({
     "@/": fileURLToPath(new URL("./src", import.meta.url)),
   },
   routeRules: {
-    "/api/**": { proxy: "http://127.0.0.1:5000/api/**" },
+    "/route/**": { proxy: "http://127.0.0.1:5000/route/**" },
   },
 
   nitro: {

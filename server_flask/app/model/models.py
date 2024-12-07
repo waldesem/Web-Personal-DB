@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Optional, Union
+from typing import Literal, Optional, Union
 
 from pydantic import BaseModel, validator
 
@@ -10,6 +10,33 @@ class Login(BaseModel):
     username: str
     password: str
     new_pswd: Optional[str]
+
+
+class Search(BaseModel):
+    search: str
+
+
+class Region(BaseModel):
+    region: Regions
+
+    class Config:
+        use_enum_values = True
+
+
+class Info(BaseModel):
+    start: date
+    end: date
+    region: Optional[Regions]
+
+    class Config:
+        use_enum_values = True
+
+
+class UserActions(BaseModel):
+    item: Literal["drop", "block", "delete"] | Roles | Regions
+
+    class Config:
+        use_enum_values = True
 
 
 class Model(BaseModel):
