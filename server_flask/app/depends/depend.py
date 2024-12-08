@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from functools import lru_cache, wraps
 from typing import Callable, Optional
 
@@ -12,7 +12,6 @@ from ..model.tables import Users, db_session
 current_user = LocalProxy(lambda: get_current_user(g.user_id))
 
 
-@lru_cache(maxsize=2)
 def get_payload(header):
     """Validates a JWT token and returns the user ID.
 
@@ -29,7 +28,7 @@ def get_payload(header):
                 current_app.config["JWT_SECRET_KEY"],
                 algorithms=["HS256"],
             )["id"]
-        except jwt.exceptions.InvalidTokenError:
+        except jwt.exceptions.PyJWTError:
             current_app.logger.info("Invalid token")
             return None
     return None
@@ -71,6 +70,7 @@ def create_token(user: dict):
         str: The JWT token.
     """
     if isinstance(user, dict):
+        user.update({"exp": datetime.now(tz=timezone.utc) + timedelta(hours=12)})
         try:
             token = "Bearer " + jwt.encode(
                 user,
@@ -191,6 +191,33 @@ def validate():
             res = func(*args, **kwargs)
 
             return res
+
+        return wrapper
+
+    return decorate
+
+
+def serialize():
+    def decorate(func: Callable) -> Callable:
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            err = {}
+            result = func(*args, **kwargs)
+            
+            try:
+                if hasattr(result, "__iter__"):
+                    result = [res.to_dict() for res in result]
+                else:
+                    result = result.to_dict()
+            except Exception as e:
+                err["result"] = e
+
+            if err:
+                return make_response(
+                    jsonify({"message": "error", "serialization_error": err}), 400
+                )
+            
+            return make_response(jsonify(result), 200)
 
         return wrapper
 

@@ -72,9 +72,9 @@ const badgeItems = {
 
 const badge = computed(() => {
   if (person.value["editable"]) {
-    if (person.value["user_id"] == userState.id) {
+    if (person.value["user_id"] == stateUser.id) {
       return badgeItems.current;
-    } else if (person.value["user_id"] != userState.id) {
+    } else if (person.value["user_id"] != stateUser.id) {
       return badgeItems.thirdparty;
     }
   }

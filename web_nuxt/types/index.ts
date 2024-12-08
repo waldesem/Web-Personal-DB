@@ -24,6 +24,16 @@ export interface User {
   role: string;
 }
 
+export interface Token {
+  id: string;
+  fullname: string;
+  username: string;
+  email: string;
+  region: string;
+  role: string;
+  exp: number;
+}
+
 export interface Persons {
   id: string;
   surname: string;

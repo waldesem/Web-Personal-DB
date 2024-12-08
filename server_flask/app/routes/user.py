@@ -1,81 +1,84 @@
 import re
 
-from flask import Blueprint, current_app, jsonify, request
+from flask import Blueprint, current_app, jsonify
+from flask.views import MethodView
 from sqlalchemy import desc, func, select
 from werkzeug.security import generate_password_hash
 
-from ..depends.depend import (
-    current_user,
-    get_current_user,
-    get_payload,
-    roles_required,
-    validate,
-)
+from ..depends.depend import current_user, get_current_user, roles_required, validate
 from ..model.classes import Regions, Roles
-from ..model.models import User, UserActions
-from ..model.tables import  Users, db_session
+from ..model.models import User, UserActions, Search
+from ..model.tables import Users, db_session
+
+bp = Blueprint("users", __name__)
 
 
-bp = Blueprint("users", __name__, url_prefix="/users")
+class UserView(MethodView):
+    decorators = [roles_required(Roles.admin.value)]
+
+    @validate()
+    def get(self, query_data: Search):
+        """
+        Retrieves a list of users from the database based on the provided search criteria.
+
+        Parameters:
+            item (str): The table name from which to retrieve the users.
+
+        Returns:
+            tuple: A tuple containing the JSON-encoded list of users and the HTTP status code.
+        """
+        stmt = select(Users)
+        if query_data.search and len(query_data.search) > 2:
+            if re.match(r"^[a-zA-z_]+", query_data.search):
+                stmt = stmt.filter(
+                    func.lower(Users.username) == query_data.search.lower()
+                )
+            else:
+                stmt = stmt.filter(
+                    func.lower(Users.fullname) == query_data.search.lower()
+                )
+        users = db_session.execute(stmt.order_by(desc(Users.id))).scalars()
+        return jsonify([user.to_dict() for user in users]), 200
+
+    @validate()
+    def post(self, json_data: User):
+        """
+        Handles the POST request to create a user in the database.
+
+        This function is a route handler for the '/users' endpoint with the HTTP method POST.
+        It requires a valid token for authentication.
+
+        Returns:
+            - If the user already exists returns an empty response with status code 200.
+            - Else generates a hashed password using the default password.
+            Returns an empty response with status code 201.
+            - If an exception occurs during the execution of the function,
+            returns an empty response with status code 200.
+        """
+        user = db_session.execute(
+            select(Users).filter(
+                func.lower(Users.username) == json_data.username.lower()
+            )
+        ).all()
+        if not user:
+            db_session.add(
+                Users(
+                    fullname=json_data.fullname,
+                    username=json_data.username,
+                    email=json_data.email,
+                    role=Roles.guest.value,
+                    region=Regions.main.value,
+                    passhash=generate_password_hash(
+                        current_app.config["DEFAULT_PASSWORD"]
+                    ),
+                )
+            )
+            db_session.commit()
+            return jsonify({"message": "success"}), 201
+        return jsonify({"message": "error"}), 200
 
 
-@bp.get("/")
-@roles_required(Roles.admin.value)
-def get_users():
-    """
-    Retrieves a list of users from the database based on the provided search criteria.
-
-    Parameters:
-        item (str): The table name from which to retrieve the users.
-
-    Returns:
-        tuple: A tuple containing the JSON-encoded list of users and the HTTP status code.
-    """
-    search_data = request.args.get("search")
-    stmt = select(Users)
-    if search_data and len(search_data) > 2:
-        if re.match(r"^[a-zA-z_]+", search_data):
-            stmt = stmt.filter(func.lower(Users.username) == search_data.lower())
-        else:
-            stmt = stmt.filter(func.lower(Users.fullname) == search_data.lower())
-    users = db_session.execute(stmt.order_by(desc(Users.id))).scalars()
-    return jsonify([user.to_dict() for user in users]), 200
-
-
-@bp.post("/")
-@validate()
-@roles_required(Roles.admin.value)
-def post_user(json_data: User):
-    """
-    Handles the POST request to create a user in the database.
-
-    This function is a route handler for the '/users' endpoint with the HTTP method POST.
-    It requires a valid token for authentication.
-
-    Returns:
-        - If the user already exists returns an empty response with status code 200.
-        - Else generates a hashed password using the default password.
-        Returns an empty response with status code 201.
-        - If an exception occurs during the execution of the function,
-        returns an empty response with status code 200.
-    """
-    user = db_session.execute(
-        select(Users).filter(
-            func.lower(Users.username) == json_data.username.lower()
-        )
-    ).all()
-    if not user:
-        db_session.add(Users(
-            fullname=json_data.fullname,
-            username=json_data.username,
-            email=json_data.email,
-            role=Roles.guest.value,
-            region=Regions.main.value,
-            passhash=generate_password_hash(current_app.config["DEFAULT_PASSWORD"]),
-        ))
-        db_session.commit()
-        return jsonify({"message": "success"}), 201
-    return jsonify({"message": "error"}), 200
+bp.add_url_rule("/users", view_func=UserView.as_view("users"))
 
 
 @bp.get("/<int:user_id>")
@@ -112,5 +115,4 @@ def get_user_actions(user_id, query_data: UserActions):
             user.region = query_data.item
         db_session.commit()
         get_current_user.cache_clear()
-        get_payload.cache_clear()
     return "", 201

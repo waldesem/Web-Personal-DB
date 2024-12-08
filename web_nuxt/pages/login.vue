@@ -52,7 +52,7 @@ const validate = (state: Login) => {
  */
 async function submitLogin(): Promise<void> {
   const { message, access_token } = (await $fetch(
-    "/route/auth/login/" + loginAction.value,
+    "/route/login/" + loginAction.value,
     {
       method: "POST",
       body: loginForm.value,

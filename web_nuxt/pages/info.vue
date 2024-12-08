@@ -1,11 +1,7 @@
 <script setup lang="ts">
-import { getPayload } from '@/utils';
-
 
 const authFetch = useFetchAuth();
-const userState = getPayload();
-
-const region = ref(userState.region);
+const region = ref(stateUser.region);
 const start = ref(new Date().toISOString().split("T")[0].slice(0, 7) + "-01");
 const end = ref(new Date().toISOString().split("T")[0]);
 const stat = ref([] as Record<string, string>[]);
@@ -55,7 +51,7 @@ const { status } = await useLazyAsyncData(
           <UFormGroup class="mb-3" label="Регион">
             <USelect
               v-model="region"
-              :disabled="userState.region != 'Главный офис'"
+              :disabled="stateUser.region != 'Главный офис'"
               :options="[
                 'Главный офис',
                 'РЦ Юг',

@@ -24,8 +24,8 @@ class AffilationsView(MethodView):
             the retrieved item(s) and an HTTP status code of 200.
         """
         stmt = select(Affilations).filter(Affilations.person_id == item_id)
-        query = db_session.execute(stmt.order_by(desc(Affilations.id)))
-        return jsonify([row._asdict() for row in query]), 200
+        query = db_session.execute(stmt.order_by(desc(Affilations.id))).scalars()
+        return jsonify([row.to_dict() for row in query]), 200
 
     @validate()
     @roles_required(Roles.user.value)

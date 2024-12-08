@@ -1,24 +1,21 @@
-import type { NitroFetchOptions } from "nitropack";
-import type { User } from "@/types";
-import type { Method } from "@/types";
 import { Buffer } from "buffer";
+import type { NitroFetchOptions } from "nitropack";
+import type { Token, Method } from "@/types";
 
 export const useFetchAuth = () => {
   const fetchAuth = async (
     url: string,
     options: NitroFetchOptions<ResponseType, Method> = {}
   ) => {
-    if (!accessToken.value) {
+    try {
+      const payloads = accessToken.value.split(" ")[1].split(".")[1];
+      stateUser.value = JSON.parse(
+        Buffer.from(payloads, "base64").toString()
+      ) as Token;
+      if (stateUser.value.exp < Date.now() / 1000) return navigateTo("/login");
+    } catch (error) {
+      console.error(error);
       return navigateTo("/login");
-    }
-    const cridentials = accessToken.value.split(" ");
-    if (cridentials.length > 1) {
-      const payloads = cridentials[1].split(".");
-      if (payloads.length > 1) {
-        stateUser.value = JSON.parse(
-          Buffer.from(payloads[1], "base64").toString()
-        ) as User;
-      }
     }
     options.headers = {
       ...options.headers,
