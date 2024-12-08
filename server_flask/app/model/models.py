@@ -52,7 +52,7 @@ class User(Model):
     email: Optional[str]
     region: Optional[Regions]
     role: Optional[Roles]
-    
+
 
 class Person(Model):
     __modelname__ = "persons"

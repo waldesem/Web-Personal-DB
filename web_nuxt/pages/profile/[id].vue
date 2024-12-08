@@ -72,9 +72,9 @@ const badgeItems = {
 
 const badge = computed(() => {
   if (person.value["editable"]) {
-    if (person.value["user_id"] == stateUser.id) {
+    if (person.value["user_id"] == stateUser.value.id) {
       return badgeItems.current;
-    } else if (person.value["user_id"] != stateUser.id) {
+    } else if (person.value["user_id"] != stateUser.value.id) {
       return badgeItems.thirdparty;
     }
   }
@@ -94,7 +94,7 @@ async function switchSelf(): Promise<void> {
     return;
   }
   pending.value = true;
-  await authFetch("/route/self/" + candId.value);
+  await authFetch("/route/anketa/self/" + candId.value);
   pending.value = false;
   await refresh();
 }

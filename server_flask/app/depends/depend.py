@@ -8,6 +8,7 @@ from pydantic import BaseModel, ValidationError
 from werkzeug.local import LocalProxy
 
 from ..model.tables import Users, db_session
+from ..utils.utils import secure_filename
 
 current_user = LocalProxy(lambda: get_current_user(g.user_id))
 
@@ -174,7 +175,7 @@ def validate():
             if json_model:
                 content_type = request.headers.get("Content-Type", "").lower()
                 if content_type.split(";")[0] != "application/json":
-                    body = {"detail": f"Unsupported media type: '{content_type}'"}
+                    body = {"message": f"Unsupported media type: '{content_type}'"}
                     return make_response(jsonify(body), 415)
 
                 json_data = request.get_json()
@@ -183,41 +184,24 @@ def validate():
                 except ValidationError as ve:
                     err["json_data"] = ve.errors()
 
+            if "file_data" in func.__annotations__:
+                content_type = request.headers.get("Content-Type", "").lower()
+                if content_type.split(";")[0] != "multipart/form-data":
+                    body = {"message": f"Unsupported media type: '{content_type}'"}
+                    return make_response(jsonify(body), 415)
+
+                file_data = request.files.get("file")
+                kwargs["file_data"] = {
+                    "file": file_data,
+                    "filename": secure_filename(file_data.filename),
+                }
+
             if err:
-                return make_response(
-                    jsonify({"message": "error", "validation_error": err}), 400
-                )
+                return make_response(jsonify({"message": err}), 400)
 
             res = func(*args, **kwargs)
 
             return res
-
-        return wrapper
-
-    return decorate
-
-
-def serialize():
-    def decorate(func: Callable) -> Callable:
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            err = {}
-            result = func(*args, **kwargs)
-            
-            try:
-                if hasattr(result, "__iter__"):
-                    result = [res.to_dict() for res in result]
-                else:
-                    result = result.to_dict()
-            except Exception as e:
-                err["result"] = e
-
-            if err:
-                return make_response(
-                    jsonify({"message": "error", "serialization_error": err}), 400
-                )
-            
-            return make_response(jsonify(result), 200)
 
         return wrapper
 

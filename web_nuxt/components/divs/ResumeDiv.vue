@@ -35,7 +35,7 @@ const opening = ref(false);
 
 async function changeRegion(): Promise<void> {
   if (!confirm("Вы действительно хотите изменить регион?")) return;
-  const { message } = (await authFetch(`/route/region/${props.candId}`, {
+  const { message } = (await authFetch(`/route/anketa/region/${props.candId}`, {
     params: {
       region: region.value,
     },

@@ -49,13 +49,13 @@ class RelationView(MethodView):
             Tuple[str, int]: A tuple containing an empty string and an HTTP status
             code of 201.
         """
-        if json_data["right_id"] != person_id and db_session.get(
-            Persons, json_data["right_id"]
+        if json_data.right_id != person_id and db_session.get(
+            Persons, json_data.right_id
         ):
             relationship = association_table.insert().values(
                 left_id=person_id,
-                right_id=json_data["right_id"],
-                type=json_data["type"],
+                right_id=json_data.right_id,
+                type=json_data.type,
             )
             db_session.execute(relationship)
             db_session.commit()
@@ -63,7 +63,7 @@ class RelationView(MethodView):
         return jsonify({"message": "error"}), 200
 
     @roles_required(Roles.user.value)
-    def delete_relation(self, person_id: int, relation_id: int):
+    def delete(self, person_id: int, relation_id: int):
         """
         Deletes an item from the database based on the provided item name and item ID.
 

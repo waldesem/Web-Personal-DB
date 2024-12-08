@@ -2,9 +2,9 @@ import json
 import os
 import re
 import shutil
+from typing import Any
 
 from flask import Blueprint, current_app, jsonify, request
-from flask.views import MethodView
 from pydantic import ValidationError
 from sqlalchemy import select
 
@@ -18,107 +18,100 @@ from ..utils.utils import json_to_dict, secure_filename
 bp = Blueprint("anketa", __name__, url_prefix="/anketa")
 
 
-class AnketaView(MethodView):
-    decorators = [roles_required(Roles.user.value)]
+def upload(resume: dict):
+    if not re.match(r"[А-ЯЁЙ]", resume["surname"][0]):
+        return None
+    resume["editable"] = True
+    resume["user_id"] = current_user.get("id")
+    resume["region"] = current_user.get("region")
+    person = db_session.execute(
+        select(Persons).where(
+            Persons.surname == resume["surname"],
+            Persons.firstname == resume["firstname"],
+            Persons.patronymic == resume["patronymic"],
+            Persons.birthday == resume["birthday"],
+        )
+    ).scalar_one_or_none()
 
-    @staticmethod
-    def upload(resume: dict):
-        try:
-            resume = Person(**resume).dict()
-        except ValidationError as e:
-            current_app.logger.exception(e)
-            return None
-        if not re.match(r"[А-ЯЁЙ]", resume["surname"][0]):
-            return None
-        resume["editable"] = True
-        resume["user_id"] = current_user.get("id")
-        resume["region"] = current_user.get("region")
-        person = db_session.execute(
-            select(Persons).where(
-                Persons.surname == resume["surname"],
-                Persons.firstname == resume["firstname"],
-                Persons.patronymic == resume["patronymic"],
-                Persons.birthday == resume["birthday"],
-            )
-        ).scalar_one_or_none()
-
-        if not person:
-            person = Persons(**resume)
-            db_session.add(person)
-            db_session.flush()
-            person.destination = os.path.join(
-                current_app.config["BASE_PATH"],
-                resume["region"],
-                resume["surname"][0],
-                f"{person.id}-{resume['surname']} {resume['firstname']} "
-                f"{resume.get('patronymic', '')}".rstrip().upper(),
-            )
-            if not os.path.isdir(person.destination):
-                os.mkdir(person.destination)
-            db_session.commit()
-            return person.id
-
-        if person.editable or resume["region"] != person.region:
-            return None
-
-        resume["id"] = person.id
-        db_session.merge(Persons(**resume))
+    if not person:
+        person = Persons(**resume)
+        db_session.add(person)
+        db_session.flush()
+        person.destination = os.path.join(
+            current_app.config["BASE_PATH"],
+            resume["region"],
+            resume["surname"][0],
+            f"{person.id}-{resume['surname']} {resume['firstname']} "
+            f"{resume.get('patronymic', '')}".rstrip().upper(),
+        )
+        if not os.path.isdir(person.destination):
+            os.mkdir(person.destination)
         db_session.commit()
         return person.id
-    
-    def post(self, item):
-        """
-        Creates a new person or updates an existing person based on the provided data.
 
-        Parameters:
-            item (str): The name to create or update the person in.
+    if person.editable or resume["region"] != person.region:
+        return None
 
-        Returns:
-            A JSON response containing the person ID and an HTTP status code of 201.
-        """
-        if item == "resume":
-            json_data = request.get_json()
-            person_id = self.upload(json_data) if json_data else None
-            return jsonify({"person_id": person_id})
-
-        else:
-            file = request.files.get("file")
-            file_name = secure_filename(file.filename)
-            if not file or not file_name.endswith(".json"):
-                return jsonify({"person_id": None})
-            json_dict = json.load(file)
-            try:
-                json_dict = AnketaSchemaJson(**json_dict).dict()
-            except ValidationError as e:
-                current_app.logger.exception(e)
-                return jsonify({"person_id": None})
-
-            anketa = json_to_dict(json_dict)
-            person_id = self.upload(anketa.pop("resume"))
-            if not person_id:
-                current_app.logger.warning("person_id is None")
-                return jsonify({"person_id": person_id})
-
-            tablenames = {
-                cls.__tablename__: cls
-                for cls in Base.__subclasses__()
-                if hasattr(cls, "__tablename__")
-            }
-            items = []
-            for tbl, contents in anketa.items():
-                if contents:
-                    for content in contents:
-                        content["person_id"] = person_id
-                        content["user_id"] = current_user.get("id")
-                        table = tablenames.get(tbl)
-                        items.append(table(**content))
-            db_session.bulk_save_objects(items)
-            db_session.commit()
-            return jsonify({"person_id": person_id}), 201
+    resume["id"] = person.id
+    db_session.merge(Persons(**resume))
+    db_session.commit()
+    return person.id
 
 
-views = AnketaView.as_view("anketa")
-bp.add_url_rule("/<item>", view_func=views)
+@bp.post("/resume")
+@validate()
+@roles_required(Roles.user.value)
+def post_resume(json_data: Person):
+    """
+    Creates a new person or updates an existing person based on the provided data.
+
+    Parameters:
+        item (str): The name to create or update the person in.
+
+    Returns:
+        A JSON response containing the person ID and an HTTP status code of 201.
+    """
+    person_id = upload(json_data) if json_data else None
+    return jsonify({"person_id": person_id})
+
+
+@bp.post("/json")
+@validate()
+@roles_required(Roles.user.value)
+def post_file(file_data: dict):
+    # file = request.files.get("file")
+    # file_name = secure_filename(file.filename)
+    if not file_data["filename"].endswith(".json"):
+        return jsonify({"person_id": None})
+    json_dict = json.load(file_data["file"])
+    try:
+        json_dict = AnketaSchemaJson(**json_dict).dict()
+    except ValidationError as e:
+        current_app.logger.exception(e)
+        return jsonify({"person_id": None})
+
+    anketa = json_to_dict(json_dict)
+    person_id = upload(anketa.pop("resume"))
+    if not person_id:
+        current_app.logger.warning("person_id is None")
+        return jsonify({"person_id": person_id})
+
+    tablenames = {
+        cls.__tablename__: cls
+        for cls in Base.__subclasses__()
+        if hasattr(cls, "__tablename__")
+    }
+    items = []
+    for tbl, contents in anketa.items():
+        if contents:
+            for content in contents:
+                content["person_id"] = person_id
+                content["user_id"] = current_user.get("id")
+                table = tablenames.get(tbl)
+                items.append(table(**content))
+    db_session.bulk_save_objects(items)
+    db_session.commit()
+    return jsonify({"person_id": person_id}), 201
 
 
 @bp.get("/region/<int:person_id>")
