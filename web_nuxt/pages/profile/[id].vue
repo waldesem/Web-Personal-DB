@@ -66,7 +66,7 @@ const badgeItems = {
   },
   others: {
     label: "Анкета не редактируется пользователями",
-    color: "blue",
+    color: "gray",
   },
 };
 
@@ -125,24 +125,18 @@ function emitMessage(message: string) {
       :editable="editState"
       @message="emitMessage"
     /> -->
-    <div v-if="stateUser.role == 'user'">
-      <div class="flex justify-end pe-8">
-        <UButton
-          :disabled="pending"
-          variant="link"
-          size="xl"
-          @click="switchSelf"
-        >
-          <div v-if="pending || status === 'pending'">
-            <UIcon name="i-heroicons-arrow-path animate-spin w-8 h-8" />
-          </div>
-          <div v-else class="animate-pulse w-16 h-16">
-            <UBadge :color="(badge.color as any)" variant="solid">
-              {{ badge.label }}
-            </UBadge>
-          </div>
-        </UButton>
-      </div>
+    <div class="mb-2">
+      <UButton
+        v-if="stateUser.role == 'user'"
+        class="animate-pulse"
+        :disabled="pending"
+        :loading="pending || status === 'pending'"
+        :label="badge.label"
+        :color="(badge.color as any)"
+        size="xl"
+        title="Переключить режим редактирования"
+        @click="switchSelf"
+      />
     </div>
     <USkeleton v-if="status === 'pending'" class="my-6 h-8 w-1/3" />
     <ElementsHeaderDiv

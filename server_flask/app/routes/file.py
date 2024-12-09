@@ -3,7 +3,7 @@ import os
 import subprocess
 from datetime import datetime
 
-from flask import Blueprint, current_app, jsonify, send_file
+from flask import Blueprint, current_app, jsonify, request
 from flask.views import MethodView
 from PIL import Image
 
@@ -35,21 +35,22 @@ class FileView(MethodView):
             os.makedirs(self.person.destination, exist_ok=True)
             db_session.commit()
 
-    def get(self, item, item_id):
-        self.initialize(item_id)
-        if item == "folder":
+    def get(self, item):
+        # self.initialize(item_id)
+        destination = request.args.get("destination")
+        if item == "folder" and os.path.isdir(destination):
             try:
-                subprocess.run(f'explorer "{self.person.destination}"', timeout=10)
+                subprocess.run(f'explorer "{destination}"', timeout=10)
             except subprocess.CalledProcessError as e:
                 current_app.logger.exception(e)
             return "", 200
-        elif item == "image":
-            file_path = os.path.join(self.person.destination, "image", "image.jpg")
-            if os.path.isfile(file_path):
-                return send_file(file_path, as_attachment=True, mimetype="image/jpg")
-            return send_file(
-                "static/no-photo.png", as_attachment=True, mimetype="image/jpg"
-            )
+        # elif item == "image":
+        #     file_path = os.path.join(self.person.destination, "image", "image.jpg")
+        #     if os.path.isfile(file_path):
+        #         return send_file(file_path, as_attachment=True, mimetype="image/jpg")
+        #     return send_file(
+        #         "static/no-photo.png", as_attachment=True, mimetype="image/jpg"
+        #     )
 
     @validate()
     def post(self, item, item_id, file_data: list[File]):
@@ -84,4 +85,5 @@ class FileView(MethodView):
 
 
 file_view = FileView.as_view("file_view")
-bp.add_url_rule("/<item>/<int:item_id>", view_func=file_view)
+bp.add_url_rule("/<item>", view_func=file_view, methods=["GET"])
+bp.add_url_rule("/<item>/<int:item_id>", view_func=file_view, methods=["POST"])

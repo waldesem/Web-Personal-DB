@@ -162,14 +162,14 @@ def validate():
     def decorate(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args, **kwargs):
-            err = {}
+            err = []
             query_model: Optional[BaseModel] = func.__annotations__.get("query_data")
             if query_model:
                 query_data = request.args.to_dict()
                 try:
                     kwargs["query_data"] = query_model(**query_data)
                 except ValidationError as ve:
-                    err["query_data"] = ve.errors()
+                    err.append(str(ve))
 
             json_model: Optional[BaseModel] = func.__annotations__.get("json_data")
             if json_model:
@@ -182,9 +182,11 @@ def validate():
                 try:
                     kwargs["json_data"] = json_model(**json_data)
                 except ValidationError as ve:
-                    err["json_data"] = ve.errors()
+                    err.append(str(ve))
 
-            file_model: Optional[BaseModel] = func.__annotations__.get("file_data")
+            file_model: BaseModel | list[BaseModel] = func.__annotations__.get(
+                "file_data"
+            )
             if file_model:
                 content_type = request.headers.get("Content-Type", "").lower()
                 if content_type.split(";")[0] != "multipart/form-data":
@@ -203,7 +205,8 @@ def validate():
                         file=file_data, filename=file_data.filename
                     )
             if err:
-                return make_response(jsonify({"message": err}), 400)
+                current_app.logger.error("; ".join(err))
+                return make_response(jsonify({"message": "error"}), 200)
 
             res = func(*args, **kwargs)
 

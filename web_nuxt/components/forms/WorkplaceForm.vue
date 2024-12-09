@@ -19,12 +19,10 @@ const schema = z.object({
   now_work: z.boolean().nullable().optional(),
   starts: z
     .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Поле должно содержать корректную дату")
-    .optional(),
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Поле должно содержать корректную дату"),
   finished: z
     .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Поле должно содержать корректную дату")
-    .optional(),
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Поле должно содержать корректную дату"),
   workplace: z
     .string({ required_error: "Обязательное поле" })
     .max(255, "Максимум 255 символов")

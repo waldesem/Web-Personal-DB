@@ -23,9 +23,13 @@ const schemaResume = z.object({
   patronymic: z
     .string()
     .max(255, "Максимум 255 символов")
-    .regex(/^[а-яёЁА-Я-\s]+$/, "Поле должно содержать только русские буквы")
     .nullable()
-    .optional(),
+    .optional()
+    .or(
+      z
+        .string()
+        .regex(/^[а-яёЁА-Я-\s]+$/, "Поле должно содержать только русские буквы")
+    ),
   birthday: z
     .string()
     .regex(
@@ -45,14 +49,14 @@ const schemaResume = z.object({
   dual: z.string().max(255, "Максимум 255 символов").nullable().optional(),
   inn: z
     .string()
-    .regex(/^[0-9]{12}$/, "Поле должно содержать 12 цифр")
     .nullable()
-    .optional(),
+    .optional()
+    .or(z.string().regex(/^[0-9]{10}$/, "Поле должно содержать 12 цифр")),
   snils: z
     .string()
-    .regex(/^[0-9]{11}$/, "Поле должно содержать 11 цифр")
     .nullable()
-    .optional(),
+    .optional()
+    .or(z.string().regex(/^[0-9]{11}$/, "Поле должно содержать 11 цифр")),
   marital: z.string().max(255, "Максимум 255 символов").nullable().optional(),
   addition: z.string().nullable().optional(),
 });
@@ -91,7 +95,11 @@ async function submitResume() {
 </script>
 
 <template>
-  <UForm :state="resumeForm" :schema="schemaResume" @submit.prevent="submitResume">
+  <UForm
+    :state="resumeForm"
+    :schema="schemaResume"
+    @submit.prevent="submitResume"
+  >
     <UFormGroup class="mb-3" label="Фамилия" name="surname" required>
       <UInput
         v-model.trim="resumeForm['surname']"

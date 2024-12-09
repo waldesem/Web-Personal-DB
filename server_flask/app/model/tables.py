@@ -186,8 +186,8 @@ class Workplaces(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     now_work: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    starts: Mapped[datetime] = mapped_column(Date, nullable=True)
-    finished: Mapped[datetime] = mapped_column(Date, nullable=True)
+    starts: Mapped[datetime | None] = mapped_column(Date, nullable=True)
+    finished: Mapped[datetime | None] = mapped_column(Date, nullable=True)
     workplace: Mapped[str] = mapped_column(String(255), nullable=True)
     addresses: Mapped[str] = mapped_column(Text, nullable=True)
     position: Mapped[str] = mapped_column(Text, nullable=True)

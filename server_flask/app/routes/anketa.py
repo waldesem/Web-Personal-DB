@@ -70,7 +70,7 @@ def post_resume(json_data: Person):
     Returns:
         A JSON response containing the person ID and an HTTP status code of 201.
     """
-    person_id = upload(json_data) if json_data else None
+    person_id = upload(json_data.dict()) if json_data else None
     return jsonify({"person_id": person_id})
 
 
