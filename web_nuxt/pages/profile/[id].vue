@@ -120,13 +120,13 @@ function emitMessage(message: string) {
 
 <template>
   <div>
-    <DivsPhotoCard
+    <!-- <DivsPhotoCard
       :cand-id="candId"
       :editable="editState"
       @message="emitMessage"
-    />
-    <div v-if="stateUser.role == 'user'" class="relative">
-      <div class="absolute bottom-0 right-20">
+    /> -->
+    <div v-if="stateUser.role == 'user'">
+      <div class="flex justify-end pe-8">
         <UButton
           :disabled="pending"
           variant="link"

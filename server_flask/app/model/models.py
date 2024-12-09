@@ -1,9 +1,10 @@
 from datetime import date
-from typing import Literal, Optional, Union
+from typing import Any, Literal, Optional, Union
 
 from pydantic import BaseModel, validator
 
 from .classes import Conclusions, Regions, Roles
+from ..utils.utils import secure_filename
 
 
 class Login(BaseModel):
@@ -276,3 +277,12 @@ class AnketaSchemaJson(BaseModel):
     @validator("lastName", "firstName", "midName")
     def check_names(cls, v):
         return v.upper().strip() if v else None
+
+
+class File(BaseModel):
+    file: Any
+    filename: str
+
+    @validator("filename")
+    def check_filename(cls, name):
+        return secure_filename(name)

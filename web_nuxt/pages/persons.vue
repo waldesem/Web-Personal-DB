@@ -97,6 +97,7 @@ onCancel(() => {
     <div class="my-6">
       <UInput
         v-model="search"
+        size="lg"
         placeholder="поиск по фамилии, имени, отчеству"
       />
     </div>

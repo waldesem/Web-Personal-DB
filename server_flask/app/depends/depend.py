@@ -8,7 +8,7 @@ from pydantic import BaseModel, ValidationError
 from werkzeug.local import LocalProxy
 
 from ..model.tables import Users, db_session
-from ..utils.utils import secure_filename
+from ..model.models import File
 
 current_user = LocalProxy(lambda: get_current_user(g.user_id))
 
@@ -184,18 +184,24 @@ def validate():
                 except ValidationError as ve:
                     err["json_data"] = ve.errors()
 
-            if "file_data" in func.__annotations__:
+            file_model: Optional[BaseModel] = func.__annotations__.get("file_data")
+            if file_model:
                 content_type = request.headers.get("Content-Type", "").lower()
                 if content_type.split(";")[0] != "multipart/form-data":
                     body = {"message": f"Unsupported media type: '{content_type}'"}
                     return make_response(jsonify(body), 415)
 
-                file_data = request.files.get("file")
-                kwargs["file_data"] = {
-                    "file": file_data,
-                    "filename": secure_filename(file_data.filename),
-                }
-
+                try:
+                    iter(file_model)
+                    file_data = request.files.getlist("file")
+                    kwargs["file_data"] = [
+                        File(file=f, filename=f.filename) for f in file_data
+                    ]
+                except TypeError:
+                    file_data = request.files.get("file")
+                    kwargs["file_data"] = File(
+                        file=file_data, filename=file_data.filename
+                    )
             if err:
                 return make_response(jsonify({"message": err}), 400)
 

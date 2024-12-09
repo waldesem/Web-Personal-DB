@@ -3,14 +3,14 @@ import os
 import subprocess
 from datetime import datetime
 
-from flask import Blueprint, current_app, jsonify, request, send_file
+from flask import Blueprint, current_app, jsonify, send_file
 from flask.views import MethodView
 from PIL import Image
 
-from ..depends.depend import current_user, roles_required
+from ..depends.depend import current_user, roles_required, validate
 from ..model.classes import Roles
+from ..model.models import File
 from ..model.tables import Persons, db_session
-from ..utils.utils import secure_filename
 
 
 bp = Blueprint("file", __name__, url_prefix="/file")
@@ -51,18 +51,18 @@ class FileView(MethodView):
                 "static/no-photo.png", as_attachment=True, mimetype="image/jpg"
             )
 
-    def post(self, item, item_id):
+    @validate()
+    def post(self, item, item_id, file_data: list[File]):
         self.initialize(item_id)
         item_dir = os.path.join(self.person.destination, item)
         os.makedirs(item_dir, exist_ok=True)
 
-        files = request.files.getlist("file")
-        if not files:
+        if not file_data:
             return jsonify({"message": "error"}), 200
 
         if item == "image":
-            if imghdr.what(files[0]) is not None:
-                image = Image.open(files[0])
+            if imghdr.what(file_data[0].file) is not None:
+                image = Image.open(file_data[0].file)
                 image = image.convert("RGB")
                 new_file = os.path.join(item_dir, "image.jpg")
                 if os.path.isfile(new_file):
@@ -76,11 +76,10 @@ class FileView(MethodView):
             datetime.now().strftime("%Y-%m-%d"),
         )
         os.makedirs(date_subfolder, exist_ok=True)
-        for file in files:
-            file_name = secure_filename(file.filename)
-            file_path = os.path.join(date_subfolder, file_name)
+        for files in file_data:
+            file_path = os.path.join(date_subfolder, files.filename)
             if not os.path.isfile(file_path):
-                file.save(file_path)
+                files.file.save(file_path)
         return "", 201
 
 

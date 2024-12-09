@@ -3,11 +3,6 @@ useHead({
   title: "StaffSec - кадровая безопасность",
   meta: [{ name: "description", content: "Кадровая безопасность" }],
 });
-
-useSeoMeta({
-  title: "StaffSec - кадровая безопасность",
-  description: "Кадровая безопасность, проверка персонала",
-});
 </script>
 
 <template>

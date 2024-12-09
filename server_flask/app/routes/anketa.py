@@ -2,17 +2,16 @@ import json
 import os
 import re
 import shutil
-from typing import Any
 
-from flask import Blueprint, current_app, jsonify, request
+from flask import Blueprint, current_app, jsonify
 from pydantic import ValidationError
 from sqlalchemy import select
 
 from ..depends.depend import current_user, roles_required, validate
 from ..model.classes import Roles
-from ..model.models import AnketaSchemaJson, Person, Region
+from ..model.models import AnketaSchemaJson, Person, Region, File
 from ..model.tables import Base, Persons, db_session
-from ..utils.utils import json_to_dict, secure_filename
+from ..utils.utils import json_to_dict
 
 
 bp = Blueprint("anketa", __name__, url_prefix="/anketa")
@@ -78,12 +77,10 @@ def post_resume(json_data: Person):
 @bp.post("/json")
 @validate()
 @roles_required(Roles.user.value)
-def post_file(file_data: dict):
-    # file = request.files.get("file")
-    # file_name = secure_filename(file.filename)
-    if not file_data["filename"].endswith(".json"):
+def post_file(file_data: File):
+    if not file_data.filename.endswith(".json"):
         return jsonify({"person_id": None})
-    json_dict = json.load(file_data["file"])
+    json_dict = json.load(file_data.file)
     try:
         json_dict = AnketaSchemaJson(**json_dict).dict()
     except ValidationError as e:

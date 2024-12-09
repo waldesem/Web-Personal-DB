@@ -24,36 +24,32 @@ export default defineNuxtConfig({
       ],
     },
   },
-
   alias: {
     "@/": fileURLToPath(new URL("./src", import.meta.url)),
   },
   routeRules: {
     "/route/**": { proxy: "http://127.0.0.1:5000/route/**" },
   },
-
   nitro: {
     output: {
       publicDir: "../server_flask/app/static",
     },
   },
-
   vite: {
     build: {
       emptyOutDir: true,
     },
   },
-
   modules: [
     "@nuxt/ui",
     "@nuxt/eslint",
     "@nuxtjs/color-mode",
     "@nuxt/icon",
-    '@vueuse/nuxt',
+    "@vueuse/nuxt",
   ],
   icon: {
     clientBundle: {
-      scan: true
-    }
-  }
+      scan: true,
+    },
+  },
 });
