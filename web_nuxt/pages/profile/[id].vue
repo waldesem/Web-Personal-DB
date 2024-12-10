@@ -55,42 +55,20 @@ const tabs = [
   },
 ];
 
-const badgeItems = {
-  current: {
-    label: "Анкета редактируется текущим пользователем",
-    color: "green",
-  },
-  thirdparty: {
-    label: "Анкета редактируется другим пользователем",
-    color: "red",
-  },
-  others: {
-    label: "Анкета не редактируется пользователями",
-    color: "gray",
-  },
-};
-
-const badge = computed(() => {
-  if (person.value["editable"]) {
-    if (person.value["user_id"] == stateUser.value.id) {
-      return badgeItems.current;
-    } else if (person.value["user_id"] != stateUser.value.id) {
-      return badgeItems.thirdparty;
-    }
-  }
-  return badgeItems.others;
-});
-
 const editState = computed(() => {
   return (
     person.value["editable"] &&
-stateUser.value.role == "user" &&
+    stateUser.value.role == "user" &&
     stateUser.value.id == person.value["user_id"]
   );
 });
 
 async function switchSelf(): Promise<void> {
-  if (!confirm("Вы действительно хотите включить/выключить режим правки")) {
+  if (person.value.user_id != stateUser.value.id) {
+    if (!confirm("Вы хотите назначить анкету на себя?")) {
+      return;
+    }
+  } else if (!confirm("Переключить режим редактирования?")) {
     return;
   }
   pending.value = true;
@@ -120,32 +98,26 @@ function emitMessage(message: string) {
 
 <template>
   <div>
-    <!-- <DivsPhotoCard
-      :cand-id="candId"
-      :editable="editState"
-      @message="emitMessage"
-    /> -->
-    <div class="mb-2">
-      <UButton
-        v-if="stateUser.role == 'user'"
-        class="animate-pulse"
-        :disabled="pending"
-        :loading="pending || status === 'pending'"
-        :label="badge.label"
-        :color="(badge.color as any)"
-        size="xl"
-        title="Переключить режим редактирования"
-        @click="switchSelf"
+    <UButton
+      :disabled="pending"
+      :class="{ 'animate-pulse': person.user_id != stateUser.id }"
+      :loading="pending || status === 'pending'"
+      :title="
+        person.user_id != stateUser.id
+          ? 'Анкета редактируется другим пользователем'
+          : ''
+      "
+      variant="link"
+      @click="switchSelf"
+    >
+      <ElementsHeaderDiv
+        :div="'py-3'"
+        :header="`${person['surname']} ${person['firstname']} ${
+          person['patronymic'] ? person['patronymic'] : ''
+        }`"
       />
-    </div>
-    <USkeleton v-if="status === 'pending'" class="my-6 h-8 w-1/3" />
-    <ElementsHeaderDiv
-      v-else
-      :div="'py-3'"
-      :header="`${person['surname']} ${person['firstname']} ${
-        person['patronymic'] ? person['patronymic'] : ''
-      }`"
-    />
+    </UButton>
+
     <UTabs :items="tabs">
       <template #anketaTab>
         <TabsAnketaTab

@@ -11,39 +11,32 @@ async function logout() {
 const links = [
   [
     {
-      label: "кандидаты",
+      label: "КАНДИДАТЫ",
       icon: "i-heroicons-user-circle",
       to: "/persons",
     },
   ],
   [
     {
-      label: "создать",
+      label: "СОЗДАТЬ",
       icon: "i-heroicons-newspaper",
       to: "/resume",
     },
   ],
   [
     {
-      label: "пользователи",
+      label: "ПОЛЬЗОВАТЕЛИ",
       icon: "i-heroicons-user-group",
       to: "/users",
     },
   ],
   [
     {
-      label: "статистика",
+      label: "СТАТИСТИКА",
       icon: "i-heroicons-chart-pie",
       to: "/info",
     },
-  ],
-  [
-    {
-      label: stateUser.value.username,
-      icon: "i-heroicons-arrow-left-end-on-rectangle",
-      click: () => logout(),
-    },
-  ],
+  ]
 ];
 
 const filtredLinks = computed(() => {
@@ -73,7 +66,27 @@ const filtredLinks = computed(() => {
         <h3 class="text-red-600">ФИНТЕХ</h3>
       </div>
       <div class="flex items-center justify-end">
-        <UHorizontalNavigation :links="filtredLinks" />
+        <UHorizontalNavigation
+        :ui="{
+          active: 'text-blue-600',
+          inactive: 'text-gray-600',
+          icon: {
+            active: 'text-blue-600',
+            inactive: 'text-gray-600',
+          }
+        }" 
+        :links="filtredLinks" />
+      </div>
+      <div class="flex items-center justify-end">
+        <UTooltip  text="Выход">
+          <UButton
+            :label="stateUser.username"
+            color="red"
+            icon="i-heroicons-arrow-left-end-on-rectangle"
+            :ui="{ rounded: 'rounded-full' }"
+            @click="logout()"
+          />
+        </UTooltip>
       </div>
     </div>
     <div>
