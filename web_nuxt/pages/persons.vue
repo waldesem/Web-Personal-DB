@@ -113,8 +113,6 @@ onCancel(() => {
         { key: 'region', label: 'Регион' },
         { key: 'surname', label: 'Фамилия Имя Отчество' },
         { key: 'birthday', label: 'Дата рождения' },
-        { key: 'inn', label: 'ИНН' },
-        { key: 'snils', label: 'СНИЛС' },
         { key: 'created', label: 'Обновлено' },
         { key: 'username', label: 'Сотрудник' },
         { key: 'editable', label: 'Статус' },
