@@ -31,15 +31,11 @@ async function submitResume(form: Persons) {
 </script>
 
 <template>
-  <div v-if="upload">
-    <USkeleton class="h-44 w-44" />
-    <USkeleton class="my-6 h-8 w-1/3" />
-    <USkeleton class="my-6 h-8 w-full" />
-    <ElementsSkeletonDiv :rows="18" />
-  </div>
-  <div v-else>
-    <ElementsHeaderDiv :div="'mb-6'" header="НОВАЯ АНКЕТА" />
-    <ElementsCardDiv>
+  <div>
+    <USkeleton v-if="upload" class="my-6 h-8 w-1/3" />
+    <ElementsHeaderDiv v-else header="НОВАЯ АНКЕТА" />
+    <ElementsSkeletonDiv v-if="upload" :rows="18" />
+    <ElementsCardDiv v-else>
       <FormsResumeForm @cancel="navigateToPersons" @update="submitResume" />
     </ElementsCardDiv>
   </div>

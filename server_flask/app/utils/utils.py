@@ -1,164 +1,179 @@
+import json
 import os
-import platform
 import re
-import unicodedata
+
+from flask import current_app
+from pydantic import ValidationError
+from sqlalchemy import select
+
+from ..depends.depend import current_user
+from ..model.models import AnketaSchemaJson
+from ..model.tables import Persons, db_session
 
 
-def json_to_dict(json_dict: dict) -> dict:
+def upload_resume(resume: dict):
+    if not re.match(r"[А-ЯЁЙ]", resume["surname"][0]):
+        return None
+    resume["editable"] = True
+    resume["user_id"] = current_user.get("id")
+    resume["region"] = current_user.get("region")
+    person = db_session.execute(
+        select(Persons).where(
+            Persons.surname == resume["surname"],
+            Persons.firstname == resume["firstname"],
+            Persons.patronymic == resume["patronymic"],
+            Persons.birthday == resume["birthday"],
+        )
+    ).scalar_one_or_none()
+
+    if not person:
+        person = Persons(**resume)
+        db_session.add(person)
+        db_session.flush()
+        person.destination = os.path.join(
+            current_app.config["BASE_PATH"],
+            resume["region"],
+            resume["surname"][0],
+            f"{person.id}-{resume['surname']} {resume['firstname']} "
+            f"{resume.get('patronymic', '')}".rstrip().upper(),
+        )
+        if not os.path.isdir(person.destination):
+            os.mkdir(person.destination)
+        db_session.commit()
+        return person.id
+
+    if person.editable or resume["region"] != person.region:
+        return None
+
+    resume["id"] = person.id
+    db_session.merge(Persons(**resume))
+    db_session.commit()
+    return person.id
+
+
+def json_to_dict(file_data) -> dict:
     """
     Transforms a JSON-dictionary into a python-dictionary.
 
-    :param json_dict: A JSON-dictionary
+    :param file_data: A JSON-dictionary
     :return: A python-dictionary
     """
-    return {
-        "resume": {
-            "surname": json_dict.get("lastName"),
-            "firstname": json_dict.get("firstName"),
-            "patronymic": json_dict.get("midName"),
-            "birthday": json_dict.get("birthday"),
-            "birthplace": json_dict.get("birthplace"),
-            "citizenship": json_dict.get("citizen"),
-            "dual": json_dict.get("additionalCitizenship"),
-            "marital": json_dict.get("maritalStatus"),
-            "inn": json_dict.get("inn"),
-            "snils": json_dict.get("snils"),
-        },
-        "staffs": [
-            {
-                "position": json_dict.get("positionName"),
-                "department": json_dict.get("department"),
-            }
-        ],
-        "documents": [
-            {
-                "view": "Паспорт",
-                "digits": json_dict.get("passportNumber"),
-                "series": json_dict.get("passportSerial"),
-                "issue": json_dict.get("passportIssueDate"),
-                "agency": json_dict.get("passportIssuedBy"),
-            }
-        ],
-        "addresses": [
-            {
-                "view": "Адрес проживания",
-                "addresses": json_dict.get("validAddress"),
+    json_data = json.load(file_data)
+    try:
+        anketa = AnketaSchemaJson(**json_data)
+        return {
+            "resume": {
+                "surname": anketa.lastName,
+                "firstname": anketa.firstName,
+                "patronymic": anketa.midName,
+                "birthday": anketa.birthday,
+                "birthplace": anketa.birthplace,
+                "citizenship": anketa.citizen,
+                "dual": anketa.additionalCitizenship,
+                "marital": anketa.maritalStatus,
+                "inn": anketa.inn,
+                "snils": anketa.snils,
             },
-            {
-                "view": "Адрес регистрации",
-                "addresses": json_dict.get("regAddress"),
-            },
-        ],
-        "contacts": [
-            {"view": "Телефон", "contact": json_dict.get("contactPhone")},
-            {"view": "Электронная почта", "contact": json_dict.get("email")},
-        ],
-        "educations": [
-            {
-                "view": edu.get("educationType"),
-                "institution": edu.get("institutionName"),
-                "finished": edu.get("endYear"),
-                "specialty": edu.get("specialty"),
-            }
-            for edu in json_dict.get("education")
-            if json_dict.get("education")
-        ],
-        "workplaces": [
-            {
-                "starts": work.get("beginDate"),
-                "finished": work.get("endDate"),
-                "now_work": work.get("currentJob"),
-                "workplace": work.get("name"),
-                "addresses": work.get("address"),
-                "reason": work.get("fireReason"),
-                "position": work.get("position"),
-            }
-            for work in json_dict.get("experience")
-            if json_dict.get("experience")
-        ],
-        "previous": [
-            {
-                "firstname": prev.get("firstNameBeforeChange"),
-                "surname": prev.get("lastNameBeforeChange"),
-                "patronymic": prev.get("midNameBeforeChange"),
-                "changed": prev.get("yearOfChange"),
-                "reason": prev.get("reason"),
-            }
-            for prev in json_dict.get("nameWasChanged")
-            if json_dict.get("nameWasChanged")
-        ],
-        "affilations": (
-            [
+            "staffs": [
                 {
-                    "view": "Участвует в деятельности коммерческих организаций",
-                    "organization": aff.get("name"),
-                    "inn": aff.get("inn"),
+                    "position": anketa.positionName,
+                    "department": anketa.department,
                 }
-                for aff in json_dict.get("organizations")
-                if json_dict.get("organizations")
-            ]
-            + [
+            ],
+            "documents": [
                 {
-                    "view": "Являлся государственным должностным лицом",
-                    "organization": aff.get("name"),
+                    "view": "Паспорт",
+                    "digits": anketa.passportNumber,
+                    "series": anketa.passportSerial,
+                    "issue": anketa.passportIssueDate,
+                    "agency": anketa.passportIssuedBy,
                 }
-                for aff in json_dict.get("stateOrganizations")
-                if json_dict.get("stateOrganizations")
-            ]
-            + [
+            ],
+            "addresses": [
                 {
-                    "view": "Связанные лица работают в государственных организациях",
-                    "organization": aff.get("name"),
-                }
-                for aff in json_dict.get("relatedPersonsOrganizations")
-                if json_dict.get("relatedPersonsOrganizations")
-            ]
-            + [
+                    "view": "Адрес проживания",
+                    "addresses": anketa.validAddress,
+                },
                 {
-                    "view": "Являлся государственным или муниципальным служащим",
-                    "organization": aff.get("name"),
+                    "view": "Адрес регистрации",
+                    "addresses": anketa.regAddress,
+                },
+            ],
+            "contacts": [
+                {"view": "Телефон", "contact": anketa.contactPhone},
+                {"view": "Электронная почта", "contact": anketa.email},
+            ],
+            "educations": [
+                {
+                    "view": edu.educationType,
+                    "institution": edu.institutionName,
+                    "finished": edu.endYear,
+                    "specialty": edu.specialty,
                 }
-                for aff in json_dict.get("publicOfficeOrganizations")
-                if json_dict.get("publicOfficeOrganizations")
-            ]
-        ),
-    }
+                for edu in anketa.education
+                if anketa.education
+            ],
+            "workplaces": [
+                {
+                    "starts": work.beginDate,
+                    "finished": work.endDate,
+                    "now_work": work.currentJob,
+                    "workplace": work.name,
+                    "addresses": work.address,
+                    "reason": work.fireReason,
+                    "position": work.position,
+                }
+                for work in anketa.experience
+                if anketa.experience
+            ],
+            "previous": [
+                {
+                    "firstname": prev.firstNameBeforeChange,
+                    "surname": prev.lastNameBeforeChange,
+                    "patronymic": prev.midNameBeforeChange,
+                    "changed": prev.yearOfChange,
+                    "reason": prev.reason,
+                }
+                for prev in anketa.nameWasChanged
+                if anketa.nameWasChanged
+            ],
+            "affilations": (
+                [
+                    {
+                        "view": "Участвует в деятельности коммерческих организаций",
+                        "organization": aff.name,
+                        "inn": aff.inn,
+                    }
+                    for aff in anketa.organizations
+                    if anketa.organizations
+                ]
+                + [
+                    {
+                        "view": "Являлся государственным должностным лицом",
+                        "organization": aff.name,
+                    }
+                    for aff in anketa.stateOrganizations
+                    if anketa.stateOrganizations
+                ]
+                + [
+                    {
+                        "view": "Связанные лица работают в государственных организациях",
+                        "organization": aff.name,
+                    }
+                    for aff in anketa.relatedPersonsOrganizations
+                    if anketa.relatedPersonsOrganizations
+                ]
+                + [
+                    {
+                        "view": "Являлся государственным или муниципальным служащим",
+                        "organization": aff.name,
+                    }
+                    for aff in anketa.publicOfficeOrganizations
+                    if anketa.publicOfficeOrganizations
+                ]
+            ),
+        }
+    except ValidationError as e:
+        current_app.logger.exception(e)
+        return {}
 
-
-def secure_filename(filename: str) -> str:
-    """Sanitize filename for secure storage.
-    
-    Args:
-        filename: Original filename to sanitize
-        
-    Returns:
-        Sanitized filename string
-    """
-    filename_ascii_strip_re = re.compile(r"[^A-Za-zА-ЯЁа-яё0-9_.-]")
-    windows_device_files = (
-        "CON",
-        "AUX",
-        "COM1",
-        "COM2",
-        "COM3",
-        "COM4",
-        "LPT1",
-        "LPT2",
-        "LPT3",
-        "PRN",
-        "NUL",
-    )
-    filename = unicodedata.normalize("NFKD", filename)
-    for sep in os.sep, os.path.altsep:
-        if sep:
-            filename = filename.replace(sep, " ")
-    filename = str(filename_ascii_strip_re.sub("", "_".join(filename.split()))).strip(
-        "._"
-    )
-    if (
-        platform.system().lower() == "windows"
-        and filename
-        and filename.split(".")[0].upper() in windows_device_files
-    ):
-        filename = f"_{filename}"
-    return filename

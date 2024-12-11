@@ -1,10 +1,13 @@
 from datetime import date
+import os
+import platform
+import re
 from typing import Any, Literal, Optional, Union
+import unicodedata
 
 from pydantic import BaseModel, validator
 
 from .classes import Conclusions, Regions, Roles
-from ..utils.utils import secure_filename
 
 
 class Login(BaseModel):
@@ -284,5 +287,32 @@ class File(BaseModel):
     filename: str
 
     @validator("filename")
-    def check_filename(cls, name):
-        return secure_filename(name)
+    def check_filename(cls, filename):
+        filename_ascii_strip_re = re.compile(r"[^A-Za-zА-ЯЁа-яё0-9_.-]")
+        windows_device_files = (
+            "CON",
+            "AUX",
+            "COM1",
+            "COM2",
+            "COM3",
+            "COM4",
+            "LPT1",
+            "LPT2",
+            "LPT3",
+            "PRN",
+            "NUL",
+        )
+        filename = unicodedata.normalize("NFKD", filename)
+        for sep in os.sep, os.path.altsep:
+            if sep:
+                filename = filename.replace(sep, " ")
+        filename = str(filename_ascii_strip_re.sub("", "_".join(filename.split()))).strip(
+            "._"
+        )
+        if (
+            platform.system().lower() == "windows"
+            and filename
+            and filename.split(".")[0].upper() in windows_device_files
+        ):
+            filename = f"_{filename}"
+        return filename

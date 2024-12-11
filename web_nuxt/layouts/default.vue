@@ -67,15 +67,16 @@ const filtredLinks = computed(() => {
       </div>
       <div class="flex items-center justify-end">
         <UHorizontalNavigation
-        :ui="{
-          active: 'text-blue-600',
-          inactive: 'text-gray-600',
-          icon: {
-            active: 'text-blue-600',
-            inactive: 'text-gray-600',
-          }
-        }" 
-        :links="filtredLinks" />
+          :ui="{
+            active: 'text-red-600',
+            inactive: 'text-blue-600',
+            icon: {
+              active: 'text-red-600',
+              inactive: 'text-blue-600',
+            }
+          }" 
+          :links="filtredLinks" 
+        />
       </div>
       <div class="flex items-center justify-end">
         <UTooltip  text="Выход">

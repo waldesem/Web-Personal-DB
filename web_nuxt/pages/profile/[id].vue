@@ -98,26 +98,36 @@ function emitMessage(message: string) {
 
 <template>
   <div>
-    <UButton
-      :disabled="pending"
-      :class="{ 'animate-pulse': person.user_id != stateUser.id }"
-      :loading="pending || status === 'pending'"
-      :title="
-        person.user_id != stateUser.id
-          ? 'Анкета редактируется другим пользователем'
-          : ''
-      "
-      variant="link"
-      @click="switchSelf"
-    >
-      <ElementsHeaderDiv
-        :div="'py-3'"
-        :header="`${person['surname']} ${person['firstname']} ${
-          person['patronymic'] ? person['patronymic'] : ''
-        }`"
-      />
-    </UButton>
-
+    <div class="mb-3">
+      <UButton
+        :disabled="pending"
+        :loading="pending || status === 'pending'"
+        :title="
+          person.user_id != stateUser.id
+            ? 'Назначить анкету на себя'
+            : 'Переключить режим редактирования'
+        "
+        variant="ghost"
+        @click="switchSelf"
+      >
+        <ElementsHeaderDiv
+          :header="`${person['surname']} ${person['firstname']} ${
+            person['patronymic'] ? person['patronymic'] : ''
+          }`"
+        />
+        <UBadge
+          v-if="person.editable"
+          :color="person.user_id != stateUser.id ? 'red' : 'green'"
+          class="animate-pulse"
+        >
+          {{
+            person.user_id != stateUser.id
+              ? "Анкета редактируется другим пользователем"
+              : "Анкета редактируется"
+          }}
+        </UBadge>
+      </UButton>
+    </div>
     <UTabs :items="tabs">
       <template #anketaTab>
         <TabsAnketaTab

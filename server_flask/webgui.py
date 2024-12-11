@@ -48,6 +48,9 @@ def make_browser_command(browser_path, url, profile_dir):
             "--allow-insecure-localhost",
             "--no-first-run",
             "--disable-sync",
+            "--disable-extensions",
+            "--disable-default-apps",
+            "--window-size=1280,960",
         ]
         if browser_path
         else [

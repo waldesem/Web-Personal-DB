@@ -1,60 +1,15 @@
-import json
 import os
-import re
 import shutil
 
 from flask import Blueprint, current_app, jsonify
-from pydantic import ValidationError
-from sqlalchemy import select
 
 from ..depends.depend import current_user, roles_required, validate
 from ..model.classes import Roles
-from ..model.models import AnketaSchemaJson, Person, Region, File
+from ..model.models import File, Person, Region
 from ..model.tables import Base, Persons, db_session
-from ..utils.utils import json_to_dict
-
+from ..utils.utils import json_to_dict, upload_resume
 
 bp = Blueprint("anketa", __name__, url_prefix="/anketa")
-
-
-def upload(resume: dict):
-    if not re.match(r"[А-ЯЁЙ]", resume["surname"][0]):
-        return None
-    resume["editable"] = True
-    resume["user_id"] = current_user.get("id")
-    resume["region"] = current_user.get("region")
-    person = db_session.execute(
-        select(Persons).where(
-            Persons.surname == resume["surname"],
-            Persons.firstname == resume["firstname"],
-            Persons.patronymic == resume["patronymic"],
-            Persons.birthday == resume["birthday"],
-        )
-    ).scalar_one_or_none()
-
-    if not person:
-        person = Persons(**resume)
-        db_session.add(person)
-        db_session.flush()
-        person.destination = os.path.join(
-            current_app.config["BASE_PATH"],
-            resume["region"],
-            resume["surname"][0],
-            f"{person.id}-{resume['surname']} {resume['firstname']} "
-            f"{resume.get('patronymic', '')}".rstrip().upper(),
-        )
-        if not os.path.isdir(person.destination):
-            os.mkdir(person.destination)
-        db_session.commit()
-        return person.id
-
-    if person.editable or resume["region"] != person.region:
-        return None
-
-    resume["id"] = person.id
-    db_session.merge(Persons(**resume))
-    db_session.commit()
-    return person.id
 
 
 @bp.post("/resume")
@@ -70,7 +25,7 @@ def post_resume(json_data: Person):
     Returns:
         A JSON response containing the person ID and an HTTP status code of 201.
     """
-    person_id = upload(json_data.dict()) if json_data else None
+    person_id = upload_resume(json_data.dict()) if json_data else None
     return jsonify({"person_id": person_id})
 
 
@@ -80,15 +35,9 @@ def post_resume(json_data: Person):
 def post_file(file_data: File):
     if not file_data.filename.endswith(".json"):
         return jsonify({"person_id": None})
-    json_dict = json.load(file_data.file)
-    try:
-        json_dict = AnketaSchemaJson(**json_dict).dict()
-    except ValidationError as e:
-        current_app.logger.exception(e)
-        return jsonify({"person_id": None})
 
-    anketa = json_to_dict(json_dict)
-    person_id = upload(anketa.pop("resume"))
+    anketa = json_to_dict(file_data.file)
+    person_id = upload_resume(anketa.pop("resume")) if "resume" in anketa else None
     if not person_id:
         current_app.logger.warning("person_id is None")
         return jsonify({"person_id": person_id})
@@ -132,7 +81,7 @@ def change_region(person_id, query_data: Region):
                 query_data.region,
                 person.surname[0],
                 f"{person_id}-{person.surname} {person.firstname} "
-                f"{person.patronymic if person.patronymic else ''}".rstrip().upper(),
+                f"{person.patronymic if person.patronymic else ''}".rstrip(),
             )
             shutil.copytree(person.destination, destination, dirs_exist_ok=True)
             person.destination = destination
