@@ -287,7 +287,7 @@ class File(BaseModel):
     filename: str
 
     @validator("filename")
-    def check_filename(cls, filename):
+    def check_filename(cls, v):
         filename_ascii_strip_re = re.compile(r"[^A-Za-zА-ЯЁа-яё0-9_.-]")
         windows_device_files = (
             "CON",
@@ -302,7 +302,7 @@ class File(BaseModel):
             "PRN",
             "NUL",
         )
-        filename = unicodedata.normalize("NFKD", filename)
+        filename = unicodedata.normalize("NFKD", v)
         for sep in os.sep, os.path.altsep:
             if sep:
                 filename = filename.replace(sep, " ")

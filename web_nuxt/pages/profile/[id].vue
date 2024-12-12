@@ -142,6 +142,7 @@ function emitMessage(message: string) {
       <template #checkTab>
         <TabsCheckTab
           :cand-id="candId"
+          :destination="person.destination"
           :editable="editState"
           @message="emitMessage"
         />
@@ -149,6 +150,7 @@ function emitMessage(message: string) {
       <template #poligrafTab>
         <TabsPoligrafTab
           :cand-id="candId"
+          :destination="person.destination"
           :editable="editState"
           @message="emitMessage"
         />
@@ -156,6 +158,7 @@ function emitMessage(message: string) {
       <template #investigateTab>
         <TabsInvestigateTab
           :cand-id="candId"
+          :destination="person.destination"
           :editable="editState"
           @message="emitMessage"
         />
@@ -163,6 +166,7 @@ function emitMessage(message: string) {
       <template #inquiryTab>
         <TabsInquiryTab
           :cand-id="candId"
+          :destination="person.destination"
           :editable="editState"
           @message="emitMessage"
         />

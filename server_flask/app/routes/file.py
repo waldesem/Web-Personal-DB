@@ -15,30 +15,33 @@ bp = Blueprint("file", __name__, url_prefix="/file")
 
 class FileView(MethodView):
     @jwt_required()
-    def get(self, item):
+    def get(self, person_id):
         destination = request.args.get("destination")
-        if item == "folder" and os.path.isdir(destination):
-            try:
-                subprocess.run(f'explorer "{destination}"', timeout=10)
-            except subprocess.CalledProcessError as e:
-                current_app.logger.exception(e)
-        return "", 200
-
-    @validate()
-    @roles_required(Roles.user.value)
-    def post(self, item, item_id, file_data: list[File]):
-        person = db_session.get(Persons, item_id)
-        if not person.destination:
-            person.destination = os.path.join(
+        if not destination:
+            person = db_session.get(Persons, person_id)
+            destination = os.path.join(
                 current_app.config["BASE_PATH"],
                 current_user.get("region"),
                 person.surname[0],
                 f"{person.id}-{person.surname} {person.firstname} "
-                f"{person.patronymic if person.patronymic else ''}".rstrip().upper(),
+                f"{person.patronymic}".rstrip(),
             )
+            person.destination = destination
             db_session.commit()
+        try:
+            subprocess.run(f'explorer "{destination}"', timeout=10)
+        except subprocess.CalledProcessError as e:
+            current_app.logger.exception(e)
+        return "", 200
+
+    @validate()
+    @roles_required(Roles.user.value)
+    def post(self, item, file_data: list[File]):
+        destination = request.args.get("destination")
+        if not destination:
+            return "", 400
         date_subfolder = os.path.join(
-            person.destination,
+            destination,
             item,
             datetime.now().strftime("%Y-%m-%d"),
         )
@@ -51,5 +54,5 @@ class FileView(MethodView):
 
 
 file_view = FileView.as_view("file_view")
-bp.add_url_rule("/<item>", view_func=file_view, methods=["GET"])
-bp.add_url_rule("/<item>/<int:item_id>", view_func=file_view, methods=["POST"])
+bp.add_url_rule("/<int:person_id>", view_func=file_view, methods=["GET"])
+bp.add_url_rule("/<item>", view_func=file_view, methods=["POST"])

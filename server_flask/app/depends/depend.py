@@ -131,34 +131,24 @@ def roles_required(*roles):
 def validate():
     """
     Decorator for validating request data using Pydantic models.
-
-    This decorator checks the request query, body and headers for validation errors.
-    If any errors are found, the decorator returns a 400 response with a JSON body
-    containing a dictionary with the validation errors.
-
     The decorator accepts the following keyword arguments:
 
         query_data: Optional[BaseModel]
             The model to validate the query data with.
         json_data: Optional[BaseModel]
             The model to validate the body data with.
-        return: result
-            The model to validate the response data with.
+        file_data: BaseModel | list[BaseModel]
+            The model to validate the file data with.
 
     The decorator can be used as follows:
 
     @app.route("/endpoint", methods=["GET"])
-    @validate(query_data=QueryData, json_data=BodyData, return=ResponseData)
+    @validate(query_data=QueryData, json_data=BodyData, file_data=FileData)
     def endpoint(query_data, json_data):
         # The query_data and json_data are validated and available here
         # The return value of the function will be validated as well
         pass
-
-    :param query_data: The model to validate the query data with.
-    :param json_data: The model to validate the body data with.
-    :return: The decorated function.
     """
-
     def decorate(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args, **kwargs):

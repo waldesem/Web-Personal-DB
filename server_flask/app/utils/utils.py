@@ -32,10 +32,10 @@ def upload_resume(resume: dict):
         db_session.flush()
         person.destination = os.path.join(
             current_app.config["BASE_PATH"],
-            resume["region"],
-            resume["surname"][0],
-            f"{person.id}-{resume['surname']} {resume['firstname']} "
-            f"{resume.get('patronymic', '')}".rstrip().upper(),
+            person.region,
+            person.surname[0],
+            f"{person.id}-{person.surname} {person.firstname} "
+            f"{person.patronymic}".rstrip(),
         )
         if not os.path.isdir(person.destination):
             os.mkdir(person.destination)
@@ -176,4 +176,3 @@ def json_to_dict(file_data) -> dict:
     except ValidationError as e:
         current_app.logger.exception(e)
         return {}
-

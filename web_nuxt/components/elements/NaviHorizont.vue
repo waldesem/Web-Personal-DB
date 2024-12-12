@@ -16,6 +16,10 @@ const props = defineProps({
     type: String,
     default: "",
   },
+  destination: {
+    type: String,
+    default: "",
+  },
   inputId: {
     type: String,
     default: "",
@@ -29,13 +33,16 @@ const props = defineProps({
 const { open, reset, onCancel, onChange } = useFileDialog();
 
 onChange(async (files) => {
-  if (!files) return;
+  if (!files || !props.destination) return;
   const formData = new FormData();
   if (files) {
     for (const file of files) {
       formData.append("file", file);
     }
-    await authFetch(`/route/file/${props.item}/${props.candId}`, {
+    await authFetch(`/route/file/${props.item}`, {
+      params: {
+        destination: props.destination,
+      },
       method: "POST",
       body: formData,
     });

@@ -20,12 +20,12 @@ def post_resume(json_data: Person):
     Creates a new person or updates an existing person based on the provided data.
 
     Parameters:
-        item (str): The name to create or update the person in.
+        json_data (Person): The data to create or update the person.
 
     Returns:
         A JSON response containing the person ID and an HTTP status code of 201.
     """
-    person_id = upload_resume(json_data.dict()) if json_data else None
+    person_id = upload_resume(json_data.dict())
     return jsonify({"person_id": person_id})
 
 
