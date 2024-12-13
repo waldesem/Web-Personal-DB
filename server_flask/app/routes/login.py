@@ -7,7 +7,7 @@ from sqlalchemy import func, select
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app.depends.depend import create_token, validate
-from app.model.models import Login, User
+from app.model.models import Login
 from app.model.tables import Users, db_session
 
 bp = Blueprint("login", __name__, url_prefix="/login")
@@ -55,8 +55,7 @@ def post_login(action: str, json_data: Login) -> Response:
         user.attempt = 0
         db_session.commit()
         try:
-            user_validated = User(**user.to_dict())
-            token = create_token(user_validated.dict())
+            token = create_token(user)
             if token:
                 return jsonify(
                     {

@@ -65,26 +65,32 @@ def get_current_user(user_id: int) -> dict:
     return {}
 
 
-def create_token(user: dict) -> str:
+def create_token(user: Users) -> str:
     """Create a JWT token containing the user's information.
 
     Args:
-        user (dict): A dictionary containing the user's information.
+        user (Users): The user object.
 
     Returns:
         str: The JWT token.
 
     """
-    if isinstance(user, dict):
-        user.update({"exp": datetime.now(tz=timezone.utc) + timedelta(hours=12)})
-        try:
-            return "Bearer " + jwt.encode(
-                user,
-                current_app.config["JWT_SECRET_KEY"],
-                algorithm="HS256",
-            )
-        except jwt.exceptions.InvalidTokenError:
-            return None
+    try:
+        return "Bearer " + jwt.encode(
+            {
+                "id": user.id,
+                "fullname": user.fullname,
+                "username": user.username,
+                "email": user.email,
+                "region": user.region,
+                "role": user.role,
+                "exp": datetime.now(tz=timezone.utc) + timedelta(hours=12),
+            },
+            current_app.config["JWT_SECRET_KEY"],
+            algorithm="HS256",
+        )
+    except jwt.exceptions.InvalidTokenError:
+        return None
     return None
 
 
@@ -132,6 +138,7 @@ def roles_required(*roles: list[str]) -> Callable:
         function: The decorated function.
 
     """
+
     def decorator(func: Callable) -> Callable:
         @jwt_required()
         @wraps(func)
@@ -166,6 +173,7 @@ def validate() -> Callable:  # noqa: C901
         # The return value of the function will be validated as well
         pass
     """
+
     def decorate(func: Callable) -> Callable:  # noqa: C901
         @wraps(func)
         def wrapper(*args: tuple, **kwargs: dict) -> Callable:  # noqa: C901
@@ -213,7 +221,8 @@ def validate() -> Callable:  # noqa: C901
                     file_data = request.files.get("file")
                     try:
                         kwargs["file_data"] = File(
-                            file=file_data, filename=file_data.filename,
+                            file=file_data,
+                            filename=file_data.filename,
                         )
                     except ValidationError as ve:
                         err.append(str(ve))

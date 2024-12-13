@@ -80,8 +80,6 @@ class User(Model):
     fullname: str
     username: str
     email: str | None
-    region: Regions | None
-    role: Roles | None
 
 
 class Person(Model):
