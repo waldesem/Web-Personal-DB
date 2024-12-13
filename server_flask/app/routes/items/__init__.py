@@ -1,3 +1,5 @@
+"""Routes for items."""
+
 from flask import Blueprint
 
 from .addresses import bp as addresses_bp

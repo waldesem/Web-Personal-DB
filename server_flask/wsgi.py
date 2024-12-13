@@ -1,14 +1,16 @@
+"""WSGI server using Tornado."""
+
 from concurrent.futures import ThreadPoolExecutor
 
 import tornado.httpserver
 import tornado.ioloop
 import tornado.web
 import tornado.wsgi
+from flask import Flask
 
 
-def wsgi_server(app, address, port, workers):
-    """
-    Start a WSGI server using Tornado.
+def wsgi_server(app: Flask, address: str, port: int, workers: int) -> None:
+    """Start a WSGI server using Tornado.
 
     :param app: A WSGI application object
     :param address: The address to listen on
@@ -22,11 +24,10 @@ def wsgi_server(app, address, port, workers):
     loop = tornado.ioloop.IOLoop.current()
     loop.set_default_executor(executor)
     try:
-        print(f"Listening on http://{address}:{port}")
+        print(f"Listening on http://{address}:{port}")  # noqa: T201
         loop.start()
     except KeyboardInterrupt:
-        print("Stopped")
+        print("Stopped")  # noqa: T201
         loop.stop()
         loop.close()
         executor.shutdown(wait=True)
-        

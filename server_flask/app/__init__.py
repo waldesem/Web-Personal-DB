@@ -1,15 +1,18 @@
+"""Initialize the Flask application."""
+
 import logging
-import os
+from pathlib import Path
 
 import click
-from flask import Flask
+from flask import Flask, Response
 from sqlalchemy import select
-from werkzeug.security import generate_password_hash
 from werkzeug.exceptions import HTTPException
+from werkzeug.security import generate_password_hash
 
 from config import Config
-from .model.tables import db_session, Users
-from .model.classes import Roles, Regions
+
+from .model.classes import Regions, Roles
+from .model.tables import Users, db_session
 
 file_handler = logging.FileHandler("error.log")
 file_handler.setLevel(logging.ERROR)
@@ -18,42 +21,43 @@ formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(messag
 file_handler.setFormatter(formatter)
 
 
-def create_app(config_class=Config):
-    """
-    Create and configure the Flask application.
+def create_app(config_class: Config = Config) -> Flask:  # noqa: C901
+    """Create and configure the Flask application.
 
-    Parameters:
+    Args:
         config_class: The configuration class to use for the application.
 
     Returns:
         Flask: The configured Flask application instance.
+
     """
     app = Flask(__name__)
     app.config.from_object(config_class)
     app.logger.addHandler(file_handler)
-    
+
     from .routes import bp as route_bp
+
     app.register_blueprint(route_bp)
 
     @app.teardown_appcontext
-    def shutdown_session(exception=None):
+    def shutdown_session(exception=None) -> None:  # noqa: ANN001, ARG001
         db_session.remove()
 
     @app.get("/", defaults={"path": ""})
-    def main(path=""):
+    def main(path: str = "") -> str:
         return app.send_static_file("index.html")
 
     @app.get("/<path:path>")
-    def static_file(path=""):
+    def static_file(path: str = "") -> str:
         return app.send_static_file(path)
 
     @app.errorhandler(404)
-    def handle_404(error):
+    def handle_404(error: HTTPException) -> Response:
         app.logger.exception(error)
         return app.redirect("/")
 
     @app.errorhandler(HTTPException)
-    def handle_exception(error):
+    def handle_exception(error: HTTPException) -> Response:
         app.logger.exception(error)
         return error
 
@@ -63,7 +67,9 @@ def create_app(config_class=Config):
     @click.argument("email")
     @click.option("--role", type=click.Choice([role.value for role in Roles]))
     @click.option("--region", type=click.Choice([region.name for region in Regions]))
-    def create_user(fullname, username, email, region, role):
+    def create_user(
+        fullname: str, username: str, email: str, region: str, role: str,
+    ) -> None:
         """Create a new user.
 
         The user is created with a default password given in DEFAULT_PASSWORD config
@@ -76,7 +82,7 @@ def create_app(config_class=Config):
         :param role: The role of the user.
         """
         if not db_session.execute(
-            select(Users).filter(Users.username == username)
+            select(Users).filter(Users.username == username),
         ).all():
             db_session.add(
                 Users(
@@ -86,7 +92,7 @@ def create_app(config_class=Config):
                     role=role,
                     passhash=generate_password_hash(config_class.DEFAULT_PASSWORD),
                     region=Regions[region].value,
-                )
+                ),
             )
             db_session.commit()
             click.echo(f"User {username} created")
@@ -95,20 +101,18 @@ def create_app(config_class=Config):
         db_session.remove()
 
     @app.cli.command("folders")
-    def create_folders():
+    def create_folders() -> None:
         """Create the folders structure according to the current configuration.
 
         :param folder: The folder to create the structure in. If not provided, the
             current BASE_PATH is used.
         """
         for region in Regions:
-            region_path = os.path.join(config_class.BASE_PATH, region.value)
-            if not os.path.isdir(region_path):
-                os.mkdir(region_path)
+            region_path = Path(config_class.BASE_PATH, region.value)
+            Path.mkdir(region_path, exist_ok=True)
             for letter in "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЫЭЮЯ":
-                letter_path = os.path.join(region_path, letter)
-                if not os.path.isdir(letter_path):
-                    os.mkdir(letter_path)
+                letter_path = Path(region_path, letter)
+                Path.mkdir(letter_path, exist_ok=True)
         click.echo("Folders created")
 
     return app

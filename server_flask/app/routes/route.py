@@ -1,11 +1,12 @@
-from flask import Blueprint, jsonify
+"""Route routes."""
+
+from flask import Blueprint, Response, jsonify
 from sqlalchemy import desc, func, select
 
-from ..depends.depend import current_user, jwt_required, validate
-from ..model.classes import Regions
-from ..model.models import Info, Search
-from ..model.tables import Checks, Persons, Users, db_session
-
+from app.depends.depend import current_user, jwt_required, validate
+from app.model.classes import Regions
+from app.model.models import Info, Search
+from app.model.tables import Checks, Persons, Users, db_session
 
 bp = Blueprint("route", __name__)
 
@@ -13,12 +14,10 @@ bp = Blueprint("route", __name__)
 @bp.get("/index/<int:page>")
 @validate()
 @jwt_required()
-def get_index(page, query_data: Search):
-    """
-    Retrieves a paginated list of persons from the database based on the search
-    query and the user's region.
+def get_index(page: int, query_data: Search) -> Response:
+    """Retrieve a paginated list of persons from the database.
 
-    Parameters:
+    Arguments:
         page (int): The page number of the results.
         query_data (Search): The search query containing the search string.
 
@@ -35,17 +34,17 @@ def get_index(page, query_data: Search):
         if current_user.get("region") != Regions.main.value
         else True,
     )
-    if len(query_data.search) > 2:
+    if len(query_data.search) > 2:  # noqa: PLR2004
         search = query_data.search.upper().split()[:3]
         stmt = stmt.filter(
             Persons.surname == search[0],
             Persons.firstname == search[1] if len(search) > 1 else True,
-            Persons.patronymic == search[2] if len(search) > 2 else True,
+            Persons.patronymic == search[2] if len(search) > 2 else True,  # noqa: PLR2004
         )
     query = db_session.execute(
         stmt.order_by(desc(Persons.id))
         .offset((page - 1) * pagination)
-        .limit(pagination + 1)
+        .limit(pagination + 1),
     ).all()
     result = [row[0].to_dict() | {"username": row[1]} for row in query]
     has_next = len(result) > pagination
@@ -56,12 +55,10 @@ def get_index(page, query_data: Search):
 @bp.get("/info")
 @validate()
 @jwt_required()
-def get_information(query_data: Info):
-    """
-    Retrieves the number of each conclusion for each person within a given region
-    and period of time.
+def get_information(query_data: Info) -> Response:
+    """Retrieve the number of conclusion for a given region and period of time.
 
-    Parameters:
+    Arguments:
         query_data (Info): The query data containing the start and end dates,
         the region, and the user's role.
 
@@ -79,8 +76,8 @@ def get_information(query_data: Info):
             if query_data.region
             else current_user.get("region"),
         )
-        .group_by(Checks.conclusion)
+        .group_by(Checks.conclusion),
     ).all()
     return jsonify(
-        [{"conclusion": result[0], "count": result[1]} for result in results]
+        [{"conclusion": result[0], "count": result[1]} for result in results],
     )

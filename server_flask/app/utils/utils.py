@@ -1,18 +1,29 @@
+"""Utils module."""
+
 import json
-import os
 import re
+from pathlib import Path
 
 from flask import current_app
 from pydantic import ValidationError
 from sqlalchemy import select
 
-from ..depends.depend import current_user
-from ..model.models import AnketaSchemaJson
-from ..model.tables import Persons, db_session
+from app.depends.depend import current_user
+from app.model.models import AnketaSchemaJson
+from app.model.tables import Persons, db_session
 
 
-def upload_resume(resume: dict):
-    if not re.match(r"[А-ЯЁЙ]", resume["surname"][0]):
+def upload_resume(resume: dict) -> int:
+    """Upload a resume to the database.
+
+    Args:
+        resume (dict): The resume to be uploaded.
+
+    Returns:
+        int: The ID of the uploaded resume.
+
+    """
+    if not re.match(r"[А-ЯЁЙ]", resume["surname"][0]):  # noqa: RUF001
         return None
     resume["editable"] = True
     resume["user_id"] = current_user.get("id")
@@ -23,22 +34,22 @@ def upload_resume(resume: dict):
             Persons.firstname == resume["firstname"],
             Persons.patronymic == resume["patronymic"],
             Persons.birthday == resume["birthday"],
-        )
+        ),
     ).scalar_one_or_none()
 
     if not person:
         person = Persons(**resume)
         db_session.add(person)
         db_session.flush()
-        person.destination = os.path.join(
+        person.destination = str(Path(
             current_app.config["BASE_PATH"],
             person.region,
             person.surname[0],
             f"{person.id}-{person.surname} {person.firstname} "
             f"{person.patronymic}".rstrip(),
-        )
-        if not os.path.isdir(person.destination):
-            os.mkdir(person.destination)
+        ))
+        if not Path.exists(person.destination):
+            Path.mkdir(person.destination)
         db_session.commit()
         return person.id
 
@@ -51,63 +62,62 @@ def upload_resume(resume: dict):
     return person.id
 
 
-def json_to_dict(file_data) -> dict:
-    """
-    Transforms a JSON-dictionary into a python-dictionary.
+def json_to_dict(file_data: str) -> dict:
+    """Transform a JSON-dictionary into a python-dictionary.
 
     :param file_data: A JSON-dictionary
-    :return: A python-dictionary
+    :return: A python-dictionary.
     """
     json_data = json.load(file_data)
     try:
         anketa = AnketaSchemaJson(**json_data)
         return {
             "resume": {
-                "surname": anketa.lastName,
-                "firstname": anketa.firstName,
-                "patronymic": anketa.midName,
+                "surname": anketa.last_name,
+                "firstname": anketa.first_name,
+                "patronymic": anketa.mid_name,
                 "birthday": anketa.birthday,
                 "birthplace": anketa.birthplace,
                 "citizenship": anketa.citizen,
-                "dual": anketa.additionalCitizenship,
-                "marital": anketa.maritalStatus,
+                "dual": anketa.additional,
+                "marital": anketa.marital_status,
                 "inn": anketa.inn,
                 "snils": anketa.snils,
             },
             "staffs": [
                 {
-                    "position": anketa.positionName,
+                    "position": anketa.position_name,
                     "department": anketa.department,
-                }
+                },
             ],
             "documents": [
                 {
                     "view": "Паспорт",
-                    "digits": anketa.passportNumber,
-                    "series": anketa.passportSerial,
-                    "issue": anketa.passportIssueDate,
-                    "agency": anketa.passportIssuedBy,
-                }
+                    "digits": anketa.passport_number,
+                    "series": anketa.passport_serial,
+                    "issue": anketa.passport_issue,
+                    "agency": anketa.passport_issued,
+                },
             ],
             "addresses": [
                 {
                     "view": "Адрес проживания",
-                    "addresses": anketa.validAddress,
+                    "addresses": anketa.valid_address,
                 },
                 {
                     "view": "Адрес регистрации",
-                    "addresses": anketa.regAddress,
+                    "addresses": anketa.reg_address,
                 },
             ],
             "contacts": [
-                {"view": "Телефон", "contact": anketa.contactPhone},
+                {"view": "Телефон", "contact": anketa.contact_phone},
                 {"view": "Электронная почта", "contact": anketa.email},
             ],
             "educations": [
                 {
-                    "view": edu.educationType,
-                    "institution": edu.institutionName,
-                    "finished": edu.endYear,
+                    "view": edu.education_type,
+                    "institution": edu.institution_name,
+                    "finished": edu.end_year,
                     "specialty": edu.specialty,
                 }
                 for edu in anketa.education
@@ -115,12 +125,12 @@ def json_to_dict(file_data) -> dict:
             ],
             "workplaces": [
                 {
-                    "starts": work.beginDate,
-                    "finished": work.endDate,
-                    "now_work": work.currentJob,
+                    "starts": work.begin_date,
+                    "finished": work.end_date,
+                    "now_work": work.current_job,
                     "workplace": work.name,
                     "addresses": work.address,
-                    "reason": work.fireReason,
+                    "reason": work.fire_reason,
                     "position": work.position,
                 }
                 for work in anketa.experience
@@ -128,14 +138,14 @@ def json_to_dict(file_data) -> dict:
             ],
             "previous": [
                 {
-                    "firstname": prev.firstNameBeforeChange,
-                    "surname": prev.lastNameBeforeChange,
-                    "patronymic": prev.midNameBeforeChange,
-                    "changed": prev.yearOfChange,
+                    "firstname": prev.first_name,
+                    "surname": prev.last_name,
+                    "patronymic": prev.mid_name,
+                    "changed": prev.year_change,
                     "reason": prev.reason,
                 }
-                for prev in anketa.nameWasChanged
-                if anketa.nameWasChanged
+                for prev in anketa.name_was_changed
+                if anketa.name_was_changed
             ],
             "affilations": (
                 [
@@ -152,27 +162,27 @@ def json_to_dict(file_data) -> dict:
                         "view": "Являлся государственным должностным лицом",
                         "organization": aff.name,
                     }
-                    for aff in anketa.stateOrganizations
-                    if anketa.stateOrganizations
+                    for aff in anketa.state_organizations
+                    if anketa.state_organizations
                 ]
                 + [
                     {
                         "view": "Связанные лица работают в государственных организациях",
                         "organization": aff.name,
                     }
-                    for aff in anketa.relatedPersonsOrganizations
-                    if anketa.relatedPersonsOrganizations
+                    for aff in anketa.related_organizations
+                    if anketa.related_organizations
                 ]
                 + [
                     {
                         "view": "Являлся государственным или муниципальным служащим",
                         "organization": aff.name,
                     }
-                    for aff in anketa.publicOfficeOrganizations
-                    if anketa.publicOfficeOrganizations
+                    for aff in anketa.public_organizations
+                    if anketa.public_organizations
                 ]
             ),
         }
-    except ValidationError as e:
-        current_app.logger.exception(e)
+    except ValidationError:
+        current_app.logger.exception("Validation error")
         return {}

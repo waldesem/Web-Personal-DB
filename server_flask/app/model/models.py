@@ -1,127 +1,170 @@
-from datetime import date
+"""PyDantic models."""
+
+from __future__ import annotations
+
 import os
 import platform
 import re
-from typing import Any, Literal, Optional, Union
 import unicodedata
+from datetime import date  # noqa: TC003
+from typing import Any, Literal
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, Field, validator
 
-from .classes import Conclusions, Regions, Roles
+from .classes import Conclusions, Regions, Roles  # noqa: TC001
 
 
 class Login(BaseModel):
+    """Pydantic model for login form."""
+
     username: str
     password: str
-    new_pswd: Optional[str]
+    new_pswd: str | None
 
 
 class Search(BaseModel):
-    search: Optional[str]
+    """Pydantic model for search form."""
+
+    search: str | None
 
 
 class Region(BaseModel):
+    """Pydantic model for region form."""
+
     region: Regions
 
     class Config:
+        """Pydantic config."""
+
         use_enum_values = True
 
 
 class Info(BaseModel):
+    """Pydantic model for info form."""
+
     start: date
     end: date
-    region: Optional[Regions]
+    region: Regions | None
 
     class Config:
+        """Pydantic config."""
+
         use_enum_values = True
 
 
 class UserActions(BaseModel):
+    """Pydantic model for user actions form."""
+
     item: Literal["drop", "block", "delete"] | Roles | Regions
 
     class Config:
+        """Pydantic config."""
+
         use_enum_values = True
 
 
 class Model(BaseModel):
-    id: Optional[str | int]
+    """Pydantic model for model form."""
+
+    id: int | str | None
 
     class Config:
+        """Pydantic config."""
+
         use_enum_values = True
 
 
 class User(Model):
+    """Pydantic model for user form."""
+
     fullname: str
     username: str
-    email: Optional[str]
-    region: Optional[Regions]
-    role: Optional[Roles]
+    email: str | None
+    region: Regions | None
+    role: Roles | None
 
 
 class Person(Model):
+    """Pydantic model for person form."""
+
     __modelname__ = "persons"
+
     surname: str
     firstname: str
-    patronymic: Optional[str] = ""
+    patronymic: str | None = ""
     birthday: date
-    birthplace: Optional[str] = ""
-    citizenship: Optional[str] = ""
-    dual: Optional[str] = ""
-    snils: Optional[str] = ""
-    inn: Optional[str] = ""
-    marital: Optional[str] = ""
-    addition: Optional[str] = ""
-    destination: Optional[str] = ""
-    region: Optional[Regions] = ""
-    editable: Optional[bool] = False
-    user_id: Optional[str | int]
+    birthplace: str | None = ""
+    citizenship: str | None = ""
+    dual: str | None = ""
+    snils: str | None = ""
+    inn: str | None = ""
+    marital: str | None = ""
+    addition: str | None = ""
+    destination: str | None = ""
+    region: Regions | None = ""
+    editable: bool | None = False
+    user_id: str | int
 
     @validator("surname", "firstname", "patronymic")
-    def check_names(cls, v):
+    @classmethod
+    def check_names(cls, v: str) -> str | None:
+        """Check names."""
         return v.upper().strip() if v else None
 
 
 class Prev(Model):
+    """Pydantic model for previous form."""
+
     __modelname__ = "previous"
 
     surname: str
     firstname: str
-    patronymic: Optional[str] = ""
-    changed: Optional[str] = ""
-    reason: Optional[str] = ""
+    patronymic: str | None = ""
+    changed: str | None = ""
+    reason: str | None = ""
 
     @validator("surname", "firstname", "patronymic")
-    def check_names(cls, v):
+    @classmethod
+    def check_names(cls, v: str) -> str | None:
+        """Check names."""
         return v.upper().strip() if v else None
 
 
 class Education(Model):
+    """Pydantic model for education form."""
+
     __modelname__ = "educations"
 
     view: str
     institution: str
-    finished: Union[str, int] = ""
-    specialty: Optional[str] = ""
+    finished: str | int | None = ""
+    specialty: str | None = ""
 
 
 class Staff(Model):
+    """Pydantic model for staff form."""
+
     __modelname__ = "staffs"
 
     position: str
-    department: Optional[str] = ""
+    department: str | None = ""
 
 
 class Document(Model):
+    """Pydantic model for document form."""
+
     __modelname__ = "documents"
 
     view: str
-    series: Optional[str] = ""
+    series: str | None = ""
     digits: str
-    agency: Optional[str] = ""
-    issue: Optional[date]
+    agency: str | None = ""
+    issue: date | None = None
 
 
 class Address(Model):
+    """Pydantic model for address form."""
+
     __modelname__ = "addresses"
 
     view: str
@@ -129,6 +172,8 @@ class Address(Model):
 
 
 class Contact(Model):
+    """Pydantic model for contact form."""
+
     __modelname__ = "contacts"
 
     view: str
@@ -136,54 +181,64 @@ class Contact(Model):
 
 
 class Workplace(Model):
+    """Pydantic model for workplace form."""
+
     __modelname__ = "workplaces"
 
-    now_work: Optional[bool] = False
-    starts: Optional[date]
-    finished: Optional[date]
+    now_work: bool | None = False
+    starts: date | None
+    finished: date | None
     workplace: str
-    addresses: Optional[str] = ""
+    addresses: str | None = ""
     position: str
-    reason: Optional[str] = ""
+    reason: str | None = ""
 
 
 class Affilation(Model):
+    """Pydantic model for affilation form."""
+
     __modelname__ = "affilations"
 
     view: str
     organization: str
-    inn: Optional[str] = ""
+    inn: str | None = ""
 
 
 class Relation(Model):
+    """Pydantic model for relation form."""
+
     __modelname__ = "relations"
 
     type: str
-    right_id: Union[int, str]
+    right_id: int | str
 
 
 class Check(Model):
+    """Pydantic model for check form."""
+
     __modelname__ = "checks"
 
-    workplace: Optional[str] = ""
-    document: Optional[str] = ""
-    inn: Optional[str] = ""
-    debt: Optional[str] = ""
-    bankruptcy: Optional[str] = ""
-    bki: Optional[str] = ""
-    courts: Optional[str] = ""
-    affilation: Optional[str] = ""
-    terrorist: Optional[str] = ""
-    mvd: Optional[str] = ""
-    internet: Optional[str] = ""
-    cronos: Optional[str] = ""
-    cros: Optional[str] = ""
-    addition: Optional[str] = ""
-    comment: Optional[str] = ""
+    workplace: str | None = ""
+    document: str | None = ""
+    inn: str | None = ""
+    debt: str | None = ""
+    bankruptcy: str | None = ""
+    bki: str | None = ""
+    courts: str | None = ""
+    affilation: str | None = ""
+    terrorist: str | None = ""
+    mvd: str | None = ""
+    internet: str | None = ""
+    cronos: str | None = ""
+    cros: str | None = ""
+    addition: str | None = ""
+    comment: str | None = ""
     conclusion: Conclusions
 
 
 class Poligraf(Model):
+    """Pydantic model for poligraf form."""
+
     __modelname__ = "poligrafs"
 
     theme: str
@@ -191,6 +246,8 @@ class Poligraf(Model):
 
 
 class Investigation(Model):
+    """Pydantic model for investigation form."""
+
     __modelname__ = "investigations"
 
     theme: str
@@ -198,97 +255,121 @@ class Investigation(Model):
 
 
 class Inquiry(Model):
+    """Pydantic model for inquiry form."""
+
     __modelname__ = "inquiries"
 
     info: str
     initiator: str
-    origins: Optional[str] = ""
+    origins: str | None = ""
 
 
 class NameWasChangedJson(BaseModel):
-    firstNameBeforeChange: Optional[str] = ""
-    lastNameBeforeChange: Optional[str] = ""
-    midNameBeforeChange: Optional[str] = ""
-    yearOfChange: Union[str, int] = ""
-    reason: Optional[str] = ""
+    """Pydantic model for name was changed item."""
+
+    first_name: str | None = Field(alias="firstNameBeforeChange")
+    last_name: str | None = Field(default="", alias="lastNameBeforeChange")
+    mid_name: str | None = Field(default="", alias="midNameBeforeChange")
+    year_change: str | int = Field(default="", alias="yearOfChange")
+    reason: str | None = ""
 
 
 class EducationJson(BaseModel):
-    educationType: Optional[str] = ""
-    institutionName: Optional[str] = ""
-    endYear: Union[str, int] = ""
-    specialty: Optional[str] = ""
+    """Pydantic model for education item."""
+
+    education_type: str | None = Field(default="", alias="educationType")
+    institution_name: str | None = Field(default="", alias="institutionName")
+    end_year: str | int | None = Field(default="", alias="endYear")
+    specialty: str | None = ""
 
 
 class ExperienceJson(BaseModel):
-    beginDate: Optional[date]
-    endDate: Optional[date]
-    currentJob: Optional[bool] = False
-    name: Optional[str] = ""
-    address: Optional[str] = ""
-    position: Optional[str] = ""
-    fireReason: Optional[str] = ""
+    """Pydantic model for experience item."""
+
+    begin_date: date | None = Field(alias="beginDate")
+    end_date: date | None = Field(alias="endDate")
+    current_job: bool | None = Field(default=False, alias="currentJob")
+    name: str | None = ""
+    address: str | None = ""
+    position: str | None = ""
+    fire_reason: str | None = Field(default="", alias="fireReason")
 
 
 class OrganizationsJson(BaseModel):
-    name: Optional[str] = ""
-    inn: Optional[str] = ""
+    """Pydantic model for organizations item."""
+
+    name: str | None = ""
+    inn: str | None = ""
 
 
 class RelatedPersonsOrganizationsJson(BaseModel):
-    name: Optional[str] = ""
-    inn: Optional[str] = ""
+    """Pydantic model for related persons organizations item."""
+
+    name: str | None = ""
+    inn: str | None = ""
 
 
 class StateOrganizationsJson(BaseModel):
-    name: Optional[str] = ""
+    """Pydantic model for state organizations item."""
+
+    name: str | None = ""
 
 
 class PublicOfficeOrganizationsJson(BaseModel):
-    name: Optional[str] = ""
+    """Pydantic model for public office organizations item."""
+
+    name: str | None = ""
 
 
 class AnketaSchemaJson(BaseModel):
-    lastName: str
-    firstName: str
-    midName: Optional[str] = ""
-    birthday: date
-    birthplace: Optional[str] = ""
-    citizen: Optional[str] = ""
-    additionalCitizenship: Optional[str] = ""
-    maritalStatus: Optional[str] = ""
-    inn: Optional[str] = ""
-    snils: Optional[str] = ""
-    positionName: Optional[str] = ""
-    department: Optional[str] = ""
-    passportSerial: Optional[str] = ""
-    passportNumber: Optional[str] = ""
-    passportIssueDate: Optional[date]
-    passportIssuedBy: Optional[str] = ""
-    validAddress: Optional[str] = ""
-    regAddress: Optional[str] = ""
-    email: Optional[str] = ""
-    contactPhone: Optional[str] = ""
-    education: Optional[list[EducationJson]] = []
-    experience: Optional[list[ExperienceJson]] = []
-    nameWasChanged: Optional[list[NameWasChangedJson]] = []
-    organizations: Optional[list[OrganizationsJson]] = []
-    relatedPersonsOrganizations: Optional[list[RelatedPersonsOrganizationsJson]] = []
-    stateOrganizations: Optional[list[StateOrganizationsJson]] = []
-    publicOfficeOrganizations: Optional[list[PublicOfficeOrganizationsJson]] = []
+    """Pydantic model for anketa schema."""
 
-    @validator("lastName", "firstName", "midName")
-    def check_names(cls, v):
+    last_name: str = Field(alias="lastName")
+    first_name: str = Field(alias="firstName")
+    mid_name: str | None = Field(default="", alias="midName")
+    birthday: date
+    birthplace: str | None = ""
+    citizen: str | None = ""
+    additional: str | None = Field(default="", alias="additionalCitizenship")
+    marital_status: str | None = Field(default="", alias="maritalStatus")
+    inn: str | None = ""
+    snils: str | None = ""
+    position_name: str | None = Field(default="", alias="positionName")
+    department: str | None = ""
+    passport_serial: str | None = Field(default="", alias="passportSerial")
+    passport_number: str | None = Field(default="", alias="passportNumber")
+    passport_issue: date | None = Field(default=None, alias="passportIssueDate")
+    passport_issued: str | None = Field(default="", alias="passportIssuedBy")
+    valid_address: str | None = Field(default="", alias="validAddress")
+    reg_address: str | None = Field(default="", alias="regAddress")
+    email: str | None = ""
+    contact_phone: str | None = Field(default="", alias="contactPhone")
+    education: list[EducationJson] | None = []
+    experience: list[ExperienceJson] | None = []
+    name_was_changed: list[NameWasChangedJson] | None = []
+    organizations: list[OrganizationsJson] | None = []
+    related_organizations: list[RelatedPersonsOrganizationsJson] | None = []
+    state_organizations: list[StateOrganizationsJson] | None = []
+    public_organizations: list[PublicOfficeOrganizationsJson] | None = []
+
+    @validator("last_name", "first_name", "mid_name")
+    @classmethod
+    def check_names(cls, v: str) -> str | None:
+        """Check names."""
         return v.upper().strip() if v else None
 
 
 class File(BaseModel):
+    """Pydantic model for file."""
+
     file: Any
     filename: str
 
     @validator("filename")
-    def check_filename(cls, v):
-        filename_ascii_strip_re = re.compile(r"[^A-Za-zА-ЯЁа-яё0-9_.-]")
+    @classmethod
+    def check_filename(cls, v: str) -> str:
+        """Check filename for valid chars."""
+        filename_ascii_strip_re = re.compile(r"[^A-Za-zА-ЯЁа-яё0-9_.-]")  # noqa: RUF001
         windows_device_files = (
             "CON",
             "AUX",
@@ -306,9 +387,9 @@ class File(BaseModel):
         for sep in os.sep, os.path.altsep:
             if sep:
                 filename = filename.replace(sep, " ")
-        filename = str(filename_ascii_strip_re.sub("", "_".join(filename.split()))).strip(
-            "._"
-        )
+        filename = str(
+            filename_ascii_strip_re.sub("", "_".join(filename.split())),
+        ).strip("._")
         if (
             platform.system().lower() == "windows"
             and filename

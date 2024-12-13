@@ -1,9 +1,11 @@
+"""Routes."""
+
 from flask import Blueprint
 
 from .anketa import bp as anketa_bp
-from .login import bp as login_bp
 from .file import bp as file_bp
 from .items import bp as items_bp
+from .login import bp as login_bp
 from .route import bp as route_bp
 from .user import bp as user_bp
 

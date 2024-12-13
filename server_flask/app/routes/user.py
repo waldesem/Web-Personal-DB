@@ -1,52 +1,57 @@
-import re
+"""User routes."""
 
-from flask import Blueprint, current_app, jsonify
+import re
+from typing import ClassVar
+
+from flask import Blueprint, Response, current_app, jsonify
 from flask.views import MethodView
 from sqlalchemy import desc, func, select
 from werkzeug.security import generate_password_hash
 
-from ..depends.depend import current_user, get_current_user, roles_required, validate
-from ..model.classes import Regions, Roles
-from ..model.models import User, UserActions, Search
-from ..model.tables import Users, db_session
+from app.depends.depend import current_user, get_current_user, roles_required, validate
+from app.model.classes import Regions, Roles
+from app.model.models import Search, User, UserActions
+from app.model.tables import Users, db_session
 
 bp = Blueprint("users", __name__)
 
 
 class UserView(MethodView):
-    decorators = [roles_required(Roles.admin.value)]
+    """User view class."""
+
+    decorators: ClassVar = [roles_required(Roles.admin.value)]
 
     @validate()
-    def get(self, query_data: Search):
-        """
-        Retrieves a list of users from the database based on the provided search criteria.
+    def get(self, query_data: Search) -> Response:
+        """Retrieve a list of users from the database.
 
-        Parameters:
+        Arguments:
             item (str): The table name from which to retrieve the users.
+            query_data (Search): The search query containing the search string.
 
         Returns:
-            tuple: A tuple containing the JSON-encoded list of users and the HTTP status code.
+            tuple: A tuple containing the JSON-encoded list of users.
+
         """
         stmt = select(Users)
-        if query_data.search and len(query_data.search) > 2:
+        if query_data.search and len(query_data.search) > 2:  # noqa: PLR2004
             if re.match(r"^[a-zA-z_]+", query_data.search):
                 stmt = stmt.filter(
-                    func.lower(Users.username) == query_data.search.lower()
+                    func.lower(Users.username) == query_data.search.lower(),
                 )
             else:
                 stmt = stmt.filter(
-                    func.lower(Users.fullname) == query_data.search.lower()
+                    func.lower(Users.fullname) == query_data.search.lower(),
                 )
         users = db_session.execute(stmt.order_by(desc(Users.id))).scalars()
         return jsonify([user.to_dict() for user in users]), 200
 
     @validate()
-    def post(self, json_data: User):
-        """
-        Handles the POST request to create a user in the database.
+    def post(self, json_data: User) -> Response:
+        """Handle the POST request to create a user in the database.
 
-        This function is a route handler for the '/users' endpoint with the HTTP method POST.
-        It requires a valid token for authentication.
+        Arguments:
+            json_data (User): The user data to be added to the database.
 
         Returns:
             - If the user already exists returns an empty response with status code 200.
@@ -54,11 +59,12 @@ class UserView(MethodView):
             Returns an empty response with status code 201.
             - If an exception occurs during the execution of the function,
             returns an empty response with status code 200.
+
         """
         user = db_session.execute(
             select(Users).filter(
-                func.lower(Users.username) == json_data.username.lower()
-            )
+                func.lower(Users.username) == json_data.username.lower(),
+            ),
         ).all()
         if not user:
             db_session.add(
@@ -69,9 +75,9 @@ class UserView(MethodView):
                     role=Roles.guest.value,
                     region=Regions.main.value,
                     passhash=generate_password_hash(
-                        current_app.config["DEFAULT_PASSWORD"]
+                        current_app.config["DEFAULT_PASSWORD"],
                     ),
-                )
+                ),
             )
             db_session.commit()
             return jsonify({"message": "success"}), 201
@@ -84,15 +90,16 @@ bp.add_url_rule("/users", view_func=UserView.as_view("users"))
 @bp.get("/<int:user_id>")
 @validate()
 @roles_required(Roles.admin.value)
-def get_user_actions(user_id, query_data: UserActions):
-    """
-    Change a user's information in the database based on their user ID.
+def get_user_actions(user_id: int, query_data: UserActions) -> Response:
+    """Change a user's information in the database based on their user ID.
 
-    Parameters:
+    Args:
         user_id (int): The ID of the user.
+        query_data (UserActions): The user data to be updated in the database.
 
     Returns:
         The HTTP status code is 201.
+
     """
     if current_user.get("id") == user_id:
         return jsonify({"message": "error"}), 200
@@ -100,7 +107,7 @@ def get_user_actions(user_id, query_data: UserActions):
     if user and query_data.item:
         if query_data.item == "drop":
             user.passhash = generate_password_hash(
-                current_app.config["DEFAULT_PASSWORD"]
+                current_app.config["DEFAULT_PASSWORD"],
             )
             user.attempt = 0
             user.blocked = False
