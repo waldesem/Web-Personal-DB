@@ -1,4 +1,4 @@
-"""Module for managing dependencies."""
+"""Manage dependencies."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from functools import lru_cache, wraps
 from typing import Callable
 
 import jwt
-from flask import abort, current_app, g, jsonify, make_response, request
+from flask import Request, abort, current_app, g, jsonify, make_response, request
 from pydantic import BaseModel, ValidationError
 from werkzeug.local import LocalProxy
 
@@ -152,7 +152,25 @@ def roles_required(*roles: list[str]) -> Callable:
     return decorator
 
 
-def validate() -> Callable:  # noqa: C901
+def check_content_type(request: Request, content_type: str) -> bool:
+    """Check content type of the request to match given content type."""
+    content_type = request.headers.get("Content-Type", "").lower()
+    if content_type.split(";")[0] == content_type:
+        return True
+    body = {"message": f"Unsupported media type: '{content_type}'"}
+    return make_response(jsonify(body), 415)
+
+
+def validate_data(data: dict, model: BaseModel) -> dict:
+    """Validate data using Pydantic model."""
+    try:
+        return model(**data)
+    except ValidationError:
+        current_app.logger.exception("Error validating data")
+        return make_response(jsonify({"message": "error"}), 200)
+
+
+def validate() -> Callable:
     """Decorate a function for validating request data using Pydantic models.
 
     The decorator accepts the following keyword arguments:
@@ -174,61 +192,45 @@ def validate() -> Callable:  # noqa: C901
         pass
     """
 
-    def decorate(func: Callable) -> Callable:  # noqa: C901
+    def decorate(func: Callable) -> Callable:
         @wraps(func)
-        def wrapper(*args: tuple, **kwargs: dict) -> Callable:  # noqa: C901
-            err = []
-            query_model: BaseModel | None = func.__annotations__.get("query_data")
+        def wrapper(*args: tuple, **kwargs: dict) -> Callable:
+            query_model = func.__annotations__.get("query_data")
             if query_model:
                 query_data = request.args.to_dict()
-                try:
-                    kwargs["query_data"] = query_model(**query_data)
-                except ValidationError as ve:
-                    err.append(str(ve))
+                kwargs["query_data"] = validate_data(query_data, query_model)
 
-            json_model: BaseModel | None = func.__annotations__.get("json_data")
+            json_model = func.__annotations__.get("json_data")
             if json_model:
-                content_type = request.headers.get("Content-Type", "").lower()
-                if content_type.split(";")[0] != "application/json":
-                    body = {"message": f"Unsupported media type: '{content_type}'"}
-                    return make_response(jsonify(body), 415)
-
+                check_content_type(request, "application/json")
                 json_data = request.get_json()
-                try:
-                    kwargs["json_data"] = json_model(**json_data)
-                except ValidationError as ve:
-                    err.append(str(ve))
+                kwargs["json_data"] = validate_data(json_data, json_model)
 
-            file_model: BaseModel | list[BaseModel] = func.__annotations__.get(
-                "file_data",
-            )
+            file_model = "file_data" in func.__annotations__
             if file_model:
-                content_type = request.headers.get("Content-Type", "").lower()
-                if content_type.split(";")[0] != "multipart/form-data":
-                    body = {"message": f"Unsupported media type: '{content_type}'"}
-                    return make_response(jsonify(body), 415)
-
+                check_content_type(request, "multipart/form-data")
                 try:
                     iter(file_model)
                     file_data = request.files.getlist("file")
-                    try:
-                        kwargs["file_data"] = [
-                            File(file=f, filename=f.filename) for f in file_data
-                        ]
-                    except ValidationError as ve:
-                        err.append(str(ve))
+                    kwargs["file_data"] = [
+                        validate_data(
+                            {
+                                "file": file,
+                                "filename": file.filename,
+                            },
+                            File,
+                        )
+                        for file in file_data
+                    ]
                 except TypeError:
                     file_data = request.files.get("file")
-                    try:
-                        kwargs["file_data"] = File(
-                            file=file_data,
-                            filename=file_data.filename,
-                        )
-                    except ValidationError as ve:
-                        err.append(str(ve))
-            if err:
-                current_app.logger.error("; ".join(err))
-                return make_response(jsonify({"message": "error"}), 200)
+                    kwargs["file_data"] = validate_data(
+                        {
+                            "file": file_data,
+                            "filename": file_data.filename,
+                        },
+                        File,
+                    )
 
             return func(*args, **kwargs)
 

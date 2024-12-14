@@ -34,7 +34,7 @@ class UserView(MethodView):
 
         """
         stmt = select(Users)
-        if query_data.search and len(query_data.search) > 2:  # noqa: PLR2004
+        if query_data.search and len(query_data.search) > 2:
             if re.match(r"^[a-zA-z_]+", query_data.search):
                 stmt = stmt.filter(
                     func.lower(Users.username) == query_data.search.lower(),

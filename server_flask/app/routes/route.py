@@ -34,12 +34,12 @@ def get_index(page: int, query_data: Search) -> Response:
         if current_user.get("region") != Regions.main.value
         else True,
     )
-    if len(query_data.search) > 2:  # noqa: PLR2004
+    if len(query_data.search) > 2:
         search = query_data.search.upper().split()[:3]
         stmt = stmt.filter(
             Persons.surname == search[0],
             Persons.firstname == search[1] if len(search) > 1 else True,
-            Persons.patronymic == search[2] if len(search) > 2 else True,  # noqa: PLR2004
+            Persons.patronymic == search[2] if len(search) > 2 else True,
         )
     query = db_session.execute(
         stmt.order_by(desc(Persons.id))

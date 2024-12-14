@@ -23,7 +23,7 @@ def upload_resume(resume: dict) -> int:
         int: The ID of the uploaded resume.
 
     """
-    if not re.match(r"[А-ЯЁЙ]", resume["surname"][0]):  # noqa: RUF001
+    if not re.match(r"[А-ЯЁЙ]", resume["surname"][0]):
         return None
     resume["editable"] = True
     resume["user_id"] = current_user.get("id")
@@ -168,7 +168,8 @@ def json_to_dict(file_data: str) -> dict:
                 ]
                 + [
                     {
-                        "view": "Связанные лица работают в государственных организациях",
+                        "view": "Связанные лица работают в государственных \
+                            организациях",
                         "organization": aff.name,
                     }
                     for aff in anketa.related_organizations
