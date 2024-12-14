@@ -1,18 +1,13 @@
 """Initialize the Flask application."""
 
 import logging
-from pathlib import Path
 
-import click
 from flask import Flask, Response
-from sqlalchemy import select
 from werkzeug.exceptions import HTTPException
-from werkzeug.security import generate_password_hash
 
 from config import Config
 
-from .model.classes import Regions, Roles
-from .model.tables import Users, db_session
+from .model.tables import db_session
 
 file_handler = logging.FileHandler("error.log")
 file_handler.setLevel(logging.ERROR)
@@ -21,7 +16,7 @@ formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(messag
 file_handler.setFormatter(formatter)
 
 
-def create_app(config_class: Config = Config) -> Flask:  # noqa: C901
+def create_app(config_class: Config = Config) -> Flask:
     """Create and configure the Flask application.
 
     Args:
@@ -39,12 +34,16 @@ def create_app(config_class: Config = Config) -> Flask:  # noqa: C901
 
     app.register_blueprint(route_bp)
 
+    from command import bp as command_bp
+
+    app.register_blueprint(command_bp)
+
     @app.teardown_appcontext
     def shutdown_session(exception=None) -> None:  # noqa: ANN001, ARG001
         db_session.remove()
 
     @app.get("/", defaults={"path": ""})
-    def main(path: str = "") -> str:
+    def main(path: str = "") -> str:  # noqa: ARG001
         return app.send_static_file("index.html")
 
     @app.get("/<path:path>")
@@ -60,59 +59,5 @@ def create_app(config_class: Config = Config) -> Flask:  # noqa: C901
     def handle_exception(error: HTTPException) -> Response:
         app.logger.exception(error)
         return error
-
-    @app.cli.command("user")
-    @click.argument("fullname")
-    @click.argument("username")
-    @click.argument("email")
-    @click.option("--role", type=click.Choice([role.value for role in Roles]))
-    @click.option("--region", type=click.Choice([region.name for region in Regions]))
-    def create_user(
-        fullname: str, username: str, email: str, region: str, role: str,
-    ) -> None:
-        """Create a new user.
-
-        The user is created with a default password given in DEFAULT_PASSWORD config
-        variable. The user is created only if it does not exist in the database.
-
-        :param fullname: The full name of the user.
-        :param username: The username of the user.
-        :param email: The email of the user.
-        :param region: The region of the user.
-        :param role: The role of the user.
-        """
-        if not db_session.execute(
-            select(Users).filter(Users.username == username),
-        ).all():
-            db_session.add(
-                Users(
-                    fullname=fullname,
-                    username=username,
-                    email=email,
-                    role=role,
-                    passhash=generate_password_hash(config_class.DEFAULT_PASSWORD),
-                    region=Regions[region].value,
-                ),
-            )
-            db_session.commit()
-            click.echo(f"User {username} created")
-        else:
-            click.echo(f"User {username} already exists")
-        db_session.remove()
-
-    @app.cli.command("folders")
-    def create_folders() -> None:
-        """Create the folders structure according to the current configuration.
-
-        :param folder: The folder to create the structure in. If not provided, the
-            current BASE_PATH is used.
-        """
-        for region in Regions:
-            region_path = Path(config_class.BASE_PATH, region.value)
-            Path.mkdir(region_path, exist_ok=True)
-            for letter in "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЫЭЮЯ":
-                letter_path = Path(region_path, letter)
-                Path.mkdir(letter_path, exist_ok=True)
-        click.echo("Folders created")
 
     return app

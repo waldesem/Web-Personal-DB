@@ -96,7 +96,7 @@ def change_region(person_id: int, query_data: Region) -> Response:
                 f"{person.patronymic if person.patronymic else ''}".rstrip(),
             )
             shutil.copytree(person.destination, destination, dirs_exist_ok=True)
-            person.destination = destination
+            person.destination = str(destination)
         person.region = query_data.region
         person.editable = False
         db_session.commit()

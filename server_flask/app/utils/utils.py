@@ -41,15 +41,16 @@ def upload_resume(resume: dict) -> int:
         person = Persons(**resume)
         db_session.add(person)
         db_session.flush()
-        person.destination = str(Path(
+        destination = Path(
             current_app.config["BASE_PATH"],
             person.region,
             person.surname[0],
             f"{person.id}-{person.surname} {person.firstname} "
             f"{person.patronymic}".rstrip(),
-        ))
-        if not Path.exists(person.destination):
-            Path.mkdir(person.destination)
+        )
+        if not Path.exists(destination):
+            Path.mkdir(destination)
+        person.destination = str(destination)
         db_session.commit()
         return person.id
 

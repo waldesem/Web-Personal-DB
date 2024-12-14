@@ -46,12 +46,12 @@ class FileView(MethodView):
                 f"{person.id}-{person.surname} {person.firstname} "
                 f"{person.patronymic}".rstrip(),
             )
-            person.destination = destination
+            person.destination = str(destination)
             db_session.commit()
         try:
             subprocess.run(f'explorer "{destination}"', check=False)  # noqa: S603
-        except subprocess.CalledProcessError as e:
-            current_app.logger.exception(e)
+        except subprocess.CalledProcessError:
+            current_app.logger.exception("Error opening folder")
         return "", 200
 
     @validate()

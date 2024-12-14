@@ -66,7 +66,7 @@ class UserActions(BaseModel):
 class Model(BaseModel):
     """Pydantic model for model form."""
 
-    id: int | str | None
+    id: int | str | None = None
 
     class Config:
         """Pydantic config."""
@@ -79,7 +79,7 @@ class User(Model):
 
     fullname: str
     username: str
-    email: str | None
+    email: str = ""
 
 
 class Person(Model):
@@ -89,25 +89,25 @@ class Person(Model):
 
     surname: str
     firstname: str
-    patronymic: str | None = ""
+    patronymic: str = ""
     birthday: date
-    birthplace: str | None = ""
-    citizenship: str | None = ""
-    dual: str | None = ""
-    snils: str | None = ""
-    inn: str | None = ""
-    marital: str | None = ""
-    addition: str | None = ""
-    destination: str | None = ""
-    region: Regions | None = ""
-    editable: bool | None = False
-    user_id: str | int
+    birthplace: str = ""
+    citizenship: str = ""
+    dual: str = ""
+    snils: str = ""
+    inn: str = ""
+    marital: str = ""
+    addition: str = ""
+    destination: str = ""
+    region: Regions = ""
+    editable: bool = False
+    user_id: str | int = None
 
     @validator("surname", "firstname", "patronymic")
     @classmethod
-    def check_names(cls, v: str) -> str | None:
+    def check_names(cls, v: str) -> str:
         """Check names."""
-        return v.upper().strip() if v else None
+        return v.upper().strip() if v else ""
 
 
 class Prev(Model):
@@ -116,16 +116,16 @@ class Prev(Model):
     __modelname__ = "previous"
 
     surname: str
-    firstname: str
-    patronymic: str | None = ""
-    changed: str | None = ""
-    reason: str | None = ""
+    firstname: str = ""
+    patronymic: str = ""
+    changed: str = ""
+    reason: str = ""
 
     @validator("surname", "firstname", "patronymic")
     @classmethod
-    def check_names(cls, v: str) -> str | None:
+    def check_names(cls, v: str) -> str:
         """Check names."""
-        return v.upper().strip() if v else None
+        return v.upper().strip() if v else ""
 
 
 class Education(Model):
@@ -135,8 +135,8 @@ class Education(Model):
 
     view: str
     institution: str
-    finished: str | int | None = ""
-    specialty: str | None = ""
+    finished: str | int = ""
+    specialty: str = ""
 
 
 class Staff(Model):
@@ -145,7 +145,7 @@ class Staff(Model):
     __modelname__ = "staffs"
 
     position: str
-    department: str | None = ""
+    department: str = ""
 
 
 class Document(Model):
@@ -154,10 +154,10 @@ class Document(Model):
     __modelname__ = "documents"
 
     view: str
-    series: str | None = ""
+    series: str = ""
     digits: str
-    agency: str | None = ""
-    issue: date | None = None
+    agency: str = ""
+    issue: date
 
 
 class Address(Model):
@@ -183,13 +183,13 @@ class Workplace(Model):
 
     __modelname__ = "workplaces"
 
-    now_work: bool | None = False
-    starts: date | None
-    finished: date | None
+    now_work: bool = False
+    starts: date
+    finished: date
     workplace: str
-    addresses: str | None = ""
+    addresses: str = ""
     position: str
-    reason: str | None = ""
+    reason: str = ""
 
 
 class Affilation(Model):
@@ -199,7 +199,7 @@ class Affilation(Model):
 
     view: str
     organization: str
-    inn: str | None = ""
+    inn: str = ""
 
 
 class Relation(Model):
@@ -216,21 +216,21 @@ class Check(Model):
 
     __modelname__ = "checks"
 
-    workplace: str | None = ""
-    document: str | None = ""
-    inn: str | None = ""
-    debt: str | None = ""
-    bankruptcy: str | None = ""
-    bki: str | None = ""
-    courts: str | None = ""
-    affilation: str | None = ""
-    terrorist: str | None = ""
-    mvd: str | None = ""
-    internet: str | None = ""
-    cronos: str | None = ""
-    cros: str | None = ""
-    addition: str | None = ""
-    comment: str | None = ""
+    workplace: str = ""
+    document: str = ""
+    inn: str = ""
+    debt: str = ""
+    bankruptcy: str = ""
+    bki: str = ""
+    courts: str = ""
+    affilation: str = ""
+    terrorist: str = ""
+    mvd: str = ""
+    internet: str = ""
+    cronos: str = ""
+    cros: str = ""
+    addition: str = ""
+    comment: str = ""
     conclusion: Conclusions
 
 
@@ -259,64 +259,64 @@ class Inquiry(Model):
 
     info: str
     initiator: str
-    origins: str | None = ""
+    origins: str = ""
 
 
 class NameWasChangedJson(BaseModel):
     """Pydantic model for name was changed item."""
 
-    first_name: str | None = Field(alias="firstNameBeforeChange")
-    last_name: str | None = Field(default="", alias="lastNameBeforeChange")
-    mid_name: str | None = Field(default="", alias="midNameBeforeChange")
+    first_name: str = Field(alias="firstNameBeforeChange")
+    last_name: str = Field(default="", alias="lastNameBeforeChange")
+    mid_name: str = Field(default="", alias="midNameBeforeChange")
     year_change: str | int = Field(default="", alias="yearOfChange")
-    reason: str | None = ""
+    reason: str = ""
 
 
 class EducationJson(BaseModel):
     """Pydantic model for education item."""
 
-    education_type: str | None = Field(default="", alias="educationType")
-    institution_name: str | None = Field(default="", alias="institutionName")
-    end_year: str | int | None = Field(default="", alias="endYear")
-    specialty: str | None = ""
+    education_type: str = Field(default="", alias="educationType")
+    institution_name: str = Field(default="", alias="institutionName")
+    end_year: str | int = Field(default="", alias="endYear")
+    specialty: str = ""
 
 
 class ExperienceJson(BaseModel):
     """Pydantic model for experience item."""
 
-    begin_date: date | None = Field(alias="beginDate")
-    end_date: date | None = Field(alias="endDate")
-    current_job: bool | None = Field(default=False, alias="currentJob")
-    name: str | None = ""
-    address: str | None = ""
-    position: str | None = ""
-    fire_reason: str | None = Field(default="", alias="fireReason")
+    begin_date: date = Field(alias="beginDate")
+    end_date: date = Field(default=None, alias="endDate")
+    current_job: bool = Field(default=False, alias="currentJob")
+    name: str = ""
+    address: str = ""
+    position: str = ""
+    fire_reason: str = Field(default="", alias="fireReason")
 
 
 class OrganizationsJson(BaseModel):
     """Pydantic model for organizations item."""
 
-    name: str | None = ""
-    inn: str | None = ""
+    name: str = ""
+    inn: str = ""
 
 
 class RelatedPersonsOrganizationsJson(BaseModel):
     """Pydantic model for related persons organizations item."""
 
-    name: str | None = ""
-    inn: str | None = ""
+    name: str = ""
+    inn: str = ""
 
 
 class StateOrganizationsJson(BaseModel):
     """Pydantic model for state organizations item."""
 
-    name: str | None = ""
+    name: str = ""
 
 
 class PublicOfficeOrganizationsJson(BaseModel):
     """Pydantic model for public office organizations item."""
 
-    name: str | None = ""
+    name: str = ""
 
 
 class AnketaSchemaJson(BaseModel):
@@ -324,37 +324,37 @@ class AnketaSchemaJson(BaseModel):
 
     last_name: str = Field(alias="lastName")
     first_name: str = Field(alias="firstName")
-    mid_name: str | None = Field(default="", alias="midName")
+    mid_name: str = Field(default="", alias="midName")
     birthday: date
-    birthplace: str | None = ""
-    citizen: str | None = ""
-    additional: str | None = Field(default="", alias="additionalCitizenship")
-    marital_status: str | None = Field(default="", alias="maritalStatus")
-    inn: str | None = ""
-    snils: str | None = ""
-    position_name: str | None = Field(default="", alias="positionName")
-    department: str | None = ""
-    passport_serial: str | None = Field(default="", alias="passportSerial")
-    passport_number: str | None = Field(default="", alias="passportNumber")
-    passport_issue: date | None = Field(default=None, alias="passportIssueDate")
-    passport_issued: str | None = Field(default="", alias="passportIssuedBy")
-    valid_address: str | None = Field(default="", alias="validAddress")
-    reg_address: str | None = Field(default="", alias="regAddress")
-    email: str | None = ""
-    contact_phone: str | None = Field(default="", alias="contactPhone")
-    education: list[EducationJson] | None = []
-    experience: list[ExperienceJson] | None = []
-    name_was_changed: list[NameWasChangedJson] | None = []
-    organizations: list[OrganizationsJson] | None = []
-    related_organizations: list[RelatedPersonsOrganizationsJson] | None = []
-    state_organizations: list[StateOrganizationsJson] | None = []
-    public_organizations: list[PublicOfficeOrganizationsJson] | None = []
+    birthplace: str = ""
+    citizen: str = ""
+    additional: str = Field(default="", alias="additionalCitizenship")
+    marital_status: str = Field(default="", alias="maritalStatus")
+    inn: str = ""
+    snils: str = ""
+    position_name: str = Field(default="", alias="positionName")
+    department: str = ""
+    passport_serial: str = Field(default="", alias="passportSerial")
+    passport_number: str = Field(default="", alias="passportNumber")
+    passport_issue: date = Field(default=None, alias="passportIssueDate")
+    passport_issued: str = Field(default="", alias="passportIssuedBy")
+    valid_address: str = Field(default="", alias="validAddress")
+    reg_address: str = Field(default="", alias="regAddress")
+    email: str = ""
+    contact_phone: str = Field(default="", alias="contactPhone")
+    education: list[EducationJson] = []
+    experience: list[ExperienceJson] = []
+    name_was_changed: list[NameWasChangedJson] = []
+    organizations: list[OrganizationsJson] = []
+    related_organizations: list[RelatedPersonsOrganizationsJson] = []
+    state_organizations: list[StateOrganizationsJson] = []
+    public_organizations: list[PublicOfficeOrganizationsJson] = []
 
     @validator("last_name", "first_name", "mid_name")
     @classmethod
-    def check_names(cls, v: str) -> str | None:
+    def check_names(cls, v: str) -> str:
         """Check names."""
-        return v.upper().strip() if v else None
+        return v.upper().strip() if v else ""
 
 
 class File(BaseModel):

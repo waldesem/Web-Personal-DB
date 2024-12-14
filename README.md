@@ -94,12 +94,12 @@ For creating regions and alphabeth folders in destination directory add path in 
 Then run the command:
 ```
 export FLASK_APP=app
-flask folders
+flask command folders
 ```
 For creating new user run the command in terminal:
 ```
 export FLASK_APP=app
-flask user 'Super Admin' superadmin superadmin@elocalhost --role=admin --region=main
+flask command user 'Super Admin' superadmin superadmin@elocalhost --role=admin --region=main
 ```
 
 ### Build frontend
