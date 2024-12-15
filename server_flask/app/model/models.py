@@ -381,6 +381,7 @@ class File(BaseModel):
             "PRN",
             "NUL",
         )
+        windows_executable_files = ("exe", "com", "bat", "cmd")
         filename = unicodedata.normalize("NFKD", v)
         for sep in os.sep, os.path.altsep:
             if sep:
@@ -394,4 +395,9 @@ class File(BaseModel):
             and filename.split(".")[0].upper() in windows_device_files
         ):
             filename = f"_{filename}"
+        if (
+            filename
+            and filename.split(".")[-1].lower() in windows_executable_files
+        ):
+            filename = f"{filename}_dangerous_extension"
         return filename

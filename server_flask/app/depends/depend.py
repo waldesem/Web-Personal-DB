@@ -7,7 +7,7 @@ from functools import lru_cache, wraps
 from typing import Callable
 
 import jwt
-from flask import Request, abort, current_app, g, jsonify, make_response, request
+from flask import abort, current_app, g, jsonify, make_response, request
 from pydantic import BaseModel, ValidationError
 from werkzeug.local import LocalProxy
 
@@ -17,7 +17,7 @@ from app.model.tables import Users, db_session
 current_user = LocalProxy(lambda: get_current_user(g.user_id))
 
 
-def get_payload(header: str | None = None) -> int | None:
+def get_payload(header: str | None) -> int | None:
     """Validate a JWT token and returns the user ID.
 
     Args:
@@ -27,7 +27,7 @@ def get_payload(header: str | None = None) -> int | None:
         int or None: The user ID if the token is valid, None if not.
 
     """
-    if isinstance(header, str) and header.startswith("Bearer "):
+    if header and header.startswith("Bearer "):
         try:
             return jwt.decode(
                 header[7:],
@@ -75,23 +75,19 @@ def create_token(user: Users) -> str:
         str: The JWT token.
 
     """
-    try:
-        return "Bearer " + jwt.encode(
-            {
-                "id": user.id,
-                "fullname": user.fullname,
-                "username": user.username,
-                "email": user.email,
-                "region": user.region,
-                "role": user.role,
-                "exp": datetime.now(tz=timezone.utc) + timedelta(hours=12),
-            },
-            current_app.config["JWT_SECRET_KEY"],
-            algorithm="HS256",
-        )
-    except jwt.exceptions.InvalidTokenError:
-        return None
-    return None
+    return "Bearer " + jwt.encode(
+        {
+            "id": user.id,
+            "fullname": user.fullname,
+            "username": user.username,
+            "email": user.email,
+            "region": user.region,
+            "role": user.role,
+            "exp": datetime.now(tz=timezone.utc) + timedelta(hours=12),
+        },
+        current_app.config["JWT_SECRET_KEY"],
+        algorithm="HS256",
+    )
 
 
 def jwt_required() -> Callable:
@@ -152,15 +148,6 @@ def roles_required(*roles: list[str]) -> Callable:
     return decorator
 
 
-def check_content_type(request: Request, content_type: str) -> bool:
-    """Check content type of the request to match given content type."""
-    content_type = request.headers.get("Content-Type", "").lower()
-    if content_type.split(";")[0] == content_type:
-        return True
-    body = {"message": f"Unsupported media type: '{content_type}'"}
-    return make_response(jsonify(body), 415)
-
-
 def validate_data(data: dict, model: BaseModel) -> BaseModel | None:
     """Validate data using Pydantic model."""
     try:
@@ -205,7 +192,6 @@ def validate() -> Callable:
 
             json_model = func.__annotations__.get("json_data")
             if json_model:
-                check_content_type(request, "application/json")
                 json_data = request.get_json()
                 json_result = validate_data(json_data, json_model)
                 if not json_result:
@@ -214,7 +200,6 @@ def validate() -> Callable:
 
             file_model = func.__annotations__.get("file_data")
             if file_model:
-                check_content_type(request, "multipart/form-data")
                 try:
                     iter(file_model)
                     file_data = request.files.getlist("file")
