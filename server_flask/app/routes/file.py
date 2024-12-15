@@ -78,6 +78,8 @@ class FileView(MethodView):
         )
         Path.mkdir(date_subfolder, exist_ok=True)
         for files in file_data:
+            if not files:
+                continue
             file_path = Path(date_subfolder, files.filename)
             if not file_path.is_file():
                 files.file.save(file_path)

@@ -161,13 +161,13 @@ def check_content_type(request: Request, content_type: str) -> bool:
     return make_response(jsonify(body), 415)
 
 
-def validate_data(data: dict, model: BaseModel) -> dict:
+def validate_data(data: dict, model: BaseModel) -> BaseModel | None:
     """Validate data using Pydantic model."""
     try:
         return model(**data)
     except ValidationError:
         current_app.logger.exception("Error validating data")
-        return make_response(jsonify({"message": "error"}), 200)
+        return None
 
 
 def validate() -> Callable:
@@ -198,15 +198,21 @@ def validate() -> Callable:
             query_model = func.__annotations__.get("query_data")
             if query_model:
                 query_data = request.args.to_dict()
-                kwargs["query_data"] = validate_data(query_data, query_model)
+                query_result = validate_data(query_data, query_model)
+                if not query_result:
+                    return make_response(jsonify({"message": "error"}), 200)
+                kwargs["query_data"] = query_result
 
             json_model = func.__annotations__.get("json_data")
             if json_model:
                 check_content_type(request, "application/json")
                 json_data = request.get_json()
-                kwargs["json_data"] = validate_data(json_data, json_model)
+                json_result = validate_data(json_data, json_model)
+                if not json_result:
+                    return make_response(jsonify({"message": "error"}), 200)
+                kwargs["json_data"] = json_result
 
-            file_model = "file_data" in func.__annotations__
+            file_model = func.__annotations__.get("file_data")
             if file_model:
                 check_content_type(request, "multipart/form-data")
                 try:

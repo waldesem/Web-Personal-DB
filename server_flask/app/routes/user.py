@@ -72,11 +72,6 @@ class UserView(MethodView):
                     fullname=json_data.fullname,
                     username=json_data.username,
                     email=json_data.email,
-                    role=Roles.guest.value,
-                    region=Regions.main.value,
-                    passhash=generate_password_hash(
-                        current_app.config["DEFAULT_PASSWORD"],
-                    ),
                 ),
             )
             db_session.commit()

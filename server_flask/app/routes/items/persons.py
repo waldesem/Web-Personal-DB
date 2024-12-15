@@ -45,9 +45,10 @@ class PersonView(MethodView):
             code of 201.
 
         """
-        json_data.user_id = current_user.get("id")
+        json_dict = json_data.dict()
+        json_dict["user_id"] = current_user.get("id")
         person = db_session.get(Persons, item_id)
-        for key, value in json_data.dict().items():
+        for key, value in json_dict.items():
             setattr(person, key, value)
         db_session.commit()
         return jsonify({"message": "success"}), 201

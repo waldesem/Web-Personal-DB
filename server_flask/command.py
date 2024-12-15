@@ -6,7 +6,6 @@ import click
 from flask import Blueprint, current_app
 from flask.cli import with_appcontext
 from sqlalchemy import select
-from werkzeug.security import generate_password_hash
 
 from app.model.classes import Regions, Roles
 from app.model.tables import Users, db_session
@@ -18,8 +17,16 @@ bp = Blueprint("command", __name__)
 @click.argument("fullname")
 @click.argument("username")
 @click.argument("email")
-@click.option("--role", type=click.Choice([role.value for role in Roles]))
-@click.option("--region", type=click.Choice([region.name for region in Regions]))
+@click.option(
+    "--role",
+    type=click.Choice([role.value for role in Roles]),
+    default=Roles.admin.value,
+)
+@click.option(
+    "--region",
+    type=click.Choice([region.name for region in Regions]),
+    default=Regions.main.name,
+)
 @with_appcontext
 def create_user(
     fullname: str,
@@ -41,7 +48,8 @@ def create_user(
 
     Example:
         export FLASK_APP=app
-        flask command user 'Super Admin' superadmin superadmin@elocalhost --role=admin --region=main
+        flask command user 'Super Admin' superadmin superadmin@elocalhost \
+            --role=admin --region=main
 
     """
     if not db_session.execute(
@@ -53,7 +61,6 @@ def create_user(
                 username=username,
                 email=email,
                 role=role,
-                passhash=generate_password_hash(current_app.config["DEFAULT_PASSWORD"]),
                 region=Regions[region].value,
             ),
         )

@@ -1,4 +1,5 @@
 """SQLAlchemy models."""
+
 from __future__ import annotations
 
 from datetime import date, datetime  # noqa: TC003
@@ -24,6 +25,7 @@ from sqlalchemy.orm import (
     scoped_session,
     sessionmaker,
 )
+from werkzeug.security import generate_password_hash
 
 from config import Config
 
@@ -50,9 +52,14 @@ class Users(Base):
     fullname: Mapped[str] = mapped_column(String(255), nullable=False)
     username: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     email: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
-    passhash: Mapped[str] = mapped_column(String(255), nullable=False)
+    passhash: Mapped[str] = mapped_column(
+        String(255),
+        default=generate_password_hash(Config.DEFAULT_PASSWORD),
+    )
     pswd_create: Mapped[datetime] = mapped_column(
-        DateTime, default=func.now(), onupdate=func.now(),
+        DateTime,
+        default=func.now(),
+        onupdate=func.now(),
     )
     change_pswd: Mapped[bool] = mapped_column(Boolean(), default=True)
     blocked: Mapped[bool] = mapped_column(Boolean(), default=False)
@@ -60,7 +67,9 @@ class Users(Base):
     attempt: Mapped[int] = mapped_column(Integer(), default=0)
     role: Mapped[str] = mapped_column(String(), default=Roles.guest.value)
     created: Mapped[datetime] = mapped_column(
-        DateTime, default=func.now(), onupdate=func.now(),
+        DateTime,
+        default=func.now(),
+        onupdate=func.now(),
     )
     region: Mapped[str] = mapped_column(String(255), default=Regions.main.value)
 
@@ -93,7 +102,9 @@ class Persons(Base):
     addition: Mapped[str] = mapped_column(Text, nullable=True)
     destination: Mapped[str] = mapped_column(Text, nullable=True)
     created: Mapped[datetime] = mapped_column(
-        DateTime, default=func.now(), onupdate=func.now(),
+        DateTime,
+        default=func.now(),
+        onupdate=func.now(),
     )
     region: Mapped[str] = mapped_column(String(255), default=Regions.main.value)
     editable: Mapped[bool] = mapped_column(Boolean(), default=False)
@@ -119,7 +130,9 @@ class Previous(Base):
     changed: Mapped[str] = mapped_column(String(255), nullable=True)
     reason: Mapped[str] = mapped_column(Text, nullable=True)
     created: Mapped[datetime] = mapped_column(
-        DateTime, default=func.now(), onupdate=func.now(),
+        DateTime,
+        default=func.now(),
+        onupdate=func.now(),
     )
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
@@ -136,7 +149,9 @@ class Educations(Base):
     finished: Mapped[int] = mapped_column(Integer, nullable=True)
     specialty: Mapped[str] = mapped_column(Text, nullable=True)
     created: Mapped[datetime] = mapped_column(
-        DateTime, default=func.now(), onupdate=func.now(),
+        DateTime,
+        default=func.now(),
+        onupdate=func.now(),
     )
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
@@ -151,7 +166,9 @@ class Staffs(Base):
     position: Mapped[str] = mapped_column(Text, nullable=True)
     department: Mapped[str] = mapped_column(Text, nullable=True)
     created: Mapped[datetime] = mapped_column(
-        DateTime, default=func.now(), onupdate=func.now(),
+        DateTime,
+        default=func.now(),
+        onupdate=func.now(),
     )
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
@@ -169,7 +186,9 @@ class Documents(Base):
     agency: Mapped[str] = mapped_column(Text, nullable=True)
     issue: Mapped[datetime] = mapped_column(Date, nullable=True)
     created: Mapped[datetime] = mapped_column(
-        DateTime, default=func.now(), onupdate=func.now(),
+        DateTime,
+        default=func.now(),
+        onupdate=func.now(),
     )
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
@@ -184,7 +203,9 @@ class Addresses(Base):
     view: Mapped[str] = mapped_column(String(255), nullable=True)
     addresses: Mapped[str] = mapped_column(Text, nullable=True)
     created: Mapped[datetime] = mapped_column(
-        DateTime, default=func.now(), onupdate=func.now(),
+        DateTime,
+        default=func.now(),
+        onupdate=func.now(),
     )
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
@@ -199,7 +220,9 @@ class Contacts(Base):
     view: Mapped[str] = mapped_column(String(255), nullable=True)
     contact: Mapped[str] = mapped_column(String(255), nullable=True)
     created: Mapped[datetime] = mapped_column(
-        DateTime, default=func.now(), onupdate=func.now(),
+        DateTime,
+        default=func.now(),
+        onupdate=func.now(),
     )
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
@@ -219,7 +242,9 @@ class Workplaces(Base):
     position: Mapped[str] = mapped_column(Text, nullable=True)
     reason: Mapped[str] = mapped_column(Text, nullable=True)
     created: Mapped[datetime] = mapped_column(
-        DateTime, default=func.now(), onupdate=func.now(),
+        DateTime,
+        default=func.now(),
+        onupdate=func.now(),
     )
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
@@ -235,7 +260,9 @@ class Affilations(Base):
     organization: Mapped[str] = mapped_column(Text, nullable=True)
     inn: Mapped[str] = mapped_column(String(255), nullable=True)
     created: Mapped[datetime] = mapped_column(
-        DateTime, default=func.now(), onupdate=func.now(),
+        DateTime,
+        default=func.now(),
+        onupdate=func.now(),
     )
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
@@ -264,7 +291,9 @@ class Checks(Base):
     comment: Mapped[str] = mapped_column(Text, nullable=True)
     conclusion: Mapped[str] = mapped_column(Text, nullable=True)
     created: Mapped[datetime] = mapped_column(
-        DateTime, default=func.now(), onupdate=func.now(),
+        DateTime,
+        default=func.now(),
+        onupdate=func.now(),
     )
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
@@ -279,7 +308,9 @@ class Poligrafs(Base):
     theme: Mapped[str] = mapped_column(String(255), nullable=True)
     results: Mapped[str] = mapped_column(Text, nullable=True)
     created: Mapped[datetime] = mapped_column(
-        DateTime, default=func.now(), onupdate=func.now(),
+        DateTime,
+        default=func.now(),
+        onupdate=func.now(),
     )
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
@@ -294,7 +325,9 @@ class Investigations(Base):
     theme: Mapped[str] = mapped_column(String(255), nullable=True)
     info: Mapped[str] = mapped_column(Text, nullable=True)
     created: Mapped[datetime] = mapped_column(
-        DateTime, default=func.now(), nullable=True,
+        DateTime,
+        default=func.now(),
+        nullable=True,
     )
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
@@ -310,7 +343,9 @@ class Inquiries(Base):
     initiator: Mapped[str] = mapped_column(String(255), nullable=True)
     origins: Mapped[str] = mapped_column(String(255), nullable=True)
     created: Mapped[datetime] = mapped_column(
-        DateTime, default=func.now(), nullable=True,
+        DateTime,
+        default=func.now(),
+        nullable=True,
     )
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))

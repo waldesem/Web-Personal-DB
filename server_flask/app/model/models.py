@@ -79,7 +79,7 @@ class User(Model):
 
     fullname: str
     username: str
-    email: str = ""
+    email: str | None = ""
 
 
 class Person(Model):
@@ -89,16 +89,16 @@ class Person(Model):
 
     surname: str
     firstname: str
-    patronymic: str = ""
+    patronymic: str | None = ""
     birthday: date
-    birthplace: str = ""
-    citizenship: str = ""
-    dual: str = ""
-    snils: str = ""
-    inn: str = ""
-    marital: str = ""
-    addition: str = ""
-    destination: str = ""
+    birthplace: str | None = ""
+    citizenship: str | None = ""
+    dual: str | None = ""
+    snils: str | None = ""
+    inn: str | None = ""
+    marital: str | None = ""
+    addition: str | None = ""
+    destination: str | None = ""
     region: Regions = ""
     editable: bool = False
     user_id: str | int = None
@@ -116,10 +116,10 @@ class Prev(Model):
     __modelname__ = "previous"
 
     surname: str
-    firstname: str = ""
-    patronymic: str = ""
-    changed: str = ""
-    reason: str = ""
+    firstname: str | None = ""
+    patronymic: str | None = ""
+    changed: str | None = ""
+    reason: str | None = ""
 
     @validator("surname", "firstname", "patronymic")
     @classmethod
@@ -136,7 +136,7 @@ class Education(Model):
     view: str
     institution: str
     finished: str | int = ""
-    specialty: str = ""
+    specialty: str | None = ""
 
 
 class Staff(Model):
@@ -145,7 +145,7 @@ class Staff(Model):
     __modelname__ = "staffs"
 
     position: str
-    department: str = ""
+    department: str | None = ""
 
 
 class Document(Model):
@@ -154,9 +154,9 @@ class Document(Model):
     __modelname__ = "documents"
 
     view: str
-    series: str = ""
+    series: str | None = ""
     digits: str
-    agency: str = ""
+    agency: str | None = ""
     issue: date
 
 
@@ -187,9 +187,9 @@ class Workplace(Model):
     starts: date
     finished: date
     workplace: str
-    addresses: str = ""
+    addresses: str | None = ""
     position: str
-    reason: str = ""
+    reason: str | None = ""
 
 
 class Affilation(Model):
@@ -199,7 +199,7 @@ class Affilation(Model):
 
     view: str
     organization: str
-    inn: str = ""
+    inn: str | None = ""
 
 
 class Relation(Model):
@@ -216,21 +216,21 @@ class Check(Model):
 
     __modelname__ = "checks"
 
-    workplace: str = ""
-    document: str = ""
-    inn: str = ""
-    debt: str = ""
-    bankruptcy: str = ""
-    bki: str = ""
-    courts: str = ""
-    affilation: str = ""
-    terrorist: str = ""
-    mvd: str = ""
-    internet: str = ""
-    cronos: str = ""
-    cros: str = ""
-    addition: str = ""
-    comment: str = ""
+    workplace: str | None = ""
+    document: str | None = ""
+    inn: str | None = ""
+    debt: str | None = ""
+    bankruptcy: str | None = ""
+    bki: str | None = ""
+    courts: str | None = ""
+    affilation: str | None = ""
+    terrorist: str | None = ""
+    mvd: str | None = ""
+    internet: str | None = ""
+    cronos: str | None = ""
+    cros: str | None = ""
+    addition: str | None = ""
+    comment: str | None = ""
     conclusion: Conclusions
 
 
@@ -259,7 +259,7 @@ class Inquiry(Model):
 
     info: str
     initiator: str
-    origins: str = ""
+    origins: str | None = ""
 
 
 class NameWasChangedJson(BaseModel):
@@ -269,7 +269,7 @@ class NameWasChangedJson(BaseModel):
     last_name: str = Field(default="", alias="lastNameBeforeChange")
     mid_name: str = Field(default="", alias="midNameBeforeChange")
     year_change: str | int = Field(default="", alias="yearOfChange")
-    reason: str = ""
+    reason: str | None = ""
 
 
 class EducationJson(BaseModel):
@@ -278,7 +278,7 @@ class EducationJson(BaseModel):
     education_type: str = Field(default="", alias="educationType")
     institution_name: str = Field(default="", alias="institutionName")
     end_year: str | int = Field(default="", alias="endYear")
-    specialty: str = ""
+    specialty: str | None = ""
 
 
 class ExperienceJson(BaseModel):
@@ -287,36 +287,36 @@ class ExperienceJson(BaseModel):
     begin_date: date = Field(alias="beginDate")
     end_date: date = Field(default=None, alias="endDate")
     current_job: bool = Field(default=False, alias="currentJob")
-    name: str = ""
-    address: str = ""
-    position: str = ""
+    name: str | None = ""
+    address: str | None = ""
+    position: str | None = ""
     fire_reason: str = Field(default="", alias="fireReason")
 
 
 class OrganizationsJson(BaseModel):
     """Pydantic model for organizations item."""
 
-    name: str = ""
-    inn: str = ""
+    name: str | None = ""
+    inn: str | None = ""
 
 
 class RelatedPersonsOrganizationsJson(BaseModel):
     """Pydantic model for related persons organizations item."""
 
-    name: str = ""
-    inn: str = ""
+    name: str | None = ""
+    inn: str | None = ""
 
 
 class StateOrganizationsJson(BaseModel):
     """Pydantic model for state organizations item."""
 
-    name: str = ""
+    name: str | None = ""
 
 
 class PublicOfficeOrganizationsJson(BaseModel):
     """Pydantic model for public office organizations item."""
 
-    name: str = ""
+    name: str | None = ""
 
 
 class AnketaSchemaJson(BaseModel):
@@ -326,21 +326,21 @@ class AnketaSchemaJson(BaseModel):
     first_name: str = Field(alias="firstName")
     mid_name: str = Field(default="", alias="midName")
     birthday: date
-    birthplace: str = ""
-    citizen: str = ""
+    birthplace: str | None = ""
+    citizen: str | None = ""
     additional: str = Field(default="", alias="additionalCitizenship")
     marital_status: str = Field(default="", alias="maritalStatus")
-    inn: str = ""
-    snils: str = ""
+    inn: str | None = ""
+    snils: str | None = ""
     position_name: str = Field(default="", alias="positionName")
-    department: str = ""
+    department: str | None = ""
     passport_serial: str = Field(default="", alias="passportSerial")
     passport_number: str = Field(default="", alias="passportNumber")
     passport_issue: date = Field(default=None, alias="passportIssueDate")
     passport_issued: str = Field(default="", alias="passportIssuedBy")
     valid_address: str = Field(default="", alias="validAddress")
     reg_address: str = Field(default="", alias="regAddress")
-    email: str = ""
+    email: str | None = ""
     contact_phone: str = Field(default="", alias="contactPhone")
     education: list[EducationJson] = []
     experience: list[ExperienceJson] = []
