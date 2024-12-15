@@ -79,7 +79,7 @@ onCancel(() => {
 </script>
 
 <template>
-  <div>
+  <div class="mb-6">
     <div v-if="stateUser.role == 'user'" class="relative">
       <div class="absolute inset-y-0 right-0">
         <UButton

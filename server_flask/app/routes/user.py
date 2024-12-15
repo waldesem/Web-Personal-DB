@@ -34,7 +34,7 @@ class UserView(MethodView):
 
         """
         stmt = select(Users)
-        if query_data.search and len(query_data.search) > 2:
+        if query_data.search and len(query_data.search) > 2:  # noqa: PLR2004
             if re.match(r"^[a-zA-z_]+", query_data.search):
                 stmt = stmt.filter(
                     func.lower(Users.username) == query_data.search.lower(),
@@ -87,7 +87,7 @@ class UserView(MethodView):
 bp.add_url_rule("/users", view_func=UserView.as_view("users"))
 
 
-@bp.get("/<int:user_id>")
+@bp.get("/user/<int:user_id>")
 @validate()
 @roles_required(Roles.admin.value)
 def get_user_actions(user_id: int, query_data: UserActions) -> Response:

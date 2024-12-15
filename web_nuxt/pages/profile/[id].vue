@@ -97,7 +97,7 @@ function emitMessage(message: string) {
 </script>
 
 <template>
-  <div>
+  <div class="mb-6">
     <div class="mb-3">
       <UButton
         :disabled="pending"

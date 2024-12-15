@@ -27,7 +27,7 @@ const { status } = await useLazyAsyncData(
 </script>
 
 <template>
-  <div>
+  <div class="mb-6">
     <ElementsHeaderDiv
       :div="'py-1'"
       :header="`Информация по региону ${region} за период с ${start} г. по ${end} г.`"

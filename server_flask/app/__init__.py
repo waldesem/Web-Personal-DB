@@ -1,5 +1,7 @@
 """Initialize the Flask application."""
 
+from __future__ import annotations
+
 import logging
 
 from flask import Flask, Response
@@ -39,8 +41,12 @@ def create_app(config_class: Config = Config) -> Flask:
     app.register_blueprint(command_bp)
 
     @app.teardown_appcontext
-    def shutdown_session(exception=None) -> None:  # noqa: ANN001, ARG001
+    def shutdown_session(
+        response_or_exc: Response | HTTPException | None = None,
+    ) -> Response | HTTPException | None:
+        """Close the database session after each request or exception."""
         db_session.remove()
+        return response_or_exc
 
     @app.get("/", defaults={"path": ""})
     def main(path: str = "") -> str:  # noqa: ARG001

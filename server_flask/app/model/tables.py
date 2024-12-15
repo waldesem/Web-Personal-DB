@@ -29,6 +29,9 @@ from config import Config
 
 from .classes import Regions, Roles
 
+engine = create_engine(Config.DATABASE_URI)
+db_session = scoped_session(sessionmaker(autoflush=False, bind=engine))
+
 
 class Base(DeclarativeBase):
     """Base class for models."""
@@ -313,7 +316,5 @@ class Inquiries(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
 
 
-engine = create_engine(Config.DATABASE_URI)
-db_session = scoped_session(sessionmaker(autoflush=False, bind=engine))
 Base.metadata.create_all(bind=engine)
 tables = Base.metadata.tables

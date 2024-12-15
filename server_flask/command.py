@@ -38,6 +38,11 @@ def create_user(
     :param email: The email of the user.
     :param region: The region of the user.
     :param role: The role of the user.
+
+    Example:
+        export FLASK_APP=app
+        flask command user 'Super Admin' superadmin superadmin@elocalhost --role=admin --region=main
+
     """
     if not db_session.execute(
         select(Users).filter(Users.username == username),

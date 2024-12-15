@@ -1,3 +1,2 @@
 [lint]
 select = ["ALL"]
-ignore = ["RUF001", "PLR2004"]

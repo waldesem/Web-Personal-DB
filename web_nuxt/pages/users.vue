@@ -79,7 +79,7 @@ async function userAction(
   if (!confirm("Подтвердите действие!")) {
     return;
   }
-  const { message } = (await fetchAuth("/route/users/" + id, {
+  const { message } = (await fetchAuth("/route/user/" + id, {
     params: {
       item: item,
     },
@@ -174,7 +174,7 @@ const items = [
 </script>
 
 <template>
-  <div>
+  <div class="mb-6">
     <ElementsHeaderDiv
       :div="'py-1'"
       :cls="'text-2xl text-gray-500'"
@@ -204,21 +204,22 @@ const items = [
       >
         <div class="flex grid grid-cols-7 gap-3 border rounded p-3">
           <div class="col-span-2">
-            <UFormGroup required class="mb-3" name="fullname">
+            <UFormGroup class="mb-3" name="fullname" required>
               <UInput
                 v-model="form['fullname']"
                 placeholder="Имя пользователя"
+                required
               />
             </UFormGroup>
           </div>
           <div class="col-span-2">
-            <UFormGroup required class="mb-3" name="username">
-              <UInput v-model="form['username']" placeholder="Логин" />
+            <UFormGroup class="mb-3" name="username">
+              <UInput v-model="form['username']" placeholder="Логин" required />
             </UFormGroup>
           </div>
           <div class="col-span-2">
-            <UFormGroup required class="mb-3" name="email">
-              <UInput v-model="form['email']" placeholder="Email" />
+            <UFormGroup class="mb-3" name="email">
+              <UInput v-model="form['email']" placeholder="Email" required />
             </UFormGroup>
           </div>
           <div class="col-span-1">

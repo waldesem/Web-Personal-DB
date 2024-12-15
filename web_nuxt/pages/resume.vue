@@ -31,7 +31,7 @@ async function submitResume(form: Persons) {
 </script>
 
 <template>
-  <div>
+  <div class="mb-6">
     <USkeleton v-if="upload" class="my-6 h-8 w-1/3" />
     <ElementsHeaderDiv v-else header="НОВАЯ АНКЕТА" />
     <ElementsSkeletonDiv v-if="upload" :rows="18" />
