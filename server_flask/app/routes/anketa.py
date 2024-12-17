@@ -48,7 +48,7 @@ def post_file(file_data: File) -> Response:
         return jsonify({"person_id": None})
 
     anketa = json_to_dict(file_data.file)
-    person_id = upload_resume(anketa.pop("resume")) if "resume" in anketa else None
+    person_id = upload_resume(anketa.pop("resume",  None))
     if not person_id:
         current_app.logger.warning("person_id is None")
         return jsonify({"person_id": person_id})
