@@ -30,8 +30,8 @@ def get_index(page: int, query_data: Search) -> Response:
     pagination = 11
     stmt = select(Persons, Users.fullname).filter(
         Persons.user_id == Users.id,
-        Persons.region == current_user.get("region")
-        if current_user.get("region") != Regions.main.value
+        Persons.region == current_user.region
+        if current_user.region != Regions.main.value
         else True,
     )
     if len(query_data.search) > 2:
@@ -74,7 +74,7 @@ def get_information(query_data: Info) -> Response:
             Checks.created.between(query_data.start, query_data.end),
             Persons.region == query_data.region
             if query_data.region
-            else current_user.get("region"),
+            else current_user.region,
         )
         .group_by(Checks.conclusion),
     ).all()

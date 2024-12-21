@@ -63,11 +63,12 @@ def post_file(file_data: File) -> Response:
         if contents:
             for content in contents:
                 content["person_id"] = person_id
-                content["user_id"] = current_user.get("id")
+                content["user_id"] = current_user.id
                 table = tablenames.get(tbl)
                 items.append(table(**content))
-    db_session.bulk_save_objects(items)
-    db_session.commit()
+    if items:
+        db_session.bulk_save_objects(items)
+        db_session.commit()
     return jsonify({"person_id": person_id}), 201
 
 
@@ -118,6 +119,6 @@ def change_self_id(person_id: int) -> Response:
     """
     person = db_session.get(Persons, person_id)
     person.editable = not person.editable
-    person.user_id = current_user.get("id")
+    person.user_id = current_user.id
     db_session.commit()
     return "", 200

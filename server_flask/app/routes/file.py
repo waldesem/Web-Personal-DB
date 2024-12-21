@@ -4,7 +4,7 @@ import subprocess
 from datetime import datetime
 from pathlib import Path
 
-from flask import Blueprint, Response, current_app, jsonify, request
+from flask import Blueprint, Response, current_app, jsonify
 from flask.views import MethodView
 
 from app.depends.depend import current_user, jwt_required, roles_required, validate
@@ -36,51 +36,51 @@ class FileView(MethodView):
             The HTTP status code is 200.
 
         """
-        destination = request.args.get("destination")
-        if not destination:
-            person = db_session.get(Persons, person_id)
-            destination = Path(
-                current_app.config["BASE_PATH"],
-                current_user.get("region"),
-                person.surname[0],
-                f"{person.id}-{person.surname} {person.firstname} "
-                f"{person.patronymic}".rstrip(),
+        person = db_session.get(Persons, person_id)
+        if not person.destination:
+            person.destination = str(
+                Path(
+                    current_app.config["BASE_PATH"],
+                    current_user.region,
+                    person.surname[0],
+                    f"{person.id}-{person.surname} {person.firstname} "
+                    f"{person.patronymic}".rstrip(),
+                ),
             )
-            person.destination = str(destination)
             db_session.commit()
         try:
-            subprocess.run(f'explorer "{destination}"', check=False)  # noqa: S603
+            Path(person.destination).mkdir(parents=True, exist_ok=True)
+            subprocess.run(f'explorer "{person.destination}"', check=False)  # noqa: S603
         except subprocess.CalledProcessError:
             current_app.logger.exception("Error opening folder")
         return "", 200
 
     @validate()
     @roles_required(Roles.user.value)
-    def post(self, item: str, file_data: list[File]) -> Response:
+    def post(self, item: str, person_id: int, file_data: list[File]) -> Response:
         """Upload a file to the server.
 
         Args:
             item (str): The name of the item.
+            person_id (int): The ID of the person.
             file_data (list[File]): The file data.
 
         Returns:
             The HTTP status code is 200.
 
         """
-        destination = request.args.get("destination")
+        destination = db_session.get(Persons, person_id).destination
         if not destination:
             return jsonify({"message": "error"}), 200
-        item_path = Path(destination, item)
-        Path.mkdir(item_path, exist_ok=True)
-        date_subfolder = Path(
-            item_path,
+        subfolder = Path(
+            Path(destination, item),
             datetime.now().strftime("%Y-%m-%d"),  # noqa: DTZ005
         )
-        Path.mkdir(date_subfolder, exist_ok=True)
+        Path(subfolder).mkdir(parents=True, exist_ok=True)
         for files in file_data:
             if not files:
                 continue
-            file_path = Path(date_subfolder, files.filename)
+            file_path = Path(subfolder, files.filename)
             if not file_path.is_file():
                 files.file.save(file_path)
         return jsonify({"message": "success"}), 201
@@ -88,4 +88,4 @@ class FileView(MethodView):
 
 file_view = FileView.as_view("file_view")
 bp.add_url_rule("/<int:person_id>", view_func=file_view, methods=["GET"])
-bp.add_url_rule("/<item>", view_func=file_view, methods=["POST"])
+bp.add_url_rule("/<item>/<int:person_id>", view_func=file_view, methods=["POST"])

@@ -46,7 +46,7 @@ class PersonView(MethodView):
 
         """
         json_dict = json_data.dict()
-        json_dict["user_id"] = current_user.get("id")
+        json_dict["user_id"] = current_user.id
         person = db_session.get(Persons, item_id)
         for key, value in json_dict.items():
             setattr(person, key, value)

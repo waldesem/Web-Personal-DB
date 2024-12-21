@@ -47,7 +47,7 @@ class PoligrafView(MethodView):
         """
         json_dict = json_data.dict()
         json_dict["person_id"] = item_id
-        json_dict["user_id"] = current_user.get("id")
+        json_dict["user_id"] = current_user.id
         item_id = json_dict.pop("id", None)
         if item_id:
             item = db_session.get(Poligrafs, item_id)

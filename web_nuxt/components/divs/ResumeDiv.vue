@@ -60,10 +60,7 @@ async function changeRegion(): Promise<void> {
 
 async function openFolder() {
   opening.value = true;
-  await authFetch(`/route/file/` + props.candId, {
-    params: {
-      destination: props.person.destination,
-    }});
+  await authFetch(`/route/file/` + props.candId);
   opening.value = false;
 }
 
@@ -183,7 +180,6 @@ async function cancelAction() {
     <template v-if="props.editable && !edit" #footer>
       <ElementsNaviHorizont
         :cand-id="props.candId"
-        :destination="props.person.destination"
         item="persons"
         @delete="deleteItem"
         @update="edit = true"

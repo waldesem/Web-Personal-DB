@@ -344,11 +344,19 @@ class AnketaSchemaJson(BaseModel):
     contact_phone: str = Field(default="", alias="contactPhone")
     education: list[EducationJson] = []
     experience: list[ExperienceJson] = []
-    name_was_changed: list[NameWasChangedJson] = []
+    name_was_changed: list[NameWasChangedJson] = Field(
+        default=[], alias="nameWasChanged",
+    )
     organizations: list[OrganizationsJson] = []
-    related_organizations: list[RelatedPersonsOrganizationsJson] = []
-    state_organizations: list[StateOrganizationsJson] = []
-    public_organizations: list[PublicOfficeOrganizationsJson] = []
+    related_organizations: list[RelatedPersonsOrganizationsJson] = Field(
+        default=[], alias="relatedPersonsOrganizations",
+    )
+    state_organizations: list[StateOrganizationsJson] = Field(
+        default=[], alias="stateOrganizations",
+    )
+    public_organizations: list[PublicOfficeOrganizationsJson] = Field(
+        default=[], alias="publicOfficeOrganizations",
+    )
 
     @validator("last_name", "first_name", "mid_name")
     @classmethod
@@ -395,9 +403,6 @@ class File(BaseModel):
             and filename.split(".")[0].upper() in windows_device_files
         ):
             filename = f"_{filename}"
-        if (
-            filename
-            and filename.split(".")[-1].lower() in windows_executable_files
-        ):
+        if filename and filename.split(".")[-1].lower() in windows_executable_files:
             filename = f"{filename}_dangerous_extension"
         return filename

@@ -110,7 +110,9 @@ function emitMessage(message: string) {
         variant="ghost"
         @click="switchSelf"
       >
+        <USkeleton v-if="status === 'pending'" class="my-6 h-8 w-1/3" />
         <ElementsHeaderDiv
+          v-else
           :header="`${person['surname']} ${person['firstname']} ${
             person['patronymic'] ? person['patronymic'] : ''
           }`"
@@ -142,7 +144,6 @@ function emitMessage(message: string) {
       <template #checkTab>
         <TabsCheckTab
           :cand-id="candId"
-          :destination="person.destination"
           :editable="editState"
           @message="emitMessage"
         />
@@ -150,7 +151,6 @@ function emitMessage(message: string) {
       <template #poligrafTab>
         <TabsPoligrafTab
           :cand-id="candId"
-          :destination="person.destination"
           :editable="editState"
           @message="emitMessage"
         />
@@ -158,7 +158,6 @@ function emitMessage(message: string) {
       <template #investigateTab>
         <TabsInvestigateTab
           :cand-id="candId"
-          :destination="person.destination"
           :editable="editState"
           @message="emitMessage"
         />
@@ -166,7 +165,6 @@ function emitMessage(message: string) {
       <template #inquiryTab>
         <TabsInquiryTab
           :cand-id="candId"
-          :destination="person.destination"
           :editable="editState"
           @message="emitMessage"
         />

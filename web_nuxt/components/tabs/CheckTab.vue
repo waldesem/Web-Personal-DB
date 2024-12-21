@@ -12,10 +12,6 @@ const props = defineProps({
     type: String,
     default: "",
   },
-  destination: {
-    type: String,
-    default: "",
-  },
   editable: {
     type: Boolean,
     default: false,
@@ -189,7 +185,6 @@ function closeAction() {
         >
           <ElementsNaviHorizont
             :cand-id="props.candId"
-            :destination="props.destination"
             :item="'checks'"
             @update="
               check = item;

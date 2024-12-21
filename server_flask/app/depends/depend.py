@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 from functools import lru_cache, wraps
+from types import GenericAlias
 from typing import Callable
 
 import jwt
@@ -14,34 +15,11 @@ from werkzeug.local import LocalProxy
 from app.model.models import File
 from app.model.tables import Users, db_session
 
-current_user = LocalProxy(lambda: get_current_user(g.user_id))
-
-
-def get_payload(header: str | None) -> int | None:
-    """Validate a JWT token and returns the user ID.
-
-    Args:
-        header (str): The JWT token to validate.
-
-    Returns:
-        int or None: The user ID if the token is valid, None if not.
-
-    """
-    if header and header.startswith("Bearer "):
-        try:
-            return jwt.decode(
-                header[7:],
-                current_app.config["JWT_SECRET_KEY"],
-                algorithms=["HS256"],
-            )["id"]
-        except jwt.exceptions.PyJWTError:
-            current_app.logger.info("Invalid token")
-            return None
-    return None
+current_user: Users = LocalProxy(lambda: get_current_user(g.user_id))
 
 
 @lru_cache(maxsize=2)
-def get_current_user(user_id: int) -> dict:
+def get_current_user(user_id: int) -> Users | None:
     """Retrieve the current user stored in the global variable 'g.user_id'.
 
     Args:
@@ -61,8 +39,8 @@ def get_current_user(user_id: int) -> dict:
         and not user.change_pswd
         and user.pswd_create + timedelta(days=365) > datetime.now()  # noqa: DTZ005
     ):
-        return user.to_dict()
-    return {}
+        return user
+    return None
 
 
 def create_token(user: Users) -> str:
@@ -109,7 +87,11 @@ def jwt_required() -> Callable:
         @wraps(func)
         def wrapper(*args: tuple, **kwargs: dict) -> Callable:
             header = request.headers.get("Authorization")
-            user_id = get_payload(header)
+            user_id = jwt.decode(
+                header[7:],
+                current_app.config["JWT_SECRET_KEY"],
+                algorithms=["HS256"],
+            ).get("id")
             if user_id:
                 g.user_id = user_id
                 return func(*args, **kwargs)
@@ -139,7 +121,7 @@ def roles_required(*roles: list[str]) -> Callable:
         @jwt_required()
         @wraps(func)
         def wrapper(*args: tuple, **kwargs: dict) -> Callable:
-            if current_user.get("role") in roles:
+            if current_user and current_user.role in roles:
                 return func(*args, **kwargs)
             return abort(403)
 
@@ -200,8 +182,7 @@ def validate() -> Callable:
 
             file_model = func.__annotations__.get("file_data")
             if file_model:
-                try:
-                    iter(file_model)
+                if isinstance(file_model, GenericAlias):
                     file_data = request.files.getlist("file")
                     kwargs["file_data"] = [
                         validate_data(
@@ -213,7 +194,7 @@ def validate() -> Callable:
                         )
                         for file in file_data
                     ]
-                except TypeError:
+                else:
                     file_data = request.files.get("file")
                     kwargs["file_data"] = validate_data(
                         {

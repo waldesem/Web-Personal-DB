@@ -26,8 +26,8 @@ def upload_resume(resume: dict) -> int:
     if not re.match(r"[А-ЯЁЙ]", resume["surname"][0]):
         return None
     resume["editable"] = True
-    resume["user_id"] = current_user.get("id")
-    resume["region"] = current_user.get("region")
+    resume["user_id"] = current_user.id
+    resume["region"] = current_user.region
     person = db_session.execute(
         select(Persons).where(
             Persons.surname == resume["surname"],

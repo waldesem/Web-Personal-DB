@@ -96,7 +96,7 @@ def get_user_actions(user_id: int, query_data: UserActions) -> Response:
         The HTTP status code is 201.
 
     """
-    if current_user.get("id") == user_id:
+    if current_user.id == user_id:
         return jsonify({"message": "error"}), 200
     user = db_session.get(Users, user_id)
     if user and query_data.item:

@@ -16,10 +16,6 @@ const props = defineProps({
     type: String,
     default: "",
   },
-  destination: {
-    type: String,
-    default: "",
-  },
   inputId: {
     type: String,
     default: "",
@@ -49,10 +45,7 @@ onChange(async (files) => {
       }
       formData.append("file", file);
     }
-    const { message } = await authFetch(`/route/file/${props.item}`, {
-      params: {
-        destination: props.destination,
-      },
+    const { message } = await authFetch(`/route/file/${props.item}/${props.candId}`, {
       method: "POST",
       body: formData,
     }) as Record<string, string>;
