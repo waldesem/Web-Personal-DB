@@ -18,7 +18,7 @@ const schema = z.object({
 
 type Login = z.infer<typeof schema>;
 
-const loginAction = ref("create");
+const loginAction = ref("login");
 const loginForm = ref({} as Login);
 
 const alert = ref({
@@ -52,7 +52,7 @@ const validate = (state: Login) => {
  */
 async function submitLogin(): Promise<void> {
   const { message, access_token } = (await $fetch(
-    "/route/login/" + loginAction.value,
+    "/route/auth/" + loginAction.value,
     {
       method: "POST",
       body: loginForm.value,
@@ -62,7 +62,7 @@ async function submitLogin(): Promise<void> {
     accessToken.value = access_token;
     await navigateTo("/persons");
   } else if (message === "Updated") {
-    loginAction.value = "create";
+    loginAction.value = "login";
     Object.assign(alert.value, {
       color: "blue",
       title: "Информация",
@@ -104,7 +104,7 @@ async function submitLogin(): Promise<void> {
           :div="'mb-1'"
           :cls="'text-xl text-red-800'"
           :header="
-            loginAction === 'create' ? 'Вход в систему' : 'Обновление пароля'
+            loginAction === 'login' ? 'Вход в систему' : 'Обновление пароля'
           "
         />
         <UForm
@@ -175,7 +175,7 @@ async function submitLogin(): Promise<void> {
               />
             </UFormGroup>
           </div>
-          <UButtonGroup class="mt-3" size="md" orientation="horizontal">
+          <UButtonGroup class="mt-3">
             <UButton
               label="Принять"
               color="green"
@@ -183,7 +183,7 @@ async function submitLogin(): Promise<void> {
               type="submit"
             />
             <UButton
-              v-show="loginAction === 'create'"
+              v-show="loginAction === 'login'"
               label="Изменить"
               color="blue"
               variant="outline"
@@ -193,7 +193,7 @@ async function submitLogin(): Promise<void> {
               label="Отмена"
               color="red"
               variant="outline"
-              @click="loginAction = 'create'"
+              @click="loginAction = 'login'"
             />
           </UButtonGroup>
         </UForm>

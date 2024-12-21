@@ -116,15 +116,13 @@ function closeAction() {
           v-if="props.editable && (!edit || itemId != item['id'].toString())"
           #footer
         >
-          <ElementsNaviHorizont
-            :nav-items="3"
+          <ElementsNavSimpHoriz
             @delete="deleteEducation(item['id'])"
             @update="
               education = item;
               itemId = item['id'].toString();
               edit = true;
             "
-            @upgrade="refresh()"
           />
         </template>
       </ElementsCardDiv>

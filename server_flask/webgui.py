@@ -46,8 +46,8 @@ def start_browser(address: str, port: int) -> None:
         "linux": find_browser_on_linux,
     }
     browser_path = browser_path_dispacher.get(platform.system().lower())
-    if not browser_path:
-        browser_process = subprocess.Popen(  # noqa: S603
+    if browser_path:
+        subprocess.Popen(  # noqa: S603
             [
                 browser_path(),
                 f"--app=http://{address}:{port}",
@@ -55,12 +55,9 @@ def start_browser(address: str, port: int) -> None:
                 "--new-window",
                 "--no-default-browser-check",
                 "--no-first-run",
-                "--disable-sync",
-                "--disable-extensions",
                 "--window-size=1280,960",
             ],
-        )
-        browser_process.wait()
+        ).wait()
 
     shutil.rmtree(profile_dir, ignore_errors=True)
     for conn in psutil.net_connections():

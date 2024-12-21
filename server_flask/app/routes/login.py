@@ -1,16 +1,17 @@
 """Login routes."""
 
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
+import jwt
 from flask import Blueprint, Response, current_app, jsonify
 from sqlalchemy import func, select
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from app.depends.depend import create_token, validate
+from app.depends.depend import validate
 from app.model.models import Login
 from app.model.tables import Users, db_session
 
-bp = Blueprint("login", __name__, url_prefix="/login")
+bp = Blueprint("auth", __name__, url_prefix="/auth")
 
 DELTA_CHANGE_DAYS = 365
 ATTEMPT_LIMIT = 5
@@ -30,7 +31,7 @@ def post_login(action: str, json_data: Login) -> Response:
 
     """
     user = db_session.execute(
-        select(Users).filter(func.lower(Users.username) == json_data.username.lower()),
+        select(Users).filter(func.lower(Users.username) == json_data.username),
     ).scalar_one_or_none()
     if not user or user.blocked or user.deleted:
         return jsonify({"message": "Invalid"})
@@ -54,15 +55,23 @@ def post_login(action: str, json_data: Login) -> Response:
     if not user.change_pswd and delta_change.days < DELTA_CHANGE_DAYS:
         user.attempt = 0
         db_session.commit()
-        try:
-            token = create_token(user)
-            if token:
-                return jsonify(
+        return jsonify(
+            {
+                "message": "Success",
+                "access_token": "Bearer "
+                + jwt.encode(
                     {
-                        "message": "Success",
-                        "access_token": token,
+                        "id": user.id,
+                        "fullname": user.fullname,
+                        "username": user.username,
+                        "email": user.email,
+                        "region": user.region,
+                        "role": user.role,
+                        "exp": datetime.now(tz=timezone.utc) + timedelta(hours=12),
                     },
-                )
-        except Exception:
-            current_app.logger.exception("Error creating token")
+                    current_app.config["JWT_SECRET_KEY"],
+                    algorithm="HS256",
+                ),
+            },
+        )
     return jsonify({"message": "Denied"})

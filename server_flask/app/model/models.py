@@ -21,6 +21,12 @@ class Login(BaseModel):
     password: str
     new_pswd: str | None
 
+    @validator("username")
+    @classmethod
+    def new_pswd_check(cls, v: str) -> str:
+        """Check username for valid chars."""
+        return v.lower()
+
 
 class Search(BaseModel):
     """Pydantic model for search form."""

@@ -34,9 +34,11 @@ async function submitResume(form: Persons) {
   <div class="mb-6">
     <USkeleton v-if="upload" class="my-6 h-8 w-1/3" />
     <ElementsHeaderDiv v-else header="НОВАЯ АНКЕТА" />
-    <ElementsSkeletonDiv v-if="upload" :rows="18" />
-    <ElementsCardDiv v-else>
-      <FormsResumeForm @cancel="navigateToPersons" @update="submitResume" />
-    </ElementsCardDiv>
+    <div class="my-6">
+      <ElementsSkeletonDiv v-if="upload" :rows="18" />
+      <ElementsCardDiv v-else>
+        <FormsResumeForm @cancel="navigateToPersons" @update="submitResume" />
+      </ElementsCardDiv>
+    </div>
   </div>
 </template>

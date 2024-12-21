@@ -4,23 +4,15 @@ const props = defineProps({
     type: String,
     default: "",
   },
-  labelClass: {
-    type: String,
-    default: "col-span-1",
-  },
-  inputClass: {
-    type: String,
-    default: "col-span-5 break-words",
-  },
 });
 </script>
 
 <template>
-  <div class="flex grid grid-cols-6 gap-3 mb-3">
-    <div :class="props.labelClass">
+  <div class="flex grid grid-cols-12 gap-3 mb-3">
+    <div class="col-span-3 font-medium">
       {{ props.label }}
     </div>
-    <div :class="props.inputClass">
+    <div class="col-span-6 break-words">
       <slot />
     </div>
   </div>

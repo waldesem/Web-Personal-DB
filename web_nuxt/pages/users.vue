@@ -176,7 +176,6 @@ const items = [
 <template>
   <div class="mb-6">
     <ElementsHeaderDiv
-      :div="'py-1'"
       :cls="'text-2xl text-gray-500'"
       :header="'ПОЛЬЗОВАТЕЛИ'"
     />

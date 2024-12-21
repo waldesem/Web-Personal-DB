@@ -29,10 +29,9 @@ const { status } = await useLazyAsyncData(
 <template>
   <div class="mb-6">
     <ElementsHeaderDiv
-      :div="'py-1'"
       :header="`Информация по региону ${region} за период с ${start} г. по ${end} г.`"
     />
-    <div class="my-8">
+    <div class="my-6">
       <UTable
         :loading="status == 'pending'"
         :progress="{ color: 'red', animation: 'swing' }"

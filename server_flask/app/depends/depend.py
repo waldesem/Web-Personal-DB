@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from functools import lru_cache, wraps
 from types import GenericAlias
 from typing import Callable
@@ -43,31 +43,6 @@ def get_current_user(user_id: int) -> Users | None:
     return None
 
 
-def create_token(user: Users) -> str:
-    """Create a JWT token containing the user's information.
-
-    Args:
-        user (Users): The user object.
-
-    Returns:
-        str: The JWT token.
-
-    """
-    return "Bearer " + jwt.encode(
-        {
-            "id": user.id,
-            "fullname": user.fullname,
-            "username": user.username,
-            "email": user.email,
-            "region": user.region,
-            "role": user.role,
-            "exp": datetime.now(tz=timezone.utc) + timedelta(hours=12),
-        },
-        current_app.config["JWT_SECRET_KEY"],
-        algorithm="HS256",
-    )
-
-
 def jwt_required() -> Callable:
     """Decorate a function that checks if the request contains a valid JWT token.
 
@@ -87,14 +62,17 @@ def jwt_required() -> Callable:
         @wraps(func)
         def wrapper(*args: tuple, **kwargs: dict) -> Callable:
             header = request.headers.get("Authorization")
-            user_id = jwt.decode(
-                header[7:],
-                current_app.config["JWT_SECRET_KEY"],
-                algorithms=["HS256"],
-            ).get("id")
-            if user_id:
-                g.user_id = user_id
-                return func(*args, **kwargs)
+            try:
+                user_id = jwt.decode(
+                    header[7:],
+                    current_app.config["JWT_SECRET_KEY"],
+                    algorithms=["HS256"],
+                ).get("id")
+                if user_id:
+                    g.user_id = user_id
+                    return func(*args, **kwargs)
+            except jwt.exceptions.PyJWTError:
+                current_app.logger.exception("Error decoding token")
             return abort(401)
 
         return wrapper

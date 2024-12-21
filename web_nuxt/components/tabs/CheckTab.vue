@@ -192,7 +192,6 @@ function closeAction() {
               edit = true;
             "
             @delete="deleteCheck(item['id'])"
-            @upgrade="refresh()"
           />
         </template>
       </ElementsCardDiv>

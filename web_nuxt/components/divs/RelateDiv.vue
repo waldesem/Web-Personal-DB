@@ -93,10 +93,9 @@ function closeAction() {
           </NuxtLink>
         </ElementsLabelSlot>
         <template v-if="props.editable" #footer>
-          <ElementsNaviHorizont
-            :nav-items="2"
+          <ElementsNavSimpHoriz
+            :is-changed="false"
             @delete="deleteRelation(item['right_id'].toString())"
-            @upgrade="refresh()"
           />
         </template>
       </ElementsCardDiv>
