@@ -66,8 +66,8 @@ def upload_resume(resume: dict) -> int:
     if person.editable or resume["region"] != person.region:
         return None
 
-    resume["id"] = person.id
-    db_session.merge(Persons(**resume))
+    for k, v in resume.items():
+        setattr(person, k, v)
     db_session.commit()
     return person.id
 
