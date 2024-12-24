@@ -1,15 +1,17 @@
 """Anketa routes."""
 
+import json
 import shutil
 from pathlib import Path
 
 from flask import Blueprint, Response, current_app, jsonify
+from pydantic import ValidationError
 
 from app.depends.depend import current_user, roles_required, validate
 from app.model.classes import Roles
-from app.model.models import File, Person, Region
-from app.model.tables import Base, Persons, db_session
-from app.utils.utils import json_to_dict, upload_resume
+from app.model.models import AnketaSchemaJson, File, Person, Region
+from app.model.tables import Persons, db_session
+from app.utils.utils import get_anketa_items, upload_resume
 
 bp = Blueprint("anketa", __name__, url_prefix="/anketa")
 
@@ -45,31 +47,37 @@ def post_file(file_data: File) -> Response:
 
     """
     if not file_data.filename.endswith(".json"):
+        current_app.logger.warning("The file does not have a .json file extension")
         return jsonify({"person_id": None})
 
-    anketa = json_to_dict(file_data.file)
-    person_id = upload_resume(anketa.pop("resume",  None))
-    if not person_id:
-        current_app.logger.warning("person_id is None")
-        return jsonify({"person_id": person_id})
+    json_data = json.load(file_data.file)
+    try:
+        anketa = AnketaSchemaJson(**json_data)
+        resume = {
+            "surname": anketa.last_name,
+            "firstname": anketa.first_name,
+            "patronymic": anketa.mid_name,
+            "birthday": anketa.birthday,
+            "birthplace": anketa.birthplace,
+            "citizenship": anketa.citizen,
+            "dual": anketa.additional,
+            "marital": anketa.marital_status,
+            "inn": anketa.inn,
+            "snils": anketa.snils,
+        }
+        person_id = upload_resume(resume)
+        if not person_id:
+            current_app.logger.warning("person_id is None")
+            return jsonify({"person_id": person_id})
 
-    tablenames = {
-        cls.__tablename__: cls
-        for cls in Base.__subclasses__()
-        if hasattr(cls, "__tablename__")
-    }
-    items = []
-    for tbl, contents in anketa.items():
-        if contents:
-            for content in contents:
-                content["person_id"] = person_id
-                content["user_id"] = current_user.id
-                table = tablenames.get(tbl)
-                items.append(table(**content))
-    if items:
-        db_session.bulk_save_objects(items)
-        db_session.commit()
-    return jsonify({"person_id": person_id}), 201
+        items = get_anketa_items(anketa, person_id)
+        if items:
+            db_session.add_all(items)
+            db_session.commit()
+        return jsonify({"person_id": person_id}), 201
+    except ValidationError:
+        current_app.logger.exception("Validation error")
+        return jsonify({"person_id": None}), 200
 
 
 @bp.get("/region/<int:person_id>")
