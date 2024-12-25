@@ -112,7 +112,6 @@ async function cancelAction() {
         <ElementsLabelSlot :label="'Регион'">
           <USelect
             v-model="region"
-            style="width: 20%"
             :options="[
               'Главный офис',
               'РЦ Юг',
