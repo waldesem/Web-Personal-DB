@@ -2,7 +2,6 @@
 import type { Persons } from "@/types";
 
 await preloadComponents([
-  "DivsPhotoCard",
   "TabsAnketaTab",
   "TabsCheckTab",
   "TabsPoligrafTab",
@@ -18,7 +17,6 @@ const route = useRoute();
 const candId = computed(() => route.params.id) as Ref<string>;
 
 const person = ref({} as Persons);
-
 const pending = ref(false);
 
 const { refresh, status } = await useLazyAsyncData("anketa", async () => {
@@ -99,35 +97,25 @@ function emitMessage(message: string) {
 <template>
   <div class="mb-6">
     <div class="mb-3">
+      <USkeleton v-if="status === 'pending'" class="my-6 h-8 w-1/3" />
+      <ElementsHeaderDiv
+        v-else
+        :header="`${person['surname']} ${person['firstname']} ${
+            person['patronymic'] ? person['patronymic'] : ''
+          }`"
+      />
       <UButton
         :disabled="pending"
         :loading="pending || status === 'pending'"
-        :title="
-          person.user_id != stateUser.id
-            ? 'Назначить анкету на себя'
-            : 'Переключить режим редактирования'
-        "
-        variant="ghost"
         @click="switchSelf"
-      >
-        <USkeleton v-if="status === 'pending'" class="my-6 h-8 w-1/3" />
-        <ElementsHeaderDiv
-          v-else
-          :header="`${person['surname']} ${person['firstname']} ${
-            person['patronymic'] ? person['patronymic'] : ''
-          }`"
-        />
-        <UBadge
-          v-if="person.editable"
-          :color="person.user_id != stateUser.id ? 'red' : 'green'"
-          class="animate-pulse"
+        size="md"
+        :color="!person.editable" ? 'blue' : person.user_id != stateUser.id ? 'red' : 'green'"
         >
           {{
-            person.user_id != stateUser.id
+            !person.editable ? "Анкета доступна для редактирования" : person.user_id != stateUser.id
               ? "Анкета редактируется другим пользователем"
               : "Анкета редактируется"
           }}
-        </UBadge>
       </UButton>
     </div>
     <UTabs :items="tabs">
