@@ -38,8 +38,7 @@ class FileView(MethodView):
         """
         person = db_session.get(Persons, person_id)
         if not person.destination:
-            person.destination = str(
-                Path(
+            destination = Path(
                     current_app.config["BASE_PATH"],
                     current_user.region,
                     person.surname[0],
@@ -47,9 +46,10 @@ class FileView(MethodView):
                     f"{person.patronymic}".rstrip(),
                 ),
             )
+            destination.mkdir(exist_ok=True)
+            person.destination = str(destination)
             db_session.commit()
         try:
-            Path(person.destination).mkdir(parents=True, exist_ok=True)
             subprocess.run(f'explorer "{person.destination}"', check=False)  # noqa: S603
         except subprocess.CalledProcessError:
             current_app.logger.exception("Error opening folder")
@@ -73,10 +73,10 @@ class FileView(MethodView):
         if not destination:
             return jsonify({"message": "error"}), 200
         subfolder = Path(
-            Path(destination, item),
+            destination, item,
             datetime.now().strftime("%Y-%m-%d"),  # noqa: DTZ005
         )
-        Path(subfolder).mkdir(parents=True, exist_ok=True)
+        subfolder.mkdir(parents=True, exist_ok=True)
         for files in file_data:
             if not files:
                 continue
