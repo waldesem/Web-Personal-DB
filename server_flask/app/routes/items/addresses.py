@@ -48,14 +48,7 @@ class AddressView(MethodView):
         json_dict = json_data.dict()
         json_dict["person_id"] = item_id
         json_dict["user_id"] = current_user.id
-        item_id = json_dict.pop("id", None)
-        if item_id:
-            item = db_session.get(Addresses, item_id)
-            for key, value in json_dict.items():
-                setattr(item, key, value)
-        else:
-            table = Addresses(**json_dict)
-            db_session.add(table)
+        db_session.merge(Addresses(**json_dict))
         db_session.commit()
         return jsonify({"message": "success"}), 201
 
@@ -68,7 +61,7 @@ class AddressView(MethodView):
 
         Returns:
             Tuple[str, int]: A tuple containing an empty string and an HTTP status
-            code of 204.
+            code of 201.
 
         """
         table = db_session.get(Addresses, item_id)
