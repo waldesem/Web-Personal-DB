@@ -81,8 +81,8 @@ def create_folders() -> None:
     """
     for region in Regions:
         region_path = Path(current_app.config["BASE_PATH"], region.value)
-        Path.mkdir(region_path, exist_ok=True)
+        region_path.mkdir(exist_ok=True)
         for letter in "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЫЭЮЯ":
             letter_path = Path(region_path, letter)
-            Path.mkdir(letter_path, exist_ok=True)
+            letter_path.mkdir(exist_ok=True)
     click.echo("Folders created")
