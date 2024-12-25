@@ -57,8 +57,7 @@ def upload_resume(resume: dict) -> int:
             f"{person.id}-{person.surname} {person.firstname} "
             f"{person.patronymic}".rstrip(),
         )
-        if not Path.exists(destination):
-            Path.mkdir(destination)
+        destination.mkdir(exist_ok=True)
         person.destination = str(destination)
         db_session.commit()
         return person.id
