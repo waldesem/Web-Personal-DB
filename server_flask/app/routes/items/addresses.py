@@ -28,7 +28,7 @@ class AddressView(MethodView):
 
         """
         stmt = select(Addresses).filter(Addresses.person_id == item_id)
-        query = db_session.execute(stmt.order_by(desc(Addresses.id))).scalars()
+        query = db_session.execute(stmt).scalars()
         return jsonify([row.to_dict() for row in query]), 200
 
     @validate()
