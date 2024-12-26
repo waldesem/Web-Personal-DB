@@ -46,9 +46,8 @@ class AddressView(MethodView):
 
         """
         json_dict = json_data.dict()
-        db_session.merge(
-            Addresses(**json_dict, person_id=item_id, user_id=current_user.id),
-        )
+        item = Addresses(**json_dict, person_id=item_id, user_id=current_user.id)
+        db_session.merge(item)
         db_session.commit()
         return jsonify({"message": "success"}),["person_id"] = item_id 201
 
@@ -64,12 +63,8 @@ class AddressView(MethodView):
             code of 201.
 
         """
-        stmt = text(
-            "DELETE FROM addresses WHERE person_id = :item_id",
-        )
-        table = db_session.execute(
-          stmt, {"item_id": item_id},
-        )
+        stmt = text("DELETE FROM addresses WHERE person_id = :item_id")
+        db_session.execute(stmt, {"item_id": item_id})
         db_session.commit()
         return jsonify({"message": "success"}), 201
 
