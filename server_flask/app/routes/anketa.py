@@ -125,8 +125,12 @@ def change_self_id(person_id: int) -> Response:
         The HTTP status code is 200.
 
     """
-    person = db_session.get(Persons, person_id)
-    person.editable = not person.editable
-    person.user_id = current_user.id
+    db_session.execute(text(
+        "UPDATE persons SET editable = NOT editable, user_id = :user_id WHERE person_id = :person_id",
+        {
+            "user_id": current_user.id,
+            "person_id": person_id,
+        },
+    )
     db_session.commit()
     return "", 200
