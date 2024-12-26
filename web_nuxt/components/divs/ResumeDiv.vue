@@ -58,12 +58,6 @@ async function changeRegion(): Promise<void> {
   }
 }
 
-async function openFolder() {
-  opening.value = true;
-  await authFetch(`/route/file/` + props.candId);
-  opening.value = false;
-}
-
 async function submitResume(form: Persons) {
   pending.value = true;
   edit.value = false;
@@ -167,12 +161,7 @@ async function cancelAction() {
           {{ props.person["addition"] }}
         </ElementsLabelSlot>
         <ElementsLabelSlot :label="'Материалы'">
-          <UButton
-            :loading="opening"
-            label="Открыть"
-            variant="link"
-            @click="openFolder"
-          />
+            {{ props.person["destination"] }}
         </ElementsLabelSlot>
       </div>
     </div>
