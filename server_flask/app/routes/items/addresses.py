@@ -2,7 +2,7 @@
 
 from flask import Blueprint, Response, jsonify
 from flask.views import MethodView
-from sqlalchemy import desc, select
+from sqlalchemy import select, text
 
 from app.depends.depend import current_user, jwt_required, roles_required, validate
 from app.model.classes import Roles
@@ -27,7 +27,7 @@ class AddressView(MethodView):
             the retrieved item(s) and an HTTP status code of 200.
 
         """
-        stmt = select(Addresses).filter(Addresses.person_id == item_id)
+        stmt = select(Addresses).filter_by(person_id=item_id)
         query = db_session.execute(stmt).scalars()
         return jsonify([row.to_dict() for row in query]), 200
 
@@ -64,8 +64,12 @@ class AddressView(MethodView):
             code of 201.
 
         """
-        table = db_session.get(Addresses, item_id)
-        db_session.delete(table)
+        stmt = text(
+            "DELETE FROM addresses WHERE person_id = :item_id",
+        )
+        table = db_session.execute(
+          stmt, {"item_id": item_id},
+        )
         db_session.commit()
         return jsonify({"message": "success"}), 201
 
