@@ -1,11 +1,9 @@
 """File routes."""
 
-import subprocess
 from datetime import datetime
 from pathlib import Path
 
 from flask import Blueprint, Response, current_app, jsonify
-from flask.views import MethodView
 
 from app.depends.depend import current_user, jwt_required, roles_required, validate
 from app.model.classes import Roles
@@ -15,22 +13,16 @@ from app.model.tables import Persons, db_session
 bp = Blueprint("file", __name__, url_prefix="/file")
 
 
-class FileView(MethodView):
-    """View for handling file uploads.
-
-    Methods:
-        get: Retrieve a file from the server.
-        post: Upload a file to the server.
-
-    """
-
-    @validate()
-    @jwt_required()
-    def get(self, person_id: int) -> Response:
-        """Retrieve a file from the server.
+@@bp.post("/<item>/<int:person_id>")
+@validate()
+@roles_required(Roles.user.value)
+def post(item: str, person_id: int, file_data: list[File]) -> Response:
+    """Upload a file to the server.
 
         Args:
+            item (str): The name of the item.
             person_id (int): The ID of the person.
+            file_data (list[File]): The file data.
 
         Returns:
             The HTTP status code is 200.
@@ -48,32 +40,9 @@ class FileView(MethodView):
             )
             destination.mkdir(exist_ok=True)
             person.destination = str(destination)
-            db_session.commit()
-        try:
-            subprocess.run(f'explorer "{person.destination}"', check=False)  # noqa: S603
-        except subprocess.CalledProcessError:
-            current_app.logger.exception("Error opening folder")
-        return "", 200
-
-    @validate()
-    @roles_required(Roles.user.value)
-    def post(self, item: str, person_id: int, file_data: list[File]) -> Response:
-        """Upload a file to the server.
-
-        Args:
-            item (str): The name of the item.
-            person_id (int): The ID of the person.
-            file_data (list[File]): The file data.
-
-        Returns:
-            The HTTP status code is 200.
-
-        """
-        destination = db_session.get(Persons, person_id).destination
-        if not destination:
-            return jsonify({"message": "error"}), 200
+            db_session.commit():
         subfolder = Path(
-            destination, item,
+            person.destination, item,
             datetime.now().strftime("%Y-%m-%d"),  # noqa: DTZ005
         )
         subfolder.mkdir(parents=True, exist_ok=True)
@@ -84,8 +53,3 @@ class FileView(MethodView):
             if not file_path.is_file():
                 files.file.save(file_path)
         return jsonify({"message": "success"}), 201
-
-
-file_view = FileView.as_view("file_view")
-bp.add_url_rule("/<int:person_id>", view_func=file_view, methods=["GET"])
-bp.add_url_rule("/<item>/<int:person_id>", view_func=file_view, methods=["POST"])
