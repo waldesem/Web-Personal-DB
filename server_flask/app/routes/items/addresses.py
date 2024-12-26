@@ -46,11 +46,11 @@ class AddressView(MethodView):
 
         """
         json_dict = json_data.dict()
-        json_dict["person_id"] = item_id
-        json_dict["user_id"] = current_user.id
-        db_session.merge(Addresses(**json_dict))
+        db_session.merge(
+            Addresses(**json_dict, person_id=item_id, user_id=current_user.id),
+        )
         db_session.commit()
-        return jsonify({"message": "success"}), 201
+        return jsonify({"message": "success"}),["person_id"] = item_id 201
 
     @roles_required(Roles.user.value)
     def delete(self, item_id: int) -> Response:
