@@ -70,9 +70,12 @@ async function switchSelf(): Promise<void> {
     return;
   }
   pending.value = true;
-  await authFetch("/route/anketa/self/" + candId.value);
+  const { message } = await authFetch("/route/anketa/self/" + candId.value);
   pending.value = false;
-  await refresh();
+  emitMessage(message):
+  if (message == "success") {
+    person.value.editable = !person.value.editable;
+    person.value.user_id = stateUser.value.id;
 }
 
 function emitMessage(message: string) {
