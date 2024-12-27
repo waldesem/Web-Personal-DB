@@ -135,4 +135,4 @@ def change_self_id(person_id: int) -> Response:
         },
     )
     db_session.commit()
-    return "", 200
+    return jsonify({"message": "success"}), 201
