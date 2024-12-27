@@ -43,13 +43,16 @@ async function submitAddress(form: Address) {
   emit("message", message);
 }
 
-async function deleteAddress(id: string) {
+async function deleteAddress(id: string, idx: integer) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   const { message } = (await authFetch(`/route/items/addresses/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
-  await refresh();
+  // await refresh();
+  if (message) == "success" {
+    addresses.value.splice(idx, 1);
+  };
   emit("message", message);
 }
 
@@ -108,7 +111,7 @@ function closeAction() {
           #footer
         >
           <ElementsNavSimpHoriz
-            @delete="deleteAddress(item['id'])"
+            @delete="deleteAddress(item['id'], idx)"
             @update="
               address = item;
               itemId = item['id'].toString();
