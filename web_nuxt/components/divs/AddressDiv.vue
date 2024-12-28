@@ -80,7 +80,6 @@ function closeAction() {
     <div v-if="collapse" class="p-1">
       <ElementsCardDiv>
         <FormsAddressForm
-          :cand-id="props.candId"
           @cancel="cancelOperation"
           @update="submitAddress"
         />
@@ -93,7 +92,6 @@ function closeAction() {
       <ElementsCardDiv v-else>
         <FormsAddressForm
           v-if="edit && itemId == item['id'].toString()"
-          :cand-id="props.candId"
           :addrs="address"
           @cancel="cancelOperation"
           @update="submitAddress"
