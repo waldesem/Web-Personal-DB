@@ -33,24 +33,30 @@ const { refresh, status } = await useLazyAsyncData("relations", async () => {
 async function submitRelation(form: Relation) {
   closeAction();
   pending.value = true;
-  const { message } = (await authFetch(`/route/items/relations/${props.candId}`, {
-    method: "POST",
-    body: form,
-  })) as Record<string, string>;
+  const { message } = (await authFetch(
+    `/route/items/relations/${props.candId}`,
+    {
+      method: "POST",
+      body: form,
+    }
+  )) as Record<string, string>;
   pending.value = false;
   refresh();
   emit("message", message);
 }
 
-async function deleteRelation(id: string, idx: integer) {
-  closeAction();
+async function deleteRelation(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = (await authFetch(`/route/items/relations/${props.candId}/${id}`, {
-    method: "DELETE",
-  })) as Record<string, string>;
+  const { message } = (await authFetch(
+    `/route/items/relations/${props.candId}/${id}`,
+    {
+      method: "DELETE",
+    }
+  )) as Record<string, string>;
+  console.log(message);
   if (message == "success") {
-    relationships.value.splice(idx, 1);
-  };
+    relations.value.splice(idx, 1);
+  }
   emit("message", message);
 }
 
@@ -76,10 +82,7 @@ function closeAction() {
   <Transition name="slide-fade">
     <div v-if="collapse" class="py-3">
       <ElementsCardDiv>
-        <FormsRelationForm
-          @cancel="cancelOperation"
-          @update="submitRelation"
-        />
+        <FormsRelationForm @cancel="cancelOperation" @update="submitRelation" />
       </ElementsCardDiv>
     </div>
   </Transition>

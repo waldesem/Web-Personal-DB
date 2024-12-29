@@ -41,8 +41,7 @@ async function submitAffilation(form: Affilation) {
   emit("message", message);
 }
 
-async function deleteAffilation(id: string, idx: integer) {
-  closeAction();
+async function deleteAffilation(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   const { message } = (await authFetch(`/route/items/affilations/${id}`, {
     method: "DELETE",

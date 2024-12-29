@@ -70,12 +70,14 @@ async function switchSelf(): Promise<void> {
     return;
   }
   pending.value = true;
-  const { message } = await authFetch("/route/anketa/self/" + candId.value);
+  const { message } = (await authFetch(
+    "/route/anketa/self/" + candId.value
+  )) as Record<string, string>;
   pending.value = false;
   if (message == "success") {
     person.value.editable = !person.value.editable;
     person.value.user_id = stateUser.value.id;
-  }  
+  }
   emitMessage(message);
 }
 
@@ -100,7 +102,7 @@ function emitMessage(message: string) {
 
 <template>
   <div class="mb-6">
-    <div class="mb-3">
+    <div class="flex items-center justify-between mb-3">
       <USkeleton v-if="status === 'pending'" class="my-6 h-8 w-1/3" />
       <ElementsHeaderDiv
         v-else
@@ -118,7 +120,7 @@ function emitMessage(message: string) {
             ? 'red'
             : 'green'
         "
-        size="md"
+        size="sm"
         @click="switchSelf"
       >
         {{

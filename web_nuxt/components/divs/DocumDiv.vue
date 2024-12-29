@@ -43,8 +43,7 @@ async function submitDocument(form: Document) {
   emit("message", message);
 }
 
-async function deleteDocument(id: string, idx: integer) {
-  closeAction();
+async function deleteDocument(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   const { message } = (await authFetch(`/route/items/documents/${id}`, {
     method: "DELETE",

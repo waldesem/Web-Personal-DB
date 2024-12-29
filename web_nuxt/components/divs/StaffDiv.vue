@@ -41,8 +41,7 @@ async function submitStaff(form: Staff) {
   emit("message", message);
 }
 
-async function deleteStaff(id: string, idx: integer) {
-  closeAction();
+async function deleteStaff(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   const { message } = (await authFetch(`/route/items/staffs/${id}`, {
     method: "DELETE",

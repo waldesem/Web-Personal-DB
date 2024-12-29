@@ -43,8 +43,7 @@ async function submitCheck(form: Verification) {
   emit("message", message);
 }
 
-async function deleteCheck(id: string, idx: integer) {
-  closeAction();
+async function deleteCheck(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   const { message } = (await authFetch(`/route/items/checks/${id}`, {
     method: "DELETE",

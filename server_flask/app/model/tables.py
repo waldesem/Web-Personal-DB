@@ -114,7 +114,7 @@ class Persons(Base):
         secondary=association_table,
         primaryjoin=(association_table.c.left_id == id),
         secondaryjoin=(association_table.c.right_id == id),
-        backref="related",
+        back_populates="relationships",
     )
 
 
@@ -312,8 +312,8 @@ class Poligrafs(Base):
         default=func.now(),
         onupdate=func.now(),
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
 
 
 class Investigations(Base):
@@ -329,8 +329,8 @@ class Investigations(Base):
         default=func.now(),
         nullable=True,
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
 
 
 class Inquiries(Base):
@@ -347,9 +347,8 @@ class Inquiries(Base):
         default=func.now(),
         nullable=True,
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
 
 
 Base.metadata.create_all(bind=engine)
-tables = Base.metadata.tables

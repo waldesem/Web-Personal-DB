@@ -7,7 +7,7 @@ from sqlalchemy import text
 from app.depends.depend import jwt_required, roles_required, validate
 from app.model.classes import Roles
 from app.model.models import Person
-from app.model.tables import Persons, db_session, tables
+from app.model.tables import Persons, db_session
 
 bp = Blueprint("persons", __name__, url_prefix="/persons")
 
@@ -62,13 +62,25 @@ class PersonView(MethodView):
 
         Returns:
             Tuple[str, int]: A tuple containing an empty string and an HTTP status
-            code of 204.
+            code of 201.
 
         """
-        for model in tables:
-            if model not in ["users", "persons", "person_relationships"]:
-                stmt = text(f"DELETE FROM {model} WHERE person_id = :person_id")  # noqa: S608
-                db_session.execute(stmt, {"person_id": person_id})
+        for table in [
+            "previous",
+            "educations",
+            "addresses",
+            "affilations",
+            "staffs",
+            "workplaces",
+            "contacts",
+            "documents",
+            "checks",
+            "poligrafs",
+            "inquiries",
+            "investigations",
+        ]:
+            stmt = text(f"DELETE FROM {table} WHERE person_id = :person_id")  # noqa: S608
+            db_session.execute(stmt, {"person_id": person_id})
 
         stmt = text("DELETE FROM person_relationships WHERE left_id = :person_id")
         db_session.execute(stmt, {"person_id": person_id})
@@ -77,9 +89,9 @@ class PersonView(MethodView):
         db_session.execute(stmt, {"person_id": person_id})
 
         stmt = text("DELETE FROM persons WHERE id = :person_id")
-        db_session.execute(text(stmt), {"person_id": person_id})
+        db_session.execute(stmt, {"person_id": person_id})
         db_session.commit()
-        return jsonify({"message": "success"}), 204
+        return jsonify({"message": "success"}), 201
 
 
-bp.add_url_rule("/<int:person_id>", view_func = PersonView.as_view("person"))
+bp.add_url_rule("/<int:person_id>", view_func=PersonView.as_view("person"))

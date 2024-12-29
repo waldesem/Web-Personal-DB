@@ -49,8 +49,7 @@ async function submitInvestigations(form: Inquisition) {
   emit("message", message);
 }
 
-async function deleteInquisition(id: string) {
-  closeAction();
+async function deleteInquisition(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   const { message } = (await authFetch(`/route/items/investigations/${id}`, {
     method: "DELETE",
@@ -136,7 +135,7 @@ function closeAction() {
               itemId = item['id'].toString();
               edit = true;
             "
-            @delete="deleteInquisition(item['id'])"
+            @delete="deleteInquisition(item['id'], index)"
           />
         </template>
       </ElementsCardDiv>

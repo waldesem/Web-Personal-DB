@@ -63,10 +63,10 @@ class AddressView(MethodView):
             code of 201.
 
         """
-        stmt = text("DELETE FROM addresses WHERE person_id = :item_id")
+        stmt = text("DELETE FROM addresses WHERE id = :item_id")
         db_session.execute(stmt, {"item_id": item_id})
         db_session.commit()
-        return jsonify({"message": "success"}), 204
+        return jsonify({"message": "success"}), 201
 
 
 bp.add_url_rule("/<int:item_id>", view_func=AddressView.as_view("address"))

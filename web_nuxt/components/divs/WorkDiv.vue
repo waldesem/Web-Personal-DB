@@ -46,8 +46,7 @@ async function submitWorkplace(form: Work) {
   emit("message", message);
 }
 
-async function deleteWork(id: string, idx: integer) {
-  closeAction();
+async function deleteWork(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   const { message } = (await authFetch(`/route/items/workplaces/${id}`, {
     method: "DELETE",

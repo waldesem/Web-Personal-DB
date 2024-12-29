@@ -46,8 +46,7 @@ async function submitEducation(form: Education) {
   emit("message", message);
 }
 
-async function deleteEducation(id: string, idx: integer) {
-  closeAction();
+async function deleteEducation(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   const { message } = (await authFetch(`/route/items/educations/${id}`, {
     method: "DELETE",

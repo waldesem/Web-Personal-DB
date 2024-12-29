@@ -18,9 +18,8 @@ const props = defineProps({
   },
 });
 
-const collapse = ref(false);
+const modal = ref(false);
 const pending = ref(false);
-const edit = ref(false);
 const itemId = ref("");
 const address = ref({} as Address);
 const addresses = ref<Address[]>([]);
@@ -34,35 +33,31 @@ const { refresh, status } = await useLazyAsyncData("addresses", async () => {
 async function submitAddress(form: Address) {
   closeAction();
   pending.value = true;
-  const { message } = (await authFetch(`/route/items/addresses/${props.candId}`, {
-    method: "POST",
-    body: form,
-  })) as Record<string, string>;
+  const { message } = (await authFetch(
+    `/route/items/addresses/${props.candId}`,
+    {
+      method: "POST",
+      body: form,
+    }
+  )) as Record<string, string>;
   pending.value = false;
   await refresh();
   emit("message", message);
 }
 
-async function deleteAddress(id: string, idx: integer) {
-  closeAction();
+async function deleteAddress(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   const { message } = (await authFetch(`/route/items/addresses/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
   if (message == "success") {
     addresses.value.splice(idx, 1);
-  };
+  }
   emit("message", message);
 }
 
-function cancelOperation() {
-  closeAction();
-  refresh();
-}
-
 function closeAction() {
-  edit.value = false;
-  collapse.value = false;
+  modal.value = false;
   itemId.value = "";
 }
 </script>
@@ -70,57 +65,38 @@ function closeAction() {
 <template>
   <UButton
     v-if="props.editable"
-    :disabled="status == 'pending' || pending"
-    :label="!collapse ? 'Добавить запись' : 'Скрыть форму'"
+    :loading="status == 'pending' || pending"
+    label="Добавить запись"
     variant="link"
-    @click="collapse = !collapse"
+    @click="modal = !modal"
   />
-  <Transition name="slide-fade">
-    <div v-if="collapse" class="p-1">
-      <ElementsCardDiv>
-        <FormsAddressForm
-          @cancel="cancelOperation"
-          @update="submitAddress"
+  <UModal v-model="modal" prevent-close>
+    <ElementsCardDiv>
+      <FormsAddressForm
+        :addrs="address"
+        @cancel="closeAction"
+        @update="submitAddress"
+      />
+    </ElementsCardDiv>
+  </UModal>
+  <div v-for="(item, idx) in addresses" :key="idx" class="py-3">
+    <ElementsCardDiv>
+      <ElementsLabelSlot :label="'Тип'">{{
+        item["view"]
+      }}</ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Адрес'">{{
+        item["addresses"]
+      }}</ElementsLabelSlot>
+      <template v-if="props.editable" #footer>
+        <ElementsNavSimpHoriz
+          @delete="deleteAddress(item['id'], idx)"
+          @update="
+            address = item;
+            itemId = item['id'];
+            modal = true;
+          "
         />
-      </ElementsCardDiv>
-    </div>
-  </Transition>
-  <div v-if="addresses && addresses.length">
-    <div v-for="(item, idx) in addresses" :key="idx" class="py-3">
-      <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="8" />
-      <ElementsCardDiv v-else>
-        <FormsAddressForm
-          v-if="edit && itemId == item['id'].toString()"
-          :addrs="address"
-          @cancel="cancelOperation"
-          @update="submitAddress"
-        />
-        <div v-else>
-          <ElementsLabelSlot :label="'Тип'">{{
-            item["view"]
-          }}</ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Адрес'">{{
-            item["addresses"]
-          }}</ElementsLabelSlot>
-        </div>
-        <template
-          v-if="props.editable && (!edit || itemId != item['id'].toString())"
-          #footer
-        >
-          <ElementsNavSimpHoriz
-            @delete="deleteAddress(item['id'], idx)"
-            @update="
-              address = item;
-              itemId = item['id'].toString();
-              edit = true;
-            "
-          />
-        </template>
-      </ElementsCardDiv>
-    </div>
-  </div>
-  <div v-else class="p-3">
-    <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="8" />
-    <p v-else class="text-primary">Адреса отсутствуют</p>
+      </template>
+    </ElementsCardDiv>
   </div>
 </template>

@@ -78,17 +78,14 @@ class RelationView(MethodView):
 
         Returns:
             Tuple[str, int]: A tuple containing an empty string and an HTTP status
-            code of 204.
+            code of 201.
 
         """
         stmt = text(
-            "DELETE FROM relations \
+            "DELETE FROM person_relationships \
                 WHERE left_id = :person_id AND right_id = :relation_id",
         )
         db_session.execute(stmt, {"person_id": person_id, "relation_id": relation_id})
-        """person = db_session.get(Persons, person_id)
-        related_person = db_session.get(Persons, relation_id)
-        person.relationships.remove(related_person)"""
         db_session.commit()
         return jsonify({"message": "success"}), 201
 

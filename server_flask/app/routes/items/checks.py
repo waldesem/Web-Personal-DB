@@ -60,13 +60,13 @@ class ChecksView(MethodView):
 
         Returns:
             Tuple[str, int]: A tuple containing an empty string and an HTTP status
-            code of 204.
+            code of 201.
 
         """
-        stmt = text("DELETE FROM checks WHERE person_id = :item_id")
+        stmt = text("DELETE FROM checks WHERE id = :item_id")
         db_session.execute(stmt, {"item_id": item_id})
         db_session.commit()
-        return jsonify({"message": "success"}), 204
+        return jsonify({"message": "success"}), 201
 
 
 bp.add_url_rule("/<int:item_id>", view_func=ChecksView.as_view("check"))
