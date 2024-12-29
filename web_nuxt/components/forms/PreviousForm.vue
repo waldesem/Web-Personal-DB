@@ -9,10 +9,6 @@ const props = defineProps({
     type: Object as () => Previous,
     default: {} as Previous,
   },
-  candId: {
-    type: String,
-    default: "",
-  },
 });
 
 const schema = z.object({

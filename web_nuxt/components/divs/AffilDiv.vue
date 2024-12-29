@@ -41,13 +41,15 @@ async function submitAffilation(form: Affilation) {
   emit("message", message);
 }
 
-async function deleteAffilation(id: string) {
+async function deleteAffilation(id: string, idx: integer) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   const { message } = (await authFetch(`/route/items/affilations/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
-  await refresh();  
+  if (message == "success") {
+    affilations.value.splice(idx, 1);
+  };
   emit("message", message);
 }
 
@@ -75,7 +77,6 @@ function closeAction() {
     <div v-if="collapse" class="py-3">
       <ElementsCardDiv>
         <FormsAffilationForm
-          :cand-id="props.candId"
           @cancel="cancelOperation"
           @update="submitAffilation"
         />
@@ -88,7 +89,6 @@ function closeAction() {
       <ElementsCardDiv v-else>
         <FormsAffilationForm
           v-if="edit && itemId == item['id'].toString()"
-          :cand-id="props.candId"
           :affils="affilation"
           @cancel="cancelOperation"
           @update="submitAffilation"
@@ -109,7 +109,7 @@ function closeAction() {
           #footer
         >
           <ElementsNavSimpHoriz
-            @delete="deleteAffilation(item['id'])"
+            @delete="deleteAffilation(item['id'], idx)"
             @update="
               affilation = item;
               itemId = item['id'].toString();

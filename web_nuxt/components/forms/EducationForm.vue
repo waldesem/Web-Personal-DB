@@ -9,10 +9,6 @@ const props = defineProps({
     type: Object as () => Education,
     default: {} as Education,
   },
-  candId: {
-    type: String,
-    default: "",
-  },
 });
 
 const schema = z.object({

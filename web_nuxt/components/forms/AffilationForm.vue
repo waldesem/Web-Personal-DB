@@ -9,10 +9,6 @@ const props = defineProps({
     type: Object as () => Affilation,
     default: {} as Affilation,
   },
-  candId: {
-    type: String,
-    default: "",
-  },
 });
 
 const schema = z.object({

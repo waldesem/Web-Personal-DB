@@ -43,13 +43,15 @@ async function submitPoligraf(form: Pfo) {
   emit("message", message);
 }
 
-async function deletePoligraf(id: string) {
+async function deletePoligraf(id: string, idx: integer) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   const { message } = (await authFetch(`/route/items/poligrafs/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
-  await refresh();
+  if (message == "success") {
+    poligrafs.value.splice(idx, 1);
+  };
   emit("message", message);
 }
 
@@ -128,7 +130,7 @@ function closeAction() {
               itemId = item['id'].toString();
               edit = true;
             "
-            @delete="deletePoligraf(item['id'])"
+            @delete="deletePoligraf(item['id'], index)"
           />
         </template>
       </ElementsCardDiv>

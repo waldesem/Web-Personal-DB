@@ -9,10 +9,6 @@ const props = defineProps({
     type: Object as () => Staff,
     default: {} as Staff,
   },
-  candId: {
-    type: String,
-    default: "",
-  },
 });
 
 const staffSchema = z.object({

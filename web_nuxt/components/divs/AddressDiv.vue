@@ -49,8 +49,7 @@ async function deleteAddress(id: string, idx: integer) {
   const { message } = (await authFetch(`/route/items/addresses/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
-  // await refresh();
-  if (message) == "success" {
+  if (message == "success") {
     addresses.value.splice(idx, 1);
   };
   emit("message", message);

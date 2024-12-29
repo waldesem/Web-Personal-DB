@@ -9,10 +9,6 @@ const props = defineProps({
     type: Object as () => Relation,
     default: {} as Relation,
   },
-  candId: {
-    type: String,
-    default: "",
-  },
 });
 
 const schema = z.object({

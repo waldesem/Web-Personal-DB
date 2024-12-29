@@ -43,13 +43,15 @@ async function submitCheck(form: Verification) {
   emit("message", message);
 }
 
-async function deleteCheck(id: string) {
+async function deleteCheck(id: string, idx: integer) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   const { message } = (await authFetch(`/route/items/checks/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
-  await refresh();
+  if (message == "success") {
+    checks.value.splice(idx, 1);
+  };
   emit("message", message);
 }
 
@@ -191,7 +193,7 @@ function closeAction() {
               itemId = item['id'].toString();
               edit = true;
             "
-            @delete="deleteCheck(item['id'])"
+            @delete="deleteCheck(item['id'], index)"
           />
         </template>
       </ElementsCardDiv>

@@ -2,7 +2,7 @@
 
 from flask import Blueprint, Response, jsonify
 from flask.views import MethodView
-from sqlalchemy import desc, select
+from sqlalchemy import select, text
 
 from app.depends.depend import current_user, jwt_required, roles_required, validate
 from app.model.classes import Roles
@@ -27,8 +27,8 @@ class DocumentsView(MethodView):
             the retrieved item(s) and an HTTP status code of 200.
 
         """
-        stmt = select(Documents).filter(Documents.person_id == item_id)
-        query = db_session.execute(stmt.order_by(desc(Documents.id))).scalars()
+        stmt = select(Documents).filter_by(person_id=item_id)
+        query = db_session.execute(stmt).scalars()
         return jsonify([row.to_dict() for row in query]), 200
 
     @validate()
@@ -46,16 +46,8 @@ class DocumentsView(MethodView):
 
         """
         json_dict = json_data.dict()
-        json_dict["person_id"] = item_id
-        json_dict["user_id"] = current_user.id
-        item_id = json_dict.pop("id", None)
-        if item_id:
-            item = db_session.get(Documents, item_id)
-            for key, value in json_dict.items():
-                setattr(item, key, value)
-        else:
-            table = Documents(**json_dict)
-            db_session.add(table)
+        item = Documents(**json_dict, person_id=item_id, user_id=current_user.id)
+        db_session.merge(item)
         db_session.commit()
         return jsonify({"message": "success"}), 201
 
@@ -71,10 +63,9 @@ class DocumentsView(MethodView):
             code of 204.
 
         """
-        table = db_session.get(Documents, item_id)
-        db_session.delete(table)
+        stmt = text("DELETE FROM documents WHERE person_id = :item_id")
+        db_session.execute(stmt, {"item_id": item_id})
         db_session.commit()
-        return jsonify({"message": "success"}), 201
-
+        return jsonify({"message": "success"}), 204
 
 bp.add_url_rule("/<int:item_id>", view_func=DocumentsView.as_view("document"))

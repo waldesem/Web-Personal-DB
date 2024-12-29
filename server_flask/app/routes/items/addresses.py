@@ -49,7 +49,7 @@ class AddressView(MethodView):
         item = Addresses(**json_dict, person_id=item_id, user_id=current_user.id)
         db_session.merge(item)
         db_session.commit()
-        return jsonify({"message": "success"}),["person_id"] = item_id 201
+        return jsonify({"message": "success"}), 201
 
     @roles_required(Roles.user.value)
     def delete(self, item_id: int) -> Response:
@@ -66,7 +66,7 @@ class AddressView(MethodView):
         stmt = text("DELETE FROM addresses WHERE person_id = :item_id")
         db_session.execute(stmt, {"item_id": item_id})
         db_session.commit()
-        return jsonify({"message": "success"}), 201
+        return jsonify({"message": "success"}), 204
 
 
 bp.add_url_rule("/<int:item_id>", view_func=AddressView.as_view("address"))

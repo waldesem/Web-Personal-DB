@@ -46,13 +46,15 @@ async function submitEducation(form: Education) {
   emit("message", message);
 }
 
-async function deleteEducation(id: string) {
+async function deleteEducation(id: string, idx: integer) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   const { message } = (await authFetch(`/route/items/educations/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
-  await refresh();
+  if (message == "success") {
+    educations.value.splice(idx, 1);
+  };
   emit("message", message);
 }
 
@@ -80,7 +82,6 @@ function closeAction() {
     <div v-if="collapse" class="py-3">
       <ElementsCardDiv>
         <FormsEducationForm
-          :cand-id="props.candId"
           @cancel="cancelOperation"
           @update="submitEducation"
         />
@@ -93,7 +94,6 @@ function closeAction() {
       <ElementsCardDiv v-else>
         <FormsEducationForm
           v-if="edit && itemId == item['id'].toString()"
-          :cand-id="props.candId"
           :education="education"
           @cancel="cancelOperation"
           @update="submitEducation"
@@ -117,7 +117,7 @@ function closeAction() {
           #footer
         >
           <ElementsNavSimpHoriz
-            @delete="deleteEducation(item['id'])"
+            @delete="deleteEducation(item['id'], idx)"
             @update="
               education = item;
               itemId = item['id'].toString();

@@ -34,12 +34,12 @@ def get_index(page: int, query_data: Search) -> Response:
         if current_user.region != Regions.main.value
         else True,
     )
-    if len(query_data.search) > 2:
+    if len(query_data.search) > 2:  # noqa: PLR2004
         search = query_data.search.upper().split()[:3]
         stmt = stmt.filter(
             Persons.surname == search[0],
             Persons.firstname == search[1] if len(search) > 1 else True,
-            Persons.patronymic == search[2] if len(search) > 2 else True,
+            Persons.patronymic == search[2] if len(search) > 2 else True,  # noqa: PLR2004
         )
     query = db_session.execute(
         stmt.order_by(desc(Persons.id))
@@ -48,8 +48,9 @@ def get_index(page: int, query_data: Search) -> Response:
     ).all()
     result = [row[0].to_dict() | {"username": row[1]} for row in query]
     has_next = len(result) > pagination
-    result = result[:pagination] if has_next else result
-    return jsonify([result, has_next])
+    return jsonify(
+        [result[:pagination] if has_next else result, has_next],
+    ), 200
 
 
 @bp.get("/info")

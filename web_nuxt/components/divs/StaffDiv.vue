@@ -41,13 +41,15 @@ async function submitStaff(form: Staff) {
   emit("message", message);
 }
 
-async function deleteStaff(id: string) {
+async function deleteStaff(id: string, idx: integer) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   const { message } = (await authFetch(`/route/items/staffs/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
-  await refresh();  
+  if (message == "success") {
+    staffs.value.splice(idx, 1);
+  };
   emit("message", message);
 }
 
@@ -75,7 +77,6 @@ function closeAction() {
     <div v-if="collapse" class="py-3">
       <ElementsCardDiv>
         <FormsStaffForm
-          :cand-id="props.candId"
           @cancel="cancelOperation"
           @update="submitStaff"
         />
@@ -88,7 +89,6 @@ function closeAction() {
       <ElementsCardDiv v-else>
         <FormsStaffForm
           v-if="edit && itemId == item['id'].toString()"
-          :cand-id="props.candId"
           :staff="staff"
           @cancel="cancelOperation"
           @update="submitStaff"
@@ -106,7 +106,7 @@ function closeAction() {
           #footer
         >
           <ElementsNavSimpHoriz
-            @delete="deleteStaff(item['id'])"
+            @delete="deleteStaff(item['id'], idx)"
             @update="
               staff = item;
               itemId = item['id'].toString();

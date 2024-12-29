@@ -2,6 +2,7 @@
 
 from flask import Blueprint, Response, jsonify
 from flask.views import MethodView
+from sqlalchemy import text
 
 from app.depends.depend import roles_required, validate
 from app.model.classes import Roles
@@ -54,7 +55,8 @@ class RelationView(MethodView):
 
         """
         if json_data.right_id != person_id and db_session.get(
-            Persons, json_data.right_id,
+            Persons,
+            json_data.right_id,
         ):
             relationship = association_table.insert().values(
                 left_id=person_id,
@@ -79,9 +81,14 @@ class RelationView(MethodView):
             code of 204.
 
         """
-        person = db_session.get(Persons, person_id)
+        stmt = text(
+            "DELETE FROM relations \
+                WHERE left_id = :person_id AND right_id = :relation_id",
+        )
+        db_session.execute(stmt, {"person_id": person_id, "relation_id": relation_id})
+        """person = db_session.get(Persons, person_id)
         related_person = db_session.get(Persons, relation_id)
-        person.relationships.remove(related_person)
+        person.relationships.remove(related_person)"""
         db_session.commit()
         return jsonify({"message": "success"}), 201
 
@@ -89,5 +96,7 @@ class RelationView(MethodView):
 view_func = RelationView.as_view("relation")
 bp.add_url_rule("/<int:person_id>", view_func=view_func, methods=["GET", "POST"])
 bp.add_url_rule(
-    "/<int:person_id>/<int:relation_id>", view_func=view_func, methods=["DELETE"],
+    "/<int:person_id>/<int:relation_id>",
+    view_func=view_func,
+    methods=["DELETE"],
 )

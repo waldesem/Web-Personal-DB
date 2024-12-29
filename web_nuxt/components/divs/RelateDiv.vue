@@ -42,13 +42,15 @@ async function submitRelation(form: Relation) {
   emit("message", message);
 }
 
-async function deleteRelation(id: string) {
+async function deleteRelation(id: string, idx: integer) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   const { message } = (await authFetch(`/route/items/relations/${props.candId}/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
-  refresh();
+  if (message == "success") {
+    relationships.value.splice(idx, 1);
+  };
   emit("message", message);
 }
 
@@ -75,7 +77,6 @@ function closeAction() {
     <div v-if="collapse" class="py-3">
       <ElementsCardDiv>
         <FormsRelationForm
-          :cand-id="props.candId"
           @cancel="cancelOperation"
           @update="submitRelation"
         />
@@ -95,7 +96,7 @@ function closeAction() {
         <template v-if="props.editable" #footer>
           <ElementsNavSimpHoriz
             :is-changed="false"
-            @delete="deleteRelation(item['right_id'].toString())"
+            @delete="deleteRelation(item['right_id'], idx)"
           />
         </template>
       </ElementsCardDiv>

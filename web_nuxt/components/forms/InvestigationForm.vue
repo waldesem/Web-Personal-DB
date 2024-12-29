@@ -9,10 +9,6 @@ const props = defineProps({
     type: Object as () => Inquisition,
     default: {} as Inquisition,
   },
-  candId: {
-    type: String,
-    default: "",
-  },
 });
 
 const schema = z.object({

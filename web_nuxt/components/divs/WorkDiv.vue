@@ -46,13 +46,15 @@ async function submitWorkplace(form: Work) {
   emit("message", message);
 }
 
-async function deleteWork(id: string) {
+async function deleteWork(id: string, idx: integer) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   const { message } = (await authFetch(`/route/items/workplaces/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
-  await refresh();
+  if (message == "success") {
+    workplaces.value.splice(idx, 1);
+  };
   emit("message", message);
 }
 
@@ -80,7 +82,6 @@ function closeAction() {
     <div v-if="collapse" class="py-3">
       <ElementsCardDiv>
         <FormsWorkplaceForm
-          :cand-id="props.candId"
           @cancel="cancelOperation"
           @update="submitWorkplace"
         />
@@ -93,7 +94,6 @@ function closeAction() {
       <ElementsCardDiv v-else>
         <FormsWorkplaceForm
           v-if="edit && itemId == item['id'].toString()"
-          :cand-id="props.candId"
           :work="workplace"
           @cancel="cancelOperation"
           @update="submitWorkplace"
@@ -138,7 +138,7 @@ function closeAction() {
           #footer
         >
           <ElementsNavSimpHoriz
-            @delete="deleteWork(item['id'])"
+            @delete="deleteWork(item['id'], idx)"
             @update="
               workplace = item;
               itemId = item['id'].toString();

@@ -55,7 +55,9 @@ async function deleteInquisition(id: string) {
   const { message } = (await authFetch(`/route/items/investigations/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
-  await refresh();
+  if (message == "success") {
+    investigations.value.splice(idx, 1);
+  };
   emit("message", message);
 }
 

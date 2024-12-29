@@ -43,13 +43,15 @@ async function submitDocument(form: Document) {
   emit("message", message);
 }
 
-async function deleteDocument(id: string) {
+async function deleteDocument(id: string, idx: integer) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   const { message } = (await authFetch(`/route/items/documents/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
-  await refresh();
+  if (message == "success") {
+    documents.value.splice(idx, 1);
+  };
   emit("message", message);
 }
 
@@ -77,7 +79,6 @@ function closeAction() {
     <div v-if="collapse" class="py-3">
       <ElementsCardDiv>
         <FormsDocumentForm
-          :cand-id="props.candId"
           @cancel="cancelOperation"
           @update="submitDocument"
         />
@@ -90,7 +91,6 @@ function closeAction() {
       <ElementsCardDiv v-else>
         <FormsDocumentForm
           v-if="edit && itemId == item['id'].toString()"
-          :cand-id="props.candId"
           :docs="doc"
           @cancel="cancelOperation"
           @update="submitDocument"
@@ -117,7 +117,7 @@ function closeAction() {
           #footer
         >
           <ElementsNavSimpHoriz
-            @delete="deleteDocument(item['id'])"
+            @delete="deleteDocument(item['id'], idx)"
             @update="
               doc = item;
               itemId = item['id'].toString();

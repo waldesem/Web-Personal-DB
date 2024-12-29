@@ -36,7 +36,7 @@ onChange(async (files) => {
     }
     formData.append("file", file);
   }
-  const { message } = await authFetch(`/route/file/${props.item}/${props.candId}`, {
+  const { message } = await authFetch(`/route/anketa/files/${props.item}/${props.candId}`, {
     method: "POST",
     body: formData,
   }) as Record<string, string>;

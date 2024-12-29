@@ -72,10 +72,11 @@ async function switchSelf(): Promise<void> {
   pending.value = true;
   const { message } = await authFetch("/route/anketa/self/" + candId.value);
   pending.value = false;
-  emitMessage(message):
   if (message == "success") {
     person.value.editable = !person.value.editable;
     person.value.user_id = stateUser.value.id;
+  }  
+  emitMessage(message);
 }
 
 function emitMessage(message: string) {
@@ -104,21 +105,29 @@ function emitMessage(message: string) {
       <ElementsHeaderDiv
         v-else
         :header="`${person['surname']} ${person['firstname']} ${
-            person['patronymic'] ? person['patronymic'] : ''
-          }`"
+          person['patronymic'] ? person['patronymic'] : ''
+        }`"
       />
       <UButton
         :disabled="pending"
         :loading="pending || status === 'pending'"
-        @click="switchSelf"
+        :color="
+          !person.editable
+            ? 'blue'
+            : person.user_id != stateUser.id
+            ? 'red'
+            : 'green'
+        "
         size="md"
-        :color="!person.editable" ? 'blue' : person.user_id != stateUser.id ? 'red' : 'green'"
-        >
-          {{
-            !person.editable ? "Анкета доступна для редактирования" : person.user_id != stateUser.id
-              ? "Анкета редактируется другим пользователем"
-              : "Анкета редактируется"
-          }}
+        @click="switchSelf"
+      >
+        {{
+          !person.editable
+            ? "Анкета доступна для редактирования"
+            : person.user_id != stateUser.id
+            ? "Анкета редактируется другим пользователем"
+            : "Анкета редактируется текущим пользователем"
+        }}
       </UButton>
     </div>
     <UTabs :items="tabs">

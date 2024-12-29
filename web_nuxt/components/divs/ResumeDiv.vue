@@ -31,7 +31,6 @@ const props = defineProps({
 const edit = ref(false);
 const region = ref("");
 const pending = ref(false);
-const opening = ref(false);
 
 async function changeRegion(): Promise<void> {
   if (!confirm("Вы действительно хотите изменить регион?")) return;

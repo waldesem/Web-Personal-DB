@@ -43,13 +43,15 @@ async function submitIquiry(form: Needs) {
   emit("message", message);
 }
 
-async function deleteNeed(id: string) {
+async function deleteNeed(id: string, idx: integer) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   const { message } = (await authFetch(`/route/items/inquiries/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
-  await refresh();
+  if (message == "success") {
+    inquiries.value.splice(idx, 1);
+  };
   emit("message", message);
 }
 
@@ -123,7 +125,7 @@ function cancelOperation() {
           <ElementsNaviHorizont
             :cand-id="props.candId"
             :item="'inquiries'"
-            @delete="deleteNeed(item['id'])"
+            @delete="deleteNeed(item['id'], index)"
             @update="
               need = item;
               itemId = item['id'].toString();

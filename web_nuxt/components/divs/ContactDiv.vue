@@ -43,13 +43,15 @@ async function submitContact(form: Contact) {
   emit("message", message);
 }
 
-async function deleteContact(id: string) {
+async function deleteContact(id: string, idx: integer) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   const { message } = (await authFetch(`/route/items/contacts/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
-  await refresh();
+  if (message == "success") {
+    contacts.value.splice(idx, 1);
+  };
   emit("message", message);
 }
 
@@ -77,7 +79,6 @@ function closeAction() {
     <div v-if="collapse" class="py-3">
       <ElementsCardDiv>
         <FormsContactForm
-          :cand-id="props.candId"
           @cancel="cancelOperation"
           @update="submitContact"
         />
@@ -90,7 +91,6 @@ function closeAction() {
       <ElementsCardDiv v-else>
         <FormsContactForm
           v-if="edit && itemId == item['id'].toString()"
-          :cand-id="props.candId"
           :contact="contact"
           @cancel="cancelOperation"
           @update="submitContact"
@@ -108,7 +108,7 @@ function closeAction() {
           #footer
         >
           <ElementsNavSimpHoriz
-            @delete="deleteContact(item['id'])"
+            @delete="deleteContact(item['id'], idx)"
             @update="
               contact = item;
               itemId = item['id'].toString();

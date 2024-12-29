@@ -32,7 +32,7 @@ def upload_resume(resume: dict) -> int:
         int: The ID of the uploaded resume.
 
     """
-    if not re.match(r"[А-ЯЁЙ]", resume["surname"][0]):
+    if not re.match(r"[А-ЯЁЙ]", resume["surname"][0]):  # noqa: RUF001
         return None
     resume["editable"] = True
     resume["user_id"] = current_user.id

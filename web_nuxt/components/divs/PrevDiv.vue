@@ -41,13 +41,15 @@ async function submitPrevious(form: Previous) {
   emit("message", message);
 }
 
-async function deletePrevious(id: string) {
+async function deletePrevious(id: string, idx: integer) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   const { message } = (await authFetch(`/route/items/previous/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
-  await refresh();  
+  if (message == "success") {
+    previous.value.splice(idx, 1);
+  };
   emit("message", message);
 }
 
@@ -75,7 +77,6 @@ function closeAction() {
     <div v-if="collapse" class="py-3">
       <ElementsCardDiv>
         <FormsPreviousForm
-          :cand-id="props.candId"
           @cancel="cancelOperation"
           @update="submitPrevious"
         />
@@ -88,7 +89,6 @@ function closeAction() {
       <ElementsCardDiv v-else>
         <FormsPreviousForm
           v-if="edit && itemId == item['id'].toString()"
-          :cand-id="props.candId"
           :previous="prev"
           @cancel="cancelOperation"
           @update="submitPrevious"
@@ -115,7 +115,7 @@ function closeAction() {
           #footer
         >
           <ElementsNavSimpHoriz
-            @delete="deletePrevious(item['id'].toString())"
+            @delete="deletePrevious(item['id'], idx)"
             @update="
               prev = item;
               itemId = item['id'].toString();
