@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { Affilation } from "@/types";
 
-prefetchComponents("FormsAffilationForm");
-
 const emit = defineEmits(["message"]);
 
 const authFetch = useFetchAuth();
@@ -18,24 +16,27 @@ const props = defineProps({
   },
 });
 
-const collapse = ref(false);
-const pending = ref(false);
-const edit = ref(false);
-const itemId = ref("");
+const modal = ref(false);
+const pending = ref(true);
 const affilation = ref({} as Affilation);
 const affilations = ref<Affilation[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("affilations", async () => {
-  affilations.value = await authFetch("/route/items/affilations/" + props.candId) as Affilation[];
+  affilations.value = (await authFetch(
+    "/route/items/affilations/" + props.candId
+  )) as Affilation[];
 });
 
 async function submitAffilation(form: Affilation) {
-  closeAction();  
+  modal.value = false;
   pending.value = true;
-  const { message } = await authFetch(`/route/items/affilations/${props.candId}`, {
-    method: "POST",
-    body: form,
-  }) as Record<string, string>;
+  const { message } = (await authFetch(
+    `/route/items/affilations/${props.candId}`,
+    {
+      method: "POST",
+      body: form,
+    }
+  )) as Record<string, string>;
   pending.value = false;
   await refresh();
   emit("message", message);
@@ -48,79 +49,50 @@ async function deleteAffilation(id: string, idx: number) {
   })) as Record<string, string>;
   if (message == "success") {
     affilations.value.splice(idx, 1);
-  };
+  }
   emit("message", message);
-}
-
-function cancelOperation() {
-  closeAction();
-  refresh();
-}
-
-function closeAction() {
-  edit.value = false;
-  itemId.value = "";
-  collapse.value = false;
 }
 </script>
 
 <template>
   <UButton
     v-if="props.editable"
-    :disabled="status == 'pending' || pending"
-    :label="!collapse ? 'Добавить запись' : 'Скрыть форму'"
+    :loading="status == 'pending' || pending"
+    :label="
+      status == 'pending' || pending
+        ? 'Обновление данных...'
+        : 'Добавить запись'
+    "
     variant="link"
-    @click="collapse = !collapse"
+    @click="modal = !modal"
   />
-  <Transition name="slide-fade">
-    <div v-if="collapse" class="py-3">
-      <ElementsCardDiv>
-        <FormsAffilationForm
-          @cancel="cancelOperation"
-          @update="submitAffilation"
+  <UModal v-model="modal" prevent-close>
+    <ElementsCardDiv>
+      <FormsAffilationForm
+        :affil="affilation"
+        @cancel="modal = false"
+        @update="submitAffilation"
+      />
+    </ElementsCardDiv>
+  </UModal>
+  <div v-for="(item, idx) in affilations" :key="idx" class="p-1">
+    <ElementsCardDiv>
+      <ElementsLabelSlot :label="'Тип участия'">{{
+        item["view"]
+      }}</ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Организация'">{{
+        item["organization"]
+      }}</ElementsLabelSlot>
+      <ElementsLabelSlot :label="'ИНН'">{{ item["inn"] }}</ElementsLabelSlot>
+      <template v-if="props.editable" #footer>
+        <ElementsNavSimpHoriz
+          @delete="deleteAffilation(item['id'], idx)"
+          @update="
+            affilation = item;
+            modal = true;
+          "
         />
-      </ElementsCardDiv>
-    </div>
-  </Transition>
-  <div v-if="affilations && affilations.length">
-    <div v-for="(item, idx) in affilations" :key="idx" class="p-1">
-      <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="8" />
-      <ElementsCardDiv v-else>
-        <FormsAffilationForm
-          v-if="edit && itemId == item['id'].toString()"
-          :affils="affilation"
-          @cancel="cancelOperation"
-          @update="submitAffilation"
-        />
-        <div v-else>
-          <ElementsLabelSlot :label="'Тип участия'">{{
-            item["view"]
-          }}</ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Организация'">{{
-            item["organization"]
-          }}</ElementsLabelSlot>
-          <ElementsLabelSlot :label="'ИНН'">{{
-            item["inn"]
-          }}</ElementsLabelSlot>
-        </div>
-        <template
-          v-if="props.editable && (!edit || itemId != item['id'].toString())"
-          #footer
-        >
-          <ElementsNavSimpHoriz
-            @delete="deleteAffilation(item['id'], idx)"
-            @update="
-              affilation = item;
-              itemId = item['id'].toString();
-              edit = true;
-            "
-          />
-        </template>
-      </ElementsCardDiv>
-    </div>
-  </div>
-  <div v-else class="p-3">
-    <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="8" />
-    <p v-else class="text-primary">Данные отсутствуют</p>
+      </template>
+    </ElementsCardDiv>
   </div>
 </template>

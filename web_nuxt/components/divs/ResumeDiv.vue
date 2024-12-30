@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { Persons } from "@/types";
 
-prefetchComponents("FormsResumeForm");
-
 const emit = defineEmits(["update", "message"]);
 
 const toast = useToast();
@@ -28,9 +26,9 @@ const props = defineProps({
   },
 });
 
-const edit = ref(false);
-const region = ref("");
+const modal = ref(false);
 const pending = ref(false);
+const region = ref("");
 
 async function changeRegion(): Promise<void> {
   if (!confirm("Вы действительно хотите изменить регион?")) return;
@@ -59,7 +57,7 @@ async function changeRegion(): Promise<void> {
 
 async function submitResume(form: Persons) {
   pending.value = true;
-  edit.value = false;
+  modal.value = false;
   const { message } = (await authFetch(`/route/items/persons/${props.candId}`, {
     method: "POST",
     body: form,
@@ -80,96 +78,91 @@ async function deleteItem() {
   emit("message", message);
   return navigateTo("/persons");
 }
-
-async function cancelAction() {
-  edit.value = false;
-  emit("update");
-}
 </script>
 
 <template>
   <ElementsCardDiv>
-    <div v-if="edit">
-      <FormsResumeForm
-        :resume="props.person"
-        @cancel="cancelAction"
-        @update="submitResume"
-      />
-    </div>
+    <UModal v-model="modal" prevent-close>
+      <ElementsCardDiv>
+        <FormsResumeForm
+          :resume="props.person"
+          @cancel="modal = false"
+          @update="submitResume"
+        />
+      </ElementsCardDiv>
+    </UModal>
+    <ElementsSkeletonDiv
+      v-if="pending || props.status === 'pending'"
+      :rows="14"
+    />
     <div v-else>
-      <ElementsSkeletonDiv
-        v-if="pending || props.status === 'pending'"
-        :rows="14"
-      />
-      <div v-else>
-        <ElementsLabelSlot :label="'Регион'">
-          <USelect
-            v-model="region"
-            :options="[
-              'Главный офис',
-              'РЦ Юг',
-              'РЦ Запад',
-              'РЦ Урал',
-              'РЦ Восток',
-            ]"
-            :disabled="!props.editable"
-            :placeholder="props.person['region']"
-            @change="changeRegion"
-          />
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Фамилия'">
-          {{ props.person["surname"] }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Имя'">
-          {{ props.person["firstname"] }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Отчество'">
-          {{ props.person["patronymic"] }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Дата рождения'">
-          {{ new Date(props.person["birthday"]).toLocaleDateString("ru-RU") }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Место рождения'">
-          {{ props.person["birthplace"] }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Гражданство'">
-          {{ props.person["citizenship"] }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot
-          v-if="props.person['dual']"
-          :label="'Двойное гражданство'"
-        >
-          {{ props.person["dual"] }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'СНИЛС'">
-          {{ props.person["snils"] }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'ИНН'">
-          {{ props.person["inn"] }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Семейное положение'">
-          {{ props.person["marital"] }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Дата записи'">
-          {{ new Date(props.person["created"]).toLocaleString("ru-RU") }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot
-          v-if="props.person['addition']"
-          :label="'Дополнительная информация'"
-        >
-          {{ props.person["addition"] }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Материалы'">
-            {{ props.person["destination"] }}
-        </ElementsLabelSlot>
-      </div>
+      <ElementsLabelSlot :label="'Регион'">
+        <USelect
+          v-model="region"
+          :options="[
+            'Главный офис',
+            'РЦ Юг',
+            'РЦ Запад',
+            'РЦ Урал',
+            'РЦ Восток',
+          ]"
+          :disabled="!props.editable"
+          :placeholder="props.person['region']"
+          @change="changeRegion"
+        />
+      </ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Фамилия'">
+        {{ props.person["surname"] }}
+      </ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Имя'">
+        {{ props.person["firstname"] }}
+      </ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Отчество'">
+        {{ props.person["patronymic"] }}
+      </ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Дата рождения'">
+        {{ new Date(props.person["birthday"]).toLocaleDateString("ru-RU") }}
+      </ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Место рождения'">
+        {{ props.person["birthplace"] }}
+      </ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Гражданство'">
+        {{ props.person["citizenship"] }}
+      </ElementsLabelSlot>
+      <ElementsLabelSlot
+        v-if="props.person['dual']"
+        :label="'Двойное гражданство'"
+      >
+        {{ props.person["dual"] }}
+      </ElementsLabelSlot>
+      <ElementsLabelSlot :label="'СНИЛС'">
+        {{ props.person["snils"] }}
+      </ElementsLabelSlot>
+      <ElementsLabelSlot :label="'ИНН'">
+        {{ props.person["inn"] }}
+      </ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Семейное положение'">
+        {{ props.person["marital"] }}
+      </ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Дата записи'">
+        {{ new Date(props.person["created"]).toLocaleString("ru-RU") }}
+      </ElementsLabelSlot>
+      <ElementsLabelSlot
+        v-if="props.person['addition']"
+        :label="'Дополнительная информация'"
+      >
+        {{ props.person["addition"] }}
+      </ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Материалы'">
+        {{ props.person["destination"] }}
+      </ElementsLabelSlot>
     </div>
-    <template v-if="props.editable && !edit" #footer>
+    <template v-if="props.editable" #footer>
       <ElementsNaviHorizont
         :cand-id="props.candId"
-        item="persons"
+        :item="'persons'"
         @delete="deleteItem"
-        @update="edit = true"
+        @update="modal = true"
       />
     </template>
   </ElementsCardDiv>

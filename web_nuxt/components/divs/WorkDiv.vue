@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { Work } from "@/types";
 
-prefetchComponents("FormsWorkForm");
-
 const emit = defineEmits(["message"]);
 
 const authFetch = useFetchAuth();
@@ -18,10 +16,8 @@ const props = defineProps({
   },
 });
 
-const collapse = ref(false);
-const pending = ref(false);
-const edit = ref(false);
-const itemId = ref("");
+const modal = ref(false);
+const pending = ref(true);
 const workplace = ref({} as Work);
 const workplaces = ref<Work[]>([]);
 
@@ -32,7 +28,7 @@ const { refresh, status } = await useLazyAsyncData("workplaces", async () => {
 });
 
 async function submitWorkplace(form: Work) {
-  closeAction();
+  modal.value = false;
   pending.value = true;
   const { message } = (await authFetch(
     `/route/items/workplaces/${props.candId}`,
@@ -53,103 +49,66 @@ async function deleteWork(id: string, idx: number) {
   })) as Record<string, string>;
   if (message == "success") {
     workplaces.value.splice(idx, 1);
-  };
+  }
   emit("message", message);
-}
-
-function cancelOperation() {
-  closeAction();
-  refresh();
-}
-
-function closeAction() {
-  edit.value = false;
-  itemId.value = "";
-  collapse.value = false;
 }
 </script>
 
 <template>
   <UButton
     v-if="props.editable"
-    :disabled="status == 'pending' || pending"
-    :label="!collapse ? 'Добавить запись' : 'Скрыть форму'"
+    :loading="status == 'pending' || pending"
+    :label="
+      status == 'pending' || pending
+        ? 'Обновление данных...'
+        : 'Добавить запись'
+    "
     variant="link"
-    @click="collapse = !collapse"
+    @click="modal = !modal"
   />
-  <Transition name="slide-fade">
-    <div v-if="collapse" class="py-3">
-      <ElementsCardDiv>
-        <FormsWorkplaceForm
-          @cancel="cancelOperation"
-          @update="submitWorkplace"
+  <UModal v-model="modal" prevent-close>
+    <ElementsCardDiv>
+      <FormsWorkplaceForm
+        :work="workplace"
+        @cancel="modal = false"
+        @update="submitWorkplace"
+      />
+    </ElementsCardDiv>
+  </UModal>
+  <div v-for="(item, idx) in workplaces" :key="idx" class="p-1">
+    <ElementsCardDiv>
+      <ElementsLabelSlot v-if="item['now_work']" :label="'Текущая работа'">
+        {{ item["now_work"] ? "Да" : "Нет" }}
+      </ElementsLabelSlot>
+      <ElementsLabelSlot v-if="item['starts']" :label="'Начало работы'">
+        {{ new Date(item["starts"]).toLocaleDateString("ru-RU").split(",")[0] }}
+      </ElementsLabelSlot>
+      <ElementsLabelSlot v-if="item['finished']" :label="'Окончание работы'">
+        {{
+          new Date(item["finished"]).toLocaleDateString("ru-RU").split(",")[0]
+        }}
+      </ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Место работы'">
+        {{ item["workplace"] }}
+      </ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Адрес'">
+        {{ item["addresses"] }}
+      </ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Должность'">
+        {{ item["position"] }}
+      </ElementsLabelSlot>
+      <ElementsLabelSlot v-if="item['reason']" :label="'Причина увольнения'">
+        {{ item["reason"] }}
+      </ElementsLabelSlot>
+      <template v-if="props.editable" #footer>
+        <ElementsNavSimpHoriz
+          @delete="deleteWork(item['id'], idx)"
+          @update="
+            workplace = item;
+            modal = true;
+          "
         />
-      </ElementsCardDiv>
-    </div>
-  </Transition>
-  <div v-if="workplaces && workplaces.length">
-    <div v-for="(item, idx) in workplaces" :key="idx" class="p-1">
-      <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="8" />
-      <ElementsCardDiv v-else>
-        <FormsWorkplaceForm
-          v-if="edit && itemId == item['id'].toString()"
-          :work="workplace"
-          @cancel="cancelOperation"
-          @update="submitWorkplace"
-        />
-        <div v-else>
-          <ElementsLabelSlot v-if="item['now_work']" :label="'Текущая работа'">
-            {{ item["now_work"] ? "Да" : "Нет" }}
-          </ElementsLabelSlot>
-          <ElementsLabelSlot v-if="item['starts']" :label="'Начало работы'">
-            {{
-              new Date(item["starts"]).toLocaleDateString("ru-RU").split(",")[0]
-            }}
-          </ElementsLabelSlot>
-          <ElementsLabelSlot
-            v-if="item['finished']"
-            :label="'Окончание работы'"
-          >
-            {{
-              new Date(item["finished"])
-                .toLocaleDateString("ru-RU")
-                .split(",")[0]
-            }}
-          </ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Место работы'">
-            {{ item["workplace"] }}
-          </ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Адрес'">
-            {{ item["addresses"] }}
-          </ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Должность'">
-            {{ item["position"] }}
-          </ElementsLabelSlot>
-          <ElementsLabelSlot
-            v-if="item['reason']"
-            :label="'Причина увольнения'"
-          >
-            {{ item["reason"] }}
-          </ElementsLabelSlot>
-        </div>
-        <template
-          v-if="props.editable && (!edit || itemId != item['id'].toString())"
-          #footer
-        >
-          <ElementsNavSimpHoriz
-            @delete="deleteWork(item['id'], idx)"
-            @update="
-              workplace = item;
-              itemId = item['id'].toString();
-              edit = true;
-            "
-          />
-        </template>
-      </ElementsCardDiv>
-    </div>
-  </div>
-  <div v-else class="p-3">
-    <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="8" />
-    <p v-else class="text-primary">Данные о работе отсутствуют</p>
+      </template>
+    </ElementsCardDiv>
   </div>
 </template>

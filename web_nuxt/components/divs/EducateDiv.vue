@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { Education } from "@/types";
 
-prefetchComponents("FormsEducationForm");
-
 const emit = defineEmits(["message"]);
 
 const authFetch = useFetchAuth();
@@ -18,10 +16,8 @@ const props = defineProps({
   },
 });
 
-const collapse = ref(false);
-const pending = ref(false);
-const itemId = ref("");
-const edit = ref(false);
+const modal = ref(false);
+const pending = ref(true);
 const education = ref({} as Education);
 const educations = ref<Education[]>([]);
 
@@ -32,7 +28,7 @@ const { refresh, status } = await useLazyAsyncData("educations", async () => {
 });
 
 async function submitEducation(form: Education) {
-  closeAction();
+  modal.value = false;
   pending.value = true;
   const { message } = (await authFetch(
     `/route/items/educations/${props.candId}`,
@@ -53,82 +49,55 @@ async function deleteEducation(id: string, idx: number) {
   })) as Record<string, string>;
   if (message == "success") {
     educations.value.splice(idx, 1);
-  };
+  }
   emit("message", message);
-}
-
-function cancelOperation() {
-  closeAction();
-  refresh();
-}
-
-function closeAction() {
-  edit.value = false;
-  itemId.value = "";
-  collapse.value = false;
 }
 </script>
 
 <template>
   <UButton
     v-if="props.editable"
-    :disabled="status == 'pending' || pending"
-    :label="!collapse ? 'Добавить запись' : 'Скрыть форму'"
+    :loading="status == 'pending' || pending"
+    :label="
+      status == 'pending' || pending
+        ? 'Обновление данных...'
+        : 'Добавить запись'
+    "
     variant="link"
-    @click="collapse = !collapse"
+    @click="modal = !modal"
   />
-  <Transition name="slide-fade">
-    <div v-if="collapse" class="py-3">
-      <ElementsCardDiv>
-        <FormsEducationForm
-          @cancel="cancelOperation"
-          @update="submitEducation"
+  <UModal v-model="modal" prevent-close>
+    <ElementsCardDiv>
+      <FormsEducationForm
+        :education="education"
+        @cancel="modal = false"
+        @update="submitEducation"
+      />
+    </ElementsCardDiv>
+  </UModal>
+  <div v-for="(item, idx) in educations" :key="idx" class="p-1">
+    <ElementsCardDiv>
+      <ElementsLabelSlot :label="'Уровень образования'">{{
+        item["view"]
+      }}</ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Название учебного заведения'">{{
+        item["institution"]
+      }}</ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Год окончания'">{{
+        item["finished"]
+      }}</ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Специальность'">{{
+        item["specialty"]
+      }}</ElementsLabelSlot>
+      <template v-if="props.editable" #footer>
+        <ElementsNavSimpHoriz
+          @delete="deleteEducation(item['id'], idx)"
+          @update="
+            education = item;
+            modal = true;
+          "
         />
-      </ElementsCardDiv>
-    </div>
-  </Transition>
-  <div v-if="educations && educations.length">
-    <div v-for="(item, idx) in educations" :key="idx" class="p-1">
-      <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="8" />
-      <ElementsCardDiv v-else>
-        <FormsEducationForm
-          v-if="edit && itemId == item['id'].toString()"
-          :education="education"
-          @cancel="cancelOperation"
-          @update="submitEducation"
-        />
-        <div v-else>
-          <ElementsLabelSlot :label="'Уровень образования'">{{
-            item["view"]
-          }}</ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Название учебного заведения'">{{
-            item["institution"]
-          }}</ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Год окончания'">{{
-            item["finished"]
-          }}</ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Специальность'">{{
-            item["specialty"]
-          }}</ElementsLabelSlot>
-        </div>
-        <template
-          v-if="props.editable && (!edit || itemId != item['id'].toString())"
-          #footer
-        >
-          <ElementsNavSimpHoriz
-            @delete="deleteEducation(item['id'], idx)"
-            @update="
-              education = item;
-              itemId = item['id'].toString();
-              edit = true;
-            "
-          />
-        </template>
-      </ElementsCardDiv>
-    </div>
-  </div>
-  <div v-else class="p-3">
-    <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="8" />
-    <p v-else class="text-primary">Данные отсутствуют</p>
+      </template>
+    </ElementsCardDiv>
   </div>
 </template>

@@ -18,10 +18,8 @@ const props = defineProps({
   },
 });
 
-const collapse = ref(false);
-const pending = ref(false);
-const edit = ref(false);
-const itemId = ref("");
+const modal = ref(false);
+const pending = ref(true);
 const need = ref({} as Needs);
 const inquiries = ref<Needs[]>([]);
 
@@ -32,12 +30,15 @@ const { refresh, status } = await useLazyAsyncData("inquiries", async () => {
 });
 
 async function submitIquiry(form: Needs) {
-  closeAction();
+  modal.value = false;
   pending.value = true;
-  const { message } = (await authFetch(`/route/items/inquiries/${props.candId}`, {
-    method: "POST",
-    body: form,
-  })) as Record<string, string>;
+  const { message } = (await authFetch(
+    `/route/items/inquiries/${props.candId}`,
+    {
+      method: "POST",
+      body: form,
+    }
+  )) as Record<string, string>;
   pending.value = false;
   await refresh();
   emit("message", message);
@@ -50,93 +51,63 @@ async function deleteNeed(id: string, idx: number) {
   })) as Record<string, string>;
   if (message == "success") {
     inquiries.value.splice(idx, 1);
-  };
+  }
   emit("message", message);
-}
-
-function closeAction() {
-  edit.value = false;
-  itemId.value = "";
-  collapse.value = false;
-}
-
-function cancelOperation() {
-  closeAction();
-  refresh();
 }
 </script>
 
 <template>
   <UButton
     v-if="props.editable"
-    :disabled="status == 'pending' || pending"
-    class="py-3"
-    :label="!collapse ? 'Добавить запись' : 'Скрыть форму'"
+    :loading="status == 'pending' || pending"
+    :label="
+      status == 'pending' || pending
+        ? 'Обновление данных...'
+        : 'Добавить запись'
+    "
     variant="link"
-    @click="collapse = !collapse"
+    @click="modal = !modal"
   />
-  <Transition name="slide-fade">
-    <div v-if="collapse" class="py-3">
-      <ElementsCardDiv>
-        <FormsInquiryForm
-          :cand-id="props.candId"
-          @cancel="cancelOperation"
-          @update="submitIquiry"
-        />
-      </ElementsCardDiv>
-    </div>
-  </Transition>
-  <div v-if="inquiries && inquiries.length">
-    <div
-      v-for="(item, index) in inquiries"
-      :key="index"
-      class="text-sm text-gray-500 dark:text-gray-400 py-1"
-    >
-      <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="6" />
-      <ElementsCardDiv v-else>
-        <template #header>
-          <div class="tex-base text-red-800 font-medium">
-            {{ "Запрос о сотруднике ID #" + item["id"] }}
-          </div>
-        </template>
-        <FormsInquiryForm
-          v-if="edit && itemId == item['id'].toString()"
-          :cand-id="props.candId"
-          :inquiry="item"
-          @cancel="cancelOperation"
-          @update="submitIquiry"
-        />
-        <div v-else>
-          <ElementsLabelSlot v-if="item['info']" :label="'Информация'">{{
-            item["info"]
-          }}</ElementsLabelSlot>
-          <ElementsLabelSlot v-if="item['initiator']" :label="'Иннициатор'">{{
-            item["initiator"]
-          }}</ElementsLabelSlot>
-           <ElementsLabelSlot :label="'Дата записи'">
-            {{ new Date(item["created"]).toLocaleString("ru-RU") }}
-          </ElementsLabelSlot>
+  <UModal v-model="modal" prevent-close>
+    <ElementsCardDiv>
+      <FormsInquiryForm
+        :inquiry="need"
+        @cancel="modal = false"
+        @update="submitIquiry"
+      />
+    </ElementsCardDiv>
+  </UModal>
+  <div
+    v-for="(item, index) in inquiries"
+    :key="index"
+    class="text-sm text-gray-500 dark:text-gray-400 py-1"
+  >
+    <ElementsCardDiv>
+      <template #header>
+        <div class="tex-base text-red-800 font-medium">
+          {{ "Запрос о сотруднике ID #" + item["id"] }}
         </div>
-        <template
-          v-if="props.editable && (!edit || itemId != item['id'].toString())"
-          #footer
-        >
-          <ElementsNaviHorizont
-            :cand-id="props.candId"
-            :item="'inquiries'"
-            @delete="deleteNeed(item['id'], index)"
-            @update="
-              need = item;
-              itemId = item['id'].toString();
-              edit = true;
-            "
-          />
-        </template>
-      </ElementsCardDiv>
-    </div>
-  </div>
-  <div v-else class="p-3">
-    <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="6" />
-    <p v-else class="text-red-800">Запросы о сотруднике не поступали</p>
+      </template>
+      <ElementsLabelSlot v-if="item['info']" :label="'Информация'">{{
+        item["info"]
+      }}</ElementsLabelSlot>
+      <ElementsLabelSlot v-if="item['initiator']" :label="'Иннициатор'">{{
+        item["initiator"]
+      }}</ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Дата записи'">
+        {{ new Date(item["created"]).toLocaleString("ru-RU") }}
+      </ElementsLabelSlot>
+      <template v-if="props.editable" #footer>
+        <ElementsNaviHorizont
+          :cand-id="props.candId"
+          :item="'inquiries'"
+          @delete="deleteNeed(item['id'], index)"
+          @update="
+            need = item;
+            modal = true;
+          "
+        />
+      </template>
+    </ElementsCardDiv>
   </div>
 </template>

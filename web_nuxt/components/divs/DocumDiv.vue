@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { Document } from "@/types";
 
-prefetchComponents("FormsDocumentForm");
-
 const emit = defineEmits(["message"]);
 
 const authFetch = useFetchAuth();
@@ -18,10 +16,8 @@ const props = defineProps({
   },
 });
 
-const collapse = ref(false);
-const pending = ref(false);
-const itemId = ref("");
-const edit = ref(false);
+const modal = ref(false);
+const pending = ref(true);
 const doc = ref({} as Document);
 const documents = ref<Document[]>([]);
 
@@ -32,12 +28,15 @@ const { refresh, status } = await useLazyAsyncData("documents", async () => {
 });
 
 async function submitDocument(form: Document) {
-  closeAction();
+  modal.value = false;
   pending.value = true;
-  const { message } = (await authFetch(`/route/items/documents/${props.candId}`, {
-    method: "POST",
-    body: form,
-  })) as Record<string, string>;
+  const { message } = (await authFetch(
+    `/route/items/documents/${props.candId}`,
+    {
+      method: "POST",
+      body: form,
+    }
+  )) as Record<string, string>;
   pending.value = false;
   await refresh();
   emit("message", message);
@@ -50,85 +49,58 @@ async function deleteDocument(id: string, idx: number) {
   })) as Record<string, string>;
   if (message == "success") {
     documents.value.splice(idx, 1);
-  };
+  }
   emit("message", message);
-}
-
-function cancelOperation() {
-  closeAction();
-  refresh();
-}
-
-function closeAction() {
-  edit.value = false;
-  itemId.value = "";
-  collapse.value = false;
 }
 </script>
 
 <template>
   <UButton
     v-if="props.editable"
-    :disabled="status == 'pending' || pending"
-    :label="!collapse ? 'Добавить запись' : 'Скрыть форму'"
+    :loading="status == 'pending' || pending"
+    :label="
+      status == 'pending' || pending
+        ? 'Обновление данных...'
+        : 'Добавить запись'
+    "
     variant="link"
-    @click="collapse = !collapse"
+    @click="modal = !modal"
   />
-  <Transition name="slide-fade">
-    <div v-if="collapse" class="py-3">
-      <ElementsCardDiv>
-        <FormsDocumentForm
-          @cancel="cancelOperation"
-          @update="submitDocument"
+  <UModal v-model="modal" prevent-close>
+    <ElementsCardDiv>
+      <FormsDocumentForm
+        :document="doc"
+        @cancel="modal = false"
+        @update="submitDocument"
+      />
+    </ElementsCardDiv>
+  </UModal>
+  <div v-for="(item, idx) in documents" :key="idx" class="p-1">
+    <ElementsCardDiv>
+      <ElementsLabelSlot :label="'Вид документа'">{{
+        item["view"]
+      }}</ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Серия документа'">{{
+        item["series"]
+      }}</ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Номер документа'">{{
+        item["digits"]
+      }}</ElementsLabelSlot>
+      <ElementsLabelSlot v-if="item['issue']" :label="'Дата выдачи'">
+        {{ new Date(item["issue"]).toLocaleDateString("ru-RU").split(",")[0] }}
+      </ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Кем выдан'">{{
+        item["agency"]
+      }}</ElementsLabelSlot>
+      <template v-if="props.editable" #footer>
+        <ElementsNavSimpHoriz
+          @delete="deleteDocument(item['id'], idx)"
+          @update="
+            doc = item;
+            modal = true;
+          "
         />
-      </ElementsCardDiv>
-    </div>
-  </Transition>
-  <div v-if="documents && documents.length">
-    <div v-for="(item, idx) in documents" :key="idx" class="p-1">
-      <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="8" />
-      <ElementsCardDiv v-else>
-        <FormsDocumentForm
-          v-if="edit && itemId == item['id'].toString()"
-          :docs="doc"
-          @cancel="cancelOperation"
-          @update="submitDocument"
-        />
-        <div v-else>
-          <ElementsLabelSlot :label="'Вид документа'">{{
-            item["view"]
-          }}</ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Серия документа'">{{
-            item["series"]
-          }}</ElementsLabelSlot>          
-          <ElementsLabelSlot :label="'Номер документа'">{{
-            item["digits"]
-          }}</ElementsLabelSlot>
-          <ElementsLabelSlot v-if="item['issue']" :label="'Дата выдачи'">
-            {{ new Date(item["issue"]).toLocaleDateString("ru-RU").split(",")[0] }}
-          </ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Кем выдан'">{{
-            item["agency"]
-          }}</ElementsLabelSlot>
-        </div>
-        <template
-          v-if="props.editable && (!edit || itemId != item['id'].toString())"
-          #footer
-        >
-          <ElementsNavSimpHoriz
-            @delete="deleteDocument(item['id'], idx)"
-            @update="
-              doc = item;
-              itemId = item['id'].toString();
-              edit = true;
-            "
-          />
-        </template>
-      </ElementsCardDiv>
-    </div>
-  </div>
-  <div v-else class="p-3">
-    <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="8" />
-    <p v-else class="text-primary">Данные отсутствуют</p>
+      </template>
+    </ElementsCardDiv>
   </div>
 </template>

@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { Staff } from "@/types";
 
-prefetchComponents("FormsStaffForm");
-
 const emit = defineEmits(["message"]);
 
 const authFetch = useFetchAuth();
@@ -18,24 +16,24 @@ const props = defineProps({
   },
 });
 
-const collapse = ref(false);
-const pending = ref(false);
-const edit = ref(false);
-const itemId = ref("");
+const modal = ref(false);
+const pending = ref(true);
 const staff = ref({} as Staff);
 const staffs = ref<Staff[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("staffs", async () => {
-  staffs.value = await authFetch("/route/items/staffs/" + props.candId) as Staff[];
+  staffs.value = (await authFetch(
+    "/route/items/staffs/" + props.candId
+  )) as Staff[];
 });
 
 async function submitStaff(form: Staff) {
-  closeAction();  
+  modal.value = false;
   pending.value = true;
-  const { message } = await authFetch(`/route/items/staffs/${props.candId}`, {
+  const { message } = (await authFetch(`/route/items/staffs/${props.candId}`, {
     method: "POST",
     body: form,
-  }) as Record<string, string>;
+  })) as Record<string, string>;
   pending.value = false;
   await refresh();
   emit("message", message);
@@ -48,76 +46,49 @@ async function deleteStaff(id: string, idx: number) {
   })) as Record<string, string>;
   if (message == "success") {
     staffs.value.splice(idx, 1);
-  };
+  }
   emit("message", message);
-}
-
-function cancelOperation() {
-  closeAction();
-  refresh();
-}
-
-function closeAction() {
-  collapse.value = false;
-  edit.value = false;
-  itemId.value = "";
 }
 </script>
 
 <template>
   <UButton
     v-if="props.editable"
-    :disabled="status == 'pending' || pending"
-    :label="!collapse ? 'Добавить запись' : 'Скрыть форму'"
+    :loading="status == 'pending' || pending"
+    :label="
+      status == 'pending' || pending
+        ? 'Обновление данных...'
+        : 'Добавить запись'
+    "
     variant="link"
-    @click="collapse = !collapse"
+    @click="modal = !modal"
   />
-  <Transition name="slide-fade">
-    <div v-if="collapse" class="py-3">
-      <ElementsCardDiv>
-        <FormsStaffForm
-          @cancel="cancelOperation"
-          @update="submitStaff"
+  <UModal v-model="modal" prevent-close>
+    <ElementsCardDiv>
+      <FormsStaffForm
+        :staff="staff"
+        @cancel="modal = false"
+        @update="submitStaff"
+      />
+    </ElementsCardDiv>
+  </UModal>
+  <div v-for="(item, idx) in staffs" :key="idx" class="p-1">
+    <ElementsCardDiv>
+      <ElementsLabelSlot :label="'Должность'">{{
+        item["position"]
+      }}</ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Департамент'">{{
+        item["department"]
+      }}</ElementsLabelSlot>
+      <template v-if="props.editable" #footer>
+        <ElementsNavSimpHoriz
+          @delete="deleteStaff(item['id'], idx)"
+          @update="
+            staff = item;
+            modal = true;
+          "
         />
-      </ElementsCardDiv>
-    </div>
-  </Transition>
-  <div v-if="staffs && staffs.length">
-    <div v-for="(item, idx) in staffs" :key="idx" class="p-1">
-      <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="2" />
-      <ElementsCardDiv v-else>
-        <FormsStaffForm
-          v-if="edit && itemId == item['id'].toString()"
-          :staff="staff"
-          @cancel="cancelOperation"
-          @update="submitStaff"
-        />
-        <div v-else>
-          <ElementsLabelSlot :label="'Должность'">{{
-            item["position"]
-          }}</ElementsLabelSlot>
-          <ElementsLabelSlot :label="'Департамент'">{{
-            item["department"]
-          }}</ElementsLabelSlot>
-        </div>
-        <template
-          v-if="props.editable && (!edit || itemId != item['id'].toString())"
-          #footer
-        >
-          <ElementsNavSimpHoriz
-            @delete="deleteStaff(item['id'], idx)"
-            @update="
-              staff = item;
-              itemId = item['id'].toString();
-              edit = true;
-            "
-          />
-        </template>
-      </ElementsCardDiv>
-    </div>
-  </div>
-  <div v-else class="p-3">
-    <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="2" />
-    <p v-else class="text-primary">Данные о должностях отсутствуют</p>
+      </template>
+    </ElementsCardDiv>
   </div>
 </template>

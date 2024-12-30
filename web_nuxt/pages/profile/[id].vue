@@ -103,7 +103,7 @@ function emitMessage(message: string) {
 <template>
   <div class="mb-6">
     <div class="flex items-center justify-between mb-3">
-      <USkeleton v-if="status === 'pending'" class="my-6 h-8 w-1/3" />
+      <USkeleton v-if="!person" class="my-6 h-8 w-1/3" />
       <ElementsHeaderDiv
         v-else
         :header="`${person['surname']} ${person['firstname']} ${
@@ -111,7 +111,6 @@ function emitMessage(message: string) {
         }`"
       />
       <UButton
-        :disabled="pending"
         :loading="pending || status === 'pending'"
         :color="
           !person.editable

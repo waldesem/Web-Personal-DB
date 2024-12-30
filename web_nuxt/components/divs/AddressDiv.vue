@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { Address } from "@/types";
 
-prefetchComponents("FormsAddressForm");
-
 const emit = defineEmits(["message"]);
 
 const authFetch = useFetchAuth();
@@ -19,8 +17,7 @@ const props = defineProps({
 });
 
 const modal = ref(false);
-const pending = ref(false);
-const itemId = ref("");
+const pending = ref(true);
 const address = ref({} as Address);
 const addresses = ref<Address[]>([]);
 
@@ -31,7 +28,7 @@ const { refresh, status } = await useLazyAsyncData("addresses", async () => {
 });
 
 async function submitAddress(form: Address) {
-  closeAction();
+  modal.value = false;
   pending.value = true;
   const { message } = (await authFetch(
     `/route/items/addresses/${props.candId}`,
@@ -55,18 +52,15 @@ async function deleteAddress(id: string, idx: number) {
   }
   emit("message", message);
 }
-
-function closeAction() {
-  modal.value = false;
-  itemId.value = "";
-}
 </script>
 
 <template>
   <UButton
     v-if="props.editable"
     :loading="status == 'pending' || pending"
-    label="Добавить запись"
+    :label="
+      status == 'pending' || pending ? 'Обновление данных...' : 'Добавить запись'
+    "
     variant="link"
     @click="modal = !modal"
   />
@@ -74,16 +68,14 @@ function closeAction() {
     <ElementsCardDiv>
       <FormsAddressForm
         :addrs="address"
-        @cancel="closeAction"
+        @cancel="modal = false"
         @update="submitAddress"
       />
     </ElementsCardDiv>
   </UModal>
-  <div v-for="(item, idx) in addresses" :key="idx" class="py-3">
+  <div v-for="(item, idx) in addresses" :key="idx" class="p-1">
     <ElementsCardDiv>
-      <ElementsLabelSlot :label="'Тип'">{{
-        item["view"]
-      }}</ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Тип'">{{ item["view"] }}</ElementsLabelSlot>
       <ElementsLabelSlot :label="'Адрес'">{{
         item["addresses"]
       }}</ElementsLabelSlot>
@@ -92,7 +84,6 @@ function closeAction() {
           @delete="deleteAddress(item['id'], idx)"
           @update="
             address = item;
-            itemId = item['id'];
             modal = true;
           "
         />
