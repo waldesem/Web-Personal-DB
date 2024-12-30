@@ -3,7 +3,7 @@ import type { NitroFetchOptions } from "nitropack";
 import type { Token, Method } from "@/types";
 import { z } from "zod";
 
-const token = z.string().jwt({"alg": "HS256"});
+const schema = z.string().jwt({"alg": "HS256"});
 
 export const useFetchAuth = () => {
   const fetchAuth = async (
@@ -11,8 +11,9 @@ export const useFetchAuth = () => {
     options: NitroFetchOptions<ResponseType, Method> = {}
   ) => {
     try {
-      token.parse(accessToken.value);
-      const payloads = accessToken.value.split(" ")[1].split(".")[1];
+      const token = accessToken.value.split(" ")[1];
+      schema.parse(token);
+      const payloads = token.split(".")[1];
       stateUser.value = JSON.parse(
         Buffer.from(payloads, "base64").toString()
       ) as Token;
