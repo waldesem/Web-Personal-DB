@@ -17,7 +17,7 @@ const props = defineProps({
 });
 
 const modal = ref(false);
-const pending = ref(true);
+const pending = ref(false);
 const prev = ref({} as Previous);
 const previous = ref<Previous[]>([]);
 
@@ -38,6 +38,7 @@ async function submitPrevious(form: Previous) {
     }
   )) as Record<string, string>;
   pending.value = false;
+  prev.value = {} as Previous;
   await refresh();
   emit("message", message);
 }
@@ -70,7 +71,7 @@ async function deletePrevious(id: string, idx: number) {
     <ElementsCardDiv>
       <FormsPreviousForm
         :prev="prev"
-        @cancel="modal = false"
+        @cancel="prev = {}; modal = false"
         @update="submitPrevious"
       />
     </ElementsCardDiv>

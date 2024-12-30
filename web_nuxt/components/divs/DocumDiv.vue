@@ -17,7 +17,7 @@ const props = defineProps({
 });
 
 const modal = ref(false);
-const pending = ref(true);
+const pending = ref(false);
 const doc = ref({} as Document);
 const documents = ref<Document[]>([]);
 
@@ -38,6 +38,7 @@ async function submitDocument(form: Document) {
     }
   )) as Record<string, string>;
   pending.value = false;
+  doc.value = {} as Document;
   await refresh();
   emit("message", message);
 }
@@ -70,7 +71,7 @@ async function deleteDocument(id: string, idx: number) {
     <ElementsCardDiv>
       <FormsDocumentForm
         :document="doc"
-        @cancel="modal = false"
+        @cancel="doc = {} as Document; modal = false"
         @update="submitDocument"
       />
     </ElementsCardDiv>

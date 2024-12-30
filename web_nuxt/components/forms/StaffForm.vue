@@ -11,6 +11,8 @@ const props = defineProps({
   },
 });
 
+const staffForm = ref(props.staff as Staff);
+
 const staffSchema = z.object({
   position: z
     .string({ required_error: "Обязательное поле" })
@@ -21,29 +23,14 @@ const staffSchema = z.object({
     .nullable()
     .optional(),
 });
-
-const staffForm = toRef(props.staff as Staff);
-
-function submitStaff() {
-  emit("update", staffForm.value);
-  clearForm();
-}
-
-function cancelAction() {
-  emit("cancel");
-  clearForm();
-}
-
-function clearForm() {
-  Object.assign(staffForm.value, {
-    position: "",
-    department: "",
-  } as Staff);
-}
 </script>
 
 <template>
-  <UForm :state="staffForm" :schema="staffSchema" @submit.prevent="submitStaff">
+  <UForm
+    :state="staffForm"
+    :schema="staffSchema"
+    @submit.prevent="emit('update', staffForm)"
+  >
     <UFormGroup class="mb-3" label="Должность" name="position" required>
       <UInput
         v-model.trim.lazy="staffForm['position']"
@@ -57,6 +44,6 @@ function clearForm() {
         placeholder="Подразделение"
       />
     </UFormGroup>
-    <ElementsBtnGroup @cancel="cancelAction" />
+    <ElementsBtnGroup @cancel="emit('cancel')" />
   </UForm>
 </template>

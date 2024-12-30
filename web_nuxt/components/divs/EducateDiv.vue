@@ -17,7 +17,7 @@ const props = defineProps({
 });
 
 const modal = ref(false);
-const pending = ref(true);
+const pending = ref(false);
 const education = ref({} as Education);
 const educations = ref<Education[]>([]);
 
@@ -38,6 +38,7 @@ async function submitEducation(form: Education) {
     }
   )) as Record<string, string>;
   pending.value = false;
+  education.value = {} as Education;
   await refresh();
   emit("message", message);
 }
@@ -70,7 +71,7 @@ async function deleteEducation(id: string, idx: number) {
     <ElementsCardDiv>
       <FormsEducationForm
         :education="education"
-        @cancel="modal = false"
+        @cancel="education = {}; modal = false"
         @update="submitEducation"
       />
     </ElementsCardDiv>

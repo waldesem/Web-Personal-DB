@@ -3,8 +3,6 @@ import type { Persons } from "@/types";
 
 const emit = defineEmits(["update", "message"]);
 
-const toast = useToast();
-
 const authFetch = useFetchAuth();
 
 const props = defineProps({
@@ -28,32 +26,7 @@ const props = defineProps({
 
 const modal = ref(false);
 const pending = ref(false);
-const region = ref("");
-
-async function changeRegion(): Promise<void> {
-  if (!confirm("Вы действительно хотите изменить регион?")) return;
-  const { message } = (await authFetch(`/route/anketa/region/${props.candId}`, {
-    params: {
-      region: region.value,
-    },
-  })) as Record<string, string>;
-  if (message == "success") {
-    emit("update");
-    toast.add({
-      icon: "i-heroicons-check-circle",
-      title: "Информация",
-      description: "Изменение региона успешно",
-      color: "green",
-    });
-  } else {
-    toast.add({
-      icon: "i-heroicons-information-circle",
-      title: "Внимание",
-      description: "Регион не был изменен",
-      color: "red",
-    });
-  }
-}
+const resume = ref({} as Persons);
 
 async function submitResume(form: Persons) {
   pending.value = true;
@@ -63,6 +36,7 @@ async function submitResume(form: Persons) {
     body: form,
   })) as Record<string, string>;
   pending.value = false;
+  resume.value = {} as Persons;
   emit("update");
   emit("message", message);
 }
@@ -85,32 +59,26 @@ async function deleteItem() {
     <UModal v-model="modal" prevent-close>
       <ElementsCardDiv>
         <FormsResumeForm
-          :resume="props.person"
-          @cancel="modal = false"
+          :resume="resume"
+          @cancel="
+            resume = {} as Persons;
+            modal = false;
+          "
           @update="submitResume"
         />
       </ElementsCardDiv>
     </UModal>
-    <ElementsSkeletonDiv
-      v-if="pending || props.status === 'pending'"
-      :rows="14"
-    />
+    <div v-if="pending || props.status === 'pending'">
+      <div v-for="i in 14" :key="i" class="flex grid grid-cols-12 gap-3 mb-3">
+        <div class="col-span-3">
+          <USkeleton class="h-4" />
+        </div>
+        <div class="col-span-9">
+          <USkeleton class="h-4 w-[300px]" />
+        </div>
+      </div>
+    </div>
     <div v-else>
-      <ElementsLabelSlot :label="'Регион'">
-        <USelect
-          v-model="region"
-          :options="[
-            'Главный офис',
-            'РЦ Юг',
-            'РЦ Запад',
-            'РЦ Урал',
-            'РЦ Восток',
-          ]"
-          :disabled="!props.editable"
-          :placeholder="props.person['region']"
-          @change="changeRegion"
-        />
-      </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Фамилия'">
         {{ props.person["surname"] }}
       </ElementsLabelSlot>
@@ -162,7 +130,10 @@ async function deleteItem() {
         :cand-id="props.candId"
         :item="'persons'"
         @delete="deleteItem"
-        @update="modal = true"
+        @update="
+          resume = props.person;
+          modal = true;
+        "
       />
     </template>
   </ElementsCardDiv>

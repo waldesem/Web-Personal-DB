@@ -19,7 +19,7 @@ const props = defineProps({
 });
 
 const modal = ref(false);
-const pending = ref(true);
+const pending = ref(false);
 const inquisition = ref({} as Inquisition);
 const investigations = ref<Inquisition[]>([]);
 
@@ -43,6 +43,7 @@ async function submitInvestigations(form: Inquisition) {
     }
   )) as Record<string, string>;
   pending.value = false;
+  inquisition.value = {} as Inquisition;
   await refresh();
   emit("message", message);
 }
@@ -75,7 +76,7 @@ async function deleteInquisition(id: string, idx: number) {
     <ElementsCardDiv>
       <FormsInvestigationForm
         :inquisition="inquisition"
-        @cancel="modal = false"
+        @cancel="inquisition = {}; modal = false"
         @update="submitInvestigations"
       />
     </ElementsCardDiv>
@@ -104,6 +105,7 @@ async function deleteInquisition(id: string, idx: number) {
         <ElementsNaviHorizont
           :cand-id="props.candId"
           :item="'investigations'"
+          @cancel="modal = false"
           @update="
             inquisition = item;
             modal = true;

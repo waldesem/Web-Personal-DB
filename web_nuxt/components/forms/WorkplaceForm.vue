@@ -11,6 +11,15 @@ const props = defineProps({
   },
 });
 
+const workForm = ref(props.work as Work);
+
+workForm.value.starts = workForm.value.starts
+  ? new Date(workForm.value.starts).toISOString().split("T", 1)[0]
+  : "";
+workForm.value.finished = workForm.value.finished
+  ? new Date(workForm.value.finished).toISOString().split("T", 1)[0]
+  : "";
+
 const schema = z.object({
   now_work: z.boolean().nullable().optional(),
   starts: z
@@ -30,41 +39,14 @@ const schema = z.object({
   addresses: z.string().max(255, "Максимум 255 символов").nullable().optional(),
   reason: z.string().max(255, "Максимум 255 символов").nullable().optional(),
 });
-
-const workForm = toRef(props.work as Work);
-
-workForm.value.starts = workForm.value.starts
-  ? new Date(workForm.value.starts).toISOString().split("T", 1)[0]
-  : "";
-workForm.value.finished = workForm.value.finished
-  ? new Date(workForm.value.finished).toISOString().split("T", 1)[0]
-  : "";
-
-function submitWorkplace() {
-  emit("update", workForm.value);
-  clearForm();
-}
-
-function cancelAction() {
-  emit("cancel");
-  clearForm();
-}
-
-function clearForm() {
-  Object.assign(workForm.value, {
-    now_work: false,
-    starts: "",
-    finished: "",
-    workplace: "",
-    position: "",
-    addresses: "",
-    reason: "",
-  } as Work);
-}
 </script>
 
 <template>
-  <UForm :state="workForm" :schema="schema" @submit.prevent="submitWorkplace">
+  <UForm
+    :state="workForm"
+    :schema="schema"
+    @submit.prevent="emit('update', workForm)"
+  >
     <UFormGroup class="mb-3" label="Текущая работа" name="now_work">
       <UCheckbox v-model="workForm['now_work']" />
     </UFormGroup>
@@ -110,6 +92,6 @@ function clearForm() {
         placeholder="Причина увольнения"
       />
     </UFormGroup>
-    <ElementsBtnGroup @cancel="cancelAction" />
+    <ElementsBtnGroup @cancel="emit('cancel')" />
   </UForm>
 </template>

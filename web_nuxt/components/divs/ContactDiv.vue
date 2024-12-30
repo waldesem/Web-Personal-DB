@@ -17,7 +17,7 @@ const props = defineProps({
 });
 
 const modal = ref(false);
-const pending = ref(true);
+const pending = ref(false);
 const contact = ref({} as Contact);
 const contacts = ref<Contact[]>([]);
 
@@ -38,6 +38,7 @@ async function submitContact(form: Contact) {
     }
   )) as Record<string, string>;
   pending.value = false;
+  contact.value = {} as Contact;
   await refresh();
   emit("message", message);
 }
@@ -70,7 +71,7 @@ async function deleteContact(id: string, idx: number) {
     <ElementsCardDiv>
       <FormsContactForm
         :contact="contact"
-        @cancel="modal = false"
+        @cancel="contact = {}; modal = false"
         @update="submitContact"
       />
     </ElementsCardDiv>

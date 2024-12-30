@@ -17,7 +17,7 @@ const props = defineProps({
 });
 
 const modal = ref(false);
-const pending = ref(true);
+const pending = ref(false);
 const affilation = ref({} as Affilation);
 const affilations = ref<Affilation[]>([]);
 
@@ -38,6 +38,7 @@ async function submitAffilation(form: Affilation) {
     }
   )) as Record<string, string>;
   pending.value = false;
+  affilation.value = {} as Affilation;
   await refresh();
   emit("message", message);
 }
@@ -70,7 +71,7 @@ async function deleteAffilation(id: string, idx: number) {
     <ElementsCardDiv>
       <FormsAffilationForm
         :affil="affilation"
-        @cancel="modal = false"
+        @cancel="affilation = {}; modal = false"
         @update="submitAffilation"
       />
     </ElementsCardDiv>

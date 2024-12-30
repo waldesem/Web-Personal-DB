@@ -18,6 +18,7 @@ const candId = computed(() => route.params.id) as Ref<string>;
 
 const person = ref({} as Persons);
 const pending = ref(false);
+const region = ref("");
 
 const { refresh, status } = await useLazyAsyncData("anketa", async () => {
   person.value = (await authFetch(
@@ -81,6 +82,21 @@ async function switchSelf(): Promise<void> {
   emitMessage(message);
 }
 
+async function changeRegion(): Promise<void> {
+  if (!confirm("Вы действительно хотите изменить регион?")) return;
+  pending.value = true;
+  const { message } = (await authFetch(`/route/anketa/region/${candId.value}`, {
+    params: {
+      region: region.value,
+    },
+  })) as Record<string, string>;
+  pending.value = false;
+  emitMessage(message);
+  if (message == "success") {
+    person.value.region = region.value;
+  }
+}
+
 function emitMessage(message: string) {
   if (message == "success") {
     toast.add({
@@ -103,13 +119,28 @@ function emitMessage(message: string) {
 <template>
   <div class="mb-6">
     <div class="flex items-center justify-between mb-3">
-      <USkeleton v-if="!person" class="my-6 h-8 w-1/3" />
-      <ElementsHeaderDiv
-        v-else
-        :header="`${person['surname']} ${person['firstname']} ${
-          person['patronymic'] ? person['patronymic'] : ''
-        }`"
-      />
+      <div class="flex items-center space-x-4">
+        <USkeleton v-if="!person" class="my-6 h-8 w-1/3" />
+        <ElementsHeaderDiv
+          v-else
+          :header="`${person['surname']} ${person['firstname']} ${
+            person['patronymic'] ? person['patronymic'] : ''
+          }`"
+        />
+        <USelect
+          v-model="region"
+          :options="[
+            'Главный офис',
+            'РЦ Юг',
+            'РЦ Запад',
+            'РЦ Урал',
+            'РЦ Восток',
+          ]"
+          :disabled="!person.editable"
+          :placeholder="person['region'].toUpperCase() || 'Регион'"
+          @change="changeRegion"
+        />
+      </div>
       <UButton
         :loading="pending || status === 'pending'"
         :color="

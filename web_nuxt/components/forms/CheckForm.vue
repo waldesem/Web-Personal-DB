@@ -11,6 +11,10 @@ const props = defineProps({
   },
 });
 
+const checkForm = ref(props.check as Verification);
+
+const noNegative = ref(false);
+
 const schema = z.object({
   workplace: z.string().nullable().optional(),
   document: z.string().nullable().optional(),
@@ -29,27 +33,6 @@ const schema = z.object({
   conclusion: z.string({ required_error: "Обязательное поле" }),
 });
 
-const checkForm = toRef(props.check as Verification);
-
-const noNegative = ref(false);
-
-function submitCheck() {
-  emit("update", checkForm.value);
-  clearForm();
-}
-
-function cancelAction() {
-  emit("cancel");
-  clearForm();
-}
-
-function clearForm() {
-  noNegative.value = false;
-  Object.keys(checkForm.value).forEach((key) => {
-    checkForm.value[key as keyof typeof checkForm.value] = "";
-  });
-}
-
 watch(noNegative, () => {
   if (noNegative.value) {
     Object.assign(checkForm.value, {
@@ -66,15 +49,34 @@ watch(noNegative, () => {
       internet: "В открытых источниках негатив не обнаружен",
       cronos: "В Кронос негатив не выявлен",
     });
+  } else {
+    Object.assign(checkForm.value, {
+      workplace: "",
+      document: "",
+      inn: "",
+      debt: "",
+      bankruptcy: "",
+      bki: "",
+      courts: "",
+      affilation: "",
+      terrorist: "",
+      mvd: "",
+      internet: "",
+      cronos: "",
+    });
   }
 });
 </script>
 
 <template>
-  <UFormGroup :state="noNegative" :schema="schema" class="mb-3" label="Негатива нет">
+  <UFormGroup :state="noNegative" class="mb-3" label="Негатива нет">
     <UToggle v-model="noNegative" />
   </UFormGroup>
-  <UForm :state="checkForm" @submit.prevent="submitCheck">
+  <UForm
+    :state="checkForm"
+    :schema="schema"
+    @submit.prevent="emit('update', checkForm)"
+  >
     <UFormGroup class="mb-3" label="Проверка по местам работы" name="workplace">
       <UTextarea
         v-model.trim.lazy="checkForm['workplace']"
@@ -124,14 +126,22 @@ watch(noNegative, () => {
         placeholder="Проверка судебных дел"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Проверка аффилированности" name="affilation">
+    <UFormGroup
+      class="mb-3"
+      label="Проверка аффилированности"
+      name="affilation"
+    >
       <UTextarea
         v-model.trim.lazy="checkForm['affilation']"
         autoresize
         placeholder="Проверка аффилированности"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Проверка в списке террористов" name="terrorist">
+    <UFormGroup
+      class="mb-3"
+      label="Проверка в списке террористов"
+      name="terrorist"
+    >
       <UTextarea
         v-model.trim.lazy="checkForm['terrorist']"
         autoresize
@@ -145,7 +155,11 @@ watch(noNegative, () => {
         placeholder="Проверка в розыск"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Проверка в открытых источниках" name="internet">
+    <UFormGroup
+      class="mb-3"
+      label="Проверка в открытых источниках"
+      name="internet"
+    >
       <UTextarea
         v-model.trim.lazy="checkForm['internet']"
         autoresize
@@ -184,6 +198,6 @@ watch(noNegative, () => {
         ]"
       />
     </UFormGroup>
-    <ElementsBtnGroup @cancel="cancelAction" />
+    <ElementsBtnGroup @cancel="emit('cancel')" />
   </UForm>
 </template>

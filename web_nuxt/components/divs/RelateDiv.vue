@@ -17,7 +17,7 @@ const props = defineProps({
 });
 
 const modal = ref(false);
-const pending = ref(true);
+const pending = ref(false);
 const relations = ref([] as Relation[]);
 const relationships = ref([] as Relationship[]);
 

@@ -17,7 +17,7 @@ const props = defineProps({
 });
 
 const modal = ref(false);
-const pending = ref(true);
+const pending = ref(false);
 const workplace = ref({} as Work);
 const workplaces = ref<Work[]>([]);
 
@@ -38,6 +38,7 @@ async function submitWorkplace(form: Work) {
     }
   )) as Record<string, string>;
   pending.value = false;
+  workplace.value = {} as Work;
   await refresh();
   emit("message", message);
 }
@@ -70,7 +71,7 @@ async function deleteWork(id: string, idx: number) {
     <ElementsCardDiv>
       <FormsWorkplaceForm
         :work="workplace"
-        @cancel="modal = false"
+        @cancel="workplace = {}; modal = false"
         @update="submitWorkplace"
       />
     </ElementsCardDiv>

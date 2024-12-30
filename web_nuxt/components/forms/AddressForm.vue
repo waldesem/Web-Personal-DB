@@ -11,36 +11,22 @@ const props = defineProps({
   },
 });
 
+const addressForm = ref(props.addrs as Address);
+
 const schema = z.object({
-  view: z
-    .string({ required_error: "Обязательное поле" }),
+  view: z.string({ required_error: "Обязательное поле" }),
   addresses: z
     .string({ required_error: "Обязательное поле" })
     .max(255, "Максимум 255 символов"),
 });
-
-const addressForm = toRef(props.addrs as Address);
-
-function submitAddress() {
-  emit("update", addressForm.value);
-  clearForm();
-}
-
-function cancelAction() {
-  emit("cancel");
-  clearForm();
-}
-
-function clearForm() {
-  Object.assign(addressForm.value, {
-    view: "",
-    addresses: "",
-  } as Address);
-}
 </script>
 
 <template>
-  <UForm :state="addressForm" :schema="schema" @submit.prevent="submitAddress">
+  <UForm
+    :state="addressForm"
+    :schema="schema"
+    @submit.prevent="emit('update', addressForm)"
+  >
     <UFormGroup class="mb-3" label="Вид адреса" name="view" required>
       <USelect
         v-model.trim.lazy="addressForm['view']"
@@ -55,6 +41,6 @@ function clearForm() {
         placeholder="Адрес"
       />
     </UFormGroup>
-    <ElementsBtnGroup @cancel="cancelAction" />
+    <ElementsBtnGroup @cancel="emit('cancel')" />
   </UForm>
 </template>

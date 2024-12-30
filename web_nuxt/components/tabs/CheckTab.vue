@@ -19,7 +19,7 @@ const props = defineProps({
 });
 
 const modal = ref(false);
-const pending = ref(true);
+const pending = ref(false);
 const check = ref({} as Verification);
 const checks = ref<Verification[]>([]);
 
@@ -37,6 +37,7 @@ async function submitCheck(form: Verification) {
     body: form,
   })) as Record<string, string>;
   pending.value = false;
+  check.value = {} as Verification;
   await refresh();
   emit("message", message);
 }
@@ -69,7 +70,7 @@ async function deleteCheck(id: string, idx: number) {
     <ElementsCardDiv>
       <FormsCheckForm
         :check="check"
-        @cancel="modal = false"
+        @cancel="check = {}; modal = false"
         @update="submitCheck"
       />
     </ElementsCardDiv>
@@ -158,6 +159,7 @@ async function deleteCheck(id: string, idx: number) {
         <ElementsNaviHorizont
           :cand-id="props.candId"
           :item="'checks'"
+          @cancel="modal = false"
           @update="
             check = item;
             modal = true;

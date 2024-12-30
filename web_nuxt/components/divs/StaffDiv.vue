@@ -17,7 +17,7 @@ const props = defineProps({
 });
 
 const modal = ref(false);
-const pending = ref(true);
+const pending = ref(false);
 const staff = ref({} as Staff);
 const staffs = ref<Staff[]>([]);
 
@@ -35,6 +35,7 @@ async function submitStaff(form: Staff) {
     body: form,
   })) as Record<string, string>;
   pending.value = false;
+  staff.value = {} as Staff;
   await refresh();
   emit("message", message);
 }
@@ -67,7 +68,7 @@ async function deleteStaff(id: string, idx: number) {
     <ElementsCardDiv>
       <FormsStaffForm
         :staff="staff"
-        @cancel="modal = false"
+        @cancel="staff = {}; modal = false"
         @update="submitStaff"
       />
     </ElementsCardDiv>

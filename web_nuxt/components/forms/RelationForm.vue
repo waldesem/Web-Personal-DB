@@ -11,36 +11,22 @@ const props = defineProps({
   },
 });
 
+const relationForm = ref(props.relation as Relation);
+
 const schema = z.object({
   type: z
     .string({ required_error: "Обязательное поле" })
     .max(255, "Максимум 255 символов"),
-  right_id: z
-    .number({ required_error: "Обязательное поле" })
+  right_id: z.number({ required_error: "Обязательное поле" }),
 });
-
-const relationForm = toRef(props.relation as Relation);
-
-async function submitRelation() {
-  emit("update", relationForm.value);
-  clearForm();
-}
-
-function cancelAction() {
-  emit("cancel");
-  clearForm();
-}
-
-function clearForm() {
-  Object.assign(relationForm.value, {
-    type: "",
-    right_id: "",
-  } as Relation);
-}
 </script>
 
 <template>
-  <UForm :state="relationForm" :schema="schema" @submit.prevent="submitRelation">
+  <UForm
+    :state="relationForm"
+    :schema="schema"
+    @submit.prevent="emit('update', relationForm)"
+  >
     <UFormGroup class="mb-3" label="Тип связи" name="type" required>
       <USelect
         v-model.trim.lazy="relationForm['type']"
@@ -62,6 +48,6 @@ function clearForm() {
         type="number"
       />
     </UFormGroup>
-    <ElementsBtnGroup @cancel="cancelAction" />
+    <ElementsBtnGroup @cancel="emit('cancel')" />
   </UForm>
 </template>

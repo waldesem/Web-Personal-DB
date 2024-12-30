@@ -17,7 +17,7 @@ const props = defineProps({
 });
 
 const modal = ref(false);
-const pending = ref(true);
+const pending = ref(false);
 const address = ref({} as Address);
 const addresses = ref<Address[]>([]);
 
@@ -38,6 +38,7 @@ async function submitAddress(form: Address) {
     }
   )) as Record<string, string>;
   pending.value = false;
+  address.value = {} as Address;
   await refresh();
   emit("message", message);
 }
@@ -68,7 +69,7 @@ async function deleteAddress(id: string, idx: number) {
     <ElementsCardDiv>
       <FormsAddressForm
         :addrs="address"
-        @cancel="modal = false"
+        @cancel="address = {}; modal = false"
         @update="submitAddress"
       />
     </ElementsCardDiv>

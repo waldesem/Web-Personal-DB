@@ -11,35 +11,22 @@ const props = defineProps({
   },
 });
 
+const inquiryForm = ref(props.inquiry);
+
 const schema = z.object({
   info: z.string({ required_error: "Обязательное поле" }),
   initiator: z
     .string({ required_error: "Обязательное поле" })
     .max(255, "Максимум 255 символов"),
 });
-
-const inquiryForm = toRef(props.inquiry as Needs);
-
-function submitIquiry() {
-  emit("update", inquiryForm.value);
-  clearForm();
-}
-
-function cancelAction() {
-  emit("cancel");
-  clearForm();
-}
-
-function clearForm() {
-  Object.assign(inquiryForm.value, {
-    info: "",
-    initiator: "",
-  } as Needs);
-}
 </script>
 
 <template>
-  <UForm :state="inquiryForm" :schema="schema" @submit.prevent="submitIquiry">
+  <UForm
+    :state="inquiryForm"
+    :schema="schema"
+    @submit.prevent="emit('update', inquiryForm)"
+  >
     <UFormGroup class="mb-3" label="Информация" name="info" required>
       <UTextarea
         v-model.trim.lazy="inquiryForm['info']"
@@ -55,6 +42,6 @@ function clearForm() {
         placeholder="Инициатор"
       />
     </UFormGroup>
-    <ElementsBtnGroup @cancel="cancelAction" />
+    <ElementsBtnGroup @cancel="emit('cancel')" />
   </UForm>
 </template>

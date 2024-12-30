@@ -19,7 +19,7 @@ const props = defineProps({
 });
 
 const modal = ref(false);
-const pending = ref(true);
+const pending = ref(false);
 const poligraf = ref({} as Pfo);
 const poligrafs = ref<Pfo[]>([]);
 
@@ -40,6 +40,7 @@ async function submitPoligraf(form: Pfo) {
     }
   )) as Record<string, string>;
   pending.value = false;
+  poligraf.value = {} as Pfo;
   await refresh();
   emit("message", message);
 }
@@ -72,7 +73,7 @@ async function deletePoligraf(id: string, idx: number) {
     <ElementsCardDiv>
       <FormsPoligrafForm
         :poligraf="poligraf"
-        @cancel="modal = false"
+        @cancel="poligraf = {}; modal = false"
         @update="submitPoligraf"
       />
     </ElementsCardDiv>
@@ -101,6 +102,7 @@ async function deletePoligraf(id: string, idx: number) {
         <ElementsNaviHorizont
           :cand-id="props.candId"
           :item="'poligrafs'"
+          @cancel="modal = false"
           @update="
             poligraf = item;
             modal = true;

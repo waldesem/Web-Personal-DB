@@ -11,42 +11,23 @@ const props = defineProps({
   },
 });
 
+const affilationForm = ref(props.affils as Affilation);
+
 const schema = z.object({
-  view: z
-    .string({ required_error: "Обязательное поле" }),
+  view: z.string({ required_error: "Обязательное поле" }),
   organization: z
     .string({ required_error: "Обязательное поле" })
     .max(255, "Максимум 255 символов"),
-  inn: z
-    .string()
-    .max(12, "Максимум 12 символов")
-    .nullable()
-    .optional(),
+  inn: z.string().max(12, "Максимум 12 символов").nullable().optional(),
 });
-
-const affilationForm = toRef(props.affils as Affilation);
-
-function submitAffilation() {
-  emit("update", affilationForm.value);
-  clearForm();
-}
-
-function cancelAction() {
-  emit("cancel");
-  clearForm();
-}
-
-function clearForm() {
-  Object.assign(affilationForm.value, {
-    view: "",
-    organization: "",
-    inn: "",
-  } as Affilation);
-}
 </script>
 
 <template>
-  <UForm :state="affilationForm" :schema="schema" @submit.prevent="submitAffilation">
+  <UForm
+    :state="affilationForm"
+    :schema="schema"
+    @submit.prevent="emit('update', affilationForm)"
+  >
     <UFormGroup class="mb-3" label="Тип участия" name="view" required>
       <USelect
         v-model.trim.lazy="affilationForm['view']"
@@ -69,6 +50,6 @@ function clearForm() {
     <UFormGroup class="mb-3" label="ИНН" name="inn">
       <UInput v-model.trim.lazy="affilationForm['inn']" placeholder="ИНН" />
     </UFormGroup>
-    <ElementsBtnGroup @cancel="cancelAction" />
+    <ElementsBtnGroup @cancel="emit('cancel')" />
   </UForm>
 </template>

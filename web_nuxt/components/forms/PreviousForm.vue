@@ -11,6 +11,8 @@ const props = defineProps({
   },
 });
 
+const previousForm = ref(props.previous as Previous);
+
 const schema = z.object({
   surname: z
     .string({ required_error: "Обязательное поле" })
@@ -23,43 +25,17 @@ const schema = z.object({
     .max(255, "Максимум 255 символов")
     .nullable()
     .optional(),
-  changed: z
-    .string()
-    .max(4, "Максимум 4 символа")
-    .nullable()
-    .optional(),
-  reason: z
-    .string()
-    .max(255, "Максимум 255 символов")
-    .nullable()
-    .optional(),
+  changed: z.string().max(4, "Максимум 4 символа").nullable().optional(),
+  reason: z.string().max(255, "Максимум 255 символов").nullable().optional(),
 });
-
-const previousForm = toRef(props.previous as Previous);
-
-function submitPrevious() {
-  emit("update", previousForm.value);
-  clearForm();
-}
-
-function cancelAction() {
-  emit("cancel");
-  clearForm();
-}
-
-function clearForm() {
-  Object.assign(previousForm.value, {
-    surname: "",
-    firstname: "",
-    patronymic: "",
-    changed: "",
-    reason: "",
-  } as Previous);
-}
 </script>
 
 <template>
-  <UForm :state="previousForm" :schema="schema" @submit.prevent="submitPrevious">
+  <UForm
+    :state="previousForm"
+    :schema="schema"
+    @submit.prevent="emit('update', previousForm)"
+  >
     <UFormGroup class="mb-3" label="Фамилия" name="surname" required>
       <UInput
         v-model.trim.lazy="previousForm['surname']"
@@ -92,6 +68,6 @@ function clearForm() {
         placeholder="Причина изменения"
       />
     </UFormGroup>
-    <ElementsBtnGroup @cancel="cancelAction" />
+    <ElementsBtnGroup @cancel="emit('cancel')" />
   </UForm>
 </template>

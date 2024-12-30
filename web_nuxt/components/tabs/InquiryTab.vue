@@ -19,7 +19,7 @@ const props = defineProps({
 });
 
 const modal = ref(false);
-const pending = ref(true);
+const pending = ref(false);
 const need = ref({} as Needs);
 const inquiries = ref<Needs[]>([]);
 
@@ -40,6 +40,7 @@ async function submitIquiry(form: Needs) {
     }
   )) as Record<string, string>;
   pending.value = false;
+  need.value = {} as Needs;
   await refresh();
   emit("message", message);
 }
@@ -72,7 +73,7 @@ async function deleteNeed(id: string, idx: number) {
     <ElementsCardDiv>
       <FormsInquiryForm
         :inquiry="need"
-        @cancel="modal = false"
+        @cancel="need = {}; modal = false"
         @update="submitIquiry"
       />
     </ElementsCardDiv>
@@ -88,10 +89,10 @@ async function deleteNeed(id: string, idx: number) {
           {{ "Запрос о сотруднике ID #" + item["id"] }}
         </div>
       </template>
-      <ElementsLabelSlot v-if="item['info']" :label="'Информация'">{{
+      <ElementsLabelSlot :label="'Информация'">{{
         item["info"]
       }}</ElementsLabelSlot>
-      <ElementsLabelSlot v-if="item['initiator']" :label="'Иннициатор'">{{
+      <ElementsLabelSlot :label="'Иннициатор'">{{
         item["initiator"]
       }}</ElementsLabelSlot>
       <ElementsLabelSlot :label="'Дата записи'">

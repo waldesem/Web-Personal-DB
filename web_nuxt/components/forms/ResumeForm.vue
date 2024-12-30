@@ -11,6 +11,12 @@ const props = defineProps({
   },
 });
 
+const resumeForm = ref(props.resume);
+
+resumeForm.value.birthday = resumeForm.value.birthday
+  ? new Date(resumeForm.value.birthday).toISOString().split("T", 1)[0]
+  : "";
+
 const schemaResume = z.object({
   surname: z
     .string({ required_error: "Обязательное поле" })
@@ -60,45 +66,13 @@ const schemaResume = z.object({
   marital: z.string().max(255, "Максимум 255 символов").nullable().optional(),
   addition: z.string().nullable().optional(),
 });
-
-const resumeForm = toRef(props.resume);
-
-resumeForm.value.birthday = resumeForm.value.birthday
-  ? new Date(resumeForm.value.birthday).toISOString().split("T", 1)[0]
-  : "";
-
-function cancelOperation() {
-  emit("cancel");
-  cancelEdit();
-}
-
-function cancelEdit() {
-  Object.assign(resumeForm.value, {
-    surname: "",
-    firstname: "",
-    patronymic: "",
-    birthday: "",
-    birthplace: "",
-    citizenship: "",
-    dual: "",
-    inn: "",
-    snils: "",
-    marital: "",
-    addition: "",
-  } as Persons);
-}
-
-async function submitResume() {
-  emit("update", resumeForm.value);
-  cancelEdit();
-}
 </script>
 
 <template>
   <UForm
     :state="resumeForm"
     :schema="schemaResume"
-    @submit.prevent="submitResume"
+    @submit.prevent="emit('update', resumeForm)"
   >
     <UFormGroup class="mb-3" label="Фамилия" name="surname" required>
       <UInput
@@ -156,6 +130,6 @@ async function submitResume() {
         placeholder="Дополнительно"
       />
     </UFormGroup>
-    <ElementsBtnGroup @cancel="cancelOperation" />
+    <ElementsBtnGroup @cancel="emit('cancel')" />
   </UForm>
 </template>
