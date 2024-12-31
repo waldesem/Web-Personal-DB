@@ -6,7 +6,7 @@ prefetchComponents("FormsResumeForm");
 const toast = useToast();
 const authFetch = useFetchAuth();
 
-const upload = ref(false);
+const upload = ref(true);
 
 const navigateToPersons = () => navigateTo("/persons");
 
@@ -32,10 +32,13 @@ async function submitResume(form: Persons) {
 
 <template>
   <div class="mb-6">
-    <USkeleton v-if="upload" class="my-6 h-8 w-1/3" />
-    <ElementsHeaderDiv v-else header="НОВАЯ АНКЕТА" />
-    <div class="my-6">
-      <ElementsSkeletonDiv v-if="upload" :rows="18" />
+    <ElementsHeaderDiv v-if="!upload" header="НОВАЯ АНКЕТА" />
+    <div class="text-center py-32">
+      <UIcon
+        v-if="upload"
+        :name="'i-heroicons-arrow-path'"
+        class="animate-spin w-16 h-16 text-gray-600 dark:text-gray-200"
+      />
       <ElementsCardDiv v-else>
         <FormsResumeForm @cancel="navigateToPersons" @update="submitResume" />
       </ElementsCardDiv>
