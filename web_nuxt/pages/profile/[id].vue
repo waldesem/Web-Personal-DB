@@ -83,17 +83,23 @@ async function switchSelf(): Promise<void> {
 }
 
 async function changeRegion(): Promise<void> {
-  if (!confirm("Вы действительно хотите изменить регион?")) return;
-  pending.value = true;
-  const { message } = (await authFetch(`/route/anketa/region/${candId.value}`, {
-    params: {
-      region: region.value,
-    },
-  })) as Record<string, string>;
-  pending.value = false;
-  emitMessage(message);
-  if (message == "success") {
-    person.value.region = region.value;
+  if (confirm("Вы действительно хотите изменить регион?")) {
+    pending.value = true;
+    const { message } = (await authFetch(
+      `/route/anketa/region/${candId.value}`,
+      {
+        params: {
+          region: region.value,
+        },
+      }
+    )) as Record<string, string>;
+    pending.value = false;
+    emitMessage(message);
+    if (message == "success") {
+      person.value.region = region.value;
+    }
+  } else {
+    region.value = person.value.region;
   }
 }
 
@@ -137,7 +143,7 @@ function emitMessage(message: string) {
             'РЦ Восток',
           ]"
           :disabled="!person.editable"
-          :placeholder="person['region'].toUpperCase() || 'Регион'"
+          :placeholder="person['region'] || 'Регион'"
           @change="changeRegion"
         />
       </div>

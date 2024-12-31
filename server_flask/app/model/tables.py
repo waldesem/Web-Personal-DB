@@ -59,7 +59,7 @@ class Users(Base):
     pswd_create: Mapped[datetime] = mapped_column(
         DateTime,
         default=func.now(),
-        onupdate=func.now(),
+        nullable=False,
     )
     change_pswd: Mapped[bool] = mapped_column(Boolean(), default=True)
     blocked: Mapped[bool] = mapped_column(Boolean(), default=False)

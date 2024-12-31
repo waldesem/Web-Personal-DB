@@ -3,6 +3,22 @@ import { watchDebounced } from "@vueuse/core";
 import { z } from "zod";
 import type { User } from "@/types";
 
+type UserForm = z.infer<typeof schema>;
+
+const toast = useToast();
+
+const fetchAuth = useFetchAuth();
+
+const search = ref("");
+const region = ref("");
+const role = ref("");
+const users = ref([] as User[]);
+const user = ref({} as User);
+const form = ref({} as UserForm);
+const modalForm = ref(false);
+const modalProfile = ref(false);
+const viewDeleted = ref(false);
+
 const schema = z.object({
   username: z
     .string({ required_error: "Обязательное поле" })
@@ -24,21 +40,6 @@ const schema = z.object({
     ),
 });
 
-type UserForm = z.infer<typeof schema>;
-
-const toast = useToast();
-
-const fetchAuth = useFetchAuth();
-
-const search = ref("");
-const userId = ref("");
-const region = ref("");
-const role = ref("");
-const users = ref([] as User[]);
-const form = ref({} as UserForm);
-const collapsed = ref(false);
-const viewDeleted = ref(false);
-
 /**
  * Filters the list of users based on the current search query.
  *
@@ -56,6 +57,15 @@ const { refresh, status } = await useLazyAsyncData("users", async () => {
   })) as User[];
 });
 
+async function openUser(id: string): Promise<void> {
+  user.value = (await fetchAuth("/route/user/" + id, {
+    params: {
+      item: "open",
+    },
+  })) as User;
+  modalProfile.value = true;
+}
+
 /**
  * Performs an action on a user, such as blocking or deleting them.
  *
@@ -63,10 +73,7 @@ const { refresh, status } = await useLazyAsyncData("users", async () => {
  * @param {string} id The ID of the user to perform the action on
  * @returns {Promise<void>}
  */
-async function userAction(
-  item: string,
-  id: string = userId.value
-): Promise<void> {
+async function userAction(item: string, id: string): Promise<void> {
   if (id == stateUser.value.id) {
     toast.add({
       icon: "i-heroicons-information-circle",
@@ -74,9 +81,11 @@ async function userAction(
       description: "Невозможно  выполнить действие",
       color: "red",
     });
+    clearItems();
     return;
   }
   if (!confirm("Подтвердите действие!")) {
+    clearItems();
     return;
   }
   const { message } = (await fetchAuth("/route/user/" + id, {
@@ -84,10 +93,8 @@ async function userAction(
       item: item,
     },
   })) as Record<string, string>;
-  userId.value = "";
-  region.value = "";
-  role.value = "";
-  await refresh();
+  clearItems();
+  await openUser(id);
   if (message != "success") {
     toast.add({
       icon: "i-heroicons-check-circle",
@@ -105,6 +112,11 @@ async function userAction(
   }
 }
 
+const clearItems = () => {
+  region.value = "";
+  role.value = "";
+};
+
 /**
  * Submits a new user to the server.
  * @returns {Promise<void>}
@@ -114,11 +126,8 @@ async function submitUser(): Promise<void> {
     method: "POST",
     body: form.value,
   })) as Record<string, string>;
-  collapsed.value = false;
-  Object.assign(form.value, {
-    fullname: "",
-    username: "",
-  });
+  modalForm.value = false;
+  form.value = {} as UserForm;
   if (message === "success") {
     await refresh();
     toast.add({
@@ -147,30 +156,6 @@ watchDebounced(
     maxWait: 2000,
   }
 );
-
-/**
- * The dropdown menu items for a user action.
- */
-const items = [
-  [
-    {
-      label: "Сбросить пароль",
-      click: () => userAction("drop"),
-    },
-  ],
-  [
-    {
-      label: "Заблокировать/разблокировать",
-      click: () => userAction("block"),
-    },
-  ],
-  [
-    {
-      label: "Удалить/восстановить",
-      click: () => userAction("delete"),
-    },
-  ],
-];
 </script>
 
 <template>
@@ -180,59 +165,125 @@ const items = [
       :header="'ПОЛЬЗОВАТЕЛИ'"
     />
     <div class="my-6">
-      <UInput
-        v-model="search"
-        size="lg"
-        placeholder="Поиск по имени пользователя"
-      />
+      <UInput v-model="search" placeholder="Поиск по имени пользователя" />
     </div>
     <div class="flex items-center justify-between mb-4">
       <UToggle v-model="viewDeleted" :label="'Показать удаленные'" />
       <UButton
         variant="link"
         label="Добавить пользователя"
-        @click="collapsed = !collapsed"
+        @click="modalForm = true"
       />
     </div>
-    <Transition name="slide-fade">
-      <UForm
-        v-if="collapsed"
-        :schema="schema"
-        :state="form"
-        @submit.prevent="submitUser"
-      >
-        <div class="flex grid grid-cols-7 gap-3 border rounded p-3">
-          <div class="col-span-2">
-            <UFormGroup class="mb-3" name="fullname" required>
-              <UInput
-                v-model="form['fullname']"
-                placeholder="Имя пользователя"
-                required
-              />
-            </UFormGroup>
-          </div>
-          <div class="col-span-2">
-            <UFormGroup class="mb-3" name="username">
-              <UInput v-model="form['username']" placeholder="Логин" required />
-            </UFormGroup>
-          </div>
-          <div class="col-span-2">
-            <UFormGroup class="mb-3" name="email">
-              <UInput v-model="form['email']" placeholder="Email" required />
-            </UFormGroup>
-          </div>
-          <div class="col-span-1">
-            <UButton
-              block
-              variant="outline"
-              color="gray"
-              label="Создать"
-              type="submit"
+    <UModal v-model="modalForm">
+      <ElementsCardDiv>
+        <UForm :schema="schema" :state="form" @submit.prevent="submitUser">
+          <UFormGroup
+            class="mb-3"
+            label="Имя пользователя"
+            name="fullname"
+            required
+          >
+            <UInput
+              v-model="form['fullname']"
+              placeholder="Имя пользователя"
+              required
             />
-          </div>
-        </div>
-      </UForm>
-    </Transition>
+          </UFormGroup>
+          <UFormGroup class="mb-3" label="Логин" name="username">
+            <UInput v-model="form['username']" placeholder="Логин" required />
+          </UFormGroup>
+          <UFormGroup class="mb-3" label="Email" name="email">
+            <UInput v-model="form['email']" placeholder="Email" required />
+          </UFormGroup>
+          <ElementsBtnGroup @cancel="modalForm = false" />
+        </UForm>
+      </ElementsCardDiv>
+    </UModal>
+
+    <UModal v-model="modalProfile" prevent-close>
+      <ElementsCardDiv>
+        <ElementsLabelSlot :label="'ID'">{{ user["id"] }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Пользователь'">{{
+          user["fullname"]
+        }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Логин'">
+          {{ user["username"] }}
+        </ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Email'">{{
+          user["email"]
+        }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Регион'">
+          <USelect
+            v-model="region"
+            :placeholder="user.region"
+            :options="[
+              'Главный офис',
+              'РЦ Юг',
+              'РЦ Запад',
+              'РЦ Урал',
+              'РЦ Восток',
+            ]"
+            @change="userAction(region, user.id)"
+          />
+        </ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Роль'">
+          <USelect
+            v-model="role"
+            :placeholder="user.role"
+            :options="['admin', 'user', 'guest']"
+            @change="userAction(role, user.id)"
+          />
+        </ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Создан'">{{
+          new Date(user["created"]).toLocaleString("ru-RU")
+        }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Попытка'">{{
+          user["attempt"]
+        }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Блок'">{{
+          user["blocked"] ? "Да" : "Нет"
+        }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Обновлен'">{{
+          new Date(user["pswd_create"]).toLocaleString("ru-RU")
+        }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Изм.пароля'"
+          >{{ user["change_pswd"] ? "Да" : "Нет" }}
+        </ElementsLabelSlot>
+        <UButtonGroup class="mt-3">
+          <UButton
+            :label="user.deleted ? 'Восстановить' : 'Удалить'"
+            color="red"
+            variant="outline"
+            type="button"
+            @click="userAction('delete', user.id)"
+          />
+          <UButton
+            :label="user.blocked ? 'Разблокировать' : 'Заблокировать'"
+            color="blue"
+            variant="outline"
+            @click="userAction('block', user.id)"
+          />
+          <UButton
+            label="Сбросить пароль"
+            color="gray"
+            variant="outline"
+            @click="userAction('drop', user.id)"
+          />
+          <UButton
+            label="Выход"
+            color="green"
+            variant="outline"
+            @click="
+              modalProfile = false;
+              user = {} as User;
+              refresh();
+            "
+          />
+        </UButtonGroup>
+      </ElementsCardDiv>
+    </UModal>
+
     <UTable
       :loading="status === 'pending'"
       :progress="{ color: 'red', animation: 'swing' }"
@@ -254,40 +305,13 @@ const items = [
         { key: 'change_pswd', label: 'Изм.пароля' },
       ]"
       :rows="filtredUsers"
+      @select="openUser($event[0])"
     >
       <template #id-data="{ row }">{{ row.id }}</template>
       <template #fullname-data="{ row }">{{ row.fullname }}</template>
-      <template #username-data="{ row }">
-        <UDropdown :items="items">
-          <UButton
-            variant="link"
-            :label="row.username"
-            @click="userId = row.id"
-          />
-        </UDropdown>
-      </template>
-      <template #region-data="{ row }">
-        <USelect
-          v-model="region"
-          :placeholder="row.region"
-          :options="[
-            'Главный офис',
-            'РЦ Юг',
-            'РЦ Запад',
-            'РЦ Урал',
-            'РЦ Восток',
-          ]"
-          @change="userAction(region, row.id)"
-        />
-      </template>
-      <template #role-data="{ row }">
-        <USelect
-          v-model="role"
-          :placeholder="row.role"
-          :options="['admin', 'user', 'guest']"
-          @change="userAction(role, row.id)"
-        />
-      </template>
+      <template #username-data="{ row }">{{ row.username }}</template>
+      <template #region-data="{ row }">{{ row.region }}</template>
+      <template #role-data="{ row }">{{ row.role }}</template>
       <template #created-data="{ row }">{{
         new Date(row.created).toLocaleDateString("ru-RU")
       }}</template>
@@ -298,7 +322,11 @@ const items = [
       </template>
       <template #blocked-data="{ row }">
         <div class="text-center">
-          <UChip size="2xl" :color="row.blocked ? 'red' : 'green'" />
+          <UIcon
+            :name="
+              row.blocked ? 'i-heroicons-lock-closed' : 'i-heroicons-lock-open'
+            "
+          />
         </div>
       </template>
       <template #pswd_create-data="{ row }">{{
@@ -306,7 +334,13 @@ const items = [
       }}</template>
       <template #change_pswd-data="{ row }">
         <div class="text-center">
-          <UChip size="2xl" :color="row.change_pswd ? 'red' : 'green'" />
+          <UIcon
+            :name="
+              row.change_pswd
+                ? 'i-heroicons-lock-closed'
+                : 'i-heroicons-lock-open'
+            "
+          />
         </div>
       </template>
     </UTable>

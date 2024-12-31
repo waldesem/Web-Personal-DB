@@ -16,35 +16,79 @@ from app.model.tables import Users, db_session
 bp = Blueprint("users", __name__)
 
 
+@bp.get("/users")
+@validate()
+def get_users(query_data: Search) -> Response:
+    """Retrieve a list of users from the database.
+
+    Arguments:
+        item (str): The table name from which to retrieve the users.
+        query_data (Search): The search query containing the search string.
+
+    Returns:
+        tuple: A tuple containing the JSON-encoded list of users.
+
+    """
+    stmt = select(Users)
+    if query_data.search and len(query_data.search) > 2:  # noqa: PLR2004
+        if re.match(r"^[a-zA-z_]+", query_data.search):
+            stmt = stmt.filter(
+                func.lower(Users.username) == query_data.search.lower(),
+            )
+        else:
+            stmt = stmt.filter(
+                func.lower(Users.fullname) == query_data.search.lower(),
+            )
+    users = db_session.execute(stmt.order_by(desc(Users.id))).scalars()
+    return jsonify([user.to_dict() for user in users]), 200
+
+
 class UserView(MethodView):
     """User view class."""
 
     decorators: ClassVar = [roles_required(Roles.admin.value)]
 
     @validate()
-    def get(self, query_data: Search) -> Response:
-        """Retrieve a list of users from the database.
+    @roles_required(Roles.admin.value)
+    def get_user_actions(self, user_id: int, query_data: UserActions) -> Response:
+        """Change a user's information in the database based on their user ID.
 
-        Arguments:
-            item (str): The table name from which to retrieve the users.
-            query_data (Search): The search query containing the search string.
+        Args:
+            user_id (int): The ID of the user.
+            query_data (UserActions): The user data to be updated in the database.
 
         Returns:
-            tuple: A tuple containing the JSON-encoded list of users.
+            The HTTP status code is 201.
 
         """
-        stmt = select(Users)
-        if query_data.search and len(query_data.search) > 2:  # noqa: PLR2004
-            if re.match(r"^[a-zA-z_]+", query_data.search):
-                stmt = stmt.filter(
-                    func.lower(Users.username) == query_data.search.lower(),
+        if current_user.id == user_id:
+            return jsonify({"message": "error"}), 200
+        user = db_session.get(Users, user_id)
+
+        if user and query_data.item:
+            if query_data.item == "open":
+                return jsonify(user.to_dict()), 200
+
+            if query_data.item == "drop":
+                user.passhash = generate_password_hash(
+                    current_app.config["DEFAULT_PASSWORD"],
                 )
-            else:
-                stmt = stmt.filter(
-                    func.lower(Users.fullname) == query_data.search.lower(),
-                )
-        users = db_session.execute(stmt.order_by(desc(Users.id))).scalars()
-        return jsonify([user.to_dict() for user in users]), 200
+                user.attempt = 0
+                user.blocked = False
+                user.change_pswd = True
+            elif query_data.item == "block":
+                user.blocked = not user.blocked
+            elif query_data.item == "delete":
+                user.deleted = not user.deleted
+            elif query_data.item in [reg.value for reg in Roles]:
+                user.role = query_data.item
+            elif query_data.item in [reg.value for reg in Regions]:
+                user.region = query_data.item
+            db_session.commit()
+            get_current_user.cache_clear()
+            return jsonify({"message": "success"}), 201
+
+        return jsonify({"message": "error"}), 200
 
     @validate()
     def post(self, json_data: User) -> Response:
@@ -79,42 +123,9 @@ class UserView(MethodView):
         return jsonify({"message": "error"}), 200
 
 
-bp.add_url_rule("/users", view_func=UserView.as_view("users"))
-
-
-@bp.get("/user/<int:user_id>")
-@validate()
-@roles_required(Roles.admin.value)
-def get_user_actions(user_id: int, query_data: UserActions) -> Response:
-    """Change a user's information in the database based on their user ID.
-
-    Args:
-        user_id (int): The ID of the user.
-        query_data (UserActions): The user data to be updated in the database.
-
-    Returns:
-        The HTTP status code is 201.
-
-    """
-    if current_user.id == user_id:
-        return jsonify({"message": "error"}), 200
-    user = db_session.get(Users, user_id)
-    if user and query_data.item:
-        if query_data.item == "drop":
-            user.passhash = generate_password_hash(
-                current_app.config["DEFAULT_PASSWORD"],
-            )
-            user.attempt = 0
-            user.blocked = False
-            user.change_pswd = True
-        elif query_data.item == "block":
-            user.blocked = not user.blocked
-        elif query_data.item == "delete":
-            user.deleted = not user.deleted
-        elif query_data.item in [reg.value for reg in Roles]:
-            user.role = query_data.item
-        elif query_data.item in [reg.value for reg in Regions]:
-            user.region = query_data.item
-        db_session.commit()
-        get_current_user.cache_clear()
-    return "", 201
+bp.add_url_rule("/user", view_func=UserView.as_view("user"), methods=["POST"])
+bp.add_url_rule(
+    "/user/<int:user_id>",
+    view_func=UserView.as_view("user_actions"),
+    methods=["GET"],
+)

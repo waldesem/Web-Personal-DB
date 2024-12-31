@@ -1,6 +1,6 @@
 <script setup lang="ts">
-
 const authFetch = useFetchAuth();
+
 const region = ref(stateUser.value.region);
 const start = ref(new Date().toISOString().split("T")[0].slice(0, 7) + "-01");
 const end = ref(new Date().toISOString().split("T")[0]);
@@ -12,13 +12,13 @@ const stat = ref([] as Record<string, string>[]);
 const { status } = await useLazyAsyncData(
   "stats",
   async () => {
-    stat.value = await authFetch("/route/info", {
+    stat.value = (await authFetch("/route/info", {
       params: {
         start: start.value,
         end: end.value,
         region: region.value,
       },
-    }) as Record<string, string>[];
+    })) as Record<string, string>[];
   },
   {
     watch: [region, start, end],
@@ -58,6 +58,7 @@ const { status } = await useLazyAsyncData(
                 'РЦ Урал',
                 'РЦ Восток',
               ]"
+              :placeholder="stateUser.region || 'Регион'"
             />
           </UFormGroup>
         </div>
