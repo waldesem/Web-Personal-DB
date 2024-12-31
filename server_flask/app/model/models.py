@@ -61,7 +61,7 @@ class Info(BaseModel):
 class UserActions(BaseModel):
     """Pydantic model for user actions form."""
 
-    item: Literal["drop", "block", "delete"] | Roles | Regions
+    item: Literal["reset", "block", "delete"] | Roles | Regions | None
 
     class Config:
         """Pydantic config."""

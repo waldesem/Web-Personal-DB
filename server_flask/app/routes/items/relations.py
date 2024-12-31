@@ -4,7 +4,7 @@ from flask import Blueprint, Response, jsonify
 from flask.views import MethodView
 from sqlalchemy import text
 
-from app.depends.depend import roles_required, validate
+from app.depends.depend import jwt_required, roles_required, validate
 from app.model.classes import Roles
 from app.model.models import Relation
 from app.model.tables import Persons, association_table, db_session
@@ -15,7 +15,7 @@ bp = Blueprint("relations", __name__, url_prefix="/relations")
 class RelationView(MethodView):
     """Relation view class."""
 
-    @roles_required(Roles.user.value)
+    @jwt_required()
     def get(self, person_id: int) -> Response:
         """Retrieve a person's relationships from the database based on their person ID.
 

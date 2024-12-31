@@ -50,7 +50,7 @@ class UserView(MethodView):
 
     @validate()
     @roles_required(Roles.admin.value)
-    def get_user_actions(self, user_id: int, query_data: UserActions) -> Response:
+    def get(self, user_id: int, query_data: UserActions) -> Response:
         """Change a user's information in the database based on their user ID.
 
         Args:
@@ -65,11 +65,11 @@ class UserView(MethodView):
             return jsonify({"message": "error"}), 200
         user = db_session.get(Users, user_id)
 
-        if user and query_data.item:
-            if query_data.item == "open":
+        if user:
+            if not query_data.item:
                 return jsonify(user.to_dict()), 200
 
-            if query_data.item == "drop":
+            if query_data.item == "reset":
                 user.passhash = generate_password_hash(
                     current_app.config["DEFAULT_PASSWORD"],
                 )
@@ -123,9 +123,10 @@ class UserView(MethodView):
         return jsonify({"message": "error"}), 200
 
 
-bp.add_url_rule("/user", view_func=UserView.as_view("user"), methods=["POST"])
+view_func = UserView.as_view("user")
+bp.add_url_rule("/user", view_func=view_func, methods=["POST"])
 bp.add_url_rule(
     "/user/<int:user_id>",
-    view_func=UserView.as_view("user_actions"),
+    view_func=view_func,
     methods=["GET"],
 )

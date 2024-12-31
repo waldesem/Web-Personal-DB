@@ -60,7 +60,9 @@ async function deleteAddress(id: string, idx: number) {
     v-if="props.editable"
     :loading="status == 'pending' || pending"
     :label="
-      status == 'pending' || pending ? 'Обновление данных...' : 'Добавить запись'
+      status == 'pending' || pending
+        ? 'Обновление данных...'
+        : 'Добавить запись'
     "
     variant="link"
     @click="modal = !modal"
@@ -69,7 +71,10 @@ async function deleteAddress(id: string, idx: number) {
     <ElementsCardDiv>
       <FormsAddressForm
         :addrs="address"
-        @cancel="address = {}; modal = false"
+        @cancel="
+          address = {} as Address;
+          modal = false;
+        "
         @update="submitAddress"
       />
     </ElementsCardDiv>
