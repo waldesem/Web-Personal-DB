@@ -11,20 +11,6 @@ async function logout() {
 const links = [
   [
     {
-      label: "КАНДИДАТЫ",
-      icon: "i-heroicons-user-circle",
-      to: "/persons",
-    },
-  ],
-  [
-    {
-      label: "СОЗДАТЬ",
-      icon: "i-heroicons-newspaper",
-      to: "/resume",
-    },
-  ],
-  [
-    {
       label: "ПОЛЬЗОВАТЕЛИ",
       icon: "i-heroicons-user-group",
       to: "/users",
@@ -36,23 +22,8 @@ const links = [
       icon: "i-heroicons-chart-pie",
       to: "/info",
     },
-  ]
+  ],
 ];
-
-const filtredLinks = computed(() => {
-  if (!stateUser.value) {
-    return [];
-  }
-  if (stateUser.value.role === "admin") {
-    return links.filter((item) => item[0].to !== "/resume");
-  } else if (stateUser.value.role === "user") {
-    return links.filter((item) => item[0].to !== "/users");
-  } else {
-    return links.filter(
-      (item) => item[0].to !== "/users" && item[0].to !== "/resume"
-    );
-  }
-});
 </script>
 
 <template>
@@ -60,12 +31,17 @@ const filtredLinks = computed(() => {
     :ui="{ constrained: 'max-w-screen-2xl', padding: 'px-4 sm:px-6 lg:px-12' }"
   >
     <div class="sticky flex items-center justify-between pt-8 pb-16">
-      <div class="inline-flex flex items-center text-xl font-bold">
-        <h3 class="text-blue-800">STAFFSEC</h3>
-        &nbsp;
-        <h3 class="text-red-600">ФИНТЕХ</h3>
-      </div>
-      <div class="flex items-center justify-end">
+      <a class="flex items-center" href="/persons" title="На главную страницу">
+        <div class="inline-flex flex items-center text-xl font-bold">
+          <h3 class="text-blue-800">STAFFSEC</h3>
+          &nbsp;
+          <h3 class="text-red-600">ФИНТЕХ</h3>
+        </div>
+      </a>
+      <div
+        v-if="stateUser.role == 'admin'"
+        class="flex items-center justify-end"
+      >
         <UHorizontalNavigation
           :ui="{
             active: 'text-red-600',
@@ -73,13 +49,13 @@ const filtredLinks = computed(() => {
             icon: {
               active: 'text-red-600',
               inactive: 'text-blue-600',
-            }
-          }" 
-          :links="filtredLinks" 
+            },
+          }"
+          :links="links"
         />
       </div>
       <div class="flex items-center justify-end">
-        <UTooltip  text="Выход">
+        <UTooltip text="Выход">
           <UButton
             :label="stateUser.username"
             color="red"

@@ -60,11 +60,11 @@ async function deleteItem() {
       <ElementsCardDiv>
         <FormsResumeForm
           :resume="resume"
+          @update="submitResume"
           @cancel="
             resume = {} as Persons;
             modal = false;
           "
-          @update="submitResume"
         />
       </ElementsCardDiv>
     </UModal>

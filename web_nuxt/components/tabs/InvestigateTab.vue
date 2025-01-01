@@ -75,8 +75,8 @@ async function deleteInquisition(id: string, idx: number) {
   <UModal v-model="modal" prevent-close>
     <ElementsCardDiv>
       <FormsInvestigationForm
-        :inquisition="inquisition"
-        @cancel="inquisition = {}; modal = false"
+        :investigation="inquisition"
+        @cancel="inquisition = {} as Inquisition; modal = false"
         @update="submitInvestigations"
       />
     </ElementsCardDiv>

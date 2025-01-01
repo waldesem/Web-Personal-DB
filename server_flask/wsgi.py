@@ -27,7 +27,6 @@ def wsgi_server(app: Flask, address: str, port: int, workers: int) -> None:
         print(f"Listening on http://{address}:{port}")  # noqa: T201
         loop.start()
     except KeyboardInterrupt:
-        print("Stopped")  # noqa: T201
         loop.stop()
         loop.close()
         executor.shutdown(wait=True)

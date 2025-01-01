@@ -73,8 +73,11 @@ async function deletePoligraf(id: string, idx: number) {
     <ElementsCardDiv>
       <FormsPoligrafForm
         :poligraf="poligraf"
-        @cancel="poligraf = {}; modal = false"
         @update="submitPoligraf"
+        @cancel="
+          poligraf = {} as Pfo;
+          modal = false;
+        "
       />
     </ElementsCardDiv>
   </UModal>

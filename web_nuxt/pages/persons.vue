@@ -2,7 +2,6 @@
 import type { Persons } from "@/types";
 import { watchDebounced, useFileDialog } from "@vueuse/core";
 
-
 preloadRouteComponents("/profile/[id]");
 
 const authFetch = useFetchAuth();
@@ -13,6 +12,7 @@ const hasNext = ref(false);
 const page = ref(1);
 const search = ref("");
 const upload = ref(false);
+const modal = ref(false);
 const updated = ref("Данные обновляются...");
 
 const { refresh, status } = await useLazyAsyncData(
@@ -67,7 +67,8 @@ onChange(async (files) => {
     toast.add({
       icon: "i-heroicons-information-circle",
       title: "Внимание",
-      description: "Файл поврежден или анкета находится в другом регионе или редактируется",
+      description:
+        "Файл поврежден или анкета находится в другом регионе или редактируется",
       color: "red",
     });
   }
@@ -76,6 +77,26 @@ onChange(async (files) => {
 onCancel(() => {
   reset();
 });
+
+async function submitResume(form: Persons): Promise<void> {
+  upload.value = true;
+  modal.value = false;
+  const { person_id } = (await authFetch("/route/anketa/resume", {
+    method: "POST",
+    body: form,
+  })) as Record<string, string>;
+  upload.value = false;
+  if (person_id) {
+    navigateTo("/profile/" + person_id);
+  } else {
+    toast.add({
+      icon: "i-heroicons-information-circle",
+      title: "Внимание",
+      description: "Невозможно выполнить действие",
+      color: "red",
+    });
+  }
+}
 </script>
 
 <template>
@@ -83,16 +104,30 @@ onCancel(() => {
     <div v-if="stateUser.role == 'user'" class="relative">
       <div class="absolute inset-y-0 right-0">
         <UButton
-          :disabled="status == 'pending' || upload"
           :loading="status == 'pending' || upload"
           icon="i-heroicons-cloud-arrow-up"
-          title="Загрузить json файл"
+          title="Загрузить json"
           size="xl"
           variant="ghost"
           @click="open"
         />
       </div>
+      <div class="absolute inset-y-0 right-12">
+        <UButton
+          :loading="status == 'pending' || upload"
+          icon="i-heroicons-user-plus"
+          title="Создать анкету"
+          size="xl"
+          variant="ghost"
+          @click="modal = true"
+        />
+      </div>
     </div>
+    <UModal v-model="modal" prevent-close>
+      <ElementsCardDiv>
+        <FormsResumeForm @cancel="modal = false" @update="submitResume" />
+      </ElementsCardDiv>
+    </UModal>
     <ElementsHeaderDiv :header="'КАНДИДАТЫ'" />
     <div class="my-6">
       <UInput

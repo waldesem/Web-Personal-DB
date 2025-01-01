@@ -50,7 +50,6 @@ const { status } = await useLazyAsyncData(
           <UFormGroup class="mb-3" label="Регион">
             <USelect
               v-model="region"
-              :disabled="stateUser.region != 'Главный офис'"
               :options="[
                 'Главный офис',
                 'РЦ Юг',
