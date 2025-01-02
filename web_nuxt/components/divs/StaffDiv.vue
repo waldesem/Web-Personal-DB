@@ -78,7 +78,7 @@ async function deleteStaff(id: string, idx: number) {
         item["department"]
       }}</ElementsLabelSlot>
       <template v-if="editable" #footer>
-        <DivMenu
+        <ElementsDivMenu
           @delete="deleteStaff(item['id'], idx)"
           @update="
             staff = item;

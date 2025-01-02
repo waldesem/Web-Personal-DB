@@ -79,7 +79,7 @@ async function deleteContact(id: string, idx: number) {
         item["contact"]
       }}</ElementsLabelSlot>
       <template v-if="editable" #footer>
-        <DivMenu
+        <ElementsDivMenu
           @delete="deleteContact(item['id'], idx)"
           @update="
             contact = item;

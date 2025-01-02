@@ -98,7 +98,7 @@ async function deleteWork(id: string, idx: number) {
         {{ item["reason"] }}
       </ElementsLabelSlot>
       <template v-if="editable" #footer>
-        <DivMenu
+        <ElementsDivMenu
           @delete="deleteWork(item['id'], idx)"
           @update="
             workplace = item;

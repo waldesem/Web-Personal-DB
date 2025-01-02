@@ -2,7 +2,7 @@
 const authFetch = useFetchAuth();
 
 const region = ref(stateUser.value.region);
-const start = ref(new Date().toISOString().split("T")[0].slice(0, 7) + "-01");
+const start = ref(new Date().toISOString().split("T")[0].slice(0, 8) + "01");
 const end = ref(new Date().toISOString().split("T")[0]);
 const stat = ref([] as Record<string, string>[]);
 
@@ -61,7 +61,7 @@ const { status } = await useLazyAsyncData(
                 'РЦ Урал',
                 'РЦ Восток',
               ]"
-              :placeholder="stateUser.region || 'Регион'"
+              :placeholder="stateUser.region"
             />
           </UFormGroup>
         </div>

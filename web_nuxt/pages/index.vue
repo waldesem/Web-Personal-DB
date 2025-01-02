@@ -1,9 +1,7 @@
 <script setup lang="ts">
-definePageMeta({
-  layout: false,
-});
+definePageMeta({ layout: false });
 
-preloadRouteComponents("/persons")
+preloadRouteComponents("/persons");
 
 await navigateTo("/persons");
 </script>

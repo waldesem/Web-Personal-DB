@@ -90,7 +90,7 @@ async function deleteDocument(id: string, idx: number) {
         item["agency"]
       }}</ElementsLabelSlot>
       <template v-if="editable" #footer>
-        <DivMenu
+        <ElementsDivMenu
           @delete="deleteDocument(item['id'], idx)"
           @update="
             doc = item;

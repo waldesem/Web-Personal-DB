@@ -82,7 +82,7 @@ async function deleteAffilation(id: string, idx: number) {
       }}</ElementsLabelSlot>
       <ElementsLabelSlot :label="'ИНН'">{{ item["inn"] }}</ElementsLabelSlot>
       <template v-if="editable" #footer>
-        <DivMenu
+        <ElementsDivMenu
           @delete="deleteAffilation(item['id'], idx)"
           @update="
             affilation = item;

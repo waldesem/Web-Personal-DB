@@ -31,13 +31,15 @@ const links = [
     :ui="{ constrained: 'max-w-screen-2xl', padding: 'px-4 sm:px-6 lg:px-12' }"
   >
     <div class="sticky flex items-center justify-between pt-8 pb-16">
-      <a class="flex items-center" href="/persons" title="На главную страницу">
-        <div class="inline-flex flex items-center text-xl font-bold">
-          <h3 class="text-blue-800">STAFFSEC</h3>
-          &nbsp;
-          <h3 class="text-red-600">ФИНТЕХ</h3>
-        </div>
-      </a>
+      <UTooltip text="На главную страницу">
+        <NuxtLink to="/persons">
+          <div class="inline-flex flex items-center text-xl font-bold">
+            <h3 class="text-blue-600">STAFFSEC</h3>
+            <UDivider orientation="horizontal" />
+            <h3 class="text-red-600">ФИНТЕХ</h3>
+          </div>
+        </NuxtLink>
+      </UTooltip>
       <div
         v-if="stateUser.role == 'admin'"
         class="flex items-center justify-end"

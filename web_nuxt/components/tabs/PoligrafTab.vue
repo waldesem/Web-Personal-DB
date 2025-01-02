@@ -93,7 +93,7 @@ async function deletePoligraf(id: string, idx: number) {
         {{ new Date(item["created"]).toLocaleString("ru-RU") }}
       </ElementsLabelSlot>
       <template v-if="editable" #footer>
-        <TabMenu
+        <ElementsTabMenu
           :item="'poligrafs'"
           @cancel="modal = false"
           @update="

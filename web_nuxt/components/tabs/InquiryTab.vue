@@ -93,7 +93,7 @@ async function deleteNeed(id: string, idx: number) {
         {{ new Date(item["created"]).toLocaleString("ru-RU") }}
       </ElementsLabelSlot>
       <template v-if="editable" #footer>
-        <TabMenu
+        <ElementsTabMenu
           :item="'inquiries'"
           @delete="deleteNeed(item['id'], index)"
           @update="

@@ -87,7 +87,7 @@ async function deleteEducation(id: string, idx: number) {
         item["specialty"]
       }}</ElementsLabelSlot>
       <template v-if="editable" #footer>
-        <DivMenu
+        <ElementsDivMenu
           @delete="deleteEducation(item['id'], idx)"
           @update="
             education = item;

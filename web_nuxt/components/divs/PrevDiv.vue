@@ -90,7 +90,7 @@ async function deletePrevious(id: string, idx: number) {
         {{ item["reason"] }}
       </ElementsLabelSlot>
       <template v-if="editable" #footer>
-        <DivMenu
+        <ElementsDivMenu
           @delete="deletePrevious(item['id'], idx)"
           @update="
             prev = item;

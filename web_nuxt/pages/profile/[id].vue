@@ -155,26 +155,28 @@ function emitMessage(message: string) {
           @change="changeRegion"
         />
       </div>
-      <UButton
-        :loading="pending || status === 'pending'"
-        :color="
-          !person.editable
-            ? 'blue'
-            : person.user_id != stateUser.id
-            ? 'red'
-            : 'green'
-        "
-        size="sm"
-        @click="switchSelf"
-      >
-        {{
-          !person.editable
-            ? "Анкета доступна для редактирования"
-            : person.user_id != stateUser.id
-            ? "Анкета редактируется другим пользователем"
-            : "Анкета редактируется текущим пользователем"
-        }}
-      </UButton>
+      <UTooltip text="Переключить режим редактирования">
+        <UButton
+          :loading="pending || status === 'pending'"
+          :color="
+            !person.editable
+              ? 'blue'
+              : person.user_id != stateUser.id
+              ? 'red'
+              : 'green'
+          "
+          size="sm"
+          @click="switchSelf"
+        >
+          {{
+            !person.editable
+              ? "Анкета доступна для редактирования"
+              : person.user_id == stateUser.id
+              ? "Анкета редактируется текущим пользователем"
+              : "Анкета редактируется другим пользователем"
+          }}
+        </UButton>
+      </UTooltip>
     </div>
     <UTabs :items="tabs">
       <template #anketaTab>

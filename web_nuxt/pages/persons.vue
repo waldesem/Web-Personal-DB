@@ -104,24 +104,26 @@ async function submitResume(form: Persons): Promise<void> {
   <div class="mb-6">
     <div v-if="stateUser.role == 'user'" class="relative">
       <div class="absolute inset-y-0 right-0">
-        <UButton
-          :loading="status == 'pending' || upload"
-          icon="i-heroicons-cloud-arrow-up"
-          title="Загрузить json"
-          size="xl"
-          variant="ghost"
-          @click="open"
-        />
+        <UTooltip text="Загрузить json">
+          <UButton
+            :loading="status == 'pending' || upload"
+            icon="i-heroicons-cloud-arrow-up"
+            size="xl"
+            variant="ghost"
+            @click="open"
+          />
+        </UTooltip>
       </div>
       <div class="absolute inset-y-0 right-12">
-        <UButton
-          :loading="status == 'pending' || upload"
-          icon="i-heroicons-user-plus"
-          title="Создать анкету"
-          size="xl"
-          variant="ghost"
-          @click="modal = true"
-        />
+        <UTooltip text="Создать анкету">
+          <UButton
+            :loading="status == 'pending' || upload"
+            icon="i-heroicons-user-plus"
+            size="xl"
+            variant="ghost"
+            @click="modal = true"
+          />
+        </UTooltip>
       </div>
     </div>
     <UModal v-model="modal" prevent-close>

@@ -110,7 +110,7 @@ async function deleteItem() {
       </ElementsLabelSlot>
     </div>
     <template v-if="editable" #footer>
-      <TabMenu
+      <ElementsTabMenu
         :item="'persons'"
         @delete="deleteItem"
         @update="

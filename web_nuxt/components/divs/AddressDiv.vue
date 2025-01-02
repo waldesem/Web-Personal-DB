@@ -79,7 +79,7 @@ async function deleteAddress(id: string, idx: number) {
         item["addresses"]
       }}</ElementsLabelSlot>
       <template v-if="editable" #footer>
-        <DivMenu
+        <ElementsDivMenu
           @delete="deleteAddress(item['id'], idx)"
           @update="
             address = item;
