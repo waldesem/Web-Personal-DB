@@ -28,9 +28,13 @@ const { status } = await useLazyAsyncData(
 
 <template>
   <div class="mb-6">
-    <ElementsHeaderDiv
-      :header="`Информация по региону ${region} за период с ${start} г. по ${end} г.`"
-    />
+    <div class="py-1">
+      <h3 class="text-2xl text-red-800 font-bold">
+        {{
+          `Информация по региону ${region} за период с ${start} г. по ${end} г.`
+        }}
+      </h3>
+    </div>
     <div class="my-6">
       <UTable
         :loading="status == 'pending'"

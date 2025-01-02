@@ -1,22 +1,13 @@
 <script setup lang="ts">
 import type { Verification } from "@/types";
+import { emitMessage } from "@/utils";
 
 prefetchComponents("FormsCheckForm");
 
-const emit = defineEmits(["message"]);
-
 const authFetch = useFetchAuth();
 
-const props = defineProps({
-  candId: {
-    type: String,
-    default: "",
-  },
-  editable: {
-    type: Boolean,
-    default: false,
-  },
-});
+const candId = inject("candId") as Ref<string>;
+const editable = inject("editable") as Ref<boolean>;
 
 const modal = ref(false);
 const pending = ref(false);
@@ -25,21 +16,21 @@ const checks = ref<Verification[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("checks", async () => {
   checks.value = (await authFetch(
-    `/route/items/checks/${props.candId}`
+    `/route/items/checks/${candId.value}`
   )) as Verification[];
 });
 
 async function submitCheck(form: Verification) {
   modal.value = false;
   pending.value = true;
-  const { message } = (await authFetch(`/route/items/checks/${props.candId}`, {
+  const { message } = (await authFetch(`/route/items/checks/${candId.value}`, {
     method: "POST",
     body: form,
   })) as Record<string, string>;
   pending.value = false;
   check.value = {} as Verification;
   await refresh();
-  emit("message", message);
+  emitMessage(message);
 }
 
 async function deleteCheck(id: string, idx: number) {
@@ -50,13 +41,13 @@ async function deleteCheck(id: string, idx: number) {
   if (message == "success") {
     checks.value.splice(idx, 1);
   }
-  emit("message", message);
+  emitMessage(message);
 }
 </script>
 
 <template>
   <UButton
-    v-if="props.editable"
+    v-if="editable"
     :loading="status == 'pending' || pending"
     :label="
       status == 'pending' || pending
@@ -70,7 +61,10 @@ async function deleteCheck(id: string, idx: number) {
     <ElementsCardDiv>
       <FormsCheckForm
         :check="check"
-        @cancel="check = {}; modal = false"
+        @cancel="
+          check = {} as Verification;
+          modal = false;
+        "
         @update="submitCheck"
       />
     </ElementsCardDiv>
@@ -155,9 +149,8 @@ async function deleteCheck(id: string, idx: number) {
       <ElementsLabelSlot :label="'Дата записи'">
         {{ new Date(item["created"]).toLocaleString("ru-RU") }}
       </ElementsLabelSlot>
-      <template v-if="props.editable" #footer>
-        <ElementsNaviHorizont
-          :cand-id="props.candId"
+      <template v-if="editable" #footer>
+        <TabMenu
           :item="'checks'"
           @cancel="modal = false"
           @update="

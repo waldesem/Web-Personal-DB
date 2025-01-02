@@ -7,11 +7,9 @@ const authFetch = useFetchAuth();
 
 const emit = defineEmits(["delete", "update"]);
 
+const candId = inject("candId") as Ref<string>;
+
 const props = defineProps({
-  candId: {
-    type: String,
-    default: "",
-  },
   item: {
     type: String,
     default: "",
@@ -36,10 +34,13 @@ onChange(async (files) => {
     }
     formData.append("file", file);
   }
-  const { message } = await authFetch(`/route/anketa/files/${props.item}/${props.candId}`, {
-    method: "POST",
-    body: formData,
-  }) as Record<string, string>;
+  const { message } = (await authFetch(
+    `/route/anketa/files/${props.item}/${candId.value}`,
+    {
+      method: "POST",
+      body: formData,
+    }
+  )) as Record<string, string>;
   if (message !== "success") {
     toast.add({
       icon: "i-heroicons-information-circle",

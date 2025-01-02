@@ -1,28 +1,15 @@
 <script setup lang="ts">
 import type { Persons } from "@/types";
+import { emitMessage } from "@/utils";
 
-const emit = defineEmits(["update", "message"]);
+const emit = defineEmits(["update"]);
 
 const authFetch = useFetchAuth();
 
-const props = defineProps({
-  status: {
-    type: String,
-    default: "",
-  },
-  editable: {
-    type: Boolean,
-    default: false,
-  },
-  candId: {
-    type: String,
-    default: "",
-  },
-  person: {
-    type: Object as () => Persons,
-    default: {} as Persons,
-  },
-});
+const candId = inject("candId") as Ref<string>;
+const status = inject("status") as Ref<string>;
+const person = inject("person") as Ref<Persons>;
+const editable = inject("editable") as Ref<boolean>;
 
 const modal = ref(false);
 const pending = ref(false);
@@ -31,25 +18,25 @@ const resume = ref({} as Persons);
 async function submitResume(form: Persons) {
   pending.value = true;
   modal.value = false;
-  const { message } = (await authFetch(`/route/items/persons/${props.candId}`, {
+  const { message } = (await authFetch(`/route/items/persons/${candId.value}`, {
     method: "POST",
     body: form,
   })) as Record<string, string>;
   pending.value = false;
   resume.value = {} as Persons;
   emit("update");
-  emit("message", message);
+  emitMessage(message);
 }
 
 async function deleteItem() {
   if (!confirm("Вы действительно хотите удалить профиль и связанные записи?"))
     return;
   pending.value = true;
-  const { message } = (await authFetch(`/route/items/persons/${props.candId}`, {
+  const { message } = (await authFetch(`/route/items/persons/${candId.value}`, {
     method: "DELETE",
   })) as Record<string, string>;
   pending.value = false;
-  emit("message", message);
+  emitMessage(message);
   return navigateTo("/persons");
 }
 </script>
@@ -68,7 +55,7 @@ async function deleteItem() {
         />
       </ElementsCardDiv>
     </UModal>
-    <div v-if="pending || props.status === 'pending'">
+    <div v-if="pending || status === 'pending'">
       <div v-for="i in 14" :key="i" class="flex grid grid-cols-12 gap-3 mb-3">
         <div class="col-span-3">
           <USkeleton class="h-4" />
@@ -80,58 +67,54 @@ async function deleteItem() {
     </div>
     <div v-else>
       <ElementsLabelSlot :label="'Фамилия'">
-        {{ props.person["surname"] }}
+        {{ person["surname"] }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Имя'">
-        {{ props.person["firstname"] }}
+        {{ person["firstname"] }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Отчество'">
-        {{ props.person["patronymic"] }}
+        {{ person["patronymic"] }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Дата рождения'">
-        {{ new Date(props.person["birthday"]).toLocaleDateString("ru-RU") }}
+        {{ new Date(person["birthday"]).toLocaleDateString("ru-RU") }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Место рождения'">
-        {{ props.person["birthplace"] }}
+        {{ person["birthplace"] }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Гражданство'">
-        {{ props.person["citizenship"] }}
+        {{ person["citizenship"] }}
       </ElementsLabelSlot>
-      <ElementsLabelSlot
-        v-if="props.person['dual']"
-        :label="'Двойное гражданство'"
-      >
-        {{ props.person["dual"] }}
+      <ElementsLabelSlot v-if="person['dual']" :label="'Двойное гражданство'">
+        {{ person["dual"] }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'СНИЛС'">
-        {{ props.person["snils"] }}
+        {{ person["snils"] }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'ИНН'">
-        {{ props.person["inn"] }}
+        {{ person["inn"] }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Семейное положение'">
-        {{ props.person["marital"] }}
+        {{ person["marital"] }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Дата записи'">
-        {{ new Date(props.person["created"]).toLocaleString("ru-RU") }}
+        {{ new Date(person["created"]).toLocaleString("ru-RU") }}
       </ElementsLabelSlot>
       <ElementsLabelSlot
-        v-if="props.person['addition']"
+        v-if="person['addition']"
         :label="'Дополнительная информация'"
       >
-        {{ props.person["addition"] }}
+        {{ person["addition"] }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Материалы'">
-        {{ props.person["destination"] }}
+        {{ person["destination"] }}
       </ElementsLabelSlot>
     </div>
-    <template v-if="props.editable" #footer>
-      <ElementsNaviHorizont
-        :cand-id="props.candId"
+    <template v-if="editable" #footer>
+      <TabMenu
         :item="'persons'"
         @delete="deleteItem"
         @update="
-          resume = props.person;
+          resume = person;
           modal = true;
         "
       />

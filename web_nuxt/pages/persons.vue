@@ -5,15 +5,16 @@ import { watchDebounced, useFileDialog } from "@vueuse/core";
 preloadRouteComponents("/profile/[id]");
 
 const authFetch = useFetchAuth();
+
 const toast = useToast();
 
-const candidates = ref([] as Persons[]);
-const hasNext = ref(false);
-const page = ref(1);
 const search = ref("");
+const page = ref(1);
+const hasNext = ref(false);
 const upload = ref(false);
 const modal = ref(false);
 const updated = ref("Данные обновляются...");
+const candidates = ref([] as Persons[]);
 
 const { refresh, status } = await useLazyAsyncData(
   "candidates",
@@ -128,7 +129,9 @@ async function submitResume(form: Persons): Promise<void> {
         <FormsResumeForm @cancel="modal = false" @update="submitResume" />
       </ElementsCardDiv>
     </UModal>
-    <ElementsHeaderDiv :header="'КАНДИДАТЫ'" />
+    <div class="py-1">
+      <h3 class="text-2xl text-red-800 font-bold">КАНДИДАТЫ</h3>
+    </div>
     <div class="my-6">
       <UInput
         v-model="search"
@@ -196,7 +199,7 @@ async function submitResume(form: Persons): Promise<void> {
             variant="link"
             icon="i-heroicons-arrow-path"
             :label="`Обновлено в: ${updated}`"
-            :loading="status == 'pending'"
+            :loading="status == 'pending' || upload"
             @click="refresh"
           />
         </caption>

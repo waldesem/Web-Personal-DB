@@ -1,20 +1,11 @@
 <script setup lang="ts">
 import type { Education } from "@/types";
-
-const emit = defineEmits(["message"]);
+import { emitMessage } from "@/utils";
 
 const authFetch = useFetchAuth();
 
-const props = defineProps({
-  candId: {
-    type: String,
-    default: "",
-  },
-  editable: {
-    type: Boolean,
-    default: false,
-  },
-});
+const candId = inject("candId") as Ref<string>;
+const editable = inject("editable") as Ref<boolean>;
 
 const modal = ref(false);
 const pending = ref(false);
@@ -23,7 +14,7 @@ const educations = ref<Education[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("educations", async () => {
   educations.value = (await authFetch(
-    "/route/items/educations/" + props.candId
+    "/route/items/educations/" + candId.value
   )) as Education[];
 });
 
@@ -31,7 +22,7 @@ async function submitEducation(form: Education) {
   modal.value = false;
   pending.value = true;
   const { message } = (await authFetch(
-    `/route/items/educations/${props.candId}`,
+    `/route/items/educations/${candId.value}`,
     {
       method: "POST",
       body: form,
@@ -40,24 +31,26 @@ async function submitEducation(form: Education) {
   pending.value = false;
   education.value = {} as Education;
   await refresh();
-  emit("message", message);
+  emitMessage(message);
 }
 
 async function deleteEducation(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
+  pending.value = true;
   const { message } = (await authFetch(`/route/items/educations/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
+  pending.value = false;
   if (message == "success") {
     educations.value.splice(idx, 1);
   }
-  emit("message", message);
+  emitMessage(message);
 }
 </script>
 
 <template>
   <UButton
-    v-if="props.editable"
+    v-if="editable"
     :loading="status == 'pending' || pending"
     :label="
       status == 'pending' || pending
@@ -71,7 +64,10 @@ async function deleteEducation(id: string, idx: number) {
     <ElementsCardDiv>
       <FormsEducationForm
         :education="education"
-        @cancel="education = {}; modal = false"
+        @cancel="
+          education = {} as Education;
+          modal = false;
+        "
         @update="submitEducation"
       />
     </ElementsCardDiv>
@@ -90,8 +86,8 @@ async function deleteEducation(id: string, idx: number) {
       <ElementsLabelSlot :label="'Специальность'">{{
         item["specialty"]
       }}</ElementsLabelSlot>
-      <template v-if="props.editable" #footer>
-        <ElementsNavSimpHoriz
+      <template v-if="editable" #footer>
+        <DivMenu
           @delete="deleteEducation(item['id'], idx)"
           @update="
             education = item;

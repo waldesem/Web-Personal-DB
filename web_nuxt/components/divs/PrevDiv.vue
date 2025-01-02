@@ -1,20 +1,11 @@
 <script setup lang="ts">
 import type { Previous } from "@/types";
-
-const emit = defineEmits(["message"]);
+import { emitMessage } from "@/utils";
 
 const authFetch = useFetchAuth();
 
-const props = defineProps({
-  candId: {
-    type: String,
-    default: "",
-  },
-  editable: {
-    type: Boolean,
-    default: false,
-  },
-});
+const candId = inject("candId") as Ref<string>;
+const editable = inject("editable") as Ref<boolean>;
 
 const modal = ref(false);
 const pending = ref(false);
@@ -23,7 +14,7 @@ const previous = ref<Previous[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("previous", async () => {
   previous.value = (await authFetch(
-    "/route/items/previous/" + props.candId
+    "/route/items/previous/" + candId.value
   )) as Previous[];
 });
 
@@ -31,7 +22,7 @@ async function submitPrevious(form: Previous) {
   modal.value = false;
   pending.value = true;
   const { message } = (await authFetch(
-    `/route/items/previous/${props.candId}`,
+    `/route/items/previous/${candId.value}`,
     {
       method: "POST",
       body: form,
@@ -40,24 +31,26 @@ async function submitPrevious(form: Previous) {
   pending.value = false;
   prev.value = {} as Previous;
   await refresh();
-  emit("message", message);
+  emitMessage(message);
 }
 
 async function deletePrevious(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
+  pending.value = true;
   const { message } = (await authFetch(`/route/items/previous/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
+  pending.value = false;
   if (message == "success") {
     previous.value.splice(idx, 1);
   }
-  emit("message", message);
+  emitMessage(message);
 }
 </script>
 
 <template>
   <UButton
-    v-if="props.editable"
+    v-if="editable"
     :loading="status == 'pending' || pending"
     :label="
       status == 'pending' || pending
@@ -71,7 +64,10 @@ async function deletePrevious(id: string, idx: number) {
     <ElementsCardDiv>
       <FormsPreviousForm
         :prev="prev"
-        @cancel="prev = {}; modal = false"
+        @cancel="
+          prev = {} as Previous;
+          modal = false;
+        "
         @update="submitPrevious"
       />
     </ElementsCardDiv>
@@ -93,8 +89,8 @@ async function deletePrevious(id: string, idx: number) {
       <ElementsLabelSlot v-if="item['reason']" :label="'Причина'">
         {{ item["reason"] }}
       </ElementsLabelSlot>
-      <template v-if="props.editable" #footer>
-        <ElementsNavSimpHoriz
+      <template v-if="editable" #footer>
+        <DivMenu
           @delete="deletePrevious(item['id'], idx)"
           @update="
             prev = item;

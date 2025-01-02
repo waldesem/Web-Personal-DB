@@ -47,10 +47,9 @@ watchDebounced(
 
 <template>
   <div class="mb-6">
-    <ElementsHeaderDiv
-      :cls="'text-2xl text-gray-500'"
-      :header="'ПОЛЬЗОВАТЕЛИ'"
-    />
+    <div class="py-1">
+      <h3 class="text-2xl text-gray-800 font-bold">ПОЛЬЗОВАТЕЛИ</h3>
+    </div>
     <div class="my-6">
       <UInput v-model="search" placeholder="Поиск по имени пользователя" />
     </div>

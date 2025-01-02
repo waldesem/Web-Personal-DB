@@ -16,6 +16,8 @@ const route = useRoute();
 
 const candId = computed(() => route.params.id) as Ref<string>;
 
+provide("candId", candId);
+
 const person = ref({} as Persons);
 const pending = ref(false);
 const region = ref("");
@@ -25,6 +27,9 @@ const { refresh, status } = await useLazyAsyncData("anketa", async () => {
     "/route/items/persons/" + candId.value
   )) as Persons;
 });
+
+provide("person", person);
+provide("status", status);
 
 const tabs = [
   {
@@ -61,6 +66,8 @@ const editState = computed(() => {
     stateUser.value.id == person.value["user_id"]
   );
 });
+
+provide("editable", editState);
 
 async function switchSelf(): Promise<void> {
   if (person.value.user_id != stateUser.value.id) {
@@ -127,12 +134,13 @@ function emitMessage(message: string) {
     <div class="flex items-center justify-between mb-3">
       <div class="flex items-center space-x-4">
         <USkeleton v-if="!person" class="my-6 h-8 w-1/3" />
-        <ElementsHeaderDiv
-          v-else
-          :header="`${person['surname']} ${person['firstname']} ${
-            person['patronymic'] ? person['patronymic'] : ''
-          }`"
-        />
+        <div v-else class="py-1">
+          <h3 class="text-2xl text-red-800 font-bold">
+            {{ `${person['surname']} ${person['firstname']} ${
+              person['patronymic'] ? person['patronymic'] : ''
+            }` }}
+          </h3>
+        </div>
         <USelect
           v-model="region"
           :options="[
@@ -170,42 +178,19 @@ function emitMessage(message: string) {
     </div>
     <UTabs :items="tabs">
       <template #anketaTab>
-        <TabsAnketaTab
-          :cand-id="candId"
-          :editable="editState"
-          :person="person"
-          :status="status"
-          @message="emitMessage"
-          @update="refresh()"
-        />
+        <TabsAnketaTab @update="refresh()" />
       </template>
       <template #checkTab>
-        <TabsCheckTab
-          :cand-id="candId"
-          :editable="editState"
-          @message="emitMessage"
-        />
+        <TabsCheckTab />
       </template>
       <template #poligrafTab>
-        <TabsPoligrafTab
-          :cand-id="candId"
-          :editable="editState"
-          @message="emitMessage"
-        />
+        <TabsPoligrafTab />
       </template>
       <template #investigateTab>
-        <TabsInvestigateTab
-          :cand-id="candId"
-          :editable="editState"
-          @message="emitMessage"
-        />
+        <TabsInvestigateTab />
       </template>
       <template #inquiryTab>
-        <TabsInquiryTab
-          :cand-id="candId"
-          :editable="editState"
-          @message="emitMessage"
-        />
+        <TabsInquiryTab />
       </template>
     </UTabs>
   </div>

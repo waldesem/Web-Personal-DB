@@ -1,20 +1,11 @@
 <script setup lang="ts">
 import type { Work } from "@/types";
-
-const emit = defineEmits(["message"]);
+import { emitMessage } from "@/utils";
 
 const authFetch = useFetchAuth();
 
-const props = defineProps({
-  candId: {
-    type: String,
-    default: "",
-  },
-  editable: {
-    type: Boolean,
-    default: false,
-  },
-});
+const candId = inject("candId") as Ref<string>;
+const editable = inject("editable") as Ref<boolean>;
 
 const modal = ref(false);
 const pending = ref(false);
@@ -23,7 +14,7 @@ const workplaces = ref<Work[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("workplaces", async () => {
   workplaces.value = (await authFetch(
-    "/route/items/workplaces/" + props.candId
+    "/route/items/workplaces/" + candId.value
   )) as Work[];
 });
 
@@ -31,7 +22,7 @@ async function submitWorkplace(form: Work) {
   modal.value = false;
   pending.value = true;
   const { message } = (await authFetch(
-    `/route/items/workplaces/${props.candId}`,
+    `/route/items/workplaces/${candId.value}`,
     {
       method: "POST",
       body: form,
@@ -40,24 +31,26 @@ async function submitWorkplace(form: Work) {
   pending.value = false;
   workplace.value = {} as Work;
   await refresh();
-  emit("message", message);
+  emitMessage(message);
 }
 
 async function deleteWork(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
+  pending.value = true;
   const { message } = (await authFetch(`/route/items/workplaces/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
+  pending.value = false;
   if (message == "success") {
     workplaces.value.splice(idx, 1);
   }
-  emit("message", message);
+  emitMessage(message);
 }
 </script>
 
 <template>
   <UButton
-    v-if="props.editable"
+    v-if="editable"
     :loading="status == 'pending' || pending"
     :label="
       status == 'pending' || pending
@@ -71,7 +64,10 @@ async function deleteWork(id: string, idx: number) {
     <ElementsCardDiv>
       <FormsWorkplaceForm
         :work="workplace"
-        @cancel="workplace = {}; modal = false"
+        @cancel="
+          workplace = {} as Work;
+          modal = false;
+        "
         @update="submitWorkplace"
       />
     </ElementsCardDiv>
@@ -101,8 +97,8 @@ async function deleteWork(id: string, idx: number) {
       <ElementsLabelSlot v-if="item['reason']" :label="'Причина увольнения'">
         {{ item["reason"] }}
       </ElementsLabelSlot>
-      <template v-if="props.editable" #footer>
-        <ElementsNavSimpHoriz
+      <template v-if="editable" #footer>
+        <DivMenu
           @delete="deleteWork(item['id'], idx)"
           @update="
             workplace = item;

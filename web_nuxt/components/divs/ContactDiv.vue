@@ -1,20 +1,11 @@
 <script setup lang="ts">
 import type { Contact } from "@/types";
-
-const emit = defineEmits(["message"]);
+import { emitMessage } from "@/utils";
 
 const authFetch = useFetchAuth();
 
-const props = defineProps({
-  candId: {
-    type: String,
-    default: "",
-  },
-  editable: {
-    type: Boolean,
-    default: false,
-  },
-});
+const candId = inject("candId") as Ref<string>;
+const editable = inject("editable") as Ref<boolean>;
 
 const modal = ref(false);
 const pending = ref(false);
@@ -23,7 +14,7 @@ const contacts = ref<Contact[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("contacts", async () => {
   contacts.value = (await authFetch(
-    "/route/items/contacts/" + props.candId
+    "/route/items/contacts/" + candId.value
   )) as Contact[];
 });
 
@@ -31,7 +22,7 @@ async function submitContact(form: Contact) {
   modal.value = false;
   pending.value = true;
   const { message } = (await authFetch(
-    `/route/items/contacts/${props.candId}`,
+    `/route/items/contacts/${candId.value}`,
     {
       method: "POST",
       body: form,
@@ -40,24 +31,26 @@ async function submitContact(form: Contact) {
   pending.value = false;
   contact.value = {} as Contact;
   await refresh();
-  emit("message", message);
+  emitMessage(message);
 }
 
 async function deleteContact(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
+  pending.value = true;
   const { message } = (await authFetch(`/route/items/contacts/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
+  pending.value = false;
   if (message == "success") {
     contacts.value.splice(idx, 1);
   }
-  emit("message", message);
+  emitMessage(message);
 }
 </script>
 
 <template>
   <UButton
-    v-if="props.editable"
+    v-if="editable"
     :loading="status == 'pending' || pending"
     :label="
       status == 'pending' || pending
@@ -71,7 +64,10 @@ async function deleteContact(id: string, idx: number) {
     <ElementsCardDiv>
       <FormsContactForm
         :contact="contact"
-        @cancel="contact = {}; modal = false"
+        @cancel="
+          contact = {} as Contact;
+          modal = false;
+        "
         @update="submitContact"
       />
     </ElementsCardDiv>
@@ -82,8 +78,8 @@ async function deleteContact(id: string, idx: number) {
       <ElementsLabelSlot :label="'Контакт'">{{
         item["contact"]
       }}</ElementsLabelSlot>
-      <template v-if="props.editable" #footer>
-        <ElementsNavSimpHoriz
+      <template v-if="editable" #footer>
+        <DivMenu
           @delete="deleteContact(item['id'], idx)"
           @update="
             contact = item;

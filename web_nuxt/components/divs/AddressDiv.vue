@@ -1,20 +1,11 @@
 <script setup lang="ts">
 import type { Address } from "@/types";
-
-const emit = defineEmits(["message"]);
+import { emitMessage } from "@/utils";
 
 const authFetch = useFetchAuth();
 
-const props = defineProps({
-  candId: {
-    type: String,
-    default: "",
-  },
-  editable: {
-    type: Boolean,
-    default: false,
-  },
-});
+const candId = inject("candId") as Ref<string>;
+const editable = inject("editable") as Ref<boolean>;
 
 const modal = ref(false);
 const pending = ref(false);
@@ -23,7 +14,7 @@ const addresses = ref<Address[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("addresses", async () => {
   addresses.value = (await authFetch(
-    "/route/items/addresses/" + props.candId
+    "/route/items/addresses/" + candId.value
   )) as Address[];
 });
 
@@ -31,7 +22,7 @@ async function submitAddress(form: Address) {
   modal.value = false;
   pending.value = true;
   const { message } = (await authFetch(
-    `/route/items/addresses/${props.candId}`,
+    `/route/items/addresses/${candId.value}`,
     {
       method: "POST",
       body: form,
@@ -40,24 +31,26 @@ async function submitAddress(form: Address) {
   pending.value = false;
   address.value = {} as Address;
   await refresh();
-  emit("message", message);
+  emitMessage(message);
 }
 
 async function deleteAddress(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
+  pending.value = true;
   const { message } = (await authFetch(`/route/items/addresses/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
+  pending.value = false;
   if (message == "success") {
     addresses.value.splice(idx, 1);
   }
-  emit("message", message);
+  emitMessage(message);
 }
 </script>
 
 <template>
   <UButton
-    v-if="props.editable"
+    v-if="editable"
     :loading="status == 'pending' || pending"
     :label="
       status == 'pending' || pending
@@ -85,8 +78,8 @@ async function deleteAddress(id: string, idx: number) {
       <ElementsLabelSlot :label="'Адрес'">{{
         item["addresses"]
       }}</ElementsLabelSlot>
-      <template v-if="props.editable" #footer>
-        <ElementsNavSimpHoriz
+      <template v-if="editable" #footer>
+        <DivMenu
           @delete="deleteAddress(item['id'], idx)"
           @update="
             address = item;

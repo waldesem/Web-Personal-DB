@@ -1,20 +1,11 @@
 <script setup lang="ts">
 import type { Relation, Relationship } from "@/types";
-
-const emit = defineEmits(["message"]);
+import { emitMessage } from "@/utils";
 
 const authFetch = useFetchAuth();
 
-const props = defineProps({
-  candId: {
-    type: String,
-    default: "",
-  },
-  editable: {
-    type: Boolean,
-    default: false,
-  },
-});
+const candId = inject("candId") as Ref<string>;
+const editable = inject("editable") as Ref<boolean>;
 
 const modal = ref(false);
 const pending = ref(false);
@@ -23,7 +14,7 @@ const relationships = ref([] as Relationship[]);
 
 const { refresh, status } = await useLazyAsyncData("relations", async () => {
   [relations.value, relationships.value] = (await authFetch(
-    "/route/items/relations/" + props.candId
+    "/route/items/relations/" + candId.value
   )) as [Relation[], Relationship[]];
 });
 
@@ -31,7 +22,7 @@ async function submitRelation(form: Relation) {
   modal.value = false;
   pending.value = true;
   const { message } = (await authFetch(
-    `/route/items/relations/${props.candId}`,
+    `/route/items/relations/${candId.value}`,
     {
       method: "POST",
       body: form,
@@ -39,13 +30,13 @@ async function submitRelation(form: Relation) {
   )) as Record<string, string>;
   pending.value = false;
   refresh();
-  emit("message", message);
+  emitMessage(message);
 }
 
 async function deleteRelation(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   const { message } = (await authFetch(
-    `/route/items/relations/${props.candId}/${id}`,
+    `/route/items/relations/${candId.value}/${id}`,
     {
       method: "DELETE",
     }
@@ -53,13 +44,13 @@ async function deleteRelation(id: string, idx: number) {
   if (message == "success") {
     relations.value.splice(idx, 1);
   }
-  emit("message", message);
+  emitMessage(message);
 }
 </script>
 
 <template>
   <UButton
-    v-if="props.editable"
+    v-if="editable"
     :loading="status == 'pending' || pending"
     :label="
       status == 'pending' || pending
@@ -82,10 +73,15 @@ async function deleteRelation(id: string, idx: number) {
           ID #{{ item["right_id"] }}
         </NuxtLink>
       </ElementsLabelSlot>
-      <template v-if="props.editable" #footer>
-        <ElementsNavSimpHoriz
-          :is-changed="false"
-          @delete="deleteRelation(item['right_id'], idx)"
+      <template v-if="editable" #footer>
+        <UHorizontalNavigation
+          :links="[
+            {
+              label: 'Удалить',
+              icon: 'i-heroicons-trash',
+              click: () => deleteRelation(item['right_id'], idx),
+            },
+          ]"
         />
       </template>
     </ElementsCardDiv>

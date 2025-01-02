@@ -2,13 +2,6 @@
 
 const emit = defineEmits(["delete", "update"]);
 
-defineProps({
-  isChanged: {
-    type: Boolean,
-    default: true,
-  },
-});
-
 const links = [
   {
     label: "Удалить",
@@ -24,5 +17,5 @@ const links = [
 </script>
 
 <template>
-  <UHorizontalNavigation :links="isChanged ? links : links.slice(0, 1)" />
+  <UHorizontalNavigation :links="links" />
 </template>

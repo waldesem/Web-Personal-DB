@@ -1,22 +1,13 @@
 <script setup lang="ts">
 import type { Pfo } from "@/types";
+import { emitMessage } from "@/utils";
 
 prefetchComponents("FormsPoligrafForm");
 
-const emit = defineEmits(["message"]);
-
 const authFetch = useFetchAuth();
 
-const props = defineProps({
-  candId: {
-    type: String,
-    default: "",
-  },
-  editable: {
-    type: Boolean,
-    default: false,
-  },
-});
+const candId = inject("candId") as Ref<string>;
+const editable = inject("editable") as Ref<boolean>;
 
 const modal = ref(false);
 const pending = ref(false);
@@ -25,7 +16,7 @@ const poligrafs = ref<Pfo[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("poligrafs", async () => {
   poligrafs.value = (await authFetch(
-    "/route/items/poligrafs/" + props.candId
+    "/route/items/poligrafs/" + candId.value
   )) as Pfo[];
 });
 
@@ -33,7 +24,7 @@ async function submitPoligraf(form: Pfo) {
   modal.value = false;
   pending.value = true;
   const { message } = (await authFetch(
-    `/route/items/poligrafs/${props.candId}`,
+    `/route/items/poligrafs/${candId.value}`,
     {
       method: "POST",
       body: form,
@@ -42,7 +33,7 @@ async function submitPoligraf(form: Pfo) {
   pending.value = false;
   poligraf.value = {} as Pfo;
   await refresh();
-  emit("message", message);
+  emitMessage(message);
 }
 
 async function deletePoligraf(id: string, idx: number) {
@@ -53,13 +44,13 @@ async function deletePoligraf(id: string, idx: number) {
   if (message == "success") {
     poligrafs.value.splice(idx, 1);
   }
-  emit("message", message);
+  emitMessage(message);
 }
 </script>
 
 <template>
   <UButton
-    v-if="props.editable"
+    v-if="editable"
     :loading="status == 'pending' || pending"
     :label="
       status == 'pending' || pending
@@ -101,9 +92,8 @@ async function deletePoligraf(id: string, idx: number) {
       <ElementsLabelSlot :label="'Дата записи'">
         {{ new Date(item["created"]).toLocaleString("ru-RU") }}
       </ElementsLabelSlot>
-      <template v-if="props.editable" #footer>
-        <ElementsNaviHorizont
-          :cand-id="props.candId"
+      <template v-if="editable" #footer>
+        <TabMenu
           :item="'poligrafs'"
           @cancel="modal = false"
           @update="

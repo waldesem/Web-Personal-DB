@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { Persons } from "@/types";
 
 await preloadComponents([
   "DivsResumeDiv",
@@ -14,26 +13,7 @@ await preloadComponents([
   "DivsAffilDiv",
 ]);
 
-const props = defineProps({
-  status: {
-    type: String,
-    default: "",
-  },
-  editable: {
-    type: Boolean,
-    default: false,
-  },
-  candId: {
-    type: String,
-    default: "",
-  },
-  person: {
-    type: Object as () => Persons,
-    default: {} as Persons,
-  },
-});
-
-const emit = defineEmits(["update", "message"]);
+const emit = defineEmits(["update"]);
 
 const items = [
   {
@@ -88,86 +68,39 @@ const items = [
     slot: "relate",
   },
 ];
-
-function emitMessage(message: string) {
-  emit("message", message);
-}
 </script>
 
 <template>
   <UAccordion :items="items" size="lg" multiple>
     <template #resume="">
-      <DivsResumeDiv
-        :cand-id="props.candId"
-        :editable="props.editable"
-        :person="props.person"
-        :status="props.status"
-        @update="emit('update')"
-        @message="emitMessage"
-      />
+      <DivsResumeDiv @update="emit('update')" />
     </template>
     <template #prev="">
-      <DivsPrevDiv
-        :cand-id="props.candId"
-        :editable="props.editable"
-        @message="emitMessage"
-      />
+      <DivsPrevDiv />
     </template>
     <template #staff="">
-      <DivsStaffDiv
-        :cand-id="props.candId"
-        :editable="props.editable"
-        @message="emitMessage"
-      />
+      <DivsStaffDiv />
     </template>
     <template #education="">
-      <DivsEducateDiv
-        :cand-id="props.candId"
-        :editable="props.editable"
-        @message="emitMessage"
-      />
+      <DivsEducateDiv />
     </template>
     <template #work="">
-      <DivsWorkDiv
-        :cand-id="props.candId"
-        :editable="props.editable"
-        @message="emitMessage"
-      />
+      <DivsWorkDiv />
     </template>
     <template #document="">
-      <DivsDocumDiv
-        :cand-id="props.candId"
-        :editable="props.editable"
-        @message="emitMessage"
-      />
+      <DivsDocumDiv />
     </template>
     <template #address="">
-      <DivsAddressDiv
-        :cand-id="props.candId"
-        :editable="props.editable"
-        @message="emitMessage"
-      />
+      <DivsAddressDiv />
     </template>
     <template #contact="">
-      <DivsContactDiv
-        :cand-id="props.candId"
-        :editable="props.editable"
-        @message="emitMessage"
-      />
+      <DivsContactDiv />
     </template>
     <template #affiliation="">
-      <DivsAffilDiv
-        :cand-id="props.candId"
-        :editable="props.editable"
-        @message="emitMessage"
-      />
+      <DivsAffilDiv />
     </template>
     <template #relate="">
-      <DivsRelateDiv
-        :cand-id="props.candId"
-        :editable="props.editable"
-        @message="emitMessage"
-      />
+      <DivsRelateDiv />
     </template>
   </UAccordion>
 </template>

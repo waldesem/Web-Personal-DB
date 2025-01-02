@@ -94,19 +94,17 @@ async function submitLogin(): Promise<void> {
         :title="alert.title"
         :description="alert.description"
       />
-      <ElementsHeaderDiv
-        :div="'py-5'"
-        :cls="'text-2xl text-blue-800'"
-        :header="'Кадровая безопасность'"
-      />
+      <div class="py-6">
+        <h3 class="text-2xl text-blue-800 font-bold">Кадровая безопасность</h3>
+      </div>
       <div class="border border-red-600 rounded-md p-5">
-        <ElementsHeaderDiv
-          :div="'mb-1'"
-          :cls="'text-xl text-red-800'"
-          :header="
-            loginAction === 'login' ? 'Вход в систему' : 'Обновление пароля'
-          "
-        />
+        <div class="py-1">
+          <h3 class="text-xl text-red-800 font-bold">
+            {{
+              loginAction === "login" ? "Вход в систему" : "Обновление пароля"
+            }}
+          </h3>
+        </div>
         <UForm
           :schema="schema"
           :state="loginForm"

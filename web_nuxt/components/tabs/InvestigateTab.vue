@@ -1,22 +1,13 @@
 <script setup lang="ts">
 import type { Inquisition } from "@/types";
+import { emitMessage } from "@/utils";
 
 prefetchComponents("FormsInvestigationForm");
 
-const emit = defineEmits(["message"]);
-
 const authFetch = useFetchAuth();
 
-const props = defineProps({
-  candId: {
-    type: String,
-    default: "",
-  },
-  editable: {
-    type: Boolean,
-    default: false,
-  },
-});
+const candId = inject("candId") as Ref<string>;
+const editable = inject("editable") as Ref<boolean>;
 
 const modal = ref(false);
 const pending = ref(false);
@@ -27,7 +18,7 @@ const { refresh, status } = await useLazyAsyncData(
   "investigations",
   async () => {
     investigations.value = (await authFetch(
-      "/route/items/investigations/" + props.candId
+      "/route/items/investigations/" + candId.value
     )) as Inquisition[];
   }
 );
@@ -36,7 +27,7 @@ async function submitInvestigations(form: Inquisition) {
   modal.value = false;
   pending.value = true;
   const { message } = (await authFetch(
-    `/route/items/investigations/${props.candId}`,
+    "/route/items/investigations/" + candId.value,
     {
       method: "POST",
       body: form,
@@ -45,7 +36,7 @@ async function submitInvestigations(form: Inquisition) {
   pending.value = false;
   inquisition.value = {} as Inquisition;
   await refresh();
-  emit("message", message);
+  emitMessage(message);
 }
 
 async function deleteInquisition(id: string, idx: number) {
@@ -56,13 +47,13 @@ async function deleteInquisition(id: string, idx: number) {
   if (message == "success") {
     investigations.value.splice(idx, 1);
   }
-  emit("message", message);
+  emitMessage(message);
 }
 </script>
 
 <template>
   <UButton
-    v-if="props.editable"
+    v-if="editable"
     :loading="status == 'pending' || pending"
     :label="
       status == 'pending' || pending
@@ -76,7 +67,10 @@ async function deleteInquisition(id: string, idx: number) {
     <ElementsCardDiv>
       <FormsInvestigationForm
         :investigation="inquisition"
-        @cancel="inquisition = {} as Inquisition; modal = false"
+        @cancel="
+          inquisition = {} as Inquisition;
+          modal = false;
+        "
         @update="submitInvestigations"
       />
     </ElementsCardDiv>
@@ -101,9 +95,8 @@ async function deleteInquisition(id: string, idx: number) {
       <ElementsLabelSlot :label="'Дата записи'">
         {{ new Date(item["created"]).toLocaleString("ru-RU") }}
       </ElementsLabelSlot>
-      <template v-if="props.editable" #footer>
-        <ElementsNaviHorizont
-          :cand-id="props.candId"
+      <template v-if="editable" #footer>
+        <TabMenu
           :item="'investigations'"
           @cancel="modal = false"
           @update="

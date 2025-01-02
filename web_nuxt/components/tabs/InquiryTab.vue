@@ -1,22 +1,13 @@
 <script setup lang="ts">
 import type { Needs } from "@/types";
+import { emitMessage } from "@/utils";
 
 prefetchComponents("FormsInquiryForm");
 
-const emit = defineEmits(["message"]);
-
 const authFetch = useFetchAuth();
 
-const props = defineProps({
-  candId: {
-    type: String,
-    default: "",
-  },
-  editable: {
-    type: Boolean,
-    default: false,
-  },
-});
+const candId = inject("candId") as Ref<string>;
+const editable = inject("editable") as Ref<boolean>;
 
 const modal = ref(false);
 const pending = ref(false);
@@ -25,7 +16,7 @@ const inquiries = ref<Needs[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("inquiries", async () => {
   inquiries.value = (await authFetch(
-    `/route/items/inquiries/${props.candId}`
+    `/route/items/inquiries/${candId.value}`
   )) as Needs[];
 });
 
@@ -33,7 +24,7 @@ async function submitIquiry(form: Needs) {
   modal.value = false;
   pending.value = true;
   const { message } = (await authFetch(
-    `/route/items/inquiries/${props.candId}`,
+    `/route/items/inquiries/${candId.value}`,
     {
       method: "POST",
       body: form,
@@ -42,7 +33,7 @@ async function submitIquiry(form: Needs) {
   pending.value = false;
   need.value = {} as Needs;
   await refresh();
-  emit("message", message);
+  emitMessage(message);
 }
 
 async function deleteNeed(id: string, idx: number) {
@@ -53,13 +44,13 @@ async function deleteNeed(id: string, idx: number) {
   if (message == "success") {
     inquiries.value.splice(idx, 1);
   }
-  emit("message", message);
+  emitMessage(message);
 }
 </script>
 
 <template>
   <UButton
-    v-if="props.editable"
+    v-if="editable"
     :loading="status == 'pending' || pending"
     :label="
       status == 'pending' || pending
@@ -73,7 +64,10 @@ async function deleteNeed(id: string, idx: number) {
     <ElementsCardDiv>
       <FormsInquiryForm
         :inquiry="need"
-        @cancel="need = {}; modal = false"
+        @cancel="
+          need = {} as Needs;
+          modal = false;
+        "
         @update="submitIquiry"
       />
     </ElementsCardDiv>
@@ -98,9 +92,8 @@ async function deleteNeed(id: string, idx: number) {
       <ElementsLabelSlot :label="'Дата записи'">
         {{ new Date(item["created"]).toLocaleString("ru-RU") }}
       </ElementsLabelSlot>
-      <template v-if="props.editable" #footer>
-        <ElementsNaviHorizont
-          :cand-id="props.candId"
+      <template v-if="editable" #footer>
+        <TabMenu
           :item="'inquiries'"
           @delete="deleteNeed(item['id'], index)"
           @update="

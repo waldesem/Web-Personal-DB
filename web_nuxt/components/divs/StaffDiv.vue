@@ -1,20 +1,11 @@
 <script setup lang="ts">
 import type { Staff } from "@/types";
-
-const emit = defineEmits(["message"]);
+import { emitMessage } from "@/utils";
 
 const authFetch = useFetchAuth();
 
-const props = defineProps({
-  candId: {
-    type: String,
-    default: "",
-  },
-  editable: {
-    type: Boolean,
-    default: false,
-  },
-});
+const candId = inject("candId") as Ref<string>;
+const editable = inject("editable") as Ref<boolean>;
 
 const modal = ref(false);
 const pending = ref(false);
@@ -23,38 +14,40 @@ const staffs = ref<Staff[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("staffs", async () => {
   staffs.value = (await authFetch(
-    "/route/items/staffs/" + props.candId
+    "/route/items/staffs/" + candId.value
   )) as Staff[];
 });
 
 async function submitStaff(form: Staff) {
   modal.value = false;
   pending.value = true;
-  const { message } = (await authFetch(`/route/items/staffs/${props.candId}`, {
+  const { message } = (await authFetch(`/route/items/staffs/${candId.value}`, {
     method: "POST",
     body: form,
   })) as Record<string, string>;
   pending.value = false;
   staff.value = {} as Staff;
   await refresh();
-  emit("message", message);
+  emitMessage(message);
 }
 
 async function deleteStaff(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
+  pending.value = true;
   const { message } = (await authFetch(`/route/items/staffs/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
+  pending.value = false;
   if (message == "success") {
     staffs.value.splice(idx, 1);
   }
-  emit("message", message);
+  emitMessage(message);
 }
 </script>
 
 <template>
   <UButton
-    v-if="props.editable"
+    v-if="editable"
     :loading="status == 'pending' || pending"
     :label="
       status == 'pending' || pending
@@ -68,7 +61,10 @@ async function deleteStaff(id: string, idx: number) {
     <ElementsCardDiv>
       <FormsStaffForm
         :staff="staff"
-        @cancel="staff = {}; modal = false"
+        @cancel="
+          staff = {} as Staff;
+          modal = false;
+        "
         @update="submitStaff"
       />
     </ElementsCardDiv>
@@ -81,8 +77,8 @@ async function deleteStaff(id: string, idx: number) {
       <ElementsLabelSlot :label="'Департамент'">{{
         item["department"]
       }}</ElementsLabelSlot>
-      <template v-if="props.editable" #footer>
-        <ElementsNavSimpHoriz
+      <template v-if="editable" #footer>
+        <DivMenu
           @delete="deleteStaff(item['id'], idx)"
           @update="
             staff = item;

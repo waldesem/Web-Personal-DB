@@ -1,20 +1,11 @@
 <script setup lang="ts">
 import type { Affilation } from "@/types";
-
-const emit = defineEmits(["message"]);
+import { emitMessage } from "@/utils";
 
 const authFetch = useFetchAuth();
 
-const props = defineProps({
-  candId: {
-    type: String,
-    default: "",
-  },
-  editable: {
-    type: Boolean,
-    default: false,
-  },
-});
+const candId = inject("candId") as Ref<string>;
+const editable = inject("editable") as Ref<boolean>;
 
 const modal = ref(false);
 const pending = ref(false);
@@ -23,7 +14,7 @@ const affilations = ref<Affilation[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("affilations", async () => {
   affilations.value = (await authFetch(
-    "/route/items/affilations/" + props.candId
+    "/route/items/affilations/" + candId.value
   )) as Affilation[];
 });
 
@@ -31,7 +22,7 @@ async function submitAffilation(form: Affilation) {
   modal.value = false;
   pending.value = true;
   const { message } = (await authFetch(
-    `/route/items/affilations/${props.candId}`,
+    `/route/items/affilations/${candId.value}`,
     {
       method: "POST",
       body: form,
@@ -40,24 +31,26 @@ async function submitAffilation(form: Affilation) {
   pending.value = false;
   affilation.value = {} as Affilation;
   await refresh();
-  emit("message", message);
+  emitMessage(message);
 }
 
 async function deleteAffilation(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
+  pending.value = true;
   const { message } = (await authFetch(`/route/items/affilations/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
+  pending.value = false;
   if (message == "success") {
     affilations.value.splice(idx, 1);
   }
-  emit("message", message);
+  emitMessage(message);
 }
 </script>
 
 <template>
   <UButton
-    v-if="props.editable"
+    v-if="editable"
     :loading="status == 'pending' || pending"
     :label="
       status == 'pending' || pending
@@ -71,7 +64,10 @@ async function deleteAffilation(id: string, idx: number) {
     <ElementsCardDiv>
       <FormsAffilationForm
         :affil="affilation"
-        @cancel="affilation = {}; modal = false"
+        @cancel="
+          affilation = {} as Affilation;
+          modal = false;
+        "
         @update="submitAffilation"
       />
     </ElementsCardDiv>
@@ -85,8 +81,8 @@ async function deleteAffilation(id: string, idx: number) {
         item["organization"]
       }}</ElementsLabelSlot>
       <ElementsLabelSlot :label="'ИНН'">{{ item["inn"] }}</ElementsLabelSlot>
-      <template v-if="props.editable" #footer>
-        <ElementsNavSimpHoriz
+      <template v-if="editable" #footer>
+        <DivMenu
           @delete="deleteAffilation(item['id'], idx)"
           @update="
             affilation = item;
