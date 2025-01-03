@@ -5,7 +5,7 @@ from pathlib import Path
 import click
 from flask import Blueprint, current_app
 from flask.cli import with_appcontext
-from sqlalchemy import select
+from sqlalchemy import text
 
 from app.model.classes import Regions, Roles
 from app.model.tables import Users, db_session
@@ -53,7 +53,8 @@ def create_user(
 
     """
     if not db_session.execute(
-        select(Users).filter(Users.username == username),
+        text("SELECT * FROM users WHERE username = :username"),
+        {"username": username},
     ).all():
         db_session.add(
             Users(
@@ -79,9 +80,12 @@ def create_folders() -> None:
     :param folder: The folder to create the structure in. If not provided, the
         current BASE_PATH is used.
     """
-    for region in Regions:
-        region_path = Path(current_app.config["BASE_PATH"], region.value)
-        region_path.mkdir(exist_ok=True)
-        for letter in "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЫЭЮЯ":
-            Path(region_path, letter).mkdir(exist_ok=True)
-    click.echo("Folders created")
+    if Path(current_app.config["BASE_PATH"]).is_dir():
+        for region in Regions:
+            region_path = Path(current_app.config["BASE_PATH"], region.value)
+            region_path.mkdir(exist_ok=True)
+            for letter in "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЫЭЮЯ":
+                Path(region_path, letter).mkdir(exist_ok=True)
+        click.echo("Folders created")
+    else:
+        click.echo("BASE_PATH is not a directory")

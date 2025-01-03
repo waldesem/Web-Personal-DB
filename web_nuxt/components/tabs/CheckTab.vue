@@ -43,6 +43,14 @@ async function deleteCheck(id: string, idx: number) {
   }
   emitMessage(message);
 }
+
+const items = computed(() =>
+  checks.value.map((item, _) => ({
+    label: "Проверка кандидата ID #" + item["id"],
+    defaultOpen: true,
+    description: item,
+  }))
+);
 </script>
 
 <template>
@@ -69,97 +77,90 @@ async function deleteCheck(id: string, idx: number) {
       />
     </ElementsCardDiv>
   </UModal>
-  <div
-    v-for="(item, index) in checks"
-    :key="index"
-    class="text-sm text-gray-500 dark:text-gray-400 py-1"
-  >
-    <ElementsCardDiv>
-      <template #header>
-        <div class="tex-base text-red-800 dark:text-gray-400 font-medium">
-          {{ "Проверка кандидата ID #" + item["id"] }}
-        </div>
-      </template>
-      <ElementsLabelSlot
-        v-if="item['workplace']"
-        :label="'Проверка по местам работы'"
-      >
-        {{ item["workplace"] }}
-      </ElementsLabelSlot>
-      <ElementsLabelSlot v-if="item['document']" :label="'Проверка паспорта'">
-        {{ item["document"] }}
-      </ElementsLabelSlot>
-      <ElementsLabelSlot v-if="item['inn']" :label="'Проверка ИНН'">{{
-        item["inn"]
-      }}</ElementsLabelSlot>
-      <ElementsLabelSlot v-if="item['debt']" :label="'Проверка ФССП'">{{
-        item["debt"]
-      }}</ElementsLabelSlot>
-      <ElementsLabelSlot
-        v-if="item['bankruptcy']"
-        :label="'Проверка банкротства'"
-      >
-        {{ item["bankruptcy"] }}
-      </ElementsLabelSlot>
-      <ElementsLabelSlot v-if="item['bki']" :label="'Проверка БКИ'">{{
-        item["bki"]
-      }}</ElementsLabelSlot>
-      <ElementsLabelSlot
-        v-if="item['courts']"
-        :label="'Проверка судебных решений'"
-      >
-        {{ item["courts"] }}
-      </ElementsLabelSlot>
-      <ElementsLabelSlot
-        v-if="item['affilation']"
-        :label="'Проверка аффилированности'"
-      >
-        {{ item["affilation"] }}
-      </ElementsLabelSlot>
-      <ElementsLabelSlot
-        v-if="item['terrorist']"
-        :label="'Проверка по списку террористов'"
-      >
-        {{ item["terrorist"] }}
-      </ElementsLabelSlot>
-      <ElementsLabelSlot v-if="item['mvd']" :label="'Проверка в розыск'">{{
-        item["mvd"]
-      }}</ElementsLabelSlot>
-      <ElementsLabelSlot
-        v-if="item['internet']"
-        :label="'Проверка в открытых источниках'"
-      >
-        {{ item["internet"] }}
-      </ElementsLabelSlot>
-      <ElementsLabelSlot v-if="item['cronos']" :label="'Проверка Кронос'">
-        {{ item["cronos"] }}
-      </ElementsLabelSlot>
-      <ElementsLabelSlot
-        v-if="item['addition']"
-        :label="'Дополнительная информация'"
-      >
-        {{ item["addition"] }}
-      </ElementsLabelSlot>
-      <ElementsLabelSlot v-if="item['comment']" :label="'Комментарии'"
-        >{{ item["comment"] }}
-      </ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Результат'">{{
-        item["conclusion"]
-      }}</ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Дата записи'">
-        {{ new Date(item["created"]).toLocaleString("ru-RU") }}
-      </ElementsLabelSlot>
-      <template v-if="editable" #footer>
-        <ElementsTabMenu
-          :item="'checks'"
-          @cancel="modal = false"
-          @update="
-            check = item;
-            modal = true;
-          "
-          @delete="deleteCheck(item['id'], index)"
-        />
-      </template>
-    </ElementsCardDiv>
-  </div>
+  <UAccordion :items="items" size="lg" multiple>
+    <template #item="{ item, index }">
+      <ElementsCardDiv>
+        <ElementsLabelSlot
+          v-if="item.description['workplace']"
+          :label="'Проверка по местам работы'"
+        >
+          {{ item.description["workplace"] }}
+        </ElementsLabelSlot>
+        <ElementsLabelSlot v-if="item.description['document']" :label="'Проверка паспорта'">
+          {{ item.description["document"] }}
+        </ElementsLabelSlot>
+        <ElementsLabelSlot v-if="item.description['inn']" :label="'Проверка ИНН'">{{
+          item.description["inn"]
+        }}</ElementsLabelSlot>
+        <ElementsLabelSlot v-if="item.description['debt']" :label="'Проверка ФССП'">{{
+          item.description["debt"]
+        }}</ElementsLabelSlot>
+        <ElementsLabelSlot
+          v-if="item.description['bankruptcy']"
+          :label="'Проверка банкротства'"
+        >
+          {{ item.description["bankruptcy"] }}
+        </ElementsLabelSlot>
+        <ElementsLabelSlot v-if="item.description['bki']" :label="'Проверка БКИ'">{{
+          item.description["bki"]
+        }}</ElementsLabelSlot>
+        <ElementsLabelSlot
+          v-if="item.description['courts']"
+          :label="'Проверка судебных решений'"
+        >
+          {{ item.description["courts"] }}
+        </ElementsLabelSlot>
+        <ElementsLabelSlot
+          v-if="item.description['affilation']"
+          :label="'Проверка аффилированности'"
+        >
+          {{ item.description["affilation"] }}
+        </ElementsLabelSlot>
+        <ElementsLabelSlot
+          v-if="item.description['terrorist']"
+          :label="'Проверка по списку террористов'"
+        >
+          {{ item.description["terrorist"] }}
+        </ElementsLabelSlot>
+        <ElementsLabelSlot v-if="item.description['mvd']" :label="'Проверка в розыск'">{{
+          item.description["mvd"]
+        }}</ElementsLabelSlot>
+        <ElementsLabelSlot
+          v-if="item.description['internet']"
+          :label="'Проверка в открытых источниках'"
+        >
+          {{ item.description["internet"] }}
+        </ElementsLabelSlot>
+        <ElementsLabelSlot v-if="item.description['cronos']" :label="'Проверка Кронос'">
+          {{ item.description["cronos"] }}
+        </ElementsLabelSlot>
+        <ElementsLabelSlot
+          v-if="item.description['addition']"
+          :label="'Дополнительная информация'"
+        >
+          {{ item.description["addition"] }}
+        </ElementsLabelSlot>
+        <ElementsLabelSlot v-if="item.description['comment']" :label="'Комментарии'"
+          >{{ item.description["comment"] }}
+        </ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Результат'">{{
+          item.description["conclusion"]
+        }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Дата записи'">
+          {{ new Date(item.description["created"]).toLocaleString("ru-RU") }}
+        </ElementsLabelSlot>
+        <template v-if="editable" #footer>
+          <ElementsTabMenu
+            :item="'checks'"
+            @cancel="modal = false"
+            @update="
+              check = item.description;
+              modal = true;
+            "
+            @delete="deleteCheck(item.description['id'], index)"
+          />
+        </template>
+      </ElementsCardDiv>
+    </template>
+  </UAccordion>
 </template>

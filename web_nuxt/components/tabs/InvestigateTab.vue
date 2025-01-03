@@ -49,6 +49,14 @@ async function deleteInquisition(id: string, idx: number) {
   }
   emitMessage(message);
 }
+
+const items = computed(() =>
+  investigations.value.map((item, _) => ({
+    label: "Расследование/проверка ID #" + item["id"],
+    defaultOpen: true,
+    description: item,
+  }))
+);
 </script>
 
 <template>
@@ -75,37 +83,30 @@ async function deleteInquisition(id: string, idx: number) {
       />
     </ElementsCardDiv>
   </UModal>
-  <div
-    v-for="(item, index) in investigations"
-    :key="index"
-    class="text-sm text-gray-500 dark:text-gray-400 py-1"
-  >
-    <ElementsCardDiv>
-      <template #header>
-        <div class="tex-base text-red-800 font-medium">
-          {{ "Расследование/проверка ID #" + item["id"] }}
-        </div>
-      </template>
-      <ElementsLabelSlot v-if="item['theme']" :label="'Тема проверки'">{{
-        item["theme"]
-      }}</ElementsLabelSlot>
-      <ElementsLabelSlot v-if="item['info']" :label="'Информация'">{{
-        item["info"]
-      }}</ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Дата записи'">
-        {{ new Date(item["created"]).toLocaleString("ru-RU") }}
-      </ElementsLabelSlot>
-      <template v-if="editable" #footer>
-        <ElementsTabMenu
-          :item="'investigations'"
-          @cancel="modal = false"
-          @update="
-            inquisition = item;
-            modal = true;
-          "
-          @delete="deleteInquisition(item['id'], index)"
-        />
-      </template>
-    </ElementsCardDiv>
-  </div>
+  <UAccordion :items="items" size="lg" multiple>
+    <template #item="{ item, index }">
+      <ElementsCardDiv>
+        <ElementsLabelSlot :label="'Тема проверки'">{{
+          item.description["theme"]
+        }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Информация'">{{
+          item.description["info"]
+        }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Дата записи'">
+          {{ new Date(item.description["created"]).toLocaleString("ru-RU") }}
+        </ElementsLabelSlot>
+        <template v-if="editable" #footer>
+          <ElementsTabMenu
+            :item="'investigations'"
+            @cancel="modal = false"
+            @update="
+              inquisition = item.description;
+              modal = true;
+            "
+            @delete="deleteInquisition(item.description['id'], index)"
+          />
+        </template>
+      </ElementsCardDiv>
+    </template>
+  </UAccordion>
 </template>

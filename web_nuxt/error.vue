@@ -16,6 +16,8 @@ const props = defineProps({
       <div class="text-2xl">{{ props.error.message }}</div>
       <div class="text-xl">{{ props.error.stack }}</div>
     </div>
-    <NuxtLink to="/persons">Вернуться на главную страницу</NuxtLink>
+    <div class="my-4 text-xl">
+      <NuxtLink to="/persons">Вернуться на главную страницу</NuxtLink>
+    </div>
   </div>
 </template>

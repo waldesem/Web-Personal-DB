@@ -46,6 +46,14 @@ async function deletePoligraf(id: string, idx: number) {
   }
   emitMessage(message);
 }
+
+const items = computed(() =>
+  poligrafs.value.map((item, _) => ({
+    label: "Обследование на полиграфе ID #" + item["id"],
+    defaultOpen: true,
+    description: item,
+  }))
+);
 </script>
 
 <template>
@@ -72,37 +80,30 @@ async function deletePoligraf(id: string, idx: number) {
       />
     </ElementsCardDiv>
   </UModal>
-  <div
-    v-for="(item, index) in poligrafs"
-    :key="index"
-    class="text-sm text-gray-500 dark:text-gray-400 py-1"
-  >
-    <ElementsCardDiv>
-      <template #header>
-        <div class="tex-base text-red-800 font-medium">
-          {{ "Обследование на полиграфе ID #" + item["id"] }}
-        </div>
-      </template>
-      <ElementsLabelSlot v-if="item['theme']" :label="'Тема проверки'">{{
-        item["theme"]
-      }}</ElementsLabelSlot>
-      <ElementsLabelSlot v-if="item['results']" :label="'Результат'">{{
-        item["results"]
-      }}</ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Дата записи'">
-        {{ new Date(item["created"]).toLocaleString("ru-RU") }}
-      </ElementsLabelSlot>
-      <template v-if="editable" #footer>
-        <ElementsTabMenu
-          :item="'poligrafs'"
-          @cancel="modal = false"
-          @update="
-            poligraf = item;
-            modal = true;
-          "
-          @delete="deletePoligraf(item['id'], index)"
-        />
-      </template>
-    </ElementsCardDiv>
-  </div>
+  <UAccordion :items="items" size="lg" multiple>
+    <template #item="{ item, index }">
+      <ElementsCardDiv>
+        <ElementsLabelSlot :label="'Тема проверки'">{{
+          item.description["theme"]
+        }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Результат'">{{
+          item.description["results"]
+        }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Дата записи'">
+          {{ new Date(item.description["created"]).toLocaleString("ru-RU") }}
+        </ElementsLabelSlot>
+        <template v-if="editable" #footer>
+          <ElementsTabMenu
+            :item="'poligrafs'"
+            @cancel="modal = false"
+            @update="
+              poligraf = item.description;
+              modal = true;
+            "
+            @delete="deletePoligraf(item.description['id'], index)"
+          />
+        </template>
+      </ElementsCardDiv>
+    </template>
+  </UAccordion>
 </template>

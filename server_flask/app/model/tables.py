@@ -55,11 +55,12 @@ class Users(Base):
     passhash: Mapped[str] = mapped_column(
         String(255),
         default=generate_password_hash(Config.DEFAULT_PASSWORD),
+        nullable=True,
     )
     pswd_create: Mapped[datetime] = mapped_column(
         DateTime,
         default=func.now(),
-        nullable=False,
+        nullable=True,
     )
     change_pswd: Mapped[bool] = mapped_column(Boolean(), default=True)
     blocked: Mapped[bool] = mapped_column(Boolean(), default=False)
@@ -69,7 +70,7 @@ class Users(Base):
     created: Mapped[datetime] = mapped_column(
         DateTime,
         default=func.now(),
-        onupdate=func.now(),
+        nullable=True,
     )
     region: Mapped[str] = mapped_column(String(255), default=Regions.main.value)
 

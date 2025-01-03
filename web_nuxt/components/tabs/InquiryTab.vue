@@ -46,6 +46,14 @@ async function deleteNeed(id: string, idx: number) {
   }
   emitMessage(message);
 }
+
+const items = computed(() =>
+  inquiries.value.map((item, _) => ({
+    label: "Запрос о сотруднике ID #" + item["id"],
+    defaultOpen: true,
+    description: item,
+  }))
+);
 </script>
 
 <template>
@@ -72,36 +80,29 @@ async function deleteNeed(id: string, idx: number) {
       />
     </ElementsCardDiv>
   </UModal>
-  <div
-    v-for="(item, index) in inquiries"
-    :key="index"
-    class="text-sm text-gray-500 dark:text-gray-400 py-1"
-  >
-    <ElementsCardDiv>
-      <template #header>
-        <div class="tex-base text-red-800 font-medium">
-          {{ "Запрос о сотруднике ID #" + item["id"] }}
-        </div>
-      </template>
-      <ElementsLabelSlot :label="'Информация'">{{
-        item["info"]
-      }}</ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Иннициатор'">{{
-        item["initiator"]
-      }}</ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Дата записи'">
-        {{ new Date(item["created"]).toLocaleString("ru-RU") }}
-      </ElementsLabelSlot>
-      <template v-if="editable" #footer>
-        <ElementsTabMenu
-          :item="'inquiries'"
-          @delete="deleteNeed(item['id'], index)"
-          @update="
-            need = item;
-            modal = true;
-          "
-        />
-      </template>
-    </ElementsCardDiv>
-  </div>
+  <UAccordion :items="items" size="lg" multiple>
+    <template #item="{ item, index }">
+      <ElementsCardDiv>
+        <ElementsLabelSlot :label="'Информация'">{{
+          item.description["info"]
+        }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Иннициатор'">{{
+          item.description["initiator"]
+        }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Дата записи'">
+          {{ new Date(item.description["created"]).toLocaleString("ru-RU") }}
+        </ElementsLabelSlot>
+        <template v-if="editable" #footer>
+          <ElementsTabMenu
+            :item="'inquiries'"
+            @delete="deleteNeed(item.description['id'], index)"
+            @update="
+              need = item.description;
+              modal = true;
+            "
+          />
+        </template>
+      </ElementsCardDiv>
+    </template>
+  </UAccordion>
 </template>
