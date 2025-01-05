@@ -1,7 +1,6 @@
 import { Buffer } from "buffer";
 import type { NitroFetchOptions } from "nitropack";
 import { useStorage, type RemovableRef } from "@vueuse/core";
-import { z } from "zod";
 import type { Token, Method } from "@/types";
 
 export const accessToken = useStorage("accessToken", "", localStorage, {
@@ -17,8 +16,6 @@ export const useFetchAuth = () => {
   ) => {
     try {
       const token = accessToken.value.split(" ")[1];
-      const schema = z.string().jwt({ alg: "HS256" });
-      schema.parse(token);
       const payloads = token.split(".")[1];
       stateUser.value = JSON.parse(
         Buffer.from(payloads, "base64").toString()

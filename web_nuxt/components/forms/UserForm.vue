@@ -1,36 +1,44 @@
 <script setup lang="ts">
-import { z } from "zod";
-
 const authFetch = useFetchAuth();
 
 const toast = useToast();
 
 const emit = defineEmits(["cancel", "update"]);
 
-type UserForm = z.infer<typeof schema>;
+type UserForm = {
+  fullname: string;
+  username: string;
+  email: string;
+};
 
 const form = ref({} as UserForm);
 
-const schema = z.object({
-  username: z
-    .string({ required_error: "Обязательное поле" })
-    .max(255)
-    .regex(
-      /^[a-zA-Z_\s]+$/,
-      "Поле должно содержать только латинские буквы и знаки подчеркивания"
-    ),
-  fullname: z
-    .string({ required_error: "Обязательное поле" })
-    .max(255)
-    .regex(/^[а-яёЁА-Я-\s]+$/, "Поле должно содержать только русские буквы"),
-  email: z
-    .string({ required_error: "Обязательное поле" })
-    .max(255)
-    .regex(
-      /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/,
-      "Поле должно содержать корректную почту"
-    ),
-});
+const validate = (state: UserForm) => {
+  const errors = [];
+  if (state.fullname && !state.fullname.match(/^[а-яёЁА-Я-\s]+$/)) {
+    errors.push({
+      path: "fullname",
+      message: "Поле должно содержать только русские буквы",
+    });
+  }
+  if (state.username && !state.username.match(/^[a-zA-Z_\s]+$/)) {
+    errors.push({
+      path: "username",
+      message:
+        "Поле должно содержать только латинские буквы и знаки подчеркивания",
+    });
+  }
+  if (
+    state.email &&
+    !state.email.match(/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/)
+  ) {
+    errors.push({
+      path: "email",
+      message: "Поле должно содержать корректную почту",
+    });
+  }
+  return errors;
+};
 
 async function submitUser() {
   const { message } = (await authFetch("/route/user", {
@@ -59,7 +67,7 @@ async function submitUser() {
 
 <template>
   <ElementsCardDiv>
-    <UForm :schema="schema" :state="form" @submit.prevent="submitUser">
+    <UForm :validate="validate" :state="form" @submit.prevent="submitUser">
       <UFormGroup
         class="mb-3"
         label="Имя пользователя"

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { z } from "zod";
 import type { Document } from "@/types";
 
 const emit = defineEmits(["cancel", "update"]);
@@ -16,25 +15,22 @@ docForm.value.issue = docForm.value.issue
   ? new Date(docForm.value.issue).toISOString().split("T", 1)[0]
   : "";
 
-const schema = z.object({
-  view: z
-    .string({ required_error: "Обязательное поле" })
-    .max(255, "Максимум 255 символов"),
-  series: z.string().max(12, "Максимум 12 символов").nullable().optional(),
-  digits: z
-    .string({ required_error: "Обязательное поле" })
-    .max(12, "Максимум 12 символов"),
-  agency: z.string().max(255, "Максимум 255 символов").nullable().optional(),
-  issue: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Поле должно содержать корректную дату"),
-});
+const validate = (state: Document) => {
+  const errors = [];
+  if (state.issue && !state.issue.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    errors.push({
+      path: "issue",
+      message: "Поле должно содержать корректную дату",
+    });
+  }
+  return errors;
+};
 </script>
 
 <template>
   <UForm
     :state="docForm"
-    :schema="schema"
+    :validate="validate"
     @submit.prevent="emit('update', docForm)"
   >
     <UFormGroup class="mb-3" label="Вид документа" name="view" required>
@@ -48,6 +44,7 @@ const schema = z.object({
       <UInput
         v-model.trim.lazy="docForm['series']"
         placeholder="Серия документа"
+        maxlength="12"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Номер документа" name="digits" required>
@@ -55,10 +52,15 @@ const schema = z.object({
         v-model.trim.lazy="docForm['digits']"
         required
         placeholder="Номер документа"
+        maxlength="12"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Кем выдан" name="agency">
-      <UInput v-model.trim="docForm['agency']" placeholder="Кем выдан" />
+      <UInput
+        v-model.trim="docForm['agency']"
+        placeholder="Кем выдан"
+        maxlength="255"
+      />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Дата выдачи" name="issue" required>
       <UInput v-model.trim.lazy="docForm['issue']" required type="date" />

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { z } from "zod";
 import type { Work } from "@/types";
 
 const emit = defineEmits(["cancel", "update"]);
@@ -20,31 +19,28 @@ workForm.value.finished = workForm.value.finished
   ? new Date(workForm.value.finished).toISOString().split("T", 1)[0]
   : "";
 
-const schema = z.object({
-  now_work: z.boolean().nullable().optional(),
-  starts: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Поле должно содержать корректную дату"),
-  finished: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Поле должно содержать корректную дату"),
-  workplace: z
-    .string({ required_error: "Обязательное поле" })
-    .max(255, "Максимум 255 символов")
-    .optional(),
-  position: z
-    .string({ required_error: "Обязательное поле" })
-    .max(255, "Максимум 255 символов")
-    .optional(),
-  addresses: z.string().max(255, "Максимум 255 символов").nullable().optional(),
-  reason: z.string().max(255, "Максимум 255 символов").nullable().optional(),
-});
+const validate = (state: Work) => {
+  const errors = [];
+  if (state.starts && !state.starts.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    errors.push({
+      path: "issue",
+      message: "Поле должно содержать корректную дату",
+    });
+  }
+  if (state.finished && !state.finished.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    errors.push({
+      path: "issue",
+      message: "Поле должно содержать корректную дату",
+    });
+  }
+  return errors;
+};
 </script>
 
 <template>
   <UForm
     :state="workForm"
-    :schema="schema"
+    :validate="validate"
     @submit.prevent="emit('update', workForm)"
   >
     <UFormGroup class="mb-3" label="Текущая работа" name="now_work">
@@ -71,6 +67,7 @@ const schema = z.object({
         v-model.trim.lazy="workForm['workplace']"
         required
         placeholder="Место работы"
+        maxlength="255"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Должность" name="position" required>
@@ -78,16 +75,17 @@ const schema = z.object({
         v-model.trim.lazy="workForm['position']"
         required
         placeholder="Должность"
+        maxlength="255"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Адрес организации" name="addresses">
-      <UInput
+      <UTextarea
         v-model.trim.lazy="workForm['addresses']"
         placeholder="Адрес организации"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Причина увольнения" name="reason">
-      <UInput
+      <UTextarea
         v-model.trim.lazy="workForm['reason']"
         placeholder="Причина увольнения"
       />

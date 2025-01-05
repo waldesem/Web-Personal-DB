@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { z } from "zod";
 import type { Verification } from "@/types";
 
 const emit = defineEmits(["cancel", "update"]);
@@ -14,24 +13,6 @@ const props = defineProps({
 const checkForm = ref(props.check as Verification);
 
 const noNegative = ref(false);
-
-const schema = z.object({
-  workplace: z.string().nullable().optional(),
-  document: z.string().nullable().optional(),
-  inn: z.string().nullable().optional(),
-  debt: z.string().nullable().optional(),
-  bankruptcy: z.string().nullable().optional(),
-  bki: z.string().nullable().optional(),
-  courts: z.string().nullable().optional(),
-  affilation: z.string().nullable().optional(),
-  terrorist: z.string().nullable().optional(),
-  mvd: z.string().nullable().optional(),
-  internet: z.string().nullable().optional(),
-  cronos: z.string().nullable().optional(),
-  addition: z.string().nullable().optional(),
-  comment: z.string().nullable().optional(),
-  conclusion: z.string({ required_error: "Обязательное поле" }),
-});
 
 watch(noNegative, () => {
   if (noNegative.value) {
@@ -50,20 +31,7 @@ watch(noNegative, () => {
       cronos: "В Кронос негатив не выявлен",
     });
   } else {
-    Object.assign(checkForm.value, {
-      workplace: "",
-      document: "",
-      inn: "",
-      debt: "",
-      bankruptcy: "",
-      bki: "",
-      courts: "",
-      affilation: "",
-      terrorist: "",
-      mvd: "",
-      internet: "",
-      cronos: "",
-    });
+    Object.assign(checkForm.value, {} as Verification);
   }
 });
 </script>
@@ -74,7 +42,6 @@ watch(noNegative, () => {
   </UFormGroup>
   <UForm
     :state="checkForm"
-    :schema="schema"
     @submit.prevent="emit('update', checkForm)"
   >
     <UFormGroup class="mb-3" label="Проверка по местам работы" name="workplace">

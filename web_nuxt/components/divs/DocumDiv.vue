@@ -63,7 +63,7 @@ async function deleteDocument(id: string, idx: number) {
   <UModal v-model="modal" prevent-close>
     <ElementsCardDiv>
       <FormsDocumentForm
-        :document="doc"
+        :docs="doc"
         @cancel="
           doc = {} as Document;
           modal = false;

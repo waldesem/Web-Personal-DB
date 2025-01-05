@@ -35,7 +35,7 @@ const links = [
         <NuxtLink to="/persons">
           <div class="inline-flex flex items-center text-xl font-bold">
             <h3 class="text-blue-600">STAFFSEC</h3>
-            <UDivider orientation="horizontal" />
+            &nbsp;
             <h3 class="text-red-600">ФИНТЕХ</h3>
           </div>
         </NuxtLink>

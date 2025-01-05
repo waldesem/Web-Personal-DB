@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { z } from "zod";
 import type { Address } from "@/types";
 
 const emit = defineEmits(["cancel", "update"]);
@@ -12,21 +11,10 @@ const props = defineProps({
 });
 
 const addressForm = ref(props.addrs as Address);
-
-const schema = z.object({
-  view: z.string({ required_error: "Обязательное поле" }),
-  addresses: z
-    .string({ required_error: "Обязательное поле" })
-    .max(255, "Максимум 255 символов"),
-});
 </script>
 
 <template>
-  <UForm
-    :state="addressForm"
-    :schema="schema"
-    @submit.prevent="emit('update', addressForm)"
-  >
+  <UForm :state="addressForm" @submit.prevent="emit('update', addressForm)">
     <UFormGroup class="mb-3" label="Вид адреса" name="view" required>
       <USelect
         v-model.trim.lazy="addressForm['view']"
@@ -35,7 +23,7 @@ const schema = z.object({
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Адрес" name="addresses" required>
-      <UInput
+      <UTextarea
         v-model.trim.lazy="addressForm['addresses']"
         required
         placeholder="Адрес"

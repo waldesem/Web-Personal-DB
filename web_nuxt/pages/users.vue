@@ -54,7 +54,9 @@ watchDebounced(
       <UInput v-model="search" placeholder="Поиск по имени пользователя" />
     </div>
     <div class="flex items-center justify-between mb-4">
-      <UToggle v-model="viewDeleted" :label="'Показать удаленные'" />
+      <UFormGroup class="flex items-center space-x-4 mb-3" label="Удаленные">
+        <UToggle v-model="viewDeleted"/>
+      </UFormGroup>
       <UButton
         variant="link"
         label="Добавить пользователя"

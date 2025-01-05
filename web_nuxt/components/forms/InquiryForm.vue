@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { z } from "zod";
 import type { Needs } from "@/types";
 
 const emit = defineEmits(["cancel", "update"]);
@@ -12,21 +11,10 @@ const props = defineProps({
 });
 
 const inquiryForm = ref(props.inquiry);
-
-const schema = z.object({
-  info: z.string({ required_error: "Обязательное поле" }),
-  initiator: z
-    .string({ required_error: "Обязательное поле" })
-    .max(255, "Максимум 255 символов"),
-});
 </script>
 
 <template>
-  <UForm
-    :state="inquiryForm"
-    :schema="schema"
-    @submit.prevent="emit('update', inquiryForm)"
-  >
+  <UForm :state="inquiryForm" @submit.prevent="emit('update', inquiryForm)">
     <UFormGroup class="mb-3" label="Информация" name="info" required>
       <UTextarea
         v-model.trim.lazy="inquiryForm['info']"
@@ -40,6 +28,7 @@ const schema = z.object({
         v-model.trim.lazy="inquiryForm['initiator']"
         required
         placeholder="Инициатор"
+        maxlength="255"
       />
     </UFormGroup>
     <ElementsBtnGroup @cancel="emit('cancel')" />

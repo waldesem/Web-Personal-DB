@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { z } from "zod";
 import type { Inquisition } from "@/types";
 
 const emit = defineEmits(["cancel", "update"]);
@@ -12,19 +11,11 @@ const props = defineProps({
 });
 
 const investigationForm = ref(props.investigation as Inquisition);
-
-const schema = z.object({
-  theme: z
-    .string({ required_error: "Обязательное поле" })
-    .max(255, "Максимум 255 символов"),
-  info: z.string({ required_error: "Обязательное поле" }),
-});
 </script>
 
 <template>
   <UForm
     :state="investigationForm"
-    :schema="schema"
     @submit.prevent="emit('update', investigationForm)"
   >
     <UFormGroup class="mb-3" label="Тема проверки" name="theme" required>
@@ -32,6 +23,7 @@ const schema = z.object({
         v-model.trim.lazy="investigationForm['theme']"
         required
         placeholder="Тема проверки"
+        maxlength="255"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Информация" name="info" required>

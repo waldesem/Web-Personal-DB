@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { z } from "zod";
 import type { Affilation } from "@/types";
 
 const emit = defineEmits(["cancel", "update"]);
@@ -11,26 +10,14 @@ const props = defineProps({
   },
 });
 
-const affilationForm = ref(props.affils as Affilation);
-
-const schema = z.object({
-  view: z.string({ required_error: "Обязательное поле" }),
-  organization: z
-    .string({ required_error: "Обязательное поле" })
-    .max(255, "Максимум 255 символов"),
-  inn: z.string().max(12, "Максимум 12 символов").nullable().optional(),
-});
+const affilForm = ref(props.affils as Affilation);
 </script>
 
 <template>
-  <UForm
-    :state="affilationForm"
-    :schema="schema"
-    @submit.prevent="emit('update', affilationForm)"
-  >
+  <UForm :state="affilForm" @submit.prevent="emit('update', affilForm)">
     <UFormGroup class="mb-3" label="Тип участия" name="view" required>
       <USelect
-        v-model.trim.lazy="affilationForm['view']"
+        v-model.trim.lazy="affilForm['view']"
         required
         :options="[
           'Являлся государственным/муниципальным служащим',
@@ -42,13 +29,18 @@ const schema = z.object({
     </UFormGroup>
     <UFormGroup class="mb-3" label="Организация" name="organization" required>
       <UInput
-        v-model.trim.lazy="affilationForm['organization']"
+        v-model.trim.lazy="affilForm['organization']"
         required
         placeholder="Организация"
+        maxlength="255"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="ИНН" name="inn">
-      <UInput v-model.trim.lazy="affilationForm['inn']" placeholder="ИНН" />
+      <UInput
+        v-model.trim.lazy="affilForm['inn']"
+        placeholder="ИНН"
+        maxlength="12"
+      />
     </UFormGroup>
     <ElementsBtnGroup @cancel="emit('cancel')" />
   </UForm>

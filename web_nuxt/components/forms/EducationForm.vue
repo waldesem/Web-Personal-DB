@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { z } from "zod";
 import type { Education } from "@/types";
 
 const emit = defineEmits(["cancel", "update"]);
@@ -12,23 +11,10 @@ const props = defineProps({
 });
 
 const educationForm = ref(props.education as Education);
-
-const schema = z.object({
-  view: z.string({ required_error: "Обязательное поле" }),
-  institution: z
-    .string({ required_error: "Обязательное поле" })
-    .max(255, "Максимум 255 символов"),
-  finished: z.string().max(4, "Максимум 4 символа").nullable().optional(),
-  specialty: z.string().max(255, "Максимум 255 символов").nullable().optional(),
-});
 </script>
 
 <template>
-  <UForm
-    :state="educationForm"
-    :schema="schema"
-    @submit.prevent="emit('update', educationForm)"
-  >
+  <UForm :state="educationForm" @submit.prevent="emit('update', educationForm)">
     <UFormGroup class="mb-3" label="Вид образования" name="view" required>
       <USelect
         v-model="educationForm['view']"
@@ -53,18 +39,21 @@ const schema = z.object({
         v-model.trim.lazy="educationForm['institution']"
         required
         placeholder="Название учебного заведения"
+        maxlength="255"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Год окончания" name="finished">
       <UInput
         v-model.trim.lazy="educationForm['finished']"
         placeholder="Год окончания"
+        maxlength="4"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Специальность" name="specialty">
       <UInput
         v-model.trim.lazy="educationForm['specialty']"
         placeholder="Специальность"
+        maxlength="255"
       />
     </UFormGroup>
     <ElementsBtnGroup @cancel="emit('cancel')" />
