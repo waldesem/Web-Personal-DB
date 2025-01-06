@@ -48,29 +48,25 @@ def post_file(file_data: File) -> Response:
         A JSON response containing the person ID and an HTTP status code of 201.
 
     """
-    if not file_data.filename.endswith(".json"):
-        current_app.logger.warning("The file does not have a .json file extension")
-        return jsonify({"person_id": None})
-
-    json_data = json.load(file_data.file)
     try:
+        json_data = json.load(file_data.file)
         anketa = AnketaSchemaJson(**json_data)
         resume = {
-            "surname": anketa.last_name,
-            "firstname": anketa.first_name,
-            "patronymic": anketa.mid_name,
+            "surname": anketa.surname,
+            "firstname": anketa.firstname,
+            "patronymic": anketa.patronymic,
             "birthday": anketa.birthday,
             "birthplace": anketa.birthplace,
-            "citizenship": anketa.citizen,
-            "dual": anketa.additional,
-            "marital": anketa.marital_status,
+            "citizenship": anketa.citizenship,
+            "dual": anketa.dual,
+            "marital": anketa.marital,
             "inn": anketa.inn,
             "snils": anketa.snils,
         }
         person_id = upload_resume(resume)
         if not person_id:
             current_app.logger.warning("person_id is None")
-            return jsonify({"person_id": person_id})
+            return jsonify({"person_id": person_id}), 200
 
         items = get_anketa_items(anketa, person_id)
         if items:
@@ -79,7 +75,11 @@ def post_file(file_data: File) -> Response:
         return jsonify({"person_id": person_id}), 201
     except ValidationError:
         current_app.logger.exception("Validation error")
-        return jsonify({"person_id": None}), 200
+    except json.JSONDecodeError:
+        current_app.logger.exception("JSONDecodeError")
+    except TypeError:
+        current_app.logger.exception("TypeError")
+    return jsonify({"person_id": None}), 200
 
 
 @bp.get("/region/<int:person_id>")

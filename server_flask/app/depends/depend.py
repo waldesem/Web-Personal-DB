@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from functools import lru_cache, wraps
 from types import GenericAlias
 from typing import Callable
@@ -26,9 +26,9 @@ def get_current_user(user_id: int) -> Users | None:
         user_id (int): The ID of the user.
 
     Returns:
-        dict or None: A instance containing the user's information if the user exists,
-            is not blocked, not deleted, and has not changed password in the last year.
-            Otherwise, returns None.
+        instance or None: A instance containing the user's information if the user
+        exists, is not blocked, not deleted, and has not changed password in the
+        last year. Otherwise, returns None.
 
     """
     user = db_session.get(Users, user_id)
@@ -37,7 +37,7 @@ def get_current_user(user_id: int) -> Users | None:
         and not user.blocked
         and not user.deleted
         and not user.change_pswd
-        and user.pswd_create + timedelta(days=365) > datetime.now()  # noqa: DTZ005
+        and user.pswd_create + timedelta(days=365) > datetime.now(tz=timezone.utc)
     ):
         return user
     return None
@@ -127,14 +127,14 @@ def validate() -> Callable:
         json_data: Optional[BaseModel]
             The model to validate the body data with.
         file_data: BaseModel | list[BaseModel]
-            The model to validate the file data with.
+            The model to validate the file or files data with.
 
     The decorator can be used as follows:
 
     @app.route("/endpoint", methods=["GET"])
     @validate(query_data=QueryData, json_data=BodyData, file_data=FileData)
-    def endpoint(query_data, json_data):
-        # The query_data and json_data are validated and available here
+    def endpoint(query_data, json_data, file_data):
+        # The query_data, json_data and file_data are validated and available here
         # The return value of the function will be validated as well
         pass
     """

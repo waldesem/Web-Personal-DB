@@ -46,7 +46,7 @@ class AddressView(MethodView):
 
         """
         json_dict = json_data.dict()
-        item = Addresses(**json_dict, person_id=item_id, user_id=current_user.id)
+        item = Addresses(**json_dict, person_id=item_id) # deprecated: , user_id=current_user.id)
         db_session.merge(item)
         db_session.commit()
         return jsonify({"message": "success"}), 201

@@ -3,8 +3,8 @@
 from flask import Blueprint, Response, jsonify
 from sqlalchemy import desc, func, select
 
-from app.depends.depend import current_user, jwt_required, validate
-from app.model.classes import Regions
+from app.depends.depend import current_user, jwt_required, roles_required, validate
+from app.model.classes import Regions, Roles
 from app.model.models import Info, Search
 from app.model.tables import Checks, Persons, Users, db_session
 
@@ -55,7 +55,7 @@ def get_index(page: int, query_data: Search) -> Response:
 
 @bp.get("/info")
 @validate()
-@jwt_required()
+@roles_required(Roles.admin.value)
 def get_information(query_data: Info) -> Response:
     """Retrieve the number of conclusion for a given region and period of time.
 

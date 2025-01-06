@@ -61,34 +61,31 @@ class UserView(MethodView):
             The HTTP status code is 201.
 
         """
-        if current_user.id == user_id:
-            return jsonify({"message": "error"}), 200
         user = db_session.get(Users, user_id)
+        if not user or current_user.id == user.id:
+            return jsonify({"message": "error"}), 200
 
-        if user:
-            if not query_data.item:
-                return jsonify(user.to_dict()), 200
+        if query_data.item == "reset":
+            user.passhash = generate_password_hash(
+                current_app.config["DEFAULT_PASSWORD"],
+            )
+            user.attempt = 0
+            user.blocked = False
+            user.change_pswd = True
+        elif query_data.item == "block":
+            user.blocked = not user.blocked
+        elif query_data.item == "delete":
+            user.deleted = not user.deleted
+        elif query_data.item in [reg.value for reg in Roles]:
+            user.role = query_data.item
+        elif query_data.item in [reg.value for reg in Regions]:
+            user.region = query_data.item
+        else:
+            return jsonify(user.to_dict()), 200
+        db_session.commit()
+        get_current_user.cache_clear()
+        return jsonify({"message": "success"}), 201
 
-            if query_data.item == "reset":
-                user.passhash = generate_password_hash(
-                    current_app.config["DEFAULT_PASSWORD"],
-                )
-                user.attempt = 0
-                user.blocked = False
-                user.change_pswd = True
-            elif query_data.item == "block":
-                user.blocked = not user.blocked
-            elif query_data.item == "delete":
-                user.deleted = not user.deleted
-            elif query_data.item in [reg.value for reg in Roles]:
-                user.role = query_data.item
-            elif query_data.item in [reg.value for reg in Regions]:
-                user.region = query_data.item
-            db_session.commit()
-            get_current_user.cache_clear()
-            return jsonify({"message": "success"}), 201
-
-        return jsonify({"message": "error"}), 200
 
     @validate()
     def post(self, json_data: User) -> Response:
@@ -99,10 +96,7 @@ class UserView(MethodView):
 
         Returns:
             - If the user already exists returns an empty response with status code 200.
-            - Else generates a hashed password using the default password.
-            Returns an empty response with status code 201.
-            - If an exception occurs during the execution of the function,
-            returns an empty response with status code 200.
+            - Otherwise returns a response with status code 201.
 
         """
         user = db_session.execute(
@@ -110,17 +104,17 @@ class UserView(MethodView):
                 func.lower(Users.username) == json_data.username.lower(),
             ),
         ).all()
-        if not user:
-            db_session.add(
-                Users(
-                    fullname=json_data.fullname,
-                    username=json_data.username,
-                    email=json_data.email,
-                ),
-            )
-            db_session.commit()
-            return jsonify({"message": "success"}), 201
-        return jsonify({"message": "error"}), 200
+        if user:
+            return jsonify({"message": "error"}), 200
+        db_session.add(
+            Users(
+                fullname=json_data.fullname,
+                username=json_data.username,
+                email=json_data.email,
+            ),
+        )
+        db_session.commit()
+        return jsonify({"message": "success"}), 201
 
 
 view_func = UserView.as_view("user")

@@ -46,6 +46,7 @@ def post_login(action: str, json_data: Login) -> Response:
 
     if action == "update":
         user.passhash = generate_password_hash(json_data.new_pswd)
+        user.pswd_create = datetime.now(tz=timezone.utc)
         user.change_pswd = False
         user.attempt = 0
         db_session.commit()

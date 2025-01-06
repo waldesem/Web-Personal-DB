@@ -71,13 +71,23 @@ def upload_resume(resume: dict) -> int:
     return person.id
 
 
-def get_anketa_items(anketa: AnketaSchemaJson, person_id: int) -> list:  # noqa: D103
-    items = [
+def get_anketa_items(anketa: AnketaSchemaJson, person_id: int) -> list:
+    """Get the anketa items.
+
+    Args:
+        anketa (AnketaSchemaJson): The anketa data.
+        person_id (int): The ID of the person.
+
+    Returns:
+        list: Theanketa items.
+
+    """
+    return [
         Staffs(
             position=anketa.position_name,
             department=anketa.department,
             person_id=person_id,
-            user_id=current_user.id,
+            # deprecated user_id=current_user.id,
         ),
         Documents(
             view="Паспорт",
@@ -86,46 +96,44 @@ def get_anketa_items(anketa: AnketaSchemaJson, person_id: int) -> list:  # noqa:
             issue=anketa.passport_issue,
             agency=anketa.passport_issued,
             person_id=person_id,
-            user_id=current_user.id,
+            # deprecated user_id=current_user.id,
         ),
         Addresses(
             view="Адрес проживания",
             addresses=anketa.valid_address,
             person_id=person_id,
-            user_id=current_user.id,
+            # deprecated user_id=current_user.id,
         ),
         Addresses(
             view="Адрес регистрации",
             addresses=anketa.reg_address,
             person_id=person_id,
-            user_id=current_user.id,
+            # deprecated user_id=current_user.id,
         ),
         Contacts(
             view="Телефон",
             contact=anketa.contact_phone,
             person_id=person_id,
-            user_id=current_user.id,
+            # deprecated user_id=current_user.id,
         ),
         Contacts(
             view="Электронная почта",
             contact=anketa.email,
             person_id=person_id,
-            user_id=current_user.id,
+            # deprecated user_id=current_user.id,
         ),
-    ]
-    items.extend(
-        [
+        *[
             Educations(
                 view=edu.education_type,
                 institution=edu.institution_name,
                 finished=edu.end_year,
                 specialty=edu.specialty,
                 person_id=person_id,
-                user_id=current_user.id,
+                # deprecated user_id=current_user.id,
             )
             for edu in anketa.education
-        ]
-        + [
+        ],
+        *[
             Workplaces(
                 starts=work.begin_date,
                 finished=work.end_date,
@@ -135,11 +143,11 @@ def get_anketa_items(anketa: AnketaSchemaJson, person_id: int) -> list:  # noqa:
                 reason=work.fire_reason,
                 position=work.position,
                 person_id=person_id,
-                user_id=current_user.id,
+                # deprecated user_id=current_user.id,
             )
             for work in anketa.experience
-        ]
-        + [
+        ],
+        *[
             Previous(
                 firstname=prev.first_name,
                 surname=prev.last_name,
@@ -147,46 +155,45 @@ def get_anketa_items(anketa: AnketaSchemaJson, person_id: int) -> list:  # noqa:
                 changed=prev.year_change,
                 reason=prev.reason,
                 person_id=person_id,
-                user_id=current_user.id,
+                # deprecated user_id=current_user.id,
             )
             for prev in anketa.name_was_changed
-        ]
-        + [
+        ],
+        *[
             Affilations(
                 view="Участвует в деятельности коммерческих организаций",
                 organization=aff.name,
                 inn=aff.inn,
                 person_id=person_id,
-                user_id=current_user.id,
+                # deprecated user_id=current_user.id,
             )
             for aff in anketa.organizations
-        ]
-        + [
+        ],
+        *[
             Affilations(
                 view="Являлся государственным должностным лицом",
                 organization=aff.name,
                 person_id=person_id,
-                user_id=current_user.id,
+                # deprecated user_id=current_user.id,
             )
             for aff in anketa.state_organizations
-        ]
-        + [
+        ],
+        *[
             Affilations(
                 view="Связанные лица работают в государственных организациях",
                 organization=aff.name,
                 person_id=person_id,
-                user_id=current_user.id,
+                # deprecated user_id=current_user.id,
             )
             for aff in anketa.related_organizations
-        ]
-        + [
+        ],
+        *[
             Affilations(
                 view="Являлся государственным или муниципальным служащим",
                 organization=aff.name,
                 person_id=person_id,
-                user_id=current_user.id,
+                # deprecated user_id=current_user.id,
             )
             for aff in anketa.public_organizations
         ],
-    )
-    return items
+    ]
