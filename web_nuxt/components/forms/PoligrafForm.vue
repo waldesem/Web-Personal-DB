@@ -17,7 +17,7 @@ const poligrafForm = ref(props.poligraf as Pfo);
   <UForm :state="poligrafForm" @submit.prevent="emit('update', poligrafForm)">
     <UFormGroup class="mb-3" label="Тема проверки" name="theme" required>
       <USelect
-        v-model="poligrafForm['theme']"
+        v-model="poligrafForm.theme"
         required
         :options="[
           'Проверка кандидата',
@@ -29,7 +29,7 @@ const poligrafForm = ref(props.poligraf as Pfo);
     </UFormGroup>
     <UFormGroup class="mb-3" label="Результат" name="results" required>
       <UTextarea
-        v-model.trim.lazy="poligrafForm['results']"
+        v-model.trim.lazy="poligrafForm.results"
         required
         autoresize
         placeholder="Результат"

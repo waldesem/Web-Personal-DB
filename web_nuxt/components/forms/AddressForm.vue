@@ -17,14 +17,14 @@ const addressForm = ref(props.addrs as Address);
   <UForm :state="addressForm" @submit.prevent="emit('update', addressForm)">
     <UFormGroup class="mb-3" label="Вид адреса" name="view" required>
       <USelect
-        v-model.trim.lazy="addressForm['view']"
+        v-model.trim.lazy="addressForm.view"
         required
         :options="['Адрес регистрации', 'Адрес проживания', 'Другое']"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Адрес" name="addresses" required>
       <UTextarea
-        v-model.trim.lazy="addressForm['addresses']"
+        v-model.trim.lazy="addressForm.addresses"
         required
         placeholder="Адрес"
       />

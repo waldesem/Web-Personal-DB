@@ -49,17 +49,18 @@ async function deleteContact(id: string, idx: number) {
 </script>
 
 <template>
-  <UButton
-    v-if="editable"
-    :loading="status == 'pending' || pending"
-    :label="
-      status == 'pending' || pending
-        ? 'Обновление данных...'
-        : 'Добавить запись'
-    "
-    variant="link"
-    @click="modal = !modal"
-  />
+  <div v-if="editable" class="my-3">
+    <UButton
+      :loading="status == 'pending' || pending"
+      :label="
+        status == 'pending' || pending
+          ? 'Обновление данных...'
+          : 'Добавить запись'
+      "
+      variant="link"
+      @click="modal = !modal"
+    />
+  </div>
   <UModal v-model="modal" prevent-close>
     <ElementsCardDiv>
       <FormsContactForm
@@ -74,13 +75,13 @@ async function deleteContact(id: string, idx: number) {
   </UModal>
   <div v-for="(item, idx) in contacts" :key="idx" class="p-1">
     <ElementsCardDiv>
-      <ElementsLabelSlot :label="'Вид'">{{ item["view"] }}</ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Вид'">{{ item.view }}</ElementsLabelSlot>
       <ElementsLabelSlot :label="'Контакт'">{{
-        item["contact"]
+        item.contact
       }}</ElementsLabelSlot>
       <template v-if="editable" #footer>
         <ElementsDivMenu
-          @delete="deleteContact(item['id'], idx)"
+          @delete="deleteContact(item.id, idx)"
           @update="
             contact = item;
             modal = true;

@@ -49,17 +49,18 @@ async function deletePrevious(id: string, idx: number) {
 </script>
 
 <template>
-  <UButton
-    v-if="editable"
-    :loading="status == 'pending' || pending"
-    :label="
-      status == 'pending' || pending
-        ? 'Обновление данных...'
-        : 'Добавить запись'
-    "
-    variant="link"
-    @click="modal = !modal"
-  />
+  <div v-if="editable" class="my-3">
+    <UButton
+      :loading="status == 'pending' || pending"
+      :label="
+        status == 'pending' || pending
+          ? 'Обновление данных...'
+          : 'Добавить запись'
+      "
+      variant="link"
+      @click="modal = !modal"
+    />
+  </div>
   <UModal v-model="modal" prevent-close>
     <ElementsCardDiv>
       <FormsPreviousForm
@@ -75,23 +76,23 @@ async function deletePrevious(id: string, idx: number) {
   <div v-for="(item, idx) in previous" :key="idx" class="p-1">
     <ElementsCardDiv>
       <ElementsLabelSlot :label="'Фамилия'">
-        {{ item["surname"] }}
+        {{ item.surname }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Имя'">
-        {{ item["firstname"] }}
+        {{ item.firstname }}
       </ElementsLabelSlot>
       <ElementsLabelSlot v-if="item['patronymic']" :label="'Отчество'">
-        {{ item["patronymic"] }}
+        {{ item.patronymic }}
       </ElementsLabelSlot>
       <ElementsLabelSlot v-if="item['changed']" :label="'Год изменения'">
-        {{ item["changed"] }}
+        {{ item.changed }}
       </ElementsLabelSlot>
       <ElementsLabelSlot v-if="item['reason']" :label="'Причина'">
-        {{ item["reason"] }}
+        {{ item.reason }}
       </ElementsLabelSlot>
       <template v-if="editable" #footer>
         <ElementsDivMenu
-          @delete="deletePrevious(item['id'], idx)"
+          @delete="deletePrevious(item.id, idx)"
           @update="
             prev = item;
             modal = true;

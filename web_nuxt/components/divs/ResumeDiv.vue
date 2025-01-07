@@ -67,46 +67,46 @@ async function deleteItem() {
     </div>
     <div v-else>
       <ElementsLabelSlot :label="'Фамилия'">
-        {{ person["surname"] }}
+        {{ person.surname }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Имя'">
-        {{ person["firstname"] }}
+        {{ person.firstname }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Отчество'">
-        {{ person["patronymic"] }}
+        {{ person.patronymic }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Дата рождения'">
-        {{ new Date(person["birthday"]).toLocaleDateString("ru-RU") }}
+        {{ new Date(person.birthday).toLocaleDateString("ru-RU") }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Место рождения'">
-        {{ person["birthplace"] }}
+        {{ person.birthplace }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Гражданство'">
-        {{ person["citizenship"] }}
+        {{ person.citizenship }}
       </ElementsLabelSlot>
-      <ElementsLabelSlot v-if="person['dual']" :label="'Двойное гражданство'">
-        {{ person["dual"] }}
+      <ElementsLabelSlot v-if="person.dual" :label="'Двойное гражданство'">
+        {{ person.dual }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'СНИЛС'">
-        {{ person["snils"] }}
+        {{ person.snils }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'ИНН'">
-        {{ person["inn"] }}
+        {{ person.inn }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Семейное положение'">
-        {{ person["marital"] }}
+        {{ person.marital }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Дата записи'">
-        {{ new Date(person["created"]).toLocaleString("ru-RU") }}
+        {{ new Date(person.created).toLocaleString("ru-RU") }}
       </ElementsLabelSlot>
       <ElementsLabelSlot
-        v-if="person['addition']"
+        v-if="person.addition"
         :label="'Дополнительная информация'"
       >
-        {{ person["addition"] }}
+        {{ person.addition }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Материалы'">
-        {{ person["destination"] }}
+        {{ person.destination }}
       </ElementsLabelSlot>
     </div>
     <template v-if="editable" #footer>

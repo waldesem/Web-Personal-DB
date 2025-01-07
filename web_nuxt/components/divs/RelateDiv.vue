@@ -49,17 +49,18 @@ async function deleteRelation(id: string, idx: number) {
 </script>
 
 <template>
-  <UButton
-    v-if="editable"
-    :loading="status == 'pending' || pending"
-    :label="
-      status == 'pending' || pending
-        ? 'Обновление данных...'
-        : 'Добавить запись'
-    "
-    variant="link"
-    @click="modal = !modal"
-  />
+  <div v-if="editable" class="my-3">
+    <UButton
+      :loading="status == 'pending' || pending"
+      :label="
+        status == 'pending' || pending
+          ? 'Обновление данных...'
+          : 'Добавить запись'
+      "
+      variant="link"
+      @click="modal = !modal"
+    />
+  </div>
   <UModal v-model="modal" prevent-close>
     <ElementsCardDiv>
       <FormsRelationForm @cancel="modal = false" @update="submitRelation" />
@@ -67,10 +68,10 @@ async function deleteRelation(id: string, idx: number) {
   </UModal>
   <div v-for="(item, idx) in relations" :key="idx" class="p-1">
     <ElementsCardDiv>
-      <ElementsLabelSlot :label="'Тип'">{{ item["type"] }}</ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Тип'">{{ item.type }}</ElementsLabelSlot>
       <ElementsLabelSlot :label="'Связан'">
-        <NuxtLink :to="`/profile/${item['right_id']}`">
-          ID #{{ item["right_id"] }}
+        <NuxtLink :to="`/profile/${item.right_id}`">
+          ID #{{ item.right_id }}
         </NuxtLink>
       </ElementsLabelSlot>
       <template v-if="editable" #footer>
@@ -79,7 +80,7 @@ async function deleteRelation(id: string, idx: number) {
             {
               label: 'Удалить',
               icon: 'i-heroicons-trash',
-              click: () => deleteRelation(item['right_id'], idx),
+              click: () => deleteRelation(item.right_id, idx),
             },
           ]"
         />
@@ -89,10 +90,10 @@ async function deleteRelation(id: string, idx: number) {
 
   <div v-for="(item, idx) in relationships" :key="idx" class="p-1">
     <ElementsCardDiv>
-      <ElementsLabelSlot :label="'Тип'">{{ item["type"] }}</ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Тип'">{{ item.type }}</ElementsLabelSlot>
       <ElementsLabelSlot :label="'Явяляется связью'">
-        <NuxtLink :to="`/profile/${item['left_id']}`">
-          ID #{{ item["left_id"] }}
+        <NuxtLink :to="`/profile/${item.left_id}`">
+          ID #{{ item.left_id }}
         </NuxtLink>
       </ElementsLabelSlot>
     </ElementsCardDiv>

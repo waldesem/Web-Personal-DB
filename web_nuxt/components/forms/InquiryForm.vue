@@ -17,7 +17,7 @@ const inquiryForm = ref(props.inquiry);
   <UForm :state="inquiryForm" @submit.prevent="emit('update', inquiryForm)">
     <UFormGroup class="mb-3" label="Информация" name="info" required>
       <UTextarea
-        v-model.trim.lazy="inquiryForm['info']"
+        v-model.trim.lazy="inquiryForm.info"
         required
         autoresize
         placeholder="Информация"
@@ -25,7 +25,7 @@ const inquiryForm = ref(props.inquiry);
     </UFormGroup>
     <UFormGroup class="mb-3" label="Инициатор" name="initiator" required>
       <UInput
-        v-model.trim.lazy="inquiryForm['initiator']"
+        v-model.trim.lazy="inquiryForm.initiator"
         required
         placeholder="Инициатор"
         maxlength="255"

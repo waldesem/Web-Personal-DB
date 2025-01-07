@@ -20,7 +20,7 @@ const staffForm = ref(props.staff as Staff);
   >
     <UFormGroup class="mb-3" label="Должность" name="position" required>
       <UInput
-        v-model.trim.lazy="staffForm['position']"
+        v-model.trim.lazy="staffForm.position"
         required
         placeholder="Должность"
         maxlength="255"
@@ -28,7 +28,7 @@ const staffForm = ref(props.staff as Staff);
     </UFormGroup>
     <UFormGroup class="mb-3" label="Подразделение" name="department">
       <UInput
-        v-model.trim.lazy="staffForm['department']"
+        v-model.trim.lazy="staffForm.department"
         placeholder="Подразделение"
         maxlength="255"
       />

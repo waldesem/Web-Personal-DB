@@ -17,7 +17,7 @@ const relationForm = ref(props.relation as Relation);
   <UForm :state="relationForm" @submit.prevent="emit('update', relationForm)">
     <UFormGroup class="mb-3" label="Тип связи" name="type" required>
       <USelect
-        v-model.trim.lazy="relationForm['type']"
+        v-model.trim.lazy="relationForm.type"
         required
         :options="[
           'Одно лицо',
@@ -31,7 +31,7 @@ const relationForm = ref(props.relation as Relation);
     </UFormGroup>
     <UFormGroup class="mb-3" label="ID связи" name="right_id" required>
       <UInput
-        v-model.trim.lazy="relationForm['right_id']"
+        v-model.trim.lazy="relationForm.right_id"
         required
         type="number"
       />

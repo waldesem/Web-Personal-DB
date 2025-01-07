@@ -102,37 +102,37 @@ async function submitResume(form: Persons): Promise<void> {
 
 <template>
   <div class="mb-6">
-    <div v-if="stateUser.role == 'user'" class="relative">
-      <div class="absolute inset-y-0 right-0">
-        <UTooltip text="Загрузить json">
-          <UButton
-            :loading="status == 'pending' || upload"
-            icon="i-heroicons-cloud-arrow-up"
-            size="xl"
-            variant="ghost"
-            @click="open"
-          />
-        </UTooltip>
+    <div class="flex items-center justify-between mb-3">
+      <div class="py-1">
+        <h3 class="text-2xl text-red-800 font-bold">КАНДИДАТЫ</h3>
       </div>
-      <div class="absolute inset-y-0 right-12">
-        <UTooltip text="Создать анкету">
-          <UButton
-            :loading="status == 'pending' || upload"
-            icon="i-heroicons-user-plus"
-            size="xl"
-            variant="ghost"
-            @click="modal = true"
-          />
-        </UTooltip>
+      <div class="flex items-center space-x-4">
+        <div v-if="stateUser.role == 'user'">
+          <UTooltip text="Создать анкету">
+            <UButton
+              :loading="status == 'pending' || upload"
+              icon="i-heroicons-user-plus"
+              size="xl"
+              variant="ghost"
+              @click="modal = true"
+            />
+          </UTooltip>
+          <UModal v-model="modal" prevent-close>
+            <ElementsCardDiv>
+              <FormsResumeForm @cancel="modal = false" @update="submitResume" />
+            </ElementsCardDiv>
+          </UModal>
+          <UTooltip text="Загрузить json">
+            <UButton
+              :loading="status == 'pending' || upload"
+              icon="i-heroicons-cloud-arrow-up"
+              size="xl"
+              variant="ghost"
+              @click="open"
+            />
+          </UTooltip>
+        </div>
       </div>
-    </div>
-    <UModal v-model="modal" prevent-close>
-      <ElementsCardDiv>
-        <FormsResumeForm @cancel="modal = false" @update="submitResume" />
-      </ElementsCardDiv>
-    </UModal>
-    <div class="py-1">
-      <h3 class="text-2xl text-red-800 font-bold">КАНДИДАТЫ</h3>
     </div>
     <div class="my-6">
       <UInput

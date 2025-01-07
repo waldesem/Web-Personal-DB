@@ -35,21 +35,21 @@ const validate = (state: Document) => {
   >
     <UFormGroup class="mb-3" label="Вид документа" name="view" required>
       <USelect
-        v-model="docForm['view']"
+        v-model="docForm.view"
         required
         :options="['Паспорт', 'Иностранный паспорт', 'Другое']"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Серия документа" name="series">
       <UInput
-        v-model.trim.lazy="docForm['series']"
+        v-model.trim.lazy="docForm.series"
         placeholder="Серия документа"
         maxlength="12"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Номер документа" name="digits" required>
       <UInput
-        v-model.trim.lazy="docForm['digits']"
+        v-model.trim.lazy="docForm.digits"
         required
         placeholder="Номер документа"
         maxlength="12"
@@ -57,13 +57,13 @@ const validate = (state: Document) => {
     </UFormGroup>
     <UFormGroup class="mb-3" label="Кем выдан" name="agency">
       <UInput
-        v-model.trim="docForm['agency']"
+        v-model.trim="docForm.agency"
         placeholder="Кем выдан"
         maxlength="255"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Дата выдачи" name="issue" required>
-      <UInput v-model.trim.lazy="docForm['issue']" required type="date" />
+      <UInput v-model.trim.lazy="docForm.issue" required type="date" />
     </UFormGroup>
     <ElementsBtnGroup @cancel="emit('cancel')" />
   </UForm>

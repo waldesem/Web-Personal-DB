@@ -60,17 +60,18 @@ const items = computed(() =>
 </script>
 
 <template>
-  <UButton
-    v-if="editable"
-    :loading="status == 'pending' || pending"
-    :label="
-      status == 'pending' || pending
-        ? 'Обновление данных...'
-        : 'Добавить запись'
-    "
-    variant="link"
-    @click="modal = !modal"
-  />
+  <div v-if="editable" class="my-3">
+    <UButton
+      :loading="status == 'pending' || pending"
+      :label="
+        status == 'pending' || pending
+          ? 'Обновление данных...'
+          : 'Добавить запись'
+      "
+      variant="link"
+      @click="modal = !modal"
+    />
+  </div>
   <UModal v-model="modal" prevent-close>
     <ElementsCardDiv>
       <FormsInvestigationForm
@@ -87,13 +88,13 @@ const items = computed(() =>
     <template #item="{ item, index }">
       <ElementsCardDiv>
         <ElementsLabelSlot :label="'Тема проверки'">{{
-          item.description["theme"]
+          item.description.theme
         }}</ElementsLabelSlot>
         <ElementsLabelSlot :label="'Информация'">{{
-          item.description["info"]
+          item.description.info
         }}</ElementsLabelSlot>
         <ElementsLabelSlot :label="'Дата записи'">
-          {{ new Date(item.description["created"]).toLocaleString("ru-RU") }}
+          {{ new Date(item.description.created).toLocaleString("ru-RU") }}
         </ElementsLabelSlot>
         <template v-if="editable" #footer>
           <ElementsTabMenu
@@ -103,7 +104,7 @@ const items = computed(() =>
               inquisition = item.description;
               modal = true;
             "
-            @delete="deleteInquisition(item.description['id'], index)"
+            @delete="deleteInquisition(item.description.id, index)"
           />
         </template>
       </ElementsCardDiv>

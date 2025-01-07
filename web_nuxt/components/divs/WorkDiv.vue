@@ -49,17 +49,18 @@ async function deleteWork(id: string, idx: number) {
 </script>
 
 <template>
-  <UButton
-    v-if="editable"
-    :loading="status == 'pending' || pending"
-    :label="
-      status == 'pending' || pending
-        ? 'Обновление данных...'
-        : 'Добавить запись'
-    "
-    variant="link"
-    @click="modal = !modal"
-  />
+  <div v-if="editable" class="my-3">
+    <UButton
+      :loading="status == 'pending' || pending"
+      :label="
+        status == 'pending' || pending
+          ? 'Обновление данных...'
+          : 'Добавить запись'
+      "
+      variant="link"
+      @click="modal = !modal"
+    />
+  </div>
   <UModal v-model="modal" prevent-close>
     <ElementsCardDiv>
       <FormsWorkplaceForm
@@ -74,32 +75,30 @@ async function deleteWork(id: string, idx: number) {
   </UModal>
   <div v-for="(item, idx) in workplaces" :key="idx" class="p-1">
     <ElementsCardDiv>
-      <ElementsLabelSlot v-if="item['now_work']" :label="'Текущая работа'">
-        {{ item["now_work"] ? "Да" : "Нет" }}
+      <ElementsLabelSlot v-if="item.now_work" :label="'Текущая работа'">
+        {{ item.now_work ? "Да" : "Нет" }}
       </ElementsLabelSlot>
-      <ElementsLabelSlot v-if="item['starts']" :label="'Начало работы'">
-        {{ new Date(item["starts"]).toLocaleDateString("ru-RU").split(",")[0] }}
+      <ElementsLabelSlot v-if="item.starts" :label="'Начало работы'">
+        {{ new Date(item.starts).toLocaleDateString("ru-RU").split(",")[0] }}
       </ElementsLabelSlot>
-      <ElementsLabelSlot v-if="item['finished']" :label="'Окончание работы'">
-        {{
-          new Date(item["finished"]).toLocaleDateString("ru-RU").split(",")[0]
-        }}
+      <ElementsLabelSlot v-if="item.finished" :label="'Окончание работы'">
+        {{ new Date(item.finished).toLocaleDateString("ru-RU").split(",")[0] }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Место работы'">
-        {{ item["workplace"] }}
+        {{ item.workplace }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Адрес'">
-        {{ item["addresses"] }}
+        {{ item.addresses }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Должность'">
-        {{ item["position"] }}
+        {{ item.position }}
       </ElementsLabelSlot>
-      <ElementsLabelSlot v-if="item['reason']" :label="'Причина увольнения'">
-        {{ item["reason"] }}
+      <ElementsLabelSlot v-if="item.reason" :label="'Причина увольнения'">
+        {{ item.reason }}
       </ElementsLabelSlot>
       <template v-if="editable" #footer>
         <ElementsDivMenu
-          @delete="deleteWork(item['id'], idx)"
+          @delete="deleteWork(item.id, idx)"
           @update="
             workplace = item;
             modal = true;

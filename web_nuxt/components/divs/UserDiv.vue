@@ -24,7 +24,7 @@ const emit = defineEmits(["update", "cancel"]);
  * @param {string} id The ID of the user to perform the action on
  * @returns {Promise<void>}
  */
- async function userAction(item: string, id: string): Promise<void> {
+async function userAction(item: string, id: string): Promise<void> {
   if (id == stateUser.value.id) {
     toast.add({
       icon: "i-heroicons-information-circle",
@@ -60,15 +60,15 @@ const emit = defineEmits(["update", "cancel"]);
 
 <template>
   <ElementsCardDiv>
-    <ElementsLabelSlot :label="'ID'">{{ props.user["id"] }}</ElementsLabelSlot>
+    <ElementsLabelSlot :label="'ID'">{{ props.user.id }}</ElementsLabelSlot>
     <ElementsLabelSlot :label="'Пользователь'">{{
-      props.user["fullname"]
+      props.user.fullname
     }}</ElementsLabelSlot>
     <ElementsLabelSlot :label="'Логин'">
-      {{ props.user["username"] }}
+      {{ props.user.username }}
     </ElementsLabelSlot>
     <ElementsLabelSlot :label="'Email'">{{
-      props.user["email"]
+      props.user.email
     }}</ElementsLabelSlot>
     <ElementsLabelSlot :label="'Регион'">
       <USelect
@@ -87,19 +87,19 @@ const emit = defineEmits(["update", "cancel"]);
       />
     </ElementsLabelSlot>
     <ElementsLabelSlot :label="'Создан'">{{
-      new Date(props.user["created"]).toLocaleString("ru-RU")
+      new Date(props.user.created).toLocaleString("ru-RU")
     }}</ElementsLabelSlot>
     <ElementsLabelSlot :label="'Попытка'">{{
-      props.user["attempt"]
+      props.user.attempt
     }}</ElementsLabelSlot>
     <ElementsLabelSlot :label="'Блок'">{{
-      props.user["blocked"] ? "Да" : "Нет"
+      props.user.blocked ? "Да" : "Нет"
     }}</ElementsLabelSlot>
     <ElementsLabelSlot :label="'Обновлен'">{{
-      new Date(props.user["pswd_create"]).toLocaleString("ru-RU")
+      new Date(props.user.pswd_create).toLocaleString("ru-RU")
     }}</ElementsLabelSlot>
     <ElementsLabelSlot :label="'Изм.пароля'"
-      >{{ props.user["change_pswd"] ? "Да" : "Нет" }}
+      >{{ props.user.change_pswd ? "Да" : "Нет" }}
     </ElementsLabelSlot>
     <UButtonGroup class="mt-3">
       <UButton

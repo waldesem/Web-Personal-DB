@@ -17,14 +17,14 @@ const contactForm = ref(props.contact as Contact);
   <UForm :state="contactForm" @submit.prevent="emit('update', contactForm)">
     <UFormGroup class="mb-3" label="Вид контакта" name="view" required>
       <USelect
-        v-model.trim.lazy="contactForm['view']"
+        v-model.trim.lazy="contactForm.view"
         required
         :options="['Телефон', 'Электронная почта', 'Другое']"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Контакт" name="contact" required>
       <UInput
-        v-model.trim.lazy="contactForm['contact']"
+        v-model.trim.lazy="contactForm.contact"
         required
         placeholder="Контакт"
         maxlength="255"

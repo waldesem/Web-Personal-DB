@@ -75,16 +75,16 @@ async function submitUser() {
         required
       >
         <UInput
-          v-model="form['fullname']"
+          v-model="form.fullname"
           placeholder="Имя пользователя"
           required
         />
       </UFormGroup>
       <UFormGroup class="mb-3" label="Логин" name="username">
-        <UInput v-model="form['username']" placeholder="Логин" required />
+        <UInput v-model="form.username" placeholder="Логин" required />
       </UFormGroup>
       <UFormGroup class="mb-3" label="Email" name="email">
-        <UInput v-model="form['email']" placeholder="Email" required />
+        <UInput v-model="form.email" placeholder="Email" required />
       </UFormGroup>
       <ElementsBtnGroup
         @cancel="

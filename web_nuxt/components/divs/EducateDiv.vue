@@ -49,17 +49,18 @@ async function deleteEducation(id: string, idx: number) {
 </script>
 
 <template>
-  <UButton
-    v-if="editable"
-    :loading="status == 'pending' || pending"
-    :label="
-      status == 'pending' || pending
-        ? 'Обновление данных...'
-        : 'Добавить запись'
-    "
-    variant="link"
-    @click="modal = !modal"
-  />
+  <div v-if="editable" class="my-3">
+    <UButton
+      :loading="status == 'pending' || pending"
+      :label="
+        status == 'pending' || pending
+          ? 'Обновление данных...'
+          : 'Добавить запись'
+      "
+      variant="link"
+      @click="modal = !modal"
+    />
+  </div>
   <UModal v-model="modal" prevent-close>
     <ElementsCardDiv>
       <FormsEducationForm
@@ -75,20 +76,20 @@ async function deleteEducation(id: string, idx: number) {
   <div v-for="(item, idx) in educations" :key="idx" class="p-1">
     <ElementsCardDiv>
       <ElementsLabelSlot :label="'Уровень образования'">{{
-        item["view"]
+        item.view
       }}</ElementsLabelSlot>
       <ElementsLabelSlot :label="'Название учебного заведения'">{{
-        item["institution"]
+        item.institution
       }}</ElementsLabelSlot>
       <ElementsLabelSlot :label="'Год окончания'">{{
-        item["finished"]
+        item.finished
       }}</ElementsLabelSlot>
       <ElementsLabelSlot :label="'Специальность'">{{
-        item["specialty"]
+        item.specialty
       }}</ElementsLabelSlot>
       <template v-if="editable" #footer>
         <ElementsDivMenu
-          @delete="deleteEducation(item['id'], idx)"
+          @delete="deleteEducation(item.id, idx)"
           @update="
             education = item;
             modal = true;

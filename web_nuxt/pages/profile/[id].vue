@@ -11,7 +11,6 @@ await preloadComponents([
 
 const authFetch = useFetchAuth();
 
-const toast = useToast();
 const route = useRoute();
 
 const candId = computed(() => route.params.id) as Ref<string>;
@@ -109,24 +108,6 @@ async function changeRegion(): Promise<void> {
     region.value = person.value.region;
   }
 }
-
-function emitMessage(message: string) {
-  if (message == "success") {
-    toast.add({
-      icon: "i-heroicons-information-circle",
-      title: "Информация",
-      description: "Информация обновлена",
-      color: "primary",
-    });
-  } else {
-    toast.add({
-      icon: "i-heroicons-exclamation-triangle",
-      title: "Внимание",
-      description: "Ошибка обновления информации",
-      color: "red",
-    });
-  }
-}
 </script>
 
 <template>
@@ -141,19 +122,21 @@ function emitMessage(message: string) {
             }` }}
           </h3>
         </div>
-        <USelect
-          v-model="region"
-          :options="[
-            'Главный офис',
-            'РЦ Юг',
-            'РЦ Запад',
-            'РЦ Урал',
-            'РЦ Восток',
-          ]"
-          :disabled="!person.editable"
-          :placeholder="person['region'] || 'Регион'"
-          @change="changeRegion"
-        />
+        <UTooltip text="Изменить регион">
+          <USelect
+            v-model="region"
+            :options="[
+              'Главный офис',
+              'РЦ Юг',
+              'РЦ Запад',
+              'РЦ Урал',
+              'РЦ Восток',
+            ]"
+            :disabled="!person.editable"
+            :placeholder="person['region'] || 'Регион'"
+            @change="changeRegion"
+          />
+        </UTooltip>
       </div>
       <UTooltip text="Переключить режим редактирования">
         <UButton

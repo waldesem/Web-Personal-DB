@@ -44,11 +44,11 @@ const validate = (state: Work) => {
     @submit.prevent="emit('update', workForm)"
   >
     <UFormGroup class="mb-3" label="Текущая работа" name="now_work">
-      <UCheckbox v-model="workForm['now_work']" />
+      <UCheckbox v-model="workForm.now_work" />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Начало работы" name="starts" required>
       <UInput
-        v-model="workForm['starts']"
+        v-model="workForm.starts"
         required
         placeholder="Начало работы"
         type="date"
@@ -56,7 +56,7 @@ const validate = (state: Work) => {
     </UFormGroup>
     <UFormGroup class="mb-3" label="Окончание работы" name="finished" required>
       <UInput
-        v-model="workForm['finished']"
+        v-model="workForm.finished"
         required
         placeholder="Окончание работы"
         type="date"
@@ -64,7 +64,7 @@ const validate = (state: Work) => {
     </UFormGroup>
     <UFormGroup class="mb-3" label="Место работы" name="workplace" required>
       <UInput
-        v-model.trim.lazy="workForm['workplace']"
+        v-model.trim.lazy="workForm.workplace"
         required
         placeholder="Место работы"
         maxlength="255"
@@ -72,7 +72,7 @@ const validate = (state: Work) => {
     </UFormGroup>
     <UFormGroup class="mb-3" label="Должность" name="position" required>
       <UInput
-        v-model.trim.lazy="workForm['position']"
+        v-model.trim.lazy="workForm.position"
         required
         placeholder="Должность"
         maxlength="255"
@@ -80,13 +80,13 @@ const validate = (state: Work) => {
     </UFormGroup>
     <UFormGroup class="mb-3" label="Адрес организации" name="addresses">
       <UTextarea
-        v-model.trim.lazy="workForm['addresses']"
+        v-model.trim.lazy="workForm.addresses"
         placeholder="Адрес организации"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Причина увольнения" name="reason">
       <UTextarea
-        v-model.trim.lazy="workForm['reason']"
+        v-model.trim.lazy="workForm.reason"
         placeholder="Причина увольнения"
       />
     </UFormGroup>

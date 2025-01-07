@@ -17,7 +17,7 @@ const affilForm = ref(props.affils as Affilation);
   <UForm :state="affilForm" @submit.prevent="emit('update', affilForm)">
     <UFormGroup class="mb-3" label="Тип участия" name="view" required>
       <USelect
-        v-model.trim.lazy="affilForm['view']"
+        v-model.trim.lazy="affilForm.view"
         required
         :options="[
           'Являлся государственным/муниципальным служащим',
@@ -29,7 +29,7 @@ const affilForm = ref(props.affils as Affilation);
     </UFormGroup>
     <UFormGroup class="mb-3" label="Организация" name="organization" required>
       <UInput
-        v-model.trim.lazy="affilForm['organization']"
+        v-model.trim.lazy="affilForm.organization"
         required
         placeholder="Организация"
         maxlength="255"
@@ -37,7 +37,7 @@ const affilForm = ref(props.affils as Affilation);
     </UFormGroup>
     <UFormGroup class="mb-3" label="ИНН" name="inn">
       <UInput
-        v-model.trim.lazy="affilForm['inn']"
+        v-model.trim.lazy="affilForm.inn"
         placeholder="ИНН"
         maxlength="12"
       />

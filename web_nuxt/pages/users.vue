@@ -99,10 +99,8 @@ watchDebounced(
         { key: 'email', label: 'Email' },
         { key: 'region', label: 'Регион' },
         { key: 'role', label: 'Роль' },
-        { key: 'created', label: 'Создан' },
         { key: 'attempt', label: 'Попытка' },
         { key: 'blocked', label: 'Блок' },
-        { key: 'pswd_create', label: 'Обновлен' },
         { key: 'change_pswd', label: 'Изм.пароля' },
       ]"
       :rows="filtredUsers"
@@ -113,9 +111,6 @@ watchDebounced(
       <template #username-data="{ row }">{{ row.username }}</template>
       <template #region-data="{ row }">{{ row.region }}</template>
       <template #role-data="{ row }">{{ row.role }}</template>
-      <template #created-data="{ row }">{{
-        new Date(row.created).toLocaleDateString("ru-RU")
-      }}</template>
       <template #attempt-data="{ row }">
         <div class="text-center">
           {{ row.attempt }}
@@ -130,9 +125,6 @@ watchDebounced(
           />
         </div>
       </template>
-      <template #pswd_create-data="{ row }">{{
-        new Date(row.pswd_create).toLocaleDateString("ru-RU")
-      }}</template>
       <template #change_pswd-data="{ row }">
         <div class="text-center">
           <UIcon

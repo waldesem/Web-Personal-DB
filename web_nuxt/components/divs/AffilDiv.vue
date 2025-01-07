@@ -49,17 +49,18 @@ async function deleteAffilation(id: string, idx: number) {
 </script>
 
 <template>
-  <UButton
-    v-if="editable"
-    :loading="status == 'pending' || pending"
-    :label="
-      status == 'pending' || pending
-        ? 'Обновление данных...'
-        : 'Добавить запись'
-    "
-    variant="link"
-    @click="modal = !modal"
-  />
+  <div v-if="editable" class="my-3">
+    <UButton
+      :loading="status == 'pending' || pending"
+      :label="
+        status == 'pending' || pending
+          ? 'Обновление данных...'
+          : 'Добавить запись'
+      "
+      variant="link"
+      @click="modal = !modal"
+    />
+  </div>
   <UModal v-model="modal" prevent-close>
     <ElementsCardDiv>
       <FormsAffilationForm
@@ -75,15 +76,15 @@ async function deleteAffilation(id: string, idx: number) {
   <div v-for="(item, idx) in affilations" :key="idx" class="p-1">
     <ElementsCardDiv>
       <ElementsLabelSlot :label="'Тип участия'">{{
-        item["view"]
+        item.view
       }}</ElementsLabelSlot>
       <ElementsLabelSlot :label="'Организация'">{{
-        item["organization"]
+        item.organization
       }}</ElementsLabelSlot>
-      <ElementsLabelSlot :label="'ИНН'">{{ item["inn"] }}</ElementsLabelSlot>
+      <ElementsLabelSlot :label="'ИНН'">{{ item.inn }}</ElementsLabelSlot>
       <template v-if="editable" #footer>
         <ElementsDivMenu
-          @delete="deleteAffilation(item['id'], idx)"
+          @delete="deleteAffilation(item.id, idx)"
           @update="
             affilation = item;
             modal = true;

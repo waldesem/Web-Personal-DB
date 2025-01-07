@@ -66,7 +66,7 @@ const validate = (state: Persons) => {
   >
     <UFormGroup class="mb-3" label="Фамилия" name="surname" required>
       <UInput
-        v-model.trim="resumeForm['surname']"
+        v-model.trim="resumeForm.surname"
         required
         placeholder="Фамилия"
         maxlength="255"
@@ -74,7 +74,7 @@ const validate = (state: Persons) => {
     </UFormGroup>
     <UFormGroup class="mb-3" label="Имя" name="firstname" required>
       <UInput
-        v-model.trim="resumeForm['firstname']"
+        v-model.trim="resumeForm.firstname"
         required
         placeholder="Имя"
         maxlength="255"
@@ -82,59 +82,59 @@ const validate = (state: Persons) => {
     </UFormGroup>
     <UFormGroup class="mb-3" label="Отчество" name="patronymic">
       <UInput
-        v-model.trim="resumeForm['patronymic']"
+        v-model.trim="resumeForm.patronymic"
         placeholder="Отчество"
         maxlength="255"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Дата рождения" name="birthday" required>
-      <UInput v-model="resumeForm['birthday']" required type="date" />
+      <UInput v-model="resumeForm.birthday" required type="date" />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Место рождения" name="birthplace">
       <UInput
-        v-model.trim.lazy="resumeForm['birthplace']"
+        v-model.trim.lazy="resumeForm.birthplace"
         placeholder="Место рождения"
         maxlength="255"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Гражданство" name="citizenship">
       <UInput
-        v-model.trim.lazy="resumeForm['citizenship']"
+        v-model.trim.lazy="resumeForm.citizenship"
         placeholder="Гражданство"
         maxlength="255"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Двойное гражданство" name="dual">
       <UInput
-        v-model.trim.lazy="resumeForm['dual']"
+        v-model.trim.lazy="resumeForm.dual"
         placeholder="Двойное гражданство"
         maxlength="255"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="СНИЛС" name="snils">
       <UInput
-        v-model.trim.lazy="resumeForm['snils']"
+        v-model.trim.lazy="resumeForm.snils"
         placeholder="СНИЛС"
         maxlength="11"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="ИНН" name="inn">
       <UInput
-        v-model.trim.lazy="resumeForm['inn']"
+        v-model.trim.lazy="resumeForm.inn"
         placeholder="ИНН"
         maxlength="12"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Семейное положение" name="marital">
       <UInput
-        v-model.trim.lazy="resumeForm['marital']"
+        v-model.trim.lazy="resumeForm.marital"
         placeholder="Семейное положение"
         maxlength="255"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Дополнительно" name="addition">
       <UTextarea
-        v-model.trim.lazy="resumeForm['addition']"
+        v-model.trim.lazy="resumeForm.addition"
         placeholder="Дополнительно"
       />
     </UFormGroup>

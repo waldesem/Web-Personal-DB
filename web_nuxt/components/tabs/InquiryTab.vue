@@ -57,17 +57,18 @@ const items = computed(() =>
 </script>
 
 <template>
-  <UButton
-    v-if="editable"
-    :loading="status == 'pending' || pending"
-    :label="
-      status == 'pending' || pending
-        ? 'Обновление данных...'
-        : 'Добавить запись'
-    "
-    variant="link"
-    @click="modal = !modal"
-  />
+  <div v-if="editable" class="my-3">
+    <UButton
+      :loading="status == 'pending' || pending"
+      :label="
+        status == 'pending' || pending
+          ? 'Обновление данных...'
+          : 'Добавить запись'
+      "
+      variant="link"
+      @click="modal = !modal"
+    />
+  </div>
   <UModal v-model="modal" prevent-close>
     <ElementsCardDiv>
       <FormsInquiryForm
@@ -84,18 +85,18 @@ const items = computed(() =>
     <template #item="{ item, index }">
       <ElementsCardDiv>
         <ElementsLabelSlot :label="'Информация'">{{
-          item.description["info"]
+          item.description.info
         }}</ElementsLabelSlot>
         <ElementsLabelSlot :label="'Иннициатор'">{{
-          item.description["initiator"]
+          item.description.initiator
         }}</ElementsLabelSlot>
         <ElementsLabelSlot :label="'Дата записи'">
-          {{ new Date(item.description["created"]).toLocaleString("ru-RU") }}
+          {{ new Date(item.description.created).toLocaleString("ru-RU") }}
         </ElementsLabelSlot>
         <template v-if="editable" #footer>
           <ElementsTabMenu
             :item="'inquiries'"
-            @delete="deleteNeed(item.description['id'], index)"
+            @delete="deleteNeed(item.description.id, index)"
             @update="
               need = item.description;
               modal = true;

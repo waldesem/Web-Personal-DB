@@ -49,17 +49,18 @@ async function deleteDocument(id: string, idx: number) {
 </script>
 
 <template>
-  <UButton
-    v-if="editable"
-    :loading="status == 'pending' || pending"
-    :label="
-      status == 'pending' || pending
-        ? 'Обновление данных...'
-        : 'Добавить запись'
-    "
-    variant="link"
-    @click="modal = !modal"
-  />
+  <div v-if="editable" class="my-3">
+    <UButton
+      :loading="status == 'pending' || pending"
+      :label="
+        status == 'pending' || pending
+          ? 'Обновление данных...'
+          : 'Добавить запись'
+      "
+      variant="link"
+      @click="modal = !modal"
+    />
+  </div>
   <UModal v-model="modal" prevent-close>
     <ElementsCardDiv>
       <FormsDocumentForm
@@ -75,23 +76,23 @@ async function deleteDocument(id: string, idx: number) {
   <div v-for="(item, idx) in documents" :key="idx" class="p-1">
     <ElementsCardDiv>
       <ElementsLabelSlot :label="'Вид документа'">{{
-        item["view"]
+        item.view
       }}</ElementsLabelSlot>
       <ElementsLabelSlot :label="'Серия документа'">{{
-        item["series"]
+        item.series
       }}</ElementsLabelSlot>
       <ElementsLabelSlot :label="'Номер документа'">{{
-        item["digits"]
+        item.digits
       }}</ElementsLabelSlot>
-      <ElementsLabelSlot v-if="item['issue']" :label="'Дата выдачи'">
-        {{ new Date(item["issue"]).toLocaleDateString("ru-RU").split(",")[0] }}
+      <ElementsLabelSlot v-if="item.issue" :label="'Дата выдачи'">
+        {{ new Date(item.issue).toLocaleDateString("ru-RU").split(",")[0] }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Кем выдан'">{{
-        item["agency"]
+        item.agency
       }}</ElementsLabelSlot>
       <template v-if="editable" #footer>
         <ElementsDivMenu
-          @delete="deleteDocument(item['id'], idx)"
+          @delete="deleteDocument(item.id, idx)"
           @update="
             doc = item;
             modal = true;
