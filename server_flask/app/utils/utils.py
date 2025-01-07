@@ -82,12 +82,13 @@ def get_anketa_items(anketa: AnketaSchemaJson, person_id: int) -> list:
         list: Theanketa items.
 
     """
+    user_id = current_user.id
     return [
         Staffs(
             position=anketa.position_name,
             department=anketa.department,
             person_id=person_id,
-            # deprecated user_id=current_user.id,
+            user_id=user_id,
         ),
         Documents(
             view="Паспорт",
@@ -96,31 +97,31 @@ def get_anketa_items(anketa: AnketaSchemaJson, person_id: int) -> list:
             issue=anketa.passport_issue,
             agency=anketa.passport_issued,
             person_id=person_id,
-            # deprecated user_id=current_user.id,
+            user_id=user_id,
         ),
         Addresses(
             view="Адрес проживания",
             addresses=anketa.valid_address,
             person_id=person_id,
-            # deprecated user_id=current_user.id,
+            user_id=user_id,
         ),
         Addresses(
             view="Адрес регистрации",
             addresses=anketa.reg_address,
             person_id=person_id,
-            # deprecated user_id=current_user.id,
+            user_id=user_id,
         ),
         Contacts(
             view="Телефон",
             contact=anketa.contact_phone,
             person_id=person_id,
-            # deprecated user_id=current_user.id,
+            user_id=user_id,
         ),
         Contacts(
             view="Электронная почта",
             contact=anketa.email,
             person_id=person_id,
-            # deprecated user_id=current_user.id,
+            user_id=user_id,
         ),
         *[
             Educations(
@@ -129,7 +130,7 @@ def get_anketa_items(anketa: AnketaSchemaJson, person_id: int) -> list:
                 finished=edu.end_year,
                 specialty=edu.specialty,
                 person_id=person_id,
-                # deprecated user_id=current_user.id,
+                user_id=user_id,
             )
             for edu in anketa.education
         ],
@@ -143,7 +144,7 @@ def get_anketa_items(anketa: AnketaSchemaJson, person_id: int) -> list:
                 reason=work.fire_reason,
                 position=work.position,
                 person_id=person_id,
-                # deprecated user_id=current_user.id,
+                user_id=user_id,
             )
             for work in anketa.experience
         ],
@@ -155,7 +156,7 @@ def get_anketa_items(anketa: AnketaSchemaJson, person_id: int) -> list:
                 changed=prev.year_change,
                 reason=prev.reason,
                 person_id=person_id,
-                # deprecated user_id=current_user.id,
+                user_id=user_id,
             )
             for prev in anketa.name_was_changed
         ],
@@ -165,7 +166,7 @@ def get_anketa_items(anketa: AnketaSchemaJson, person_id: int) -> list:
                 organization=aff.name,
                 inn=aff.inn,
                 person_id=person_id,
-                # deprecated user_id=current_user.id,
+                user_id=user_id,
             )
             for aff in anketa.organizations
         ],
@@ -174,7 +175,7 @@ def get_anketa_items(anketa: AnketaSchemaJson, person_id: int) -> list:
                 view="Являлся государственным должностным лицом",
                 organization=aff.name,
                 person_id=person_id,
-                # deprecated user_id=current_user.id,
+                user_id=user_id,
             )
             for aff in anketa.state_organizations
         ],
@@ -183,7 +184,7 @@ def get_anketa_items(anketa: AnketaSchemaJson, person_id: int) -> list:
                 view="Связанные лица работают в государственных организациях",
                 organization=aff.name,
                 person_id=person_id,
-                # deprecated user_id=current_user.id,
+                user_id=user_id,
             )
             for aff in anketa.related_organizations
         ],
@@ -192,7 +193,7 @@ def get_anketa_items(anketa: AnketaSchemaJson, person_id: int) -> list:
                 view="Являлся государственным или муниципальным служащим",
                 organization=aff.name,
                 person_id=person_id,
-                # deprecated user_id=current_user.id,
+                user_id=user_id,
             )
             for aff in anketa.public_organizations
         ],

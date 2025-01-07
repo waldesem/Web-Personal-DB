@@ -1,6 +1,6 @@
 """Login routes."""
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 
 import jwt
 from flask import Blueprint, Response, current_app, jsonify
@@ -46,13 +46,13 @@ def post_login(action: str, json_data: Login) -> Response:
 
     if action == "update":
         user.passhash = generate_password_hash(json_data.new_pswd)
-        user.pswd_create = datetime.now(tz=timezone.utc)
+        user.pswd_create = datetime.now()
         user.change_pswd = False
         user.attempt = 0
         db_session.commit()
         return jsonify({"message": "Updated"})
 
-    delta_change = datetime.now() - user.pswd_create  # noqa: DTZ005
+    delta_change = datetime.now() - user.pswd_create
     if not user.change_pswd and delta_change.days < DELTA_CHANGE_DAYS:
         user.attempt = 0
         db_session.commit()
@@ -68,7 +68,7 @@ def post_login(action: str, json_data: Login) -> Response:
                         "email": user.email,
                         "region": user.region,
                         "role": user.role,
-                        "exp": datetime.now(tz=timezone.utc) + timedelta(hours=12),
+                        "exp": datetime.now() + timedelta(hours=12),
                     },
                     current_app.config["JWT_SECRET_KEY"],
                     algorithm="HS256",

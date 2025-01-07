@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from functools import lru_cache, wraps
 from types import GenericAlias
 from typing import Callable
@@ -37,7 +37,7 @@ def get_current_user(user_id: int) -> Users | None:
         and not user.blocked
         and not user.deleted
         and not user.change_pswd
-        and user.pswd_create + timedelta(days=365) > datetime.now(tz=timezone.utc)
+        and user.pswd_create + timedelta(days=365) > datetime.now()  # noqa: DTZ005
     ):
         return user
     return None

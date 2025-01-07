@@ -364,7 +364,7 @@ class AnketaSchemaJson(BaseModel):
         default=[], alias="publicOfficeOrganizations",
     )
 
-    @validator("last_name", "first_name", "mid_name")
+    @validator("surname", "firstname", "patronymic")
     @classmethod
     def check_names(cls, v: str) -> str:
         """Check names."""

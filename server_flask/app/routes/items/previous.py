@@ -46,7 +46,7 @@ class PreviousView(MethodView):
 
         """
         json_dict = json_data.dict()
-        item = Previous(**json_dict, person_id=item_id) # deprecated: , user_id=current_user.id)
+        item = Previous(**json_dict, person_id=item_id, user_id=current_user.id)
         db_session.merge(item)
         db_session.commit()
         return jsonify({"message": "success"}), 201

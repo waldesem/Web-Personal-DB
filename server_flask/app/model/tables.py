@@ -135,7 +135,7 @@ class Previous(Base):
         default=func.now(),
         onupdate=func.now(),
     )
-    # deprecated: user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
 
 
@@ -154,7 +154,7 @@ class Educations(Base):
         default=func.now(),
         onupdate=func.now(),
     )
-    # deprecated: user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
 
 
@@ -171,7 +171,7 @@ class Staffs(Base):
         default=func.now(),
         onupdate=func.now(),
     )
-    # deprecated: user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
 
 
@@ -191,7 +191,7 @@ class Documents(Base):
         default=func.now(),
         onupdate=func.now(),
     )
-    # deprecated: user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
 
 
@@ -208,7 +208,7 @@ class Addresses(Base):
         default=func.now(),
         onupdate=func.now(),
     )
-    # deprecated: user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
 
 
@@ -225,7 +225,7 @@ class Contacts(Base):
         default=func.now(),
         onupdate=func.now(),
     )
-    # deprecated: user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
 
 
@@ -247,7 +247,7 @@ class Workplaces(Base):
         default=func.now(),
         onupdate=func.now(),
     )
-    # deprecated: user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
 
 
@@ -287,7 +287,7 @@ class Checks(Base):
     mvd: Mapped[str] = mapped_column(Text, nullable=True)
     internet: Mapped[str] = mapped_column(Text, nullable=True)
     cronos: Mapped[str] = mapped_column(Text, nullable=True)
-    # deprecated: cros: Mapped[str] = mapped_column(Text, nullable=True)
+    cros: Mapped[str] = mapped_column(Text, nullable=True)
     addition: Mapped[str] = mapped_column(Text, nullable=True)
     comment: Mapped[str] = mapped_column(Text, nullable=True)
     conclusion: Mapped[str] = mapped_column(Text, nullable=True)
