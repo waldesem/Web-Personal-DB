@@ -18,7 +18,7 @@ const resume = ref({} as Persons);
 async function submitResume(form: Persons) {
   pending.value = true;
   modal.value = false;
-  const { message } = (await authFetch(`/route/items/persons/${candId.value}`, {
+  const { message } = (await authFetch('/route/items/persons', {
     method: "POST",
     body: form,
   })) as Record<string, string>;

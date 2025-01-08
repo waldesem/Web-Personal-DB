@@ -10,7 +10,6 @@ const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
 const modal = ref(false);
-const fullscreen = ref(false);
 const pending = ref(false);
 const check = ref({} as Verification);
 const checks = ref<Verification[]>([]);
@@ -69,8 +68,8 @@ const items = computed(() =>
   </div>
   <UModal
     v-model="modal"
-    :fullscreen="fullscreen"
     prevent-close
+    :ui="{ width: 'sm:max-w-4xl' }"
   >
     <ElementsCardDiv>
       <FormsCheckForm

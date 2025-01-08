@@ -35,7 +35,7 @@ watch(noNegative, () => {
 </script>
 
 <template>
-  <UFormGroup :state="noNegative" class="mb-3" label="Негатива нет">
+  <UFormGroup class="mb-3" label="Негатива нет">
     <UToggle v-model="noNegative" />
   </UFormGroup>
   <UForm :state="checkForm" @submit.prevent="emit('update', checkForm)">

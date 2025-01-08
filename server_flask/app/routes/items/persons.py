@@ -34,12 +34,11 @@ class PersonView(MethodView):
 
     @validate()
     @roles_required(Roles.user.value)
-    def post(self, person_id: int, json_data: Person) -> Response:
+    def post(self, json_data: Person) -> Response:
         """Insert or replaces a record in the specified table with the given item ID.
 
         Args:
-            json_data (Person): The data to insert or replace in the table.
-            person_id (int): The ID of the record to insert or replace.
+            json_data (Person): The data to replace in the table.
 
         Returns:
             Tuple[str, int]: A tuple containing an empty string and an HTTP status
@@ -47,9 +46,7 @@ class PersonView(MethodView):
 
         """
         json_dict = json_data.dict()
-        person = db_session.get(Persons, person_id)
-        for key, value in json_dict.items():
-            setattr(person, key, value)
+        db_session.merge(Persons(**json_dict))
         db_session.commit()
         return jsonify({"message": "success"}), 201
 
@@ -94,4 +91,6 @@ class PersonView(MethodView):
         return jsonify({"message": "success"}), 201
 
 
-bp.add_url_rule("/<int:person_id>", view_func=PersonView.as_view("person"))
+view_func=PersonView.as_view("person")
+bp.add_url_rule("", view_func=view_func, methods=["POST"])
+bp.add_url_rule("/<int:person_id>", view_func=view_func, methods=["GET", "DELETE"])

@@ -245,6 +245,11 @@ class Check(BaseModel):
     comment: str | None = ""
     conclusion: Conclusions
 
+    class Config:
+        """Pydantic config."""
+
+        use_enum_values = True
+
 
 class Poligraf(BaseModel):
     """Pydantic model for poligraf form."""
