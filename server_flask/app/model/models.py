@@ -23,21 +23,24 @@ class Login(BaseModel):
 
     @validator("username")
     @classmethod
-    def new_pswd_check(cls, v: str) -> str:
-        """Check username for valid chars."""
-        return v.lower()
+    def username_check(cls, v: str) -> str:
+        """Check username."""
+        return v.strip().lower()
 
 
-class Search(BaseModel):
-    """Pydantic model for search form."""
+class User(BaseModel):
+    """Pydantic model for user form."""
 
-    search: str | None
+    id: int | str | None = None
+    fullname: str
+    username: str
+    email: str | None = ""
 
 
-class Region(BaseModel):
-    """Pydantic model for region form."""
+class UserActions(BaseModel):
+    """Pydantic model for user actions form."""
 
-    region: Regions
+    item: Literal["reset", "block", "delete"] | Roles | Regions | None
 
     class Config:
         """Pydantic config."""
@@ -58,21 +61,16 @@ class Info(BaseModel):
         use_enum_values = True
 
 
-class UserActions(BaseModel):
-    """Pydantic model for user actions form."""
+class Search(BaseModel):
+    """Pydantic model for search form."""
 
-    item: Literal["reset", "block", "delete"] | Roles | Regions | None
-
-    class Config:
-        """Pydantic config."""
-
-        use_enum_values = True
+    search: str | None
 
 
-class Model(BaseModel):
-    """Pydantic model for model form."""
+class Region(BaseModel):
+    """Pydantic model for region select form."""
 
-    id: int | str | None = None
+    region: Regions
 
     class Config:
         """Pydantic config."""
@@ -80,19 +78,12 @@ class Model(BaseModel):
         use_enum_values = True
 
 
-class User(Model):
-    """Pydantic model for user form."""
-
-    fullname: str
-    username: str
-    email: str | None = ""
-
-
-class Person(Model):
+class Person(BaseModel):
     """Pydantic model for person form."""
 
     __modelname__ = "persons"
 
+    id: int | str | None = None
     surname: str
     firstname: str
     patronymic: str | None = ""
@@ -109,6 +100,11 @@ class Person(Model):
     editable: bool = False
     user_id: str | int = None
 
+    class Config:
+        """Pydantic config."""
+
+        use_enum_values = True
+
     @validator("surname", "firstname", "patronymic")
     @classmethod
     def check_names(cls, v: str) -> str:
@@ -116,11 +112,12 @@ class Person(Model):
         return v.upper().strip() if v else ""
 
 
-class Prev(Model):
+class Prev(BaseModel):
     """Pydantic model for previous form."""
 
     __modelname__ = "previous"
 
+    id: int | str | None = None
     surname: str
     firstname: str | None = ""
     patronymic: str | None = ""
@@ -134,31 +131,34 @@ class Prev(Model):
         return v.upper().strip() if v else ""
 
 
-class Education(Model):
+class Education(BaseModel):
     """Pydantic model for education form."""
 
     __modelname__ = "educations"
 
+    id: int | str | None = None
     view: str
     institution: str
     finished: str | int = ""
     specialty: str | None = ""
 
 
-class Staff(Model):
+class Staff(BaseModel):
     """Pydantic model for staff form."""
 
     __modelname__ = "staffs"
 
+    id: int | str | None = None
     position: str
     department: str | None = ""
 
 
-class Document(Model):
+class Document(BaseModel):
     """Pydantic model for document form."""
 
     __modelname__ = "documents"
 
+    id: int | str | None = None
     view: str
     series: str | None = ""
     digits: str
@@ -166,29 +166,32 @@ class Document(Model):
     issue: date
 
 
-class Address(Model):
+class Address(BaseModel):
     """Pydantic model for address form."""
 
     __modelname__ = "addresses"
 
+    id: int | str | None = None
     view: str
     addresses: str
 
 
-class Contact(Model):
+class Contact(BaseModel):
     """Pydantic model for contact form."""
 
     __modelname__ = "contacts"
 
+    id: int | str | None = None
     view: str
     contact: str
 
 
-class Workplace(Model):
+class Workplace(BaseModel):
     """Pydantic model for workplace form."""
 
     __modelname__ = "workplaces"
 
+    id: int | str | None = None
     now_work: bool = False
     starts: date
     finished: date
@@ -198,30 +201,33 @@ class Workplace(Model):
     reason: str | None = ""
 
 
-class Affilation(Model):
+class Affilation(BaseModel):
     """Pydantic model for affilation form."""
 
     __modelname__ = "affilations"
 
+    id: int | str | None = None
     view: str
     organization: str
     inn: str | None = ""
 
 
-class Relation(Model):
+class Relation(BaseModel):
     """Pydantic model for relation form."""
 
     __modelname__ = "relations"
 
+    id: int | str | None = None
     type: str
     right_id: int | str
 
 
-class Check(Model):
+class Check(BaseModel):
     """Pydantic model for check form."""
 
     __modelname__ = "checks"
 
+    id: int | str | None = None
     workplace: str | None = ""
     document: str | None = ""
     inn: str | None = ""
@@ -240,29 +246,32 @@ class Check(Model):
     conclusion: Conclusions
 
 
-class Poligraf(Model):
+class Poligraf(BaseModel):
     """Pydantic model for poligraf form."""
 
     __modelname__ = "poligrafs"
 
+    id: int | str | None = None
     theme: str
     results: str
 
 
-class Investigation(Model):
+class Investigation(BaseModel):
     """Pydantic model for investigation form."""
 
     __modelname__ = "investigations"
 
+    id: int | str | None = None
     theme: str
     info: str
 
 
-class Inquiry(Model):
+class Inquiry(BaseModel):
     """Pydantic model for inquiry form."""
 
     __modelname__ = "inquiries"
 
+    id: int | str | None = None
     info: str
     initiator: str
     origins: str | None = ""
@@ -351,17 +360,21 @@ class AnketaSchemaJson(BaseModel):
     education: list[EducationJson] = []
     experience: list[ExperienceJson] = []
     name_was_changed: list[NameWasChangedJson] = Field(
-        default=[], alias="nameWasChanged",
+        default=[],
+        alias="nameWasChanged",
     )
     organizations: list[OrganizationsJson] = []
     related_organizations: list[RelatedPersonsOrganizationsJson] = Field(
-        default=[], alias="relatedPersonsOrganizations",
+        default=[],
+        alias="relatedPersonsOrganizations",
     )
     state_organizations: list[StateOrganizationsJson] = Field(
-        default=[], alias="stateOrganizations",
+        default=[],
+        alias="stateOrganizations",
     )
     public_organizations: list[PublicOfficeOrganizationsJson] = Field(
-        default=[], alias="publicOfficeOrganizations",
+        default=[],
+        alias="publicOfficeOrganizations",
     )
 
     @validator("surname", "firstname", "patronymic")
