@@ -114,7 +114,7 @@ async function changeRegion(): Promise<void> {
   <div class="mb-6">
     <div class="flex items-center justify-between mb-3">
       <div class="flex items-center space-x-4">
-        <USkeleton v-if="status == 'pending' || pending" class="my-6 h-8 w-1/3" />
+        <USkeleton v-if="status == 'pending'" class="my-6 h-8 w-1/3" />
         <div v-else class="py-1">
           <h3 class="text-2xl text-red-800 font-bold">
             {{ `${person.surname} ${person.firstname} ${
