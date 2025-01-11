@@ -46,7 +46,7 @@ async function deleteStaff(id: string, idx: number) {
 </script>
 
 <template>
-  <div v-if="editable" class="my-3">
+  <div v-if="editable || status == 'pending'" class="my-1">
     <UButton
       :loading="status == 'pending' || pending"
       :label="

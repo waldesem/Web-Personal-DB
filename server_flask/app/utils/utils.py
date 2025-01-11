@@ -6,8 +6,7 @@ from pathlib import Path
 from flask import current_app
 from sqlalchemy import select
 
-from app.depends.depend import current_user
-from app.model.models import AnketaSchemaJson
+from app.model.models import AnketaJson
 from app.model.tables import (
     Addresses,
     Affilations,
@@ -17,26 +16,27 @@ from app.model.tables import (
     Persons,
     Previous,
     Staffs,
+    Users,
     Workplaces,
     db_session,
 )
 
 
-def upload_resume(resume: dict) -> int:
+def upload_resume(resume: dict, user: Users) -> int:
     """Upload a resume to the database.
 
     Args:
         resume (dict): The resume to be uploaded.
+        user (Users): The user who uploaded the resume.
 
     Returns:
         int: The ID of the uploaded resume.
 
     """
-    if not re.match(r"[А-ЯЁЙ]", resume["surname"][0]):  # noqa: RUF001
+    if not re.match(r"^[А-ЯЁ]", resume["surname"]):  # noqa: RUF001
         return None
-    resume["editable"] = True
-    resume["user_id"] = current_user.id
-    resume["region"] = current_user.region
+
+    resume.update({"editable": True, "user_id": user.id, "region": user.region})
     person = db_session.execute(
         select(Persons).where(
             Persons.surname == resume["surname"],
@@ -62,7 +62,7 @@ def upload_resume(resume: dict) -> int:
         db_session.commit()
         return person.id
 
-    if person.editable or resume["region"] != person.region:
+    if person.editable or person.region != resume["region"]:
         return None
 
     for k, v in resume.items():
@@ -71,18 +71,18 @@ def upload_resume(resume: dict) -> int:
     return person.id
 
 
-def get_anketa_items(anketa: AnketaSchemaJson, person_id: int) -> list:
+def get_items(anketa: AnketaJson, person_id: int, user_id: int) -> list:
     """Get the anketa items.
 
     Args:
         anketa (AnketaSchemaJson): The anketa data.
         person_id (int): The ID of the person.
+        user_id (int): The ID of the user.
 
     Returns:
-        list: Theanketa items.
+        list: The anketa items.
 
     """
-    user_id = current_user.id
     return [
         Staffs(
             position=anketa.position_name,

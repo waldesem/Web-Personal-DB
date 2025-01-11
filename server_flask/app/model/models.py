@@ -339,7 +339,7 @@ class PublicOfficeOrganizationsJson(BaseModel):
     name: str | None = ""
 
 
-class AnketaSchemaJson(BaseModel):
+class AnketaJson(BaseModel):
     """Pydantic model for anketa schema."""
 
     surname: str = Field(alias="lastName")
@@ -347,7 +347,7 @@ class AnketaSchemaJson(BaseModel):
     patronymic: str = Field(default="", alias="midName")
     birthday: date
     birthplace: str | None = ""
-    citizenship: str | None = ""
+    citizen: str | None = ""
     dual: str = Field(default="", alias="additionalCitizenship")
     marital: str = Field(default="", alias="maritalStatus")
     inn: str | None = ""
