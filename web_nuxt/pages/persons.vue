@@ -143,7 +143,10 @@ async function submitResume(form: Persons): Promise<void> {
     </div>
     <UTable
       :loading="status == 'pending' || upload"
-      :progress="{ color: 'red', animation: 'swing' }"
+      :loading-state="{
+        icon: 'i-heroicons-arrow-path-20-solid',
+        label: 'Загрузка...',
+      }"
       :empty-state="{
         icon: 'i-heroicons-circle-stack-20-solid',
         label: 'Данные не найдены.',

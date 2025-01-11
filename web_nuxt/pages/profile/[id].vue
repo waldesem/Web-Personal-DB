@@ -89,21 +89,23 @@ async function switchSelf(): Promise<void> {
 }
 
 async function changeRegion(): Promise<void> {
-  if (confirm("Вы действительно хотите изменить регион?")) {
-    pending.value = true;
-    const { message } = (await authFetch(
-      `/route/anketa/region/${candId.value}`,
-      {
-        params: {
-          region: region.value,
-        },
-      }
-    )) as Record<string, string>;
-    pending.value = false;
-    emitMessage(message);
-    if (message == "success") {
-      person.value.region = region.value;
+  if (!confirm("Вы действительно хотите изменить регион?")) {
+    region.value = person.value.region;
+    return;
+  }
+  pending.value = true;
+  const { message } = (await authFetch(
+    `/route/anketa/region/${candId.value}`,
+    {
+      params: {
+        region: region.value,
+      },
     }
+  )) as Record<string, string>;
+  pending.value = false;
+  emitMessage(message);
+  if (message == "success") {
+    navigateTo('/persons');
   } else {
     region.value = person.value.region;
   }
@@ -114,7 +116,7 @@ async function changeRegion(): Promise<void> {
   <div class="mb-6">
     <div class="flex items-center justify-between mb-3">
       <div class="flex items-center space-x-4">
-        <USkeleton v-if="status == 'pending'" class="my-6 h-8 w-1/3" />
+        <USkeleton v-if="status == 'pending'" class="py-1 h-10 w-96" />
         <div v-else class="py-1">
           <h3 class="text-2xl text-red-800 font-bold">
             {{ `${person.surname} ${person.firstname} ${
@@ -125,6 +127,8 @@ async function changeRegion(): Promise<void> {
         <UTooltip text="Изменить регион">
           <USelect
             v-model="region"
+            icon="i-heroicons-map"
+            variant="outline"
             :options="[
               'Главный офис',
               'РЦ Юг',
@@ -132,8 +136,8 @@ async function changeRegion(): Promise<void> {
               'РЦ Урал',
               'РЦ Восток',
             ]"
+            :placeholder="person.region"
             :disabled="!person.editable"
-            :placeholder="person['region'] || 'Регион'"
             @change="changeRegion"
           />
         </UTooltip>
