@@ -60,9 +60,9 @@ const tabs = [
 
 const editState = computed(() => {
   return (
-    person.value["editable"] &&
+    person.value.editable &&
     stateUser.value.role == "user" &&
-    stateUser.value.id == person.value["user_id"]
+    stateUser.value.id == person.value.user_id
   );
 });
 
@@ -148,9 +148,9 @@ async function changeRegion(): Promise<void> {
           :color="
             !person.editable
               ? 'blue'
-              : person.user_id != stateUser.id
-              ? 'red'
-              : 'green'
+              : person.user_id == stateUser.id
+              ? 'green'
+              : 'red'
           "
           size="sm"
           @click="switchSelf"

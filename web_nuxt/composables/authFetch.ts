@@ -34,7 +34,6 @@ export const useFetchAuth = () => {
       return response;
     } catch (error) {
       console.error(error);
-      return navigateTo("/login");
     }
   };
   return fetchAuth;
