@@ -89,23 +89,23 @@ async function switchSelf(): Promise<void> {
 }
 
 async function changeRegion(): Promise<void> {
+  if (region.value == person.value.region) {
+    return;
+  }
   if (!confirm("Вы действительно хотите изменить регион?")) {
     region.value = person.value.region;
     return;
   }
   pending.value = true;
-  const { message } = (await authFetch(
-    `/route/anketa/region/${candId.value}`,
-    {
-      params: {
-        region: region.value,
-      },
-    }
-  )) as Record<string, string>;
+  const { message } = (await authFetch(`/route/anketa/region/${candId.value}`, {
+    params: {
+      region: region.value,
+    },
+  })) as Record<string, string>;
   pending.value = false;
   emitMessage(message);
   if (message == "success") {
-    navigateTo('/persons');
+    navigateTo("/persons");
   } else {
     region.value = person.value.region;
   }
@@ -114,21 +114,23 @@ async function changeRegion(): Promise<void> {
 
 <template>
   <div class="mb-6">
-    <div class="flex items-center justify-between mb-3">
-      <div class="flex items-center space-x-4">
-        <USkeleton v-if="status == 'pending'" class="py-1 h-10 w-96" />
-        <div v-else class="py-1">
-          <h3 class="text-2xl text-red-800 font-bold">
-            {{ `${person.surname} ${person.firstname} ${
-              person.patronymic ? person.patronymic : ''
-            }` }}
-          </h3>
-        </div>
+    <div class="flex items-center justify-between mb-6">
+      <USkeleton v-if="status == 'pending'" class="py-1 h-10 w-96" />
+      <div v-else class="py-1">
+        <h3 class="text-2xl text-red-800 font-bold">
+          {{
+            `${person.surname} ${person.firstname} ${
+              person.patronymic ? person.patronymic : ""
+            }`
+          }}
+        </h3>
+      </div>
+      <div v-if="stateUser.role == 'user'" class="flex items-center space-x-4">
         <UTooltip text="Изменить регион">
           <USelect
             v-model="region"
             icon="i-heroicons-map"
-            variant="outline"
+            color="primary"
             :options="[
               'Главный офис',
               'РЦ Юг',
@@ -137,33 +139,34 @@ async function changeRegion(): Promise<void> {
               'РЦ Восток',
             ]"
             :placeholder="person.region"
-            :disabled="!person.editable"
+            :disabled="!person.editable || person.region != stateUser.region"
             @change="changeRegion"
           />
         </UTooltip>
+        <UTooltip text="Переключить режим редактирования">
+          <UButton
+            :loading="pending || status === 'pending'"
+            :disabled="person.region != stateUser.region"
+            :color="
+              !person.editable
+                ? 'blue'
+                : person.user_id == stateUser.id
+                ? 'green'
+                : 'red'
+            "
+            size="sm"
+            @click="switchSelf"
+          >
+            {{
+              !person.editable
+                ? "Анкета доступна для редактирования"
+                : person.user_id == stateUser.id
+                ? "Анкета редактируется текущим пользователем"
+                : "Анкета редактируется другим пользователем"
+            }}
+          </UButton>
+        </UTooltip>
       </div>
-      <UTooltip text="Переключить режим редактирования">
-        <UButton
-          :loading="pending || status === 'pending'"
-          :color="
-            !person.editable
-              ? 'blue'
-              : person.user_id == stateUser.id
-              ? 'green'
-              : 'red'
-          "
-          size="sm"
-          @click="switchSelf"
-        >
-          {{
-            !person.editable
-              ? "Анкета доступна для редактирования"
-              : person.user_id == stateUser.id
-              ? "Анкета редактируется текущим пользователем"
-              : "Анкета редактируется другим пользователем"
-          }}
-        </UButton>
-      </UTooltip>
     </div>
     <UTabs :items="tabs">
       <template #anketaTab>

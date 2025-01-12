@@ -101,20 +101,19 @@ def change_region(person_id: int, query_data: Region) -> Response:
 
     """
     person = db_session.get(Persons, person_id)
-    if query_data.region != person.region and person.user_id == current_user.id:
-        if person.destination and Path(person.destination).is_dir():
-            destination = Path(
-                current_app.config["BASE_PATH"],
-                query_data.region,
-                person.surname[0],
-                f"{person_id}-{person.surname} {person.firstname} "
-                f"{person.patronymic if person.patronymic else ''}".rstrip(),
-            )
-            shutil.copytree(person.destination, destination, dirs_exist_ok=True)
-            person.destination = str(destination)
-        person.region = query_data.region
-        person.editable = False
-        db_session.commit()
+    if person.destination and Path(person.destination).is_dir():
+        destination = Path(
+            current_app.config["BASE_PATH"],
+            query_data.region,
+            person.surname[0],
+            f"{person_id}-{person.surname} {person.firstname} "
+            f"{person.patronymic if person.patronymic else ''}".rstrip(),
+        )
+        shutil.copytree(person.destination, destination, dirs_exist_ok=True)
+        person.destination = str(destination)
+    person.region = query_data.region
+    person.editable = False
+    db_session.commit()
     return jsonify({"message": "success"}), 201
 
 
