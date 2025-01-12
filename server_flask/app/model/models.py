@@ -61,12 +61,6 @@ class Info(BaseModel):
         use_enum_values = True
 
 
-class Search(BaseModel):
-    """Pydantic model for search form."""
-
-    search: str | None
-
-
 class Region(BaseModel):
     """Pydantic model for region select form."""
 

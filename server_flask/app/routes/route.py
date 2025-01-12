@@ -1,50 +1,48 @@
 """Route routes."""
 
-from flask import Blueprint, Response, jsonify
+from flask import Blueprint, Response, jsonify, request
 from sqlalchemy import desc, func, select
 
 from app.depends.depend import current_user, jwt_required, roles_required, validate
 from app.model.classes import Regions, Roles
-from app.model.models import Info, Search
+from app.model.models import Info
 from app.model.tables import Checks, Persons, Users, db_session
 
 bp = Blueprint("route", __name__)
 
 
 @bp.get("/index/<int:page>")
-@validate()
 @jwt_required()
-def get_index(page: int, query_data: Search) -> Response:
+def get_index(page: int) -> Response:
     """Retrieve a paginated list of persons from the database.
 
     Arguments:
         page (int): The page number of the results.
-        query_data (Search): The search query containing the search string.
 
     Returns:
         tuple: A tuple containing the list of persons, a boolean indicating if
-        there are more results, and a boolean indicating if the page is greater
-        than 1.
+        there are more results, and a 200 status code.
 
     """
     pagination = 11
+    search = request.args.get("search")
     stmt = select(Persons, Users.fullname).filter(
         Persons.user_id == Users.id,
         Persons.region == current_user.region
         if current_user.region != Regions.main.value
         else True,
     )
-    if query_data.search:
-        search = query_data.search.upper().split(maxsplit=2)[:3]
+    if search:
+        search = search.upper().split(maxsplit=2)[:3]
         stmt = stmt.filter(
             Persons.surname == search[0],
             Persons.firstname == search[1] if len(search) > 1 else True,
             Persons.patronymic == search[2] if len(search) == 3 else True,  # noqa: PLR2004
         )
+    else:
+        stmt = stmt.order_by(desc(Persons.id))
     query = db_session.execute(
-        stmt.order_by(desc(Persons.id))
-        .offset((page - 1) * pagination)
-        .limit(pagination + 1),
+        stmt.offset((page - 1) * pagination).limit(pagination + 1),
     ).all()
     result = [row[0].to_dict() | {"username": row[1]} for row in query]
     has_next = len(result) > pagination

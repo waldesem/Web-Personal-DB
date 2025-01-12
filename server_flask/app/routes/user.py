@@ -3,41 +3,40 @@
 import re
 from typing import ClassVar
 
-from flask import Blueprint, Response, current_app, jsonify
+from flask import Blueprint, Response, current_app, jsonify, request
 from flask.views import MethodView
 from sqlalchemy import desc, func, select
 from werkzeug.security import generate_password_hash
 
 from app.depends.depend import current_user, get_current_user, roles_required, validate
 from app.model.classes import Regions, Roles
-from app.model.models import Search, User, UserActions
+from app.model.models import User, UserActions
 from app.model.tables import Users, db_session
 
 bp = Blueprint("users", __name__)
 
 
 @bp.get("/users")
-@validate()
-def get_users(query_data: Search) -> Response:
+def get_users() -> Response:
     """Retrieve a list of users from the database.
 
     Arguments:
         item (str): The table name from which to retrieve the users.
-        query_data (Search): The search query containing the search string.
 
     Returns:
         tuple: A tuple containing the JSON-encoded list of users.
 
     """
     stmt = select(Users)
-    if query_data.search and len(query_data.search) > 2:  # noqa: PLR2004
-        if re.match(r"^[a-zA-z_]+", query_data.search):
+    search = request.args.get("search")
+    if search and len(search) > 2:  # noqa: PLR2004
+        if re.match(r"^[a-zA-z_]+", search):
             stmt = stmt.filter(
-                func.lower(Users.username) == query_data.search.lower(),
+                func.lower(Users.username) == search.lower(),
             )
         else:
             stmt = stmt.filter(
-                func.lower(Users.fullname) == query_data.search.lower(),
+                func.lower(Users.fullname) == search.lower(),
             )
     users = db_session.execute(stmt.order_by(desc(Users.id))).scalars()
     return jsonify([user.to_dict() for user in users]), 200
