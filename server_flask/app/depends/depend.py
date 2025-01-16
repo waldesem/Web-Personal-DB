@@ -120,7 +120,7 @@ def validate_data(data: dict, model: BaseModel) -> BaseModel | None:
         return None
 
 
-def validate() -> Callable:  # noqa: C901
+def validate() -> Callable:
     """Decorate a function for validating request data using Pydantic models.
 
     The decorator accepts the following keyword arguments:
@@ -165,8 +165,6 @@ def validate() -> Callable:  # noqa: C901
             if file_model:
                 if isinstance(file_model, GenericAlias):
                     file_data = request.files.getlist("file")
-                    if not file_data:
-                        return make_response(jsonify({"message": "error"}))
                     kwargs["file_data"] = [
                         validate_data(
                             {
@@ -179,8 +177,6 @@ def validate() -> Callable:  # noqa: C901
                     ]
                 else:
                     file_data = request.files.get("file")
-                    if not file_data:
-                        return make_response(jsonify({"message": "error"}))
                     kwargs["file_data"] = validate_data(
                         {
                             "file": file_data,
