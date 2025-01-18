@@ -36,6 +36,12 @@ class User(BaseModel):
     username: str
     email: str | None = ""
 
+    @validator("username")
+    @classmethod
+    def username_check(cls, v: str) -> str:
+        """Check username."""
+        return v.strip().lower()
+
 
 class UserActions(BaseModel):
     """Pydantic model for user actions form."""
@@ -348,10 +354,10 @@ class AnketaJson(BaseModel):
     snils: str | None = ""
     position_name: str = Field(default="", alias="positionName")
     department: str | None = ""
-    passport_serial: str = Field(default="", alias="passportSerial")
-    passport_number: str = Field(default="", alias="passportNumber")
-    passport_issue: date = Field(default=None, alias="passportIssueDate")
-    passport_issued: str = Field(default="", alias="passportIssuedBy")
+    series: str = Field(default="", alias="passportSerial")
+    digits: str = Field(default="", alias="passportNumber")
+    issue: date = Field(default=None, alias="passportIssueDate")
+    agency: str = Field(default="", alias="passportIssuedBy")
     valid_address: str = Field(default="", alias="validAddress")
     reg_address: str = Field(default="", alias="regAddress")
     email: str | None = ""

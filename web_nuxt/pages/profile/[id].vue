@@ -84,8 +84,9 @@ async function switchSelf(): Promise<void> {
   if (message == "success") {
     person.value.editable = !person.value.editable;
     person.value.user_id = stateUser.value.id;
+  } else {
+    emitMessage(message);
   }
-  emitMessage(message);
 }
 
 async function changeRegion(): Promise<void> {
@@ -159,10 +160,10 @@ async function changeRegion(): Promise<void> {
           >
             {{
               !person.editable
-                ? "Анкета доступна для редактирования"
+                ? "Анкета общедоступна для редактирования"
                 : person.user_id == stateUser.id
-                ? "Анкета редактируется текущим пользователем"
-                : "Анкета редактируется другим пользователем"
+                ? "Анкета назначена данному пользователю"
+                : "Анкета назначена другому пользователю"
             }}
           </UButton>
         </UTooltip>

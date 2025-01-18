@@ -182,10 +182,8 @@ async function submitResume(form: Persons): Promise<void> {
         row.username ? row.username.toString().split(" ")[0] : ""
       }}</template>
       <template #editable-data="{ row }">
-        <div
-          class="text-start"
-          :class="row.editable ? 'text-red-600' : 'text-primary'"
-          :title="row.editable ? 'Анкета редактируется' : 'Анкета обновлена'"
+        <UTooltip
+          :text="row.editable ? 'Анкета редактируется' : 'Анкета обновлена'"
         >
           <UIcon
             :name="
@@ -193,10 +191,10 @@ async function submitResume(form: Persons): Promise<void> {
                 ? 'i-heroicons-arrow-path'
                 : 'i-heroicons-check-circle'
             "
-            class="w-4 h-4"
-            :class="{ 'animate-spin': row.editable }"
+            class="text-start w-4 h-4"
+            :class="{ 'animate-spin text-red-800': row.editable }"
           />
-        </div>
+        </UTooltip>
       </template>
       <template #caption>
         <caption class="caption-bottom text-left mt-2">

@@ -6,7 +6,6 @@ const emit = defineEmits(["update"]);
 
 const authFetch = useFetchAuth();
 
-const candId = inject("candId") as Ref<string>;
 const status = inject("status") as Ref<string>;
 const person = inject("person") as Ref<Persons>;
 const editable = inject("editable") as Ref<boolean>;
@@ -18,7 +17,7 @@ const resume = ref({} as Persons);
 async function submitResume(form: Persons) {
   pending.value = true;
   modal.value = false;
-  const { message } = (await authFetch('/route/items/persons', {
+  const { message } = (await authFetch("/route/items/persons", {
     method: "POST",
     body: form,
   })) as Record<string, string>;
@@ -32,9 +31,12 @@ async function deleteItem() {
   if (!confirm("Вы действительно хотите удалить профиль и связанные записи?"))
     return;
   pending.value = true;
-  const { message } = (await authFetch(`/route/items/persons/${candId.value}`, {
-    method: "DELETE",
-  })) as Record<string, string>;
+  const { message } = (await authFetch(
+    `/route/items/persons/${person.value.id}`,
+    {
+      method: "DELETE",
+    }
+  )) as Record<string, string>;
   pending.value = false;
   emitMessage(message);
   return navigateTo("/persons");

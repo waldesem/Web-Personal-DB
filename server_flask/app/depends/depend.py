@@ -8,7 +8,7 @@ from types import GenericAlias
 from typing import Callable
 
 import jwt
-from flask import abort, current_app, g, jsonify, make_response, request
+from flask import Response, abort, current_app, g, jsonify, make_response, request
 from pydantic import BaseModel, ValidationError
 from werkzeug.local import LocalProxy
 
@@ -19,28 +19,29 @@ current_user: Users = LocalProxy(lambda: get_current_user(g.user_id))
 
 
 @lru_cache(maxsize=2)
-def get_current_user(user_id: int) -> Users | None:
+def get_current_user(user_id: int) -> Users | Response:
     """Retrieve the current user stored in the global variable 'g.user_id'.
 
     Args:
         user_id (int): The ID of the user.
 
     Returns:
-        instance or None: A instance containing the user's information if the user
-        exists, is not blocked, not deleted, and has not changed password in the
-        last year. Otherwise, returns None.
+        If the user is found, returns the user object. Otherwise, returns a 401 HTTP
+        status code.
 
     """
     user = db_session.get(Users, user_id)
-    if (
+    return (
         user
-        and not user.blocked
-        and not user.deleted
-        and not user.change_pswd
-        and user.pswd_create + timedelta(days=365) > datetime.now()
-    ):
-        return user
-    return None
+        if (
+            user
+            and not user.blocked
+            and not user.deleted
+            and not user.change_pswd
+            and user.pswd_create + timedelta(days=365) > datetime.now()
+        )
+        else abort(401)
+    )
 
 
 def jwt_required() -> Callable:
@@ -62,7 +63,7 @@ def jwt_required() -> Callable:
         @wraps(func)
         def wrapper(*args: tuple, **kwargs: dict) -> Callable:
             try:
-                header = request.headers.get("Authorization")
+                header = request.headers.get("Authorization", type=str)
                 user: dict = jwt.decode(
                     header[7:],
                     current_app.config["JWT_SECRET_KEY"],
@@ -102,7 +103,7 @@ def roles_required(*roles: list[str]) -> Callable:
         @jwt_required()
         @wraps(func)
         def wrapper(*args: tuple, **kwargs: dict) -> Callable:
-            if current_user and current_user.role in roles:
+            if current_user.role in roles:
                 return func(*args, **kwargs)
             return abort(403)
 
@@ -116,11 +117,11 @@ def validate_data(data: dict, model: BaseModel) -> BaseModel | None:
     try:
         return model(**data)
     except ValidationError:
-        current_app.logger.exception("Error validating data")
+        current_app.logger.exception("Error validating data %s", data)
         return None
 
 
-def validate() -> Callable:
+def validate() -> Callable:  # noqa: C901
     """Decorate a function for validating request data using Pydantic models.
 
     The decorator accepts the following keyword arguments:
@@ -138,7 +139,6 @@ def validate() -> Callable:
     @validate(query_data=QueryData, json_data=BodyData, file_data=FileData)
     def endpoint(query_data, json_data, file_data):
         # The query_data, json_data and file_data are validated and available here
-        # The return value of the function will be validated as well
         pass
     """
 
@@ -165,7 +165,7 @@ def validate() -> Callable:
             if file_model:
                 if isinstance(file_model, GenericAlias):
                     file_data = request.files.getlist("file")
-                    kwargs["file_data"] = [
+                    file_result = [
                         validate_data(
                             {
                                 "file": file,
@@ -175,15 +175,21 @@ def validate() -> Callable:
                         )
                         for file in file_data
                     ]
+                    if not all(file_result):
+                        return make_response(jsonify({"message": "error"}))
+                    kwargs["file_data"] = file_result
                 else:
                     file_data = request.files.get("file")
-                    kwargs["file_data"] = validate_data(
+                    file_result = validate_data(
                         {
                             "file": file_data,
                             "filename": file_data.filename,
                         },
                         File,
                     )
+                    if not file_result:
+                        return make_response(jsonify({"message": "error"}))
+                    kwargs["file_data"] = file_result
 
             return func(*args, **kwargs)
 
