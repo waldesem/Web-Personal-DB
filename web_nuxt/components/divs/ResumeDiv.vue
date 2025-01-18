@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Persons } from "@/types";
-import { emitMessage } from "@/utils";
 
 const emit = defineEmits(["update"]);
 

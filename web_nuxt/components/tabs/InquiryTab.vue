@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Needs } from "@/types";
-import { emitMessage } from "@/utils";
 
 prefetchComponents("FormsInquiryForm");
 

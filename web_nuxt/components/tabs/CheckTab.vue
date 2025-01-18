@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Verification } from "@/types";
-import { emitMessage } from "@/utils";
 
 prefetchComponents("FormsCheckForm");
 

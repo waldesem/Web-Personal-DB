@@ -30,6 +30,16 @@ const { refresh, status } = await useLazyAsyncData("anketa", async () => {
 provide("person", person);
 provide("status", status);
 
+const editState = computed(() => {
+  return (
+    person.value.editable &&
+    stateUser.value.role == "user" &&
+    stateUser.value.id == person.value.user_id
+  );
+});
+
+provide("editable", editState);
+
 const tabs = [
   {
     slot: "anketaTab",
@@ -57,16 +67,6 @@ const tabs = [
     icon: "i-heroicons-document-text",
   },
 ];
-
-const editState = computed(() => {
-  return (
-    person.value.editable &&
-    stateUser.value.role == "user" &&
-    stateUser.value.id == person.value.user_id
-  );
-});
-
-provide("editable", editState);
 
 async function switchSelf(): Promise<void> {
   if (person.value.user_id != stateUser.value.id) {

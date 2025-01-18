@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Pfo } from "@/types";
-import { emitMessage } from "@/utils";
 
 prefetchComponents("FormsPoligrafForm");
 

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Inquisition } from "@/types";
-import { emitMessage } from "@/utils";
 
 prefetchComponents("FormsInvestigationForm");
 
