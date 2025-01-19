@@ -29,6 +29,7 @@ async function submitResume(form: Persons) {
 async function deleteItem() {
   if (!confirm("Вы действительно хотите удалить профиль и связанные записи?"))
     return;
+  if (!confirm("Данные будут удалены безвозвратно!?")) return;
   pending.value = true;
   const { message } = (await authFetch(
     `/route/items/persons/${person.value.id}`,
