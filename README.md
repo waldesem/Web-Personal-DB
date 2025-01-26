@@ -20,12 +20,14 @@ python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
-Also you must select SQLite3 or PostgreSQL in the config.py
-
 
 ### Database
 
 SQLite3 Database will be used by default and crated automatically in the first run.
+
+<details>
+<summary> Upload Sqlite dump to PostgreSQL </summary>
+<br>
 To Use a PostgreSQL Database in Application install PostgreSQL
 ```
 sudo apt-get -y install postgresql postgresql-contrib
@@ -40,10 +42,6 @@ CREATE USER flask WITH PASSWORD 'flask';
 GRANT ALL PRIVILEGES ON DATABASE personal TO flask;
 \q
 ```
-
-<details>
-<summary> Upload Sqlite dump to PostgreSQL </summary>
-<br>
 For upload sqlite dump to PostgreSQL first replace in `/database.db.sql`:
 - id INTEGER PRIMARY KEY on SERIAL;
 - DATETIME on TIMESTAMP;
