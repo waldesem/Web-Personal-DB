@@ -20,9 +20,13 @@ export const useFetchAuth = () => {
       stateUser.value = JSON.parse(
         Buffer.from(payloads, "base64").toString()
       ) as Token;
-      if (stateUser.value.exp < Date.now() / 1000) return navigateTo("/login");
+      if (stateUser.value.exp < Date.now() / 1000) {
+        emitMessage("error");
+        return navigateTo("/login");
+      }
     } catch (error) {
       console.error(error);
+      emitMessage("error");
       return navigateTo("/login");
     }
     options.headers = {
@@ -34,6 +38,7 @@ export const useFetchAuth = () => {
       return response;
     } catch (error) {
       console.error(error);
+      emitMessage("error");
       return navigateTo("/login");
     }
   };
