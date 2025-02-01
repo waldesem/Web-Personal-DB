@@ -32,7 +32,7 @@ def post_resume(json_data: Person) -> Response:
         A JSON response containing the person ID and an HTTP status code of 201.
 
     """
-    person_id = upload_resume(json_data.dict(), current_user)
+    person_id = upload_resume(json_data.dict())
     return jsonify({"person_id": person_id})
 
 
@@ -64,12 +64,11 @@ def post_file(file_data: File) -> Response:
             "inn": anketa.inn,
             "snils": anketa.snils,
         }
-        person_id = upload_resume(resume, current_user)
+        person_id = upload_resume(resume)
         if not person_id:
-            current_app.logger.warning("person_id is None")
             return jsonify({"person_id": person_id}), 200
 
-        items = get_items(anketa, person_id, current_user.id)
+        items = get_items(anketa, person_id)
         try:
             db_session.add_all(items)
             db_session.commit()
@@ -140,7 +139,7 @@ def change_self_id(person_id: int) -> Response:
     except SQLAlchemyError:
         current_app.logger.exception("Exception in change_self_id")
         db_session.rollback()
-        return jsonify({"message": "error"}), 200
+    return jsonify({"message": "error"}), 200
 
 
 @bp.post("/files/<item>/<int:person_id>")

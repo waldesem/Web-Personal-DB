@@ -6,6 +6,7 @@ from pathlib import Path
 from flask import current_app
 from sqlalchemy import select
 
+from app.depends.depend import current_user
 from app.model.models import AnketaJson
 from app.model.tables import (
     Addresses,
@@ -16,18 +17,16 @@ from app.model.tables import (
     Persons,
     Previous,
     Staffs,
-    Users,
     Workplaces,
     db_session,
 )
 
 
-def upload_resume(resume: dict, user: Users) -> int:
+def upload_resume(resume: dict) -> int:
     """Upload a resume to the database.
 
     Args:
         resume (dict): The resume to be uploaded.
-        user (Users): The user who uploaded the resume.
 
     Returns:
         int: The ID of the uploaded resume.
@@ -36,7 +35,9 @@ def upload_resume(resume: dict, user: Users) -> int:
     if not re.match(r"^[А-ЯЁ]", resume["surname"]):  # noqa: RUF001
         return None
 
-    resume.update({"editable": True, "user_id": user.id, "region": user.region})
+    resume.update(
+        {"editable": True, "user_id": current_user.id, "region": current_user.region},
+    )
     person = db_session.execute(
         select(Persons).where(
             Persons.surname == resume["surname"],
@@ -71,13 +72,12 @@ def upload_resume(resume: dict, user: Users) -> int:
     return person.id
 
 
-def get_items(anketa: AnketaJson, person_id: int, user_id: int) -> list:
+def get_items(anketa: AnketaJson, person_id: int) -> list:
     """Get the anketa items.
 
     Args:
         anketa (AnketaSchemaJson): The anketa data.
         person_id (int): The ID of the person.
-        user_id (int): The ID of the user.
 
     Returns:
         list: The anketa items.
@@ -88,7 +88,7 @@ def get_items(anketa: AnketaJson, person_id: int, user_id: int) -> list:
             position=anketa.position_name,
             department=anketa.department,
             person_id=person_id,
-            user_id=user_id,
+            user_id=current_user.id,
         ),
         Documents(
             view="Паспорт",
@@ -97,31 +97,31 @@ def get_items(anketa: AnketaJson, person_id: int, user_id: int) -> list:
             issue=anketa.issue,
             agency=anketa.agency,
             person_id=person_id,
-            user_id=user_id,
+            user_id=current_user.id,
         ),
         Addresses(
             view="Адрес проживания",
             addresses=anketa.valid_address,
             person_id=person_id,
-            user_id=user_id,
+            user_id=current_user.id,
         ),
         Addresses(
             view="Адрес регистрации",
             addresses=anketa.reg_address,
             person_id=person_id,
-            user_id=user_id,
+            user_id=current_user.id,
         ),
         Contacts(
             view="Телефон",
             contact=anketa.contact_phone,
             person_id=person_id,
-            user_id=user_id,
+            user_id=current_user.id,
         ),
         Contacts(
             view="Электронная почта",
             contact=anketa.email,
             person_id=person_id,
-            user_id=user_id,
+            user_id=current_user.id,
         ),
         *[
             Educations(
@@ -130,7 +130,7 @@ def get_items(anketa: AnketaJson, person_id: int, user_id: int) -> list:
                 finished=edu.end_year,
                 specialty=edu.specialty,
                 person_id=person_id,
-                user_id=user_id,
+                user_id=current_user.id,
             )
             for edu in anketa.education
         ],
@@ -144,7 +144,7 @@ def get_items(anketa: AnketaJson, person_id: int, user_id: int) -> list:
                 reason=work.fire_reason,
                 position=work.position,
                 person_id=person_id,
-                user_id=user_id,
+                user_id=current_user.id,
             )
             for work in anketa.experience
         ],
@@ -156,7 +156,7 @@ def get_items(anketa: AnketaJson, person_id: int, user_id: int) -> list:
                 changed=prev.year_change,
                 reason=prev.reason,
                 person_id=person_id,
-                user_id=user_id,
+                user_id=current_user.id,
             )
             for prev in anketa.name_was_changed
         ],
@@ -166,7 +166,7 @@ def get_items(anketa: AnketaJson, person_id: int, user_id: int) -> list:
                 organization=aff.name,
                 inn=aff.inn,
                 person_id=person_id,
-                user_id=user_id,
+                user_id=current_user.id,
             )
             for aff in anketa.organizations
         ],
@@ -175,7 +175,7 @@ def get_items(anketa: AnketaJson, person_id: int, user_id: int) -> list:
                 view="Являлся государственным должностным лицом",
                 organization=aff.name,
                 person_id=person_id,
-                user_id=user_id,
+                user_id=current_user.id,
             )
             for aff in anketa.state_organizations
         ],
@@ -184,7 +184,7 @@ def get_items(anketa: AnketaJson, person_id: int, user_id: int) -> list:
                 view="Связанные лица работают в государственных организациях",
                 organization=aff.name,
                 person_id=person_id,
-                user_id=user_id,
+                user_id=current_user.id,
             )
             for aff in anketa.related_organizations
         ],
@@ -193,7 +193,7 @@ def get_items(anketa: AnketaJson, person_id: int, user_id: int) -> list:
                 view="Являлся государственным или муниципальным служащим",
                 organization=aff.name,
                 person_id=person_id,
-                user_id=user_id,
+                user_id=current_user.id,
             )
             for aff in anketa.public_organizations
         ],

@@ -76,21 +76,25 @@ class PersonView(MethodView):
             "inquiries",
             "investigations",
         ]:
-            stmt = text(f"DELETE FROM {table} WHERE person_id = :person_id")  # noqa: S608
-            db_session.execute(stmt, {"person_id": person_id})
-
-        stmt = text("DELETE FROM person_relationships WHERE left_id = :person_id")
-        db_session.execute(stmt, {"person_id": person_id})
-
-        stmt = text("DELETE FROM person_relationships WHERE right_id = :person_id")
-        db_session.execute(stmt, {"person_id": person_id})
-
-        stmt = text("DELETE FROM persons WHERE id = :person_id")
-        db_session.execute(stmt, {"person_id": person_id})
+            db_session.execute(
+                text(f"DELETE FROM {table} WHERE person_id = :person_id"),  # noqa: S608
+                {"person_id": person_id},
+            )
+        db_session.execute(
+            text("DELETE FROM person_relationships WHERE left_id = :person_id"),
+            {"person_id": person_id},
+        )
+        db_session.execute(
+            text("DELETE FROM person_relationships WHERE right_id = :person_id"),
+            {"person_id": person_id},
+        )
+        db_session.execute(
+            text("DELETE FROM persons WHERE id = :person_id"), {"person_id": person_id},
+        )
         db_session.commit()
         return jsonify({"message": "success"}), 201
 
 
-view_func=PersonView.as_view("person")
+view_func = PersonView.as_view("person")
 bp.add_url_rule("", view_func=view_func, methods=["POST"])
 bp.add_url_rule("/<int:person_id>", view_func=view_func, methods=["GET", "DELETE"])

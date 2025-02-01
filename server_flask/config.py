@@ -15,7 +15,6 @@ class Config:
 
     SECRET_KEY = secrets.token_hex(16)
     JWT_SECRET_KEY = secrets.token_hex(16)
-    MAX_CONTENT_LENGTH = 100 * 1000 * 1000
     BASE_PATH = setting["Destination"].get("path")
     DATABASE_URI = "sqlite:///" + str(Path(BASE_PATH, "database.db"))
     DEFAULT_PASSWORD = "88888888"  # noqa: S105

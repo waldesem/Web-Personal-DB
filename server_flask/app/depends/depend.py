@@ -15,22 +15,19 @@ from werkzeug.local import LocalProxy
 from app.model.models import File
 from app.model.tables import Users, db_session
 
-current_user: Users = LocalProxy(lambda: get_current_user(g.user_id))
+current_user: Users = LocalProxy(lambda: get_current_user())
 
 
 @lru_cache(maxsize=2)
-def get_current_user(user_id: int) -> Users | Response:
+def get_current_user() -> Users | Response:
     """Retrieve the current user stored in the global variable 'g.user_id'.
-
-    Args:
-        user_id (int): The ID of the user.
 
     Returns:
         If the user is found, returns the user object. Otherwise, returns a 401 HTTP
         status code.
 
     """
-    user = db_session.get(Users, user_id)
+    user = db_session.get(Users, g.user_id)
     return (
         user
         if (
@@ -72,7 +69,7 @@ def jwt_required() -> Callable:
                 if user.get("id"):
                     g.user_id = user["id"]
                     return func(*args, **kwargs)
-                current_app.logger.warning("User not found")
+
             except ValueError:
                 current_app.logger.exception("Headers not found")
             except jwt.exceptions.PyJWTError:

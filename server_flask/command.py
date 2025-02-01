@@ -8,7 +8,7 @@ from flask.cli import with_appcontext
 from sqlalchemy import text
 
 from app.model.classes import Regions, Roles
-from app.model.tables import Users, db_session
+from app.model.tables import db_session
 
 bp = Blueprint("command", __name__)
 
@@ -56,15 +56,17 @@ def create_user(
         text("SELECT * FROM users WHERE username = :username"),
         {"username": username},
     ).all():
-        db_session.add(
-            Users(
-                fullname=fullname,
-                username=username,
-                email=email,
-                role=role,
-                region=Regions[region].value,
-            ),
-        )
+        db_session.execute(text(
+            "INSERT INTO users (fullname, username, email, role, region) "
+            "VALUES (:fullname, :username, :email, :role, :region)",
+            {
+                "fullname": fullname,
+                "username": username,
+                "email": email,
+                "role": role,
+                "region": Regions[region].value,
+            },
+        ))
         db_session.commit()
         click.echo(f"User {username} created")
     else:

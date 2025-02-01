@@ -37,12 +37,12 @@ def get_index(page: int) -> Response:
         stmt = stmt.filter(
             Persons.surname == search[0],
             Persons.firstname == search[1] if len(search) > 1 else True,
-            Persons.patronymic == search[2] if len(search) == 3 else True,  # noqa: PLR2004
+            Persons.patronymic == search[2] if len(search) > 2 else True,  # noqa: PLR2004
         )
-    else:
-        stmt = stmt.order_by(desc(Persons.id))
     query = db_session.execute(
-        stmt.offset((page - 1) * pagination).limit(pagination + 1),
+        stmt.order_by(desc(Persons.id))
+        .offset((page - 1) * pagination)
+        .limit(pagination + 1),
     ).all()
     result = [row[0].to_dict() | {"username": row[1]} for row in query]
     has_next = len(result) > pagination
