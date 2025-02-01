@@ -1,4 +1,4 @@
-import { Buffer } from "buffer";
+// import { Buffer } from "buffer";
 import type { NitroFetchOptions } from "nitropack";
 import { useStorage, type RemovableRef } from "@vueuse/core";
 import type { Token, Method } from "@/types";
@@ -14,21 +14,6 @@ export const useFetchAuth = () => {
     url: string,
     options: NitroFetchOptions<ResponseType, Method> = {}
   ) => {
-    try {
-      const token = accessToken.value.split(" ")[1];
-      const payloads = token.split(".")[1];
-      stateUser.value = JSON.parse(
-        Buffer.from(payloads, "base64").toString()
-      ) as Token;
-      if (stateUser.value.exp < Date.now() / 1000) {
-        emitMessage("error");
-        return navigateTo("/login");
-      }
-    } catch (error) {
-      console.error(error);
-      emitMessage("error");
-      return navigateTo("/login");
-    }
     options.headers = {
       ...options.headers,
       Authorization: `${accessToken.value}`,
