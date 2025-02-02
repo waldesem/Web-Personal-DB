@@ -1,4 +1,3 @@
-// import { Buffer } from "buffer";
 import type { NitroFetchOptions } from "nitropack";
 import { useStorage, type RemovableRef } from "@vueuse/core";
 import type { Token, Method } from "@/types";
@@ -19,11 +18,9 @@ export const useFetchAuth = () => {
       Authorization: `${accessToken.value}`,
     };
     try {
-      const response = await $fetch(url, options);
-      return response;
+      return await $fetch(url, options);
     } catch (error) {
       console.error(error);
-      emitMessage("error");
       return navigateTo("/login");
     }
   };
