@@ -12,12 +12,10 @@ export default defineNuxtRouteMiddleware((to) => {
       Buffer.from(payloads, "base64").toString()
     ) as Token;
     if (stateUser.value.exp < Date.now() / 1000) {
-      emitMessage("error");
       return navigateTo("/login");
     }
   } catch (error) {
     console.error(error);
-    emitMessage("error");
     return navigateTo("/login");
   }
 });

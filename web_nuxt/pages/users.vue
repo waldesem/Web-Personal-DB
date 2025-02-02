@@ -2,6 +2,10 @@
 import { watchDebounced } from "@vueuse/core";
 import type { User } from "@/types";
 
+definePageMeta({
+  middleware: ["admin"],
+});
+
 const fetchAuth = useFetchAuth();
 
 const search = ref("");
