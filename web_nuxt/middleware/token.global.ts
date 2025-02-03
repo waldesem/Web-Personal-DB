@@ -5,6 +5,9 @@ export default defineNuxtRouteMiddleware((to) => {
   if (to.path === "/login") {
     return;
   }
+  if (typeof(accessToken.value) !== "string") {
+    return navigateTo("/login")
+  };
   try {
     const token = accessToken.value.split(" ")[1];
     const payloads = token.split(".")[1];
