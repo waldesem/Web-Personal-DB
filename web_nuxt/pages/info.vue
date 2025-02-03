@@ -1,8 +1,4 @@
 <script setup lang="ts">
-definePageMeta({
-  middleware: ["admin"],
-});
-
 const authFetch = useFetchAuth();
 
 const region = ref(stateUser.value.region);
