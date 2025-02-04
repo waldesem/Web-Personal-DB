@@ -1,12 +1,12 @@
 import type { NitroFetchOptions } from "nitropack";
-import { useStorage, type RemovableRef } from "@vueuse/core";
+import { useStorageAsync, type RemovableRef } from "@vueuse/core";
 import type { Token, Method } from "@/types";
 
-export const accessToken = useStorage("accessToken", "", localStorage, {
+export const accessToken = useStorageAsync("accessToken", "", localStorage, {
   mergeDefaults: true,
 });
 
-export const stateUser = useStorage("stateUser", {}) as RemovableRef<Token>;
+export const stateUser = useStorageAsync("stateUser", {}) as RemovableRef<Token>;
 
 export const useFetchAuth = () => {
   const fetchAuth = async (
