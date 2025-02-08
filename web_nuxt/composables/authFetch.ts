@@ -6,7 +6,10 @@ export const accessToken = useStorageAsync("accessToken", "", localStorage, {
   mergeDefaults: true,
 });
 
-export const stateUser = useStorageAsync("stateUser", {}) as RemovableRef<Token>;
+export const stateUser = useStorageAsync(
+  "stateUser",
+  {}
+) as RemovableRef<Token>;
 
 export const useFetchAuth = () => {
   const fetchAuth = async (

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 async function logout() {
   if (confirm("Вы действительно хотите выйти?")) {
-    accessToken.value = null;
+    accessToken.value = "";
     clearNuxtData();
     return navigateTo("/login");
   }
