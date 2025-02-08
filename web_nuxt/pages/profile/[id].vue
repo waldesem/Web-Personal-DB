@@ -129,6 +129,7 @@ async function changeRegion(): Promise<void> {
       <div v-if="stateUser.role == 'user'" class="flex items-center space-x-4">
         <UTooltip text="Изменить регион">
           <USelect
+            id="region"
             v-model="region"
             icon="i-heroicons-map"
             color="primary"

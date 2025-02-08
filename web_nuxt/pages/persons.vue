@@ -136,6 +136,7 @@ async function submitResume(form: Persons): Promise<void> {
     </div>
     <div class="my-6">
       <UInput
+        id="search"
         v-model="search"
         size="lg"
         placeholder="поиск по фамилии, имени, отчеству"

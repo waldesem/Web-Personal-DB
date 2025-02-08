@@ -15,19 +15,22 @@ from werkzeug.local import LocalProxy
 from app.model.models import File
 from app.model.tables import Users, db_session
 
-current_user: Users = LocalProxy(lambda: get_current_user())
+current_user: Users = LocalProxy(lambda: get_current_user(g.user_id))
 
 
 @lru_cache(maxsize=2)
-def get_current_user() -> Users | Response:
+def get_current_user(user_id: int) -> Users | Response:
     """Retrieve the current user stored in the global variable 'g.user_id'.
+
+    Args:
+        user_id (int): The ID of the user.
 
     Returns:
         If the user is found, returns the user object. Otherwise, returns a 401 HTTP
         status code.
 
     """
-    user = db_session.get(Users, g.user_id)
+    user = db_session.get(Users, user_id)
     return (
         user
         if (
