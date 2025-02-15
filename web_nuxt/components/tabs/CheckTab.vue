@@ -79,114 +79,17 @@ const items = computed(() =>
   </UModal>
   <UAccordion :items="items" size="lg" multiple>
     <template #item="{ item, index }">
-      <ElementsCardDiv>
-        <ElementsLabelSlot
-          v-if="item.description.workplace"
-          :label="'Проверка по местам работы'"
-        >
-          {{ item.description.workplace }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot
-          v-if="item.description.document"
-          :label="'Проверка паспорта'"
-        >
-          {{ item.description.document }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot
-          v-if="item.description.inn"
-          :label="'Проверка ИНН'"
-          >{{ item.description.inn }}</ElementsLabelSlot
-        >
-        <ElementsLabelSlot
-          v-if="item.description.debt"
-          :label="'Проверка ФССП'"
-          >{{ item.description.debt }}</ElementsLabelSlot
-        >
-        <ElementsLabelSlot
-          v-if="item.description.bankruptcy"
-          :label="'Проверка банкротства'"
-        >
-          {{ item.description.bankruptcy }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot
-          v-if="item.description.bki"
-          :label="'Проверка БКИ'"
-          >{{ item.description.bki }}</ElementsLabelSlot
-        >
-        <ElementsLabelSlot
-          v-if="item.description.courts"
-          :label="'Проверка судебных решений'"
-        >
-          {{ item.description.courts }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot
-          v-if="item.description.affilation"
-          :label="'Проверка аффилированности'"
-        >
-          {{ item.description.affilation }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot
-          v-if="item.description.terrorist"
-          :label="'Проверка по списку террористов'"
-        >
-          {{ item.description.terrorist }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot
-          v-if="item.description.mvd"
-          :label="'Проверка в розыск'"
-          >{{ item.description.mvd }}</ElementsLabelSlot
-        >
-        <ElementsLabelSlot
-          v-if="item.description.internet"
-          :label="'Проверка в открытых источниках'"
-        >
-          {{ item.description.internet }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot
-          v-if="item.description.cronos"
-          :label="'Проверка Кронос'"
-        >
-          {{ item.description.cronos }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot
-          v-if="item.description.addition"
-          :label="'Дополнительная информация'"
-        >
-          {{ item.description.addition }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot
-          v-if="item.description.comment"
-          :label="'Комментарии'"
-          >{{ item.description.comment }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Результат'">
-          <UBadge
-            :color="
-              item.description.conclusion === 'СОГЛАСОВАНО'
-                ? 'green'
-                : item.description.conclusion === 'СОГЛАСОВАНО С КОММЕНТАРИЕМ'
-                ? 'primary'
-                : 'red'
-            "
-            :label="item.description.conclusion"
-            variant="solid"
-          />
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Дата записи'">
-          {{ new Date(item.description.created).toLocaleString("ru-RU") }}
-        </ElementsLabelSlot>
-        <template v-if="editable" #footer>
-          <ElementsTabMenu
-            :item="'checks'"
-            @cancel="modal = false"
-            @update="
-              check = item.description;
-              modal = true;
-            "
-            @delete="deleteCheck(item.description.id, index)"
-          />
-        </template>
-      </ElementsCardDiv>
+      <DivsCheckDiv
+        :item="item.description"
+        :editable="editable"
+        :index="index"
+        @cancel="modal = false"
+        @delete="deleteCheck(item.description.id, index)"
+        @update="
+          check = item.description;
+          modal = true;
+        "
+      />
     </template>
   </UAccordion>
 </template>

@@ -23,7 +23,7 @@ export const dataPerson = useStorage("dataPerson", {
   relations: [] as Relation[],
   relationships: [] as Relationship[],
   previous: [] as Previous[],
-  education: [] as Education[],
+  educations: [] as Education[],
   staffs: [] as Staff[],
   documents: [] as Passport[],
   addresses: [] as Address[],

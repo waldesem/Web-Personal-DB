@@ -82,38 +82,17 @@ const items = computed(() =>
   </UModal>
   <UAccordion :items="items" size="lg" multiple>
     <template #item="{ item, index }">
-      <ElementsCardDiv>
-        <ElementsLabelSlot :label="'Тема проверки'">{{
-          item.description.theme
-        }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Результат'">
-          <UBadge
-            :color="
-              item.description.conclusion === 'БЕЗ ЗАМЕЧАНИЙ'
-                ? 'green'
-                : item.description.conclusion === 'С КОММЕНТАРИЯМИ'
-                ? 'primary'
-                : 'red'
-            "
-            :label="item.description.conclusion"
-            variant="soft"
-          />
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Дата записи'">
-          {{ new Date(item.description.created).toLocaleString("ru-RU") }}
-        </ElementsLabelSlot>
-        <template v-if="editable" #footer>
-          <ElementsTabMenu
-            :item="'poligrafs'"
-            @cancel="modal = false"
-            @update="
-              poligraf = item.description;
-              modal = true;
-            "
-            @delete="deletePoligraf(item.description.id, index)"
-          />
-        </template>
-      </ElementsCardDiv>
+      <DivsPoligrafDiv
+        :item="item.description"
+        :index="index"
+        :editable="editable"
+        @cancel="modal = false"
+        @update="
+          poligraf = item.description;
+          modal = true;
+        "
+        @delete="deletePoligraf(item.description.id, index)"
+      />
     </template>
   </UAccordion>
 </template>

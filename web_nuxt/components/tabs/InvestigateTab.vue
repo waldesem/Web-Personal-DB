@@ -85,28 +85,17 @@ const items = computed(() =>
   </UModal>
   <UAccordion :items="items" size="lg" multiple>
     <template #item="{ item, index }">
-      <ElementsCardDiv>
-        <ElementsLabelSlot :label="'Тема проверки'">{{
-          item.description.theme
-        }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Информация'">{{
-          item.description.info
-        }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Дата записи'">
-          {{ new Date(item.description.created).toLocaleString("ru-RU") }}
-        </ElementsLabelSlot>
-        <template v-if="editable" #footer>
-          <ElementsTabMenu
-            :item="'investigations'"
-            @cancel="modal = false"
-            @update="
-              inquisition = item.description;
-              modal = true;
-            "
-            @delete="deleteInquisition(item.description.id, index)"
-          />
-        </template>
-      </ElementsCardDiv>
+      <DivsInvestigateDiv
+        :item="item.description"
+        :editable="editable"
+        :index="index"
+        @cancel="modal = false"
+        @delete="deleteInquisition(item.description.id, index)"
+        @update="
+          inquisition = item.description;
+          modal = true;
+        "
+      />
     </template>
   </UAccordion>
 </template>
