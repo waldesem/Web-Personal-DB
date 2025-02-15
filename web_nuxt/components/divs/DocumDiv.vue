@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Document } from "@/types";
+import type { Passport } from "@/types";
 
 const authFetch = useFetchAuth();
 
@@ -8,16 +8,16 @@ const editable = inject("editable") as Ref<boolean>;
 
 const modal = ref(false);
 const pending = ref(false);
-const doc = ref({} as Document);
-const documents = ref<Document[]>([]);
+const doc = ref({} as Passport);
+const documents = ref<Passport[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("documents", async () => {
   documents.value = (await authFetch(
     "/route/items/documents/" + candId.value
-  )) as Document[];
+  )) as Passport[];
 });
 
-async function submitDocument(form: Document) {
+async function submitDocument(form: Passport) {
   modal.value = false;
   pending.value = true;
   const { message } = (await authFetch(
@@ -28,7 +28,7 @@ async function submitDocument(form: Document) {
     }
   )) as Record<string, string>;
   pending.value = false;
-  doc.value = {} as Document;
+  doc.value = {} as Passport;
   await refresh();
   emitMessage(message);
 }
@@ -65,7 +65,7 @@ async function deleteDocument(id: string, idx: number) {
       <FormsDocumentForm
         :docs="doc"
         @cancel="
-          doc = {} as Document;
+          doc = {} as Passport;
           modal = false;
         "
         @update="submitDocument"

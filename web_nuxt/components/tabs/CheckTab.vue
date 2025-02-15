@@ -65,11 +65,7 @@ const items = computed(() =>
       @click="modal = !modal"
     />
   </div>
-  <UModal
-    v-model="modal"
-    prevent-close
-    :ui="{ width: 'sm:max-w-4xl' }"
-  >
+  <UModal v-model="modal" prevent-close :ui="{ width: 'sm:max-w-4xl' }">
     <ElementsCardDiv>
       <FormsCheckForm
         :check="check"
@@ -163,9 +159,19 @@ const items = computed(() =>
           :label="'Комментарии'"
           >{{ item.description.comment }}
         </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Результат'">{{
-          item.description.conclusion
-        }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Результат'">
+          <UBadge
+            :color="
+              item.description.conclusion === 'СОГЛАСОВАНО'
+                ? 'green'
+                : item.description.conclusion === 'СОГЛАСОВАНО С КОММЕНТАРИЕМ'
+                ? 'primary'
+                : 'red'
+            "
+            :label="item.description.conclusion"
+            variant="solid"
+          />
+        </ElementsLabelSlot>
         <ElementsLabelSlot :label="'Дата записи'">
           {{ new Date(item.description.created).toLocaleString("ru-RU") }}
         </ElementsLabelSlot>

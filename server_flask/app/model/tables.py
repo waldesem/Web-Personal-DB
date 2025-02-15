@@ -308,6 +308,7 @@ class Poligrafs(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     theme: Mapped[str] = mapped_column(String(255), nullable=True)
     results: Mapped[str] = mapped_column(Text, nullable=True)
+    conclusion: Mapped[str] = mapped_column(String(255), nullable=True)
     created: Mapped[datetime] = mapped_column(
         DateTime,
         default=func.now(),

@@ -86,9 +86,19 @@ const items = computed(() =>
         <ElementsLabelSlot :label="'Тема проверки'">{{
           item.description.theme
         }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Результат'">{{
-          item.description.results
-        }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Результат'">
+          <UBadge
+            :color="
+              item.description.conclusion === 'БЕЗ ЗАМЕЧАНИЙ'
+                ? 'green'
+                : item.description.conclusion === 'С КОММЕНТАРИЯМИ'
+                ? 'primary'
+                : 'red'
+            "
+            :label="item.description.conclusion"
+            variant="soft"
+          />
+        </ElementsLabelSlot>
         <ElementsLabelSlot :label="'Дата записи'">
           {{ new Date(item.description.created).toLocaleString("ru-RU") }}
         </ElementsLabelSlot>

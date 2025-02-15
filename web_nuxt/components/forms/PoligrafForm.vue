@@ -35,6 +35,17 @@ const poligrafForm = ref(props.poligraf as Pfo);
         placeholder="Результат"
       />
     </UFormGroup>
+    <UFormGroup class="mb-3" label="Результат" name="conclusion" required>
+      <USelect
+        v-model.trim.lazy="poligrafForm.conclusion"
+        required
+        :options="[
+          'БЕЗ ЗАМЕЧАНИЙ',
+          'С КОММЕНТАРИЯМИ',
+          'НЕГАТИВ',
+        ]"
+      />
+    </UFormGroup>
     <ElementsBtnGroup @cancel="emit('cancel')" />
   </UForm>
 </template>

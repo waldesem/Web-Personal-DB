@@ -11,7 +11,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field, validator
 
-from .classes import Conclusions, Regions, Roles  # noqa: TC001
+from .classes import Conclusions, Decisions, Regions, Roles  # noqa: TC001
 
 
 class Login(BaseModel):
@@ -269,6 +269,7 @@ class Investigation(BaseModel):
     id: int | str | None = None
     theme: str
     info: str
+    conclusion: Decisions
 
 
 class Inquiry(BaseModel):

@@ -12,7 +12,7 @@ const props = defineProps({
     <div class="col-span-3">
       {{ props.label }}
     </div>
-    <div class="col-span-6 break-words">
+    <div class="col-span-9 break-words">
       <slot />
     </div>
   </div>

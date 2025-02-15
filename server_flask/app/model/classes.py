@@ -28,3 +28,11 @@ class Conclusions(Enum):
     comments = "СОГЛАСОВАНО С КОММЕНТАРИЕМ"
     denied = "ОТКАЗАНО В СОГЛАСОВАНИИ"
     cancel = "СНЯТ С ПРОВЕРКИ"
+
+
+class Decisions(Enum):
+    """Enum class for decisions."""
+
+    agreed = "БЕЗ ЗАМЕЧАНИЙ"
+    comments = "С КОММЕНТАРИЯМИ"
+    denied = "НЕГАТИВ"

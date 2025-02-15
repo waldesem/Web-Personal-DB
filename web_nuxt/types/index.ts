@@ -91,7 +91,7 @@ export interface Staff {
   created: string;
 }
 
-export interface Document {
+export interface Passport {
   id: string;
   view: string;
   series: string;
@@ -160,6 +160,7 @@ export interface Pfo {
   id: string;
   theme: string;
   results: string;
+  conclusion: string;
   user_id: string;
   created: string;
 }

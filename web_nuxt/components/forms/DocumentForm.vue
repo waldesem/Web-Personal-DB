@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import type { Document } from "@/types";
+import type { Passport } from "@/types";
 
 const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
   docs: {
-    type: Object as () => Document,
-    default: {} as Document,
+    type: Object as () => Passport,
+    default: {} as Passport,
   },
 });
 
-const docForm = ref(props.docs as Document);
+const docForm = ref(props.docs as Passport);
 docForm.value.issue = docForm.value.issue
   ? new Date(docForm.value.issue).toISOString().split("T", 1)[0]
   : "";
 
-const validate = (state: Document) => {
+const validate = (state: Passport) => {
   const errors = [];
   if (state.issue && !state.issue.match(/^\d{4}-\d{2}-\d{2}$/)) {
     errors.push({
