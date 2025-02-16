@@ -79,17 +79,20 @@ const items = computed(() =>
   </UModal>
   <UAccordion :items="items" size="lg" multiple>
     <template #item="{ item, index }">
-      <DivsCheckDiv
-        :item="item.description"
-        :editable="editable"
-        :index="index"
-        @cancel="modal = false"
-        @delete="deleteCheck(item.description.id, index)"
-        @update="
-          check = item.description;
-          modal = true;
-        "
-      />
+      <ElementsCardDiv>
+        <DivsCheckDiv :item="item.description" />
+        <template v-if="editable" #footer>
+          <ElementsTabMenu
+            :item="'checks'"
+            @cancel="modal = false"
+            @delete="deleteCheck(item.description.id, index)"
+            @update="
+              check = item.description;
+              modal = true;
+            "
+          />
+        </template>
+      </ElementsCardDiv>
     </template>
   </UAccordion>
 </template>

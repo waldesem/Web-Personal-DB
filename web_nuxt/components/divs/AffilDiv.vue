@@ -74,13 +74,7 @@ async function deleteAffilation(id: string, idx: number) {
   </UModal>
   <div v-for="(item, idx) in affilations" :key="idx" class="p-1">
     <ElementsCardDiv>
-      <ElementsLabelSlot :label="'Тип участия'">{{
-        item.view
-      }}</ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Организация'">{{
-        item.organization
-      }}</ElementsLabelSlot>
-      <ElementsLabelSlot :label="'ИНН'">{{ item.inn }}</ElementsLabelSlot>
+      <DivsItemsAffilItem :item="item" />
       <template v-if="editable" #footer>
         <ElementsDivMenu
           @delete="deleteAffilation(item.id, idx)"

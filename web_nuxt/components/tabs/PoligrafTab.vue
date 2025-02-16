@@ -82,17 +82,20 @@ const items = computed(() =>
   </UModal>
   <UAccordion :items="items" size="lg" multiple>
     <template #item="{ item, index }">
-      <DivsPoligrafDiv
-        :item="item.description"
-        :index="index"
-        :editable="editable"
-        @cancel="modal = false"
-        @update="
-          poligraf = item.description;
-          modal = true;
-        "
-        @delete="deletePoligraf(item.description.id, index)"
-      />
+      <ElementsCardDiv>
+        <DivsPoligrafDiv :item="item.description" />
+        <template v-if="editable" #footer>
+          <ElementsTabMenu
+            :item="'poligrafs'"
+            @cancel="modal = false"
+            @update="
+              poligraf = item.description;
+              modal = true;
+            "
+            @delete="deletePoligraf(item.description.id, index)"
+          />
+        </template>
+      </ElementsCardDiv>
     </template>
   </UAccordion>
 </template>

@@ -74,10 +74,7 @@ async function deleteContact(id: string, idx: number) {
   </UModal>
   <div v-for="(item, idx) in contacts" :key="idx" class="p-1">
     <ElementsCardDiv>
-      <ElementsLabelSlot :label="'Вид'">{{ item.view }}</ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Контакт'">{{
-        item.contact
-      }}</ElementsLabelSlot>
+      <DivsItemsContactItem :item="item" />
       <template v-if="editable" #footer>
         <ElementsDivMenu
           @delete="deleteContact(item.id, idx)"

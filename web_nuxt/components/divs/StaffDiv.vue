@@ -71,12 +71,7 @@ async function deleteStaff(id: string, idx: number) {
   </UModal>
   <div v-for="(item, idx) in staffs" :key="idx" class="p-1">
     <ElementsCardDiv>
-      <ElementsLabelSlot :label="'Должность'">{{
-        item.position
-      }}</ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Департамент'">{{
-        item.department
-      }}</ElementsLabelSlot>
+      <DivsItemsStaffItem :item="item" />
       <template v-if="editable" #footer>
         <ElementsDivMenu
           @delete="deleteStaff(item.id, idx)"

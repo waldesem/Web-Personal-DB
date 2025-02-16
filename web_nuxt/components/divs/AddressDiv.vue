@@ -74,10 +74,7 @@ async function deleteAddress(id: string, idx: number) {
   </UModal>
   <div v-for="(item, idx) in addresses" :key="idx" class="p-1">
     <ElementsCardDiv>
-      <ElementsLabelSlot :label="'Тип'">{{ item.view }}</ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Адрес'">{{
-        item.addresses
-      }}</ElementsLabelSlot>
+      <DivsItemsAddressItem :item="item" />
       <template v-if="editable" #footer>
         <ElementsDivMenu
           @delete="deleteAddress(item.id, idx)"

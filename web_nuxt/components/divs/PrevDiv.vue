@@ -74,21 +74,7 @@ async function deletePrevious(id: string, idx: number) {
   </UModal>
   <div v-for="(item, idx) in previous" :key="idx" class="p-1">
     <ElementsCardDiv>
-      <ElementsLabelSlot :label="'Фамилия'">
-        {{ item.surname }}
-      </ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Имя'">
-        {{ item.firstname }}
-      </ElementsLabelSlot>
-      <ElementsLabelSlot v-if="item['patronymic']" :label="'Отчество'">
-        {{ item.patronymic }}
-      </ElementsLabelSlot>
-      <ElementsLabelSlot v-if="item['changed']" :label="'Год изменения'">
-        {{ item.changed }}
-      </ElementsLabelSlot>
-      <ElementsLabelSlot v-if="item['reason']" :label="'Причина'">
-        {{ item.reason }}
-      </ElementsLabelSlot>
+      <DivsItemsPrevItem :item="item" />
       <template v-if="editable" #footer>
         <ElementsDivMenu
           @delete="deletePrevious(item.id, idx)"

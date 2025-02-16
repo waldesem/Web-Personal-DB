@@ -68,48 +68,7 @@ async function deleteItem() {
       </div>
     </div>
     <div v-else>
-      <ElementsLabelSlot :label="'Фамилия'">
-        {{ person.surname }}
-      </ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Имя'">
-        {{ person.firstname }}
-      </ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Отчество'">
-        {{ person.patronymic }}
-      </ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Дата рождения'">
-        {{ new Date(person.birthday).toLocaleDateString("ru-RU") }}
-      </ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Место рождения'">
-        {{ person.birthplace }}
-      </ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Гражданство'">
-        {{ person.citizenship }}
-      </ElementsLabelSlot>
-      <ElementsLabelSlot v-if="person.dual" :label="'Двойное гражданство'">
-        {{ person.dual }}
-      </ElementsLabelSlot>
-      <ElementsLabelSlot :label="'СНИЛС'">
-        {{ person.snils }}
-      </ElementsLabelSlot>
-      <ElementsLabelSlot :label="'ИНН'">
-        {{ person.inn }}
-      </ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Семейное положение'">
-        {{ person.marital }}
-      </ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Дата записи'">
-        {{ new Date(person.created).toLocaleString("ru-RU") }}
-      </ElementsLabelSlot>
-      <ElementsLabelSlot
-        v-if="person.addition"
-        :label="'Дополнительная информация'"
-      >
-        {{ person.addition }}
-      </ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Материалы'">
-        {{ person.destination }}
-      </ElementsLabelSlot>
+      <DivsItemsResumeItem :item="person" />
     </div>
     <template v-if="editable" #footer>
       <ElementsTabMenu

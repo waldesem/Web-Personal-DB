@@ -74,21 +74,7 @@ async function deleteDocument(id: string, idx: number) {
   </UModal>
   <div v-for="(item, idx) in documents" :key="idx" class="p-1">
     <ElementsCardDiv>
-      <ElementsLabelSlot :label="'Вид документа'">{{
-        item.view
-      }}</ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Серия документа'">{{
-        item.series
-      }}</ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Номер документа'">{{
-        item.digits
-      }}</ElementsLabelSlot>
-      <ElementsLabelSlot v-if="item.issue" :label="'Дата выдачи'">
-        {{ new Date(item.issue).toLocaleDateString("ru-RU").split(",")[0] }}
-      </ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Кем выдан'">{{
-        item.agency
-      }}</ElementsLabelSlot>
+      <DivsItemsDocumItem :item="item" />
       <template v-if="editable" #footer>
         <ElementsDivMenu
           @delete="deleteDocument(item.id, idx)"

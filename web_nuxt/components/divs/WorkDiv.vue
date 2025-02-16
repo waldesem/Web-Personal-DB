@@ -74,27 +74,7 @@ async function deleteWork(id: string, idx: number) {
   </UModal>
   <div v-for="(item, idx) in workplaces" :key="idx" class="p-1">
     <ElementsCardDiv>
-      <ElementsLabelSlot v-if="item.now_work" :label="'Текущая работа'">
-        {{ item.now_work ? "Да" : "Нет" }}
-      </ElementsLabelSlot>
-      <ElementsLabelSlot v-if="item.starts" :label="'Начало работы'">
-        {{ new Date(item.starts).toLocaleDateString("ru-RU").split(",")[0] }}
-      </ElementsLabelSlot>
-      <ElementsLabelSlot v-if="item.finished" :label="'Окончание работы'">
-        {{ new Date(item.finished).toLocaleDateString("ru-RU").split(",")[0] }}
-      </ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Место работы'">
-        {{ item.workplace }}
-      </ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Адрес'">
-        {{ item.addresses }}
-      </ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Должность'">
-        {{ item.position }}
-      </ElementsLabelSlot>
-      <ElementsLabelSlot v-if="item.reason" :label="'Причина увольнения'">
-        {{ item.reason }}
-      </ElementsLabelSlot>
+      <DivsItemsWorkItem :item="item" />
       <template v-if="editable" #footer>
         <ElementsDivMenu
           @delete="deleteWork(item.id, idx)"

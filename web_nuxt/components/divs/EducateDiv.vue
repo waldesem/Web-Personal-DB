@@ -74,18 +74,7 @@ async function deleteEducation(id: string, idx: number) {
   </UModal>
   <div v-for="(item, idx) in educations" :key="idx" class="p-1">
     <ElementsCardDiv>
-      <ElementsLabelSlot :label="'Уровень образования'">{{
-        item.view
-      }}</ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Название учебного заведения'">{{
-        item.institution
-      }}</ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Год окончания'">{{
-        item.finished
-      }}</ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Специальность'">{{
-        item.specialty
-      }}</ElementsLabelSlot>
+      <DivsItemsEducateItem :item="item" />
       <template v-if="editable" #footer>
         <ElementsDivMenu
           @delete="deleteEducation(item.id, idx)"
