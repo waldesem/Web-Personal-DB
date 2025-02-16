@@ -19,8 +19,8 @@
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.0.0",
-    "@vueuse/core": "^12.2.0",
-    "@vueuse/nuxt": "^12.2.0",
+    "@vueuse/core": "^12.7.0",
+    "@vueuse/nuxt": "^12.7.0",
     "tsx": "^4.19.1",
     "vue-tsc": "^2.2.0"
   }
