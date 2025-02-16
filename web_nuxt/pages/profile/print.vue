@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { dataPerson } from "@/composables/personData";
-
 definePageMeta({ layout: false });
 </script>
 

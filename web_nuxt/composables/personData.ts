@@ -1,4 +1,3 @@
-import { useStorage } from "@vueuse/core";
 import type {
   Address,
   Affilation,
@@ -10,18 +9,14 @@ import type {
   Passport,
   Persons,
   Previous,
-  Relation,
-  Relationship,
   Staff,
   Verification,
   Work,
 } from "@/types";
 
 
-export const dataPerson = useStorage("dataPerson", {
+export const dataPerson = ref({
   person: {} as Persons,
-  relations: [] as Relation[],
-  relationships: [] as Relationship[],
   previous: [] as Previous[],
   educations: [] as Education[],
   staffs: [] as Staff[],
