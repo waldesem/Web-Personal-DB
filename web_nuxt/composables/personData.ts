@@ -10,12 +10,14 @@ import type {
   Persons,
   Previous,
   Staff,
+  Token,
   Verification,
   Work,
 } from "@/types";
 
+export const stateUser = ref({} as Token);
 
-export const dataPerson = ref({
+export const statePerson = ref({
   person: {} as Persons,
   previous: [] as Previous[],
   educations: [] as Education[],

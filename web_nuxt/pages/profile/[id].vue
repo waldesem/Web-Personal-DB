@@ -173,6 +173,7 @@ async function changeRegion(): Promise<void> {
             icon="i-heroicons-printer"
             size="sm"
             variant="outline"
+            disabled
             @click="navigateTo('/profile/print')"
           />
         </UTooltip>

@@ -11,5 +11,5 @@ const props = defineProps({
 
 <template>
   <ElementsLabelSlot :label="'Тип'">{{ props.item.view }}</ElementsLabelSlot>
-  <ElementsLabelSlot :label="'Адрес'">{{props.item.addresses}}</ElementsLabelSlot>
+  <ElementsLabelSlot :label="'Адрес'">{{ props.item.addresses }}</ElementsLabelSlot>
 </template>

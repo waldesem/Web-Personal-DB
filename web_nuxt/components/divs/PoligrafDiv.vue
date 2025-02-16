@@ -13,7 +13,11 @@ const props = defineProps({
   <ElementsLabelSlot :label="'Тема проверки'">{{
     props.item.theme
   }}</ElementsLabelSlot>
-  <ElementsLabelSlot :label="'Результат'">
+  <ElementsLabelSlot :label="'Результат'">{{
+    props.item.results
+  }}
+  </ElementsLabelSlot>
+  <ElementsLabelSlot :label="'Заключение'">
     <UBadge
       :color="
         props.item.conclusion === 'БЕЗ ЗАМЕЧАНИЙ'

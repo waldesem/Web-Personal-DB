@@ -68,7 +68,7 @@ async function deleteItem() {
       </div>
     </div>
     <div v-else>
-      <DivsItemsResumeItem :item="person" />
+      <DivsItemsResumeItem :person="person" />
     </div>
     <template v-if="editable" #footer>
       <ElementsTabMenu

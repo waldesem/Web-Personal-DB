@@ -259,6 +259,12 @@ class Poligraf(BaseModel):
     id: int | str | None = None
     theme: str
     results: str
+    conclusion: Decisions
+
+    class Config:
+        """Pydantic config."""
+
+        use_enum_values = True
 
 
 class Investigation(BaseModel):
@@ -269,7 +275,6 @@ class Investigation(BaseModel):
     id: int | str | None = None
     theme: str
     info: str
-    conclusion: Decisions
 
 
 class Inquiry(BaseModel):
