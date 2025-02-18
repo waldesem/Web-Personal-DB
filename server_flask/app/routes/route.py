@@ -33,7 +33,7 @@ def get_index(page: int) -> Response:
         else True,
     )
     if search:
-        search = search.upper().split(maxsplit=2)[:3]
+        search = search.upper().split()[:3]
         stmt = stmt.filter(
             Persons.surname == search[0],
             Persons.firstname == search[1] if len(search) > 1 else True,
