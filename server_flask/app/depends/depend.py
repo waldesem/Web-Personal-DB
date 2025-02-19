@@ -33,12 +33,14 @@ def get_current_user(user_id: int) -> Users | Response:
     user = db_session.get(Users, user_id)
     return (
         user
-        if (
-            user
-            and not user.blocked
-            and not user.deleted
-            and not user.change_pswd
-            and user.pswd_create + timedelta(days=365) > datetime.now()
+        if all(
+            (
+                user,
+                not user.blocked,
+                not user.deleted,
+                not user.change_pswd,
+                user.pswd_create + timedelta(days=365) > datetime.now(),
+            ),
         )
         else abort(401)
     )
