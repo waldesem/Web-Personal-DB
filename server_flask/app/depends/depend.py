@@ -46,7 +46,7 @@ def get_current_user(user_id: int) -> Users | Response:
     )
 
 
-def jwt_required() -> Callable:
+def jwt_required(verify_exp: bool = True) -> Callable:
     """Decorate a function that checks if the request contains a valid JWT token.
 
     The decorated function checks if the request contains a valid JWT token in the
@@ -55,6 +55,7 @@ def jwt_required() -> Callable:
 
     Args:
         func (function): The function to be decorated.
+        verify_exp: check token expired 
 
     Returns:
         function: The decorated function.
@@ -70,6 +71,7 @@ def jwt_required() -> Callable:
                     header[7:],
                     current_app.config["JWT_SECRET_KEY"],
                     algorithms=["HS256"],
+                    options={"verify_exp": verify_exp}
                 )
                 if user.get("id"):
                     g.user_id = user["id"]
