@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Contact } from "@/types";
 
+await preloadComponents("DivsItemsContactItem");
+
 const authFetch = useFetchAuth();
 
 const candId = inject("candId") as Ref<string>;

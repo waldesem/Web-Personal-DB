@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Passport } from "@/types";
 
+await preloadComponents("DivsItemsDocumItem");
+
 const authFetch = useFetchAuth();
 
 const candId = inject("candId") as Ref<string>;

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Education } from "@/types";
 
+await preloadComponents("DivsItemsEducateItem");
+
 const authFetch = useFetchAuth();
 
 const candId = inject("candId") as Ref<string>;

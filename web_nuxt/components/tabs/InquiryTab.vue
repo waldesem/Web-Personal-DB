@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { Needs } from "@/types";
 
-prefetchComponents("FormsInquiryForm");
+await preloadComponents("DivsInquiryDiv");
+await prefetchComponents("FormsInquiryForm");
 
 const authFetch = useFetchAuth();
 

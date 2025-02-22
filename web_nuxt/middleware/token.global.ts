@@ -3,6 +3,9 @@ import type { Token } from "@/types";
 
 export default defineNuxtRouteMiddleware((to) => {
   if (to.path !== "/login") {
+    if (!accessToken.value) {
+      return navigateTo("/login");
+    }
     try {
       const bearer = accessToken.value.split(" ")[1];
       const { payload } = useJwt(bearer);

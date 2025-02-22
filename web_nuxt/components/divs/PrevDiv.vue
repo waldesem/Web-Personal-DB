@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Previous } from "@/types";
 
+await preloadComponents("DivsItemsPrevItem");
+
 const authFetch = useFetchAuth();
 
 const candId = inject("candId") as Ref<string>;

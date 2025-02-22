@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Affilation } from "@/types";
 
+await preloadComponents("DivsItemsAffilItem");
+
 const authFetch = useFetchAuth();
 
 const candId = inject("candId") as Ref<string>;

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Persons } from "@/types";
 
+await preloadComponents("DivsItemsResumeItem");
+
 const emit = defineEmits(["update"]);
 
 const authFetch = useFetchAuth();

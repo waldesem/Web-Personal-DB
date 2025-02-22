@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Staff } from "@/types";
 
+await preloadComponents("DivsItemsStaffItem");
+
 const authFetch = useFetchAuth();
 
 const candId = inject("candId") as Ref<string>;

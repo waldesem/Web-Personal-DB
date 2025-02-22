@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Address } from "@/types";
 
+await preloadComponents("DivsItemsAddressItem");
+
 const authFetch = useFetchAuth();
 
 const candId = inject("candId") as Ref<string>;

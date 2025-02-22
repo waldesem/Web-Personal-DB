@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { Pfo } from "@/types";
 
-prefetchComponents("FormsPoligrafForm");
+await preloadComponents("DivsPoligrafDiv");
+await prefetchComponents("FormsPoligrafForm");
 
 const authFetch = useFetchAuth();
 
