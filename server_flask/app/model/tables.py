@@ -32,7 +32,9 @@ from config import Config
 from .classes import Regions, Roles
 
 engine = create_engine(Config.DATABASE_URI)
-db_session = scoped_session(sessionmaker(autoflush=False, bind=engine))
+db_session = scoped_session(
+    sessionmaker(bind=engine, autoflush=False, autocommit=False),
+)
 
 
 class Base(DeclarativeBase):

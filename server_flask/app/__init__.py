@@ -42,11 +42,10 @@ def create_app(config_class: Config = Config) -> Flask:
 
     @app.teardown_appcontext
     def shutdown_session(
-        response_or_exc: Response | HTTPException | None = None,
-    ) -> Response | HTTPException | None:
+        exception: Exception | None = None,  # noqa: ARG001
+    ) -> None:
         """Close the database session after each request or exception."""
         db_session.remove()
-        return response_or_exc
 
     @app.get("/", defaults={"path": ""})
     def main(path: str = "") -> str:  # noqa: ARG001
