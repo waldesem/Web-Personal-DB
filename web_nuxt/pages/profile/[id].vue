@@ -8,6 +8,11 @@ await preloadComponents([
   "TabsInvestigateTab",
   "TabsInquiryTab",
 ]);
+await prefetchComponents([
+  "ElementsCardDiv",
+  "ElementsDivMenu",
+  "ElementsTabMenu",
+]);
 
 const authFetch = useFetchAuth();
 
