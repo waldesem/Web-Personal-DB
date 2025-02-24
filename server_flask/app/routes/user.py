@@ -17,6 +17,7 @@ bp = Blueprint("users", __name__)
 
 
 @bp.get("/users")
+@roles_required(Roles.admin.value)
 def get_users() -> Response:
     """Retrieve a list of users from the database.
 
@@ -48,7 +49,6 @@ class UserView(MethodView):
     decorators: ClassVar = [roles_required(Roles.admin.value)]
 
     @validate()
-    @roles_required(Roles.admin.value)
     def get(self, user_id: int, query_data: UserActions) -> Response:
         """Change a user's information in the database based on their user ID.
 
