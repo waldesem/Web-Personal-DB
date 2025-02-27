@@ -157,8 +157,8 @@ async function submitResume(form: Persons): Promise<void> {
         { key: 'region', label: 'Регион' },
         { key: 'surname', label: 'Фамилия Имя Отчество' },
         { key: 'birthday', label: 'Дата рождения' },
-        { key: 'created', label: 'Обновлено' },
         { key: 'username', label: 'Сотрудник' },
+        { key: 'created', label: 'Обновлено' },
         { key: 'editable', label: 'Статус' },
       ]"
       :rows="candidates"
@@ -176,11 +176,11 @@ async function submitResume(form: Persons): Promise<void> {
       <template #birthday-data="{ row }">{{
         new Date(row.birthday).toLocaleDateString("ru-RU")
       }}</template>
-      <template #created-data="{ row }">{{
-        new Date(row.created).toLocaleDateString("ru-RU")
-      }}</template>
       <template #username-data="{ row }">{{
         row.username ? row.username.toString().split(" ")[0] : ""
+      }}</template>
+      <template #created-data="{ row }">{{
+        new Date(row.created).toLocaleDateString("ru-RU")
       }}</template>
       <template #editable-data="{ row }">
         <UTooltip
