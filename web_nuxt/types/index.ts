@@ -34,6 +34,13 @@ export interface Token {
   exp: number;
 }
 
+export interface Message {
+  id: string;
+  theme: string;
+  message: string;
+  created: string;
+}
+
 export interface Persons {
   id: string;
   surname: string;

@@ -1,4 +1,26 @@
 <script setup lang="ts">
+import type { Message } from "@/types";
+
+const authFetch = useFetchAuth();
+
+const messages = ref([] as Message[]);
+const updated = ref("Данные обновляются...");
+
+const { refresh, status } = await useLazyAsyncData("messages", async () => {
+  messages.value = (await authFetch("/route/messages")) as Message[];
+  updated.value = new Date().toLocaleTimeString("ru-RU");
+});
+
+async function clearMessages() {
+  if (confirm("Вы действительно хотите очистить сообщения?")) {
+    await authFetch("/route/messages", {
+      method: "DELETE",
+    });
+    messages.value = [];
+    updated.value = new Date().toLocaleTimeString("ru-RU");
+  }
+}
+
 async function logout() {
   if (confirm("Вы действительно хотите выйти?")) {
     accessToken.value = "";
@@ -24,6 +46,8 @@ const links = [
     },
   ],
 ];
+
+const isOpen = ref(false);
 </script>
 
 <template>
@@ -57,6 +81,16 @@ const links = [
         />
       </div>
       <div class="flex items-center justify-end">
+        <UTooltip :text="messages.length ? 'Есть непрочитанные сообщения' : 'Новых сообщений нет'">
+          <UButton
+            :icon="messages.length ? 'i-heroicons-bell-alert' : 'i-heroicons-bell'"
+            :color="messages.length ? 'blue' : 'white'"
+            variant="ghost"
+            :loading="status == 'pending'"
+            :disabled="!messages.length"
+            @click="isOpen = true"
+          />
+        </UTooltip>
         <UTooltip text="Выход">
           <UButton
             :label="stateUser.username"
@@ -71,5 +105,37 @@ const links = [
     <div>
       <slot />
     </div>
+    <USlideover v-model="isOpen" :overlay="false">
+      <div class="flex items-center justify-between mb-3">
+        <UTooltip text="Обновить">
+          <UButton
+            icon="i-heroicons-arrow-path"
+            variant="ghost"
+            @click="refresh"
+          />
+        </UTooltip>
+        <UTooltip text="Очистить">
+          <UButton
+            icon="i-heroicons-x-mark"
+            variant="ghost"
+            @click="clearMessages"
+          />
+        </UTooltip>
+      </div>
+      <div class="text-sm font-bold py-1">
+        {{ `Обновлено: ${updated}` }}
+      </div>
+      <div v-for="item in messages" :key="item.id" :item="item">
+        <ElementsCardDiv>
+          <template #header>
+            {{ item.theme }}
+          </template>
+          {{ item.message }}
+          <template #footer>
+            {{ item.created }}
+          </template>
+        </ElementsCardDiv>
+      </div>
+    </USlideover>
   </UContainer>
 </template>

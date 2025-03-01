@@ -86,6 +86,33 @@ association_table = Table(
 )
 
 
+class Messages(Base):
+    """Message model.
+
+    CREATE TABLE messages (
+        id SERIAL PRIMARY KEY,
+        theme VARCHAR(255) NOT NULL,
+        message TEXT NOT NULL,
+        created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        user_id INTEGER NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users(id),
+        UNIQUE (id)
+    );
+    """
+
+    __tablename__ = "messages"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    theme: Mapped[str] = mapped_column(String(255), nullable=False)
+    message: Mapped[str] = mapped_column(Text, nullable=False)
+    created: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=func.now(),
+        nullable=True,
+    )
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+
+
 class Persons(Base):
     """Person model."""
 

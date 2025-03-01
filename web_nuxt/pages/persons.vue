@@ -157,9 +157,9 @@ async function submitResume(form: Persons): Promise<void> {
         { key: 'region', label: 'Регион' },
         { key: 'surname', label: 'Фамилия Имя Отчество' },
         { key: 'birthday', label: 'Дата рождения' },
-        { key: 'username', label: 'Сотрудник' },
-        { key: 'created', label: 'Обновлено' },
         { key: 'editable', label: 'Статус' },
+        { key: 'created', label: 'Обновлено' },
+        { key: 'username', label: 'Сотрудник' },
       ]"
       :rows="candidates"
       @select="navigateTo(`/profile/${$event.id}`)"
@@ -176,12 +176,6 @@ async function submitResume(form: Persons): Promise<void> {
       <template #birthday-data="{ row }">{{
         new Date(row.birthday).toLocaleDateString("ru-RU")
       }}</template>
-      <template #username-data="{ row }">{{
-        row.username ? row.username.toString().split(" ")[0] : ""
-      }}</template>
-      <template #created-data="{ row }">{{
-        new Date(row.created).toLocaleDateString("ru-RU")
-      }}</template>
       <template #editable-data="{ row }">
         <UTooltip
           :text="row.editable ? 'Анкета редактируется' : 'Анкета обновлена'"
@@ -196,7 +190,13 @@ async function submitResume(form: Persons): Promise<void> {
             :class="{ 'animate-spin text-red-800': row.editable }"
           />
         </UTooltip>
-      </template>
+      </template>      
+      <template #created-data="{ row }">{{
+        new Date(row.created).toLocaleDateString("ru-RU")
+      }}</template>      
+      <template #username-data="{ row }">{{
+        row.username ? row.username.toString().split(" ")[0] : ""
+      }}</template>
       <template #caption>
         <caption class="caption-bottom text-left mt-2">
           <UButton
