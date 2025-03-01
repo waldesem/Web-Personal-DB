@@ -111,7 +111,7 @@ const isOpen = ref(false);
           <UButton
             icon="i-heroicons-arrow-path"
             variant="ghost"
-            @click="refresh"
+            @click="refresh()"
           />
         </UTooltip>
         <UTooltip text="Очистить">
