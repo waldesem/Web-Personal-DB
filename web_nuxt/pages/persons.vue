@@ -19,14 +19,19 @@ const candidates = ref([] as Persons[]);
 const { refresh, status } = await useLazyAsyncData(
   "candidates",
   async () => {
-    [candidates.value, hasNext.value] = (await authFetch(
+    const { results, has_next } = (await authFetch(
       "/route/index/" + page.value,
       {
         params: {
           search: search.value,
         },
       }
-    )) as [Persons[], boolean];
+    )) as Record<string, unknown> as {
+      results: Persons[];
+      has_next: boolean;
+    };
+    candidates.value = results;
+    hasNext.value = has_next;
     updated.value = new Date().toLocaleTimeString("ru-RU");
   },
   {
@@ -190,10 +195,10 @@ async function submitResume(form: Persons): Promise<void> {
             :class="{ 'animate-spin text-red-800': row.editable }"
           />
         </UTooltip>
-      </template>      
+      </template>
       <template #created-data="{ row }">{{
         new Date(row.created).toLocaleDateString("ru-RU")
-      }}</template>      
+      }}</template>
       <template #username-data="{ row }">{{
         row.username ? row.username.toString().split(" ")[0] : ""
       }}</template>

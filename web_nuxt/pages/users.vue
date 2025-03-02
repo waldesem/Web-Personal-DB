@@ -21,15 +21,16 @@ const filtredUsers = computed(() => {
 });
 
 const { refresh, status } = await useLazyAsyncData("users", async () => {
-  users.value = (await fetchAuth("/route/users", {
+  const data = (await fetchAuth("/route/users", {
     params: {
       search: search.value,
     },
   })) as User[];
+  users.value = data;
 });
 
 async function getUser(id: string): Promise<void> {
-  user.value = await fetchAuth("/route/user/" + id) as User;
+  user.value = (await fetchAuth("/route/user/" + id)) as User;
   modalProfile.value = true;
 }
 
@@ -55,7 +56,7 @@ watchDebounced(
     </div>
     <div class="flex items-center justify-between mb-4">
       <UFormGroup class="flex items-center space-x-4 mb-3" label="Удаленные">
-        <UToggle v-model="viewDeleted"/>
+        <UToggle v-model="viewDeleted" />
       </UFormGroup>
       <UButton
         variant="link"

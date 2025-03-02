@@ -6,19 +6,17 @@ const authFetch = useFetchAuth();
 const route = useRoute();
 
 const messages = ref([] as Message[]);
-const updated = ref(new Date().toLocaleString("ru-RU"));
+const updated = ref(new Date());
 
 const { refresh, status } = await useLazyAsyncData("messages", async () => {
   messages.value = (await authFetch("/route/messages")) as Message[];
-  updated.value = new Date().toLocaleString("ru-RU");
+  updated.value = new Date();
 });
 
 watch(route, () => {
-  console.log(new Date())
-  console.log(new Date(updated.value))
   if (
     route.path == "/persons" &&
-    new Date().getTime() - new Date(updated.value).getTime() > 1000*3600
+    new Date().getTime() - updated.value.getTime() > 1000 * 600
   )
     refresh();
 });
@@ -29,7 +27,7 @@ async function clearMessages() {
       method: "DELETE",
     });
     messages.value = [];
-    updated.value = new Date().toLocaleTimeString("ru-RU");
+    updated.value = new Date();
   }
 }
 
@@ -135,7 +133,7 @@ const isOpen = ref(false);
             />
           </UTooltip>
           <div class="text-sm font-bold">
-            {{ `Обновлено: ${updated}` }}
+            {{ `Обновлено: ${updated.toLocaleString("ru-RU")}` }}
           </div>
           <UTooltip text="Очистить">
             <UButton

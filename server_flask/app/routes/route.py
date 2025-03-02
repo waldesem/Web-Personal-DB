@@ -47,7 +47,10 @@ def get_index(page: int) -> Response:
     result = [row[0].to_dict() | {"username": row[1]} for row in query]
     has_next = len(result) > pagination
     return jsonify(
-        [result[:pagination] if has_next else result, has_next],
+        {
+            "results": result[:pagination] if has_next else result,
+            "has_next": has_next,
+        },
     ), 200
 
 
