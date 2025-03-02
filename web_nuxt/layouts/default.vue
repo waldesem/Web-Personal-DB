@@ -3,12 +3,24 @@ import type { Message } from "@/types";
 
 const authFetch = useFetchAuth();
 
+const route = useRoute();
+
 const messages = ref([] as Message[]);
-const updated = ref("Данные обновляются...");
+const updated = ref(new Date().toLocaleString("ru-RU"));
 
 const { refresh, status } = await useLazyAsyncData("messages", async () => {
   messages.value = (await authFetch("/route/messages")) as Message[];
-  updated.value = new Date().toLocaleTimeString("ru-RU");
+  updated.value = new Date().toLocaleString("ru-RU");
+});
+
+watch(route, () => {
+  console.log(new Date())
+  console.log(new Date(updated.value))
+  if (
+    route.path == "/persons" &&
+    new Date().getTime() - new Date(updated.value).getTime() > 1000*3600
+  )
+    refresh();
 });
 
 async function clearMessages() {
@@ -80,14 +92,21 @@ const isOpen = ref(false);
           :links="links"
         />
       </div>
-      <div class="flex items-center justify-end">
-        <UTooltip :text="messages.length ? 'Есть непрочитанные сообщения' : 'Новых сообщений нет'">
+      <div class="flex items-center justify-end space-x-4">
+        <UTooltip
+          :text="
+            messages.length
+              ? 'Есть непрочитанные сообщения'
+              : 'Новых сообщений нет'
+          "
+        >
           <UButton
-            :icon="messages.length ? 'i-heroicons-bell-alert' : 'i-heroicons-bell'"
-            :color="messages.length ? 'blue' : 'white'"
+            :icon="
+              messages.length ? 'i-heroicons-bell-alert' : 'i-heroicons-bell'
+            "
             variant="ghost"
+            size="xl"
             :loading="status == 'pending'"
-            :disabled="!messages.length"
             @click="isOpen = true"
           />
         </UTooltip>
@@ -106,35 +125,53 @@ const isOpen = ref(false);
       <slot />
     </div>
     <USlideover v-model="isOpen" :overlay="false">
-      <div class="flex items-center justify-between mb-3">
-        <UTooltip text="Обновить">
-          <UButton
-            icon="i-heroicons-arrow-path"
-            variant="ghost"
-            @click="refresh()"
-          />
-        </UTooltip>
-        <UTooltip text="Очистить">
-          <UButton
-            icon="i-heroicons-x-mark"
-            variant="ghost"
-            @click="clearMessages"
-          />
-        </UTooltip>
-      </div>
-      <div class="text-sm font-bold py-1">
-        {{ `Обновлено: ${updated}` }}
-      </div>
-      <div v-for="item in messages" :key="item.id" :item="item">
-        <ElementsCardDiv>
-          <template #header>
-            {{ item.theme }}
-          </template>
-          {{ item.message }}
-          <template #footer>
-            {{ item.created }}
-          </template>
-        </ElementsCardDiv>
+      <div class="p-1" style="overflow-y: scroll">
+        <div class="flex items-center justify-between m-3">
+          <UTooltip text="Обновить">
+            <UButton
+              icon="i-heroicons-arrow-path"
+              variant="ghost"
+              @click="refresh()"
+            />
+          </UTooltip>
+          <div class="text-sm font-bold">
+            {{ `Обновлено: ${updated}` }}
+          </div>
+          <UTooltip text="Очистить">
+            <UButton
+              icon="i-heroicons-trash"
+              variant="ghost"
+              @click="clearMessages"
+            />
+          </UTooltip>
+        </div>
+        <div v-for="item in messages" :key="item.id" :item="item" class="m-3">
+          <UCard
+            :ui="{
+              divide: '',
+              body: { padding: 'px-1 py-2 sm:p-2' },
+              header: {
+                padding: 'px-1 py-2 sm:p-2',
+                background: 'bg-gray-100',
+              },
+              footer: { padding: 'px-1 py-1 sm:p-1' },
+            }"
+          >
+            <template #header>
+              <div class="text-sm font-bold">
+                {{ item.theme }}
+              </div>
+            </template>
+            <div class="text-sm">
+              {{ item.message }}
+            </div>
+            <template #footer>
+              <div class="text-xs font-bold italic text-right">
+                {{ new Date(item.created).toLocaleString("ru-RU") }}
+              </div>
+            </template>
+          </UCard>
+        </div>
       </div>
     </USlideover>
   </UContainer>

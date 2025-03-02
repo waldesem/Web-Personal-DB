@@ -15,26 +15,25 @@ bp = Blueprint("messages", __name__)
 class MessagesRoute(MethodView):
     """Message routes."""
 
-    decorators: ClassVar = [jwt_required]
+    decorators: ClassVar = [jwt_required()]
 
-    @jwt_required
     def get(self) -> Response:
         """Get messages."""
         messages = db_session.execute(
             select(Messages)
             .filter_by(user_id=current_user.id)
             .order_by(desc(Messages.id))
-            .limit(10),
+            .limit(12),
         ).scalars()
         return jsonify([row.to_dict() for row in messages]), 200
 
-    @jwt_required
     def delete(self) -> Response:
         """Delete messages."""
         db_session.execute(
             text("DELETE FROM messages WHERE user_id = :user_id"),
             {"user_id": current_user.id},
         )
+        db_session.commit()
         return "", 201
 
 
