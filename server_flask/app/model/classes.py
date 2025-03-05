@@ -33,6 +33,6 @@ class Conclusions(Enum):
 class Decisions(Enum):
     """Enum class for decisions."""
 
-    agreed = "БЕЗ ЗАМЕЧАНИЙ"
+    agreed = "БЕЗ ЗАМЕЧАНИЙ"
     comments = "С КОММЕНТАРИЯМИ"
     denied = "НЕГАТИВ"
