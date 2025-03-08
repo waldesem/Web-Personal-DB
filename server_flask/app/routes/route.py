@@ -26,6 +26,8 @@ def get_index(page: int) -> Response:
     """
     pagination = 11
     search = request.args.get("search")
+    editable = request.args.get("editable")
+    editable = editable == "true"
     stmt = select(Persons, Users.fullname).filter(
         Persons.user_id == Users.id,
         Persons.region == current_user.region
@@ -39,6 +41,8 @@ def get_index(page: int) -> Response:
             Persons.firstname == search[1] if len(search) > 1 else True,
             Persons.patronymic == search[2] if len(search) > 2 else True,  # noqa: PLR2004
         )
+    if editable:
+        stmt = stmt.filter(Persons.editable == editable)
     query = db_session.execute(
         stmt.order_by(desc(Persons.id))
         .offset((page - 1) * pagination)

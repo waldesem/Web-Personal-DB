@@ -10,6 +10,7 @@ const toast = useToast();
 
 const search = ref("");
 const page = ref(1);
+const editable = ref(false);
 const hasNext = ref(false);
 const upload = ref(false);
 const modal = ref(false);
@@ -24,6 +25,7 @@ const { refresh, status } = await useLazyAsyncData(
       {
         params: {
           search: search.value,
+          editable: editable.value,
         },
       }
     )) as Record<string, unknown> as {
@@ -35,7 +37,7 @@ const { refresh, status } = await useLazyAsyncData(
     updated.value = new Date().toLocaleTimeString("ru-RU");
   },
   {
-    watch: [page],
+    watch: [page, editable],
   }
 );
 
@@ -139,7 +141,7 @@ async function submitResume(form: Persons): Promise<void> {
         </div>
       </div>
     </div>
-    <div class="my-6">
+    <div class="flex-grow items-center my-6">
       <UInput
         id="search"
         v-model="search"
@@ -203,14 +205,21 @@ async function submitResume(form: Persons): Promise<void> {
         row.username ? row.username.toString().split(" ")[0] : ""
       }}</template>
       <template #caption>
-        <caption class="caption-bottom text-left mt-2">
-          <UButton
-            variant="link"
-            icon="i-heroicons-arrow-path"
-            :label="`Обновлено в: ${updated}`"
-            :loading="status == 'pending' || upload"
-            @click="refresh"
-          />
+        <caption class="caption-bottom mt-2">
+          <div class="flex items-center justify-between space-x-4">
+            <UButton
+              variant="ghost"
+              icon="i-heroicons-arrow-path"
+              :label="`Обновлено в: ${updated}`"
+              :loading="status == 'pending' || upload"
+              @click="refresh"
+            />
+            <UCheckbox
+              v-model="editable"
+              name="editable"
+              label="Показать только редактируемые"
+            />
+          </div>
         </caption>
       </template>
     </UTable>

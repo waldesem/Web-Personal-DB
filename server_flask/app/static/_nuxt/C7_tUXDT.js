@@ -1,1 +1,0 @@
-import{d as t,o as l,c,a as s,t as n,z as r}from"./DRMfEOOY.js";const d={class:"flex grid grid-cols-12 gap-3 mb-3"},i={class:"col-span-3"},p={class:"col-span-9 break-words"},f=t({__name:"LabelSlot",props:{label:{type:String,default:""}},setup(e){const o=e;return(a,_)=>(l(),c("div",d,[s("div",i,n(o.label),1),s("div",p,[r(a.$slots,"default")])]))}});export{f as _};
