@@ -3,7 +3,7 @@ import type { Message } from "@/types";
 
 const authFetch = useFetchAuth();
 
-const route = useRoute();
+// const route = useRoute();
 
 const messages = ref([] as Message[]);
 const updated = ref(new Date());
@@ -13,13 +13,13 @@ const { refresh, status } = await useLazyAsyncData("messages", async () => {
   updated.value = new Date();
 });
 
-watch(route, () => {
-  if (
-    route.path == "/persons" &&
-    new Date().getTime() - updated.value.getTime() > 1000 * 600
-  )
-    refresh();
-});
+// watch(route, () => {
+//   if (
+//     route.path == "/persons" &&
+//     new Date().getTime() - updated.value.getTime() > 1000 * 600
+//   )
+//     refresh();
+// });
 
 async function clearMessages() {
   if (confirm("Вы действительно хотите очистить сообщения?")) {
@@ -105,6 +105,7 @@ const isOpen = ref(false);
             variant="ghost"
             size="xl"
             :loading="status == 'pending'"
+            :disabled="messages.length == 0"
             @click="isOpen = true"
           />
         </UTooltip>

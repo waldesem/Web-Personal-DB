@@ -79,6 +79,8 @@ def jwt_required(verify_exp: bool = True) -> Callable:  # noqa: FBT001, FBT002
 
             except ValueError:
                 current_app.logger.exception("Headers not found")
+            except jwt.exceptions.ExpiredSignatureError:
+                return make_response(jsonify({"message": "Expired token"}), 401)
             except jwt.exceptions.PyJWTError:
                 current_app.logger.exception("Error decoding token")
             return abort(401)

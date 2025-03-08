@@ -82,7 +82,7 @@ async function userAction(item: string, id: string): Promise<void> {
       <USelect
         v-model="role"
         :placeholder="props.user.role"
-        :options="['admin', 'user', 'guest']"
+        :options="['admin', 'api', 'user', 'guest']"
         @change="userAction(role, props.user.id)"
       />
     </ElementsLabelSlot>

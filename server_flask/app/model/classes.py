@@ -7,6 +7,7 @@ class Roles(Enum):
     """Enum class for user roles."""
 
     admin = "admin"
+    api = "api"
     user = "user"
     guest = "guest"
 

@@ -38,7 +38,7 @@ def post_resume(json_data: Person) -> Response:
 
 @bp.post("/json")
 @validate()
-@roles_required(Roles.user.value)
+@roles_required(Roles.user.value, Roles.api.value)
 def post_file(file_data: File) -> Response:
     """Create a new person or updates an existing person based on the provided data.
 
