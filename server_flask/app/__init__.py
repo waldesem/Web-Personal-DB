@@ -11,7 +11,7 @@ from config import Config
 
 from .model.tables import db_session
 
-file_handler = logging.FileHandler("error.log")
+file_handler = logging.FileHandler("error.log", mode="w", encoding="utf-8")
 file_handler.setLevel(logging.ERROR)
 
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
