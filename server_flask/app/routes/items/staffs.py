@@ -1,8 +1,9 @@
 """Staff routes."""
 
-from flask import Blueprint, Response, jsonify
+from flask import Blueprint, Response, current_app, jsonify
 from flask.views import MethodView
 from sqlalchemy import select, text
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.depends.depend import current_user, jwt_required, roles_required, validate
 from app.model.classes import Roles
@@ -27,8 +28,9 @@ class StaffView(MethodView):
             the retrieved item(s) and an HTTP status code of 200.
 
         """
-        stmt = select(Staffs).filter_by(person_id=item_id)
-        query = db_session.execute(stmt).scalars()
+        query = db_session.execute(
+            select(Staffs).filter_by(person_id=item_id),
+        ).scalars()
         return jsonify([row.to_dict() for row in query]), 200
 
     @validate()
@@ -45,11 +47,16 @@ class StaffView(MethodView):
             code of 201.
 
         """
-        json_dict = json_data.dict()
-        item = Staffs(**json_dict, person_id=item_id, user_id=current_user.id)
-        db_session.merge(item)
-        db_session.commit()
-        return jsonify({"message": "success"}), 201
+        try:
+            db_session.merge(
+                Staffs(**json_data.dict(), person_id=item_id, user_id=current_user.id),
+            )
+            db_session.commit()
+            return jsonify({"message": "success"}), 201
+        except SQLAlchemyError:
+            current_app.logger.exception("Database error")
+            db_session.rollback()
+            return jsonify({"message": "error"}), 200
 
     @roles_required(Roles.user.value)
     def delete(self, item_id: int) -> Response:
@@ -63,10 +70,17 @@ class StaffView(MethodView):
             code of 201.
 
         """
-        stmt = text("DELETE FROM staffs WHERE id = :item_id")
-        db_session.execute(stmt, {"item_id": item_id})
-        db_session.commit()
-        return jsonify({"message": "success"}), 201
+        try:
+            db_session.execute(
+                text("DELETE FROM staffs WHERE id = :item_id"),
+                {"item_id": item_id},
+            )
+            db_session.commit()
+            return jsonify({"message": "success"}), 201
+        except SQLAlchemyError:
+            current_app.logger.exception("Database error")
+            db_session.rollback()
+            return jsonify({"message": "error"}), 200
 
 
 bp.add_url_rule("/<int:item_id>", view_func=StaffView.as_view("staff"))

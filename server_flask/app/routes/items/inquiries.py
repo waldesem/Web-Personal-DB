@@ -1,8 +1,9 @@
 """Inquiry routes."""
 
-from flask import Blueprint, Response, jsonify
+from flask import Blueprint, Response, current_app, jsonify
 from flask.views import MethodView
 from sqlalchemy import desc, select, text
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.depends.depend import current_user, jwt_required, roles_required, validate
 from app.model.classes import Roles
@@ -27,8 +28,9 @@ class InquiriesView(MethodView):
             the retrieved item(s) and an HTTP status code of 200.
 
         """
-        stmt = select(Inquiries).filter_by(person_id=item_id)
-        query = db_session.execute(stmt.order_by(desc(Inquiries.id))).scalars()
+        query = db_session.execute(
+            select(Inquiries).filter_by(person_id=item_id).order_by(desc(Inquiries.id)),
+        ).scalars()
         return jsonify([row.to_dict() for row in query]), 200
 
     @validate()
@@ -45,11 +47,18 @@ class InquiriesView(MethodView):
             code of 201.
 
         """
-        json_dict = json_data.dict()
-        item = Inquiries(**json_dict, person_id=item_id, user_id=current_user.id)
-        db_session.merge(item)
-        db_session.commit()
-        return jsonify({"message": "success"}), 201
+        try:
+            db_session.merge(
+                Inquiries(
+                    **json_data.dict(), person_id=item_id, user_id=current_user.id,
+                ),
+            )
+            db_session.commit()
+            return jsonify({"message": "success"}), 201
+        except SQLAlchemyError:
+            current_app.logger.exception("Database error")
+            db_session.rollback()
+            return jsonify({"message": "error"}), 200
 
     @roles_required(Roles.user.value)
     def delete(self, item_id: int) -> Response:
@@ -63,10 +72,17 @@ class InquiriesView(MethodView):
             code of 201.
 
         """
-        stmt = text("DELETE FROM inquiries WHERE id = :item_id")
-        db_session.execute(stmt, {"item_id": item_id})
-        db_session.commit()
-        return jsonify({"message": "success"}), 201
+        try:
+            db_session.execute(
+                text("DELETE FROM inquiries WHERE id = :item_id"),
+                {"item_id": item_id},
+            )
+            db_session.commit()
+            return jsonify({"message": "success"}), 201
+        except SQLAlchemyError:
+            current_app.logger.exception("Database error")
+            db_session.rollback()
+            return jsonify({"message": "error"}), 200
 
 
 bp.add_url_rule("/<int:item_id>", view_func=InquiriesView.as_view("inquiry"))

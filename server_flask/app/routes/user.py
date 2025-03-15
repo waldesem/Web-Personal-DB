@@ -6,6 +6,7 @@ from typing import ClassVar
 from flask import Blueprint, Response, current_app, jsonify, request
 from flask.views import MethodView
 from sqlalchemy import desc, func, select
+from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import generate_password_hash
 
 from app.depends.depend import current_user, get_current_user, roles_required, validate
@@ -105,15 +106,20 @@ class UserView(MethodView):
         ).all()
         if user:
             return jsonify({"message": "error"}), 200
-        db_session.add(
-            Users(
-                fullname=json_data.fullname,
-                username=json_data.username,
-                email=json_data.email,
-            ),
-        )
-        db_session.commit()
-        return jsonify({"message": "success"}), 201
+        try:
+            db_session.add(
+                Users(
+                    fullname=json_data.fullname,
+                    username=json_data.username,
+                    email=json_data.email,
+                ),
+            )
+            db_session.commit()
+            return jsonify({"message": "success"}), 201
+        except SQLAlchemyError:
+            current_app.logger.exception("Database error")
+            db_session.rollback()
+            return jsonify({"message": "error"}), 200
 
 
 view_func = UserView.as_view("user")

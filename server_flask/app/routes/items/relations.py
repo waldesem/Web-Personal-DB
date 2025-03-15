@@ -1,8 +1,9 @@
 """Relation routes."""
 
-from flask import Blueprint, Response, jsonify
+from flask import Blueprint, Response, current_app, jsonify
 from flask.views import MethodView
 from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.depends.depend import jwt_required, roles_required, validate
 from app.model.classes import Roles
@@ -58,14 +59,19 @@ class RelationView(MethodView):
             Persons,
             json_data.right_id,
         ):
-            relationship = association_table.insert().values(
-                left_id=person_id,
-                right_id=json_data.right_id,
-                type=json_data.type,
-            )
-            db_session.execute(relationship)
-            db_session.commit()
-            return jsonify({"message": "success"}), 201
+            try:
+                db_session.execute(
+                    association_table.insert().values(
+                        left_id=person_id,
+                        right_id=json_data.right_id,
+                        type=json_data.type,
+                    ),
+                )
+                db_session.commit()
+                return jsonify({"message": "success"}), 201
+            except SQLAlchemyError:
+                current_app.logger.exception("Database error")
+                db_session.rollback()
         return jsonify({"message": "error"}), 200
 
     @roles_required(Roles.user.value)
@@ -81,13 +87,20 @@ class RelationView(MethodView):
             code of 201.
 
         """
-        stmt = text(
-            "DELETE FROM person_relationships \
-                WHERE left_id = :person_id AND right_id = :relation_id",
-        )
-        db_session.execute(stmt, {"person_id": person_id, "relation_id": relation_id})
-        db_session.commit()
-        return jsonify({"message": "success"}), 201
+        try:
+            db_session.execute(
+                text(
+                    "DELETE FROM person_relationships \
+                    WHERE left_id = :person_id AND right_id = :relation_id",
+                ),
+                {"person_id": person_id, "relation_id": relation_id},
+            )
+            db_session.commit()
+            return jsonify({"message": "success"}), 201
+        except SQLAlchemyError:
+            current_app.logger.exception("Database error")
+            db_session.rollback()
+            return jsonify({"message": "error"}), 200
 
 
 view_func = RelationView.as_view("relation")

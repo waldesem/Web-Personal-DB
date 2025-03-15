@@ -4,10 +4,12 @@ import secrets
 from configparser import ConfigParser
 from pathlib import Path
 
-BASE = Path.resolve(Path(__file__).parent)
-
 setting = ConfigParser()
-setting.read(Path(BASE, "settings.ini"), encoding="utf-8")
+# reading settings from settings.ini in the current directory
+setting.read(
+    Path(Path.resolve(Path(__file__).parent), "settings.ini"),
+    encoding="utf-8",
+)
 
 
 class Config:

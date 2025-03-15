@@ -1,8 +1,9 @@
 """Person routes."""
 
-from flask import Blueprint, Response, jsonify
+from flask import Blueprint, Response, current_app, jsonify
 from flask.views import MethodView
 from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.depends.depend import jwt_required, roles_required, validate
 from app.model.classes import Roles
@@ -27,10 +28,7 @@ class PersonView(MethodView):
             the retrieved item(s) and an HTTP status code of 200.
 
         """
-        person = db_session.get(Persons, person_id)
-        if not person:
-            return "", 404
-        return jsonify(person.to_dict()), 200
+        return jsonify(db_session.get(Persons, person_id).to_dict()), 200
 
     @validate()
     @roles_required(Roles.user.value)
@@ -45,10 +43,14 @@ class PersonView(MethodView):
             code of 201.
 
         """
-        json_dict = json_data.dict()
-        db_session.merge(Persons(**json_dict))
-        db_session.commit()
-        return jsonify({"message": "success"}), 201
+        try:
+            db_session.merge(Persons(**json_data.dict()))
+            db_session.commit()
+            return jsonify({"message": "success"}), 201
+        except SQLAlchemyError:
+            current_app.logger.exception("Database error")
+            db_session.rollback()
+            return jsonify({"message": "error"}), 200
 
     @roles_required(Roles.user.value)
     def delete(self, person_id: int) -> Response:
@@ -62,37 +64,43 @@ class PersonView(MethodView):
             code of 201.
 
         """
-        for table in [
-            "previous",
-            "educations",
-            "addresses",
-            "affilations",
-            "staffs",
-            "workplaces",
-            "contacts",
-            "documents",
-            "checks",
-            "poligrafs",
-            "inquiries",
-            "investigations",
-        ]:
+        try:
+            for table in [
+                "previous",
+                "educations",
+                "addresses",
+                "affilations",
+                "staffs",
+                "workplaces",
+                "contacts",
+                "documents",
+                "checks",
+                "poligrafs",
+                "inquiries",
+                "investigations",
+            ]:
+                db_session.execute(
+                    text(f"DELETE FROM {table} WHERE person_id = :person_id"),  # noqa: S608
+                    {"person_id": person_id},
+                )
             db_session.execute(
-                text(f"DELETE FROM {table} WHERE person_id = :person_id"),  # noqa: S608
+                text("DELETE FROM person_relationships WHERE left_id = :person_id"),
                 {"person_id": person_id},
             )
-        db_session.execute(
-            text("DELETE FROM person_relationships WHERE left_id = :person_id"),
-            {"person_id": person_id},
-        )
-        db_session.execute(
-            text("DELETE FROM person_relationships WHERE right_id = :person_id"),
-            {"person_id": person_id},
-        )
-        db_session.execute(
-            text("DELETE FROM persons WHERE id = :person_id"), {"person_id": person_id},
-        )
-        db_session.commit()
-        return jsonify({"message": "success"}), 201
+            db_session.execute(
+                text("DELETE FROM person_relationships WHERE right_id = :person_id"),
+                {"person_id": person_id},
+            )
+            db_session.execute(
+                text("DELETE FROM persons WHERE id = :person_id"),
+                {"person_id": person_id},
+            )
+            db_session.commit()
+            return jsonify({"message": "success"}), 201
+        except SQLAlchemyError:
+            current_app.logger.exception("Database error")
+            db_session.rollback()
+            return jsonify({"message": "error"}), 200
 
 
 view_func = PersonView.as_view("person")
