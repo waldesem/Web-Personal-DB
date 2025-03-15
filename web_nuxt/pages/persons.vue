@@ -214,11 +214,10 @@ async function submitResume(form: Persons): Promise<void> {
               :loading="status == 'pending' || upload"
               @click="refresh"
             />
-            <UCheckbox
-              v-model="editable"
-              name="editable"
-              label="Показать только редактируемые"
-            />
+            <div class="flex items-center space-x-2">
+              <div class="text-sm text-blue-600">Показать редактируемые</div>
+              <UToggle v-model="editable" size="sm" />
+            </div>
           </div>
         </caption>
       </template>
