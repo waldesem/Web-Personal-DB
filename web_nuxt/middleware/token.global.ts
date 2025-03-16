@@ -1,21 +1,12 @@
-import { useJwt } from "@vueuse/integrations/useJwt";
+import { jwtDecode } from "jwt-decode";
 import type { Token } from "@/types";
 
 export default defineNuxtRouteMiddleware((to) => {
   if (to.path !== "/login") {
-    if (!accessToken.value) {
-      return navigateTo("/login");
-    }
     try {
-      const bearer = accessToken.value.split(" ")[1];
-      const { payload } = useJwt(bearer);
-      stateUser.value = payload.value as Token;
-      if (stateUser.value.exp < Date.now() / 1000) {
-        accessToken.value = "";
-        return navigateTo("/login");
-      }
+      stateUser.value = jwtDecode(accessToken.value.split(" ")[1]) as Token;
     } catch (error) {
-      console.log(error);
+      console.error(error);
       return navigateTo("/login");
     }
   }

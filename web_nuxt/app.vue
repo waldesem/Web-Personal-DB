@@ -14,6 +14,11 @@ useHead({
 </template>
 
 <style>
+html,
+body {
+  scrollbar-gutter: stable;
+}
+
 .page-enter-active,
 .page-leave-active,
 .slide-fade-enter-active,

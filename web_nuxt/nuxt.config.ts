@@ -1,7 +1,7 @@
 import { fileURLToPath } from "url";
 
 export default defineNuxtConfig({
-  compatibilityDate: "2024-04-03",
+  compatibilityDate: "2024-03-16",
   devtools: { enabled: true },
   ssr: false,
   app: {
@@ -11,16 +11,6 @@ export default defineNuxtConfig({
       meta: [
         { name: "viewport", content: "width=device-width, initial-scale=1" },
         { charset: "utf-8" },
-      ],
-      style: [
-        {
-          children: "html, body { scrollbar-gutter: stable; }",
-        },
-      ],
-      noscript: [
-        {
-          children: "An application doesn't work without JavaScript",
-        },
       ],
     },
   },
@@ -40,13 +30,7 @@ export default defineNuxtConfig({
       emptyOutDir: true,
     },
   },
-  modules: [
-    "@nuxt/ui",
-    "@nuxt/eslint",
-    "@nuxtjs/color-mode",
-    "@nuxt/icon",
-    "@vueuse/nuxt",
-  ],
+  modules: ["@nuxt/ui", "@nuxt/eslint", "@vueuse/nuxt"],
   icon: {
     clientBundle: {
       scan: true,

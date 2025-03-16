@@ -1,10 +1,12 @@
 import type { NitroFetchOptions } from "nitropack";
 import { useStorageAsync } from "@vueuse/core";
-import type { Method } from "@/types";
+import type { Method, Token } from "@/types";
 
 export const accessToken = useStorageAsync("accessToken", "", localStorage, {
   mergeDefaults: true,
 });
+
+export const stateUser = ref({} as Token);
 
 export const useFetchAuth = () => {
   const fetchAuth = async (

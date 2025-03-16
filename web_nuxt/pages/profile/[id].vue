@@ -173,15 +173,6 @@ async function changeRegion(): Promise<void> {
             }}
           </UButton>
         </UTooltip>
-        <UTooltip text="Версия для печати">
-          <UButton
-            icon="i-heroicons-printer"
-            size="sm"
-            variant="outline"
-            disabled
-            @click="navigateTo('/profile/print')"
-          />
-        </UTooltip>
       </div>
     </div>
     <UTabs :items="tabs">
