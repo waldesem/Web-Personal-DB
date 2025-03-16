@@ -146,7 +146,10 @@ async function changeRegion(): Promise<void> {
               'РЦ Восток',
             ]"
             :placeholder="person.region"
-            :disabled="!person.editable || person.region != stateUser.region"
+            :disabled="
+              person.region != stateUser.region &&
+              stateUser.region != 'Главный офис'
+            "
             @change="changeRegion"
           />
         </UTooltip>

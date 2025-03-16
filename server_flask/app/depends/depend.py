@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 from functools import lru_cache, wraps
-from types import GenericAlias
 from typing import Callable
 
 import jwt
@@ -123,11 +122,11 @@ def validate_data(data: dict, model: BaseModel) -> BaseModel | None:
     try:
         return model(**data)
     except ValidationError:
-        current_app.logger.exception("Error validating data %s", data)
+        current_app.logger.exception("Error validating data")
         return None
 
 
-def validate() -> Callable:  # noqa: C901
+def validate() -> Callable:
     """Decorate a function for validating request data using Pydantic models.
 
     The decorator accepts the following keyword arguments:
@@ -169,33 +168,20 @@ def validate() -> Callable:  # noqa: C901
 
             file_model = func.__annotations__.get("file_data")
             if file_model:
-                if isinstance(file_model, GenericAlias):
-                    file_data = request.files.getlist("file")
-                    file_result = [
-                        validate_data(
-                            {
-                                "file": file,
-                                "filename": file.filename,
-                            },
-                            File,
-                        )
-                        for file in file_data
-                    ]
-                    if not all(file_result):
-                        return make_response(jsonify({"message": "error"}))
-                    kwargs["file_data"] = file_result
-                else:
-                    file_data = request.files.get("file")
-                    file_result = validate_data(
+                file_data = request.files.getlist("file")
+                file_result = [
+                    validate_data(
                         {
-                            "file": file_data,
-                            "filename": file_data.filename,
+                            "file": file,
+                            "filename": file.filename,
                         },
                         File,
                     )
-                    if not file_result:
-                        return make_response(jsonify({"message": "error"}))
-                    kwargs["file_data"] = file_result
+                    for file in file_data
+                ]
+                if not all(file_result):
+                    return make_response(jsonify({"message": "error"}))
+                kwargs["file_data"] = file_result
 
             return func(*args, **kwargs)
 

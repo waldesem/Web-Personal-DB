@@ -39,7 +39,7 @@ def post_resume(json_data: Person) -> Response:
 @bp.post("/json")
 @validate()
 @roles_required(Roles.user.value, Roles.api.value)
-def post_file(file_data: File) -> Response:
+def post_file(file_data: list[File]) -> Response:
     """Create a new person or updates an existing person based on the provided data.
 
     Args:
@@ -50,7 +50,7 @@ def post_file(file_data: File) -> Response:
 
     """
     try:
-        json_data = json.load(file_data.file)
+        json_data = json.load(file_data[0].file)
         anketa = AnketaJson(**json_data)
         resume = {
             "surname": anketa.surname,
@@ -100,16 +100,16 @@ def change_region(person_id: int, query_data: Region) -> Response:
 
     """
     person = db_session.get(Persons, person_id)
-    if person.destination and Path(person.destination).is_dir():
-        destination = Path(
+    destination = Path(
             current_app.config["BASE_PATH"],
             query_data.region,
             person.surname[0],
             f"{person_id}-{person.surname} {person.firstname} "
             f"{person.patronymic if person.patronymic else ''}".rstrip(),
         )
+    if person.destination and Path(person.destination).is_dir():
         shutil.copytree(person.destination, destination, dirs_exist_ok=True)
-        person.destination = str(destination)
+    person.destination = str(destination)
     person.region = query_data.region
     person.editable = False
     db_session.commit()

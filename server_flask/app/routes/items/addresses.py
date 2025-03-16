@@ -50,7 +50,9 @@ class AddressView(MethodView):
         try:
             db_session.merge(
                 Addresses(
-                    **json_data.dict(), person_id=item_id, user_id=current_user.id,
+                    **json_data.dict(),
+                    person_id=item_id,
+                    user_id=current_user.id,
                 ),
             )
             db_session.commit()
