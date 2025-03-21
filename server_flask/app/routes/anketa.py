@@ -32,8 +32,10 @@ def post_resume(json_data: Person) -> Response:
         A JSON response containing the person ID and an HTTP status code of 201.
 
     """
-    person_id = upload_resume(json_data.dict())
-    return jsonify({"person_id": person_id})
+    result = upload_resume(json_data.dict())
+    return jsonify(
+        {"person_id": result["person_id"], "exists": result["exists"]},
+    ), 201
 
 
 @bp.post("/json")
@@ -64,15 +66,17 @@ def post_file(file_data: list[File]) -> Response:
             "inn": anketa.inn,
             "snils": anketa.snils,
         }
-        person_id = upload_resume(resume)
-        if not person_id:
-            return jsonify({"person_id": person_id}), 200
+        result = upload_resume(resume)
+        if not result["person_id"]:
+            return jsonify({"person_id": None, "exists": result["exists"]}), 200
 
-        items = get_items(anketa, person_id)
+        items = get_items(anketa, result["person_id"])
         try:
             db_session.add_all(items)
             db_session.commit()
-            return jsonify({"person_id": person_id}), 201
+            return jsonify(
+                {"person_id": result["person_id"], "exists": result["exists"]},
+            ), 201
         except SQLAlchemyError:
             current_app.logger.exception("SQLAlchemyError in post_file")
             db_session.rollback()
@@ -82,7 +86,7 @@ def post_file(file_data: list[File]) -> Response:
         current_app.logger.exception("JSONDecodeError")
     except TypeError:
         current_app.logger.exception("TypeError")
-    return jsonify({"person_id": None}), 200
+    return jsonify({"person_id": None, "exists": result["exists"]}), 200
 
 
 @bp.get("/region/<int:person_id>")
@@ -101,12 +105,12 @@ def change_region(person_id: int, query_data: Region) -> Response:
     """
     person = db_session.get(Persons, person_id)
     destination = Path(
-            current_app.config["BASE_PATH"],
-            query_data.region,
-            person.surname[0],
-            f"{person_id}-{person.surname} {person.firstname} "
-            f"{person.patronymic if person.patronymic else ''}".rstrip(),
-        )
+        current_app.config["BASE_PATH"],
+        query_data.region,
+        person.surname[0],
+        f"{person_id}-{person.surname} {person.firstname} "
+        f"{person.patronymic if person.patronymic else ''}".rstrip(),
+    )
     if person.destination and Path(person.destination).is_dir():
         shutil.copytree(person.destination, destination, dirs_exist_ok=True)
     person.destination = str(destination)

@@ -14,7 +14,15 @@ from pydantic import BaseModel, Field, validator
 from .classes import Conclusions, Decisions, Regions, Roles  # noqa: TC001
 
 
-class Login(BaseModel):
+class Model(BaseModel):
+    """Base Pydantic model."""
+
+    class Config:
+        """Pydantic config."""
+
+        use_enum_values = True
+
+class Login(Model):
     """Pydantic model for login form."""
 
     username: str
@@ -28,7 +36,7 @@ class Login(BaseModel):
         return v.strip().lower()
 
 
-class User(BaseModel):
+class User(Model):
     """Pydantic model for user form."""
 
     id: int | str | None = None
@@ -43,42 +51,27 @@ class User(BaseModel):
         return v.strip().lower()
 
 
-class UserActions(BaseModel):
+class UserActions(Model):
     """Pydantic model for user actions form."""
 
     item: Literal["reset", "block", "delete"] | Roles | Regions | None
 
-    class Config:
-        """Pydantic config."""
 
-        use_enum_values = True
-
-
-class Info(BaseModel):
+class Info(Model):
     """Pydantic model for info form."""
 
     start: date
     end: date
     region: Regions | None
 
-    class Config:
-        """Pydantic config."""
 
-        use_enum_values = True
-
-
-class Region(BaseModel):
+class Region(Model):
     """Pydantic model for region select form."""
 
     region: Regions
 
-    class Config:
-        """Pydantic config."""
 
-        use_enum_values = True
-
-
-class Person(BaseModel):
+class Person(Model):
     """Pydantic model for person form."""
 
     __modelname__ = "persons"
@@ -100,11 +93,6 @@ class Person(BaseModel):
     editable: bool = False
     user_id: str | int = None
 
-    class Config:
-        """Pydantic config."""
-
-        use_enum_values = True
-
     @validator("surname", "firstname", "patronymic")
     @classmethod
     def check_names(cls, v: str) -> str:
@@ -112,7 +100,7 @@ class Person(BaseModel):
         return v.upper().strip() if v else ""
 
 
-class Prev(BaseModel):
+class Prev(Model):
     """Pydantic model for previous form."""
 
     __modelname__ = "previous"
@@ -131,7 +119,7 @@ class Prev(BaseModel):
         return v.upper().strip() if v else ""
 
 
-class Education(BaseModel):
+class Education(Model):
     """Pydantic model for education form."""
 
     __modelname__ = "educations"
@@ -143,7 +131,7 @@ class Education(BaseModel):
     specialty: str | None = ""
 
 
-class Staff(BaseModel):
+class Staff(Model):
     """Pydantic model for staff form."""
 
     __modelname__ = "staffs"
@@ -153,7 +141,7 @@ class Staff(BaseModel):
     department: str | None = ""
 
 
-class Document(BaseModel):
+class Document(Model):
     """Pydantic model for document form."""
 
     __modelname__ = "documents"
@@ -166,7 +154,7 @@ class Document(BaseModel):
     issue: date
 
 
-class Address(BaseModel):
+class Address(Model):
     """Pydantic model for address form."""
 
     __modelname__ = "addresses"
@@ -176,7 +164,7 @@ class Address(BaseModel):
     addresses: str
 
 
-class Contact(BaseModel):
+class Contact(Model):
     """Pydantic model for contact form."""
 
     __modelname__ = "contacts"
@@ -186,7 +174,7 @@ class Contact(BaseModel):
     contact: str
 
 
-class Workplace(BaseModel):
+class Workplace(Model):
     """Pydantic model for workplace form."""
 
     __modelname__ = "workplaces"
@@ -201,7 +189,7 @@ class Workplace(BaseModel):
     reason: str | None = ""
 
 
-class Affilation(BaseModel):
+class Affilation(Model):
     """Pydantic model for affilation form."""
 
     __modelname__ = "affilations"
@@ -212,7 +200,7 @@ class Affilation(BaseModel):
     inn: str | None = ""
 
 
-class Relation(BaseModel):
+class Relation(Model):
     """Pydantic model for relation form."""
 
     __modelname__ = "relations"
@@ -222,7 +210,7 @@ class Relation(BaseModel):
     right_id: int | str
 
 
-class Check(BaseModel):
+class Check(Model):
     """Pydantic model for check form."""
 
     __modelname__ = "checks"
@@ -245,13 +233,8 @@ class Check(BaseModel):
     comment: str | None = ""
     conclusion: Conclusions
 
-    class Config:
-        """Pydantic config."""
 
-        use_enum_values = True
-
-
-class Poligraf(BaseModel):
+class Poligraf(Model):
     """Pydantic model for poligraf form."""
 
     __modelname__ = "poligrafs"
@@ -261,13 +244,8 @@ class Poligraf(BaseModel):
     results: str
     conclusion: Decisions
 
-    class Config:
-        """Pydantic config."""
 
-        use_enum_values = True
-
-
-class Investigation(BaseModel):
+class Investigation(Model):
     """Pydantic model for investigation form."""
 
     __modelname__ = "investigations"
@@ -277,7 +255,7 @@ class Investigation(BaseModel):
     info: str
 
 
-class Inquiry(BaseModel):
+class Inquiry(Model):
     """Pydantic model for inquiry form."""
 
     __modelname__ = "inquiries"
@@ -288,7 +266,7 @@ class Inquiry(BaseModel):
     origins: str | None = ""
 
 
-class NameWasChangedJson(BaseModel):
+class NameWasChangedJson(Model):
     """Pydantic model for name was changed item."""
 
     first_name: str = Field(alias="firstNameBeforeChange")
@@ -298,7 +276,7 @@ class NameWasChangedJson(BaseModel):
     reason: str | None = ""
 
 
-class EducationJson(BaseModel):
+class EducationJson(Model):
     """Pydantic model for education item."""
 
     education_type: str = Field(default="", alias="educationType")
@@ -307,7 +285,7 @@ class EducationJson(BaseModel):
     specialty: str | None = ""
 
 
-class ExperienceJson(BaseModel):
+class ExperienceJson(Model):
     """Pydantic model for experience item."""
 
     begin_date: date = Field(alias="beginDate")
@@ -319,33 +297,33 @@ class ExperienceJson(BaseModel):
     fire_reason: str = Field(default="", alias="fireReason")
 
 
-class OrganizationsJson(BaseModel):
+class OrganizationsJson(Model):
     """Pydantic model for organizations item."""
 
     name: str | None = ""
     inn: str | None = ""
 
 
-class RelatedPersonsOrganizationsJson(BaseModel):
+class RelatedPersonsOrganizationsJson(Model):
     """Pydantic model for related persons organizations item."""
 
     name: str | None = ""
     inn: str | None = ""
 
 
-class StateOrganizationsJson(BaseModel):
+class StateOrganizationsJson(Model):
     """Pydantic model for state organizations item."""
 
     name: str | None = ""
 
 
-class PublicOfficeOrganizationsJson(BaseModel):
+class PublicOfficeOrganizationsJson(Model):
     """Pydantic model for public office organizations item."""
 
     name: str | None = ""
 
 
-class AnketaJson(BaseModel):
+class AnketaJson(Model):
     """Pydantic model for anketa schema."""
 
     surname: str = Field(alias="lastName")
@@ -395,7 +373,7 @@ class AnketaJson(BaseModel):
         return v.upper().strip() if v else ""
 
 
-class File(BaseModel):
+class File(Model):
     """Pydantic model for file."""
 
     file: Any

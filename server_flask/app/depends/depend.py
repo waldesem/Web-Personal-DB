@@ -11,7 +11,7 @@ from flask import Response, abort, current_app, g, jsonify, make_response, reque
 from pydantic import BaseModel, ValidationError
 from werkzeug.local import LocalProxy
 
-from app.model.models import File
+from app.model.models import File, Model
 from app.model.tables import Users, db_session
 
 current_user: Users = LocalProxy(lambda: get_current_user(g.user_id))
@@ -160,6 +160,13 @@ def validate() -> Callable:
 
             json_model = func.__annotations__.get("json_data")
             if json_model:
+                if json_model.__name__ == "Model":
+                    models = {
+                        cls.__modelname__: cls
+                        for cls in Model.__subclasses__()
+                        if hasattr(cls, "__modelname__")
+                    }
+                    json_model = models[kwargs["item"]]
                 json_data = request.get_json()
                 json_result = validate_data(json_data, json_model)
                 if not json_result:

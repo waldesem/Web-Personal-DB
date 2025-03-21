@@ -61,15 +61,15 @@ def upload_resume(resume: dict) -> int:
         destination.mkdir(exist_ok=True)
         person.destination = str(destination)
         db_session.commit()
-        return person.id
+        return {"exists": False, "person_id": person.id}
 
     if person.editable or person.region != resume["region"]:
-        return None
+        return {"exists": True, "person_id": None}
 
     for k, v in resume.items():
         setattr(person, k, v)
     db_session.commit()
-    return person.id
+    return {"exists": True, "person_id": person.id}
 
 
 def get_items(anketa: AnketaJson, person_id: int) -> list:

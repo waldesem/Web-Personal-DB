@@ -63,13 +63,21 @@ onChange(async (files) => {
   upload.value = true;
   const formData = new FormData();
   formData.append("file", files[0]);
-  const { person_id } = (await authFetch("/route/anketa/json", {
+  const { person_id, exists } = (await authFetch("/route/anketa/json", {
     method: "POST",
     body: formData,
   })) as Record<string, string>;
   reset();
   upload.value = false;
   if (person_id) {
+    if (exists) {
+      toast.add({
+        icon: "i-heroicons-exclamation-triangle",
+        title: "Внимание",
+        description: "Кандидат ранее уже был загружен",
+        color: "red",
+      });
+    }
     await navigateTo("/profile/" + person_id);
   } else {
     toast.add({
@@ -89,12 +97,20 @@ onCancel(() => {
 async function submitResume(form: Persons): Promise<void> {
   upload.value = true;
   modal.value = false;
-  const { person_id } = (await authFetch("/route/anketa/resume", {
+  const { person_id, exists } = (await authFetch("/route/anketa/resume", {
     method: "POST",
     body: form,
   })) as Record<string, string>;
   upload.value = false;
   if (person_id) {
+    if (exists) {
+      toast.add({
+        icon: "i-heroicons-exclamation-triangle",
+        title: "Внимание",
+        description: "Кандидат ранее уже был загружен",
+        color: "red",
+      });
+    }
     navigateTo("/profile/" + person_id);
   } else {
     toast.add({
