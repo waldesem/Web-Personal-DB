@@ -107,7 +107,7 @@ async function submitResume(form: Persons): Promise<void> {
       toast.add({
         icon: "i-heroicons-exclamation-triangle",
         title: "Внимание",
-        description: "Кандидат ранее уже был загружен",
+        description: "Кандидат уже был загружен ранее. Данные были обновлены",
         color: "red",
       });
     }

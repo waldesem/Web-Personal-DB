@@ -150,7 +150,9 @@ def validate() -> Callable:
     def decorate(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args: tuple, **kwargs: dict) -> Callable:
+            """Validate request data using Pydantic models."""
             query_model = func.__annotations__.get("query_data")
+            # if funcion has query model argument
             if query_model:
                 query_data = request.args.to_dict()
                 query_result = validate_data(query_data, query_model)
@@ -159,7 +161,9 @@ def validate() -> Callable:
                 kwargs["query_data"] = query_result
 
             json_model = func.__annotations__.get("json_data")
+            # if funcion has json model argument
             if json_model:
+                # if json model annotation is Model
                 if json_model.__name__ == "Model":
                     models = {
                         cls.__modelname__: cls
@@ -174,6 +178,7 @@ def validate() -> Callable:
                 kwargs["json_data"] = json_result
 
             file_model = func.__annotations__.get("file_data")
+            # if funcion has file model argument
             if file_model:
                 file_data = request.files.getlist("file")
                 file_result = [
