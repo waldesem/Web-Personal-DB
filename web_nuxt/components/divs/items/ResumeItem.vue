@@ -22,10 +22,10 @@ const props = defineProps({
   <ElementsLabelSlot :label="'Дата рождения'">
     {{ new Date(props.person.birthday).toLocaleDateString("ru-RU") }}
   </ElementsLabelSlot>
-  <ElementsLabelSlot :label="'Место рождения'">
+  <ElementsLabelSlot v-if="props.person.birthplace" :label="'Место рождения'">
     {{ props.person.birthplace }}
   </ElementsLabelSlot>
-  <ElementsLabelSlot :label="'Гражданство'">
+  <ElementsLabelSlot v-if="props.person.citizenship" :label="'Гражданство'">
     {{ props.person.citizenship }}
   </ElementsLabelSlot>
   <ElementsLabelSlot v-if="props.person.dual" :label="'Двойное гражданство'">
