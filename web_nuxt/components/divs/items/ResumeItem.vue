@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import type { Persons } from "@/types";
 
+const emit = defineEmits(["open"]);
+
 const props = defineProps({
   person: {
     type: Object as () => Persons,
     default: {} as Persons,
   },
-})
+});
 </script>
 
 <template>
@@ -49,7 +51,16 @@ const props = defineProps({
   >
     {{ props.person.addition }}
   </ElementsLabelSlot>
-  <ElementsLabelSlot v-if="props.person.destination" :label="'Материалы'">
-    {{ props.person.destination }}
+  <ElementsLabelSlot :label="'Материалы'">
+    <div class="flex items-center space-x-4">
+      <UButton
+        label="Открыть"
+        variant="outline"
+        @click="emit('open')"
+      />
+      <div v-if="props.person.destination">
+        {{ props.person.destination }}
+      </div>
+    </div>
   </ElementsLabelSlot>
 </template>

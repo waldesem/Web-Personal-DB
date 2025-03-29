@@ -4,6 +4,7 @@ import json
 import shutil
 from datetime import datetime
 from pathlib import Path
+from subprocess import Popen
 
 from flask import Blueprint, Response, current_app, jsonify
 from pydantic import ValidationError
@@ -41,7 +42,7 @@ def post_resume(json_data: Person) -> Response:
 @bp.post("/json")
 @validate()
 @roles_required(Roles.user.value, Roles.api.value)
-def post_file(file_data: list[File]) -> Response:
+def post_json(file_data: list[File]) -> Response:
     """Create a new person or updates an existing person based on the provided data.
 
     Args:
@@ -149,7 +150,7 @@ def change_self_id(person_id: int) -> Response:
 @bp.post("/files/<item>/<int:person_id>")
 @validate()
 @roles_required(Roles.user.value)
-def post(item: str, person_id: int, file_data: list[File]) -> Response:
+def post_files(item: str, person_id: int, file_data: list[File]) -> Response:
     """Upload a file to the server.
 
     Args:
@@ -184,4 +185,36 @@ def post(item: str, person_id: int, file_data: list[File]) -> Response:
         if not file_path.is_file():
             data.file.save(file_path)
 
+    return jsonify({"message": "success"}), 201
+
+
+@bp.get("/folder/<int:person_id>")
+# @roles_required(Roles.user.value)
+def open_folder(person_id: int) -> Response:
+    """Open a folder for a person.
+
+    Args:
+        person_id (int): The ID of the person.
+
+    Returns:
+        The HTTP status code is 200 or 201.
+
+    """
+    person = db_session.get(Persons, person_id)
+    if not person.destination or not Path(person.destination).is_dir():
+        destination = Path(
+            current_app.config["BASE_PATH"],
+            current_user.region,
+            person.surname[0],
+            f"{person.id}-{person.surname} {person.firstname} "
+            f"{person.patronymic}".rstrip(),
+        )
+        destination.mkdir(exist_ok=True)
+        person.destination = str(destination)
+        db_session.commit()
+    try:
+        Popen(f"explorer {person.destination}")  # noqa: S603
+    except FileNotFoundError:
+        current_app.logger.exception("Error opening folder")
+        return jsonify({"message": "error"}), 200
     return jsonify({"message": "success"}), 201

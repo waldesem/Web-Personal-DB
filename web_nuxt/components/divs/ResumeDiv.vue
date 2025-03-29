@@ -43,6 +43,16 @@ async function deleteItem() {
   emitMessage(message);
   return navigateTo("/persons");
 }
+
+async function openFolder() {
+  const { message } = (await authFetch(
+    "/route/anketa/folder/" + person.value.id
+  )) as {
+    message: string;
+  };
+  emitMessage(message);
+  emit("update");
+}
 </script>
 
 <template>
@@ -70,7 +80,7 @@ async function deleteItem() {
       </div>
     </div>
     <div v-else>
-      <DivsItemsResumeItem :person="person" />
+      <DivsItemsResumeItem :person="person" @open="openFolder" />
     </div>
     <template v-if="editable" #footer>
       <ElementsTabMenu
