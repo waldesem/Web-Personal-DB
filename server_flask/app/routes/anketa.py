@@ -210,9 +210,12 @@ def open_folder(person_id: int) -> Response:
             f"{person.id}-{person.surname} {person.firstname} "
             f"{person.patronymic}".rstrip(),
         )
+         dest["path"].mkdir(exist_ok=True)
         person.destination = str(dest["path"])
         db_session.commit()
-    dest["path"].mkdir(exist_ok=True)
+    else:
+        if not Path(dest["path"]).is_dir():
+            Path(dest["path"]).mkdir(exist_ok=True)
     try:
         Popen(f"explorer {dest["path"]}")  # noqa: S603
     except FileNotFoundError:
