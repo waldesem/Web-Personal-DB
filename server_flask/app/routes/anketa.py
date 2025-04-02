@@ -200,20 +200,21 @@ def open_folder(person_id: int) -> Response:
         The HTTP status code is 200 or 201.
 
     """
-    person = db_session.get(Persons, person_id)
-    if not person.destination or not Path(person.destination).is_dir():
-        destination = Path(
+    dest = request.get_json()
+    if not dest["path"]:
+        person = db_session.get(Persons, person_id)
+        dest["path"] = Path(
             current_app.config["BASE_PATH"],
             current_user.region,
             person.surname[0],
             f"{person.id}-{person.surname} {person.firstname} "
             f"{person.patronymic}".rstrip(),
         )
-        destination.mkdir(exist_ok=True)
-        person.destination = str(destination)
+        person.destination = str(dest["path"])
         db_session.commit()
+    dest["path"].mkdir(exist_ok=True)
     try:
-        Popen(f"explorer {person.destination}")  # noqa: S603
+        Popen(f"explorer {dest["path"]}")  # noqa: S603
     except FileNotFoundError:
         current_app.logger.exception("Error opening folder")
         return jsonify({"message": "error"}), 200
