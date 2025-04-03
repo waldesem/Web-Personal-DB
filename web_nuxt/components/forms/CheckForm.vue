@@ -110,13 +110,6 @@ watch(noNegative, () => {
         placeholder="Проверка в списке террористов"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Проверка в розыск" name="mvd">
-      <UTextarea
-        v-model.trim.lazy="checkForm.mvd"
-        autoresize
-        placeholder="Проверка в розыск"
-      />
-    </UFormGroup>
     <UFormGroup
       class="mb-3"
       label="Проверка в открытых источниках"
