@@ -19,14 +19,12 @@ watch(noNegative, () => {
     Object.assign(checkForm.value, {
       workplace: "Негатив по местам работы не выявлен",
       document: "Среди недействительных документов не значится",
-      inn: "ИНН соответствует",
       debt: "Задолженности не обнаружены",
       bankruptcy: "Решений о признании банкротом не имеется",
       bki: "Кредитная история положительная",
       courts: "Судебные дела не обнаружены",
       affilation: "Аффилированность не выявлена",
       terrorist: "В списке террористов не обнаружен",
-      mvd: "В розыск не объявлен",
       internet: "В открытых источниках негатив не обнаружен",
       cronos: "В Кронос негатив не выявлен",
     });
@@ -51,13 +49,6 @@ watch(noNegative, () => {
         v-model.trim.lazy="checkForm.document"
         autoresize
         placeholder="Проверка документов"
-      />
-    </UFormGroup>
-    <UFormGroup class="mb-3" label="Проверка ИНН" name="inn">
-      <UTextarea
-        v-model.trim.lazy="checkForm.inn"
-        autoresize
-        placeholder="Проверка ИНН"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Проверка задолженностей" name="debt">
