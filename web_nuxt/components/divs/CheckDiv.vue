@@ -18,18 +18,13 @@ const props = defineProps({
   </ElementsLabelSlot>
   <ElementsLabelSlot
     v-if="props.item.document"
-    :label="'Проверка паспорта'"
+    :label="'Проверка документов"
   >
     {{ props.item.document }}
   </ElementsLabelSlot>
   <ElementsLabelSlot
-    v-if="props.item.inn"
-    :label="'Проверка ИНН'"
-    >{{ props.item.inn }}</ElementsLabelSlot
-  >
-  <ElementsLabelSlot
     v-if="props.item.debt"
-    :label="'Проверка ФССП'"
+    :label="'Проверка задолженностей"
     >{{ props.item.debt }}</ElementsLabelSlot
   >
   <ElementsLabelSlot
