@@ -62,11 +62,6 @@ const props = defineProps({
     {{ props.item.terrorist }}
   </ElementsLabelSlot>
   <ElementsLabelSlot
-    v-if="props.item.mvd"
-    :label="'Проверка в розыск'"
-    >{{ props.item.mvd }}</ElementsLabelSlot
-  >
-  <ElementsLabelSlot
     v-if="props.item.internet"
     :label="'Проверка в открытых источниках'"
   >
