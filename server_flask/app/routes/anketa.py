@@ -6,7 +6,7 @@ from datetime import datetime
 from pathlib import Path
 from subprocess import Popen
 
-from flask import Blueprint, Response, current_app, jsonify
+from flask import Blueprint, Response, current_app, jsonify, request
 from pydantic import ValidationError
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
@@ -188,8 +188,8 @@ def post_files(item: str, person_id: int, file_data: list[File]) -> Response:
     return jsonify({"message": "success"}), 201
 
 
-@bp.get("/folder/<int:person_id>")
-# @roles_required(Roles.user.value)
+@bp.post("/folder/<int:person_id>")
+@roles_required(Roles.user.value)
 def open_folder(person_id: int) -> Response:
     """Open a folder for a person.
 
@@ -201,24 +201,23 @@ def open_folder(person_id: int) -> Response:
 
     """
     dest = request.get_json()
-    if not dest["path"]:
-        person = db_session.get(Persons, person_id)
-        dest["path"] = Path(
-            current_app.config["BASE_PATH"],
-            current_user.region,
-            person.surname[0],
-            f"{person.id}-{person.surname} {person.firstname} "
-            f"{person.patronymic}".rstrip(),
-        )
-         dest["path"].mkdir(exist_ok=True)
-        person.destination = str(dest["path"])
-        db_session.commit()
-    else:
-        if not Path(dest["path"]).is_dir():
-            Path(dest["path"]).mkdir(exist_ok=True)
     try:
-        Popen(f"explorer {dest["path"]}")  # noqa: S603
-    except FileNotFoundError:
+        if not dest["path"]:
+            person = db_session.get(Persons, person_id)
+            dest["path"] = Path(
+                current_app.config["BASE_PATH"],
+                current_user.region,
+                person.surname[0],
+                f"{person.id}-{person.surname} {person.firstname} "
+                f"{person.patronymic}".rstrip(),
+            )
+            dest["path"].mkdir(exist_ok=True)
+            person.destination = str(dest["path"])
+            db_session.commit()
+        elif not Path(dest["path"]).is_dir():
+            Path(dest["path"]).mkdir(exist_ok=True)
+            Popen(f"explorer {dest['path']}")  # noqa: S603
+    except Exception:
         current_app.logger.exception("Error opening folder")
         return jsonify({"message": "error"}), 200
     return jsonify({"message": "success"}), 201

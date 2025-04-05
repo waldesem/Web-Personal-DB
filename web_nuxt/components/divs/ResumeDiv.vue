@@ -45,12 +45,22 @@ async function deleteItem() {
 }
 
 async function openFolder() {
+  pending.value = true;
   const { message } = (await authFetch(
-    "/route/anketa/folder/" + person.value.id
+    "/route/anketa/folder/" + person.value.id,
+    {
+      method: "POST",
+      body: {
+        path: person.value.destination,
+      },
+    }
   )) as {
     message: string;
   };
-  emitMessage(message);
+  pending.value = false;
+  if (message != "success") {
+    emitMessage(message);
+  }
   emit("update");
 }
 </script>
