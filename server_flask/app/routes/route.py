@@ -1,8 +1,6 @@
 """Route routes."""
 
-from pathlib import Path
-
-from flask import Blueprint, Response, jsonify, request, send_file
+from flask import Blueprint, Response, jsonify, request
 from sqlalchemy import desc, func, select
 
 from app.depends.depend import current_user, jwt_required, roles_required, validate
@@ -89,36 +87,3 @@ def get_information(query_data: Info) -> Response:
     return jsonify(
         [{"conclusion": result[0], "count": result[1]} for result in results],
     )
-
-
-@bp.post("/explorer")
-@roles_required(Roles.user.value)
-def post_explorer() -> Response:
-    """Update the file manager for the user.
-
-    Returns:
-        tuple: A tuple containing the file manager and a 200 status code.
-
-    """
-    dest = request.get_json()
-    if dest["path"] and Path(dest["path"]).is_dir():
-        folders = [
-            {
-                "name": folder.name,
-                "path": str(folder),
-            }
-            for folder in Path(dest["path"]).iterdir()
-            if folder.is_dir()
-        ]
-        files = [
-            {
-                "name": file.name,
-                "path": str(file),
-            }
-            for file in Path(dest["path"]).iterdir()
-            if file.is_file()
-        ]
-        return jsonify({"folders": folders, "files": files}), 200
-    if dest["path"] and Path(dest["path"]).is_file():
-        return send_file(dest["path"], as_attachment=True), 200
-    return jsonify({"folders": [], "files": []}), 200

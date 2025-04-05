@@ -7,7 +7,7 @@ await preloadComponents([
   "TabsPoligrafTab",
   "TabsInvestigateTab",
   "TabsInquiryTab",
-  // "TabsExplorerTab",
+  "TabsExplorerTab",
 ]);
 await prefetchComponents([
   "ElementsCardDiv",
@@ -72,11 +72,11 @@ const tabs = [
     label: "Запросы",
     icon: "i-heroicons-document-text",
   },
-  // {
-  //   slot: "explorerTab",
-  //   label: "Файлы",
-  //   icon: "i-heroicons-folder",
-  // },
+  {
+    slot: "explorerTab",
+    label: "Файлы",
+    icon: "i-heroicons-folder",
+  },
 ];
 
 async function switchSelf(): Promise<void> {
@@ -200,9 +200,9 @@ async function changeRegion(): Promise<void> {
       <template #inquiryTab>
         <TabsInquiryTab />
       </template>
-      <!-- <template #explorerTab>
+      <template #explorerTab>
         <TabsExplorerTab />
-      </template> -->
+      </template>
     </UTabs>
   </div>
 </template>

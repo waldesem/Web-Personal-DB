@@ -188,3 +188,13 @@ export interface Needs {
   user_id: string;
   created: string;
 }
+
+export interface Folders {
+  name: string;
+  path: string;
+}
+
+export interface Files {
+  name: string;
+  path: string;
+}
