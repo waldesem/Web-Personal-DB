@@ -53,13 +53,9 @@ const props = defineProps({
   </ElementsLabelSlot>
   <ElementsLabelSlot :label="'Материалы'">
     <div class="flex items-center space-x-4">
-      <UButton
-        label="Открыть"
-        variant="outline"
-        @click="emit('open')"
-      />
+      <UButton label="Открыть" variant="outline" @click="emit('open')" />
       <div v-if="props.person.destination">
-        {{ props.person.destination }}
+          {{ props.person.destination}}
       </div>
     </div>
   </ElementsLabelSlot>

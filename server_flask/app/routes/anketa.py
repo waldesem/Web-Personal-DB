@@ -216,7 +216,7 @@ def open_folder(person_id: int) -> Response:
             db_session.commit()
         elif not Path(dest["path"]).is_dir():
             Path(dest["path"]).mkdir(exist_ok=True)
-            Popen(f"explorer {dest['path']}")  # noqa: S603
+        Popen(f"explorer {dest['path']}")  # noqa: S603
     except Exception:
         current_app.logger.exception("Error opening folder")
         return jsonify({"message": "error"}), 200
