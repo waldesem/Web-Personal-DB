@@ -49,7 +49,7 @@ async function openFile(path: string) {
   window.open(url);
 }
 
-function matchFileIcon(name: string) {
+const iconFile = (name: string) => {
   const extension = name.split(".").pop();
   if (extension === "docx" || extension === "doc") {
     return "i-heroicons-document-text";
@@ -69,7 +69,7 @@ function matchFileIcon(name: string) {
   } else {
     return "i-heroicons-document";
   }
-}
+};
 </script>
 
 <template>
@@ -109,6 +109,7 @@ function matchFileIcon(name: string) {
     <div v-else style="overflow: auto">
       <div v-for="folder in listFolders" :key="folder.name">
         <UButton
+          :disabled="stateUser.role != 'user'"
           :label="
             folder.name.length < 64
               ? folder.name
@@ -123,10 +124,11 @@ function matchFileIcon(name: string) {
       </div>
       <div v-for="file in listFiles" :key="file.name">
         <UButton
+          :disabled="stateUser.role != 'user'"
           :label="
             file.name.length < 64 ? file.name : file.name.slice(0, 64) + '...'
           "
-          :icon="matchFileIcon(file.name)"
+          :icon="iconFile(file.name)"
           variant="link"
           :size="size"
           :title="file.name"
