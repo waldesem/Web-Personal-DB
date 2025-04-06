@@ -9,6 +9,14 @@ const props = defineProps({
     default: {} as Persons,
   },
 });
+
+const loading = ref(false);
+
+const open = () => {
+  loading.value = true;
+  emit("open", props.person);
+  loading.value = false;
+};
 </script>
 
 <template>
@@ -53,9 +61,14 @@ const props = defineProps({
   </ElementsLabelSlot>
   <ElementsLabelSlot :label="'Материалы'">
     <div class="flex items-center space-x-4">
-      <UButton label="Открыть" variant="outline" @click="emit('open')" />
+      <UButton
+        :loading="loading"
+        label="Открыть"
+        variant="outline"
+        @click="open"
+      />
       <div v-if="props.person.destination">
-          {{ props.person.destination}}
+        {{ props.person.destination }}
       </div>
     </div>
   </ElementsLabelSlot>
