@@ -2,9 +2,9 @@
 
 from pathlib import Path
 
-from flask import Blueprint, Response, jsonify, request, send_file
+from flask import Blueprint, Response, current_app, jsonify, request, send_file
 
-from app.depends.depend import roles_required
+from app.depends.depend import current_user, roles_required
 from app.model.classes import Roles
 from app.model.tables import Persons, db_session
 
@@ -49,6 +49,18 @@ def get_explorer(person_id: int) -> Response:
 
     """
     person = db_session.get(Persons, person_id)
+    if not person.destination:
+        destination = Path(
+            current_app.config["BASE_PATH"],
+            current_user.region,
+            person.surname[0],
+            f"{person.id}-{person.surname} {person.firstname} "
+            f"{person.patronymic}".rstrip(),
+        )
+        person.destination = str(destination)
+        db_session.commit()
+    if not Path(person.destination).is_dir():
+        Path(person.destination).mkdir(exist_ok=True)
     folders, files = get_folders_and_files(person.destination)
     return jsonify({"folders": folders, "files": files}), 200
 

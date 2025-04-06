@@ -48,28 +48,6 @@ async function openFile(path: string) {
   const url = URL.createObjectURL(file);
   window.open(url);
 }
-
-const iconFile = (name: string) => {
-  const extension = name.split(".").pop();
-  if (extension === "docx" || extension === "doc") {
-    return "i-heroicons-document-text";
-  } else if (extension === "xlsx" || extension === "xlsm") {
-    return "i-heroicons-table-cells";
-  } else if (extension === "msg") {
-    return "i-heroicons-envelope";
-  } else if (
-    extension === "png" ||
-    extension === "jpg" ||
-    extension === "jpeg" ||
-    extension === "bmp"
-  ) {
-    return "i-heroicons-photo";
-  } else if (extension === "html") {
-    return "i-heroicons-code-bracket";
-  } else {
-    return "i-heroicons-document";
-  }
-};
 </script>
 
 <template>
@@ -106,6 +84,9 @@ const iconFile = (name: string) => {
         </div>
       </div>
     </div>
+    <div v-else-if="listFolders.length == 0 && listFiles.length == 0">
+      <div class="my-3">Пустая папка</div>
+    </div>
     <div v-else style="overflow: auto">
       <div v-for="folder in listFolders" :key="folder.name">
         <UButton
@@ -128,7 +109,7 @@ const iconFile = (name: string) => {
           :label="
             file.name.length < 64 ? file.name : file.name.slice(0, 64) + '...'
           "
-          :icon="iconFile(file.name)"
+          icon="i-heroicons-document"
           variant="link"
           :size="size"
           :title="file.name"
