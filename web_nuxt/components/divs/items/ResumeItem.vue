@@ -1,22 +1,12 @@
 <script setup lang="ts">
 import type { Persons } from "@/types";
 
-const emit = defineEmits(["open"]);
-
 const props = defineProps({
   person: {
     type: Object as () => Persons,
     default: {} as Persons,
   },
 });
-
-const loading = ref(false);
-
-const open = () => {
-  loading.value = true;
-  emit("open", props.person);
-  loading.value = false;
-};
 </script>
 
 <template>
