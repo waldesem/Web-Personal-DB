@@ -43,26 +43,6 @@ async function deleteItem() {
   emitMessage(message);
   return navigateTo("/persons");
 }
-
-async function openFolder() {
-  pending.value = true;
-  const { message } = (await authFetch(
-    "/route/anketa/folder/" + person.value.id,
-    {
-      method: "POST",
-      body: {
-        path: person.value.destination,
-      },
-    }
-  )) as {
-    message: string;
-  };
-  pending.value = false;
-  if (message != "success") {
-    emitMessage(message);
-  }
-  emit("update");
-}
 </script>
 
 <template>
@@ -90,7 +70,7 @@ async function openFolder() {
       </div>
     </div>
     <div v-else>
-      <DivsItemsResumeItem :person="person" @open="openFolder" />
+      <DivsItemsResumeItem :person="person" />
     </div>
     <template v-if="editable" #footer>
       <ElementsTabMenu
