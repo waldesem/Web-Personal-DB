@@ -60,16 +60,5 @@ const open = () => {
     {{ props.person.addition }}
   </ElementsLabelSlot>
   <ElementsLabelSlot :label="'Материалы'">
-    <div class="flex items-center space-x-4">
-      <UButton
-        :loading="loading"
-        label="Открыть"
-        variant="outline"
-        @click="open"
-      />
-      <div v-if="props.person.destination">
-        {{ props.person.destination }}
-      </div>
-    </div>
-  </ElementsLabelSlot>
+      <div v-if="props.person.destination">{{ props.person.destination }}</ElementsLabelSlot>
 </template>
