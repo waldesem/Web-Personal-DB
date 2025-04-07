@@ -186,38 +186,3 @@ def post_files(item: str, person_id: int, file_data: list[File]) -> Response:
             data.file.save(file_path)
 
     return jsonify({"message": "success"}), 201
-
-
-@bp.post("/folder/<int:person_id>")
-@roles_required(Roles.user.value)
-def open_folder(person_id: int) -> Response:
-    """Open a folder for a person.
-
-    Args:
-        person_id (int): The ID of the person.
-
-    Returns:
-        The HTTP status code is 200 or 201.
-
-    """
-    dest = request.get_json()
-    try:
-        if not dest["path"]:
-            person = db_session.get(Persons, person_id)
-            dest["path"] = Path(
-                current_app.config["BASE_PATH"],
-                current_user.region,
-                person.surname[0],
-                f"{person.id}-{person.surname} {person.firstname} "
-                f"{person.patronymic}".rstrip(),
-            )
-            dest["path"].mkdir(exist_ok=True)
-            person.destination = str(dest["path"])
-            db_session.commit()
-        elif not Path(dest["path"]).is_dir():
-            Path(dest["path"]).mkdir(exist_ok=True)
-        Popen(f"explorer {dest['path']}")  # noqa: S603
-    except Exception:
-        current_app.logger.exception("Error opening folder")
-        return jsonify({"message": "error"}), 200
-    return jsonify({"message": "success"}), 201
