@@ -94,4 +94,4 @@ def get_explorer_file() -> Response:
     path = request.args.get("path")
     if not Path(path).is_file():
         return "", 404
-    return send_file(path, as_attachment=True), 200
+    return send_file(path, as_attachment=True, mimetype="application/octet-stream"), 200
