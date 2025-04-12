@@ -1,10 +1,10 @@
 """Utils module."""
 
-import re
 from pathlib import Path
 
 from flask import current_app
 from sqlalchemy import select
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.depends.depend import current_user
 from app.model.models import AnketaJson
@@ -22,7 +22,7 @@ from app.model.tables import (
 )
 
 
-def upload_resume(resume: dict) -> int:
+def upload_resume(resume: dict) -> dict:
     """Upload a resume to the database.
 
     Args:
@@ -32,9 +32,6 @@ def upload_resume(resume: dict) -> int:
         int: The ID of the uploaded resume.
 
     """
-    if not re.match(r"^[А-ЯЁ]", resume["surname"]):  # noqa: RUF001
-        return None
-
     resume.update(
         {"editable": True, "user_id": current_user.id, "region": current_user.region},
     )
@@ -72,7 +69,7 @@ def upload_resume(resume: dict) -> int:
     return {"exists": True, "person_id": person.id}
 
 
-def get_items(anketa: AnketaJson, person_id: int) -> list:
+def upload_items(anketa: AnketaJson, person_id: int) -> None:
     """Get the anketa items.
 
     Args:
@@ -83,7 +80,7 @@ def get_items(anketa: AnketaJson, person_id: int) -> list:
         list: The anketa items.
 
     """
-    return [
+    items = [
         Staffs(
             position=anketa.position_name,
             department=anketa.department,
@@ -198,3 +195,10 @@ def get_items(anketa: AnketaJson, person_id: int) -> list:
             for aff in anketa.public_organizations
         ],
     ]
+    try:
+        db_session.add_all(items)
+        db_session.commit()
+    except SQLAlchemyError:
+        current_app.logger.exception("SQLAlchemyError in post_file")
+        db_session.rollback()
+

@@ -77,8 +77,8 @@ class Person(Model):
     __modelname__ = "persons"
 
     id: int | str | None = None
-    surname: str
-    firstname: str
+    surname: str = Field(regex=r"^[А-ЯЁ][а-яА-ЯЁё\-\s]+[а-яА-ЯЁё]$")  # noqa: RUF001
+    firstname: str = Field(regex=r"^[А-ЯЁ][а-яА-ЯЁё\-\s]+[а-яА-ЯЁё]$")  # noqa: RUF001
     patronymic: str | None = ""
     birthday: date
     birthplace: str | None = ""

@@ -4,9 +4,8 @@ import json
 import shutil
 from datetime import datetime
 from pathlib import Path
-from subprocess import Popen
 
-from flask import Blueprint, Response, current_app, jsonify, request
+from flask import Blueprint, Response, current_app, jsonify
 from pydantic import ValidationError
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
@@ -15,7 +14,7 @@ from app.depends.depend import current_user, roles_required, validate
 from app.model.classes import Roles
 from app.model.models import AnketaJson, File, Person, Region
 from app.model.tables import Persons, db_session
-from app.utils.utils import get_items, upload_resume
+from app.utils.utils import upload_items, upload_resume
 
 bp = Blueprint("anketa", __name__, url_prefix="/anketa")
 
@@ -68,26 +67,18 @@ def post_json(file_data: list[File]) -> Response:
             "snils": anketa.snils,
         }
         result = upload_resume(resume)
-        if not result["person_id"]:
-            return jsonify({"person_id": None, "exists": result["exists"]}), 200
-
-        items = get_items(anketa, result["person_id"])
-        try:
-            db_session.add_all(items)
-            db_session.commit()
+        if result.get("person_id"):
+            upload_items(anketa, result["person_id"])
             return jsonify(
-                {"person_id": result["person_id"], "exists": result["exists"]},
+                {"person_id": result["person_id"], "exists": result.get("exists")},
             ), 201
-        except SQLAlchemyError:
-            current_app.logger.exception("SQLAlchemyError in post_file")
-            db_session.rollback()
     except ValidationError:
         current_app.logger.exception("Validation error")
     except json.JSONDecodeError:
         current_app.logger.exception("JSONDecodeError")
     except TypeError:
         current_app.logger.exception("TypeError")
-    return jsonify({"person_id": None, "exists": result["exists"]}), 200
+    return jsonify({"person_id": None, "exists": result.get("exists")}), 200
 
 
 @bp.get("/region/<int:person_id>")

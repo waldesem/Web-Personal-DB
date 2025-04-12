@@ -37,7 +37,7 @@ async function openFolder(path: string) {
   listFiles.value = files;
 }
 
-async function openFile(path: string) {
+async function openFile(path: string, name: string) {
   pending.value = true;
   const file = (await authFetch("/route/explorer/file", {
     params: {
@@ -46,7 +46,14 @@ async function openFile(path: string) {
   })) as Blob;
   pending.value = false;
   const url = URL.createObjectURL(file);
-  window.open(url);
+  const link = document.createElement("a");
+  link.style.display = "none";
+  link.href = url;
+  link.download = name;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  // window.open(url);
 }
 </script>
 
@@ -113,7 +120,7 @@ async function openFile(path: string) {
           variant="link"
           :size="size"
           :title="file.name"
-          @click="openFile(file.path)"
+          @click="openFile(file.path, file.name)"
         />
       </div>
     </div>
