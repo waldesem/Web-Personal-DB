@@ -22,6 +22,7 @@ class Model(BaseModel):
 
         use_enum_values = True
 
+
 class Login(Model):
     """Pydantic model for login form."""
 
@@ -77,9 +78,11 @@ class Person(Model):
     __modelname__ = "persons"
 
     id: int | str | None = None
-    surname: str = Field(regex=r"^[А-ЯЁ][а-яА-ЯЁё\-\s]+[а-яА-ЯЁё]$")  # noqa: RUF001
-    firstname: str = Field(regex=r"^[А-ЯЁ][а-яА-ЯЁё\-\s]+[а-яА-ЯЁё]$")  # noqa: RUF001
-    patronymic: str | None = ""
+    surname: str = Field(regex=r"^[А-яЁё][А-яЁёIV\-\s\.\,\'\(\)]+[А-яЁё\s]$")  # noqa: RUF001
+    firstname: str = Field(regex=r"^[А-яЁё][А-яЁёIV\-\s\.\,\'\(\)]+[А-яЁё\s]$")  # noqa: RUF001
+    patronymic: str | None = Field(
+        regex=r"^$|^[А-яЁё][А-яЁёIV\-\s\.\,\'\(\)]+[А-яЁё\s]$", default="",  # noqa: RUF001
+    )
     birthday: date
     birthplace: str | None = ""
     citizenship: str | None = ""
