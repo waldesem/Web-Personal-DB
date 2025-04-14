@@ -78,10 +78,10 @@ class Person(Model):
     __modelname__ = "persons"
 
     id: int | str | None = None
-    surname: str = Field(regex=r"^[А-яЁё][А-яЁёIV\-\s\.\,\'\(\)]+[А-яЁё\s]$")  # noqa: RUF001
-    firstname: str = Field(regex=r"^[А-яЁё][А-яЁёIV\-\s\.\,\'\(\)]+[А-яЁё\s]$")  # noqa: RUF001
+    surname: str = Field(regex=r"^[А-яЁё][А-яЁёIV\-\s\.\,\'\(\)]*[А-яЁё\s]$")  # noqa: RUF001
+    firstname: str = Field(regex=r"^[А-яЁё][А-яЁёIV\-\s\.\,\'\(\)]*[А-яЁё\s]$")  # noqa: RUF001
     patronymic: str | None = Field(
-        regex=r"^$|^[А-яЁё][А-яЁёIV\-\s\.\,\'\(\)]+[А-яЁё\s]$", default="",  # noqa: RUF001
+        regex=r"^$|^[А-яЁё][А-яЁёIV\-\s\.\,\'\(\)]*[А-яЁё\s]$", default="",  # noqa: RUF001
     )
     birthday: date
     birthplace: str | None = ""
