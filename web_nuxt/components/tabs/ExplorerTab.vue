@@ -7,35 +7,30 @@ const candId = inject("candId") as Ref<string>;
 
 const listFolders = ref<Folders[]>([]);
 const listFiles = ref<Files[]>([]);
+const path = ref("") as Ref<string>;
 const pending = ref(false);
 
 const size = ref("lg") as Ref<"xs" | "sm" | "md" | "lg" | "xl">;
 
-const { refresh, status } = await useLazyAsyncData("explorer", async () => {
-  const { folders, files } = (await authFetch(
-    "/route/explorer/home/" + candId.value
-  )) as {
-    folders: Folders[];
-    files: Files[];
-  };
-  listFolders.value = folders;
-  listFiles.value = files;
-});
-
-async function openFolder(path: string) {
-  pending.value = true;
-  const { folders, files } = (await authFetch("/route/explorer/folder", {
-    params: {
-      path: path,
-    },
-  })) as {
-    folders: Folders[];
-    files: Files[];
-  };
-  pending.value = false;
-  listFolders.value = folders;
-  listFiles.value = files;
-}
+const { status } = await useLazyAsyncData(
+  "explorer",
+  async () => {
+    const { folders, files } = (await authFetch(
+      "/route/explorer/folder/" + candId.value,
+      {
+        params: {
+          path: path,
+        },
+      }
+    )) as {
+      folders: Folders[];
+      files: Files[];
+    };
+    listFolders.value = folders;
+    listFiles.value = files;
+  },
+  { watch: [path] }
+);
 
 async function openFile(path: string, name: string) {
   pending.value = true;
@@ -65,7 +60,7 @@ async function openFile(path: string, name: string) {
         variant="ghost"
         icon="i-heroicons-home"
         size="xl"
-        @click="refresh"
+        @click="path = ''"
       />
       <USelectMenu
         v-model="size"
@@ -106,7 +101,7 @@ async function openFile(path: string, name: string) {
           variant="link"
           :size="size"
           :title="folder.name"
-          @click="openFolder(folder.path)"
+          @click="path = folder.path"
         />
       </div>
       <div v-for="file in listFiles" :key="file.name">

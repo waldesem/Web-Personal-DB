@@ -1,7 +1,5 @@
 """Utils module."""
 
-from pathlib import Path
-
 from flask import current_app
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
@@ -22,7 +20,7 @@ from app.model.tables import (
 )
 
 
-def upload_resume(resume: dict) -> dict:
+def upload_resume(resume: dict) -> tuple[int, bool]:
     """Upload a resume to the database.
 
     Args:
@@ -30,6 +28,7 @@ def upload_resume(resume: dict) -> dict:
 
     Returns:
         int: The ID of the uploaded resume.
+        bool: True if the resume existed earlier.
 
     """
     resume.update(
@@ -47,26 +46,16 @@ def upload_resume(resume: dict) -> dict:
     if not person:
         person = Persons(**resume)
         db_session.add(person)
-        db_session.flush()
-        destination = Path(
-            current_app.config["BASE_PATH"],
-            person.region,
-            person.surname[0],
-            f"{person.id}-{person.surname} {person.firstname} "
-            f"{person.patronymic}".rstrip(),
-        )
-        destination.mkdir(exist_ok=True)
-        person.destination = str(destination)
         db_session.commit()
-        return {"exists": False, "person_id": person.id}
+        return person.id, False
 
     if person.editable or person.region != resume["region"]:
-        return {"exists": True, "person_id": None}
+        return None, False
 
     for k, v in resume.items():
         setattr(person, k, v)
     db_session.commit()
-    return {"exists": True, "person_id": person.id}
+    return person.id, True
 
 
 def upload_items(anketa: AnketaJson, person_id: int) -> None:

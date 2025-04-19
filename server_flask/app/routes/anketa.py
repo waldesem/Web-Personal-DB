@@ -2,7 +2,6 @@
 
 import json
 import shutil
-from datetime import datetime
 from pathlib import Path
 
 from flask import Blueprint, Response, current_app, jsonify
@@ -32,9 +31,9 @@ def post_resume(json_data: Person) -> Response:
         A JSON response containing the person ID and an HTTP status code of 201.
 
     """
-    result = upload_resume(json_data.dict())
+    person_id, existed = upload_resume(json_data.dict())
     return jsonify(
-        {"person_id": result["person_id"], "exists": result["exists"]},
+        {"person_id": person_id, "exists": existed},
     ), 201
 
 
@@ -66,11 +65,11 @@ def post_json(file_data: list[File]) -> Response:
             "inn": anketa.inn,
             "snils": anketa.snils,
         }
-        result = upload_resume(resume)
-        if result.get("person_id"):
-            upload_items(anketa, result["person_id"])
+        person_id, existed = upload_resume(resume)
+        if person_id:
+            upload_items(anketa, person_id)
             return jsonify(
-                {"person_id": result["person_id"], "exists": result.get("exists")},
+                {"person_id": person_id, "exists": existed},
             ), 201
     except ValidationError:
         current_app.logger.exception("Validation error")
@@ -78,7 +77,7 @@ def post_json(file_data: list[File]) -> Response:
         current_app.logger.exception("JSONDecodeError")
     except TypeError:
         current_app.logger.exception("TypeError")
-    return jsonify({"person_id": None, "exists": result.get("exists")}), 200
+    return jsonify({"person_id": None, "exists": False}), 200
 
 
 @bp.get("/region/<int:person_id>")
@@ -101,15 +100,19 @@ def change_region(person_id: int, query_data: Region) -> Response:
         query_data.region,
         person.surname[0],
         f"{person_id}-{person.surname} {person.firstname} "
-        f"{person.patronymic if person.patronymic else ''}".rstrip(),
+        f"{person.patronymic}".rstrip(),
     )
-    if person.destination and Path(person.destination).is_dir():
+    try:
         shutil.copytree(person.destination, destination, dirs_exist_ok=True)
-    person.destination = str(destination)
-    person.region = query_data.region
-    person.editable = False
-    db_session.commit()
-    return jsonify({"message": "success"}), 201
+        person.destination = str(destination)
+        person.region = query_data.region
+        person.editable = False
+        db_session.commit()
+        return jsonify({"message": "success"}), 201
+    except shutil.Error:
+        current_app.logger.exception("Exception in change_region")
+        db_session.rollback()
+    return jsonify({"message": "error"}), 200
 
 
 @bp.get("/self/<int:person_id>")
@@ -136,44 +139,3 @@ def change_self_id(person_id: int) -> Response:
         current_app.logger.exception("Exception in change_self_id")
         db_session.rollback()
     return jsonify({"message": "error"}), 200
-
-
-@bp.post("/files/<item>/<int:person_id>")
-@validate()
-@roles_required(Roles.user.value)
-def post_files(item: str, person_id: int, file_data: list[File]) -> Response:
-    """Upload a file to the server.
-
-    Args:
-        item (str): The name of the item.
-        person_id (int): The ID of the person.
-        file_data (list[File]): The file data.
-
-    Returns:
-        The HTTP status code is 200.
-
-    """
-    person = db_session.get(Persons, person_id)
-    if not person.destination:
-        destination = Path(
-            current_app.config["BASE_PATH"],
-            current_user.region,
-            person.surname[0],
-            f"{person.id}-{person.surname} {person.firstname} "
-            f"{person.patronymic}".rstrip(),
-        )
-        destination.mkdir(exist_ok=True)
-        person.destination = str(destination)
-        db_session.commit()
-    subfolder = Path(
-        person.destination,
-        item,
-        datetime.now().strftime("%Y-%m-%d"),
-    )
-    subfolder.mkdir(parents=True, exist_ok=True)
-    for data in file_data:
-        file_path = Path(subfolder, data.filename)
-        if not file_path.is_file():
-            data.file.save(file_path)
-
-    return jsonify({"message": "success"}), 201
