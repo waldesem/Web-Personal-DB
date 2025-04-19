@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { TableColumn } from '@nuxt/ui'
 import { watchDebounced } from "@vueuse/core";
 import type { User } from "@/types";
 
@@ -44,6 +45,18 @@ watchDebounced(
     maxWait: 2000,
   }
 );
+
+const columns: TableColumn<User>[] = [
+  { accessorKey: "id", header: "#" },
+  { accessorKey: "fullname", header: "Пользователь" },
+  { accessorKey: "username", header: "Логин" },
+  { accessorKey: "email", header: "Email" },
+  { accessorKey: "region", header: "Регион" },
+  { accessorKey: "role", header: "Роль" },
+  { accessorKey: "attempt", header: "Попытка" },
+  { accessorKey: "blocked", header: "Блок" },
+  { accessorKey: "change_pswd", header: "Изм.пароля" },
+];
 </script>
 
 <template>
@@ -55,9 +68,9 @@ watchDebounced(
       <UInput v-model="search" placeholder="Поиск по имени пользователя" />
     </div>
     <div class="flex items-center justify-between mb-4">
-      <UFormGroup class="flex items-center space-x-4 mb-3" label="Удаленные">
-        <UToggle v-model="viewDeleted" />
-      </UFormGroup>
+      <UFormField class="flex items-center space-x-4 mb-3" label="Удаленные">
+        <USwitch v-model="viewDeleted" />
+      </UFormField>
       <UButton
         variant="link"
         label="Добавить пользователя"
@@ -93,31 +106,21 @@ watchDebounced(
         icon: 'i-heroicons-circle-stack-20-solid',
         label: 'Пользователи не найдены.',
       }"
-      :columns="[
-        { key: 'id', label: '#' },
-        { key: 'fullname', label: 'Пользователь' },
-        { key: 'username', label: 'Логин' },
-        { key: 'email', label: 'Email' },
-        { key: 'region', label: 'Регион' },
-        { key: 'role', label: 'Роль' },
-        { key: 'attempt', label: 'Попытка' },
-        { key: 'blocked', label: 'Блок' },
-        { key: 'change_pswd', label: 'Изм.пароля' },
-      ]"
-      :rows="filtredUsers"
+      :data="filtredUsers"
+      :columns="columns"
       @select="getUser($event.id)"
     >
-      <template #id-data="{ row }">{{ row.id }}</template>
-      <template #fullname-data="{ row }">{{ row.fullname }}</template>
-      <template #username-data="{ row }">{{ row.username }}</template>
-      <template #region-data="{ row }">{{ row.region }}</template>
-      <template #role-data="{ row }">{{ row.role }}</template>
-      <template #attempt-data="{ row }">
+      <template #id-cell="{ row }">{{ row.id }}</template>
+      <template #fullname-cell="{ row }">{{ row.fullname }}</template>
+      <template #username-cell="{ row }">{{ row.username }}</template>
+      <template #region-cell="{ row }">{{ row.region }}</template>
+      <template #role-cell="{ row }">{{ row.role }}</template>
+      <template #attempt-cell="{ row }">
         <div class="text-center">
           {{ row.attempt }}
         </div>
       </template>
-      <template #blocked-data="{ row }">
+      <template #blocked-cell="{ row }">
         <div class="text-center">
           <UIcon
             :name="
@@ -126,7 +129,7 @@ watchDebounced(
           />
         </div>
       </template>
-      <template #change_pswd-data="{ row }">
+      <template #change_pswd-cell="{ row }">
         <div class="text-center">
           <UIcon
             :name="

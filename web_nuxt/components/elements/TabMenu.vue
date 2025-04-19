@@ -28,7 +28,7 @@ onChange(async (files) => {
         icon: "i-heroicons-exclamation-triangle",
         title: "Внимание",
         description: "Размер одного файла не должен превышать 10 МБ",
-        color: "red",
+        color: "error",
       });
       continue;
     }
@@ -46,14 +46,14 @@ onChange(async (files) => {
       icon: "i-heroicons-information-circle",
       title: "Внимание",
       description: "Загрузка не удалась или отсутствует доступ к папке",
-      color: "red",
+      color: "error",
     });
   } else {
     toast.add({
       icon: "i-heroicons-check-circle",
       title: "Информация",
       description: "Файлы успешно загружены",
-      color: "green",
+      color: "success",
     });
   }
   reset();
@@ -63,7 +63,7 @@ onCancel(() => {
   reset();
 });
 
-const links = [
+const items = [
   {
     label: "Удалить",
     icon: "i-heroicons-trash",
@@ -84,5 +84,5 @@ const links = [
 </script>
 
 <template>
-  <UHorizontalNavigation :links="links" />
+  <UNavigationMenu variant="link" :items="items" />
 </template>

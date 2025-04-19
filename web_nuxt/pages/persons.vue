@@ -75,7 +75,7 @@ onChange(async (files) => {
         icon: "i-heroicons-exclamation-triangle",
         title: "Внимание",
         description: "Кандидат ранее уже был загружен",
-        color: "red",
+        color: "error",
       });
     }
     await navigateTo("/profile/" + person_id);
@@ -85,7 +85,7 @@ onChange(async (files) => {
       title: "Внимание",
       description:
         "Файл поврежден или анкета находится в другом регионе или редактируется",
-      color: "red",
+      color: "error",
     });
   }
 });
@@ -108,7 +108,7 @@ async function submitResume(form: Persons): Promise<void> {
         icon: "i-heroicons-exclamation-triangle",
         title: "Внимание",
         description: "Кандидат уже был загружен ранее. Данные были обновлены",
-        color: "red",
+        color: "error",
       });
     }
     navigateTo("/profile/" + person_id);
@@ -117,7 +117,7 @@ async function submitResume(form: Persons): Promise<void> {
       icon: "i-heroicons-information-circle",
       title: "Внимание",
       description: "Невозможно выполнить действие",
-      color: "red",
+      color: "error",
     });
   }
 }
@@ -140,18 +140,18 @@ async function submitResume(form: Persons): Promise<void> {
               @click="modal = true"
             />
           </UTooltip>
-          <UModal v-model="modal" prevent-close>
+          <!-- <UModal v-model="modal" prevent-close>
             <ElementsCardDiv>
               <FormsResumeForm @cancel="modal = false" @update="submitResume" />
             </ElementsCardDiv>
-          </UModal>
+          </UModal> -->
           <UTooltip text="Загрузить json">
             <UButton
               :loading="status == 'pending' || upload"
               icon="i-heroicons-cloud-arrow-up"
               size="xl"
               variant="ghost"
-              @click="open"
+              @click="open()"
             />
           </UTooltip>
         </div>
@@ -176,49 +176,49 @@ async function submitResume(form: Persons): Promise<void> {
         label: 'Данные не найдены.',
       }"
       :columns="[
-        { key: 'id', label: '#' },
-        { key: 'region', label: 'Регион' },
-        { key: 'surname', label: 'Фамилия Имя Отчество' },
-        { key: 'birthday', label: 'Дата рождения' },
-        { key: 'editable', label: 'Статус' },
-        { key: 'created', label: 'Обновлено' },
-        { key: 'username', label: 'Сотрудник' },
+        { accessorKey: 'id', header: '#' },
+        { accessorKey: 'region', header: 'Регион' },
+        { accessorKey: 'surname', header: 'Фамилия Имя Отчество' },
+        { accessorKey: 'birthday', header: 'Дата рождения' },
+        { accessorKey: 'editable', header: 'Статус' },
+        { accessorKey: 'created', header: 'Обновлено' },
+        { accessorKey: 'username', header: 'Сотрудник' },
       ]"
-      :rows="candidates"
-      @select="navigateTo(`/profile/${$event.id}`)"
+      :data="candidates"
+      @select="navigateTo(`/profile/${$event.original.id}`)"
     >
-      <template #id-data="{ row }">{{ row.id }}</template>
-      <template #region-data="{ row }">{{ row.region }}</template>
-      <template #surname-data="{ row }">
+      <template #id-cell="{ row }">{{ row.original.id }}</template>
+      <template #region-cell="{ row }">{{ row.original.region }}</template>
+      <template #surname-cell="{ row }">
         {{
-          `${row.surname} ${row.firstname} ${
-            row.patronymic ? row.patronymic : ""
+          `${row.original.surname} ${row.original.firstname} ${
+            row.original.patronymic ? row.original.patronymic : ""
           }`
         }}
       </template>
-      <template #birthday-data="{ row }">{{
-        new Date(row.birthday).toLocaleDateString("ru-RU")
+      <template #birthday-cell="{ row }">{{
+        new Date(row.original.birthday).toLocaleDateString("ru-RU")
       }}</template>
-      <template #editable-data="{ row }">
+      <template #editable-cell="{ row }">
         <UTooltip
-          :text="row.editable ? 'Анкета редактируется' : 'Анкета обновлена'"
+          :text="row.original.editable ? 'Анкета редактируется' : 'Анкета обновлена'"
         >
           <UIcon
             :name="
-              row.editable
+              row.original.editable
                 ? 'i-heroicons-arrow-path'
                 : 'i-heroicons-check-circle'
             "
             class="text-start w-4 h-4"
-            :class="{ 'animate-spin text-red-800': row.editable }"
+            :class="{ 'animate-spin text-red-800': row.original.editable }"
           />
         </UTooltip>
       </template>
-      <template #created-data="{ row }">{{
-        new Date(row.created).toLocaleDateString("ru-RU")
+      <template #created-cell="{ row }">{{
+        new Date(row.original.created).toLocaleDateString("ru-RU")
       }}</template>
-      <template #username-data="{ row }">{{
-        row.username ? row.username.toString().split(" ")[0] : ""
+      <template #username-cell="{ row }">{{
+        row.original.username ? row.original.username.toString().split(" ")[0] : ""
       }}</template>
       <template #caption>
         <caption class="caption-bottom mt-2">
@@ -228,7 +228,7 @@ async function submitResume(form: Persons): Promise<void> {
               icon="i-heroicons-arrow-path"
               :label="`Обновлено в: ${updated}`"
               :loading="status == 'pending' || upload"
-              @click="refresh"
+              @click="refresh()"
             />
             <div class="flex items-center space-x-2">
               <div class="text-sm text-blue-600">Показать редактируемые</div>
@@ -243,8 +243,7 @@ async function submitResume(form: Persons): Promise<void> {
         <UButton
           icon="i-heroicons-arrow-small-left-20-solid"
           :disabled="page < 2"
-          :ui="{ rounded: 'rounded-full' }"
-          class="me-2"
+          class="me-2 rounded-full"
           @click="page--"
         />
       </UTooltip>
@@ -252,8 +251,7 @@ async function submitResume(form: Persons): Promise<void> {
         <UButton
           icon="i-heroicons-arrow-small-right-20-solid"
           :disabled="!hasNext"
-          :ui="{ rounded: 'rounded-full' }"
-          class="ms-2"
+          class="ms-2 rounded-full"
           @click="page++"
         />
       </UTooltip>

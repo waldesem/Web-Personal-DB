@@ -6,11 +6,11 @@ useHead({
 </script>
 
 <template>
-  <NuxtLoadingIndicator color="red" />
-  <NuxtLayout>
-    <NuxtPage />
-  </NuxtLayout>
-  <UNotifications />
+  <UApp>
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
+  </UApp>
 </template>
 
 <style>

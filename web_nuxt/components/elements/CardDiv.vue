@@ -1,9 +1,7 @@
 <template>
   <UCard
     :ui="{
-      footer: {
-        padding: 'p-1',
-      },
+      footer: 'p-1',
     }"
   >
     <slot />

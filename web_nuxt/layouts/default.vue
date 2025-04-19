@@ -40,7 +40,7 @@ async function logout() {
   return;
 }
 
-const links = [
+const items = [
   [
     {
       label: "ПОЛЬЗОВАТЕЛИ",
@@ -78,43 +78,91 @@ const isOpen = ref(false);
         v-if="stateUser.role == 'admin'"
         class="flex items-center justify-end"
       >
-        <UHorizontalNavigation
+        <UNavigationMenu
           :ui="{
-            active: 'text-red-600',
-            inactive: 'text-blue-600',
-            icon: {
-              active: 'text-red-600',
-              inactive: 'text-blue-600',
-            },
+            // active: 'text-red-600',
+            // inactive: 'text-blue-600',
+            // icon: {
+            //   active: 'text-red-600',
+            //   inactive: 'text-blue-600',
+            // },
           }"
-          :links="links"
+          :items="items"
         />
       </div>
       <div class="flex items-center justify-end space-x-4">
-        <UTooltip
-          :text="
-            messages.length
-              ? 'Есть непрочитанные сообщения'
-              : 'Новых сообщений нет'
-          "
-        >
-          <UButton
-            :icon="
-              messages.length ? 'i-heroicons-bell-alert' : 'i-heroicons-bell'
+        <USlideover v-model="isOpen" :overlay="false">
+          <UTooltip
+            :text="
+              messages.length
+                ? 'Есть непрочитанные сообщения'
+                : 'Новых сообщений нет'
             "
-            variant="ghost"
-            size="xl"
-            :loading="status == 'pending'"
-            :disabled="messages.length == 0"
-            @click="isOpen = true"
-          />
-        </UTooltip>
+          >
+            <UButton
+              :icon="
+                messages.length ? 'i-heroicons-bell-alert' : 'i-heroicons-bell'
+              "
+              variant="ghost"
+              size="xl"
+              :loading="status == 'pending'"
+              :disabled="messages.length == 0"
+              @click="isOpen = true"
+            />
+          </UTooltip>
+          <template #content>
+          <div class="p-1" style="overflow-y: scroll">
+            <div class="flex items-center justify-between m-3">
+              <UTooltip text="Обновить">
+                <UButton
+                  icon="i-heroicons-arrow-path"
+                  variant="ghost"
+                  @click="refresh()"
+                />
+              </UTooltip>
+              <div class="text-sm font-bold">
+                {{ `Обновлено: ${updated.toLocaleString("ru-RU")}` }}
+              </div>
+              <UTooltip text="Очистить">
+                <UButton
+                  icon="i-heroicons-trash"
+                  variant="ghost"
+                  @click="clearMessages"
+                />
+              </UTooltip>
+            </div>
+            <div v-for="item in messages" :key="item.id" :item="item" class="m-3">
+              <UCard
+                :ui="{
+                  body: 'px-1 py-2 sm:p-2',
+                  header: 'px-1 py-2 sm:p-2 bg-gray-100',
+                  footer: 'px-1 py-1 sm:p-1',
+                }"
+              >
+                <template #header>
+                  <div class="text-sm font-bold">
+                    {{ item.theme }}
+                  </div>
+                </template>
+                <div class="text-sm">
+                  {{ item.message }}
+                </div>
+                <template #footer>
+                  <div class="text-xs font-bold italic text-right">
+                    {{ new Date(item.created).toLocaleString("ru-RU") }}
+                  </div>
+                </template>
+              </UCard>
+            </div>
+          </div>
+          </template>
+        </USlideover>
         <UTooltip text="Выход">
           <UButton
+            class="rounded-full"
             :label="stateUser.username"
-            color="red"
+            color="error"
             icon="i-heroicons-arrow-left-end-on-rectangle"
-            :ui="{ rounded: 'rounded-full' }"
             @click="logout()"
           />
         </UTooltip>
@@ -123,55 +171,5 @@ const isOpen = ref(false);
     <div>
       <slot />
     </div>
-    <USlideover v-model="isOpen" :overlay="false">
-      <div class="p-1" style="overflow-y: scroll">
-        <div class="flex items-center justify-between m-3">
-          <UTooltip text="Обновить">
-            <UButton
-              icon="i-heroicons-arrow-path"
-              variant="ghost"
-              @click="refresh()"
-            />
-          </UTooltip>
-          <div class="text-sm font-bold">
-            {{ `Обновлено: ${updated.toLocaleString("ru-RU")}` }}
-          </div>
-          <UTooltip text="Очистить">
-            <UButton
-              icon="i-heroicons-trash"
-              variant="ghost"
-              @click="clearMessages"
-            />
-          </UTooltip>
-        </div>
-        <div v-for="item in messages" :key="item.id" :item="item" class="m-3">
-          <UCard
-            :ui="{
-              divide: '',
-              body: { padding: 'px-1 py-2 sm:p-2' },
-              header: {
-                padding: 'px-1 py-2 sm:p-2',
-                background: 'bg-gray-100',
-              },
-              footer: { padding: 'px-1 py-1 sm:p-1' },
-            }"
-          >
-            <template #header>
-              <div class="text-sm font-bold">
-                {{ item.theme }}
-              </div>
-            </template>
-            <div class="text-sm">
-              {{ item.message }}
-            </div>
-            <template #footer>
-              <div class="text-xs font-bold italic text-right">
-                {{ new Date(item.created).toLocaleString("ru-RU") }}
-              </div>
-            </template>
-          </UCard>
-        </div>
-      </div>
-    </USlideover>
   </UContainer>
 </template>

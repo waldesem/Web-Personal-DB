@@ -12,12 +12,12 @@ const loginAction = ref("login");
 const loginForm = ref({} as Login);
 
 const alert = ref({
-  color: "green",
+  color: "success",
   title: "Информация",
   description: "Введите логин и пароль",
 });
 
-const validate = (state: Login) => {
+const validate = (state: Partial<Login>) => {
   const errors = [];
   if (loginAction.value === "update") {
     if (state.password === state.new_pswd) {
@@ -63,20 +63,20 @@ async function submitLogin(): Promise<void> {
   } else if (message === "Updated") {
     loginAction.value = "login";
     Object.assign(alert.value, {
-      color: "blue",
+      color: "secondary",
       title: "Информация",
       description: "Войдите с новым паролем.",
     });
   } else if (message === "Denied") {
     loginAction.value = "update";
     Object.assign(alert.value, {
-      color: "red",
+      color: "error",
       title: "Предупреждение",
       description: "Пароль просрочен.",
     });
   } else {
     Object.assign(alert.value, {
-      color: "red",
+      color: "error",
       title: "Внимание",
       description: "Неправильный логин или пароль.",
     });
@@ -110,7 +110,7 @@ async function submitLogin(): Promise<void> {
           class="mt-4"
           @submit.prevent="submitLogin"
         >
-          <UFormGroup
+          <UFormField
             class="mb-3"
             size="md"
             label="Логин"
@@ -123,8 +123,8 @@ async function submitLogin(): Promise<void> {
               icon="i-heroicons-user"
               required
             />
-          </UFormGroup>
-          <UFormGroup
+          </UFormField>
+          <UFormField
             class="mb-3"
             size="md"
             label="Пароль"
@@ -138,9 +138,9 @@ async function submitLogin(): Promise<void> {
               icon="i-heroicons-lock-closed"
               required
             />
-          </UFormGroup>
+          </UFormField>
           <div v-if="loginAction === 'update'">
-            <UFormGroup
+            <UFormField
               class="mb-3"
               size="md"
               label="Новый пароль"
@@ -154,8 +154,8 @@ async function submitLogin(): Promise<void> {
                 icon="i-heroicons-lock-closed"
                 required
               />
-            </UFormGroup>
-            <UFormGroup
+            </UFormField>
+            <UFormField
               class="mb-3"
               size="md"
               label="Повтор пароля"
@@ -169,25 +169,25 @@ async function submitLogin(): Promise<void> {
                 icon="i-heroicons-lock-closed"
                 required
               />
-            </UFormGroup>
+            </UFormField>
           </div>
           <UButtonGroup class="mt-3">
             <UButton
               label="Принять"
-              color="green"
+              color="success"
               variant="outline"
               type="submit"
             />
-            <UButton
-              v-show="loginAction === 'login'"
-              label="Изменить"
-              color="blue"
-              variant="outline"
-              @click="loginAction = 'update'"
-            />
+              <UButton 
+                v-if="loginAction === 'login'"
+                label="Изменить"
+                color="secondary"
+                variant="outline"
+                @click="loginAction = 'update'"
+              />
             <UButton
               label="Отмена"
-              color="red"
+              color="error"
               variant="outline"
               @click="loginAction = 'login'"
             />

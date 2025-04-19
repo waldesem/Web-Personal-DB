@@ -31,10 +31,10 @@ export default defineNuxtConfig({
     },
   },
   modules: ["@nuxt/ui", "@nuxt/eslint", "@vueuse/nuxt"],
+  css: ['~/assets/css/main.css'],
   icon: {
     clientBundle: {
       scan: true,
     },
   },
-  css: ["~/assets/css/main.css"],
 });

@@ -2,7 +2,7 @@
 
 const emit = defineEmits(["delete", "update"]);
 
-const links = [
+const items = [
   {
     label: "Удалить",
     icon: "i-heroicons-trash",
@@ -17,5 +17,5 @@ const links = [
 </script>
 
 <template>
-  <UHorizontalNavigation :links="links" />
+  <UNavigationMenu variant="link" :items="items" />
 </template>

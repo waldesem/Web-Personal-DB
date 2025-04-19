@@ -5,11 +5,11 @@ const emit = defineEmits(["cancel"]);
 <template>
   <div class="mt-3">
     <UButtonGroup>
-      <UButton label="Принять" color="green" variant="outline" type="submit" />
-      <UButton label="Очистить" color="blue" variant="outline" type="reset" />
+      <UButton label="Принять" color="success" variant="outline" type="submit" />
+      <UButton label="Очистить" color="primary" variant="outline" type="reset" />
       <UButton
         label="Отмена"
-        color="red"
+        color="error"
         variant="outline"
         @click="emit('cancel')"
       />
