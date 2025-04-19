@@ -36,4 +36,5 @@ export default defineNuxtConfig({
       scan: true,
     },
   },
+  css: ["~/assets/css/main.css"],
 });
