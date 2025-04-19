@@ -15,7 +15,7 @@ bp = Blueprint("explorer", __name__, url_prefix="/explorer")
 
 @bp.get("/folder/<int:person_id>")
 @roles_required(Roles.user.value)
-def get_explorer(person_id: int) -> Response:
+def get_folder(person_id: int) -> Response:
     """Update the file manager for the user.
 
     Returns:
@@ -61,7 +61,7 @@ def get_explorer(person_id: int) -> Response:
 
 @bp.get("/file")
 @roles_required(Roles.user.value)
-def get_explorer_file() -> Response:
+def get_file() -> Response:
     """Retrieve a file from the server.
 
     Args:

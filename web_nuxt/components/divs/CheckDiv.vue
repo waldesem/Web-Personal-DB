@@ -86,6 +86,8 @@ const props = defineProps({
           ? 'green'
           : props.item.conclusion === 'СОГЛАСОВАНО С КОММЕНТАРИЕМ'
           ? 'primary'
+          : props.item.conclusion === 'СНЯТ С ПРОВЕРКИ'
+          ? 'gray'
           : 'red'
       "
       :label="props.item.conclusion"

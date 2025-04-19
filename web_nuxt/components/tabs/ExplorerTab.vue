@@ -19,7 +19,7 @@ const { status } = await useLazyAsyncData(
       "/route/explorer/folder/" + candId.value,
       {
         params: {
-          path: path,
+          path: path.value,
         },
       }
     )) as {
@@ -86,7 +86,7 @@ async function openFile(path: string, name: string) {
       </div>
     </div>
     <div v-else-if="listFolders.length == 0 && listFiles.length == 0">
-      <div class="text-center text-xl text-red-800 my-3">Пустая папка</div>
+      <div class="text-center text-red-800 my-3">Пустая папка</div>
     </div>
     <div v-else style="overflow: auto">
       <div v-for="folder in listFolders" :key="folder.name">

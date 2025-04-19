@@ -127,13 +127,13 @@ watch(noNegative, () => {
       />
     </UFormGroup>
     <UFormGroup
-      v-if="checkForm.comment === 'СОГЛАСОВАНО С КОММЕНТАРИЕМ'"
+      v-if="checkForm.conclusion === 'СОГЛАСОВАНО С КОММЕНТАРИЕМ'"
       class="mb-3"
       label="Комментарии"
       name="comment"
     >
       <UTextarea
-        v-model.trim.lazy="checkForm.comment"
+        v-model.trim="checkForm.comment"
         autoresize
         placeholder="Комментарии"
       />
