@@ -51,7 +51,7 @@ const { status } = await useLazyAsyncData(
       />
       <div class="flex grid grid-cols-12 gap-3 mt-8">
         <div class="col-span-2">
-          <UFormGroup class="mb-3" label="Регион">
+          <UFormField class="mb-3" label="Регион">
             <USelect
               v-model="region"
               :options="[
@@ -63,20 +63,20 @@ const { status } = await useLazyAsyncData(
               ]"
               :placeholder="stateUser.region"
             />
-          </UFormGroup>
+          </UFormField>
         </div>
         <div class="col-span-2">
           <div class="px-3">
-            <UFormGroup label="Начало периода">
+            <UFormField label="Начало периода">
               <UInput v-model="start" type="date" />
-            </UFormGroup>
+            </UFormField>
           </div>
         </div>
         <div class="col-span-2">
           <div class="px-3">
-            <UFormGroup label="Конец периода">
+            <UFormField label="Конец периода">
               <UInput v-model="end" type="date" />
-            </UFormGroup>
+            </UFormField>
           </div>
         </div>
       </div>

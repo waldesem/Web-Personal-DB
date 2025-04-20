@@ -18,21 +18,21 @@ const staffForm = ref(props.staff as Staff);
     :state="staffForm"
     @submit.prevent="emit('update', staffForm)"
   >
-    <UFormGroup class="mb-3" label="Должность" name="position" required>
+    <UFormField class="mb-3" label="Должность" name="position" required>
       <UInput
         v-model.trim.lazy="staffForm.position"
         required
         placeholder="Должность"
         maxlength="255"
       />
-    </UFormGroup>
-    <UFormGroup class="mb-3" label="Подразделение" name="department">
+    </UFormField>
+    <UFormField class="mb-3" label="Подразделение" name="department">
       <UInput
         v-model.trim.lazy="staffForm.department"
         placeholder="Подразделение"
         maxlength="255"
       />
-    </UFormGroup>
+    </UFormField>
     <ElementsBtnGroup @cancel="emit('cancel')" />
   </UForm>
 </template>

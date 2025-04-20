@@ -134,21 +134,30 @@ async function submitResume(form: Persons): Promise<void> {
           <UTooltip text="Создать анкету">
             <UButton
               :loading="status == 'pending' || upload"
-              icon="i-heroicons-user-plus"
+              icon="i-lucide-user-plus"
               size="xl"
               variant="ghost"
               @click="modal = true"
             />
           </UTooltip>
-          <!-- <UModal v-model="modal" prevent-close>
-            <ElementsCardDiv>
-              <FormsResumeForm @cancel="modal = false" @update="submitResume" />
-            </ElementsCardDiv>
-          </UModal> -->
+          <UModal
+            v-model:open="modal"
+            :dismissible="false"
+            title="Создание анкеты"
+            description="Введите данные анкеты"
+          >
+            <template #content>
+              <ElementsCardDiv>
+                <FormsResumeForm
+                  @cancel="modal = false"
+                  @update="submitResume"
+                /> </ElementsCardDiv
+            ></template>
+          </UModal>
           <UTooltip text="Загрузить json">
             <UButton
               :loading="status == 'pending' || upload"
-              icon="i-heroicons-cloud-arrow-up"
+              icon="i-lucide-upload"
               size="xl"
               variant="ghost"
               @click="open()"
@@ -157,11 +166,13 @@ async function submitResume(form: Persons): Promise<void> {
         </div>
       </div>
     </div>
-    <div class="flex-grow items-center my-6">
+    <div class="my-6">
       <UInput
         id="search"
         v-model="search"
+        :loading="status == 'pending'"
         size="lg"
+        icon="i-lucide-search"
         placeholder="поиск по фамилии, имени, отчеству"
       />
     </div>
@@ -201,7 +212,9 @@ async function submitResume(form: Persons): Promise<void> {
       }}</template>
       <template #editable-cell="{ row }">
         <UTooltip
-          :text="row.original.editable ? 'Анкета редактируется' : 'Анкета обновлена'"
+          :text="
+            row.original.editable ? 'Анкета редактируется' : 'Анкета обновлена'
+          "
         >
           <UIcon
             :name="
@@ -218,26 +231,26 @@ async function submitResume(form: Persons): Promise<void> {
         new Date(row.original.created).toLocaleDateString("ru-RU")
       }}</template>
       <template #username-cell="{ row }">{{
-        row.original.username ? row.original.username.toString().split(" ")[0] : ""
+        row.original.username
+          ? row.original.username.toString().split(" ")[0]
+          : ""
       }}</template>
-      <template #caption>
-        <caption class="caption-bottom mt-2">
-          <div class="flex items-center justify-between space-x-4">
-            <UButton
-              variant="ghost"
-              icon="i-heroicons-arrow-path"
-              :label="`Обновлено в: ${updated}`"
-              :loading="status == 'pending' || upload"
-              @click="refresh()"
-            />
-            <div class="flex items-center space-x-2">
-              <div class="text-sm text-blue-600">Показать редактируемые</div>
-              <UToggle v-model="editable" size="sm" />
-            </div>
-          </div>
-        </caption>
-      </template>
     </UTable>
+
+    <div class="flex items-center justify-between space-x-4">
+      <UButton
+        variant="ghost"
+        icon="i-heroicons-arrow-path"
+        :label="`Обновлено в: ${updated}`"
+        :loading="status == 'pending' || upload"
+        @click="refresh()"
+      />
+      <div class="flex items-center space-x-2">
+        <div class="text-sm text-blue-600">Показать редактируемые</div>
+        <USwitch v-model="editable" size="sm" />
+      </div>
+    </div>
+
     <div v-if="page > 1 || hasNext" class="justify-center flex pt-4">
       <UTooltip text="Предыдущая страница">
         <UButton

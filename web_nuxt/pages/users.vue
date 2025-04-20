@@ -87,7 +87,7 @@ const columns: TableColumn<User>[] = [
       />
     </UModal>
 
-    <UModal v-model="modalProfile" prevent-close>
+    <UModal v-model="modalProfile" :dismissible="false">
       <DivsUserDiv
         :user="user"
         @update="getUser"

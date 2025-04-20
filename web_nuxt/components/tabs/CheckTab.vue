@@ -66,7 +66,7 @@ const items = computed(() =>
       @click="modal = !modal"
     />
   </div>
-  <UModal v-model="modal" prevent-close :ui="{ width: 'sm:max-w-4xl' }">
+  <UModal v-model="modal" :dismissible="false" :ui="{ width: 'sm:max-w-4xl' }">
     <ElementsCardDiv>
       <FormsCheckForm
         :check="check"

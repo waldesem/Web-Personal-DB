@@ -62,7 +62,7 @@ async function deleteAddress(id: string, idx: number) {
       @click="modal = !modal"
     />
   </div>
-  <UModal v-model="modal" prevent-close>
+  <UModal v-model="modal" :dismissible="false">
     <ElementsCardDiv>
       <FormsAddressForm
         :addrs="address"

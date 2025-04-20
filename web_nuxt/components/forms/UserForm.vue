@@ -68,7 +68,7 @@ async function submitUser() {
 <template>
   <ElementsCardDiv>
     <UForm :validate="validate" :state="form" @submit.prevent="submitUser">
-      <UFormGroup
+      <UFormField
         class="mb-3"
         label="Имя пользователя"
         name="fullname"
@@ -79,13 +79,13 @@ async function submitUser() {
           placeholder="Имя пользователя"
           required
         />
-      </UFormGroup>
-      <UFormGroup class="mb-3" label="Логин" name="username">
+      </UFormField>
+      <UFormField class="mb-3" label="Логин" name="username">
         <UInput v-model="form.username" placeholder="Логин" required />
-      </UFormGroup>
-      <UFormGroup class="mb-3" label="Email" name="email">
+      </UFormField>
+      <UFormField class="mb-3" label="Email" name="email">
         <UInput v-model="form.email" placeholder="Email" required />
-      </UFormGroup>
+      </UFormField>
       <ElementsBtnGroup
         @cancel="
           emit('cancel');

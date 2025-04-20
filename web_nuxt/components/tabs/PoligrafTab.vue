@@ -69,7 +69,7 @@ const items = computed(() =>
       @click="modal = !modal"
     />
   </div>
-  <UModal v-model="modal" :ui="{ width: 'sm:max-w-4xl' }" prevent-close>
+  <UModal v-model="modal" :ui="{ width: 'sm:max-w-4xl' }" :dismissible="false">
     <ElementsCardDiv>
       <FormsPoligrafForm
         :poligraf="poligraf"

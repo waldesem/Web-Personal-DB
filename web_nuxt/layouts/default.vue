@@ -3,8 +3,6 @@ import type { Message } from "@/types";
 
 const authFetch = useFetchAuth();
 
-// const route = useRoute();
-
 const messages = ref([] as Message[]);
 const updated = ref(new Date());
 
@@ -12,14 +10,6 @@ const { refresh, status } = await useLazyAsyncData("messages", async () => {
   messages.value = (await authFetch("/route/messages")) as Message[];
   updated.value = new Date();
 });
-
-// watch(route, () => {
-//   if (
-//     route.path == "/persons" &&
-//     new Date().getTime() - updated.value.getTime() > 1000 * 600
-//   )
-//     refresh();
-// });
 
 async function clearMessages() {
   if (confirm("Вы действительно хотите очистить сообщения?")) {
@@ -44,20 +34,18 @@ const items = [
   [
     {
       label: "ПОЛЬЗОВАТЕЛИ",
-      icon: "i-heroicons-user-group",
+      icon: "i-lucide-users",
       to: "/users",
     },
   ],
   [
     {
       label: "СТАТИСТИКА",
-      icon: "i-heroicons-chart-pie",
+      icon: "i-lucide-chart-bar",
       to: "/info",
     },
   ],
 ];
-
-const isOpen = ref(false);
 </script>
 
 <template>
@@ -78,20 +66,14 @@ const isOpen = ref(false);
         v-if="stateUser.role == 'admin'"
         class="flex items-center justify-end"
       >
-        <UNavigationMenu
-          :ui="{
-            // active: 'text-red-600',
-            // inactive: 'text-blue-600',
-            // icon: {
-            //   active: 'text-red-600',
-            //   inactive: 'text-blue-600',
-            // },
-          }"
-          :items="items"
-        />
+        <UNavigationMenu :items="items"/>
       </div>
       <div class="flex items-center justify-end space-x-4">
-        <USlideover v-model="isOpen" :overlay="false">
+        <USlideover
+          :overlay="false"
+          title="Сообщения"
+          description="Список непрочитанных сообщений."
+        >
           <UTooltip
             :text="
               messages.length
@@ -101,60 +83,63 @@ const isOpen = ref(false);
           >
             <UButton
               :icon="
-                messages.length ? 'i-heroicons-bell-alert' : 'i-heroicons-bell'
+                messages.length ? 'i-lucide-bell-ring' : 'i-lucide-bell'
               "
               variant="ghost"
               size="xl"
               :loading="status == 'pending'"
-              :disabled="messages.length == 0"
-              @click="isOpen = true"
             />
           </UTooltip>
           <template #content>
-          <div class="p-1" style="overflow-y: scroll">
-            <div class="flex items-center justify-between m-3">
-              <UTooltip text="Обновить">
-                <UButton
-                  icon="i-heroicons-arrow-path"
-                  variant="ghost"
-                  @click="refresh()"
-                />
-              </UTooltip>
-              <div class="text-sm font-bold">
-                {{ `Обновлено: ${updated.toLocaleString("ru-RU")}` }}
-              </div>
-              <UTooltip text="Очистить">
-                <UButton
-                  icon="i-heroicons-trash"
-                  variant="ghost"
-                  @click="clearMessages"
-                />
-              </UTooltip>
-            </div>
-            <div v-for="item in messages" :key="item.id" :item="item" class="m-3">
-              <UCard
-                :ui="{
-                  body: 'px-1 py-2 sm:p-2',
-                  header: 'px-1 py-2 sm:p-2 bg-gray-100',
-                  footer: 'px-1 py-1 sm:p-1',
-                }"
-              >
-                <template #header>
-                  <div class="text-sm font-bold">
-                    {{ item.theme }}
-                  </div>
-                </template>
-                <div class="text-sm">
-                  {{ item.message }}
+            <div class="p-1" style="overflow-y: scroll">
+              <div class="flex items-center justify-between m-3">
+                <UTooltip text="Обновить">
+                  <UButton
+                    icon="i-lucide-arrow-up-down"
+                    variant="ghost"
+                    @click="refresh()"
+                  />
+                </UTooltip>
+                <div class="text-sm font-bold">
+                  {{ `Обновлено: ${updated.toLocaleString("ru-RU")}` }}
                 </div>
-                <template #footer>
-                  <div class="text-xs font-bold italic text-right">
-                    {{ new Date(item.created).toLocaleString("ru-RU") }}
+                <UTooltip text="Очистить">
+                  <UButton
+                    icon="i-lucide-archive"
+                    variant="ghost"
+                    @click="clearMessages"
+                  />
+                </UTooltip>
+              </div>
+              <div
+                v-for="item in messages"
+                :key="item.id"
+                :item="item"
+                class="m-3"
+              >
+                <UCard
+                  :ui="{
+                    body: 'px-1 py-2 sm:p-2',
+                    header: 'px-1 py-2 sm:p-2 bg-gray-100',
+                    footer: 'px-1 py-1 sm:p-1',
+                  }"
+                >
+                  <template #header>
+                    <div class="text-sm font-bold">
+                      {{ item.theme }}
+                    </div>
+                  </template>
+                  <div class="text-sm">
+                    {{ item.message }}
                   </div>
-                </template>
-              </UCard>
+                  <template #footer>
+                    <div class="text-xs font-bold italic text-right">
+                      {{ new Date(item.created).toLocaleString("ru-RU") }}
+                    </div>
+                  </template>
+                </UCard>
+              </div>
             </div>
-          </div>
           </template>
         </USlideover>
         <UTooltip text="Выход">

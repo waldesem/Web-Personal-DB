@@ -15,43 +15,43 @@ const previousForm = ref(props.previous as Previous);
 
 <template>
   <UForm :state="previousForm" @submit.prevent="emit('update', previousForm)">
-    <UFormGroup class="mb-3" label="Фамилия" name="surname" required>
+    <UFormField class="mb-3" label="Фамилия" name="surname" required>
       <UInput
         v-model.trim.lazy="previousForm.surname"
         required
         placeholder="Фамилия"
         maxlength="255"
       />
-    </UFormGroup>
-    <UFormGroup class="mb-3" label="Имя" name="firstname" required>
+    </UFormField>
+    <UFormField class="mb-3" label="Имя" name="firstname" required>
       <UInput
         v-model.trim.lazy="previousForm.firstname"
         required
         placeholder="Имя"
         maxlength="255"
       />
-    </UFormGroup>
-    <UFormGroup class="mb-3" label="Отчество" name="patronymic">
+    </UFormField>
+    <UFormField class="mb-3" label="Отчество" name="patronymic">
       <UInput
         v-model.trim.lazy="previousForm.patronymic"
         placeholder="Отчество"
         maxlength="255"
       />
-    </UFormGroup>
-    <UFormGroup class="mb-3" label="Год изменения" name="changed">
+    </UFormField>
+    <UFormField class="mb-3" label="Год изменения" name="changed">
       <UInput
         v-model.trim.lazy="previousForm.changed"
         placeholder="Год изменения"
         maxlength="4"
       />
-    </UFormGroup>
-    <UFormGroup class="mb-3" label="Причина изменения" name="reason">
+    </UFormField>
+    <UFormField class="mb-3" label="Причина изменения" name="reason">
       <UInput
         v-model.trim.lazy="previousForm.reason"
         placeholder="Причина изменения"
         maxlength="255"
       />
-    </UFormGroup>
+    </UFormField>
     <ElementsBtnGroup @cancel="emit('cancel')" />
   </UForm>
 </template>

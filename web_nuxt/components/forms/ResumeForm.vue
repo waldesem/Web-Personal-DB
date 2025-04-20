@@ -16,7 +16,7 @@ resumeForm.value.birthday = resumeForm.value.birthday
   ? new Date(resumeForm.value.birthday).toISOString().split("T", 1)[0]
   : "";
 
-const validate = (state: Persons) => {
+const validate = (state: Partial<Persons>) => {
   const errors = [];
   if (state.surname && !state.surname.match(/^[а-яёЁА-Я-\s]+$/)) {
     errors.push({
@@ -64,80 +64,80 @@ const validate = (state: Persons) => {
     :validate="validate"
     @submit.prevent="emit('update', resumeForm)"
   >
-    <UFormGroup class="mb-3" label="Фамилия" name="surname" required>
+    <UFormField class="mb-3" label="Фамилия" name="surname" required>
       <UInput
         v-model.trim="resumeForm.surname"
         required
         placeholder="Фамилия"
         maxlength="255"
       />
-    </UFormGroup>
-    <UFormGroup class="mb-3" label="Имя" name="firstname" required>
+    </UFormField>
+    <UFormField class="mb-3" label="Имя" name="firstname" required>
       <UInput
         v-model.trim="resumeForm.firstname"
         required
         placeholder="Имя"
         maxlength="255"
       />
-    </UFormGroup>
-    <UFormGroup class="mb-3" label="Отчество" name="patronymic">
+    </UFormField>
+    <UFormField class="mb-3" label="Отчество" name="patronymic">
       <UInput
         v-model.trim="resumeForm.patronymic"
         placeholder="Отчество"
         maxlength="255"
       />
-    </UFormGroup>
-    <UFormGroup class="mb-3" label="Дата рождения" name="birthday" required>
+    </UFormField>
+    <UFormField class="mb-3" label="Дата рождения" name="birthday" required>
       <UInput v-model="resumeForm.birthday" required type="date" />
-    </UFormGroup>
-    <UFormGroup class="mb-3" label="Место рождения" name="birthplace">
+    </UFormField>
+    <UFormField class="mb-3" label="Место рождения" name="birthplace">
       <UInput
         v-model.trim.lazy="resumeForm.birthplace"
         placeholder="Место рождения"
         maxlength="255"
       />
-    </UFormGroup>
-    <UFormGroup class="mb-3" label="Гражданство" name="citizenship">
+    </UFormField>
+    <UFormField class="mb-3" label="Гражданство" name="citizenship">
       <UInput
         v-model.trim.lazy="resumeForm.citizenship"
         placeholder="Гражданство"
         maxlength="255"
       />
-    </UFormGroup>
-    <UFormGroup class="mb-3" label="Двойное гражданство" name="dual">
+    </UFormField>
+    <UFormField class="mb-3" label="Двойное гражданство" name="dual">
       <UInput
         v-model.trim.lazy="resumeForm.dual"
         placeholder="Двойное гражданство"
         maxlength="255"
       />
-    </UFormGroup>
-    <UFormGroup class="mb-3" label="СНИЛС" name="snils">
+    </UFormField>
+    <UFormField class="mb-3" label="СНИЛС" name="snils">
       <UInput
         v-model.trim.lazy="resumeForm.snils"
         placeholder="СНИЛС"
         maxlength="11"
       />
-    </UFormGroup>
-    <UFormGroup class="mb-3" label="ИНН" name="inn">
+    </UFormField>
+    <UFormField class="mb-3" label="ИНН" name="inn">
       <UInput
         v-model.trim.lazy="resumeForm.inn"
         placeholder="ИНН"
         maxlength="12"
       />
-    </UFormGroup>
-    <UFormGroup class="mb-3" label="Семейное положение" name="marital">
+    </UFormField>
+    <UFormField class="mb-3" label="Семейное положение" name="marital">
       <UInput
         v-model.trim.lazy="resumeForm.marital"
         placeholder="Семейное положение"
         maxlength="255"
       />
-    </UFormGroup>
-    <UFormGroup class="mb-3" label="Дополнительно" name="addition">
+    </UFormField>
+    <UFormField class="mb-3" label="Дополнительно" name="addition">
       <UTextarea
         v-model.trim.lazy="resumeForm.addition"
         placeholder="Дополнительно"
       />
-    </UFormGroup>
+    </UFormField>
     <ElementsBtnGroup @cancel="emit('cancel')" />
   </UForm>
 </template>

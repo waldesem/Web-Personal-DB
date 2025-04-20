@@ -33,53 +33,53 @@ watch(noNegative, () => {
 </script>
 
 <template>
-  <UFormGroup class="mb-3" label="Негатива нет">
+  <UFormField class="mb-3" label="Негатива нет">
     <UToggle v-model="noNegative" />
-  </UFormGroup>
+  </UFormField>
   <UForm :state="checkForm" @submit.prevent="emit('update', checkForm)">
-    <UFormGroup class="mb-3" label="Проверка по местам работы" name="workplace">
+    <UFormField class="mb-3" label="Проверка по местам работы" name="workplace">
       <UTextarea
         v-model.trim.lazy="checkForm.workplace"
         autoresize
         placeholder="Проверка по местам работы"
       />
-    </UFormGroup>
-    <UFormGroup class="mb-3" label="Проверка документов" name="document">
+    </UFormField>
+    <UFormField class="mb-3" label="Проверка документов" name="document">
       <UTextarea
         v-model.trim.lazy="checkForm.document"
         autoresize
         placeholder="Проверка документов"
       />
-    </UFormGroup>
-    <UFormGroup class="mb-3" label="Проверка задолженностей" name="debt">
+    </UFormField>
+    <UFormField class="mb-3" label="Проверка задолженностей" name="debt">
       <UTextarea
         v-model.trim.lazy="checkForm.debt"
         autoresize
         placeholder="Проверка задолженностей"
       />
-    </UFormGroup>
-    <UFormGroup class="mb-3" label="Проверка банкротства" name="bankruptcy">
+    </UFormField>
+    <UFormField class="mb-3" label="Проверка банкротства" name="bankruptcy">
       <UTextarea
         v-model.trim.lazy="checkForm.bankruptcy"
         autoresize
         placeholder="Проверка банкротства"
       />
-    </UFormGroup>
-    <UFormGroup class="mb-3" label="Проверка Кредитной истории" name="bki">
+    </UFormField>
+    <UFormField class="mb-3" label="Проверка Кредитной истории" name="bki">
       <UTextarea
         v-model.trim.lazy="checkForm.bki"
         autoresize
         placeholder="Проверка Кредитной истории"
       />
-    </UFormGroup>
-    <UFormGroup class="mb-3" label="Проверка судебных дел" name="courts">
+    </UFormField>
+    <UFormField class="mb-3" label="Проверка судебных дел" name="courts">
       <UTextarea
         v-model.trim.lazy="checkForm.courts"
         autoresize
         placeholder="Проверка судебных дел"
       />
-    </UFormGroup>
-    <UFormGroup
+    </UFormField>
+    <UFormField
       class="mb-3"
       label="Проверка аффилированности"
       name="affilation"
@@ -89,8 +89,8 @@ watch(noNegative, () => {
         autoresize
         placeholder="Проверка аффилированности"
       />
-    </UFormGroup>
-    <UFormGroup
+    </UFormField>
+    <UFormField
       class="mb-3"
       label="Проверка в списке террористов"
       name="terrorist"
@@ -100,8 +100,8 @@ watch(noNegative, () => {
         autoresize
         placeholder="Проверка в списке террористов"
       />
-    </UFormGroup>
-    <UFormGroup
+    </UFormField>
+    <UFormField
       class="mb-3"
       label="Проверка в открытых источниках"
       name="internet"
@@ -111,22 +111,22 @@ watch(noNegative, () => {
         autoresize
         placeholder="Проверка в открытых источниках"
       />
-    </UFormGroup>
-    <UFormGroup class="mb-3" label="Проверка в Кронос" name="cronos">
+    </UFormField>
+    <UFormField class="mb-3" label="Проверка в Кронос" name="cronos">
       <UTextarea
         v-model.trim.lazy="checkForm.cronos"
         autoresize
         placeholder="Проверка в Кронос/Крос"
       />
-    </UFormGroup>
-    <UFormGroup class="mb-3" label="Дополнительная информация" name="addition">
+    </UFormField>
+    <UFormField class="mb-3" label="Дополнительная информация" name="addition">
       <UTextarea
         v-model.trim.lazy="checkForm.addition"
         autoresize
         placeholder="Дополнительная информация"
       />
-    </UFormGroup>
-    <UFormGroup
+    </UFormField>
+    <UFormField
       v-if="checkForm.conclusion === 'СОГЛАСОВАНО С КОММЕНТАРИЕМ'"
       class="mb-3"
       label="Комментарии"
@@ -137,8 +137,8 @@ watch(noNegative, () => {
         autoresize
         placeholder="Комментарии"
       />
-    </UFormGroup>
-    <UFormGroup class="mb-3" label="Результат" name="conclusion" required>
+    </UFormField>
+    <UFormField class="mb-3" label="Результат" name="conclusion" required>
       <USelect
         v-model.trim.lazy="checkForm.conclusion"
         required
@@ -149,7 +149,7 @@ watch(noNegative, () => {
           'СНЯТ С ПРОВЕРКИ',
         ]"
       />
-    </UFormGroup>
+    </UFormField>
     <ElementsBtnGroup @cancel="emit('cancel')" />
   </UForm>
 </template>

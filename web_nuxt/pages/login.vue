@@ -120,7 +120,7 @@ async function submitLogin(): Promise<void> {
             <UInput
               v-model="loginForm['username']"
               placeholder="username"
-              icon="i-heroicons-user"
+              icon="i-lucide-user"
               required
             />
           </UFormField>
@@ -135,7 +135,7 @@ async function submitLogin(): Promise<void> {
               v-model="loginForm['password']"
               type="password"
               placeholder="password"
-              icon="i-heroicons-lock-closed"
+              icon="i-lucide-lock"
               required
             />
           </UFormField>
@@ -151,7 +151,7 @@ async function submitLogin(): Promise<void> {
                 v-model="loginForm['new_pswd']"
                 type="password"
                 placeholder="password"
-                icon="i-heroicons-lock-closed"
+                icon="i-lucide-lock"
                 required
               />
             </UFormField>
@@ -166,7 +166,7 @@ async function submitLogin(): Promise<void> {
                 v-model="loginForm['conf_pswd']"
                 type="password"
                 placeholder="password"
-                icon="i-heroicons-lock-closed"
+                icon="i-lucide-lock"
                 required
               />
             </UFormField>

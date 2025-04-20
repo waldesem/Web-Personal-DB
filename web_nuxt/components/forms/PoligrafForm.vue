@@ -15,7 +15,7 @@ const poligrafForm = ref(props.poligraf as Pfo);
 
 <template>
   <UForm :state="poligrafForm" @submit.prevent="emit('update', poligrafForm)">
-    <UFormGroup class="mb-3" label="Тема проверки" name="theme" required>
+    <UFormField class="mb-3" label="Тема проверки" name="theme" required>
       <USelect
         v-model="poligrafForm.theme"
         required
@@ -26,16 +26,16 @@ const poligrafForm = ref(props.poligraf as Pfo);
           'Плановое мероприятие',
         ]"
       />
-    </UFormGroup>
-    <UFormGroup class="mb-3" label="Результат" name="results" required>
+    </UFormField>
+    <UFormField class="mb-3" label="Результат" name="results" required>
       <UTextarea
         v-model.trim.lazy="poligrafForm.results"
         required
         autoresize
         placeholder="Результат"
       />
-    </UFormGroup>
-    <UFormGroup class="mb-3" label="Результат" name="conclusion" required>
+    </UFormField>
+    <UFormField class="mb-3" label="Результат" name="conclusion" required>
       <USelect
         v-model.trim.lazy="poligrafForm.conclusion"
         required
@@ -45,7 +45,7 @@ const poligrafForm = ref(props.poligraf as Pfo);
           'НЕГАТИВ',
         ]"
       />
-    </UFormGroup>
+    </UFormField>
     <ElementsBtnGroup @cancel="emit('cancel')" />
   </UForm>
 </template>

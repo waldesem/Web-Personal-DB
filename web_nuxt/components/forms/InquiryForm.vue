@@ -15,22 +15,22 @@ const inquiryForm = ref(props.inquiry);
 
 <template>
   <UForm :state="inquiryForm" @submit.prevent="emit('update', inquiryForm)">
-    <UFormGroup class="mb-3" label="Информация" name="info" required>
+    <UFormField class="mb-3" label="Информация" name="info" required>
       <UTextarea
         v-model.trim.lazy="inquiryForm.info"
         required
         autoresize
         placeholder="Информация"
       />
-    </UFormGroup>
-    <UFormGroup class="mb-3" label="Инициатор" name="initiator" required>
+    </UFormField>
+    <UFormField class="mb-3" label="Инициатор" name="initiator" required>
       <UInput
         v-model.trim.lazy="inquiryForm.initiator"
         required
         placeholder="Инициатор"
         maxlength="255"
       />
-    </UFormGroup>
+    </UFormField>
     <ElementsBtnGroup @cancel="emit('cancel')" />
   </UForm>
 </template>

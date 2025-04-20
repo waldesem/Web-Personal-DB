@@ -44,7 +44,7 @@ async function search(query: string) {
 
 <template>
   <UForm :state="relationForm" @submit.prevent="emit('update', relationForm)">
-    <UFormGroup class="mb-3" label="Тип связи" name="type" required>
+    <UFormField class="mb-3" label="Тип связи" name="type" required>
       <USelect
         v-model.lazy="relationForm.type"
         required
@@ -57,8 +57,8 @@ async function search(query: string) {
           'Близкая связь',
         ]"
       />
-    </UFormGroup>
-    <UFormGroup class="mb-3" label="ID связи" name="right_id" required>
+    </UFormField>
+    <UFormField class="mb-3" label="ID связи" name="right_id" required>
       <USelectMenu
         v-model="relationForm.right_id"
         :searchable="search"
@@ -70,7 +70,7 @@ async function search(query: string) {
         clear-search-on-close
         required
       />
-    </UFormGroup>
+    </UFormField>
     <ElementsBtnGroup @cancel="emit('cancel')" />
   </UForm>
 </template>
