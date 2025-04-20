@@ -43,10 +43,10 @@ const { status } = await useLazyAsyncData(
           icon: 'i-heroicons-circle-stack-20-solid',
           label: 'Статистика за указанный период отсутствует.',
         }"
-        :rows="(stat as Record<string, string>[])"
+        :data="(stat as Record<string, string>[])"
         :columns="[
-          { key: 'conclusion', label: 'Решение' },
-          { key: 'count', label: 'Количество' },
+          { accessorKey: 'conclusion', header: 'Решение' },
+          { accessorKey: 'count', header: 'Количество' },
         ]"
       />
       <div class="flex grid grid-cols-12 gap-3 mt-8">

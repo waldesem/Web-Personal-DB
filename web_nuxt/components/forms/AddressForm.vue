@@ -17,7 +17,7 @@ const addressForm = ref(props.addrs as Address);
   <UForm :state="addressForm" @submit.prevent="emit('update', addressForm)">
     <UFormField class="mb-3" label="Вид адреса" name="view" required>
       <USelect
-        v-model.trim.lazy="addressForm.view"
+        v-model="addressForm.view"
         required
         :options="['Адрес регистрации', 'Адрес проживания', 'Другое']"
       />

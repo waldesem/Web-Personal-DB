@@ -34,7 +34,7 @@ watch(noNegative, () => {
 
 <template>
   <UFormField class="mb-3" label="Негатива нет">
-    <UToggle v-model="noNegative" />
+    <USwitch v-model="noNegative" />
   </UFormField>
   <UForm :state="checkForm" @submit.prevent="emit('update', checkForm)">
     <UFormField class="mb-3" label="Проверка по местам работы" name="workplace">
@@ -140,7 +140,7 @@ watch(noNegative, () => {
     </UFormField>
     <UFormField class="mb-3" label="Результат" name="conclusion" required>
       <USelect
-        v-model.trim.lazy="checkForm.conclusion"
+        v-model="checkForm.conclusion"
         required
         :options="[
           'СОГЛАСОВАНО',

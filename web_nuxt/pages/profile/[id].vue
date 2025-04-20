@@ -165,10 +165,10 @@ async function changeRegion(): Promise<void> {
             :disabled="person.region != stateUser.region"
             :color="
               !person.editable
-                ? 'blue'
+                ? 'secondary'
                 : person.user_id == stateUser.id
-                ? 'green'
-                : 'red'
+                ? 'success'
+                : 'error'
             "
             size="sm"
             @click="switchSelf"

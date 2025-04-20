@@ -110,21 +110,21 @@ const columns: TableColumn<User>[] = [
       :columns="columns"
       @select="getUser($event.id)"
     >
-      <template #id-cell="{ row }">{{ row.id }}</template>
-      <template #fullname-cell="{ row }">{{ row.fullname }}</template>
-      <template #username-cell="{ row }">{{ row.username }}</template>
-      <template #region-cell="{ row }">{{ row.region }}</template>
-      <template #role-cell="{ row }">{{ row.role }}</template>
+      <template #id-cell="{ row }">{{ row.original.id }}</template>
+      <template #fullname-cell="{ row }">{{ row.original.fullname }}</template>
+      <template #username-cell="{ row }">{{ row.original.username }}</template>
+      <template #region-cell="{ row }">{{ row.original.region }}</template>
+      <template #role-cell="{ row }">{{ row.original.role }}</template>
       <template #attempt-cell="{ row }">
         <div class="text-center">
-          {{ row.attempt }}
+          {{ row.original.attempt }}
         </div>
       </template>
       <template #blocked-cell="{ row }">
         <div class="text-center">
           <UIcon
             :name="
-              row.blocked ? 'i-heroicons-lock-closed' : 'i-heroicons-lock-open'
+              row.original.blocked ? 'i-heroicons-lock-closed' : 'i-heroicons-lock-open'
             "
           />
         </div>
@@ -133,7 +133,7 @@ const columns: TableColumn<User>[] = [
         <div class="text-center">
           <UIcon
             :name="
-              row.change_pswd
+              row.original.change_pswd
                 ? 'i-heroicons-lock-closed'
                 : 'i-heroicons-lock-open'
             "

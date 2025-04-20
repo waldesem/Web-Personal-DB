@@ -69,7 +69,7 @@ const items = computed(() =>
       @click="modal = !modal"
     />
   </div>
-  <UModal v-model="modal" :dismissible="false">
+  <UModal v-model:open="modal" :dismissible="false">
     <ElementsCardDiv>
       <FormsInquiryForm
         :inquiry="need"
@@ -82,7 +82,7 @@ const items = computed(() =>
     </ElementsCardDiv>
   </UModal>
   <UAccordion :items="items" size="lg" multiple>
-    <template #item="{ item, index }">
+    <template #body="{ item, index }">
       <ElementsCardDiv>
         <DivsInquiryDiv :item="item.description" />
         <template v-if="editable" #footer>

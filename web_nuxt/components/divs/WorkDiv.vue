@@ -62,7 +62,7 @@ async function deleteWork(id: string, idx: number) {
       @click="modal = !modal"
     />
   </div>
-  <UModal v-model="modal" :dismissible="false">
+  <UModal v-model:open="modal" :dismissible="false">
     <ElementsCardDiv>
       <FormsWorkplaceForm
         :work="workplace"

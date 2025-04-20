@@ -83,12 +83,12 @@ const props = defineProps({
     <UBadge
       :color="
         props.item.conclusion === 'СОГЛАСОВАНО'
-          ? 'green'
+          ? 'success'
           : props.item.conclusion === 'СОГЛАСОВАНО С КОММЕНТАРИЕМ'
           ? 'primary'
           : props.item.conclusion === 'СНЯТ С ПРОВЕРКИ'
-          ? 'gray'
-          : 'red'
+          ? 'warning'
+          : 'error'
       "
       :label="props.item.conclusion"
       variant="solid"

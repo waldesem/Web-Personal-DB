@@ -17,7 +17,7 @@ const affilForm = ref(props.affils as Affilation);
   <UForm :state="affilForm" @submit.prevent="emit('update', affilForm)">
     <UFormField class="mb-3" label="Тип участия" name="view" required>
       <USelect
-        v-model.trim.lazy="affilForm.view"
+        v-model="affilForm.view"
         required
         :options="[
           'Являлся государственным/муниципальным служащим',

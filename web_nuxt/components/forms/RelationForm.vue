@@ -46,7 +46,7 @@ async function search(query: string) {
   <UForm :state="relationForm" @submit.prevent="emit('update', relationForm)">
     <UFormField class="mb-3" label="Тип связи" name="type" required>
       <USelect
-        v-model.lazy="relationForm.type"
+        v-model="relationForm.type"
         required
         :options="[
           'Одно лицо',

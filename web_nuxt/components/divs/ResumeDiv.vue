@@ -47,7 +47,7 @@ async function deleteItem() {
 
 <template>
   <ElementsCardDiv>
-    <UModal v-model="modal" :dismissible="false">
+    <UModal v-model:open="modal" :dismissible="false">
       <ElementsCardDiv>
         <FormsResumeForm
           :resume="resume"

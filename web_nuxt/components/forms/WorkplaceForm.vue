@@ -19,7 +19,7 @@ workForm.value.finished = workForm.value.finished
   ? new Date(workForm.value.finished).toISOString().split("T", 1)[0]
   : "";
 
-const validate = (state: Work) => {
+const validate = (state: Partial<Work>) => {
   const errors = [];
   if (state.starts && !state.starts.match(/^\d{4}-\d{2}-\d{2}$/)) {
     errors.push({

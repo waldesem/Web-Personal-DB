@@ -10,12 +10,12 @@ const props = defineProps({
   },
 });
 
-const docForm = ref(props.docs as Passport);
+const docForm = ref(props.docs as Partial<Passport>);
 docForm.value.issue = docForm.value.issue
   ? new Date(docForm.value.issue).toISOString().split("T", 1)[0]
   : "";
 
-const validate = (state: Passport) => {
+const validate = (state: Partial<Passport>) => {
   const errors = [];
   if (state.issue && !state.issue.match(/^\d{4}-\d{2}-\d{2}$/)) {
     errors.push({

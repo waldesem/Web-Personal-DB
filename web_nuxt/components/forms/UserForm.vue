@@ -13,7 +13,7 @@ type UserForm = {
 
 const form = ref({} as UserForm);
 
-const validate = (state: UserForm) => {
+const validate = (state: Partial<UserForm>) => {
   const errors = [];
   if (state.fullname && !state.fullname.match(/^[а-яёЁА-Я-\s]+$/)) {
     errors.push({
@@ -52,14 +52,14 @@ async function submitUser() {
       icon: "i-heroicons-check-circle",
       title: "Информация",
       description: "Пользователь успешно добавлен",
-      color: "green",
+      color: "success",
     });
   } else {
     toast.add({
       icon: "i-heroicons-information-circle",
       title: "Внимание",
       description: "Ошибка данных или пользователь уже существует",
-      color: "red",
+      color: "error",
     });
   }
 }

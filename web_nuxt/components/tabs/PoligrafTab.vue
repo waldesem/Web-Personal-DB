@@ -69,7 +69,7 @@ const items = computed(() =>
       @click="modal = !modal"
     />
   </div>
-  <UModal v-model="modal" :ui="{ width: 'sm:max-w-4xl' }" :dismissible="false">
+  <UModal v-model:open="modal" :ui="{ content: 'sm:max-w-4xl' }" :dismissible="false">
     <ElementsCardDiv>
       <FormsPoligrafForm
         :poligraf="poligraf"
@@ -82,7 +82,7 @@ const items = computed(() =>
     </ElementsCardDiv>
   </UModal>
   <UAccordion :items="items" size="lg" multiple>
-    <template #item="{ item, index }">
+    <template #body="{ item, index }">
       <ElementsCardDiv>
         <DivsPoligrafDiv :item="item.description" />
         <template v-if="editable" #footer>

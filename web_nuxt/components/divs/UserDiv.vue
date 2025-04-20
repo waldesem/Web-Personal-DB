@@ -30,7 +30,7 @@ async function userAction(item: string, id: string): Promise<void> {
       icon: "i-heroicons-information-circle",
       title: "Внимание",
       description: "Невозможно  выполнить действие",
-      color: "red",
+      color: "error",
     });
     return;
   }
@@ -44,14 +44,14 @@ async function userAction(item: string, id: string): Promise<void> {
       icon: "i-heroicons-check-circle",
       title: "Информация",
       description: "Действие успешно выполнено",
-      color: "green",
+      color: "success",
     });
   } else {
     toast.add({
       icon: "i-heroicons-information-circle",
       title: "Внимание",
       description: "Действие не было выполнено",
-      color: "red",
+      color: "error",
     });
   }
   emit("update", id);
@@ -104,26 +104,26 @@ async function userAction(item: string, id: string): Promise<void> {
     <UButtonGroup class="mt-3">
       <UButton
         :label="props.user.deleted ? 'Восстановить' : 'Удалить'"
-        color="red"
+        color="error"
         variant="outline"
         type="button"
         @click="userAction('delete', props.user.id)"
       />
       <UButton
         :label="props.user.blocked ? 'Разблокировать' : 'Заблокировать'"
-        color="blue"
+        color="primary"
         variant="outline"
         @click="userAction('block', props.user.id)"
       />
       <UButton
         label="Сбросить пароль"
-        color="gray"
+        color="warning"
         variant="outline"
         @click="userAction('reset', props.user.id)"
       />
       <UButton
         label="Выход"
-        color="green"
+        color="success"
         variant="outline"
         @click="emit('cancel')"
       />

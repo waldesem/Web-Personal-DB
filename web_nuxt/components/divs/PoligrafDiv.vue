@@ -21,10 +21,10 @@ const props = defineProps({
     <UBadge
       :color="
         props.item.conclusion === 'БЕЗ ЗАМЕЧАНИЙ'
-          ? 'green'
+          ? 'success'
           : props.item.conclusion === 'С КОММЕНТАРИЯМИ'
           ? 'primary'
-          : 'red'
+          : 'error'
       "
       :label="props.item.conclusion"
       variant="soft"
