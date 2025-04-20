@@ -59,17 +59,24 @@ async function deleteStaff(id: string, idx: number) {
       @click="modal = !modal"
     />
   </div>
-  <UModal v-model:open="modal" :dismissible="false">
-    <ElementsCardDiv>
-      <FormsStaffForm
-        :staff="staff"
-        @cancel="
-          staff = {} as Staff;
-          modal = false;
-        "
-        @update="submitStaff"
-      />
-    </ElementsCardDiv>
+  <UModal
+    v-model:open="modal"
+    :dismissible="false"
+    title="Должности"
+    description="Данные профиля"
+  >
+    <template #content>
+      <ElementsCardDiv>
+        <FormsStaffForm
+          :staff="staff"
+          @cancel="
+            staff = {} as Staff;
+            modal = false;
+          "
+          @update="submitStaff"
+        />
+      </ElementsCardDiv>
+    </template>
   </UModal>
   <div v-for="(item, idx) in staffs" :key="idx" class="p-1">
     <ElementsCardDiv>

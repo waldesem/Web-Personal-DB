@@ -62,17 +62,24 @@ async function deleteEducation(id: string, idx: number) {
       @click="modal = !modal"
     />
   </div>
-  <UModal v-model:open="modal" :dismissible="false">
-    <ElementsCardDiv>
-      <FormsEducationForm
-        :education="education"
-        @cancel="
-          education = {} as Education;
-          modal = false;
-        "
-        @update="submitEducation"
-      />
-    </ElementsCardDiv>
+  <UModal
+    v-model:open="modal"
+    :dismissible="false"
+    title="Образование"
+    description="Данные профиля"
+  >
+    <template #content>
+      <ElementsCardDiv>
+        <FormsEducationForm
+          :education="education"
+          @cancel="
+            education = {} as Education;
+            modal = false;
+          "
+          @update="submitEducation"
+        />
+      </ElementsCardDiv>
+    </template>
   </UModal>
   <div v-for="(item, idx) in educations" :key="idx" class="p-1">
     <ElementsCardDiv>

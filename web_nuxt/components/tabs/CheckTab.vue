@@ -66,19 +66,27 @@ const items = computed(() =>
       @click="modal = !modal"
     />
   </div>
-  <UModal v-model:open="modal" :dismissible="false" :ui="{ content: 'sm:max-w-4xl' }">
-    <ElementsCardDiv>
-      <FormsCheckForm
-        :check="check"
-        @cancel="
-          check = {} as Verification;
-          modal = false;
-        "
-        @update="submitCheck"
-      />
-    </ElementsCardDiv>
+  <UModal
+    v-model:open="modal"
+    :dismissible="false"
+    :ui="{ content: 'sm:max-w-4xl' }"
+    title="Проверка кандидата"
+    description="Данные профиля"
+  >
+    <template #content>
+      <ElementsCardDiv>
+        <FormsCheckForm
+          :check="check"
+          @cancel="
+            check = {} as Verification;
+            modal = false;
+          "
+          @update="submitCheck"
+        />
+      </ElementsCardDiv>
+    </template>
   </UModal>
-  <UAccordion :items="items" size="lg" multiple>
+  <UAccordion :items="items" type="multiple">
     <template #body="{ item, index }">
       <ElementsCardDiv>
         <DivsCheckDiv :item="item.description" />

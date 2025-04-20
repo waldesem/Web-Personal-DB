@@ -17,11 +17,6 @@ const emit = defineEmits(["update"]);
 
 const items = [
   {
-    label: "Резюме",
-    icon: "i-heroicons-user",
-    slot: "resume" as const,
-  },
-  {
     label: "Должности",
     icon: "i-heroicons-briefcase",
     slot: "staff" as const,
@@ -70,10 +65,9 @@ const items = [
 </script>
 
 <template>
-  <UAccordion :items="items" type="multiple" default-value="resume">
-    <template #resume="">
-      <DivsResumeDiv @update="emit('update')" />
-    </template>
+  <DivsResumeDiv @update="emit('update')" />
+  <div class="mx-1 my-2">
+  <UAccordion :items="items" type="multiple">
     <template #prev="">
       <DivsPrevDiv />
     </template>
@@ -102,4 +96,5 @@ const items = [
       <DivsRelateDiv />
     </template>
   </UAccordion>
+  </div>
 </template>

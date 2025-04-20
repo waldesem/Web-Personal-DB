@@ -53,31 +53,33 @@ async function openFile(path: string, name: string) {
 
 <template>
   <ElementsCardDiv>
-    <div class="flex justify-between">
-      <UButton
-        :loading="pending"
-        label="Домашняя папка"
-        variant="ghost"
-        icon="i-heroicons-home"
-        size="xl"
-        @click="path = ''"
-      />
-      <USelectMenu
-        v-model="size"
-        variant="outline"
-        :options="[
-          { name: 'Самый маленькие', value: '2xs' },
-          { name: 'Очень маленькие', value: 'xs' },
-          { name: 'Маленькие значки', value: 'sm' },
-          { name: 'Средние значки', value: 'md' },
-          { name: 'Большие значки', value: 'lg' },
-          { name: 'Очень большие', value: 'xl' },
-        ]"
-        option-attribute="name"
-        value-attribute="value"
-      />
-    </div>
-    <UDivider class="my-2" />
+    <template #header>
+      <div class="flex justify-between">
+        <UButton
+          :loading="pending"
+          label="Домашняя папка"
+          variant="ghost"
+          icon="i-heroicons-home"
+          size="xl"
+          @click="path = ''"
+        />
+        <USelect
+          v-model="size"
+          variant="outline"
+          :items="[
+            { label: 'Самый маленькие', value: '2xs' },
+            { label: 'Очень маленькие', value: 'xs' },
+            { label: 'Маленькие значки', value: 'sm' },
+            { label: 'Средние значки', value: 'md' },
+            { label: 'Большие значки', value: 'lg' },
+            { label: 'Очень большие', value: 'xl' },
+          ]"
+          default-value="md"
+          option-attribute="name"
+          value-attribute="value"
+        />
+      </div>
+    </template>
     <div v-if="pending || status === 'pending'">
       <div v-for="i in listFolders.length + listFiles.length" :key="i">
         <div class="my-3">

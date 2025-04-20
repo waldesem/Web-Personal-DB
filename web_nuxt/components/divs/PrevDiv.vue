@@ -62,17 +62,24 @@ async function deletePrevious(id: string, idx: number) {
       @click="modal = !modal"
     />
   </div>
-  <UModal v-model:open="modal" :dismissible="false">
-    <ElementsCardDiv>
-      <FormsPreviousForm
-        :prev="prev"
-        @cancel="
-          prev = {} as Previous;
-          modal = false;
-        "
-        @update="submitPrevious"
-      />
-    </ElementsCardDiv>
+  <UModal
+    v-model:open="modal"
+    :dismissible="false"
+    title="Предыдущие работы"
+    description="Данные профиля"
+  >
+    <template #content>
+      <ElementsCardDiv>
+        <FormsPreviousForm
+          :prev="prev"
+          @cancel="
+            prev = {} as Previous;
+            modal = false;
+          "
+          @update="submitPrevious"
+        />
+      </ElementsCardDiv>
+    </template>
   </UModal>
   <div v-for="(item, idx) in previous" :key="idx" class="p-1">
     <ElementsCardDiv>

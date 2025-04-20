@@ -62,17 +62,24 @@ async function deleteAffilation(id: string, idx: number) {
       @click="modal = !modal"
     />
   </div>
-  <UModal v-model:open="modal" :dismissible="false">
-    <ElementsCardDiv>
-      <FormsAffilationForm
-        :affil="affilation"
-        @cancel="
-          affilation = {} as Affilation;
-          modal = false;
-        "
-        @update="submitAffilation"
-      />
-    </ElementsCardDiv>
+  <UModal
+    v-model:open="modal"
+    :dismissible="false"
+    title="Аффилированность"
+    description="Данные профиля"
+  >
+    <template #content>
+      <ElementsCardDiv>
+        <FormsAffilationForm
+          :affil="affilation"
+          @cancel="
+            affilation = {} as Affilation;
+            modal = false;
+          "
+          @update="submitAffilation"
+        /> 
+      </ElementsCardDiv>
+    </template>
   </UModal>
   <div v-for="(item, idx) in affilations" :key="idx" class="p-1">
     <ElementsCardDiv>

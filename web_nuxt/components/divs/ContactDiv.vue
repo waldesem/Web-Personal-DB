@@ -62,17 +62,24 @@ async function deleteContact(id: string, idx: number) {
       @click="modal = !modal"
     />
   </div>
-  <UModal v-model:open="modal" :dismissible="false">
-    <ElementsCardDiv>
-      <FormsContactForm
-        :contact="contact"
-        @cancel="
-          contact = {} as Contact;
-          modal = false;
-        "
-        @update="submitContact"
-      />
-    </ElementsCardDiv>
+  <UModal
+    v-model:open="modal"
+    :dismissible="false"
+    title="Контакты"
+    description="Данные профиля"
+  >
+    <template #content>
+      <ElementsCardDiv>
+        <FormsContactForm
+          :contact="contact"
+          @cancel="
+            contact = {} as Contact;
+            modal = false;
+          "
+          @update="submitContact"
+        />
+      </ElementsCardDiv>
+    </template>
   </UModal>
   <div v-for="(item, idx) in contacts" :key="idx" class="p-1">
     <ElementsCardDiv>

@@ -62,17 +62,23 @@ async function deleteAddress(id: string, idx: number) {
       @click="modal = !modal"
     />
   </div>
-  <UModal v-model:open="modal" :dismissible="false">
-    <ElementsCardDiv>
-      <FormsAddressForm
-        :addrs="address"
-        @cancel="
-          address = {} as Address;
-          modal = false;
-        "
-        @update="submitAddress"
-      />
-    </ElementsCardDiv>
+  <UModal
+    v-model:open="modal"
+    :dismissible="false"
+    title="Адрес"
+    description="Данные профиля"
+  >
+    <template #content>
+      <ElementsCardDiv>
+        <FormsAddressForm
+          :addrs="address"
+          @cancel="
+            address = {} as Address;
+            modal = false;
+          "
+          @update="submitAddress"
+        /> </ElementsCardDiv
+    ></template>
   </UModal>
   <div v-for="(item, idx) in addresses" :key="idx" class="p-1">
     <ElementsCardDiv>

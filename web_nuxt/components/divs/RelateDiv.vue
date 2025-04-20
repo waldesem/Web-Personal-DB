@@ -60,10 +60,17 @@ async function deleteRelation(id: string, idx: number) {
       @click="modal = !modal"
     />
   </div>
-  <UModal v-model:open="modal" :dismissible="false">
-    <ElementsCardDiv>
-      <FormsRelationForm @cancel="modal = false" @update="submitRelation" />
-    </ElementsCardDiv>
+  <UModal
+    v-model:open="modal"
+    :dismissible="false"
+    title="Связи"
+    description="Данные профиля"
+  >
+    <template #content>
+      <ElementsCardDiv>
+        <FormsRelationForm @cancel="modal = false" @update="submitRelation" />
+      </ElementsCardDiv>
+    </template>
   </UModal>
   <div v-for="(item, idx) in relations" :key="idx" class="p-1">
     <ElementsCardDiv>
@@ -74,14 +81,11 @@ async function deleteRelation(id: string, idx: number) {
         </NuxtLink>
       </ElementsLabelSlot>
       <template v-if="editable" #footer>
-        <UHorizontalNavigation
-          :links="[
-            {
-              label: 'Удалить',
-              icon: 'i-heroicons-trash',
-              click: () => deleteRelation(item.right_id, idx),
-            },
-          ]"
+        <UButton
+          label="Удалить"
+          variant="ghost"
+          icon="i-heroicons-trash"
+          @click="deleteRelation(item.right_id, idx)"
         />
       </template>
     </ElementsCardDiv>

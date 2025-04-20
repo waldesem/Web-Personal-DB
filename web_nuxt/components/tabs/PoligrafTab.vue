@@ -69,19 +69,27 @@ const items = computed(() =>
       @click="modal = !modal"
     />
   </div>
-  <UModal v-model:open="modal" :ui="{ content: 'sm:max-w-4xl' }" :dismissible="false">
-    <ElementsCardDiv>
-      <FormsPoligrafForm
-        :poligraf="poligraf"
-        @update="submitPoligraf"
-        @cancel="
-          poligraf = {} as Pfo;
-          modal = false;
-        "
-      />
-    </ElementsCardDiv>
+  <UModal
+    v-model:open="modal"
+    :ui="{ content: 'sm:max-w-4xl' }"
+    :dismissible="false"
+    title="Обследование на полиграфе"
+    description="Данные профиля"
+  >
+    <template #content>
+      <ElementsCardDiv>
+        <FormsPoligrafForm
+          :poligraf="poligraf"
+          @update="submitPoligraf"
+          @cancel="
+            poligraf = {} as Pfo;
+            modal = false;
+          "
+        />
+      </ElementsCardDiv>
+    </template>
   </UModal>
-  <UAccordion :items="items" size="lg" multiple>
+  <UAccordion :items="items" size="lg" type="multiple">
     <template #body="{ item, index }">
       <ElementsCardDiv>
         <DivsPoligrafDiv :item="item.description" />

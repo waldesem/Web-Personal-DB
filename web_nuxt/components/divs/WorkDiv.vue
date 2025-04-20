@@ -62,17 +62,24 @@ async function deleteWork(id: string, idx: number) {
       @click="modal = !modal"
     />
   </div>
-  <UModal v-model:open="modal" :dismissible="false">
-    <ElementsCardDiv>
-      <FormsWorkplaceForm
-        :work="workplace"
-        @cancel="
-          workplace = {} as Work;
-          modal = false;
-        "
-        @update="submitWorkplace"
-      />
-    </ElementsCardDiv>
+  <UModal
+    v-model:open="modal"
+    :dismissible="false"
+    title="Работа"
+    description="Данные профиля"
+  >
+    <template #content>
+      <ElementsCardDiv>
+        <FormsWorkplaceForm
+          :work="workplace"
+          @cancel="
+            workplace = {} as Work;
+            modal = false;
+          "
+          @update="submitWorkplace"
+        />
+      </ElementsCardDiv>
+    </template>
   </UModal>
   <div v-for="(item, idx) in workplaces" :key="idx" class="p-1">
     <ElementsCardDiv>

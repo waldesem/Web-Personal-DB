@@ -72,19 +72,26 @@ const items = computed(() =>
       @click="modal = !modal"
     />
   </div>
-  <UModal v-model:open="modal" :dismissible="false">
-    <ElementsCardDiv>
-      <FormsInvestigationForm
-        :investigation="inquisition"
-        @cancel="
-          inquisition = {} as Inquisition;
-          modal = false;
-        "
-        @update="submitInvestigations"
-      />
-    </ElementsCardDiv>
+  <UModal
+    v-model:open="modal"
+    :dismissible="false"
+    title="Расследование"
+    description="Данные профиля"
+  >
+    <template #content>
+      <ElementsCardDiv>
+        <FormsInvestigationForm
+          :investigation="inquisition"
+          @cancel="
+            inquisition = {} as Inquisition;
+            modal = false;
+          "
+          @update="submitInvestigations"
+        />
+      </ElementsCardDiv>
+    </template>
   </UModal>
-  <UAccordion :items="items" size="lg" multiple>
+  <UAccordion :items="items" size="lg" type="multiple">
     <template #body="{ item, index }">
       <ElementsCardDiv>
         <DivsInvestigateDiv :item="item.description" />

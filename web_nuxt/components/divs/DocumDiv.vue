@@ -62,17 +62,24 @@ async function deleteDocument(id: string, idx: number) {
       @click="modal = !modal"
     />
   </div>
-  <UModal v-model:open="modal" :dismissible="false">
-    <ElementsCardDiv>
-      <FormsDocumentForm
-        :docs="doc"
-        @cancel="
-          doc = {} as Passport;
-          modal = false;
-        "
-        @update="submitDocument"
-      />
-    </ElementsCardDiv>
+  <UModal
+    v-model:open="modal"
+    :dismissible="false"
+    title="Документ"
+    description="Данные профиля"
+  >
+    <template #content>
+      <ElementsCardDiv>
+        <FormsDocumentForm
+          :docs="doc"
+          @cancel="
+            doc = {} as Passport;
+            modal = false;
+          "
+          @update="submitDocument"
+        />
+      </ElementsCardDiv>
+    </template>
   </UModal>
   <div v-for="(item, idx) in documents" :key="idx" class="p-1">
     <ElementsCardDiv>
