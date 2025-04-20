@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { TableColumn } from '@nuxt/ui'
+import type { TableColumn } from "@nuxt/ui";
 import { watchDebounced } from "@vueuse/core";
 import type { User } from "@/types";
 
@@ -77,26 +77,39 @@ const columns: TableColumn<User>[] = [
         @click="modalForm = true"
       />
     </div>
-    <UModal v-model="modalForm">
-      <FormsUserForm
-        @cancel="modalForm = false"
-        @update="
-          modalForm = false;
-          refresh();
-        "
-      />
+    <UModal
+      v-model:open="modalForm"
+      :dismissible="false"
+      title="Добавление пользователя"
+      description="Введите данные пользователя"
+    >
+      <template #content>
+        <FormsUserForm
+          @cancel="modalForm = false"
+          @update="
+            modalForm = false;
+            refresh();
+          "
+        />
+      </template>
     </UModal>
 
-    <UModal v-model="modalProfile" :dismissible="false">
-      <DivsUserDiv
-        :user="user"
-        @update="getUser"
-        @cancel="
-          modalProfile = false;
-          user = {} as User;
-          refresh();
-        "
-      />
+    <UModal
+      v-model:open="modalProfile"
+      :dismissible="false"
+      title="Профиль"
+      description="Данные профиля пользователя"
+    >
+      <template #content>
+        <DivsUserDiv
+          :user="user"
+          @update="getUser"
+          @cancel="
+            modalProfile = false;
+            user = {} as User;
+            refresh();
+          "
+      /></template>
     </UModal>
 
     <UTable
@@ -108,7 +121,7 @@ const columns: TableColumn<User>[] = [
       }"
       :data="filtredUsers"
       :columns="columns"
-      @select="getUser($event.id)"
+      @select="getUser($event.original.id)"
     >
       <template #id-cell="{ row }">{{ row.original.id }}</template>
       <template #fullname-cell="{ row }">{{ row.original.fullname }}</template>
@@ -124,7 +137,9 @@ const columns: TableColumn<User>[] = [
         <div class="text-center">
           <UIcon
             :name="
-              row.original.blocked ? 'i-heroicons-lock-closed' : 'i-heroicons-lock-open'
+              row.original.blocked
+                ? 'i-heroicons-lock-closed'
+                : 'i-heroicons-lock-open'
             "
           />
         </div>

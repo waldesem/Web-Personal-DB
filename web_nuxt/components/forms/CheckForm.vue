@@ -142,7 +142,7 @@ watch(noNegative, () => {
       <USelect
         v-model="checkForm.conclusion"
         required
-        :options="[
+        :items="[
           'СОГЛАСОВАНО',
           'СОГЛАСОВАНО С КОММЕНТАРИЕМ',
           'ОТКАЗАНО В СОГЛАСОВАНИИ',

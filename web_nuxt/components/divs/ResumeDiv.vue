@@ -47,17 +47,24 @@ async function deleteItem() {
 
 <template>
   <ElementsCardDiv>
-    <UModal v-model:open="modal" :dismissible="false">
-      <ElementsCardDiv>
-        <FormsResumeForm
-          :resume="resume"
-          @update="submitResume"
-          @cancel="
-            resume = {} as Persons;
-            modal = false;
-          "
-        />
-      </ElementsCardDiv>
+    <UModal
+      v-model:open="modal"
+      :dismissible="false"
+      title="Резюме"
+      description="Данные профиля"
+    >
+      <template #content>
+        <ElementsCardDiv>
+          <FormsResumeForm
+            :resume="resume"
+            @update="submitResume"
+            @cancel="
+              resume = {} as Persons;
+              modal = false;
+            "
+          />
+        </ElementsCardDiv>
+      </template>
     </UModal>
     <div v-if="pending || status === 'pending'">
       <div v-for="i in 14" :key="i" class="flex grid grid-cols-12 gap-3 mb-3">

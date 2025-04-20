@@ -63,7 +63,7 @@ onCancel(() => {
   reset();
 });
 
-const items = [
+const options = [
   {
     label: "Удалить",
     icon: "i-heroicons-trash",
@@ -84,5 +84,14 @@ const items = [
 </script>
 
 <template>
-  <UNavigationMenu variant="link" :items="items" />
+  <UButtonGroup>
+    <UButton
+      v-for="option in options"
+      :key="option.label"
+      :icon="option.icon"
+      :label="option.label"
+      variant="ghost"
+      @click="option.click"
+    />
+  </UButtonGroup>
 </template>

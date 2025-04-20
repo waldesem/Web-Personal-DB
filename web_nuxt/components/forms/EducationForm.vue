@@ -19,7 +19,7 @@ const educationForm = ref(props.education as Education);
       <USelect
         v-model="educationForm.view"
         required
-        :options="[
+        :items="[
           'Основное общее',
           'Среднее общее',
           'Среднее профессиональное',

@@ -19,7 +19,7 @@ const affilForm = ref(props.affils as Affilation);
       <USelect
         v-model="affilForm.view"
         required
-        :options="[
+        :items="[
           'Являлся государственным/муниципальным служащим',
           'Являлся государственным должностным лицом',
           'Связанные лица работают в государственных организациях',

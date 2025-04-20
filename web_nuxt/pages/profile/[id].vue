@@ -144,7 +144,7 @@ async function changeRegion(): Promise<void> {
             v-model="region"
             icon="i-heroicons-map"
             color="primary"
-            :options="[
+            :items="[
               'Главный офис',
               'РЦ Юг',
               'РЦ Запад',

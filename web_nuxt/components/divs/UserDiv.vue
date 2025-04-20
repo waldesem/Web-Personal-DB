@@ -74,7 +74,7 @@ async function userAction(item: string, id: string): Promise<void> {
       <USelect
         v-model="region"
         :placeholder="props.user.region"
-        :options="['Главный офис', 'РЦ Юг', 'РЦ Запад', 'РЦ Урал', 'РЦ Восток']"
+        :items="['Главный офис', 'РЦ Юг', 'РЦ Запад', 'РЦ Урал', 'РЦ Восток']"
         @change="userAction(region, props.user.id)"
       />
     </ElementsLabelSlot>
@@ -82,7 +82,7 @@ async function userAction(item: string, id: string): Promise<void> {
       <USelect
         v-model="role"
         :placeholder="props.user.role"
-        :options="['admin', 'api', 'user', 'guest']"
+        :items="['admin', 'api', 'user', 'guest']"
         @change="userAction(role, props.user.id)"
       />
     </ElementsLabelSlot>

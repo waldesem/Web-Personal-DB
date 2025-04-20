@@ -19,7 +19,7 @@ const contactForm = ref(props.contact as Contact);
       <USelect
         v-model="contactForm.view"
         required
-        :options="['Телефон', 'Электронная почта', 'Другое']"
+        :items="['Телефон', 'Электронная почта', 'Другое']"
       />
     </UFormField>
     <UFormField class="mb-3" label="Контакт" name="contact" required>

@@ -19,7 +19,7 @@ const addressForm = ref(props.addrs as Address);
       <USelect
         v-model="addressForm.view"
         required
-        :options="['Адрес регистрации', 'Адрес проживания', 'Другое']"
+        :items="['Адрес регистрации', 'Адрес проживания', 'Другое']"
       />
     </UFormField>
     <UFormField class="mb-3" label="Адрес" name="addresses" required>

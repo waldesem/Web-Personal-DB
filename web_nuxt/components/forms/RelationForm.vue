@@ -48,7 +48,7 @@ async function search(query: string) {
       <USelect
         v-model="relationForm.type"
         required
-        :options="[
+        :items="[
           'Одно лицо',
           'Родители-Дети',
           'Братья-Сестры',

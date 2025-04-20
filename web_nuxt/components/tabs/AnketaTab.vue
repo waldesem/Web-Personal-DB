@@ -19,13 +19,12 @@ const items = [
   {
     label: "Резюме",
     icon: "i-heroicons-user",
-    defaultOpen: true,
-    slot: "resume",
+    slot: "resume" as const,
   },
   {
     label: "Должности",
     icon: "i-heroicons-briefcase",
-    slot: "staff",
+    slot: "staff" as const,
   },
   {
     label: "Образование",
@@ -35,43 +34,43 @@ const items = [
   {
     label: "Работа",
     icon: "i-heroicons-briefcase",
-    slot: "work",
+    slot: "work" as const,
   },
   {
     label: "Документы",
     icon: "i-heroicons-document-text",
-    slot: "document",
+    slot: "document" as const,
   },
   {
     label: "Адреса",
     icon: "i-heroicons-home-modern",
-    slot: "address",
+    slot: "address" as const,
   },
   {
     label: "Контакты",
     icon: "i-heroicons-phone",
-    slot: "contact",
+    slot: "contact" as const,
   },
   {
     label: "Аффилированные",
     icon: "i-heroicons-user-group",
-    slot: "affiliation",
+    slot: "affiliation" as const,
   },
   {
     label: "Изменения имени",
     icon: "i-heroicons-archive-box-arrow-down",
-    slot: "prev",
+    slot: "prev" as const,
   },
   {
     label: "Связанные",
     icon: "i-heroicons-user-group",
-    slot: "relate",
+    slot: "relate" as const,
   },
 ];
 </script>
 
 <template>
-  <UAccordion :items="items" size="lg" multiple>
+  <UAccordion :items="items" type="multiple" default-value="resume">
     <template #resume="">
       <DivsResumeDiv @update="emit('update')" />
     </template>

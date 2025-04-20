@@ -37,7 +37,7 @@ const validate = (state: Partial<Passport>) => {
       <USelect
         v-model="docForm.view"
         required
-        :options="['Паспорт', 'Иностранный паспорт', 'Другое']"
+        :items="['Паспорт', 'Иностранный паспорт', 'Другое']"
       />
     </UFormField>
     <UFormField class="mb-3" label="Серия документа" name="series">

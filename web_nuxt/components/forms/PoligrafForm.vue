@@ -19,7 +19,7 @@ const poligrafForm = ref(props.poligraf as Pfo);
       <USelect
         v-model="poligrafForm.theme"
         required
-        :options="[
+        :items="[
           'Проверка кандидата',
           'Служебная проверка',
           'Служебное расследование',
@@ -39,7 +39,7 @@ const poligrafForm = ref(props.poligraf as Pfo);
       <USelect
         v-model="poligrafForm.conclusion"
         required
-        :options="[
+        :items="[
           'БЕЗ ЗАМЕЧАНИЙ',
           'С КОММЕНТАРИЯМИ',
           'НЕГАТИВ',

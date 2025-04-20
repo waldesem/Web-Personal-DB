@@ -54,7 +54,7 @@ const { status } = await useLazyAsyncData(
           <UFormField class="mb-3" label="Регион">
             <USelect
               v-model="region"
-              :options="[
+              :items="[
                 'Главный офис',
                 'РЦ Юг',
                 'РЦ Запад',
