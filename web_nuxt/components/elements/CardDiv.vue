@@ -1,5 +1,5 @@
 <template>
-  <UCard :ui="{root: 'my-2 mx-1'}">
+  <UCard :ui="{root: 'm-2'}">
     <template v-if="$slots.header" #header>
       <slot name="header" />
     </template>

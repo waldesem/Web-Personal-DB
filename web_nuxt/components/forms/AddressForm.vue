@@ -20,6 +20,7 @@ const addressForm = ref(props.addrs as Address);
         v-model="addressForm.view"
         required
         :items="['Адрес регистрации', 'Адрес проживания', 'Другое']"
+        default-value="Адрес регистрации"
       />
     </UFormField>
     <UFormField class="mb-3" label="Адрес" name="addresses" required>

@@ -27,6 +27,7 @@ const educationForm = ref(props.education as Education);
           'Неоконченное высшее образование',
           'Другое образование',
         ]"
+        default-value="Высшее"
       />
     </UFormField>
     <UFormField

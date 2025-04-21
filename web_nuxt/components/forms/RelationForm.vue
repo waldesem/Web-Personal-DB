@@ -54,8 +54,9 @@ async function search(query: string) {
           'Братья-Сестры',
           'Супруг-Супруга',
           'Родственники',
-          'Близкая связь',
+          'Родственники',
         ]"
+        default-value="Одно лицо"
       />
     </UFormField>
     <UFormField class="mb-3" label="ID связи" name="right_id" required>

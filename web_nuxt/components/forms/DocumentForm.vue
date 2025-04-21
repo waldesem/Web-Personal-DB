@@ -11,6 +11,7 @@ const props = defineProps({
 });
 
 const docForm = ref(props.docs as Partial<Passport>);
+  
 docForm.value.issue = docForm.value.issue
   ? new Date(docForm.value.issue).toISOString().split("T", 1)[0]
   : "";
@@ -38,6 +39,7 @@ const validate = (state: Partial<Passport>) => {
         v-model="docForm.view"
         required
         :items="['Паспорт', 'Иностранный паспорт', 'Другое']"
+        default-value="Паспорт"
       />
     </UFormField>
     <UFormField class="mb-3" label="Серия документа" name="series">
