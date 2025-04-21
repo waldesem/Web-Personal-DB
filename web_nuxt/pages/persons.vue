@@ -134,7 +134,7 @@ async function submitResume(form: Persons): Promise<void> {
           <UTooltip text="Создать анкету">
             <UButton
               :loading="status == 'pending' || upload"
-              icon="i-lucide-user-plus"
+              icon="i-heroicons-user-plus"
               size="xl"
               variant="ghost"
               @click="modal = true"
@@ -157,7 +157,7 @@ async function submitResume(form: Persons): Promise<void> {
           <UTooltip text="Загрузить json">
             <UButton
               :loading="status == 'pending' || upload"
-              icon="i-lucide-upload"
+              icon="i-heroicons-cloud-arrow-up"
               size="xl"
               variant="ghost"
               @click="open()"
@@ -172,7 +172,7 @@ async function submitResume(form: Persons): Promise<void> {
         v-model="search"
         :loading="status == 'pending'"
         size="lg"
-        icon="i-lucide-search"
+        icon="i-heroicons-magnifying-glass"
         placeholder="поиск по фамилии, имени, отчеству"
       />
     </div>

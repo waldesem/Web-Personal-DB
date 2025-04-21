@@ -43,14 +43,6 @@ async function deleteCheck(id: string, idx: number) {
   }
   emitMessage(message);
 }
-
-const items = computed(() =>
-  checks.value.map((item, _) => ({
-    label: "Проверка кандидата ID #" + item["id"],
-    defaultOpen: true,
-    description: item,
-  }))
-);
 </script>
 
 <template>
@@ -86,22 +78,18 @@ const items = computed(() =>
       </ElementsCardDiv>
     </template>
   </UModal>
-  <UAccordion :items="items" type="multiple">
-    <template #body="{ item, index }">
-      <ElementsCardDiv>
-        <DivsCheckDiv :item="item.description" />
-        <template v-if="editable" #footer>
-          <ElementsTabMenu
-            :item="'checks'"
-            @cancel="modal = false"
-            @delete="deleteCheck(item.description.id, index)"
-            @update="
-              check = item.description;
-              modal = true;
-            "
-          />
-        </template>
-      </ElementsCardDiv>
+  <ElementsCardDiv v-for="(item, index) in checks" :key="item.id">
+    <DivsCheckDiv :item="item" />
+    <template v-if="editable" #footer>
+      <ElementsTabMenu
+        :item="'checks'"
+        @cancel="modal = false"
+        @delete="deleteCheck(item.id, index)"
+        @update="
+          check = item;
+          modal = true;
+        "
+      />
     </template>
-  </UAccordion>
+  </ElementsCardDiv>
 </template>

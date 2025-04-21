@@ -46,14 +46,6 @@ async function deletePoligraf(id: string, idx: number) {
   }
   emitMessage(message);
 }
-
-const items = computed(() =>
-  poligrafs.value.map((item, _) => ({
-    label: "Обследование на полиграфе ID #" + item["id"],
-    defaultOpen: true,
-    description: item,
-  }))
-);
 </script>
 
 <template>
@@ -89,22 +81,18 @@ const items = computed(() =>
       </ElementsCardDiv>
     </template>
   </UModal>
-  <UAccordion :items="items" size="lg" type="multiple">
-    <template #body="{ item, index }">
-      <ElementsCardDiv>
-        <DivsPoligrafDiv :item="item.description" />
-        <template v-if="editable" #footer>
-          <ElementsTabMenu
-            :item="'poligrafs'"
-            @cancel="modal = false"
-            @update="
-              poligraf = item.description;
-              modal = true;
-            "
-            @delete="deletePoligraf(item.description.id, index)"
-          />
-        </template>
-      </ElementsCardDiv>
+  <ElementsCardDiv v-for="(item, index) in poligrafs" :key="item.id">
+    <DivsPoligrafDiv :item="item" />
+    <template v-if="editable" #footer>
+      <ElementsTabMenu
+        :item="'poligrafs'"
+        @cancel="modal = false"
+        @update="
+          poligraf = item;
+          modal = true;
+        "
+        @delete="deletePoligraf(item.id, index)"
+      />
     </template>
-  </UAccordion>
+  </ElementsCardDiv>
 </template>

@@ -34,14 +34,14 @@ const items = [
   [
     {
       label: "ПОЛЬЗОВАТЕЛИ",
-      icon: "i-lucide-users",
+      icon: "i-heroicons-users",
       to: "/users",
     },
   ],
   [
     {
       label: "СТАТИСТИКА",
-      icon: "i-lucide-chart-bar",
+      icon: "i-heroicons-chart-pie",
       to: "/info",
     },
   ],
@@ -83,7 +83,7 @@ const items = [
           >
             <UButton
               :icon="
-                messages.length ? 'i-lucide-bell-ring' : 'i-lucide-bell'
+                messages.length ? 'i-heroicons-bell-alert' : 'i-heroicons-bell'
               "
               variant="ghost"
               size="xl"
@@ -95,7 +95,7 @@ const items = [
               <div class="flex items-center justify-between m-3">
                 <UTooltip text="Обновить">
                   <UButton
-                    icon="i-lucide-arrow-up-down"
+                    icon="i-heroicons-arrows-up-down"
                     variant="ghost"
                     @click="refresh()"
                   />
@@ -105,7 +105,7 @@ const items = [
                 </div>
                 <UTooltip text="Очистить">
                   <UButton
-                    icon="i-lucide-archive"
+                    icon="i-heroicons-trash"
                     variant="ghost"
                     @click="clearMessages"
                   />

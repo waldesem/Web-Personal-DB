@@ -49,14 +49,6 @@ async function deleteInquisition(id: string, idx: number) {
   }
   emitMessage(message);
 }
-
-const items = computed(() =>
-  investigations.value.map((item, _) => ({
-    label: "Расследование/проверка ID #" + item["id"],
-    defaultOpen: true,
-    description: item,
-  }))
-);
 </script>
 
 <template>
@@ -91,22 +83,18 @@ const items = computed(() =>
       </ElementsCardDiv>
     </template>
   </UModal>
-  <UAccordion :items="items" size="lg" type="multiple">
-    <template #body="{ item, index }">
-      <ElementsCardDiv>
-        <DivsInvestigateDiv :item="item.description" />
-        <template v-if="editable" #footer>
-          <ElementsTabMenu
-            :item="'investigations'"
-            @cancel="modal = false"
-            @delete="deleteInquisition(item.description.id, index)"
-            @update="
-              inquisition = item.description;
-              modal = true;
-            "
-          />
-        </template>
-      </ElementsCardDiv>
+  <ElementsCardDiv v-for="(item, index) in investigations" :key="item.id">
+    <DivsInvestigateDiv :item="item" />
+    <template v-if="editable" #footer>
+      <ElementsTabMenu
+        :item="'investigations'"
+        @cancel="modal = false"
+        @delete="deleteInquisition(item.id, index)"
+        @update="
+          inquisition = item;
+          modal = true;
+        "
+      />
     </template>
-  </UAccordion>
+  </ElementsCardDiv>
 </template>

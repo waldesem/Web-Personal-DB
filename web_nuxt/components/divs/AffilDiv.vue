@@ -50,6 +50,12 @@ async function deleteAffilation(id: string, idx: number) {
 </script>
 
 <template>
+    <ElementsCardDiv>
+    <div class="flex justify-between items-center mx-2">
+      <div class="flex items-center space-x-2">
+        <UIcon name="i-heroicons-user-group" class="size-5" />
+        <div class="font-bold">Аффилированность</div>
+      </div>
   <div v-if="editable || status == 'pending'" class="my-1">
     <UButton
       :loading="status == 'pending' || pending"
@@ -58,10 +64,12 @@ async function deleteAffilation(id: string, idx: number) {
           ? 'Обновление данных...'
           : 'Добавить запись'
       "
-      variant="link"
+      variant="ghost"
+      icon="i-heroicons-plus-circle"
       @click="modal = !modal"
     />
   </div>
+    </div>
   <UModal
     v-model:open="modal"
     :dismissible="false"
@@ -95,4 +103,5 @@ async function deleteAffilation(id: string, idx: number) {
       </template>
     </ElementsCardDiv>
   </div>
+    </ElementsCardDiv>
 </template>

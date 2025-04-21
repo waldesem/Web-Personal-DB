@@ -170,7 +170,6 @@ async function changeRegion(): Promise<void> {
                 ? 'success'
                 : 'error'
             "
-            size="sm"
             @click="switchSelf"
           >
             {{

@@ -1,25 +1,25 @@
 <script setup lang="ts">
-import type { Verification } from '@/types';
+import type { Verification } from "@/types";
 
 const props = defineProps({
   item: {
     type: Object as () => Verification,
     default: {} as Verification,
   },
-})
+});
 </script>
 
 <template>
+  <ElementsLabelSlot :label="'ID проверки'">
+    {{ props.item.id }}
+  </ElementsLabelSlot>
   <ElementsLabelSlot
     v-if="props.item.workplace"
     :label="'Проверка по местам работы'"
   >
     {{ props.item.workplace }}
   </ElementsLabelSlot>
-  <ElementsLabelSlot
-    v-if="props.item.document"
-    :label="'Проверка документов'"
-  >
+  <ElementsLabelSlot v-if="props.item.document" :label="'Проверка документов'">
     {{ props.item.document }}
   </ElementsLabelSlot>
   <ElementsLabelSlot
@@ -33,11 +33,9 @@ const props = defineProps({
   >
     {{ props.item.bankruptcy }}
   </ElementsLabelSlot>
-  <ElementsLabelSlot
-    v-if="props.item.bki"
-    :label="'Проверка БКИ'"
-    >{{ props.item.bki }}</ElementsLabelSlot
-  >
+  <ElementsLabelSlot v-if="props.item.bki" :label="'Проверка БКИ'">{{
+    props.item.bki
+  }}</ElementsLabelSlot>
   <ElementsLabelSlot
     v-if="props.item.courts"
     :label="'Проверка судебных решений'"
@@ -62,10 +60,7 @@ const props = defineProps({
   >
     {{ props.item.internet }}
   </ElementsLabelSlot>
-  <ElementsLabelSlot
-    v-if="props.item.cronos"
-    :label="'Проверка Кронос'"
-  >
+  <ElementsLabelSlot v-if="props.item.cronos" :label="'Проверка Кронос'">
     {{ props.item.cronos }}
   </ElementsLabelSlot>
   <ElementsLabelSlot
@@ -74,9 +69,7 @@ const props = defineProps({
   >
     {{ props.item.addition }}
   </ElementsLabelSlot>
-  <ElementsLabelSlot
-    v-if="props.item.comment"
-    :label="'Комментарии'"
+  <ElementsLabelSlot v-if="props.item.comment" :label="'Комментарии'"
     >{{ props.item.comment }}
   </ElementsLabelSlot>
   <ElementsLabelSlot :label="'Результат'">

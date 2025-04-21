@@ -46,14 +46,6 @@ async function deleteNeed(id: string, idx: number) {
   }
   emitMessage(message);
 }
-
-const items = computed(() =>
-  inquiries.value.map((item, _) => ({
-    label: "Запрос о сотруднике ID #" + item["id"],
-    defaultOpen: true,
-    description: item,
-  }))
-);
 </script>
 
 <template>
@@ -88,22 +80,18 @@ const items = computed(() =>
       </ElementsCardDiv>
     </template>
   </UModal>
-  <UAccordion :items="items" size="lg" type="multiple">
-    <template #body="{ item, index }">
-      <ElementsCardDiv>
-        <DivsInquiryDiv :item="item.description" />
-        <template v-if="editable" #footer>
-          <ElementsTabMenu
-            :item="'inquiries'"
-            @cancel="modal = false"
-            @delete="deleteNeed(item.description.id, index)"
-            @update="
-              need = item.description;
-              modal = true;
-            "
-          />
-        </template>
-      </ElementsCardDiv>
+  <ElementsCardDiv v-for="(item, index) in inquiries" :key="item.id">
+    <DivsInquiryDiv :item="item" />
+    <template v-if="editable" #footer>
+      <ElementsTabMenu
+        :item="'inquiries'"
+        @cancel="modal = false"
+        @delete="deleteNeed(item.id, index)"
+        @update="
+          need = item;
+          modal = true;
+        "
+      />
     </template>
-  </UAccordion>
+  </ElementsCardDiv>
 </template>
