@@ -148,7 +148,7 @@ watch(noNegative, () => {
           'ОТКАЗАНО В СОГЛАСОВАНИИ',
           'СНЯТ С ПРОВЕРКИ',
         ]"
-        default-value="СОГЛАСОВАНО"
+        placeholder="Решение"
       />
     </UFormField>
     <ElementsBtnGroup @cancel="emit('cancel')" />

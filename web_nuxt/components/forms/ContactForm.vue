@@ -20,7 +20,7 @@ const contactForm = ref(props.contact as Contact);
         v-model="contactForm.view"
         required
         :items="['Телефон', 'Электронная почта', 'Другое']"
-        default-value="Телефон"
+        placeholder="Вид контакта"
       />
     </UFormField>
     <UFormField class="mb-3" label="Контакт" name="contact" required>

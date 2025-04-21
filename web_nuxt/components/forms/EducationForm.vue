@@ -15,7 +15,7 @@ const educationForm = ref(props.education as Education);
 
 <template>
   <UForm :state="educationForm" @submit.prevent="emit('update', educationForm)">
-    <UFormField class="mb-3" label="Вид образования" name="view" required>
+    <UFormField class="mb-3" label="Тип образования" name="view" required>
       <USelect
         v-model="educationForm.view"
         required
@@ -27,7 +27,7 @@ const educationForm = ref(props.education as Education);
           'Неоконченное высшее образование',
           'Другое образование',
         ]"
-        default-value="Высшее"
+        placeholder="Тип образования"
       />
     </UFormField>
     <UFormField

@@ -56,7 +56,7 @@ async function search(query: string) {
           'Родственники',
           'Родственники',
         ]"
-        default-value="Одно лицо"
+        placeholder="Тип связи"
       />
     </UFormField>
     <UFormField class="mb-3" label="ID связи" name="right_id" required>

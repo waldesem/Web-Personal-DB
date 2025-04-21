@@ -15,7 +15,7 @@ const affilForm = ref(props.affils as Affilation);
 
 <template>
   <UForm :state="affilForm" @submit.prevent="emit('update', affilForm)">
-    <UFormField class="mb-3" label="Тип участия" name="view" required>
+    <UFormField class="mb-3" label="Вид участия" name="view" required>
       <USelect
         v-model="affilForm.view"
         required
@@ -25,7 +25,7 @@ const affilForm = ref(props.affils as Affilation);
           'Связанные лица работают в государственных организациях',
           'Участвует в деятельности коммерческих организаций',
         ]"
-        default-value="Участвует в деятельности коммерческих организаций"
+        placeholder="Вид участия"
       />
     </UFormField>
     <UFormField class="mb-3" label="Организация" name="organization" required>
