@@ -12,14 +12,14 @@ export function emitMessage(message: string) {
       icon: "i-heroicons-information-circle",
       title: "Информация",
       description: "Информация обновлена",
-      color: "primary",
+      color: "success",
     });
   } else {
     toast.add({
       icon: "i-heroicons-exclamation-triangle",
       title: "Внимание",
       description: "Ошибка обновления информации",
-      color: "red",
+      color: "error",
     });
   }
 }

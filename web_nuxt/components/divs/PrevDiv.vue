@@ -53,7 +53,7 @@ async function deletePrevious(id: string, idx: number) {
   <ElementsCardDiv>
     <div class="flex justify-between items-center mx-2">
       <div class="flex items-center space-x-2">
-        <UIcon name="i-heroicons-archive-box-arrow-down" class="size-5" />
+        <UIcon name="i-heroicons-user" class="size-5" />
         <div class="font-bold">Изменения имени</div>
       </div>
       <div v-if="editable || status == 'pending'" class="my-1">

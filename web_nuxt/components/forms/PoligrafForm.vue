@@ -25,6 +25,7 @@ const poligrafForm = ref(props.poligraf as Pfo);
           'Служебное расследование',
           'Плановое мероприятие',
         ]"
+        placeholder="Выберите тему проверки"
       />
     </UFormField>
     <UFormField class="mb-3" label="Результат" name="results" required>
@@ -44,6 +45,7 @@ const poligrafForm = ref(props.poligraf as Pfo);
           'С КОММЕНТАРИЯМИ',
           'НЕГАТИВ',
         ]"
+        placeholder="Выберите результат"
       />
     </UFormField>
     <ElementsBtnGroup @cancel="emit('cancel')" />

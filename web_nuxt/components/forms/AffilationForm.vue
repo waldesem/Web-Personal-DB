@@ -25,7 +25,7 @@ const affilForm = ref(props.affils as Affilation);
           'Связанные лица работают в государственных организациях',
           'Участвует в деятельности коммерческих организаций',
         ]"
-        placeholder="Вид участия"
+        placeholder="Выберите вид участия"
       />
     </UFormField>
     <UFormField class="mb-3" label="Организация" name="organization" required>

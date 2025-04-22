@@ -148,7 +148,7 @@ watch(noNegative, () => {
           'ОТКАЗАНО В СОГЛАСОВАНИИ',
           'СНЯТ С ПРОВЕРКИ',
         ]"
-        placeholder="Решение"
+        placeholder="Выберите решение"
       />
     </UFormField>
     <ElementsBtnGroup @cancel="emit('cancel')" />

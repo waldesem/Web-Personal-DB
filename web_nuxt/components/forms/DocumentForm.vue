@@ -39,7 +39,7 @@ const validate = (state: Partial<Passport>) => {
         v-model="docForm.view"
         required
         :items="['Паспорт', 'Иностранный паспорт', 'Другое']"
-        placeholder="Вид документа"
+        placeholder="Выберите вид документа"
       />
     </UFormField>
     <UFormField class="mb-3" label="Серия документа" name="series">

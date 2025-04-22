@@ -27,7 +27,7 @@ const educationForm = ref(props.education as Education);
           'Неоконченное высшее образование',
           'Другое образование',
         ]"
-        placeholder="Тип образования"
+        placeholder="Выберите тип образования"
       />
     </UFormField>
     <UFormField

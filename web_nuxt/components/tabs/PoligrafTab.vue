@@ -21,7 +21,6 @@ const { refresh, status } = await useLazyAsyncData("poligrafs", async () => {
 });
 
 async function submitPoligraf(form: Pfo) {
-  console.log(form);
   modal.value = false;
   pending.value = true;
   const { message } = (await authFetch(

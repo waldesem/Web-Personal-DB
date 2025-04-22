@@ -182,7 +182,7 @@ async function changeRegion(): Promise<void> {
         </UTooltip>
       </div>
     </div>
-    <UTabs :items="tabs">
+    <UTabs :items="tabs" variant="link" class="gap-4 w-full" :ui="{ trigger: 'flex-1' }">
       <template #anketaTab>
         <TabsAnketaTab @update="refresh()" />
       </template>
