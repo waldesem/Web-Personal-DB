@@ -40,23 +40,26 @@ def get_folder(person_id: int) -> Response:
     path = Path(path).resolve()
     if not path.is_dir():
         path.mkdir(parents=True, exist_ok=True)
-    folders = [
-        {
-            "name": folder.name,
-            "path": str(folder),
-        }
-        for folder in path.iterdir()
-        if folder.is_dir()
-    ]
-    files = [
-        {
-            "name": file.name,
-            "path": str(file),
-        }
-        for file in path.iterdir()
-        if file.is_file()
-    ]
-    return jsonify({"folders": folders, "files": files}), 200
+    try:
+        folders = [
+            {
+                "name": folder.name,
+                "path": str(folder),
+            }
+            for folder in path.iterdir()
+            if folder.is_dir()
+        ]
+        files = [
+            {
+                "name": file.name,
+                "path": str(file),
+            }
+            for file in path.iterdir()
+            if file.is_file()
+        ]
+        return jsonify({"path": str(path), "folders": folders, "files": files}), 200
+    except PermissionError:
+        return jsonify({"path": str(path), "folders": [], "files": []}), 200
 
 
 @bp.get("/file")

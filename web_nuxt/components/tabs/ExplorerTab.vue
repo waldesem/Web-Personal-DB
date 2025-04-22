@@ -5,9 +5,9 @@ const authFetch = useFetchAuth();
 
 const candId = inject("candId") as Ref<string>;
 
+const fullPath = ref("") as Ref<string>;
 const listFolders = ref<Folders[]>([]);
 const listFiles = ref<Files[]>([]);
-const path = ref("") as Ref<string>;
 const pending = ref(false);
 
 const size = ref("lg") as Ref<"xs" | "sm" | "md" | "lg" | "xl">;
@@ -15,21 +15,23 @@ const size = ref("lg") as Ref<"xs" | "sm" | "md" | "lg" | "xl">;
 const { status } = await useLazyAsyncData(
   "explorer",
   async () => {
-    const { folders, files } = (await authFetch(
+    const { path, folders, files } = (await authFetch(
       "/route/explorer/folder/" + candId.value,
       {
         params: {
-          path: path.value,
+          path: fullPath.value,
         },
       }
     )) as {
+      path: string;
       folders: Folders[];
       files: Files[];
     };
+    fullPath.value = path;
     listFolders.value = folders;
     listFiles.value = files;
   },
-  { watch: [path] }
+  { watch: [fullPath] }
 );
 
 async function openFile(path: string, name: string) {
@@ -57,31 +59,29 @@ async function openFile(path: string, name: string) {
       <div class="flex justify-between">
         <UButton
           :loading="pending"
-          label="Домашняя папка"
+          label="Домой"
           variant="ghost"
           icon="i-heroicons-home"
-          size="xl"
-          @click="path = ''"
+          @click="fullPath = ''"
         />
+
         <USelect
           v-model="size"
           variant="outline"
           :items="[
-            { label: 'Самый маленькие', value: '2xs' },
             { label: 'Очень маленькие', value: 'xs' },
             { label: 'Маленькие значки', value: 'sm' },
             { label: 'Средние значки', value: 'md' },
             { label: 'Большие значки', value: 'lg' },
             { label: 'Очень большие', value: 'xl' },
           ]"
-          default-value="md"
           option-attribute="name"
           value-attribute="value"
         />
       </div>
     </template>
     <div v-if="pending || status === 'pending'">
-      <div v-for="i in listFolders.length + listFiles.length" :key="i">
+      <div v-for="i in listFolders.length + listFiles.length + 1" :key="i">
         <div class="my-3">
           <USkeleton class="h-6 w-[600px]" />
         </div>
@@ -93,17 +93,16 @@ async function openFile(path: string, name: string) {
     <div v-else style="overflow: auto">
       <div v-for="folder in listFolders" :key="folder.name">
         <UButton
-          :disabled="stateUser.role != 'user'"
           :label="
             folder.name.length < 64
               ? folder.name
               : folder.name.slice(0, 64) + '...'
           "
           icon="i-heroicons-folder"
-          variant="link"
+          variant="ghost"
           :size="size"
           :title="folder.name"
-          @click="path = folder.path"
+          @click="fullPath = folder.path"
         />
       </div>
       <div v-for="file in listFiles" :key="file.name">
@@ -113,12 +112,15 @@ async function openFile(path: string, name: string) {
             file.name.length < 64 ? file.name : file.name.slice(0, 64) + '...'
           "
           icon="i-heroicons-document"
-          variant="link"
+          variant="ghost"
           :size="size"
           :title="file.name"
           @click="openFile(file.path, file.name)"
         />
       </div>
     </div>
+    <template #footer>
+      <div class="text-sm m-2 text-center break-all">{{ fullPath }}</div>
+    </template>
   </ElementsCardDiv>
 </template>

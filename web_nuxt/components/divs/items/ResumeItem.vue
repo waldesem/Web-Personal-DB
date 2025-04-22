@@ -49,7 +49,4 @@ const props = defineProps({
   >
     {{ props.person.addition }}
   </ElementsLabelSlot>
-  <ElementsLabelSlot v-if="props.person.destination" :label="'Материалы'">
-    {{ props.person.destination }}</ElementsLabelSlot
-  >
 </template>
