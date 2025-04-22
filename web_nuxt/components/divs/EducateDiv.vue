@@ -50,58 +50,65 @@ async function deleteEducation(id: string, idx: number) {
 </script>
 
 <template>
-  <ElementsCardDiv>
-    <div class="flex justify-between items-center mx-2">
-      <div class="flex items-center space-x-2">
-        <UIcon name="i-heroicons-academic-cap" class="size-5" />
-        <div class="font-bold">Образование</div>
-      </div>
-      <div v-if="editable || status == 'pending'" class="my-1">
-        <UButton
-          :loading="status == 'pending' || pending"
-          :label="
-            status == 'pending' || pending
-              ? 'Обновление данных...'
-              : 'Добавить запись'
-          "
-          variant="ghost"
-          icon="i-heroicons-plus-circle"
-          @click="modal = !modal"
-        />
-      </div>
-    </div>
-    <UModal
-      v-model:open="modal"
-      :dismissible="false"
-      title="Образование"
-      description="Данные профиля"
-    >
-      <template #content>
-        <ElementsCardDiv>
-          <FormsEducationForm
-            :education="education"
-            @cancel="
-              education = {} as Education;
-              modal = false;
-            "
-            @update="submitEducation"
-          />
-        </ElementsCardDiv>
-      </template>
-    </UModal>
-    <div v-for="(item, idx) in educations" :key="idx" class="p-1">
+  <UCollapsible class="m-2">
+    <UButton
+      label="Образование"
+      icon="i-heroicons-academic-cap"
+      color="neutral"
+      variant="subtle"
+      trailing-icon="i-lucide-chevron-down"
+      block
+    />
+    <template #content>
       <ElementsCardDiv>
-        <DivsItemsEducateItem :item="item" />
-        <template v-if="editable" #footer>
-          <ElementsDivMenu
-            @delete="deleteEducation(item.id, idx)"
-            @update="
-              education = item;
-              modal = true;
+        <div v-if="editable || status == 'pending'" class="my-1">
+          <UButton
+            :loading="status == 'pending' || pending"
+            :label="
+              status == 'pending' || pending
+                ? 'Обновление данных...'
+                : 'Добавить запись'
             "
+            variant="ghost"
+            icon="i-heroicons-plus-circle"
+            @click="modal = !modal"
           />
-        </template>
+        </div>
+
+        <UModal
+          v-model:open="modal"
+          :dismissible="false"
+          title="Образование"
+          description="Данные профиля"
+        >
+          <template #content>
+            <ElementsCardDiv>
+              <FormsEducationForm
+                :education="education"
+                @cancel="
+                  education = {} as Education;
+                  modal = false;
+                "
+                @update="submitEducation"
+              />
+            </ElementsCardDiv>
+          </template>
+        </UModal>
+        <div v-for="(item, idx) in educations" :key="idx" class="p-1">
+          <ElementsCardDiv>
+            <DivsItemsEducateItem :item="item" />
+            <template v-if="editable" #footer>
+              <ElementsDivMenu
+                @delete="deleteEducation(item.id, idx)"
+                @update="
+                  education = item;
+                  modal = true;
+                "
+              />
+            </template>
+          </ElementsCardDiv>
+        </div>
       </ElementsCardDiv>
-    </div>
-  </ElementsCardDiv>
+    </template>
+  </UCollapsible>
 </template>

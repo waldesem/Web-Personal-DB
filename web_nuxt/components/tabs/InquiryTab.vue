@@ -57,7 +57,8 @@ async function deleteNeed(id: string, idx: number) {
           ? 'Обновление данных...'
           : 'Добавить запись'
       "
-      variant="link"
+      variant="ghost"
+      icon="i-heroicons-plus-circle"
       @click="modal = !modal"
     />
   </div>

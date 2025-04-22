@@ -50,58 +50,64 @@ async function deleteAddress(id: string, idx: number) {
 </script>
 
 <template>
-  <ElementsCardDiv>
-    <div class="flex justify-between items-center mx-2">
-      <div class="flex items-center space-x-2">
-        <UIcon name="i-heroicons-home-modern" class="size-5" />
-        <div class="font-bold">Адреса</div>
-      </div>
-      <div v-if="editable || status == 'pending'" class="my-1">
-        <UButton
-          :loading="status == 'pending' || pending"
-          :label="
-            status == 'pending' || pending
-              ? 'Обновление данных...'
-              : 'Добавить запись'
-          "
-          variant="ghost"
-          icon="i-heroicons-plus-circle"
-          @click="modal = !modal"
-        />
-      </div>
-    </div>
-    <UModal
-      v-model:open="modal"
-      :dismissible="false"
-      title="Адрес"
-      description="Данные профиля"
-    >
-      <template #content>
-        <ElementsCardDiv>
-          <FormsAddressForm
-            :addrs="address"
-            @cancel="
-              address = {} as Address;
-              modal = false;
-            "
-            @update="submitAddress"
-          />
-        </ElementsCardDiv>
-      </template>
-    </UModal>
-    <div v-for="(item, idx) in addresses" :key="idx" class="p-1">
+  <UCollapsible class="m-2">
+    <UButton
+      label="Адреса"
+      icon="i-heroicons-home-modern"
+      color="neutral"
+      variant="subtle"
+      trailing-icon="i-lucide-chevron-down"
+      block
+    />
+    <template #content>
       <ElementsCardDiv>
-        <DivsItemsAddressItem :item="item" />
-        <template v-if="editable" #footer>
-          <ElementsDivMenu
-            @delete="deleteAddress(item.id, idx)"
-            @update="
-              address = item;
-              modal = true;
+        <div v-if="editable || status == 'pending'" class="my-1">
+          <UButton
+            :loading="status == 'pending' || pending"
+            :label="
+              status == 'pending' || pending
+                ? 'Обновление данных...'
+                : 'Добавить запись'
             "
+            variant="ghost"
+            icon="i-heroicons-plus-circle"
+            @click="modal = !modal"
           />
-        </template>
+        </div>
+        <UModal
+          v-model:open="modal"
+          :dismissible="false"
+          title="Адрес"
+          description="Данные профиля"
+        >
+          <template #content>
+            <ElementsCardDiv>
+              <FormsAddressForm
+                :addrs="address"
+                @cancel="
+                  address = {} as Address;
+                  modal = false;
+                "
+                @update="submitAddress"
+              />
+            </ElementsCardDiv>
+          </template>
+        </UModal>
+        <div v-for="(item, idx) in addresses" :key="idx" class="p-1">
+          <ElementsCardDiv>
+            <DivsItemsAddressItem :item="item" />
+            <template v-if="editable" #footer>
+              <ElementsDivMenu
+                @delete="deleteAddress(item.id, idx)"
+                @update="
+                  address = item;
+                  modal = true;
+                "
+              />
+            </template>
+          </ElementsCardDiv>
+        </div>
       </ElementsCardDiv>
-    </div>
-  </ElementsCardDiv>
+    </template>
+  </UCollapsible>
 </template>

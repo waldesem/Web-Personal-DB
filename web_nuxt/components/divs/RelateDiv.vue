@@ -48,66 +48,79 @@ async function deleteRelation(id: string, idx: number) {
 </script>
 
 <template>
-  <ElementsCardDiv>
-    <div class="flex justify-between items-center mx-2">
-      <div class="flex items-center space-x-2">
-        <UIcon name="i-heroicons-share" class="size-5" />
-        <div class="font-bold">Связи</div>
-      </div>
-      <div v-if="editable || status == 'pending'" class="my-1">
-        <UButton
-          :loading="status == 'pending' || pending"
-          :label="
-            status == 'pending' || pending
-              ? 'Обновление данных...'
-              : 'Добавить запись'
-          "
-          variant="ghost"
-          icon="i-heroicons-plus-circle"
-          @click="modal = !modal"
-        />
-      </div>
-    </div>
-    <UModal
-      v-model:open="modal"
-      :dismissible="false"
-      title="Связи"
-      description="Данные профиля"
-    >
-      <template #content>
-        <ElementsCardDiv>
-          <FormsRelationForm @cancel="modal = false" @update="submitRelation" />
-        </ElementsCardDiv>
-      </template>
-    </UModal>
-    <div v-for="(item, idx) in relations" :key="idx" class="p-1">
+  <UCollapsible class="m-2">
+    <UButton
+      label="Связи"
+      icon="i-heroicons-share"
+      color="neutral"
+      variant="subtle"
+      trailing-icon="i-lucide-chevron-down"
+      block
+    />
+    <template #content>
       <ElementsCardDiv>
-        <ElementsLabelSlot :label="'Тип'">{{ item.type }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Связан'">
-          <NuxtLink :to="`/profile/${item.right_id}`">
-            ID #{{ item.right_id }}
-          </NuxtLink>
-        </ElementsLabelSlot>
-        <template v-if="editable" #footer>
+        <div v-if="editable || status == 'pending'" class="my-1">
           <UButton
-            label="Удалить"
+            :loading="status == 'pending' || pending"
+            :label="
+              status == 'pending' || pending
+                ? 'Обновление данных...'
+                : 'Добавить запись'
+            "
             variant="ghost"
-            icon="i-heroicons-trash"
-            @click="deleteRelation(item.right_id, idx)"
+            icon="i-heroicons-plus-circle"
+            @click="modal = !modal"
           />
-        </template>
-      </ElementsCardDiv>
-    </div>
+        </div>
+        <UModal
+          v-model:open="modal"
+          :dismissible="false"
+          title="Связи"
+          description="Данные профиля"
+        >
+          <template #content>
+            <ElementsCardDiv>
+              <FormsRelationForm
+                @cancel="modal = false"
+                @update="submitRelation"
+              />
+            </ElementsCardDiv>
+          </template>
+        </UModal>
+        <div v-for="(item, idx) in relations" :key="idx" class="p-1">
+          <ElementsCardDiv>
+            <ElementsLabelSlot :label="'Тип'">{{
+              item.type
+            }}</ElementsLabelSlot>
+            <ElementsLabelSlot :label="'Связан'">
+              <NuxtLink :to="`/profile/${item.right_id}`">
+                ID #{{ item.right_id }}
+              </NuxtLink>
+            </ElementsLabelSlot>
+            <template v-if="editable" #footer>
+              <UButton
+                label="Удалить"
+                variant="ghost"
+                icon="i-heroicons-trash"
+                @click="deleteRelation(item.right_id, idx)"
+              />
+            </template>
+          </ElementsCardDiv>
+        </div>
 
-    <div v-for="(item, idx) in relationships" :key="idx" class="p-1">
-      <ElementsCardDiv>
-        <ElementsLabelSlot :label="'Тип'">{{ item.type }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Явяляется связью'">
-          <NuxtLink :to="`/profile/${item.left_id}`">
-            ID #{{ item.left_id }}
-          </NuxtLink>
-        </ElementsLabelSlot>
+        <div v-for="(item, idx) in relationships" :key="idx" class="p-1">
+          <ElementsCardDiv>
+            <ElementsLabelSlot :label="'Тип'">{{
+              item.type
+            }}</ElementsLabelSlot>
+            <ElementsLabelSlot :label="'Явяляется связью'">
+              <NuxtLink :to="`/profile/${item.left_id}`">
+                ID #{{ item.left_id }}
+              </NuxtLink>
+            </ElementsLabelSlot>
+          </ElementsCardDiv>
+        </div>
       </ElementsCardDiv>
-    </div>
-  </ElementsCardDiv>
+    </template>
+  </UCollapsible>
 </template>

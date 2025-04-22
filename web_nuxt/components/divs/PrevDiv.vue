@@ -50,58 +50,64 @@ async function deletePrevious(id: string, idx: number) {
 </script>
 
 <template>
-  <ElementsCardDiv>
-    <div class="flex justify-between items-center mx-2">
-      <div class="flex items-center space-x-2">
-        <UIcon name="i-heroicons-user" class="size-5" />
-        <div class="font-bold">Изменения имени</div>
-      </div>
-      <div v-if="editable || status == 'pending'" class="my-1">
-        <UButton
-          :loading="status == 'pending' || pending"
-          :label="
-            status == 'pending' || pending
-              ? 'Обновление данных...'
-              : 'Добавить запись'
-          "
-          variant="ghost"
-          icon="i-heroicons-plus-circle"
-          @click="modal = !modal"
-        />
-      </div>
-    </div>
-    <UModal
-      v-model:open="modal"
-      :dismissible="false"
-      title="Предыдущие работы"
-      description="Данные профиля"
-    >
-      <template #content>
-        <ElementsCardDiv>
-          <FormsPreviousForm
-            :prev="prev"
-            @cancel="
-              prev = {} as Previous;
-              modal = false;
-            "
-            @update="submitPrevious"
-          />
-        </ElementsCardDiv>
-      </template>
-    </UModal>
-    <div v-for="(item, idx) in previous" :key="idx" class="p-1">
+  <UCollapsible class="m-2">
+    <UButton
+      label="Изменения имени"
+      icon="i-heroicons-user"
+      color="neutral"
+      variant="subtle"
+      trailing-icon="i-lucide-chevron-down"
+      block
+    />
+    <template #content>
       <ElementsCardDiv>
-        <DivsItemsPrevItem :item="item" />
-        <template v-if="editable" #footer>
-          <ElementsDivMenu
-            @delete="deletePrevious(item.id, idx)"
-            @update="
-              prev = item;
-              modal = true;
+        <div v-if="editable || status == 'pending'" class="my-1">
+          <UButton
+            :loading="status == 'pending' || pending"
+            :label="
+              status == 'pending' || pending
+                ? 'Обновление данных...'
+                : 'Добавить запись'
             "
+            variant="ghost"
+            icon="i-heroicons-plus-circle"
+            @click="modal = !modal"
           />
-        </template>
+        </div>
+        <UModal
+          v-model:open="modal"
+          :dismissible="false"
+          title="Предыдущие работы"
+          description="Данные профиля"
+        >
+          <template #content>
+            <ElementsCardDiv>
+              <FormsPreviousForm
+                :prev="prev"
+                @cancel="
+                  prev = {} as Previous;
+                  modal = false;
+                "
+                @update="submitPrevious"
+              />
+            </ElementsCardDiv>
+          </template>
+        </UModal>
+        <div v-for="(item, idx) in previous" :key="idx" class="p-1">
+          <ElementsCardDiv>
+            <DivsItemsPrevItem :item="item" />
+            <template v-if="editable" #footer>
+              <ElementsDivMenu
+                @delete="deletePrevious(item.id, idx)"
+                @update="
+                  prev = item;
+                  modal = true;
+                "
+              />
+            </template>
+          </ElementsCardDiv>
+        </div>
       </ElementsCardDiv>
-    </div>
-  </ElementsCardDiv>
+    </template>
+  </UCollapsible>
 </template>

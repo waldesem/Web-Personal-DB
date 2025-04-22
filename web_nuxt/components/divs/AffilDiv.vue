@@ -50,58 +50,64 @@ async function deleteAffilation(id: string, idx: number) {
 </script>
 
 <template>
-    <ElementsCardDiv>
-    <div class="flex justify-between items-center mx-2">
-      <div class="flex items-center space-x-2">
-        <UIcon name="i-heroicons-user-group" class="size-5" />
-        <div class="font-bold">Аффилированность</div>
-      </div>
-  <div v-if="editable || status == 'pending'" class="my-1">
+  <UCollapsible class="m-2">
     <UButton
-      :loading="status == 'pending' || pending"
-      :label="
-        status == 'pending' || pending
-          ? 'Обновление данных...'
-          : 'Добавить запись'
-      "
-      variant="ghost"
-      icon="i-heroicons-plus-circle"
-      @click="modal = !modal"
+      label="Аффилированность"
+      icon="i-heroicons-user-group"
+      color="neutral"
+      variant="subtle"
+      trailing-icon="i-lucide-chevron-down"
+      block
     />
-  </div>
-    </div>
-  <UModal
-    v-model:open="modal"
-    :dismissible="false"
-    title="Аффилированность"
-    description="Данные профиля"
-  >
     <template #content>
       <ElementsCardDiv>
-        <FormsAffilationForm
-          :affil="affilation"
-          @cancel="
-            affilation = {} as Affilation;
-            modal = false;
-          "
-          @update="submitAffilation"
-        /> 
+        <div v-if="editable || status == 'pending'" class="my-1">
+          <UButton
+            :loading="status == 'pending' || pending"
+            :label="
+              status == 'pending' || pending
+                ? 'Обновление данных...'
+                : 'Добавить запись'
+            "
+            variant="ghost"
+            icon="i-heroicons-plus-circle"
+            @click="modal = !modal"
+          />
+        </div>
+        <UModal
+          v-model:open="modal"
+          :dismissible="false"
+          title="Аффилированность"
+          description="Данные профиля"
+        >
+          <template #content>
+            <ElementsCardDiv>
+              <FormsAffilationForm
+                :affil="affilation"
+                @cancel="
+                  affilation = {} as Affilation;
+                  modal = false;
+                "
+                @update="submitAffilation"
+              />
+            </ElementsCardDiv>
+          </template>
+        </UModal>
+        <div v-for="(item, idx) in affilations" :key="idx" class="p-1">
+          <ElementsCardDiv>
+            <DivsItemsAffilItem :item="item" />
+            <template v-if="editable" #footer>
+              <ElementsDivMenu
+                @delete="deleteAffilation(item.id, idx)"
+                @update="
+                  affilation = item;
+                  modal = true;
+                "
+              />
+            </template>
+          </ElementsCardDiv>
+        </div>
       </ElementsCardDiv>
     </template>
-  </UModal>
-  <div v-for="(item, idx) in affilations" :key="idx" class="p-1">
-    <ElementsCardDiv>
-      <DivsItemsAffilItem :item="item" />
-      <template v-if="editable" #footer>
-        <ElementsDivMenu
-          @delete="deleteAffilation(item.id, idx)"
-          @update="
-            affilation = item;
-            modal = true;
-          "
-        />
-      </template>
-    </ElementsCardDiv>
-  </div>
-    </ElementsCardDiv>
+  </UCollapsible>
 </template>

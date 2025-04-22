@@ -47,59 +47,65 @@ async function deleteStaff(id: string, idx: number) {
 </script>
 
 <template>
-  <ElementsCardDiv>
-    <div class="flex justify-between items-center mx-2">
-      <div class="flex items-center space-x-2">
-        <UIcon name="i-heroicons-user-circle" class="size-5" />
-        <div class="font-bold">Должности</div>
-      </div>
-      <div v-if="editable || status == 'pending'" class="my-1">
-        <UButton
-          :loading="status == 'pending' || pending"
-          :label="
-            status == 'pending' || pending
-              ? 'Обновление данных...'
-              : 'Добавить запись'
-          "
-          variant="ghost"
-          icon="i-heroicons-plus-circle"
-          @click="modal = !modal"
-        />
-      </div>
-    </div>
-
-    <UModal
-      v-model:open="modal"
-      :dismissible="false"
-      title="Должности"
-      description="Данные профиля"
-    >
-      <template #content>
-        <ElementsCardDiv>
-          <FormsStaffForm
-            :staff="staff"
-            @cancel="
-              staff = {} as Staff;
-              modal = false;
-            "
-            @update="submitStaff"
-          />
-        </ElementsCardDiv>
-      </template>
-    </UModal>
-    <div v-for="(item, idx) in staffs" :key="idx" class="p-1">
+  <UCollapsible class="m-2">
+    <UButton
+      label="Должности"
+      icon="i-heroicons-user-circle"
+      color="neutral"
+      variant="subtle"
+      trailing-icon="i-lucide-chevron-down"
+      block
+    />
+    <template #content>
       <ElementsCardDiv>
-        <DivsItemsStaffItem :item="item" />
-        <template v-if="editable" #footer>
-          <ElementsDivMenu
-            @delete="deleteStaff(item.id, idx)"
-            @update="
-              staff = item;
-              modal = true;
+        <div v-if="editable || status == 'pending'" class="my-1">
+          <UButton
+            :loading="status == 'pending' || pending"
+            :label="
+              status == 'pending' || pending
+                ? 'Обновление данных...'
+                : 'Добавить запись'
             "
+            variant="ghost"
+            icon="i-heroicons-plus-circle"
+            @click="modal = !modal"
           />
-        </template>
+        </div>
+
+        <UModal
+          v-model:open="modal"
+          :dismissible="false"
+          title="Должности"
+          description="Данные профиля"
+        >
+          <template #content>
+            <ElementsCardDiv>
+              <FormsStaffForm
+                :staff="staff"
+                @cancel="
+                  staff = {} as Staff;
+                  modal = false;
+                "
+                @update="submitStaff"
+              />
+            </ElementsCardDiv>
+          </template>
+        </UModal>
+        <div v-for="(item, idx) in staffs" :key="idx" class="p-1">
+          <ElementsCardDiv>
+            <DivsItemsStaffItem :item="item" />
+            <template v-if="editable" #footer>
+              <ElementsDivMenu
+                @delete="deleteStaff(item.id, idx)"
+                @update="
+                  staff = item;
+                  modal = true;
+                "
+              />
+            </template>
+          </ElementsCardDiv>
+        </div>
       </ElementsCardDiv>
-    </div>
-  </ElementsCardDiv>
+    </template>
+  </UCollapsible>
 </template>
