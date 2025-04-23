@@ -50,52 +50,50 @@ async function deleteDocument(id: string, idx: number) {
 </script>
 
 <template>
-  <ElementsCardDiv>
-    <div v-if="editable || status == 'pending'" class="my-1">
-      <UButton
-        :loading="status == 'pending' || pending"
-        :label="
-          status == 'pending' || pending
-            ? 'Обновление данных...'
-            : 'Добавить запись'
-        "
-        variant="ghost"
-        icon="i-heroicons-plus-circle"
-        @click="modal = !modal"
-      />
-    </div>
-    <UModal
-      v-model:open="modal"
-      :dismissible="false"
-      title="Документ"
-      description="Данные профиля"
-    >
-      <template #content>
-        <ElementsCardDiv>
-          <FormsDocumentForm
-            :docs="doc"
-            @cancel="
-              doc = {} as Passport;
-              modal = false;
-            "
-            @update="submitDocument"
-          />
-        </ElementsCardDiv>
-      </template>
-    </UModal>
-    <div v-for="(item, idx) in documents" :key="idx" class="p-1">
+  <div v-if="editable || status == 'pending'" class="my-1">
+    <UButton
+      :loading="status == 'pending' || pending"
+      :label="
+        status == 'pending' || pending
+          ? 'Обновление данных...'
+          : 'Добавить запись'
+      "
+      variant="ghost"
+      icon="i-heroicons-plus-circle"
+      @click="modal = !modal"
+    />
+  </div>
+  <UModal
+    v-model:open="modal"
+    :dismissible="false"
+    title="Документ"
+    description="Данные профиля"
+  >
+    <template #content>
       <ElementsCardDiv>
-        <DivsItemsDocumItem :item="item" />
-        <template v-if="editable" #footer>
-          <ElementsDivMenu
-            @delete="deleteDocument(item.id, idx)"
-            @update="
-              doc = item;
-              modal = true;
-            "
-          />
-        </template>
+        <FormsDocumentForm
+          :docs="doc"
+          @cancel="
+            doc = {} as Passport;
+            modal = false;
+          "
+          @update="submitDocument"
+        />
       </ElementsCardDiv>
-    </div>
-  </ElementsCardDiv>
+    </template>
+  </UModal>
+  <div v-for="(item, idx) in documents" :key="idx" class="p-1">
+    <ElementsCardDiv>
+      <DivsItemsDocumItem :item="item" />
+      <template v-if="editable" #footer>
+        <ElementsDivMenu
+          @delete="deleteDocument(item.id, idx)"
+          @update="
+            doc = item;
+            modal = true;
+          "
+        />
+      </template>
+    </ElementsCardDiv>
+  </div>
 </template>

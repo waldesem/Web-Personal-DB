@@ -50,53 +50,51 @@ async function deleteEducation(id: string, idx: number) {
 </script>
 
 <template>
-  <ElementsCardDiv>
-    <div v-if="editable || status == 'pending'" class="my-1">
-      <UButton
-        :loading="status == 'pending' || pending"
-        :label="
-          status == 'pending' || pending
-            ? 'Обновление данных...'
-            : 'Добавить запись'
-        "
-        variant="ghost"
-        icon="i-heroicons-plus-circle"
-        @click="modal = !modal"
-      />
-    </div>
+  <div v-if="editable || status == 'pending'" class="my-1">
+    <UButton
+      :loading="status == 'pending' || pending"
+      :label="
+        status == 'pending' || pending
+          ? 'Обновление данных...'
+          : 'Добавить запись'
+      "
+      variant="ghost"
+      icon="i-heroicons-plus-circle"
+      @click="modal = !modal"
+    />
+  </div>
 
-    <UModal
-      v-model:open="modal"
-      :dismissible="false"
-      title="Образование"
-      description="Данные профиля"
-    >
-      <template #content>
-        <ElementsCardDiv>
-          <FormsEducationForm
-            :education="education"
-            @cancel="
-              education = {} as Education;
-              modal = false;
-            "
-            @update="submitEducation"
-          />
-        </ElementsCardDiv>
-      </template>
-    </UModal>
-    <div v-for="(item, idx) in educations" :key="idx" class="p-1">
+  <UModal
+    v-model:open="modal"
+    :dismissible="false"
+    title="Образование"
+    description="Данные профиля"
+  >
+    <template #content>
       <ElementsCardDiv>
-        <DivsItemsEducateItem :item="item" />
-        <template v-if="editable" #footer>
-          <ElementsDivMenu
-            @delete="deleteEducation(item.id, idx)"
-            @update="
-              education = item;
-              modal = true;
-            "
-          />
-        </template>
+        <FormsEducationForm
+          :education="education"
+          @cancel="
+            education = {} as Education;
+            modal = false;
+          "
+          @update="submitEducation"
+        />
       </ElementsCardDiv>
-    </div>
-  </ElementsCardDiv>
+    </template>
+  </UModal>
+  <div v-for="(item, idx) in educations" :key="idx" class="p-1">
+    <ElementsCardDiv>
+      <DivsItemsEducateItem :item="item" />
+      <template v-if="editable" #footer>
+        <ElementsDivMenu
+          @delete="deleteEducation(item.id, idx)"
+          @update="
+            education = item;
+            modal = true;
+          "
+        />
+      </template>
+    </ElementsCardDiv>
+  </div>
 </template>

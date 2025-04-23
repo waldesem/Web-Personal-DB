@@ -50,52 +50,50 @@ async function deleteContact(id: string, idx: number) {
 </script>
 
 <template>
-  <ElementsCardDiv>
-    <div v-if="editable || status == 'pending'" class="my-1">
-      <UButton
-        :loading="status == 'pending' || pending"
-        :label="
-          status == 'pending' || pending
-            ? 'Обновление данных...'
-            : 'Добавить запись'
-        "
-        variant="ghost"
-        icon="i-heroicons-plus-circle"
-        @click="modal = !modal"
-      />
-    </div>
-    <UModal
-      v-model:open="modal"
-      :dismissible="false"
-      title="Контакты"
-      description="Данные профиля"
-    >
-      <template #content>
-        <ElementsCardDiv>
-          <FormsContactForm
-            :contact="contact"
-            @cancel="
-              contact = {} as Contact;
-              modal = false;
-            "
-            @update="submitContact"
-          />
-        </ElementsCardDiv>
-      </template>
-    </UModal>
-    <div v-for="(item, idx) in contacts" :key="idx" class="p-1">
+  <div v-if="editable || status == 'pending'" class="my-1">
+    <UButton
+      :loading="status == 'pending' || pending"
+      :label="
+        status == 'pending' || pending
+          ? 'Обновление данных...'
+          : 'Добавить запись'
+      "
+      variant="ghost"
+      icon="i-heroicons-plus-circle"
+      @click="modal = !modal"
+    />
+  </div>
+  <UModal
+    v-model:open="modal"
+    :dismissible="false"
+    title="Контакты"
+    description="Данные профиля"
+  >
+    <template #content>
       <ElementsCardDiv>
-        <DivsItemsContactItem :item="item" />
-        <template v-if="editable" #footer>
-          <ElementsDivMenu
-            @delete="deleteContact(item.id, idx)"
-            @update="
-              contact = item;
-              modal = true;
-            "
-          />
-        </template>
+        <FormsContactForm
+          :contact="contact"
+          @cancel="
+            contact = {} as Contact;
+            modal = false;
+          "
+          @update="submitContact"
+        />
       </ElementsCardDiv>
-    </div>
-  </ElementsCardDiv>
+    </template>
+  </UModal>
+  <div v-for="(item, idx) in contacts" :key="idx" class="p-1">
+    <ElementsCardDiv>
+      <DivsItemsContactItem :item="item" />
+      <template v-if="editable" #footer>
+        <ElementsDivMenu
+          @delete="deleteContact(item.id, idx)"
+          @update="
+            contact = item;
+            modal = true;
+          "
+        />
+      </template>
+    </ElementsCardDiv>
+  </div>
 </template>

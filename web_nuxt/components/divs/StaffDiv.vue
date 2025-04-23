@@ -47,53 +47,51 @@ async function deleteStaff(id: string, idx: number) {
 </script>
 
 <template>
-  <ElementsCardDiv>
-    <div v-if="editable || status == 'pending'" class="my-1">
-      <UButton
-        :loading="status == 'pending' || pending"
-        :label="
-          status == 'pending' || pending
-            ? 'Обновление данных...'
-            : 'Добавить запись'
-        "
-        variant="ghost"
-        icon="i-heroicons-plus-circle"
-        @click="modal = !modal"
-      />
-    </div>
+  <div v-if="editable || status == 'pending'" class="my-1">
+    <UButton
+      :loading="status == 'pending' || pending"
+      :label="
+        status == 'pending' || pending
+          ? 'Обновление данных...'
+          : 'Добавить запись'
+      "
+      variant="ghost"
+      icon="i-heroicons-plus-circle"
+      @click="modal = !modal"
+    />
+  </div>
 
-    <UModal
-      v-model:open="modal"
-      :dismissible="false"
-      title="Должности"
-      description="Данные профиля"
-    >
-      <template #content>
-        <ElementsCardDiv>
-          <FormsStaffForm
-            :staff="staff"
-            @cancel="
-              staff = {} as Staff;
-              modal = false;
-            "
-            @update="submitStaff"
-          />
-        </ElementsCardDiv>
-      </template>
-    </UModal>
-    <div v-for="(item, idx) in staffs" :key="idx" class="p-1">
+  <UModal
+    v-model:open="modal"
+    :dismissible="false"
+    title="Должности"
+    description="Данные профиля"
+  >
+    <template #content>
       <ElementsCardDiv>
-        <DivsItemsStaffItem :item="item" />
-        <template v-if="editable" #footer>
-          <ElementsDivMenu
-            @delete="deleteStaff(item.id, idx)"
-            @update="
-              staff = item;
-              modal = true;
-            "
-          />
-        </template>
+        <FormsStaffForm
+          :staff="staff"
+          @cancel="
+            staff = {} as Staff;
+            modal = false;
+          "
+          @update="submitStaff"
+        />
       </ElementsCardDiv>
-    </div>
-  </ElementsCardDiv>
+    </template>
+  </UModal>
+  <div v-for="(item, idx) in staffs" :key="idx" class="p-1">
+    <ElementsCardDiv>
+      <DivsItemsStaffItem :item="item" />
+      <template v-if="editable" #footer>
+        <ElementsDivMenu
+          @delete="deleteStaff(item.id, idx)"
+          @update="
+            staff = item;
+            modal = true;
+          "
+        />
+      </template>
+    </ElementsCardDiv>
+  </div>
 </template>

@@ -50,52 +50,50 @@ async function deleteAddress(id: string, idx: number) {
 </script>
 
 <template>
-  <ElementsCardDiv>
-    <div v-if="editable || status == 'pending'" class="my-1">
-      <UButton
-        :loading="status == 'pending' || pending"
-        :label="
-          status == 'pending' || pending
-            ? 'Обновление данных...'
-            : 'Добавить запись'
-        "
-        variant="ghost"
-        icon="i-heroicons-plus-circle"
-        @click="modal = !modal"
-      />
-    </div>
-    <UModal
-      v-model:open="modal"
-      :dismissible="false"
-      title="Адрес"
-      description="Данные профиля"
-    >
-      <template #content>
-        <ElementsCardDiv>
-          <FormsAddressForm
-            :addrs="address"
-            @cancel="
-              address = {} as Address;
-              modal = false;
-            "
-            @update="submitAddress"
-          />
-        </ElementsCardDiv>
-      </template>
-    </UModal>
-    <div v-for="(item, idx) in addresses" :key="idx" class="p-1">
+  <div v-if="editable || status == 'pending'" class="my-1">
+    <UButton
+      :loading="status == 'pending' || pending"
+      :label="
+        status == 'pending' || pending
+          ? 'Обновление данных...'
+          : 'Добавить запись'
+      "
+      variant="ghost"
+      icon="i-heroicons-plus-circle"
+      @click="modal = !modal"
+    />
+  </div>
+  <UModal
+    v-model:open="modal"
+    :dismissible="false"
+    title="Адрес"
+    description="Данные профиля"
+  >
+    <template #content>
       <ElementsCardDiv>
-        <DivsItemsAddressItem :item="item" />
-        <template v-if="editable" #footer>
-          <ElementsDivMenu
-            @delete="deleteAddress(item.id, idx)"
-            @update="
-              address = item;
-              modal = true;
-            "
-          />
-        </template>
+        <FormsAddressForm
+          :addrs="address"
+          @cancel="
+            address = {} as Address;
+            modal = false;
+          "
+          @update="submitAddress"
+        />
       </ElementsCardDiv>
-    </div>
-  </ElementsCardDiv>
+    </template>
+  </UModal>
+  <div v-for="(item, idx) in addresses" :key="idx" class="p-1">
+    <ElementsCardDiv>
+      <DivsItemsAddressItem :item="item" />
+      <template v-if="editable" #footer>
+        <ElementsDivMenu
+          @delete="deleteAddress(item.id, idx)"
+          @update="
+            address = item;
+            modal = true;
+          "
+        />
+      </template>
+    </ElementsCardDiv>
+  </div>
 </template>

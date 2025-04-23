@@ -50,52 +50,50 @@ async function deleteAffilation(id: string, idx: number) {
 </script>
 
 <template>
-  <ElementsCardDiv>
-    <div v-if="editable || status == 'pending'" class="my-1">
-      <UButton
-        :loading="status == 'pending' || pending"
-        :label="
-          status == 'pending' || pending
-            ? 'Обновление данных...'
-            : 'Добавить запись'
-        "
-        variant="ghost"
-        icon="i-heroicons-plus-circle"
-        @click="modal = !modal"
-      />
-    </div>
-    <UModal
-      v-model:open="modal"
-      :dismissible="false"
-      title="Аффилированность"
-      description="Данные профиля"
-    >
-      <template #content>
-        <ElementsCardDiv>
-          <FormsAffilationForm
-            :affil="affilation"
-            @cancel="
-              affilation = {} as Affilation;
-              modal = false;
-            "
-            @update="submitAffilation"
-          />
-        </ElementsCardDiv>
-      </template>
-    </UModal>
-    <div v-for="(item, idx) in affilations" :key="idx" class="p-1">
+  <div v-if="editable || status == 'pending'" class="my-1">
+    <UButton
+      :loading="status == 'pending' || pending"
+      :label="
+        status == 'pending' || pending
+          ? 'Обновление данных...'
+          : 'Добавить запись'
+      "
+      variant="ghost"
+      icon="i-heroicons-plus-circle"
+      @click="modal = !modal"
+    />
+  </div>
+  <UModal
+    v-model:open="modal"
+    :dismissible="false"
+    title="Аффилированность"
+    description="Данные профиля"
+  >
+    <template #content>
       <ElementsCardDiv>
-        <DivsItemsAffilItem :item="item" />
-        <template v-if="editable" #footer>
-          <ElementsDivMenu
-            @delete="deleteAffilation(item.id, idx)"
-            @update="
-              affilation = item;
-              modal = true;
-            "
-          />
-        </template>
+        <FormsAffilationForm
+          :affil="affilation"
+          @cancel="
+            affilation = {} as Affilation;
+            modal = false;
+          "
+          @update="submitAffilation"
+        />
       </ElementsCardDiv>
-    </div>
-  </ElementsCardDiv>
+    </template>
+  </UModal>
+  <div v-for="(item, idx) in affilations" :key="idx" class="p-1">
+    <ElementsCardDiv>
+      <DivsItemsAffilItem :item="item" />
+      <template v-if="editable" #footer>
+        <ElementsDivMenu
+          @delete="deleteAffilation(item.id, idx)"
+          @update="
+            affilation = item;
+            modal = true;
+          "
+        />
+      </template>
+    </ElementsCardDiv>
+  </div>
 </template>

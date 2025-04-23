@@ -50,52 +50,50 @@ async function deleteWork(id: string, idx: number) {
 </script>
 
 <template>
-  <ElementsCardDiv>
-    <div v-if="editable || status == 'pending'" class="my-1">
-      <UButton
-        :loading="status == 'pending' || pending"
-        :label="
-          status == 'pending' || pending
-            ? 'Обновление данных...'
-            : 'Добавить запись'
-        "
-        variant="ghost"
-        icon="i-heroicons-plus-circle"
-        @click="modal = !modal"
-      />
-    </div>
-    <UModal
-      v-model:open="modal"
-      :dismissible="false"
-      title="Работа"
-      description="Данные профиля"
-    >
-      <template #content>
-        <ElementsCardDiv>
-          <FormsWorkplaceForm
-            :work="workplace"
-            @cancel="
-              workplace = {} as Work;
-              modal = false;
-            "
-            @update="submitWorkplace"
-          />
-        </ElementsCardDiv>
-      </template>
-    </UModal>
-    <div v-for="(item, idx) in workplaces" :key="idx" class="p-1">
+  <div v-if="editable || status == 'pending'" class="my-1">
+    <UButton
+      :loading="status == 'pending' || pending"
+      :label="
+        status == 'pending' || pending
+          ? 'Обновление данных...'
+          : 'Добавить запись'
+      "
+      variant="ghost"
+      icon="i-heroicons-plus-circle"
+      @click="modal = !modal"
+    />
+  </div>
+  <UModal
+    v-model:open="modal"
+    :dismissible="false"
+    title="Работа"
+    description="Данные профиля"
+  >
+    <template #content>
       <ElementsCardDiv>
-        <DivsItemsWorkItem :item="item" />
-        <template v-if="editable" #footer>
-          <ElementsDivMenu
-            @delete="deleteWork(item.id, idx)"
-            @update="
-              workplace = item;
-              modal = true;
-            "
-          />
-        </template>
+        <FormsWorkplaceForm
+          :work="workplace"
+          @cancel="
+            workplace = {} as Work;
+            modal = false;
+          "
+          @update="submitWorkplace"
+        />
       </ElementsCardDiv>
-    </div>
-  </ElementsCardDiv>
+    </template>
+  </UModal>
+  <div v-for="(item, idx) in workplaces" :key="idx" class="p-1">
+    <ElementsCardDiv>
+      <DivsItemsWorkItem :item="item" />
+      <template v-if="editable" #footer>
+        <ElementsDivMenu
+          @delete="deleteWork(item.id, idx)"
+          @update="
+            workplace = item;
+            modal = true;
+          "
+        />
+      </template>
+    </ElementsCardDiv>
+  </div>
 </template>
