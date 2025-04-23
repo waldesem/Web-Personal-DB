@@ -5,12 +5,11 @@ const authFetch = useFetchAuth();
 
 const candId = inject("candId") as Ref<string>;
 
+const size = ref("lg") as Ref<"xs" | "sm" | "md" | "lg" | "xl">;
 const fullPath = ref("") as Ref<string>;
 const listFolders = ref<Folders[]>([]);
 const listFiles = ref<Files[]>([]);
 const pending = ref(false);
-
-const size = ref("lg") as Ref<"xs" | "sm" | "md" | "lg" | "xl">;
 
 const { status } = await useLazyAsyncData(
   "explorer",

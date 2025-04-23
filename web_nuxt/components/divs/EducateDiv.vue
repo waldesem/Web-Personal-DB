@@ -50,65 +50,53 @@ async function deleteEducation(id: string, idx: number) {
 </script>
 
 <template>
-  <UCollapsible class="m-2">
-    <UButton
-      label="Образование"
-      icon="i-heroicons-academic-cap"
-      color="neutral"
-      variant="subtle"
-      trailing-icon="i-lucide-chevron-down"
-      block
-    />
-    <template #content>
-      <ElementsCardDiv>
-        <div v-if="editable || status == 'pending'" class="my-1">
-          <UButton
-            :loading="status == 'pending' || pending"
-            :label="
-              status == 'pending' || pending
-                ? 'Обновление данных...'
-                : 'Добавить запись'
-            "
-            variant="ghost"
-            icon="i-heroicons-plus-circle"
-            @click="modal = !modal"
-          />
-        </div>
+  <ElementsCardDiv>
+    <div v-if="editable || status == 'pending'" class="my-1">
+      <UButton
+        :loading="status == 'pending' || pending"
+        :label="
+          status == 'pending' || pending
+            ? 'Обновление данных...'
+            : 'Добавить запись'
+        "
+        variant="ghost"
+        icon="i-heroicons-plus-circle"
+        @click="modal = !modal"
+      />
+    </div>
 
-        <UModal
-          v-model:open="modal"
-          :dismissible="false"
-          title="Образование"
-          description="Данные профиля"
-        >
-          <template #content>
-            <ElementsCardDiv>
-              <FormsEducationForm
-                :education="education"
-                @cancel="
-                  education = {} as Education;
-                  modal = false;
-                "
-                @update="submitEducation"
-              />
-            </ElementsCardDiv>
-          </template>
-        </UModal>
-        <div v-for="(item, idx) in educations" :key="idx" class="p-1">
-          <ElementsCardDiv>
-            <DivsItemsEducateItem :item="item" />
-            <template v-if="editable" #footer>
-              <ElementsDivMenu
-                @delete="deleteEducation(item.id, idx)"
-                @update="
-                  education = item;
-                  modal = true;
-                "
-              />
-            </template>
-          </ElementsCardDiv>
-        </div>
+    <UModal
+      v-model:open="modal"
+      :dismissible="false"
+      title="Образование"
+      description="Данные профиля"
+    >
+      <template #content>
+        <ElementsCardDiv>
+          <FormsEducationForm
+            :education="education"
+            @cancel="
+              education = {} as Education;
+              modal = false;
+            "
+            @update="submitEducation"
+          />
+        </ElementsCardDiv>
+      </template>
+    </UModal>
+    <div v-for="(item, idx) in educations" :key="idx" class="p-1">
+      <ElementsCardDiv>
+        <DivsItemsEducateItem :item="item" />
+        <template v-if="editable" #footer>
+          <ElementsDivMenu
+            @delete="deleteEducation(item.id, idx)"
+            @update="
+              education = item;
+              modal = true;
+            "
+          />
+        </template>
       </ElementsCardDiv>
-    </template>
-  </UCollapsible>
+    </div>
+  </ElementsCardDiv>
 </template>
