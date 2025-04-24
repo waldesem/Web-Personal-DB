@@ -172,6 +172,7 @@ async function submitResume(form: Persons): Promise<void> {
         v-model="search"
         :loading="status == 'pending'"
         size="lg"
+        type="search"
         icon="i-heroicons-magnifying-glass"
         placeholder="поиск по фамилии, имени, отчеству"
       />

@@ -6,33 +6,35 @@ const props = defineProps({
     type: Number,
     default: 0,
   },
-})
+});
 
 const options = [
   {
-    label: "Удалить",
-    icon: "i-heroicons-trash",
-    click: () => emit("delete"),
+    label: "Добавить",
+    icon: "i-heroicons-document-plus",
+    disabled: false,
+    click: () => emit("create"),
   },
   {
     label: "Изменить",
     icon: "i-heroicons-pencil-square",
+    disabled: !props.items,
     click: () => emit("update"),
+  },
+  {
+    label: "Удалить",
+    icon: "i-heroicons-trash",
+    disabled: !props.items,
+    click: () => emit("delete"),
   },
 ];
 </script>
 
 <template>
   <UButton
-    label="Добавить"
-    variant="ghost"
-    icon="i-heroicons-document-plus"
-    @click="emit('create')"
-  />
-  <UButton
-    v-for="option in options"
-    :key="option.label"
-    :disabled="props.items == 0"
+    v-for="(option, idx) in options"
+    :key="idx"
+    :disabled="option.disabled"
     :icon="option.icon"
     :label="option.label"
     variant="ghost"

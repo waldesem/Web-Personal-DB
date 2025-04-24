@@ -9,10 +9,11 @@ const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
 const modal = ref(false);
-const pending = ref(true);
+const pending = ref(false);
 const staff = ref({} as Staff);
 const staffs = ref<Staff[]>([]);
 const index = ref(0);
+const progress = ref(null)
 
 const { refresh, status } = await useLazyAsyncData("staffs", async () => {
   staffs.value = (await authFetch(
@@ -49,38 +50,39 @@ async function deleteStaff(id: string, idx: number) {
 
 <template>
   <ElementsCardDiv>
-    <UModal
-      v-model:open="modal"
-      :dismissible="false"
-      title="Должности"
-      description="Данные профиля"
-    >
-      <template #content>
-        <ElementsCardDiv>
-          <FormsStaffForm
-            :staff="staff"
-            @cancel="
-              staff = {} as Staff;
-              modal = false;
-            "
-            @update="submitStaff"
-          />
-        </ElementsCardDiv>
-      </template>
-    </UModal>
+    <div v-if="status === 'pending' || pending">
+      <UProgress v-model="progress" animation="swing" />
+    </div>
     <div v-for="(item, idx) in staffs" :key="idx" class="p-1">
       <ElementsCardDiv>
         <div class="flex">
           <div v-if="editable" class="flex-none mr-6 self-center">
-            <input v-model="index" type="radio" name="staff" :value="idx" >
+            <input v-model="index" type="radio" name="staff" :value="idx">
           </div>
-          <div class="flex-auto">
-            <DivsItemsStaffItem :item="item" />
-          </div>
+          <DivsItemsStaffItem :item="item" />
         </div>
       </ElementsCardDiv>
     </div>
     <template v-if="editable" #footer>
+      <UModal
+        v-model:open="modal"
+        :dismissible="false"
+        title="Должности"
+        description="Данные профиля"
+      >
+        <template #content>
+          <ElementsCardDiv>
+            <FormsStaffForm
+              :staff="staff"
+              @cancel="
+                staff = {} as Staff;
+                modal = false;
+              "
+              @update="submitStaff"
+            />
+          </ElementsCardDiv>
+        </template>
+      </UModal>
       <ElementsDivMenu
         :items="staffs.length"
         @delete="deleteStaff(staffs[index].id, index)"

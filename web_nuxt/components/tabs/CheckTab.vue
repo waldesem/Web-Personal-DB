@@ -61,13 +61,13 @@ async function deleteCheck(id: string, idx: number) {
   </div>
   <UModal
     v-model:open="modal"
-    :ui="{ content: 'sm:max-w-4xl' }"
+    :ui="{ content: 'sm:max-w-4xl', body: 'overflow-y-auto' }"
     :dismissible="false"
     title="Проверка кандидата"
     description="Данные профиля"
   >
     <template #content>
-      <div style="overflow: auto">
+      <!-- <div style="overflow: auto"> -->
         <ElementsCardDiv>
           <FormsCheckForm
             :check="check"
@@ -78,7 +78,7 @@ async function deleteCheck(id: string, idx: number) {
             @update="submitCheck"
           />
         </ElementsCardDiv>
-      </div>
+      <!-- </div> -->
     </template>
   </UModal>
   <ElementsCardDiv v-for="(item, index) in checks" :key="item.id">
