@@ -9,9 +9,10 @@ const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
 const modal = ref(false);
-const pending = ref(false);
+const pending = ref(true);
 const staff = ref({} as Staff);
 const staffs = ref<Staff[]>([]);
+const index = ref(0);
 
 const { refresh, status } = await useLazyAsyncData("staffs", async () => {
   staffs.value = (await authFetch(
@@ -69,32 +70,29 @@ async function deleteStaff(id: string, idx: number) {
     </UModal>
     <div v-for="(item, idx) in staffs" :key="idx" class="p-1">
       <ElementsCardDiv>
-        <DivsItemsStaffItem :item="item" />
-        <template v-if="editable" #footer>
-          <ElementsDivMenu
-            @delete="deleteStaff(item.id, idx)"
-            @update="
-              staff = item;
-              modal = true;
-            "
-          />
-        </template>
+        <div class="flex">
+          <div v-if="editable" class="flex-none mr-6 self-center">
+            <input v-model="index" type="radio" name="staff" :value="idx" >
+          </div>
+          <div class="flex-auto">
+            <DivsItemsStaffItem :item="item" />
+          </div>
+        </div>
       </ElementsCardDiv>
     </div>
     <template v-if="editable" #footer>
-      <div v-if="editable || status == 'pending'" class="my-1">
-      <UButton
-        :loading="status == 'pending' || pending"
-        :label="
-          status == 'pending' || pending
-            ? 'Обновление данных...'
-            : 'Добавить запись'
+      <ElementsDivMenu
+        :items="staffs.length"
+        @delete="deleteStaff(staffs[index].id, index)"
+        @update="
+          staff = staffs[index];
+          modal = true;
         "
-        variant="ghost"
-        icon="i-heroicons-plus-circle"
-        @click="modal = !modal"
+        @create="
+          staff = {} as Staff;
+          modal = true;
+        "
       />
-    </div>
     </template>
   </ElementsCardDiv>
 </template>
