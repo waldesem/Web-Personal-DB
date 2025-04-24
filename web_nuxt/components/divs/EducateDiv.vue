@@ -49,7 +49,7 @@ async function deleteEducation(id: string, idx: number) {
 }
 </script>
 
-<template>
+<template><ElementsCardDiv>
   <div v-if="editable || status == 'pending'" class="my-1">
     <UButton
       :loading="status == 'pending' || pending"
@@ -96,5 +96,5 @@ async function deleteEducation(id: string, idx: number) {
         />
       </template>
     </ElementsCardDiv>
-  </div>
+  </div></ElementsCardDiv>
 </template>

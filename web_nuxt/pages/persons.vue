@@ -271,9 +271,3 @@ async function submitResume(form: Persons): Promise<void> {
     </div>
   </div>
 </template>
-
-<style scoped>
-tbody {
-  cursor: pointer;
-}
-</style>

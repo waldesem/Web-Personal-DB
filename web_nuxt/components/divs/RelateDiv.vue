@@ -48,58 +48,60 @@ async function deleteRelation(id: string, idx: number) {
 </script>
 
 <template>
-  <div v-if="editable || status == 'pending'" class="my-1">
-    <UButton
-      :loading="status == 'pending' || pending"
-      :label="
-        status == 'pending' || pending
-          ? 'Обновление данных...'
-          : 'Добавить запись'
-      "
-      variant="ghost"
-      icon="i-heroicons-plus-circle"
-      @click="modal = !modal"
-    />
-  </div>
-  <UModal
-    v-model:open="modal"
-    :dismissible="false"
-    title="Связи"
-    description="Данные профиля"
-  >
-    <template #content>
-      <ElementsCardDiv>
-        <FormsRelationForm @cancel="modal = false" @update="submitRelation" />
-      </ElementsCardDiv>
-    </template>
-  </UModal>
-  <div v-for="(item, idx) in relations" :key="idx" class="p-1">
-    <ElementsCardDiv>
-      <ElementsLabelSlot :label="'Тип'">{{ item.type }}</ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Связан'">
-        <NuxtLink :to="`/profile/${item.right_id}`">
-          ID #{{ item.right_id }}
-        </NuxtLink>
-      </ElementsLabelSlot>
-      <template v-if="editable" #footer>
-        <UButton
-          label="Удалить"
-          variant="ghost"
-          icon="i-heroicons-trash"
-          @click="deleteRelation(item.right_id, idx)"
-        />
+  <ElementsCardDiv>
+    <div v-if="editable || status == 'pending'" class="my-1">
+      <UButton
+        :loading="status == 'pending' || pending"
+        :label="
+          status == 'pending' || pending
+            ? 'Обновление данных...'
+            : 'Добавить запись'
+        "
+        variant="ghost"
+        icon="i-heroicons-plus-circle"
+        @click="modal = !modal"
+      />
+    </div>
+    <UModal
+      v-model:open="modal"
+      :dismissible="false"
+      title="Связи"
+      description="Данные профиля"
+    >
+      <template #content>
+        <ElementsCardDiv>
+          <FormsRelationForm @cancel="modal = false" @update="submitRelation" />
+        </ElementsCardDiv>
       </template>
-    </ElementsCardDiv>
-  </div>
+    </UModal>
+    <div v-for="(item, idx) in relations" :key="idx" class="p-1">
+      <ElementsCardDiv>
+        <ElementsLabelSlot :label="'Тип'">{{ item.type }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Связан'">
+          <NuxtLink :to="`/profile/${item.right_id}`">
+            ID #{{ item.right_id }}
+          </NuxtLink>
+        </ElementsLabelSlot>
+        <template v-if="editable" #footer>
+          <UButton
+            label="Удалить"
+            variant="ghost"
+            icon="i-heroicons-trash"
+            @click="deleteRelation(item.right_id, idx)"
+          />
+        </template>
+      </ElementsCardDiv>
+    </div>
 
-  <div v-for="(item, idx) in relationships" :key="idx" class="p-1">
-    <ElementsCardDiv>
-      <ElementsLabelSlot :label="'Тип'">{{ item.type }}</ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Явяляется связью'">
-        <NuxtLink :to="`/profile/${item.left_id}`">
-          ID #{{ item.left_id }}
-        </NuxtLink>
-      </ElementsLabelSlot>
-    </ElementsCardDiv>
-  </div>
+    <div v-for="(item, idx) in relationships" :key="idx" class="p-1">
+      <ElementsCardDiv>
+        <ElementsLabelSlot :label="'Тип'">{{ item.type }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Явяляется связью'">
+          <NuxtLink :to="`/profile/${item.left_id}`">
+            ID #{{ item.left_id }}
+          </NuxtLink>
+        </ElementsLabelSlot>
+      </ElementsCardDiv>
+    </div></ElementsCardDiv
+  >
 </template>

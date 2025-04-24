@@ -29,32 +29,58 @@ const emit = defineEmits(["update"]);
   <DivsResumeDiv @update="emit('update')" />
   <div
     v-for="(items, idx) in [
-      [StaffDiv, 'Должности', 'i-heroicons-user'],
-      [EducateDiv, 'Образование', 'i-heroicons-academic-cap'],
-      [WorkDiv, 'Места работы', 'i-heroicons-briefcase'],
-      [DocumDiv, 'Документы', 'i-heroicons-document-text'],
-      [AddressDiv, 'Адреса', 'i-heroicons-home-modern'],
-      [ContactDiv, 'Контакты', 'i-heroicons-phone'],
-      [PrevDiv, 'Изменения имени', 'i-heroicons-pencil'],
-      [RelateDiv, 'Связанные лица', 'i-heroicons-share'],
-      [AffilDiv, 'Аффилированность', 'i-heroicons-user-group'],
+      { component: StaffDiv, label: 'Должности', icon: 'i-heroicons-user' },
+      {
+        component: EducateDiv,
+        label: 'Образование',
+        icon: 'i-heroicons-academic-cap',
+      },
+      {
+        component: WorkDiv,
+        label: 'Места работы',
+        icon: 'i-heroicons-briefcase',
+      },
+      {
+        component: DocumDiv,
+        label: 'Документы',
+        icon: 'i-heroicons-document-text',
+      },
+      {
+        component: AddressDiv,
+        label: 'Адреса',
+        icon: 'i-heroicons-home-modern',
+      },
+      { component: ContactDiv, label: 'Контакты', icon: 'i-heroicons-phone' },
+      {
+        component: PrevDiv,
+        label: 'Изменения имени',
+        icon: 'i-heroicons-pencil',
+      },
+      {
+        component: RelateDiv,
+        label: 'Связанные лица',
+        icon: 'i-heroicons-share',
+      },
+      {
+        component: AffilDiv,
+        label: 'Аффилированность',
+        icon: 'i-heroicons-user-group',
+      },
     ]"
     :key="idx"
   >
     <UCollapsible class="m-2">
       <UButton
-        :label="items[1] as string"
-        :icon="items[2] as string"
+        :label="items.label as string"
+        :icon="items.icon as string"
         color="neutral"
         variant="subtle"
         trailing-icon="i-lucide-chevron-down"
         block
       />
-        <template #content>
-          <ElementsCardDiv>
-            <component :is="items[0]" />
-          </ElementsCardDiv>
-        </template>
+      <template #content>
+        <component :is="items.component" />
+      </template>
     </UCollapsible>
   </div>
 </template>
