@@ -12,6 +12,7 @@ const modal = ref(false);
 const pending = ref(false);
 const education = ref({} as Education);
 const educations = ref<Education[]>([]);
+const index = ref(0);
 
 const { refresh, status } = await useLazyAsyncData("educations", async () => {
   educations.value = (await authFetch(
@@ -42,6 +43,7 @@ async function deleteEducation(id: string, idx: number) {
     method: "DELETE",
   })) as Record<string, string>;
   pending.value = false;
+  index.value = 0;
   if (message == "success") {
     educations.value.splice(idx, 1);
   }
@@ -49,52 +51,64 @@ async function deleteEducation(id: string, idx: number) {
 }
 </script>
 
-<template><ElementsCardDiv>
-  <div v-if="editable || status == 'pending'" class="my-1">
-    <UButton
-      :loading="status == 'pending' || pending"
-      :label="
-        status == 'pending' || pending
-          ? 'Обновление данных...'
-          : 'Добавить запись'
-      "
-      variant="ghost"
-      icon="i-heroicons-plus-circle"
-      @click="modal = !modal"
-    />
-  </div>
-
-  <UModal
-    v-model:open="modal"
-    :dismissible="false"
-    title="Образование"
-    description="Данные профиля"
-  >
-    <template #content>
-      <ElementsCardDiv>
-        <FormsEducationForm
-          :education="education"
-          @cancel="
-            education = {} as Education;
-            modal = false;
-          "
-          @update="submitEducation"
-        />
-      </ElementsCardDiv>
+<template>
+  <UCard class="m-2" :class="{ 'animate-pulse': status == 'pending' || pending }">
+    <div v-for="(item, idx) in educations" :key="idx" class="p-1">
+      <UCard>
+        <div class="flex">
+          <div v-if="editable" class="flex-none mr-6 self-center">
+            <input v-model="index" type="radio" name="education" :value="idx">
+          </div>
+          <div class="flex-grow">
+            <DivsItemsEducateItem :item="item" />
+          </div>
+        </div>
+      </UCard>
+    </div>
+    <template v-if="editable" #footer>
+      <UModal
+        v-model:open="modal"
+        :dismissible="false"
+        title="Образование"
+        description="Данные профиля"
+      >
+        <template #content>
+          <UCard>
+            <FormsEducationForm
+              :education="education"
+              @cancel="
+                education = {} as Education;
+                modal = false;
+              "
+              @update="submitEducation"
+            />
+          </UCard>
+        </template>
+      </UModal>
+      <UButton
+        icon="i-heroicons-document-plus"
+        label="Добавить"
+        variant="ghost"
+        @click="
+          education = {} as Education;
+          modal = true;
+        "
+      />
+      <UButton
+        icon="i-heroicons-pencil-square"
+        label="Изменить"
+        variant="ghost"
+        :disabled="educations.length == 0"
+        @click="educations[index];
+          modal = true;"
+      />
+      <UButton
+        icon="i-heroicons-trash"
+        label="Удалить"
+        variant="ghost"
+        :disabled="educations.length == 0"
+        @click="deleteEducation(educations[index].id, index)"
+      />
     </template>
-  </UModal>
-  <div v-for="(item, idx) in educations" :key="idx" class="p-1">
-    <ElementsCardDiv>
-      <DivsItemsEducateItem :item="item" />
-      <template v-if="editable" #footer>
-        <ElementsDivMenu
-          @delete="deleteEducation(item.id, idx)"
-          @update="
-            education = item;
-            modal = true;
-          "
-        />
-      </template>
-    </ElementsCardDiv>
-  </div></ElementsCardDiv>
+  </UCard>
 </template>

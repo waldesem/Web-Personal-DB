@@ -12,6 +12,7 @@ const modal = ref(false);
 const pending = ref(false);
 const workplace = ref({} as Work);
 const workplaces = ref<Work[]>([]);
+const index = ref(0);
 
 const { refresh, status } = await useLazyAsyncData("workplaces", async () => {
   workplaces.value = (await authFetch(
@@ -19,7 +20,7 @@ const { refresh, status } = await useLazyAsyncData("workplaces", async () => {
   )) as Work[];
 });
 
-async function submitWorkplace(form: Work) {
+async function submitWork(form: Work) {
   modal.value = false;
   pending.value = true;
   const { message } = (await authFetch(
@@ -42,6 +43,7 @@ async function deleteWork(id: string, idx: number) {
     method: "DELETE",
   })) as Record<string, string>;
   pending.value = false;
+  index.value = 0;
   if (message == "success") {
     workplaces.value.splice(idx, 1);
   }
@@ -49,51 +51,64 @@ async function deleteWork(id: string, idx: number) {
 }
 </script>
 
-<template><ElementsCardDiv>
-  <div v-if="editable || status == 'pending'" class="my-1">
-    <UButton
-      :loading="status == 'pending' || pending"
-      :label="
-        status == 'pending' || pending
-          ? 'Обновление данных...'
-          : 'Добавить запись'
-      "
-      variant="ghost"
-      icon="i-heroicons-plus-circle"
-      @click="modal = !modal"
-    />
-  </div>
-  <UModal
-    v-model:open="modal"
-    :dismissible="false"
-    title="Работа"
-    description="Данные профиля"
-  >
-    <template #content>
-      <ElementsCardDiv>
-        <FormsWorkplaceForm
-          :work="workplace"
-          @cancel="
-            workplace = {} as Work;
-            modal = false;
-          "
-          @update="submitWorkplace"
-        />
-      </ElementsCardDiv>
+<template>
+  <UCard class="m-2" :class="{ 'animate-pulse': status == 'pending' || pending }">
+    <div v-for="(item, idx) in workplaces" :key="idx" class="p-1">
+      <UCard>
+        <div class="flex">
+          <div v-if="editable" class="flex-none mr-6 self-center">
+            <input v-model="index" type="radio" name="workplace" :value="idx">
+          </div>
+          <div class="flex-grow">
+            <DivsItemsWorkItem :item="item" />
+          </div>
+        </div>
+      </UCard>
+    </div>
+    <template v-if="editable" #footer>
+      <UModal
+        v-model:open="modal"
+        :dismissible="false"
+        title="Место работы"
+        description="Данные профиля"
+      >
+        <template #content>
+          <UCard>
+            <FormsWorkplaceForm
+              :work="workplace"
+              @cancel="
+                workplace = {} as Work;
+                modal = false;
+              "
+              @update="submitWork"
+            />
+          </UCard>
+        </template>
+      </UModal>
+      <UButton
+        icon="i-heroicons-document-plus"
+        label="Добавить"
+        variant="ghost"
+        @click="
+          workplace = {} as Work;
+          modal = true;
+        "
+      />
+      <UButton
+        icon="i-heroicons-pencil-square"
+        label="Изменить"
+        variant="ghost"
+        :disabled="workplaces.length == 0"
+        @click="workplaces[index];
+          modal = true;"
+      />
+      <UButton
+        icon="i-heroicons-trash"
+        label="Удалить"
+        variant="ghost"
+        :disabled="workplaces.length == 0"
+        @click="deleteWork(workplaces[index].id, index)"
+      />
     </template>
-  </UModal>
-  <div v-for="(item, idx) in workplaces" :key="idx" class="p-1">
-    <ElementsCardDiv>
-      <DivsItemsWorkItem :item="item" />
-      <template v-if="editable" #footer>
-        <ElementsDivMenu
-          @delete="deleteWork(item.id, idx)"
-          @update="
-            workplace = item;
-            modal = true;
-          "
-        />
-      </template>
-    </ElementsCardDiv>
-  </div></ElementsCardDiv>
+  </UCard>
 </template>

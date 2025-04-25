@@ -67,12 +67,13 @@ async function deleteInquisition(id: string, idx: number) {
   </div>
   <UModal
     v-model:open="modal"
+    :ui="{ content: 'sm:max-w-4xl overflow-y-auto' }"
     :dismissible="false"
     title="Расследование"
     description="Данные профиля"
   >
     <template #content>
-      <ElementsCardDiv>
+       <UCard class="m-2">
         <FormsInvestigationForm
           :investigation="inquisition"
           @cancel="
@@ -81,10 +82,10 @@ async function deleteInquisition(id: string, idx: number) {
           "
           @update="submitInvestigations"
         />
-      </ElementsCardDiv>
+      </UCard>
     </template>
   </UModal>
-  <ElementsCardDiv v-for="(item, index) in investigations" :key="item.id">
+   <UCard v-for="(item, index) in investigations" :key="item.id" class="m-2">
     <DivsInvestigateDiv :item="item" />
     <template v-if="editable" #footer>
       <ElementsTabMenu
@@ -97,5 +98,5 @@ async function deleteInquisition(id: string, idx: number) {
         "
       />
     </template>
-  </ElementsCardDiv>
+  </UCard>
 </template>

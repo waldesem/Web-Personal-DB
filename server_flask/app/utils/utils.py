@@ -43,19 +43,28 @@ def upload_resume(resume: dict) -> tuple[int, bool]:
         ),
     ).scalar_one_or_none()
 
-    if not person:
-        person = Persons(**resume)
-        db_session.add(person)
+    try:
+        if not person:
+            person = Persons(**resume)
+            db_session.add(person)
+            db_session.commit()
+            return person.id, False
+
+        if person.user_id != resume["user_id"]:
+            return person.id, True
+
+        if person.region != resume["region"]:
+            return None, True
+
+        for k, v in resume.items():
+            setattr(person, k, v)
         db_session.commit()
-        return person.id, False
-
-    if person.editable or person.region != resume["region"]:
+    except SQLAlchemyError:
+        current_app.logger.exception("Database error")
+        db_session.rollback()
         return None, False
-
-    for k, v in resume.items():
-        setattr(person, k, v)
-    db_session.commit()
-    return person.id, True
+    else:
+        return person.id, True
 
 
 def upload_items(anketa: AnketaJson, person_id: int) -> None:
@@ -190,4 +199,3 @@ def upload_items(anketa: AnketaJson, person_id: int) -> None:
     except SQLAlchemyError:
         current_app.logger.exception("SQLAlchemyError in post_file")
         db_session.rollback()
-

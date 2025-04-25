@@ -8,11 +8,7 @@ await preloadComponents([
   "TabsInvestigateTab",
   "TabsInquiryTab",
   "TabsExplorerTab",
-]);
-await prefetchComponents([
-  "ElementsCardDiv",
-  "ElementsDivMenu",
-  "ElementsTabMenu",
+  "ElementsTabMenu"
 ]);
 
 const authFetch = useFetchAuth();
@@ -38,7 +34,6 @@ provide("status", status);
 
 const editState = computed(() => {
   return (
-    person.value.editable &&
     stateUser.value.role == "user" &&
     stateUser.value.id == person.value.user_id
   );
@@ -163,18 +158,14 @@ async function changeRegion(): Promise<void> {
             :loading="pending || status === 'pending'"
             :disabled="person.region != stateUser.region"
             :color="
-              !person.editable
-                ? 'secondary'
-                : person.user_id == stateUser.id
+                person.user_id == stateUser.id
                 ? 'success'
                 : 'error'
             "
             @click="switchSelf"
           >
             {{
-              !person.editable
-                ? "Анкета доступна для редактирования"
-                : person.user_id == stateUser.id
+              person.user_id == stateUser.id
                 ? "Анкета назначена текущему пользователю"
                 : "Анкета редактируется другим пользователем"
             }}

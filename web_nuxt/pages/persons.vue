@@ -77,8 +77,16 @@ onChange(async (files) => {
         description: "Кандидат ранее уже был загружен",
         color: "error",
       });
+      await navigateTo("/profile/" + person_id);
+    } else {
+      toast.add({
+        icon: "i-heroicons-information-circle",
+        title: "Внимание",
+        description:
+          "Анкета записана за другим пользователем или находится в другом регионе",
+        color: "error",
+      });
     }
-    await navigateTo("/profile/" + person_id);
   } else {
     toast.add({
       icon: "i-heroicons-information-circle",
@@ -147,12 +155,13 @@ async function submitResume(form: Persons): Promise<void> {
             description="Введите данные анкеты"
           >
             <template #content>
-              <ElementsCardDiv>
+              <UCard class="m-2">
                 <FormsResumeForm
                   @cancel="modal = false"
                   @update="submitResume"
-                /> </ElementsCardDiv
-            ></template>
+                />
+              </UCard>
+            </template>
           </UModal>
           <UTooltip text="Загрузить json">
             <UButton
@@ -192,7 +201,6 @@ async function submitResume(form: Persons): Promise<void> {
         { accessorKey: 'region', header: 'Регион' },
         { accessorKey: 'surname', header: 'Фамилия Имя Отчество' },
         { accessorKey: 'birthday', header: 'Дата рождения' },
-        { accessorKey: 'editable', header: 'Статус' },
         { accessorKey: 'created', header: 'Обновлено' },
         { accessorKey: 'username', header: 'Сотрудник' },
       ]"
@@ -211,23 +219,6 @@ async function submitResume(form: Persons): Promise<void> {
       <template #birthday-cell="{ row }">{{
         new Date(row.original.birthday).toLocaleDateString("ru-RU")
       }}</template>
-      <template #editable-cell="{ row }">
-        <UTooltip
-          :text="
-            row.original.editable ? 'Анкета редактируется' : 'Анкета обновлена'
-          "
-        >
-          <UIcon
-            :name="
-              row.original.editable
-                ? 'i-heroicons-arrow-path'
-                : 'i-heroicons-check-circle'
-            "
-            class="text-start w-4 h-4"
-            :class="{ 'animate-spin text-red-800': row.original.editable }"
-          />
-        </UTooltip>
-      </template>
       <template #created-cell="{ row }">{{
         new Date(row.original.created).toLocaleDateString("ru-RU")
       }}</template>

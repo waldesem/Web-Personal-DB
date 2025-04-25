@@ -8,12 +8,12 @@ const authFetch = useFetchAuth();
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
+const edit = ref(false);
 const modal = ref(false);
 const pending = ref(false);
 const staff = ref({} as Staff);
 const staffs = ref<Staff[]>([]);
 const index = ref(0);
-const progress = ref(null)
 
 const { refresh, status } = await useLazyAsyncData("staffs", async () => {
   staffs.value = (await authFetch(
@@ -41,6 +41,7 @@ async function deleteStaff(id: string, idx: number) {
     method: "DELETE",
   })) as Record<string, string>;
   pending.value = false;
+  index.value = 0;
   if (message == "success") {
     staffs.value.splice(idx, 1);
   }
@@ -49,21 +50,29 @@ async function deleteStaff(id: string, idx: number) {
 </script>
 
 <template>
-  <ElementsCardDiv>
-    <div v-if="status === 'pending' || pending">
-      <UProgress v-model="progress" animation="swing" />
-    </div>
+  <UCard
+    class="m-2"
+    :class="{ 'animate-pulse': status == 'pending' || pending }"
+  >
+    <USwitch
+      v-if="editable"
+      v-model="edit"
+      size="sm"
+      class="mb-2 me-2 justify-end"
+    />
     <div v-for="(item, idx) in staffs" :key="idx" class="p-1">
-      <ElementsCardDiv>
+      <UCard>
         <div class="flex">
-          <div v-if="editable" class="flex-none mr-6 self-center">
+          <div v-if="edit" class="flex-none mr-6 self-center">
             <input v-model="index" type="radio" name="staff" :value="idx">
           </div>
-          <DivsItemsStaffItem :item="item" />
+          <div class="flex-grow">
+            <DivsItemsStaffItem :item="item" />
+          </div>
         </div>
-      </ElementsCardDiv>
+      </UCard>
     </div>
-    <template v-if="editable" #footer>
+    <template v-if="edit" #footer>
       <UModal
         v-model:open="modal"
         :dismissible="false"
@@ -71,7 +80,7 @@ async function deleteStaff(id: string, idx: number) {
         description="Данные профиля"
       >
         <template #content>
-          <ElementsCardDiv>
+          <UCard>
             <FormsStaffForm
               :staff="staff"
               @cancel="
@@ -80,21 +89,35 @@ async function deleteStaff(id: string, idx: number) {
               "
               @update="submitStaff"
             />
-          </ElementsCardDiv>
+          </UCard>
         </template>
       </UModal>
-      <ElementsDivMenu
-        :items="staffs.length"
-        @delete="deleteStaff(staffs[index].id, index)"
-        @update="
-          staff = staffs[index];
-          modal = true;
-        "
-        @create="
+      <UButton
+        icon="i-heroicons-document-plus"
+        label="Добавить"
+        variant="ghost"
+        @click="
           staff = {} as Staff;
           modal = true;
         "
       />
+      <UButton
+        icon="i-heroicons-pencil-square"
+        label="Изменить"
+        variant="ghost"
+        :disabled="staffs.length == 0"
+        @click="
+          staffs[index];
+          modal = true;
+        "
+      />
+      <UButton
+        icon="i-heroicons-trash"
+        label="Удалить"
+        variant="ghost"
+        :disabled="staffs.length == 0"
+        @click="deleteStaff(staffs[index].id, index)"
+      />
     </template>
-  </ElementsCardDiv>
+  </UCard>
 </template>

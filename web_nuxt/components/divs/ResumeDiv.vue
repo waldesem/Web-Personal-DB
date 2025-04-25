@@ -46,15 +46,16 @@ async function deleteItem() {
 </script>
 
 <template>
-  <ElementsCardDiv>
+   <UCard class="m-2">
     <UModal
       v-model:open="modal"
+      :ui="{ content: 'overflow-y-auto' }"
       :dismissible="false"
       title="Резюме"
       description="Данные профиля"
     >
       <template #content>
-        <ElementsCardDiv>
+         <UCard class="m-2">
           <FormsResumeForm
             :resume="resume"
             @update="submitResume"
@@ -63,7 +64,7 @@ async function deleteItem() {
               modal = false;
             "
           />
-        </ElementsCardDiv>
+        </UCard>
       </template>
     </UModal>
     <div v-if="pending || status === 'pending'">
@@ -89,5 +90,5 @@ async function deleteItem() {
         "
       />
     </template>
-  </ElementsCardDiv>
+  </UCard>
 </template>

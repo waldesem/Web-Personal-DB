@@ -10,6 +10,7 @@ const modal = ref(false);
 const pending = ref(false);
 const relations = ref([] as Relation[]);
 const relationships = ref([] as Relationship[]);
+const index = ref(0);
 
 const { refresh, status } = await useLazyAsyncData("relations", async () => {
   [relations.value, relationships.value] = (await authFetch(
@@ -40,6 +41,8 @@ async function deleteRelation(id: string, idx: number) {
       method: "DELETE",
     }
   )) as Record<string, string>;
+  pending.value = false;
+  index.value = 0;
   if (message == "success") {
     relations.value.splice(idx, 1);
   }
@@ -48,7 +51,18 @@ async function deleteRelation(id: string, idx: number) {
 </script>
 
 <template>
-  <ElementsCardDiv>
+  <UCard class="m-2" :class="{ 'animate-pulse': status == 'pending' || pending }">
+    <div v-for="(item, idx) in relationships" :key="idx" class="p-1">
+      <UCard>
+        <ElementsLabelSlot :label="'Тип'">{{ item.type }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Явяляется связью'">
+          <NuxtLink :to="`/profile/${item.left_id}`">
+            ID #{{ item.left_id }}
+          </NuxtLink>
+        </ElementsLabelSlot>
+      </UCard>
+    </div>
+
     <div v-if="editable || status == 'pending'" class="my-1">
       <UButton
         :loading="status == 'pending' || pending"
@@ -62,46 +76,48 @@ async function deleteRelation(id: string, idx: number) {
         @click="modal = !modal"
       />
     </div>
-    <UModal
-      v-model:open="modal"
-      :dismissible="false"
-      title="Связи"
-      description="Данные профиля"
-    >
-      <template #content>
-        <ElementsCardDiv>
-          <FormsRelationForm @cancel="modal = false" @update="submitRelation" />
-        </ElementsCardDiv>
-      </template>
-    </UModal>
-    <div v-for="(item, idx) in relations" :key="idx" class="p-1">
-      <ElementsCardDiv>
-        <ElementsLabelSlot :label="'Тип'">{{ item.type }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Связан'">
-          <NuxtLink :to="`/profile/${item.right_id}`">
-            ID #{{ item.right_id }}
-          </NuxtLink>
-        </ElementsLabelSlot>
-        <template v-if="editable" #footer>
-          <UButton
-            label="Удалить"
-            variant="ghost"
-            icon="i-heroicons-trash"
-            @click="deleteRelation(item.right_id, idx)"
-          />
-        </template>
-      </ElementsCardDiv>
-    </div>
 
-    <div v-for="(item, idx) in relationships" :key="idx" class="p-1">
-      <ElementsCardDiv>
-        <ElementsLabelSlot :label="'Тип'">{{ item.type }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Явяляется связью'">
-          <NuxtLink :to="`/profile/${item.left_id}`">
-            ID #{{ item.left_id }}
-          </NuxtLink>
-        </ElementsLabelSlot>
-      </ElementsCardDiv>
-    </div></ElementsCardDiv
-  >
+    <div v-for="(item, idx) in relations" :key="idx" class="p-1">
+      <UCard>
+        <div class="flex">
+          <div v-if="editable" class="flex-none mr-6 self-center">
+            <input v-model="index" type="radio" name="staff" :value="idx">
+          </div>
+          <div class="flex-grow">
+            <ElementsLabelSlot :label="'Тип'">{{
+              item.type
+            }}</ElementsLabelSlot>
+            <ElementsLabelSlot :label="'Связан'">
+              <NuxtLink :to="`/profile/${item.right_id}`">
+                ID #{{ item.right_id }}
+              </NuxtLink>
+            </ElementsLabelSlot>
+          </div>
+        </div>
+      </UCard>
+    </div>
+    <template v-if="editable" #footer>
+      <UModal
+        v-model:open="modal"
+        :dismissible="false"
+        title="Связи"
+        description="Данные профиля"
+      >
+        <template #content>
+          <UCard>
+            <FormsRelationForm
+              @cancel="modal = false"
+              @update="submitRelation"
+            />
+          </UCard>
+        </template>
+      </UModal>
+      <UButton
+        label="Удалить"
+        variant="ghost"
+        icon="i-heroicons-trash"
+        @click="deleteRelation(relations[index].right_id, index)"
+      />
+    </template>
+  </UCard>
 </template>

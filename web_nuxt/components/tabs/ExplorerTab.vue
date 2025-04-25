@@ -4,6 +4,7 @@ import type { Files, Folders } from "@/types";
 const authFetch = useFetchAuth();
 
 const candId = inject("candId") as Ref<string>;
+const editable = inject("editable") as Ref<boolean>;
 
 const size = ref("lg") as Ref<"xs" | "sm" | "md" | "lg" | "xl">;
 const fullPath = ref("") as Ref<string>;
@@ -53,7 +54,7 @@ async function openFile(path: string, name: string) {
 </script>
 
 <template>
-  <ElementsCardDiv>
+   <UCard class="m-2">
     <template #header>
       <div class="flex justify-between">
         <UButton
@@ -106,7 +107,7 @@ async function openFile(path: string, name: string) {
       </div>
       <div v-for="file in listFiles" :key="file.name">
         <UButton
-          :disabled="stateUser.role != 'user'"
+          :disabled="!editable"
           :label="
             file.name.length < 64 ? file.name : file.name.slice(0, 64) + '...'
           "
@@ -121,5 +122,5 @@ async function openFile(path: string, name: string) {
     <template #footer>
       <div class="text-sm m-2 text-center break-all">{{ fullPath }}</div>
     </template>
-  </ElementsCardDiv>
+  </UCard>
 </template>

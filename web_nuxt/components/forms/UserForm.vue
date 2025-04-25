@@ -66,7 +66,7 @@ async function submitUser() {
 </script>
 
 <template>
-  <ElementsCardDiv>
+   <UCard class="m-2">
     <UForm :validate="validate" :state="form" @submit.prevent="submitUser">
       <UFormField
         class="mb-3"
@@ -93,5 +93,5 @@ async function submitUser() {
         "
       />
     </UForm>
-  </ElementsCardDiv>
+  </UCard>
 </template>

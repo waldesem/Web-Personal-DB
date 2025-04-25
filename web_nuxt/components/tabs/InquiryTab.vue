@@ -64,12 +64,13 @@ async function deleteNeed(id: string, idx: number) {
   </div>
   <UModal
     v-model:open="modal"
+    :ui="{ content: 'sm:max-w-4xl overflow-y-auto' }"
     :dismissible="false"
     title="Запрос"
     description="Данные профиля"
   >
     <template #content>
-      <ElementsCardDiv>
+       <UCard class="m-2">
         <FormsInquiryForm
           :inquiry="need"
           @cancel="
@@ -78,10 +79,10 @@ async function deleteNeed(id: string, idx: number) {
           "
           @update="submitIquiry"
         />
-      </ElementsCardDiv>
+      </UCard>
     </template>
   </UModal>
-  <ElementsCardDiv v-for="(item, index) in inquiries" :key="item.id">
+   <UCard v-for="(item, index) in inquiries" :key="item.id" class="m-2">
     <DivsInquiryDiv :item="item" />
     <template v-if="editable" #footer>
       <ElementsTabMenu
@@ -94,5 +95,5 @@ async function deleteNeed(id: string, idx: number) {
         "
       />
     </template>
-  </ElementsCardDiv>
+  </UCard>
 </template>

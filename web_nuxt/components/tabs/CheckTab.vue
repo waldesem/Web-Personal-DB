@@ -61,27 +61,25 @@ async function deleteCheck(id: string, idx: number) {
   </div>
   <UModal
     v-model:open="modal"
-    :ui="{ content: 'sm:max-w-4xl', body: 'overflow-y-auto' }"
+    :ui="{ content: 'sm:max-w-4xl overflow-y-auto' }"
     :dismissible="false"
     title="Проверка кандидата"
     description="Данные профиля"
   >
     <template #content>
-      <!-- <div style="overflow: auto"> -->
-        <ElementsCardDiv>
-          <FormsCheckForm
-            :check="check"
-            @cancel="
-              check = {} as Verification;
-              modal = false;
-            "
-            @update="submitCheck"
-          />
-        </ElementsCardDiv>
-      <!-- </div> -->
+      <UCard class="m-2">
+        <FormsCheckForm
+          :check="check"
+          @cancel="
+            check = {} as Verification;
+            modal = false;
+          "
+          @update="submitCheck"
+        />
+      </UCard>
     </template>
   </UModal>
-  <ElementsCardDiv v-for="(item, index) in checks" :key="item.id">
+  <UCard v-for="(item, index) in checks" :key="item.id" class="m-2">
     <DivsCheckDiv :item="item" />
     <template v-if="editable" #footer>
       <ElementsTabMenu
@@ -94,5 +92,5 @@ async function deleteCheck(id: string, idx: number) {
         "
       />
     </template>
-  </ElementsCardDiv>
+  </UCard>
 </template>

@@ -57,14 +57,14 @@ const emit = defineEmits(["update"]);
         icon: 'i-heroicons-pencil',
       },
       {
-        component: RelateDiv,
-        label: 'Связанные лица',
-        icon: 'i-heroicons-share',
-      },
-      {
         component: AffilDiv,
         label: 'Аффилированность',
         icon: 'i-heroicons-user-group',
+      },
+      {
+        component: RelateDiv,
+        label: 'Связанные лица',
+        icon: 'i-heroicons-share',
       },
     ]"
     :key="idx"

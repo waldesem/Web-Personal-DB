@@ -12,6 +12,7 @@ const modal = ref(false);
 const pending = ref(false);
 const address = ref({} as Address);
 const addresses = ref<Address[]>([]);
+const index = ref(0);
 
 const { refresh, status } = await useLazyAsyncData("addresses", async () => {
   addresses.value = (await authFetch(
@@ -42,6 +43,7 @@ async function deleteAddress(id: string, idx: number) {
     method: "DELETE",
   })) as Record<string, string>;
   pending.value = false;
+  index.value = 0;
   if (message == "success") {
     addresses.value.splice(idx, 1);
   }
@@ -49,51 +51,52 @@ async function deleteAddress(id: string, idx: number) {
 }
 </script>
 
-<template><ElementsCardDiv>
-  <div v-if="editable || status == 'pending'" class="my-1">
-    <UButton
-      :loading="status == 'pending' || pending"
-      :label="
-        status == 'pending' || pending
-          ? 'Обновление данных...'
-          : 'Добавить запись'
-      "
-      variant="ghost"
-      icon="i-heroicons-plus-circle"
-      @click="modal = !modal"
-    />
-  </div>
-  <UModal
-    v-model:open="modal"
-    :dismissible="false"
-    title="Адрес"
-    description="Данные профиля"
-  >
-    <template #content>
-      <ElementsCardDiv>
-        <FormsAddressForm
-          :addrs="address"
-          @cancel="
-            address = {} as Address;
-            modal = false;
-          "
-          @update="submitAddress"
-        />
-      </ElementsCardDiv>
+<template>
+  <UCard class="m-2" :class="{ 'animate-pulse': status == 'pending' || pending }">
+    <div v-for="(item, idx) in addresses" :key="idx" class="p-1">
+       <UCard class="m-2">
+        <div class="flex">
+          <div v-if="editable" class="flex-none mr-6 self-center">
+            <input v-model="index" type="radio" name="address" :value="idx">
+          </div>
+          <div class="flex-grow">
+            <DivsItemsAddressItem :item="item" />
+          </div>
+        </div>
+      </UCard>
+    </div>
+    <template v-if="editable" #footer>
+      <UModal
+        v-model:open="modal"
+        :dismissible="false"
+        title="Адреса"
+        description="Данные профиля"
+      >
+        <template #content>
+           <UCard class="m-2">
+            <FormsAddressForm
+              :address="address"
+              @cancel="
+                address = {} as Address;
+                modal = false;
+              "
+              @update="submitAddress"
+            />
+          </UCard>
+        </template>
+      </UModal>
+      <ElementsDivMenu
+        :items="addresses.length"
+        @delete="deleteAddress(addresses[index].id, index)"
+        @update="
+          address = addresses[index];
+          modal = true;
+        "
+        @create="
+          address = {} as Address;
+          modal = true;
+        "
+      />
     </template>
-  </UModal>
-  <div v-for="(item, idx) in addresses" :key="idx" class="p-1">
-    <ElementsCardDiv>
-      <DivsItemsAddressItem :item="item" />
-      <template v-if="editable" #footer>
-        <ElementsDivMenu
-          @delete="deleteAddress(item.id, idx)"
-          @update="
-            address = item;
-            modal = true;
-          "
-        />
-      </template>
-    </ElementsCardDiv>
-  </div></ElementsCardDiv>
+  </UCard>
 </template>

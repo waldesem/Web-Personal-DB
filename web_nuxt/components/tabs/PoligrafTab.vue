@@ -64,13 +64,13 @@ async function deletePoligraf(id: string, idx: number) {
   </div>
   <UModal
     v-model:open="modal"
-    :ui="{ content: 'sm:max-w-4xl' }"
+    :ui="{ content: 'sm:max-w-4xl overflow-y-auto' }"
     :dismissible="false"
     title="Обследование на полиграфе"
     description="Данные профиля"
   >
     <template #content>
-      <ElementsCardDiv>
+       <UCard class="m-2">
         <FormsPoligrafForm
           :poligraf="poligraf"
           @update="submitPoligraf"
@@ -79,10 +79,10 @@ async function deletePoligraf(id: string, idx: number) {
             modal = false;
           "
         />
-      </ElementsCardDiv>
+      </UCard>
     </template>
   </UModal>
-  <ElementsCardDiv v-for="(item, index) in poligrafs" :key="item.id">
+   <UCard v-for="(item, index) in poligrafs" :key="item.id" class="m-2">
     <DivsPoligrafDiv :item="item" />
     <template v-if="editable" #footer>
       <ElementsTabMenu
@@ -95,5 +95,5 @@ async function deletePoligraf(id: string, idx: number) {
         @delete="deletePoligraf(item.id, index)"
       />
     </template>
-  </ElementsCardDiv>
+  </UCard>
 </template>
