@@ -7,7 +7,7 @@ StaffSec is a web interface for managing a candidate database.
 - Flask;
 - Tornado (as wsgi);
 - Sqlite3 (or PostgreSQL);
-- Nuxt3 and TailwindCSS;
+- Nuxt3 and NuxtUI with TailwindCSS;
 
 ### Installation
 
