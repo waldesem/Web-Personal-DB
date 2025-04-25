@@ -201,6 +201,7 @@ async function submitResume(form: Persons): Promise<void> {
         { accessorKey: 'region', header: 'Регион' },
         { accessorKey: 'surname', header: 'Фамилия Имя Отчество' },
         { accessorKey: 'birthday', header: 'Дата рождения' },
+        { accessorKey: 'editable', header: 'Статус' },
         { accessorKey: 'created', header: 'Обновлено' },
         { accessorKey: 'username', header: 'Сотрудник' },
       ]"
@@ -219,6 +220,23 @@ async function submitResume(form: Persons): Promise<void> {
       <template #birthday-cell="{ row }">{{
         new Date(row.original.birthday).toLocaleDateString("ru-RU")
       }}</template>
+      <template #editable-cell="{ row }">
+         <UTooltip
+           :text="
+             row.original.editable ? 'Анкета редактируется' : 'Анкета обновлена'
+           "
+         >
+           <UIcon
+             :name="
+               row.original.editable
+                 ? 'i-heroicons-arrow-path'
+                 : 'i-heroicons-check-circle'
+             "
+             class="text-start w-4 h-4"
+             :class="{ 'animate-spin text-red-800': row.original.editable }"
+           />
+         </UTooltip>
+       </template>
       <template #created-cell="{ row }">{{
         new Date(row.original.created).toLocaleDateString("ru-RU")
       }}</template>

@@ -8,6 +8,7 @@ const authFetch = useFetchAuth();
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
+const edit = ref(false);
 const modal = ref(false);
 const pending = ref(false);
 const prev = ref({} as Previous);
@@ -52,11 +53,21 @@ async function deletePrevious(id: string, idx: number) {
 </script>
 
 <template>
-  <UCard class="m-2" :class="{ 'animate-pulse': status == 'pending' || pending }">
+  <UCard
+    class="m-2"
+    :class="{ 'animate-pulse': status == 'pending' || pending }"
+  >
+    <USwitch
+      v-if="editable"
+      v-model="edit"
+      :label="edit ? 'Отключить редактирование' : 'Включить редактирование'"
+      size="xs"
+      class="mb-2 me-2 justify-end"
+    />
     <div v-for="(item, idx) in previous" :key="idx" class="p-1">
       <UCard>
         <div class="flex">
-          <div v-if="editable" class="flex-none mr-6 self-center">
+          <div v-if="edit" class="flex-none mr-6 self-center">
             <input v-model="index" type="radio" name="prev" :value="idx">
           </div>
           <div class="flex-grow">
@@ -65,7 +76,7 @@ async function deletePrevious(id: string, idx: number) {
         </div>
       </UCard>
     </div>
-    <template v-if="editable" #footer>
+    <template v-if="edit" #footer>
       <UModal
         v-model:open="modal"
         :dismissible="false"
@@ -94,20 +105,12 @@ async function deletePrevious(id: string, idx: number) {
           modal = true;
         "
       />
-      <UButton
-        icon="i-heroicons-pencil-square"
-        label="Изменить"
-        variant="ghost"
-        :disabled="previous.length == 0"
-        @click="previous[index];
-          modal = true;"
-      />
-      <UButton
-        icon="i-heroicons-trash"
-        label="Удалить"
-        variant="ghost"
-        :disabled="previous.length == 0"
-        @click="deletePrevious(previous[index].id, index)"
+      <ElementsDivMenu
+        @update="
+          prev = previous[index];
+          modal = true;
+        "
+        @delete="deletePrevious(previous[index].id, index)"
       />
     </template>
   </UCard>

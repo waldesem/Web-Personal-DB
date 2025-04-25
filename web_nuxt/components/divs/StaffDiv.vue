@@ -57,7 +57,8 @@ async function deleteStaff(id: string, idx: number) {
     <USwitch
       v-if="editable"
       v-model="edit"
-      size="sm"
+      :label="edit ? 'Отключить редактирование' : 'Включить редактирование'"
+      size="xs"
       class="mb-2 me-2 justify-end"
     />
     <div v-for="(item, idx) in staffs" :key="idx" class="p-1">
@@ -101,22 +102,12 @@ async function deleteStaff(id: string, idx: number) {
           modal = true;
         "
       />
-      <UButton
-        icon="i-heroicons-pencil-square"
-        label="Изменить"
-        variant="ghost"
-        :disabled="staffs.length == 0"
-        @click="
-          staffs[index];
+      <ElementsDivMenu
+        @update="
+          staff = staffs[index];
           modal = true;
         "
-      />
-      <UButton
-        icon="i-heroicons-trash"
-        label="Удалить"
-        variant="ghost"
-        :disabled="staffs.length == 0"
-        @click="deleteStaff(staffs[index].id, index)"
+        @delete="deleteStaff(staffs[index].id, index)"
       />
     </template>
   </UCard>

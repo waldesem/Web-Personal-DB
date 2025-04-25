@@ -8,6 +8,7 @@ const authFetch = useFetchAuth();
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
+const edit = ref(false);
 const modal = ref(false);
 const pending = ref(false);
 const contact = ref({} as Contact);
@@ -52,11 +53,21 @@ async function deleteContact(id: string, idx: number) {
 </script>
 
 <template>
-  <UCard class="m-2" :class="{ 'animate-pulse': status == 'pending' || pending }">
+  <UCard
+    class="m-2"
+    :class="{ 'animate-pulse': status == 'pending' || pending }"
+  >
+    <USwitch
+      v-if="editable"
+      v-model="edit"
+      :label="edit ? 'Отключить редактирование' : 'Включить редактирование'"
+      size="xs"
+      class="mb-2 me-2 justify-end"
+    />
     <div v-for="(item, idx) in contacts" :key="idx" class="p-1">
       <UCard>
         <div class="flex">
-          <div v-if="editable" class="flex-none mr-6 self-center">
+          <div v-if="edit" class="flex-none mr-6 self-center">
             <input v-model="index" type="radio" name="contact" :value="idx">
           </div>
           <div class="flex-grow">
@@ -65,7 +76,7 @@ async function deleteContact(id: string, idx: number) {
         </div>
       </UCard>
     </div>
-    <template v-if="editable" #footer>
+    <template v-if="edit" #footer>
       <UModal
         v-model:open="modal"
         :dismissible="false"
@@ -94,20 +105,12 @@ async function deleteContact(id: string, idx: number) {
           modal = true;
         "
       />
-      <UButton
-        icon="i-heroicons-pencil-square"
-        label="Изменить"
-        variant="ghost"
-        :disabled="contacts.length == 0"
-        @click="contacts[index];
-          modal = true;"
-      />
-      <UButton
-        icon="i-heroicons-trash"
-        label="Удалить"
-        variant="ghost"
-        :disabled="contacts.length == 0"
-        @click="deleteContact(contacts[index].id, index)"
+      <ElementsDivMenu
+        @update="
+          contact = contacts[index];
+          modal = true;
+        "
+        @delete="deleteContact(contacts[index].id, index)"
       />
     </template>
   </UCard>

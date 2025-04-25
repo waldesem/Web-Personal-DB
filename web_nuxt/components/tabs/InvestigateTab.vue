@@ -9,6 +9,7 @@ const authFetch = useFetchAuth();
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
+const edit = ref(false);
 const modal = ref(false);
 const pending = ref(false);
 const inquisition = ref({} as Inquisition);
@@ -52,51 +53,55 @@ async function deleteInquisition(id: string, idx: number) {
 </script>
 
 <template>
-  <div v-if="editable || status == 'pending'" class="my-1">
-    <UButton
-      :loading="status == 'pending' || pending"
-      :label="
-        status == 'pending' || pending
-          ? 'Обновление данных...'
-          : 'Добавить запись'
-      "
-      variant="ghost"
-      icon="i-heroicons-plus-circle"
-      @click="modal = !modal"
-    />
-  </div>
-  <UModal
-    v-model:open="modal"
-    :ui="{ content: 'sm:max-w-4xl overflow-y-auto' }"
-    :dismissible="false"
-    title="Расследование"
-    description="Данные профиля"
+  <UCard
+    class="m-2"
+    :class="{ 'animate-pulse': status == 'pending' || pending }"
   >
-    <template #content>
-       <UCard class="m-2">
-        <FormsInvestigationForm
-          :investigation="inquisition"
-          @cancel="
-            inquisition = {} as Inquisition;
-            modal = false;
-          "
-          @update="submitInvestigations"
-        />
-      </UCard>
-    </template>
-  </UModal>
-   <UCard v-for="(item, index) in investigations" :key="item.id" class="m-2">
-    <DivsInvestigateDiv :item="item" />
-    <template v-if="editable" #footer>
-      <ElementsTabMenu
-        :item="'investigations'"
-        @cancel="modal = false"
-        @delete="deleteInquisition(item.id, index)"
-        @update="
-          inquisition = item;
-          modal = true;
-        "
+    <div v-if="editable" class="flex justify-between mb-1">
+      <UButton
+        label="Добавить запись"
+        variant="ghost"
+        icon="i-heroicons-plus-circle"
+        @click="modal = !modal"
       />
-    </template>
+      <USwitch
+        v-model="edit"
+        :label="edit ? 'Отключить редактирование' : 'Включить редактирование'"
+      />
+    </div>
+    <UModal
+      v-model:open="modal"
+      :ui="{ content: 'sm:max-w-4xl overflow-y-auto' }"
+      :dismissible="false"
+      title="Расследование"
+      description="Данные профиля"
+    >
+      <template #content>
+        <UCard class="m-2">
+          <FormsInvestigationForm
+            :investigation="inquisition"
+            @cancel="
+              inquisition = {} as Inquisition;
+              modal = false;
+            "
+            @update="submitInvestigations"
+          />
+        </UCard>
+      </template>
+    </UModal>
+    <UCard v-for="(item, index) in investigations" :key="item.id" class="m-2">
+      <DivsInvestigateDiv :item="item" />
+      <template v-if="edit" #footer>
+        <ElementsTabMenu
+          :item="'investigations'"
+          @cancel="modal = false"
+          @delete="deleteInquisition(item.id, index)"
+          @update="
+            inquisition = item;
+            modal = true;
+          "
+        />
+      </template>
+    </UCard>
   </UCard>
 </template>

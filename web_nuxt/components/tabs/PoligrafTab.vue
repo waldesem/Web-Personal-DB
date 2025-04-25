@@ -9,6 +9,7 @@ const authFetch = useFetchAuth();
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
+const edit = ref(false);
 const modal = ref(false);
 const pending = ref(false);
 const poligraf = ref({} as Pfo);
@@ -49,51 +50,55 @@ async function deletePoligraf(id: string, idx: number) {
 </script>
 
 <template>
-  <div v-if="editable || status == 'pending'" class="my-1">
-    <UButton
-      :loading="status == 'pending' || pending"
-      :label="
-        status == 'pending' || pending
-          ? 'Обновление данных...'
-          : 'Добавить запись'
-      "
-      variant="ghost"
-      icon="i-heroicons-plus-circle"
-      @click="modal = !modal"
-    />
-  </div>
-  <UModal
-    v-model:open="modal"
-    :ui="{ content: 'sm:max-w-4xl overflow-y-auto' }"
-    :dismissible="false"
-    title="Обследование на полиграфе"
-    description="Данные профиля"
+  <UCard
+    class="m-2"
+    :class="{ 'animate-pulse': status == 'pending' || pending }"
   >
-    <template #content>
-       <UCard class="m-2">
-        <FormsPoligrafForm
-          :poligraf="poligraf"
-          @update="submitPoligraf"
-          @cancel="
-            poligraf = {} as Pfo;
-            modal = false;
-          "
-        />
-      </UCard>
-    </template>
-  </UModal>
-   <UCard v-for="(item, index) in poligrafs" :key="item.id" class="m-2">
-    <DivsPoligrafDiv :item="item" />
-    <template v-if="editable" #footer>
-      <ElementsTabMenu
-        :item="'poligrafs'"
-        @cancel="modal = false"
-        @update="
-          poligraf = item;
-          modal = true;
-        "
-        @delete="deletePoligraf(item.id, index)"
+    <div v-if="editable" class="flex justify-between mb-1">
+      <UButton
+        label="Добавить запись"
+        variant="ghost"
+        icon="i-heroicons-plus-circle"
+        @click="modal = !modal"
       />
-    </template>
+      <USwitch
+        v-model="edit"
+        :label="edit ? 'Отключить редактирование' : 'Включить редактирование'"
+      />
+    </div>
+    <UModal
+      v-model:open="modal"
+      :ui="{ content: 'sm:max-w-4xl overflow-y-auto' }"
+      :dismissible="false"
+      title="Обследование на полиграфе"
+      description="Данные профиля"
+    >
+      <template #content>
+        <UCard class="m-2">
+          <FormsPoligrafForm
+            :poligraf="poligraf"
+            @update="submitPoligraf"
+            @cancel="
+              poligraf = {} as Pfo;
+              modal = false;
+            "
+          />
+        </UCard>
+      </template>
+    </UModal>
+    <UCard v-for="(item, index) in poligrafs" :key="item.id" class="m-2">
+      <DivsPoligrafDiv :item="item" />
+      <template v-if="edit" #footer>
+        <ElementsTabMenu
+          :item="'poligrafs'"
+          @cancel="modal = false"
+          @update="
+            poligraf = item;
+            modal = true;
+          "
+          @delete="deletePoligraf(item.id, index)"
+        />
+      </template>
+    </UCard>
   </UCard>
 </template>

@@ -6,6 +6,7 @@ const authFetch = useFetchAuth();
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
+const edit = ref(false);
 const modal = ref(false);
 const pending = ref(false);
 const relations = ref([] as Relation[]);
@@ -51,7 +52,17 @@ async function deleteRelation(id: string, idx: number) {
 </script>
 
 <template>
-  <UCard class="m-2" :class="{ 'animate-pulse': status == 'pending' || pending }">
+  <UCard
+    class="m-2"
+    :class="{ 'animate-pulse': status == 'pending' || pending }"
+  >
+    <USwitch
+      v-if="editable"
+      v-model="edit"
+      :label="edit ? 'Отключить редактирование' : 'Включить редактирование'"
+      size="xs"
+      class="mb-2 me-2 justify-end"
+    />
     <div v-for="(item, idx) in relationships" :key="idx" class="p-1">
       <UCard>
         <ElementsLabelSlot :label="'Тип'">{{ item.type }}</ElementsLabelSlot>
@@ -63,24 +74,10 @@ async function deleteRelation(id: string, idx: number) {
       </UCard>
     </div>
 
-    <div v-if="editable || status == 'pending'" class="my-1">
-      <UButton
-        :loading="status == 'pending' || pending"
-        :label="
-          status == 'pending' || pending
-            ? 'Обновление данных...'
-            : 'Добавить запись'
-        "
-        variant="ghost"
-        icon="i-heroicons-plus-circle"
-        @click="modal = !modal"
-      />
-    </div>
-
     <div v-for="(item, idx) in relations" :key="idx" class="p-1">
       <UCard>
         <div class="flex">
-          <div v-if="editable" class="flex-none mr-6 self-center">
+          <div v-if="edit" class="flex-none mr-6 self-center">
             <input v-model="index" type="radio" name="staff" :value="idx">
           </div>
           <div class="flex-grow">
@@ -96,7 +93,7 @@ async function deleteRelation(id: string, idx: number) {
         </div>
       </UCard>
     </div>
-    <template v-if="editable" #footer>
+    <template v-if="edit" #footer>
       <UModal
         v-model:open="modal"
         :dismissible="false"
@@ -112,6 +109,12 @@ async function deleteRelation(id: string, idx: number) {
           </UCard>
         </template>
       </UModal>
+      <UButton
+        label="Добавить запись"
+        variant="ghost"
+        icon="i-heroicons-plus-circle"
+        @click="modal = !modal"
+      />
       <UButton
         label="Удалить"
         variant="ghost"

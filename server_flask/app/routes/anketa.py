@@ -106,6 +106,7 @@ def change_region(person_id: int, query_data: Region) -> Response:
         shutil.copytree(person.destination, destination, dirs_exist_ok=True)
         person.destination = str(destination)
         person.region = query_data.region
+        person.editable = False
         db_session.commit()
         return jsonify({"message": "success"}), 201
     except shutil.Error:
