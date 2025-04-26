@@ -48,10 +48,10 @@ async function deleteCheck(id: string, idx: number) {
 
 <template>
   <UCard
-    class="m-2"
+    class="my-2 mx-1"
     :class="{ 'animate-pulse': status == 'pending' || pending }"
   >
-    <div v-if="editable" class="flex justify-between mb-1">
+    <div v-if="editable" class="flex justify-between mb-1 me-2">
       <UButton
         :loading="status == 'pending' || pending"
         label="Добавить запись"

@@ -31,9 +31,10 @@ def upload_resume(resume: dict) -> tuple[int, bool]:
         bool: True if the resume existed earlier.
 
     """
-    resume.update(
-        {"editable": True, "user_id": current_user.id, "region": current_user.region},
-    )
+    resume["editable"] = True
+    resume["user_id"] = current_user.id
+    resume["region"] = current_user.region
+
     person = db_session.execute(
         select(Persons).where(
             Persons.surname == resume["surname"],
@@ -50,10 +51,7 @@ def upload_resume(resume: dict) -> tuple[int, bool]:
             db_session.commit()
             return person.id, False
 
-        if person.user_id != resume["user_id"]:
-            return person.id, True
-
-        if person.region != resume["region"]:
+        if person.region != resume["region"] or person.user_id != resume["user_id"]:
             return None, True
 
         for k, v in resume.items():

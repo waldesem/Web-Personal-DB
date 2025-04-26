@@ -51,7 +51,7 @@ async function deleteStaff(id: string, idx: number) {
 
 <template>
   <UCard
-    class="m-2"
+    class="my-2 mx-1"
     :class="{ 'animate-pulse': status == 'pending' || pending }"
   >
     <USwitch

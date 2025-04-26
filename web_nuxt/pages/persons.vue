@@ -58,6 +58,44 @@ const { open, reset, onCancel, onChange } = useFileDialog({
   multiple: false,
 });
 
+function sendMessage(person_id: string, exists: boolean) {
+  if (person_id) {
+    if (exists) {
+      toast.add({
+        icon: "i-heroicons-exclamation-triangle",
+        title: "Внимание",
+        description: "Кандидат ранее уже был загружен",
+        color: "secondary",
+      });
+    } else {
+      toast.add({
+        icon: "i-heroicons-information-circle",
+        title: "Внимание",
+        description: "Анкета успешно загружена.",
+        color: "success",
+      });
+    }
+    navigateTo("/profile/" + person_id);
+  } else {
+    if (exists) {
+      toast.add({
+        icon: "i-heroicons-information-circle",
+        title: "Внимание",
+        description:
+          "Анкета находится в другом регионе или назначена иному пользователю",
+        color: "warning",
+      });
+    } else {
+      toast.add({
+        icon: "i-heroicons-information-circle",
+        title: "Внимание",
+        description: "Невозможно выполнить действие",
+        color: "error",
+      });
+    }
+  }
+}
+
 onChange(async (files) => {
   if (!files) return;
   upload.value = true;
@@ -66,36 +104,13 @@ onChange(async (files) => {
   const { person_id, exists } = (await authFetch("/route/anketa/json", {
     method: "POST",
     body: formData,
-  })) as Record<string, string>;
+  })) as {
+    person_id: string;
+    exists: boolean;
+  };
   reset();
   upload.value = false;
-  if (person_id) {
-    if (exists) {
-      toast.add({
-        icon: "i-heroicons-exclamation-triangle",
-        title: "Внимание",
-        description: "Кандидат ранее уже был загружен",
-        color: "error",
-      });
-      await navigateTo("/profile/" + person_id);
-    } else {
-      toast.add({
-        icon: "i-heroicons-information-circle",
-        title: "Внимание",
-        description:
-          "Анкета записана за другим пользователем или находится в другом регионе",
-        color: "error",
-      });
-    }
-  } else {
-    toast.add({
-      icon: "i-heroicons-information-circle",
-      title: "Внимание",
-      description:
-        "Файл поврежден или анкета находится в другом регионе или редактируется",
-      color: "error",
-    });
-  }
+  sendMessage(person_id, exists);
 });
 
 onCancel(() => {
@@ -108,26 +123,12 @@ async function submitResume(form: Persons): Promise<void> {
   const { person_id, exists } = (await authFetch("/route/anketa/resume", {
     method: "POST",
     body: form,
-  })) as Record<string, string>;
+  })) as {
+    person_id: string;
+    exists: boolean;
+  };
   upload.value = false;
-  if (person_id) {
-    if (exists) {
-      toast.add({
-        icon: "i-heroicons-exclamation-triangle",
-        title: "Внимание",
-        description: "Кандидат уже был загружен ранее. Данные были обновлены",
-        color: "error",
-      });
-    }
-    navigateTo("/profile/" + person_id);
-  } else {
-    toast.add({
-      icon: "i-heroicons-information-circle",
-      title: "Внимание",
-      description: "Невозможно выполнить действие",
-      color: "error",
-    });
-  }
+  sendMessage(person_id, exists);
 }
 </script>
 
@@ -221,22 +222,22 @@ async function submitResume(form: Persons): Promise<void> {
         new Date(row.original.birthday).toLocaleDateString("ru-RU")
       }}</template>
       <template #editable-cell="{ row }">
-         <UTooltip
-           :text="
-             row.original.editable ? 'Анкета редактируется' : 'Анкета обновлена'
-           "
-         >
-           <UIcon
-             :name="
-               row.original.editable
-                 ? 'i-heroicons-arrow-path'
-                 : 'i-heroicons-check-circle'
-             "
-             class="text-start w-4 h-4"
-             :class="{ 'animate-spin text-red-800': row.original.editable }"
-           />
-         </UTooltip>
-       </template>
+        <UTooltip
+          :text="
+            row.original.editable ? 'Анкета редактируется' : 'Анкета обновлена'
+          "
+        >
+          <UIcon
+            :name="
+              row.original.editable
+                ? 'i-heroicons-arrow-path'
+                : 'i-heroicons-check-circle'
+            "
+            class="text-start w-4 h-4"
+            :class="{ 'animate-spin text-red-800': row.original.editable }"
+          />
+        </UTooltip>
+      </template>
       <template #created-cell="{ row }">{{
         new Date(row.original.created).toLocaleDateString("ru-RU")
       }}</template>

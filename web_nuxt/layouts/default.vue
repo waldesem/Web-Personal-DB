@@ -119,13 +119,13 @@ const items = [
               >
                 <UCard
                   :ui="{
-                    body: 'px-1 py-2 sm:p-2',
-                    header: 'px-1 py-2 sm:p-2 bg-gray-100',
+                    body: 'px-1 py-2 sm:p-2 border-none',
+                    header: 'px-1 py-2 sm:p-2 border-none',
                     footer: 'px-1 py-1 sm:p-1',
                   }"
                 >
                   <template #header>
-                    <div class="text-sm font-bold">
+                    <div class="text-sm text-center font-bold">
                       {{ item.theme }}
                     </div>
                   </template>

@@ -54,7 +54,7 @@ async function deleteAddress(id: string, idx: number) {
 
 <template>
   <UCard
-    class="m-2"
+    class="my-2 mx-1"
     :class="{ 'animate-pulse': status == 'pending' || pending }"
   >
     <USwitch
@@ -65,7 +65,7 @@ async function deleteAddress(id: string, idx: number) {
       class="mb-2 me-2 justify-end"
     />
     <div v-for="(item, idx) in addresses" :key="idx" class="p-1">
-      <UCard class="m-2">
+      <UCard>
         <div class="flex">
           <div v-if="edit" class="flex-none mr-6 self-center">
             <input v-model="index" type="radio" name="address" :value="idx">
