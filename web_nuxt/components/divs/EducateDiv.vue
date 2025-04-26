@@ -106,6 +106,7 @@ async function deleteEducation(id: string, idx: number) {
         "
       />
       <ElementsDivMenu
+        v-if="educations.length > 0"
         @update="
           education = educations[index];
           modal = true;

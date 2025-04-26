@@ -6,8 +6,6 @@ from pathlib import Path
 
 from flask import Blueprint, Response, current_app, jsonify
 from pydantic import ValidationError
-from sqlalchemy import text
-from sqlalchemy.exc import SQLAlchemyError
 
 from app.depends.depend import current_user, roles_required, validate
 from app.model.classes import Roles
@@ -127,15 +125,13 @@ def change_self_id(person_id: int) -> Response:
         The HTTP status code is 200.
 
     """
-    stmt = text(
-        "UPDATE persons SET editable = NOT editable, user_id = :user_id \
-                WHERE id = :person_id",
-    )
-    try:
-        db_session.execute(stmt, {"user_id": current_user.id, "person_id": person_id})
-        db_session.commit()
-        return jsonify({"message": "success"}), 201
-    except SQLAlchemyError:
-        current_app.logger.exception("Exception in change_self_id")
-        db_session.rollback()
-    return jsonify({"message": "error"}), 200
+    person = db_session.get(Persons, person_id)
+    if person.user_id != current_user.id:
+        if person.editable:
+            person.editable = False
+        else:
+            person.user_id = current_user.id
+    else:
+        person.editable = not person.editable
+    db_session.commit()
+    return jsonify(person.to_dict()), 201

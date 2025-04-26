@@ -105,7 +105,8 @@ async function deleteAddress(id: string, idx: number) {
           modal = true;
         "
       />
-      <ElementsDivMenu
+      <ElementsDivMenu 
+        v-if="addresses.length > 0"
         @update="
           address = addresses[index];
           modal = true;

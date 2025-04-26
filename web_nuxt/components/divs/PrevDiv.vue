@@ -106,6 +106,7 @@ async function deletePrevious(id: string, idx: number) {
         "
       />
       <ElementsDivMenu
+        v-if="previous.length > 0"
         @update="
           prev = previous[index];
           modal = true;

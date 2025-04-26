@@ -106,6 +106,7 @@ async function deleteWork(id: string, idx: number) {
         "
       />
       <ElementsDivMenu
+        v-if="workplaces.length > 0"
         @update="
           workplace = workplaces[index];
           modal = true;

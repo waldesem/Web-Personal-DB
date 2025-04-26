@@ -106,6 +106,7 @@ async function deleteDocument(id: string, idx: number) {
         "
       />
       <ElementsDivMenu
+        v-if="documents.length > 0"
         @update="
           doc = documents[index];
           modal = true;

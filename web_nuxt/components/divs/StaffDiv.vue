@@ -103,6 +103,7 @@ async function deleteStaff(id: string, idx: number) {
         "
       />
       <ElementsDivMenu
+        v-if="staffs.length > 0"
         @update="
           staff = staffs[index];
           modal = true;

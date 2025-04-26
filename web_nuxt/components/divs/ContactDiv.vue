@@ -106,6 +106,7 @@ async function deleteContact(id: string, idx: number) {
         "
       />
       <ElementsDivMenu
+        v-if="contacts.length > 0"
         @update="
           contact = contacts[index];
           modal = true;

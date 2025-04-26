@@ -111,6 +111,7 @@ async function deleteAffilation(id: string, idx: number) {
         "
       />
       <ElementsDivMenu
+        v-if="affilations.length > 0"
         @update="
           affilation = affilations[index];
           modal = true;

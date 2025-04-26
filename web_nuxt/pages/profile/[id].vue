@@ -77,6 +77,11 @@ const tabs = [
 
 async function switchSelf(): Promise<void> {
   if (person.value.user_id != stateUser.value.id) {
+    if (person.value.editable) {
+      if (!confirm("Анкета редактируется другим пользователем. Переключить режим редактирования?")) {
+        return;
+      }
+    }
     if (!confirm("Вы хотите назначить анкету на себя?")) {
       return;
     }
@@ -84,16 +89,10 @@ async function switchSelf(): Promise<void> {
     return;
   }
   pending.value = true;
-  const { message } = (await authFetch(
+  person.value = (await authFetch(
     "/route/anketa/self/" + candId.value
-  )) as Record<string, string>;
+  )) as Persons;
   pending.value = false;
-  if (message == "success") {
-    person.value.editable = !person.value.editable;
-    person.value.user_id = stateUser.value.id;
-  } else {
-    emitMessage(message);
-  }
 }
 
 async function changeRegion(): Promise<void> {
