@@ -4,8 +4,6 @@ import type { Inquisition } from "@/types";
 await preloadComponents("DivsInvestigateDiv");
 await prefetchComponents("FormsInvestigationForm");
 
-const authFetch = useFetchAuth();
-
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
@@ -18,7 +16,7 @@ const investigations = ref<Inquisition[]>([]);
 const { refresh, status } = await useLazyAsyncData(
   "investigations",
   async () => {
-    investigations.value = (await authFetch(
+    investigations.value = (await useFetchAuth(
       "/route/items/investigations/" + candId.value
     )) as Inquisition[];
   }
@@ -27,7 +25,7 @@ const { refresh, status } = await useLazyAsyncData(
 async function submitInvestigations(form: Inquisition) {
   modal.value = false;
   pending.value = true;
-  const { message } = (await authFetch(
+  const { message } = (await useFetchAuth(
     "/route/items/investigations/" + candId.value,
     {
       method: "POST",
@@ -42,7 +40,7 @@ async function submitInvestigations(form: Inquisition) {
 
 async function deleteInquisition(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = (await authFetch(`/route/items/investigations/${id}`, {
+  const { message } = (await useFetchAuth(`/route/items/investigations/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
   if (message == "success") {

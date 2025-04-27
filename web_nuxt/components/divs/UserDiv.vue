@@ -3,8 +3,6 @@ import type { User } from "@/types";
 
 const toast = useToast();
 
-const authFetch = useFetchAuth();
-
 const region = ref("");
 const role = ref("");
 
@@ -34,7 +32,7 @@ async function userAction(item: string, id: string): Promise<void> {
     });
     return;
   }
-  const { message } = (await authFetch("/route/user/" + id, {
+  const { message } = (await useFetchAuth("/route/user/" + id, {
     params: {
       item: item,
     },

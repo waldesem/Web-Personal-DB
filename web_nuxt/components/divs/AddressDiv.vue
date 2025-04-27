@@ -3,8 +3,6 @@ import type { Address } from "@/types";
 
 await preloadComponents("DivsItemsAddressItem");
 
-const authFetch = useFetchAuth();
-
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
@@ -16,7 +14,7 @@ const addresses = ref<Address[]>([]);
 const index = ref(0);
 
 const { refresh, status } = await useLazyAsyncData("addresses", async () => {
-  addresses.value = (await authFetch(
+  addresses.value = (await useFetchAuth(
     "/route/items/addresses/" + candId.value
   )) as Address[];
 });
@@ -24,7 +22,7 @@ const { refresh, status } = await useLazyAsyncData("addresses", async () => {
 async function submitAddress(form: Address) {
   modal.value = false;
   pending.value = true;
-  const { message } = (await authFetch(
+  const { message } = (await useFetchAuth(
     `/route/items/addresses/${candId.value}`,
     {
       method: "POST",
@@ -40,7 +38,7 @@ async function submitAddress(form: Address) {
 async function deleteAddress(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   pending.value = true;
-  const { message } = (await authFetch(`/route/items/addresses/${id}`, {
+  const { message } = (await useFetchAuth(`/route/items/addresses/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
   pending.value = false;

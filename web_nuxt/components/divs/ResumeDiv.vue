@@ -5,8 +5,6 @@ await preloadComponents("DivsItemsResumeItem");
 
 const emit = defineEmits(["update"]);
 
-const authFetch = useFetchAuth();
-
 const status = inject("status") as Ref<string>;
 const person = inject("person") as Ref<Persons>;
 const editable = inject("editable") as Ref<boolean>;
@@ -19,7 +17,7 @@ const resume = ref({} as Persons);
 async function submitResume(form: Persons) {
   pending.value = true;
   modal.value = false;
-  const { message } = (await authFetch("/route/items/persons", {
+  const { message } = (await useFetchAuth("/route/items/persons", {
     method: "POST",
     body: form,
   })) as Record<string, string>;
@@ -34,7 +32,7 @@ async function deleteItem() {
     return;
   if (!confirm("Данные будут удалены безвозвратно!?")) return;
   pending.value = true;
-  const { message } = (await authFetch(
+  const { message } = (await useFetchAuth(
     `/route/items/persons/${person.value.id}`,
     {
       method: "DELETE",

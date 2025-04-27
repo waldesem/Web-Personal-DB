@@ -1,19 +1,17 @@
 <script setup lang="ts">
 import type { Message } from "@/types";
 
-const authFetch = useFetchAuth();
-
 const messages = ref([] as Message[]);
 const updated = ref(new Date());
 
 const { refresh, status } = await useLazyAsyncData("messages", async () => {
-  messages.value = (await authFetch("/route/messages")) as Message[];
+  messages.value = (await useFetchAuth("/route/messages")) as Message[];
   updated.value = new Date();
 });
 
 async function clearMessages() {
   if (confirm("Вы действительно хотите очистить сообщения?")) {
-    await authFetch("/route/messages", {
+    await useFetchAuth("/route/messages", {
       method: "DELETE",
     });
     messages.value = [];

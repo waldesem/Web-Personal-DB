@@ -3,8 +3,6 @@ import type { Affilation } from "@/types";
 
 await preloadComponents("DivsItemsAffilItem");
 
-const authFetch = useFetchAuth();
-
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
@@ -16,7 +14,7 @@ const affilations = ref<Affilation[]>([]);
 const index = ref(0);
 
 const { refresh, status } = await useLazyAsyncData("affilations", async () => {
-  affilations.value = (await authFetch(
+  affilations.value = (await useFetchAuth(
     "/route/items/affilations/" + candId.value
   )) as Affilation[];
 });
@@ -24,7 +22,7 @@ const { refresh, status } = await useLazyAsyncData("affilations", async () => {
 async function submitAffilation(form: Affilation) {
   modal.value = false;
   pending.value = true;
-  const { message } = (await authFetch(
+  const { message } = (await useFetchAuth(
     `/route/items/affilations/${candId.value}`,
     {
       method: "POST",
@@ -40,7 +38,7 @@ async function submitAffilation(form: Affilation) {
 async function deleteAffilation(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   pending.value = true;
-  const { message } = (await authFetch(`/route/items/affilations/${id}`, {
+  const { message } = (await useFetchAuth(`/route/items/affilations/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
   pending.value = false;

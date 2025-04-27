@@ -3,8 +3,6 @@ import type { Passport } from "@/types";
 
 await preloadComponents("DivsItemsDocumItem");
 
-const authFetch = useFetchAuth();
-
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
@@ -16,7 +14,7 @@ const documents = ref<Passport[]>([]);
 const index = ref(0);
 
 const { refresh, status } = await useLazyAsyncData("documents", async () => {
-  documents.value = (await authFetch(
+  documents.value = (await useFetchAuth(
     "/route/items/documents/" + candId.value
   )) as Passport[];
 });
@@ -24,7 +22,7 @@ const { refresh, status } = await useLazyAsyncData("documents", async () => {
 async function submitDocument(form: Passport) {
   modal.value = false;
   pending.value = true;
-  const { message } = (await authFetch(
+  const { message } = (await useFetchAuth(
     `/route/items/documents/${candId.value}`,
     {
       method: "POST",
@@ -40,7 +38,7 @@ async function submitDocument(form: Passport) {
 async function deleteDocument(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   pending.value = true;
-  const { message } = (await authFetch(`/route/items/documents/${id}`, {
+  const { message } = (await useFetchAuth(`/route/items/documents/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
   pending.value = false;

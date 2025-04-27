@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { Relation, Relationship } from "@/types";
 
-const authFetch = useFetchAuth();
-
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
@@ -14,7 +12,7 @@ const relationships = ref([] as Relationship[]);
 const index = ref(0);
 
 const { refresh, status } = await useLazyAsyncData("relations", async () => {
-  [relations.value, relationships.value] = (await authFetch(
+  [relations.value, relationships.value] = (await useFetchAuth(
     "/route/items/relations/" + candId.value
   )) as [Relation[], Relationship[]];
 });
@@ -22,7 +20,7 @@ const { refresh, status } = await useLazyAsyncData("relations", async () => {
 async function submitRelation(form: Relation) {
   modal.value = false;
   pending.value = true;
-  const { message } = (await authFetch(
+  const { message } = (await useFetchAuth(
     `/route/items/relations/${candId.value}`,
     {
       method: "POST",
@@ -36,7 +34,7 @@ async function submitRelation(form: Relation) {
 
 async function deleteRelation(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = (await authFetch(
+  const { message } = (await useFetchAuth(
     `/route/items/relations/${candId.value}/${id}`,
     {
       method: "DELETE",

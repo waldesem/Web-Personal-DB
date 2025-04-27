@@ -4,8 +4,6 @@ import { watchDebounced, useFileDialog } from "@vueuse/core";
 
 preloadRouteComponents("/profile/[id]");
 
-const authFetch = useFetchAuth();
-
 const toast = useToast();
 
 const search = ref("");
@@ -20,7 +18,7 @@ const candidates = ref([] as Persons[]);
 const { refresh, status } = await useLazyAsyncData(
   "candidates",
   async () => {
-    const { results, has_next } = (await authFetch(
+    const { results, has_next } = (await useFetchAuth(
       "/route/index/" + page.value,
       {
         params: {
@@ -101,7 +99,7 @@ onChange(async (files) => {
   upload.value = true;
   const formData = new FormData();
   formData.append("file", files[0]);
-  const { person_id, exists } = (await authFetch("/route/anketa/json", {
+  const { person_id, exists } = (await useFetchAuth("/route/anketa/json", {
     method: "POST",
     body: formData,
   })) as {
@@ -120,7 +118,7 @@ onCancel(() => {
 async function submitResume(form: Persons): Promise<void> {
   upload.value = true;
   modal.value = false;
-  const { person_id, exists } = (await authFetch("/route/anketa/resume", {
+  const { person_id, exists } = (await useFetchAuth("/route/anketa/resume", {
     method: "POST",
     body: form,
   })) as {

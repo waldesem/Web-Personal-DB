@@ -3,8 +3,6 @@ import type { Work } from "@/types";
 
 await preloadComponents("DivsItemsWorkItem");
 
-const authFetch = useFetchAuth();
-
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
@@ -16,7 +14,7 @@ const workplaces = ref<Work[]>([]);
 const index = ref(0);
 
 const { refresh, status } = await useLazyAsyncData("workplaces", async () => {
-  workplaces.value = (await authFetch(
+  workplaces.value = (await useFetchAuth(
     "/route/items/workplaces/" + candId.value
   )) as Work[];
 });
@@ -24,7 +22,7 @@ const { refresh, status } = await useLazyAsyncData("workplaces", async () => {
 async function submitWork(form: Work) {
   modal.value = false;
   pending.value = true;
-  const { message } = (await authFetch(
+  const { message } = (await useFetchAuth(
     `/route/items/workplaces/${candId.value}`,
     {
       method: "POST",
@@ -40,7 +38,7 @@ async function submitWork(form: Work) {
 async function deleteWork(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   pending.value = true;
-  const { message } = (await authFetch(`/route/items/workplaces/${id}`, {
+  const { message } = (await useFetchAuth(`/route/items/workplaces/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
   pending.value = false;

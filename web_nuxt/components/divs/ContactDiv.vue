@@ -3,8 +3,6 @@ import type { Contact } from "@/types";
 
 await preloadComponents("DivsItemsContactItem");
 
-const authFetch = useFetchAuth();
-
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
@@ -16,7 +14,7 @@ const contacts = ref<Contact[]>([]);
 const index = ref(0);
 
 const { refresh, status } = await useLazyAsyncData("contacts", async () => {
-  contacts.value = (await authFetch(
+  contacts.value = (await useFetchAuth(
     "/route/items/contacts/" + candId.value
   )) as Contact[];
 });
@@ -24,7 +22,7 @@ const { refresh, status } = await useLazyAsyncData("contacts", async () => {
 async function submitContact(form: Contact) {
   modal.value = false;
   pending.value = true;
-  const { message } = (await authFetch(
+  const { message } = (await useFetchAuth(
     `/route/items/contacts/${candId.value}`,
     {
       method: "POST",
@@ -40,7 +38,7 @@ async function submitContact(form: Contact) {
 async function deleteContact(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   pending.value = true;
-  const { message } = (await authFetch(`/route/items/contacts/${id}`, {
+  const { message } = (await useFetchAuth(`/route/items/contacts/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
   pending.value = false;

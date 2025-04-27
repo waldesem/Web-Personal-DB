@@ -3,8 +3,6 @@ import type { Previous } from "@/types";
 
 await preloadComponents("DivsItemsPrevItem");
 
-const authFetch = useFetchAuth();
-
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
@@ -16,7 +14,7 @@ const previous = ref<Previous[]>([]);
 const index = ref(0);
 
 const { refresh, status } = await useLazyAsyncData("previous", async () => {
-  previous.value = (await authFetch(
+  previous.value = (await useFetchAuth(
     "/route/items/previous/" + candId.value
   )) as Previous[];
 });
@@ -24,7 +22,7 @@ const { refresh, status } = await useLazyAsyncData("previous", async () => {
 async function submitPrevious(form: Previous) {
   modal.value = false;
   pending.value = true;
-  const { message } = (await authFetch(
+  const { message } = (await useFetchAuth(
     `/route/items/previous/${candId.value}`,
     {
       method: "POST",
@@ -40,7 +38,7 @@ async function submitPrevious(form: Previous) {
 async function deletePrevious(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   pending.value = true;
-  const { message } = (await authFetch(`/route/items/previous/${id}`, {
+  const { message } = (await useFetchAuth(`/route/items/previous/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
   pending.value = false;

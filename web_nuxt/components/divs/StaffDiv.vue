@@ -3,8 +3,6 @@ import type { Staff } from "@/types";
 
 await preloadComponents("DivsItemsStaffItem");
 
-const authFetch = useFetchAuth();
-
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
@@ -16,7 +14,7 @@ const staffs = ref<Staff[]>([]);
 const index = ref(0);
 
 const { refresh, status } = await useLazyAsyncData("staffs", async () => {
-  staffs.value = (await authFetch(
+  staffs.value = (await useFetchAuth(
     "/route/items/staffs/" + candId.value
   )) as Staff[];
 });
@@ -24,7 +22,7 @@ const { refresh, status } = await useLazyAsyncData("staffs", async () => {
 async function submitStaff(form: Staff) {
   modal.value = false;
   pending.value = true;
-  const { message } = (await authFetch(`/route/items/staffs/${candId.value}`, {
+  const { message } = (await useFetchAuth(`/route/items/staffs/${candId.value}`, {
     method: "POST",
     body: form,
   })) as Record<string, string>;
@@ -37,7 +35,7 @@ async function submitStaff(form: Staff) {
 async function deleteStaff(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   pending.value = true;
-  const { message } = (await authFetch(`/route/items/staffs/${id}`, {
+  const { message } = (await useFetchAuth(`/route/items/staffs/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
   pending.value = false;

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-const authFetch = useFetchAuth();
 
 const toast = useToast();
 
@@ -41,7 +40,7 @@ const validate = (state: Partial<UserForm>) => {
 };
 
 async function submitUser() {
-  const { message } = (await authFetch("/route/user", {
+  const { message } = (await useFetchAuth("/route/user", {
     method: "POST",
     body: form.value,
   })) as Record<string, string>;

@@ -8,21 +8,18 @@ export const accessToken = useStorageAsync("accessToken", "", localStorage, {
 
 export const stateUser = ref({} as Token);
 
-export const useFetchAuth = () => {
-  const fetchAuth = async (
-    url: string,
-    options: NitroFetchOptions<ResponseType, Method> = {}
-  ) => {
-    options.headers = {
-      ...options.headers,
-      Authorization: `${accessToken.value}`,
-    };
-    try {
-      return await $fetch(url, options);
-    } catch (error) {
-      console.error(error);
-      return navigateTo("/login");
-    }
+export const useFetchAuth = async (
+  url: string,
+  options: NitroFetchOptions<ResponseType, Method> = {}
+) => {
+  options.headers = {
+    ...options.headers,
+    Authorization: `${accessToken.value}`,
   };
-  return fetchAuth;
+  try {
+    return await $fetch(url, options);
+  } catch (error) {
+    console.error(error);
+    return navigateTo("/login");
+  }
 };

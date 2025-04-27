@@ -4,8 +4,6 @@ import type { Verification } from "@/types";
 await preloadComponents("DivsCheckDiv");
 await prefetchComponents("FormsCheckForm");
 
-const authFetch = useFetchAuth();
-
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
@@ -16,7 +14,7 @@ const check = ref({} as Verification);
 const checks = ref<Verification[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("checks", async () => {
-  checks.value = (await authFetch(
+  checks.value = (await useFetchAuth(
     `/route/items/checks/${candId.value}`
   )) as Verification[];
 });
@@ -24,7 +22,7 @@ const { refresh, status } = await useLazyAsyncData("checks", async () => {
 async function submitCheck(form: Verification) {
   modal.value = false;
   pending.value = true;
-  const { message } = (await authFetch(`/route/items/checks/${candId.value}`, {
+  const { message } = (await useFetchAuth(`/route/items/checks/${candId.value}`, {
     method: "POST",
     body: form,
   })) as Record<string, string>;
@@ -36,7 +34,7 @@ async function submitCheck(form: Verification) {
 
 async function deleteCheck(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = (await authFetch(`/route/items/checks/${id}`, {
+  const { message } = (await useFetchAuth(`/route/items/checks/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
   if (message == "success") {

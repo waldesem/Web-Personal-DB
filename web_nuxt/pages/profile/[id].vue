@@ -11,8 +11,6 @@ await preloadComponents([
   "ElementsTabMenu"
 ]);
 
-const authFetch = useFetchAuth();
-
 const route = useRoute();
 
 const candId = computed(() => route.params.id) as Ref<string>;
@@ -24,7 +22,7 @@ const pending = ref(false);
 const region = ref("");
 
 const { refresh, status } = await useLazyAsyncData("anketa", async () => {
-  person.value = (await authFetch(
+  person.value = (await useFetchAuth(
     "/route/items/persons/" + candId.value
   )) as Persons;
 });
@@ -89,7 +87,7 @@ async function switchSelf(): Promise<void> {
     return;
   }
   pending.value = true;
-  person.value = (await authFetch(
+  person.value = (await useFetchAuth(
     "/route/anketa/self/" + candId.value
   )) as Persons;
   pending.value = false;
@@ -104,7 +102,7 @@ async function changeRegion(): Promise<void> {
     return;
   }
   pending.value = true;
-  const { message } = (await authFetch(`/route/anketa/region/${candId.value}`, {
+  const { message } = (await useFetchAuth(`/route/anketa/region/${candId.value}`, {
     params: {
       region: region.value,
     },

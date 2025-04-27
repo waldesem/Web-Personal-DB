@@ -4,8 +4,6 @@ import type { Needs } from "@/types";
 await preloadComponents("DivsInquiryDiv");
 await prefetchComponents("FormsInquiryForm");
 
-const authFetch = useFetchAuth();
-
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
@@ -16,7 +14,7 @@ const need = ref({} as Needs);
 const inquiries = ref<Needs[]>([]);
 
 const { refresh, status } = await useLazyAsyncData("inquiries", async () => {
-  inquiries.value = (await authFetch(
+  inquiries.value = (await useFetchAuth(
     `/route/items/inquiries/${candId.value}`
   )) as Needs[];
 });
@@ -24,7 +22,7 @@ const { refresh, status } = await useLazyAsyncData("inquiries", async () => {
 async function submitIquiry(form: Needs) {
   modal.value = false;
   pending.value = true;
-  const { message } = (await authFetch(
+  const { message } = (await useFetchAuth(
     `/route/items/inquiries/${candId.value}`,
     {
       method: "POST",
@@ -39,7 +37,7 @@ async function submitIquiry(form: Needs) {
 
 async function deleteNeed(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = (await authFetch(`/route/items/inquiries/${id}`, {
+  const { message } = (await useFetchAuth(`/route/items/inquiries/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
   if (message == "success") {

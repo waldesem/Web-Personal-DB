@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { Files, Folders } from "@/types";
 
-const authFetch = useFetchAuth();
-
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
@@ -15,7 +13,7 @@ const pending = ref(false);
 const { status } = await useLazyAsyncData(
   "explorer",
   async () => {
-    const { path, folders, files } = (await authFetch(
+    const { path, folders, files } = (await useFetchAuth(
       "/route/explorer/folder/" + candId.value,
       {
         params: {
@@ -36,7 +34,7 @@ const { status } = await useLazyAsyncData(
 
 async function openFile(path: string, name: string) {
   pending.value = true;
-  const file = (await authFetch("/route/explorer/file", {
+  const file = (await useFetchAuth("/route/explorer/file", {
     params: {
       path: path,
     },

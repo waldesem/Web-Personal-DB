@@ -1,5 +1,4 @@
 <script setup lang="ts">
-const authFetch = useFetchAuth();
 
 const region = ref(stateUser.value.region);
 const start = ref(new Date().toISOString().split("T")[0].slice(0, 8) + "01");
@@ -12,7 +11,7 @@ const stat = ref([] as Record<string, string>[]);
 const { status } = await useLazyAsyncData(
   "stats",
   async () => {
-    stat.value = (await authFetch("/route/info", {
+    stat.value = (await useFetchAuth("/route/info", {
       params: {
         start: start.value,
         end: end.value,

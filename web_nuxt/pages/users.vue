@@ -3,8 +3,6 @@ import type { TableColumn } from "@nuxt/ui";
 import { watchDebounced } from "@vueuse/core";
 import type { User } from "@/types";
 
-const fetchAuth = useFetchAuth();
-
 const search = ref("");
 const users = ref([] as User[]);
 const user = ref({} as User);
@@ -22,7 +20,7 @@ const filtredUsers = computed(() => {
 });
 
 const { refresh, status } = await useLazyAsyncData("users", async () => {
-  const data = (await fetchAuth("/route/users", {
+  const data = (await useFetchAuth("/route/users", {
     params: {
       search: search.value,
     },
@@ -31,7 +29,7 @@ const { refresh, status } = await useLazyAsyncData("users", async () => {
 });
 
 async function getUser(id: string): Promise<void> {
-  user.value = (await fetchAuth("/route/user/" + id)) as User;
+  user.value = (await useFetchAuth("/route/user/" + id)) as User;
   modalProfile.value = true;
 }
 

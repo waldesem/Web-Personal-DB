@@ -3,8 +3,6 @@ import type { Education } from "@/types";
 
 await preloadComponents("DivsItemsEducateItem");
 
-const authFetch = useFetchAuth();
-
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
@@ -16,7 +14,7 @@ const educations = ref<Education[]>([]);
 const index = ref(0);
 
 const { refresh, status } = await useLazyAsyncData("educations", async () => {
-  educations.value = (await authFetch(
+  educations.value = (await useFetchAuth(
     "/route/items/educations/" + candId.value
   )) as Education[];
 });
@@ -24,7 +22,7 @@ const { refresh, status } = await useLazyAsyncData("educations", async () => {
 async function submitEducation(form: Education) {
   modal.value = false;
   pending.value = true;
-  const { message } = (await authFetch(
+  const { message } = (await useFetchAuth(
     `/route/items/educations/${candId.value}`,
     {
       method: "POST",
@@ -40,7 +38,7 @@ async function submitEducation(form: Education) {
 async function deleteEducation(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   pending.value = true;
-  const { message } = (await authFetch(`/route/items/educations/${id}`, {
+  const { message } = (await useFetchAuth(`/route/items/educations/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
   pending.value = false;
