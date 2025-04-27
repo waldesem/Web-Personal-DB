@@ -1,14 +1,24 @@
 <script setup lang="ts">
 useHead({
+  charset: "utf-8",
+  htmlAttrs: { lang: "ru" },
   title: "StaffSec - кадровая безопасность",
-  meta: [{ name: "description", content: "Кадровая безопасность" }],
+  meta: [
+    { name: "description", content: "Кадровая безопасность" },
+    { name: "viewport", content: "width=device-width, initial-scale=1" },
+  ],
+  link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
 });
+
+preloadRouteComponents("/persons");
+
+await navigateTo("/persons");
 </script>
 
 <template>
   <UApp>
     <NuxtLayout>
-      <NuxtPage />
+      <NuxtPage :transition="true" />
     </NuxtLayout>
   </UApp>
 </template>
@@ -27,11 +37,6 @@ body {
 }
 .page-enter-from,
 .page-leave-to {
-  opacity: 0;
-}
-.slide-fade-enter-from,
-.slide-fade-leave-to {
-  transform: translateX(10px);
   opacity: 0;
 }
 </style>

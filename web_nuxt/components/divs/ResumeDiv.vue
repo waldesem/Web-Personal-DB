@@ -47,7 +47,7 @@ async function deleteItem() {
 <template>
   <UCard
     class="my-2 mx-1"
-    :class="{ 'animate-pulse': status == 'pending' || pending }"
+    :class="{ 'animate-pulse': pending }"
   >
     <USwitch
       v-if="editable"
@@ -56,7 +56,7 @@ async function deleteItem() {
       size="xs"
       class="mb-2 me-2 justify-end"
     />
-    <div v-if="pending || status === 'pending'">
+    <div v-if="status === 'pending'">
       <div v-for="i in 14" :key="i" class="flex grid grid-cols-12 gap-3 mb-3">
         <div class="col-span-3">
           <USkeleton class="h-4" />

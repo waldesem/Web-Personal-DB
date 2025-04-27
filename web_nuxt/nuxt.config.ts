@@ -6,13 +6,6 @@ export default defineNuxtConfig({
   ssr: false,
   app: {
     pageTransition: { name: "page", mode: "out-in" },
-    head: {
-      htmlAttrs: { lang: "ru" },
-      meta: [
-        { name: "viewport", content: "width=device-width, initial-scale=1" },
-        { charset: "utf-8" },
-      ],
-    },
   },
   alias: {
     "@/": fileURLToPath(new URL("./src", import.meta.url)),
@@ -24,7 +17,6 @@ export default defineNuxtConfig({
     output: {
       publicDir: "../server_flask/app/static",
     },
-    minify: true,
   },
   vite: {
     build: {

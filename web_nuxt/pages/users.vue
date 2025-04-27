@@ -63,7 +63,7 @@ const columns: TableColumn<User>[] = [
       <h3 class="text-2xl text-gray-800 font-bold">ПОЛЬЗОВАТЕЛИ</h3>
     </div>
     <div class="my-6">
-      <UInput v-model="search" placeholder="Поиск по имени пользователя" />
+      <UInput v-model="search" placeholder="Поиск по имени пользователя" type="search" />
     </div>
     <div class="flex items-center justify-between mb-4">
       <UFormField class="flex items-center space-x-4 mb-3" label="Удаленные">

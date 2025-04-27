@@ -20,7 +20,6 @@ await preloadComponents([
   "DivsContactDiv",
   "DivsRelateDiv",
   "DivsAffilDiv",
-  "ElementsDivMenu",
 ]);
 
 const emit = defineEmits(["update"]);

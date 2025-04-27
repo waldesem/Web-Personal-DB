@@ -12,7 +12,7 @@ const loginAction = ref("login");
 const loginForm = ref({} as Login);
 
 const alert = ref({
-  color: "success",
+  color: "primary",
   title: "Информация",
   description: "Введите логин и пароль",
 });
@@ -63,14 +63,14 @@ async function submitLogin(): Promise<void> {
   } else if (message === "Updated") {
     loginAction.value = "login";
     Object.assign(alert.value, {
-      color: "secondary",
+      color: "success",
       title: "Информация",
       description: "Войдите с новым паролем.",
     });
   } else if (message === "Denied") {
     loginAction.value = "update";
     Object.assign(alert.value, {
-      color: "error",
+      color: "warning",
       title: "Предупреждение",
       description: "Пароль просрочен.",
     });

@@ -8,11 +8,9 @@ await preloadComponents([
   "TabsInvestigateTab",
   "TabsInquiryTab",
   "TabsExplorerTab",
-  "ElementsTabMenu"
 ]);
 
 const route = useRoute();
-
 const candId = computed(() => route.params.id) as Ref<string>;
 
 provide("candId", candId);
