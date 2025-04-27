@@ -24,7 +24,6 @@ export default defineNuxtConfig({
     output: {
       publicDir: "../server_flask/app/static",
     },
-    compressPublicAssets: true,
     minify: true,
   },
   vite: {
