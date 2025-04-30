@@ -173,24 +173,24 @@ async function changeRegion(): Promise<void> {
         </UTooltip>
       </div>
     </div>
-    <UTabs :items="tabs" variant="link" class="gap-4 w-full" :ui="{ trigger: 'flex-1' }">
+    <UTabs :unmount-on-hide="false" :items="tabs" variant="link" class="gap-4 w-full" :ui="{ trigger: 'flex-1' }">
       <template #anketaTab>
-        <TabsAnketaTab :unmount-on-hide="false" @update="refresh()" />
+        <TabsAnketaTab @update="refresh()" />
       </template>
       <template #checkTab>
-        <TabsCheckTab :unmount-on-hide="false"/>
+        <TabsCheckTab />
       </template>
       <template #poligrafTab>
-        <TabsPoligrafTab :unmount-on-hide="false"/>
+        <TabsPoligrafTab />
       </template>
       <template #investigateTab>
-        <TabsInvestigateTab :unmount-on-hide="false"/>
+        <TabsInvestigateTab />
       </template>
       <template #inquiryTab>
-        <TabsInquiryTab :unmount-on-hide="false"/>
+        <TabsInquiryTab />
       </template>
       <template #explorerTab>
-        <TabsExplorerTab :unmount-on-hide="false"/>
+        <TabsExplorerTab />
       </template>
     </UTabs>
   </div>
