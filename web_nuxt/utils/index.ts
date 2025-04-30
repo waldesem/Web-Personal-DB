@@ -10,15 +10,15 @@ export function emitMessage(message: string) {
   if (message == "success") {
     toast.add({
       icon: "i-heroicons-information-circle",
-      title: "Информация",
+      title: "Успешно",
       description: "Информация обновлена",
       color: "success",
     });
   } else {
     toast.add({
       icon: "i-heroicons-exclamation-triangle",
-      title: "Внимание",
-      description: "Ошибка обновления информации",
+      title: "Ошибка",
+      description: "Невозможно выполнить действие",
       color: "error",
     });
   }
