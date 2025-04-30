@@ -55,7 +55,8 @@ def upload_resume(resume: dict) -> tuple[int, bool]:
             return None, True
 
         for k, v in resume.items():
-            setattr(person, k, v)
+            if not getattr(person, k)
+                setattr(person, k, v)
         db_session.commit()
     except SQLAlchemyError:
         current_app.logger.exception("Database error")
