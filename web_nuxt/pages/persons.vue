@@ -187,14 +187,8 @@ async function submitResume(form: Persons): Promise<void> {
     </div>
     <UTable
       :loading="status == 'pending' || upload"
-      :loading-state="{
-        icon: 'i-heroicons-arrow-path-20-solid',
-        label: 'Загрузка...',
-      }"
-      :empty-state="{
-        icon: 'i-heroicons-circle-stack-20-solid',
-        label: 'Данные не найдены.',
-      }"
+      loading-animation="carousel"
+      empty="Данные не найдены"
       :columns="[
         { accessorKey: 'id', header: '#' },
         { accessorKey: 'region', header: 'Регион' },
