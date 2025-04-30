@@ -69,7 +69,7 @@ const emit = defineEmits(["update"]);
     ]"
     :key="idx"
   >
-    <UCollapsible class="m-2">
+    <UCollapsible :unmount-on-hide="false" class="m-2">
       <UButton
         :label="items.label as string"
         :icon="items.icon as string"
