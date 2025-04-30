@@ -51,7 +51,7 @@ def upload_resume(resume: dict) -> tuple[int, bool]:
             db_session.commit()
             return person.id, False
 
-        if person.region != resume["region"] or person.user_id != resume["user_id"]:
+        if person.region != resume["region"] or person.editable:
             return None, True
 
         for k, v in resume.items():
