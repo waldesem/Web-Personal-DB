@@ -68,8 +68,8 @@ function sendMessage(person_id: string, exists: boolean) {
     } else {
       toast.add({
         icon: "i-heroicons-information-circle",
-        title: "Внимание",
-        description: "Анкета успешно загружена.",
+        title: "Успех",
+        description: "Анкета загружена.",
         color: "success",
       });
     }
@@ -86,7 +86,7 @@ function sendMessage(person_id: string, exists: boolean) {
     } else {
       toast.add({
         icon: "i-heroicons-information-circle",
-        title: "Внимание",
+        title: "Ошибка",
         description: "Невозможно выполнить действие",
         color: "error",
       });
