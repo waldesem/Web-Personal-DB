@@ -175,22 +175,22 @@ async function changeRegion(): Promise<void> {
     </div>
     <UTabs :items="tabs" variant="link" class="gap-4 w-full" :ui="{ trigger: 'flex-1' }">
       <template #anketaTab>
-        <TabsAnketaTab @update="refresh()" />
+        <TabsAnketaTab :unmount-on-hide="false" @update="refresh()" />
       </template>
       <template #checkTab>
-        <TabsCheckTab />
+        <TabsCheckTab :unmount-on-hide="false"/>
       </template>
       <template #poligrafTab>
-        <TabsPoligrafTab />
+        <TabsPoligrafTab :unmount-on-hide="false"/>
       </template>
       <template #investigateTab>
-        <TabsInvestigateTab />
+        <TabsInvestigateTab :unmount-on-hide="false"/>
       </template>
       <template #inquiryTab>
-        <TabsInquiryTab />
+        <TabsInquiryTab :unmount-on-hide="false"/>
       </template>
       <template #explorerTab>
-        <TabsExplorerTab />
+        <TabsExplorerTab :unmount-on-hide="false"/>
       </template>
     </UTabs>
   </div>
