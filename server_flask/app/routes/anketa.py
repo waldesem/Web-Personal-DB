@@ -109,7 +109,6 @@ def change_region(person_id: int, query_data: Region) -> Response:
         return jsonify({"message": "success"}), 201
     except shutil.Error:
         current_app.logger.exception("Exception in change_region")
-        db_session.rollback()
     return jsonify({"message": "error"}), 200
 
 

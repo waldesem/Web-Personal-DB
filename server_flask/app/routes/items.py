@@ -216,6 +216,8 @@ bp.add_url_rule(
 class ItemsView(MethodView):
     """Items view."""
 
+    tables = Base.metadata.tables
+
     @jwt_required()
     def get(self, item: str, item_id: int) -> Response:
         """Retrieve an item from the database based on the provided item ID.
@@ -229,9 +231,10 @@ class ItemsView(MethodView):
             the retrieved item(s) and an HTTP status code of 200.
 
         """
-        table = Base.metadata.tables.get(item)
-        stmt = table.select().filter(table.c.person_id == item_id)
-        query = db_session.execute(stmt.order_by(desc(table.c.id)))
+        stmt = (
+            self.tables[item].select().filter(self.tables[item].c.person_id == item_id)
+        )
+        query = db_session.execute(stmt.order_by(desc(self.tables[item].c.id)))
         return jsonify([row._asdict() for row in query])
 
     @validate()
@@ -249,18 +252,19 @@ class ItemsView(MethodView):
             code of 201.
 
         """
-        table = Base.metadata.tables.get(item)
-        json_dict = json_data.dict() | {
-            "person_id": item_id,
-            "user_id": current_user.id,
-        }
-        table_id = json_dict.pop("id", None)
+        json_dict = json_data.dict()
+        json_dict["person_id"] = item_id
+        json_dict["user_id"] = current_user.id
         try:
-            stmt = (
-                table.update().where(table.c.id == table_id).values(json_dict)
-                if table_id
-                else table.insert().values(json_dict)
-            )
+            if table_id := json_dict.pop("id", None):
+                stmt = (
+                    self.tables[item]
+                    .update()
+                    .where(self.tables[item].c.id == table_id)
+                    .values(json_dict)
+                )
+            else:
+                stmt = self.tables[item].insert().values(json_dict)
             db_session.execute(stmt)
             db_session.commit()
             return jsonify({"message": "success"}), 201
@@ -283,8 +287,9 @@ class ItemsView(MethodView):
 
         """
         try:
-            table = Base.metadata.tables.get(item)
-            db_session.execute(table.delete().where(table.c.id == item_id))
+            db_session.execute(
+                self.tables[item].delete().where(self.tables[item].c.id == item_id),
+            )
             db_session.commit()
             return jsonify({"message": "success"}), 201
         except SQLAlchemyError:

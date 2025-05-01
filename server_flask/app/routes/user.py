@@ -30,9 +30,8 @@ def get_users() -> Response:
 
     """
     stmt = select(Users)
-    search = request.args.get("search")
-    if search and len(search) > 2:  # noqa: PLR2004
-        if re.match(r"^[a-zA-z_]+", search):
+    if search := request.args.get("search"):
+        if re.match(r"^[A-z_]{3,}", search):
             stmt = stmt.filter(
                 func.lower(Users.username) == search.lower(),
             )

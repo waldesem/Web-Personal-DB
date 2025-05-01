@@ -25,24 +25,21 @@ def get_index(page: int) -> Response:
 
     """
     pagination = 11
-    search = request.args.get("search")
-    editable = request.args.get("editable")
-    editable = editable == "true"
     stmt = select(Persons, Users.fullname).filter(
         Persons.user_id == Users.id,
         Persons.region == current_user.region
         if current_user.region != Regions.main.value
         else True,
     )
-    if search:
-        search = search.upper().split()[:3]
+    if search := request.args.get("search"):
+        s = search.upper().split()[:3]
         stmt = stmt.filter(
-            Persons.surname == search[0],
-            Persons.firstname == search[1] if len(search) > 1 else True,
-            Persons.patronymic == search[2] if len(search) > 2 else True,  # noqa: PLR2004
+            Persons.surname == s[0],
+            Persons.firstname == s[1] if len(s) > 1 else True,
+            Persons.patronymic == s[2] if len(s) > 2 else True,  # noqa: PLR2004
         )
-    if editable:
-        stmt = stmt.filter(Persons.editable == editable)
+    if request.args.get("editable") == "true":
+        stmt = stmt.filter(Persons.editable is True)
     query = db_session.execute(
         stmt.order_by(desc(Persons.id))
         .offset((page - 1) * pagination)

@@ -45,8 +45,7 @@ def start_browser(address: str, port: int) -> None:
         "windows": find_browser_on_windows,
         "linux": find_browser_on_linux,
     }
-    browser_path = browser_path_dispacher.get(platform.system().lower())
-    if browser_path:
+    if browser_path := browser_path_dispacher.get(platform.system().lower()):
         subprocess.Popen(  # noqa: S603
             [
                 browser_path(),
