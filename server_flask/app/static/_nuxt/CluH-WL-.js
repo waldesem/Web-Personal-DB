@@ -1,1 +1,0 @@
-import{d as t,c as l,o as c,a as s,t as n,p as r}from"./CMX5rsSJ.js";const d={class:"flex grid grid-cols-12 gap-3 mb-3"},p={class:"col-span-3"},i={class:"col-span-9 break-words"},f=t({__name:"LabelSlot",props:{label:{type:String,default:""}},setup(e){const o=e;return(a,_)=>(c(),l("div",d,[s("div",p,n(o.label),1),s("div",i,[r(a.$slots,"default")])]))}});export{f as _};

@@ -7,7 +7,6 @@ await prefetchComponents("FormsInvestigationForm");
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
-const edit = ref(false);
 const modal = ref(false);
 const pending = ref(false);
 const inquisition = ref({} as Inquisition);
@@ -52,6 +51,7 @@ async function deleteInquisition(id: string, idx: number) {
 
 <template>
   <UCard
+    :variant="status == 'pending' || pending ? 'soft' : 'outline'"
     class="my-2 mx-1"
     :class="{ 'animate-pulse': status == 'pending' || pending }"
   >
@@ -61,10 +61,6 @@ async function deleteInquisition(id: string, idx: number) {
         variant="ghost"
         icon="i-heroicons-plus-circle"
         @click="modal = !modal"
-      />
-      <USwitch
-        v-model="edit"
-        :label="edit ? 'Отключить редактирование' : 'Включить редактирование'"
       />
     </div>
     <UModal
@@ -87,10 +83,16 @@ async function deleteInquisition(id: string, idx: number) {
         </UCard>
       </template>
     </UModal>
-    <UCard v-for="(item, index) in investigations" :key="item.id" class="m-2">
+    <UCard
+      v-for="(item, index) in investigations"
+      :key="item.id"
+      :variant="status == 'pending' || pending ? 'soft' : 'outline'"
+      class="m-2"
+    >
       <DivsInvestigateDiv :item="item" />
-      <template v-if="edit" #footer>
+      <template v-if="editable" #footer>
         <ElementsTabMenu
+          v-if="investigations.length > 0 && (status != 'pending' || !pending)"
           :item="'investigations'"
           @cancel="modal = false"
           @delete="deleteInquisition(item.id, index)"
@@ -101,5 +103,11 @@ async function deleteInquisition(id: string, idx: number) {
         />
       </template>
     </UCard>
+    <div v-if="!investigations.length" class="flex justify-center text-red-800">
+      <div v-if="status == 'pending' || pending">
+        <UIcon name="i-heroicons-arrow-path" class="animate-spin w-8 h-8" />
+      </div>
+      <div v-else>Данные отсутствуют</div>
+    </div>
   </UCard>
 </template>

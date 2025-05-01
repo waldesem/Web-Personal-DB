@@ -7,7 +7,6 @@ await prefetchComponents("FormsCheckForm");
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
-const edit = ref(false);
 const modal = ref(false);
 const pending = ref(false);
 const check = ref({} as Verification);
@@ -22,10 +21,13 @@ const { refresh, status } = await useLazyAsyncData("checks", async () => {
 async function submitCheck(form: Verification) {
   modal.value = false;
   pending.value = true;
-  const { message } = (await useFetchAuth(`/route/items/checks/${candId.value}`, {
-    method: "POST",
-    body: form,
-  })) as Record<string, string>;
+  const { message } = (await useFetchAuth(
+    `/route/items/checks/${candId.value}`,
+    {
+      method: "POST",
+      body: form,
+    }
+  )) as Record<string, string>;
   pending.value = false;
   check.value = {} as Verification;
   await refresh();
@@ -46,22 +48,10 @@ async function deleteCheck(id: string, idx: number) {
 
 <template>
   <UCard
+    :variant="status == 'pending' || pending ? 'soft' : 'outline'"
     class="my-2 mx-1"
     :class="{ 'animate-pulse': status == 'pending' || pending }"
-  >
-    <div v-if="editable" class="flex justify-between mb-1 me-2">
-      <UButton
-        :loading="status == 'pending' || pending"
-        label="Добавить запись"
-        variant="ghost"
-        icon="i-heroicons-plus-circle"
-        @click="modal = !modal"
-      />
-      <USwitch
-        v-model="edit"
-        :label="edit ? 'Отключить редактирование' : 'Включить редактирование'"
-      />
-    </div>
+  > 
     <UModal
       v-model:open="modal"
       :ui="{ content: 'sm:max-w-4xl overflow-y-auto' }"
@@ -82,10 +72,23 @@ async function deleteCheck(id: string, idx: number) {
         </UCard>
       </template>
     </UModal>
-    <UCard v-for="(item, index) in checks" :key="item.id" class="m-2">
+    <UButton
+      :loading="status == 'pending' || pending"
+      label="Добавить запись"
+      variant="ghost"
+      icon="i-heroicons-plus-circle"
+      @click="modal = !modal"
+    />
+    <UCard
+      v-for="(item, index) in checks"
+      :key="item.id"
+      :variant="status == 'pending' || pending ? 'soft' : 'outline'"
+      class="m-2"
+    >
       <DivsCheckDiv :item="item" />
-      <template v-if="edit" #footer>
+      <template v-if="editable" #footer>
         <ElementsTabMenu
+          v-if="checks.length > 0 && (status != 'pending' || !pending)"
           :item="'checks'"
           @cancel="modal = false"
           @delete="deleteCheck(item.id, index)"
@@ -96,5 +99,11 @@ async function deleteCheck(id: string, idx: number) {
         />
       </template>
     </UCard>
+    <div v-if="!checks.length" class="flex justify-center text-red-800">
+      <div v-if="status == 'pending' || pending">
+        <UIcon name="i-heroicons-arrow-path" class="animate-spin w-8 h-8" />
+      </div>
+      <div v-else>Данные отсутствуют</div>
+    </div>
   </UCard>
 </template>

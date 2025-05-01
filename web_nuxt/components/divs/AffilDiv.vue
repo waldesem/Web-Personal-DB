@@ -6,7 +6,6 @@ await preloadComponents("DivsItemsAffilItem");
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
-const edit = ref(false);
 const modal = ref(false);
 const pending = ref(false);
 const affilation = ref({} as Affilation);
@@ -52,20 +51,14 @@ async function deleteAffilation(id: string, idx: number) {
 
 <template>
   <UCard
+    :variant="status == 'pending' || pending ? 'soft' : 'outline'"
     class="my-2 mx-1"
     :class="{ 'animate-pulse': status == 'pending' || pending }"
   >
-    <USwitch
-      v-if="editable"
-      v-model="edit"
-      :label="edit ? 'Отключить редактирование' : 'Включить редактирование'"
-      size="xs"
-      class="mb-2 me-2 justify-end"
-    />
     <div v-for="(item, idx) in affilations" :key="idx" class="p-1">
-      <UCard>
+      <UCard :variant="status == 'pending' || pending ? 'soft' : 'outline'">
         <div class="flex">
-          <div v-if="edit" class="flex-none mr-6 self-center">
+          <div v-if="editable" class="flex-none mr-6 self-center">
             <input
               v-model="index"
               type="radio"
@@ -79,7 +72,13 @@ async function deleteAffilation(id: string, idx: number) {
         </div>
       </UCard>
     </div>
-    <template v-if="edit" #footer>
+    <div v-if="!affilations.length" class="flex justify-center text-red-800">
+      <div v-if="status == 'pending' || pending">
+        <UIcon name="i-heroicons-arrow-path" class="animate-spin w-8 h-8" />
+      </div>
+      <div v-else>Данные отсутствуют</div>
+    </div>
+    <template v-if="editable" #footer>
       <UModal
         v-model:open="modal"
         :dismissible="false"
@@ -103,13 +102,14 @@ async function deleteAffilation(id: string, idx: number) {
         icon="i-heroicons-document-plus"
         label="Добавить"
         variant="ghost"
+        :loading="status == 'pending' || pending"
         @click="
           affilation = {} as Affilation;
           modal = true;
         "
       />
       <ElementsDivMenu
-        v-if="affilations.length > 0"
+        v-if="affilations.length > 0 && (status != 'pending' || !pending)"
         @update="
           affilation = affilations[index];
           modal = true;
