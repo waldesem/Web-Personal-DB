@@ -6,13 +6,11 @@ from datetime import date, datetime  # noqa: TC003
 
 from sqlalchemy import (
     Boolean,
-    Column,
     Date,
     DateTime,
     ForeignKey,
     Integer,
     String,
-    Table,
     Text,
     create_engine,
     func,
@@ -21,7 +19,6 @@ from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
     mapped_column,
-    relationship,
     scoped_session,
     sessionmaker,
 )
@@ -77,15 +74,6 @@ class Users(Base):
     region: Mapped[str] = mapped_column(String(255), default=Regions.main.value)
 
 
-association_table = Table(
-    "person_relationships",
-    Base.metadata,
-    Column("left_id", Integer, ForeignKey("persons.id")),
-    Column("right_id", Integer, ForeignKey("persons.id")),
-    Column("type", String(255), nullable=False),
-)
-
-
 class Messages(Base):
     """Message model.
 
@@ -139,13 +127,6 @@ class Persons(Base):
     region: Mapped[str] = mapped_column(String(255), default=Regions.main.value)
     editable: Mapped[bool] = mapped_column(Boolean(), default=False)
     user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"))
-    relationships = relationship(
-        "Persons",
-        secondary=association_table,
-        primaryjoin=(association_table.c.left_id == id),
-        secondaryjoin=(association_table.c.right_id == id),
-        back_populates="relationships",
-    )
 
 
 class Previous(Base):

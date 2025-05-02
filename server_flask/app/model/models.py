@@ -203,16 +203,6 @@ class Affilation(Model):
     inn: str | None = ""
 
 
-class Relation(Model):
-    """Pydantic model for relation form."""
-
-    __modelname__ = "relations"
-
-    id: int | str | None = None
-    type: str
-    right_id: int | str
-
-
 class Check(Model):
     """Pydantic model for check form."""
 

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const emit = defineEmits(["update"]);
 
-await preloadComponents(["DivsResumeDiv", "DivsSharedDiv", "DivsRelateDiv"]);
+await preloadComponents(["DivsResumeDiv", "DivsSharedDiv"]);
 
 </script>
 
@@ -58,17 +58,4 @@ await preloadComponents(["DivsResumeDiv", "DivsSharedDiv", "DivsRelateDiv"]);
       </template>
     </UCollapsible>
   </div>
-  <UCollapsible :unmount-on-hide="false" class="m-2">
-    <UButton
-      label="Связанные лица"
-      icon="i-heroicons-share"
-      color="neutral"
-      variant="subtle"
-      trailing-icon="i-lucide-chevron-down"
-      block
-    />
-    <template #content>
-      <DivsRelateDiv />
-    </template>
-  </UCollapsible>
 </template>
