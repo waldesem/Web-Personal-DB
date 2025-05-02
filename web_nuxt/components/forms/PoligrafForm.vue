@@ -4,13 +4,13 @@ import type { Pfo } from "@/types";
 const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
-  poligraf: {
+  item: {
     type: Object as () => Pfo,
     default: {} as Pfo,
   },
 });
 
-const poligrafForm = ref(props.poligraf as Pfo);
+const poligrafForm = ref(props.item as Pfo);
 </script>
 
 <template>

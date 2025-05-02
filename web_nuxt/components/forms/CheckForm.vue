@@ -4,13 +4,13 @@ import type { Verification } from "@/types";
 const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
-  check: {
+  item: {
     type: Object as () => Verification,
     default: {} as Verification,
   },
 });
 
-const checkForm = ref(props.check as Verification);
+const checkForm = ref(props.item as Verification);
 
 const noNegative = ref(false);
 

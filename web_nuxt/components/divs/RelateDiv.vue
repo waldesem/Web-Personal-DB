@@ -86,7 +86,7 @@ async function deleteRelation(id: string, idx: number) {
       </UCard>
     </div>
     <div 
-      v-if="!relationships.length && relations.length" 
+      v-if="!(relationships.length && relations.length)" 
       class="flex justify-center text-red-800"
     >
       <div v-if="status == 'pending' || pending">
@@ -117,6 +117,7 @@ async function deleteRelation(id: string, idx: number) {
         @click="modal = !modal"
       />
       <UButton
+        v-if="relations.length > 0 && (status != 'pending' || !pending)"
         label="Удалить"
         variant="ghost"
         icon="i-heroicons-trash"

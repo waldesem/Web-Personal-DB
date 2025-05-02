@@ -4,13 +4,13 @@ import type { Education } from "@/types";
 const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
-  education: {
+  item: {
     type: Object as () => Education,
     default: {} as Education,
   },
 });
 
-const educationForm = ref(props.education as Education);
+const educationForm = ref(props.item as Education);
 </script>
 
 <template>

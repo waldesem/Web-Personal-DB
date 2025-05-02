@@ -4,13 +4,13 @@ import type { Affilation } from "@/types";
 const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
-  affils: {
+  item: {
     type: Object as () => Affilation,
     default: {} as Affilation,
   },
 });
 
-const affilForm = ref(props.affils as Affilation);
+const affilForm = ref(props.item as Affilation);
 </script>
 
 <template>

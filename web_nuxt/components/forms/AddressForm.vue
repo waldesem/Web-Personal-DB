@@ -4,13 +4,13 @@ import type { Address } from "@/types";
 const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
-  addrs: {
+  item: {
     type: Object as () => Address,
     default: {} as Address,
   },
 });
 
-const addressForm = ref(props.addrs as Address);
+const addressForm = ref(props.item as Address);
 </script>
 
 <template>

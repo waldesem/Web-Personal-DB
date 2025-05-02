@@ -3,10 +3,7 @@ import type { Persons } from "@/types";
 
 await preloadComponents([
   "TabsAnketaTab",
-  "TabsCheckTab",
-  "TabsPoligrafTab",
-  "TabsInvestigateTab",
-  "TabsInquiryTab",
+  "TabsSharedTab",
   "TabsExplorerTab",
 ]);
 
@@ -178,16 +175,16 @@ async function changeRegion(): Promise<void> {
         <TabsAnketaTab @update="refresh()" />
       </template>
       <template #checkTab>
-        <TabsCheckTab />
+        <TabsSharedTab :component="'checks'" />
       </template>
       <template #poligrafTab>
-        <TabsPoligrafTab />
+        <TabsSharedTab :component="'poligrafs'" />
       </template>
       <template #investigateTab>
-        <TabsInvestigateTab />
+        <TabsSharedTab :component="'investigations'" />
       </template>
       <template #inquiryTab>
-        <TabsInquiryTab />
+        <TabsSharedTab :component="'inquiries'" />
       </template>
       <template #explorerTab>
         <TabsExplorerTab />

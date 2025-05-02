@@ -35,6 +35,9 @@ const props = defineProps({
   },
 });
 
+const candId = inject("candId") as Ref<string>;
+const editable = inject("editable") as Ref<boolean>;
+
 interface MappedCompType {
   [key: string]: [Component, Component];
 }
@@ -50,29 +53,18 @@ const mappedComponents = {
   workplaces: [WorkItem, WorkplaceForm],
 } as MappedCompType;
 
-const candId = inject("candId") as Ref<string>;
-const editable = inject("editable") as Ref<boolean>;
+type ItemType =
+  | Address
+  | Affilation
+  | Contact
+  | Passport
+  | Education
+  | Previous
+  | Staff
+  | Work;
 
-const items = ref([{}] as
-  | Address[]
-  | Affilation[]
-  | Contact[]
-  | Passport[]
-  | Education[]
-  | Previous[]
-  | Staff[]
-  | Work[]);
-const item = ref(
-  {} as
-    | Address
-    | Affilation
-    | Contact
-    | Passport
-    | Education
-    | Previous
-    | Staff
-    | Work
-);
+const item = ref({} as ItemType);
+const items = ref([] as ItemType[]);
 const modal = ref(false);
 const pending = ref(false);
 const index = ref(0);
@@ -82,29 +74,11 @@ const { refresh, status } = await useLazyAsyncData(
   async () => {
     items.value = (await await useFetchAuth(
       `/route/items/${props.component}/${candId.value}`
-    )) as
-      | Address[]
-      | Affilation[]
-      | Contact[]
-      | Passport[]
-      | Education[]
-      | Previous[]
-      | Staff[]
-      | Work[];
+    )) as ItemType[];
   }
 );
 
-async function submitItem(
-  form:
-    | Address
-    | Affilation
-    | Contact
-    | Passport
-    | Education
-    | Previous
-    | Staff
-    | Work
-) {
+async function submitItem(form: ItemType) {
   modal.value = false;
   pending.value = true;
   const { message } = (await useFetchAuth(
@@ -115,15 +89,7 @@ async function submitItem(
     }
   )) as Record<string, string>;
   pending.value = false;
-  item.value = {} as
-    | Address
-    | Affilation
-    | Contact
-    | Passport
-    | Education
-    | Previous
-    | Staff
-    | Work;
+  item.value = {} as ItemType;
   await refresh();
   emitMessage(message);
 }
@@ -152,11 +118,7 @@ async function deleteItem(id: string, idx: number) {
     class="my-2 mx-1"
     :class="{ 'animate-pulse': status == 'pending' || pending }"
   >
-    <div
-      v-for="(itm, idx) in items"
-      :key="idx"
-      class="p-1"
-    >
+    <div v-for="(itm, idx) in items" :key="idx" class="p-1">
       <UCard :variant="status == 'pending' || pending ? 'soft' : 'outline'">
         <div class="flex">
           <div v-if="editable" class="flex-none mr-6 self-center">
@@ -168,10 +130,7 @@ async function deleteItem(id: string, idx: number) {
         </div>
       </UCard>
     </div>
-    <div
-      v-if="!items.length"
-      class="flex justify-center text-red-800"
-    >
+    <div v-if="!items.length" class="flex justify-center text-red-800">
       <div v-if="status == 'pending' || pending">
         <UIcon name="i-heroicons-arrow-path" class="animate-spin w-8 h-8" />
       </div>
@@ -190,15 +149,7 @@ async function deleteItem(id: string, idx: number) {
               :is="mappedComponents[props.component][1]"
               :item="item"
               @cancel="
-                item = {} as
-                  | Address
-                  | Affilation
-                  | Contact
-                  | Passport
-                  | Education
-                  | Previous
-                  | Staff
-                  | Work;
+                item = {} as ItemType;
                 modal = false;
               "
               @update="submitItem"
@@ -212,23 +163,12 @@ async function deleteItem(id: string, idx: number) {
         variant="ghost"
         :loading="status == 'pending' || pending"
         @click="
-          item = {} as
-            | Address
-            | Affilation
-            | Contact
-            | Passport
-            | Education
-            | Previous
-            | Staff
-            | Work;
+          item = {} as ItemType;
           modal = true;
         "
       />
       <ElementsDivMenu
-        v-if="
-          items.length > 0 &&
-          (status != 'pending' || !pending)
-        "
+        v-if="items.length > 0 && (status != 'pending' || !pending)"
         @update="
           item = items[index];
           modal = true;
