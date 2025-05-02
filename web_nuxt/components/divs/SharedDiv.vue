@@ -1,14 +1,5 @@
 <script setup lang="ts">
-import type {
-  Address,
-  Affilation,
-  Contact,
-  Passport,
-  Education,
-  Previous,
-  Staff,
-  Work,
-} from "@/types";
+import type { DivsType, MappedCompType } from "@/types";
 
 import AddressItem from "@/components/divs/items/AddressItem.vue";
 import AffilItem from "@/components/divs/items/AffilItem.vue";
@@ -38,10 +29,6 @@ const props = defineProps({
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
-interface MappedCompType {
-  [key: string]: [Component, Component];
-}
-
 const mappedComponents = {
   addresses: [AddressItem, AddressForm],
   affilations: [AffilItem, AffilationForm],
@@ -53,18 +40,8 @@ const mappedComponents = {
   workplaces: [WorkItem, WorkplaceForm],
 } as MappedCompType;
 
-type ItemType =
-  | Address
-  | Affilation
-  | Contact
-  | Passport
-  | Education
-  | Previous
-  | Staff
-  | Work;
-
-const item = ref({} as ItemType);
-const items = ref([] as ItemType[]);
+const item = ref({} as DivsType);
+const items = ref([] as DivsType[]);
 const modal = ref(false);
 const pending = ref(false);
 const index = ref(0);
@@ -74,11 +51,11 @@ const { refresh, status } = await useLazyAsyncData(
   async () => {
     items.value = (await await useFetchAuth(
       `/route/items/${props.component}/${candId.value}`
-    )) as ItemType[];
+    )) as DivsType[];
   }
 );
 
-async function submitItem(form: ItemType) {
+async function submitItem(form: DivsType) {
   modal.value = false;
   pending.value = true;
   const { message } = (await useFetchAuth(
@@ -89,7 +66,7 @@ async function submitItem(form: ItemType) {
     }
   )) as Record<string, string>;
   pending.value = false;
-  item.value = {} as ItemType;
+  item.value = {} as DivsType;
   await refresh();
   emitMessage(message);
 }
@@ -149,9 +126,10 @@ async function deleteItem(id: string, idx: number) {
               :is="mappedComponents[props.component][1]"
               :item="item"
               @cancel="
-                item = {} as ItemType;
+                item = {} as DivsType;
                 modal = false;
               "
+              @clear="item = {} as DivsType;"
               @update="submitItem"
             />
           </UCard>
@@ -163,7 +141,7 @@ async function deleteItem(id: string, idx: number) {
         variant="ghost"
         :loading="status == 'pending' || pending"
         @click="
-          item = {} as ItemType;
+          item = {} as DivsType;
           modal = true;
         "
       />

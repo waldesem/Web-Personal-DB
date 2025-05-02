@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Verification, Pfo, Inquisition, Needs } from "@/types";
+import type { TabsType, MappedCompType } from "@/types";
 
 import CheckDiv from "@/components/divs/items/CheckItem.vue";
 import InquiryDiv from "@/components/divs/items/InquiryItem.vue";
@@ -18,10 +18,6 @@ const props = defineProps({
   },
 });
 
-interface MappedCompType {
-  [key: string]: [Component, Component];
-}
-
 const mappedComponents = {
   checks: [CheckDiv, CheckForm],
   inquiries: [InquiryDiv, InquiryForm],
@@ -29,27 +25,21 @@ const mappedComponents = {
   poligrafs: [PoligrafDiv, PoligrafForm],
 } as MappedCompType;
 
-type ItemType =
-  | Verification
-  | Pfo
-  | Inquisition
-  | Needs
-
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
-const item = ref({} as ItemType);
-const items = ref<ItemType[]>([]);
+const item = ref({} as TabsType);
+const items = ref<TabsType[]>([]);
 const modal = ref(false);
 const pending = ref(false);
 
 const { refresh, status } = await useLazyAsyncData(props.component, async () => {
   items.value = (await useFetchAuth(
     `/route/items/${props.component}/${candId.value}`
-  )) as ItemType[];
+  )) as TabsType[];
 });
 
-async function submitItem(form: ItemType) {
+async function submitItem(form: TabsType) {
   modal.value = false;
   pending.value = true;
   const { message } = (await useFetchAuth(
@@ -60,7 +50,7 @@ async function submitItem(form: ItemType) {
     }
   )) as Record<string, string>;
   pending.value = false;
-  item.value = {} as ItemType;
+  item.value = {} as TabsType;
   await refresh();
   emitMessage(message);
 }
@@ -96,9 +86,10 @@ async function deleteItem(id: string, idx: number) {
             :is="mappedComponents[props.component][1]"
             :item="item"
             @cancel="
-              item = {} as ItemType;
+              item = {} as TabsType;
               modal = false;
             "
+            @clear="item = {} as TabsType;"
             @update="submitItem"
           />
         </UCard>

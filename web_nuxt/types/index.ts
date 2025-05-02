@@ -198,3 +198,19 @@ export interface Files {
   name: string;
   path: string;
 }
+
+export type DivsType =
+  | Address
+  | Affilation
+  | Contact
+  | Passport
+  | Education
+  | Previous
+  | Staff
+  | Work;
+
+export type TabsType = Verification | Pfo | Inquisition | Needs;
+
+export interface MappedCompType {
+  [key: string]: [Component, Component]
+};

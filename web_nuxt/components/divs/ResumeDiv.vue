@@ -79,6 +79,7 @@ async function deleteItem() {
                 resume = {} as Persons;
                 modal = false;
               "
+              @clear="resume = {} as Persons;"
             />
           </UCard>
         </template>

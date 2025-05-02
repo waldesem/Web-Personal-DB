@@ -2,7 +2,6 @@
 const emit = defineEmits(["update"]);
 
 await preloadComponents(["DivsResumeDiv", "DivsSharedDiv"]);
-
 </script>
 
 <template>
