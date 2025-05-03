@@ -24,7 +24,8 @@ def get_index(page: int) -> Response:
         there are more results, and a 200 status code.
 
     """
-    pagination = 11
+    if not (pagination := request.args.get("pagination")):
+        pagination = 10
     stmt = select(Persons, Users.fullname).filter(
         Persons.user_id == Users.id,
         Persons.region == current_user.region
