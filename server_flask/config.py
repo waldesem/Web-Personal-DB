@@ -1,15 +1,20 @@
 """Configuration class."""
 
+import configparser
 import secrets
-from configparser import ConfigParser
 from pathlib import Path
 
-setting = ConfigParser()
+from flask import current_app
+
+setting = configparser.ConfigParser()
 # reading settings from settings.ini in the current directory
-setting.read(
-    Path(Path.resolve(Path(__file__).parent), "settings.ini"),
-    encoding="utf-8",
-)
+try:
+    setting.read(
+        Path(Path.resolve(Path(__file__).parent), "settings.ini"),
+        encoding="utf-8",
+    )
+except configparser.Error:
+    current_app.logger.exception()
 
 
 class Config:

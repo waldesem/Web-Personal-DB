@@ -22,8 +22,7 @@ def get_folder(person_id: int) -> Response:
         tuple: A tuple containing the file manager and a 200 status code.
 
     """
-    path = request.args.get("path")
-    if not path:
+    if not (path := request.args.get("path")):
         person = db_session.get(Persons, person_id)
         if not person.destination:
             person.destination = str(
@@ -59,6 +58,7 @@ def get_folder(person_id: int) -> Response:
         ]
         return jsonify({"path": str(path), "folders": folders, "files": files}), 200
     except PermissionError:
+        current_app.logger.exception()
         return jsonify({"path": str(path), "folders": [], "files": []}), 200
 
 
@@ -74,8 +74,8 @@ def get_file() -> Response:
         tuple: A tuple containing the file and a 200 status code.
 
     """
-    path = request.args.get("path")
-    if not Path(path).is_file():
+    path = request.args.get("path", None)
+    if not path and not Path(path).is_file():
         return "", 404
     return send_file(path, as_attachment=True, mimetype="application/octet-stream"), 200
 

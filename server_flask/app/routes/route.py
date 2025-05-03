@@ -1,56 +1,58 @@
 """Route routes."""
 
-from flask import Blueprint, Response, jsonify, request
+from flask import Blueprint, Response, jsonify
 from sqlalchemy import desc, func, select
 
 from app.depends.depend import current_user, jwt_required, roles_required, validate
 from app.model.classes import Regions, Roles
-from app.model.models import Info
+from app.model.models import Info, Search
 from app.model.tables import Checks, Persons, Users, db_session
 
 bp = Blueprint("route", __name__)
 
 
 @bp.get("/index/<int:page>")
+@validate()
 @jwt_required()
-def get_index(page: int) -> Response:
+def get_index(page: int, query_data: Search) -> Response:
     """Retrieve a paginated list of persons from the database.
 
     Arguments:
         page (int): The page number of the results.
+        query_data (Search): The search criteria, pagination, and sorting options.
 
     Returns:
         tuple: A tuple containing the list of persons, a boolean indicating if
         there are more results, and a 200 status code.
 
     """
-    if not (pagination := request.args.get("pagination")):
-        pagination = 10
     stmt = select(Persons, Users.fullname).filter(
         Persons.user_id == Users.id,
         Persons.region == current_user.region
         if current_user.region != Regions.main.value
         else True,
     )
-    if search := request.args.get("search"):
-        s = search.upper().split()[:3]
+    if query_data.search:
+        fio = query_data.search.upper().split()[:3]
         stmt = stmt.filter(
-            Persons.surname == s[0],
-            Persons.firstname == s[1] if len(s) > 1 else True,
-            Persons.patronymic == s[2] if len(s) > 2 else True,  # noqa: PLR2004
+            Persons.surname == fio[0] if fio else True,
+            Persons.firstname == fio[1] if len(fio) > 1 else True,
+            Persons.patronymic == fio[2] if len(fio) > 2 else True,  # noqa: PLR2004
         )
-    if request.args.get("editable") == "true":
-        stmt = stmt.filter(Persons.editable is True)
+    if query_data.editable:
+        stmt = stmt.filter(Persons.editable == query_data.editable)
+
     query = db_session.execute(
         stmt.order_by(desc(Persons.id))
-        .offset((page - 1) * pagination)
-        .limit(pagination + 1),
+        .offset((page - 1) * query_data.pagination)
+        .limit(query_data.pagination + 1),
     ).all()
+
     result = [row[0].to_dict() | {"username": row[1]} for row in query]
-    has_next = len(result) > pagination
+    has_next = len(result) > query_data.pagination
     return jsonify(
         {
-            "results": result[:pagination] if has_next else result,
+            "results": result[:query_data.pagination] if has_next else result,
             "has_next": has_next,
         },
     ), 200

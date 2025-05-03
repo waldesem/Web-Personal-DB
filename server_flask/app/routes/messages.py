@@ -4,7 +4,7 @@ from typing import ClassVar
 
 from flask import Blueprint, Response, jsonify
 from flask.views import MethodView
-from sqlalchemy import desc, select, text
+from sqlalchemy import select, text
 
 from app.depends.depend import current_user, jwt_required
 from app.model.tables import Messages, db_session
@@ -20,10 +20,7 @@ class MessagesRoute(MethodView):
     def get(self) -> Response:
         """Get messages."""
         messages = db_session.execute(
-            select(Messages)
-            .filter_by(user_id=current_user.id)
-            .order_by(desc(Messages.id))
-            .limit(12),
+            select(Messages).filter(Messages.user_id == current_user.id).limit(12),
         ).scalars()
         return jsonify([row.to_dict() for row in messages]), 200
 

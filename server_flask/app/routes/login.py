@@ -8,7 +8,7 @@ from sqlalchemy import func, select
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from app.depends.depend import current_user, jwt_required, validate
+from app.depends.depend import validate
 from app.model.models import Login
 from app.model.tables import Users, db_session
 
@@ -35,6 +35,7 @@ def post_login(action: str, json_data: Login) -> Response:
         user = db_session.execute(
             select(Users).filter(func.lower(Users.username) == json_data.username),
         ).scalar_one_or_none()
+
         if not user or user.blocked or user.deleted:
             return jsonify({"message": "Invalid"})
 
@@ -82,33 +83,3 @@ def post_login(action: str, json_data: Login) -> Response:
         current_app.logger.exception("Database error")
         db_session.rollback()
         return jsonify({"message": "Invalid"}), 200
-
-
-@bp.post("/refresh")
-@jwt_required(verify_exp=False)
-def post_refresh() -> Response:
-    """Refresh the access token.
-
-    Returns:
-        The function returns a tuple containing a JSON object and a status code.
-
-    """
-    return jsonify(
-        {
-            "message": "Success",
-            "access_token": "Bearer "
-            + jwt.encode(
-                {
-                    "id": current_user.id,
-                    "fullname": current_user.fullname,
-                    "username": current_user.username,
-                    "email": current_user.email,
-                    "region": current_user.region,
-                    "role": current_user.role,
-                    "exp": datetime.now() + timedelta(hours=12),
-                },
-                current_app.config["JWT_SECRET_KEY"],
-                algorithm="HS256",
-            ),
-        },
-    ), 200

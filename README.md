@@ -99,6 +99,8 @@ For creating new user run the command in terminal:
 export FLASK_APP=app
 flask command user 'Super Admin' superadmin superadmin@elocalhost --role=admin --region=main
 ```
+Recomend to create user with role `admin` and region `main` for first login.
+DEFAULT_PASSWORD for created user - `88888888`.
 
 ### Build frontend
 
@@ -119,5 +121,3 @@ To start a server run the command in terminal:
 ```
 python server.py # for desktop mode; more options see in the server.py
 ```
-DEFAULT_PASSWORD for created user - `88888888`.
-

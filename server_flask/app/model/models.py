@@ -6,12 +6,12 @@ import os
 import platform
 import re
 import unicodedata
-from datetime import date  # noqa: TC003
+from datetime import date
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field, validator
 
-from .classes import Conclusions, Decisions, Regions, Roles  # noqa: TC001
+from .classes import Conclusions, Decisions, Regions, Roles
 
 
 class Model(BaseModel):
@@ -44,6 +44,8 @@ class User(Model):
     fullname: str
     username: str
     email: str | None = ""
+    region: str = Regions.main.name
+    role: str = Roles.user.value
 
     @validator("username")
     @classmethod
@@ -61,8 +63,8 @@ class UserActions(Model):
 class Info(Model):
     """Pydantic model for info form."""
 
-    start: date
-    end: date
+    start: date = date.today()  # noqa: DTZ011
+    end: date = date.today()  # noqa: DTZ011
     region: Regions | None
 
 
@@ -70,6 +72,14 @@ class Region(Model):
     """Pydantic model for region select form."""
 
     region: Regions
+
+
+class Search(Model):
+    """Pydantic model for person search form."""
+
+    search: str = ""
+    pagination: int = 10
+    editable: bool = False
 
 
 class Person(Model):
@@ -81,7 +91,8 @@ class Person(Model):
     surname: str = Field(regex=r"^[А-яЁё][А-яЁёIV\-\s\.\,\'\(\)]*[А-яЁё\s]$")  # noqa: RUF001
     firstname: str = Field(regex=r"^[А-яЁё][А-яЁёIV\-\s\.\,\'\(\)]*[А-яЁё\s]$")  # noqa: RUF001
     patronymic: str | None = Field(
-        regex=r"^$|^[А-яЁё][А-яЁёIV\-\s\.\,\'\(\)]*[А-яЁё\s]$", default="",  # noqa: RUF001
+        regex=r"^$|^[А-яЁё][А-яЁёIV\-\s\.\,\'\(\)]*[А-яЁё\s]$",  # noqa: RUF001
+        default="",
     )
     birthday: date
     birthplace: str | None = ""

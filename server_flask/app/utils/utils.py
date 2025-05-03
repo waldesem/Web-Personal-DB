@@ -197,5 +197,5 @@ def upload_items(anketa: AnketaJson, person_id: int) -> None:
         )
         db_session.commit()
     except SQLAlchemyError:
-        current_app.logger.exception("SQLAlchemyError in post_file")
+        current_app.logger.exception("SQLAlchemyError in post json items")
         db_session.rollback()

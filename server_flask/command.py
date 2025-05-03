@@ -5,10 +5,13 @@ from pathlib import Path
 import click
 from flask import Blueprint, current_app
 from flask.cli import with_appcontext
-from sqlalchemy import text
+from pydantic import ValidationError
+from server_flask.app.model.models import User
+from sqlalchemy import func, select
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.model.classes import Regions, Roles
-from app.model.tables import db_session
+from app.model.tables import Users, db_session
 
 bp = Blueprint("command", __name__)
 
@@ -20,7 +23,7 @@ bp = Blueprint("command", __name__)
 @click.option(
     "--role",
     type=click.Choice([role.value for role in Roles]),
-    default=Roles.admin.value,
+    default=Roles.user.value,
 )
 @click.option(
     "--region",
@@ -52,26 +55,25 @@ def create_user(
             --role=admin --region=main
 
     """
-    if not db_session.execute(
-        text("SELECT * FROM users WHERE username = :username"),
-        {"username": username},
-    ).all():
-        db_session.execute(text(
-            "INSERT INTO users (fullname, username, email, role, region) "
-            "VALUES (:fullname, :username, :email, :role, :region)",
-            {
-                "fullname": fullname,
-                "username": username,
-                "email": email,
-                "role": role,
-                "region": Regions[region].value,
-            },
-        ))
-        db_session.commit()
-        click.echo(f"User {username} created")
-    else:
-        click.echo(f"User {username} already exists")
-    db_session.remove()
+    try:
+        user = User(
+            fullname=fullname,
+            username=username,
+            email=email,
+            role=role,
+            region=region,
+        ).dict()
+        if not db_session.execute(
+            select(Users).where(func.lower(Users.username) == user["username"]),
+        ).all():
+            db_session.add(**user)
+            db_session.commit()
+            click.echo(f"User {username} created")
+
+        else:
+            click.echo(f"User {username} already exists")
+    except (ValidationError, SQLAlchemyError) as error:
+        click.echo(error)
 
 
 @bp.cli.command("folders")
