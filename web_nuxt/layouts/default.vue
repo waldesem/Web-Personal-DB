@@ -89,7 +89,7 @@ const items = [
             />
           </UTooltip>
           <template #content>
-            <div class="p-1" style="overflow-y: scroll">
+            <div class="p-1">
               <div class="flex items-center justify-between m-3">
                 <UTooltip text="Обновить">
                   <UButton
@@ -114,6 +114,7 @@ const items = [
                 :key="item.id"
                 :item="item"
                 class="m-3"
+                style="overflow-y: scroll"
               >
                 <UCard
                   :ui="{

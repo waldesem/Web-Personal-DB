@@ -4,13 +4,13 @@ import type { Previous } from "@/types";
 const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
-  previous: {
+  item: {
     type: Object as () => Previous,
     default: {} as Previous,
   },
 });
 
-const previousForm = ref(props.previous as Previous);
+const previousForm = ref(props.item as Previous);
 </script>
 
 <template>

@@ -4,13 +4,13 @@ import type { Contact } from "@/types";
 const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
-  contact: {
+  item: {
     type: Object as () => Contact,
     default: {} as Contact,
   },
 });
 
-const contactForm = ref(props.contact as Contact);
+const contactForm = ref(props.item as Contact);
 </script>
 
 <template>

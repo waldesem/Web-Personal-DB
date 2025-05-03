@@ -1,70 +1,44 @@
 <script setup lang="ts">
-import StaffDiv from "@/components/divs/StaffDiv.vue";
-import EducateDiv from "@/components/divs/EducateDiv.vue";
-import WorkDiv from "@/components/divs/WorkDiv.vue";
-import DocumDiv from "@/components/divs/DocumDiv.vue";
-import AddressDiv from "@/components/divs/AddressDiv.vue";
-import ContactDiv from "@/components/divs/ContactDiv.vue";
-import PrevDiv from "@/components/divs/PrevDiv.vue";
-import RelateDiv from "@/components/divs/RelateDiv.vue";
-import AffilDiv from "@/components/divs/AffilDiv.vue";
-
-await preloadComponents([
-  "DivsResumeDiv",
-  "DivsPrevDiv",
-  "DivsStaffDiv",
-  "DivsEducateDiv",
-  "DivsWorkDiv",
-  "DivsDocumDiv",
-  "DivsAddressDiv",
-  "DivsContactDiv",
-  "DivsRelateDiv",
-  "DivsAffilDiv",
-]);
-
 const emit = defineEmits(["update"]);
+
+await preloadComponents(["DivsResumeDiv", "DivsSharedDiv"]);
 </script>
 
 <template>
   <DivsResumeDiv @update="emit('update')" />
   <div
     v-for="(items, idx) in [
-      { component: StaffDiv, label: 'Должности', icon: 'i-heroicons-user' },
+      { component: 'staffs', label: 'Должности', icon: 'i-heroicons-user' },
       {
-        component: EducateDiv,
+        component: 'educations',
         label: 'Образование',
         icon: 'i-heroicons-academic-cap',
       },
       {
-        component: WorkDiv,
+        component: 'workplaces',
         label: 'Места работы',
         icon: 'i-heroicons-briefcase',
       },
       {
-        component: DocumDiv,
+        component: 'documents',
         label: 'Документы',
         icon: 'i-heroicons-document-text',
       },
       {
-        component: AddressDiv,
+        component: 'addresses',
         label: 'Адреса',
         icon: 'i-heroicons-home-modern',
       },
-      { component: ContactDiv, label: 'Контакты', icon: 'i-heroicons-phone' },
+      { component: 'contacts', label: 'Контакты', icon: 'i-heroicons-phone' },
       {
-        component: PrevDiv,
+        component: 'previous',
         label: 'Изменения имени',
         icon: 'i-heroicons-pencil',
       },
       {
-        component: AffilDiv,
+        component: 'affilations',
         label: 'Аффилированность',
         icon: 'i-heroicons-user-group',
-      },
-      {
-        component: RelateDiv,
-        label: 'Связанные лица',
-        icon: 'i-heroicons-share',
       },
     ]"
     :key="idx"
@@ -79,7 +53,7 @@ const emit = defineEmits(["update"]);
         block
       />
       <template #content>
-        <component :is="items.component" />
+        <DivsSharedDiv :component="items.component" />
       </template>
     </UCollapsible>
   </div>

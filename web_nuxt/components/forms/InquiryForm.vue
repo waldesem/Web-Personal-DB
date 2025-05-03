@@ -4,13 +4,13 @@ import type { Needs } from "@/types";
 const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
-  inquiry: {
+  item: {
     type: Object as () => Needs,
     default: {} as Needs,
   },
 });
 
-const inquiryForm = ref(props.inquiry);
+const inquiryForm = ref(props.item);
 </script>
 
 <template>

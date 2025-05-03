@@ -4,13 +4,13 @@ import type { Work } from "@/types";
 const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
-  work: {
+  item: {
     type: Object as () => Work,
     default: {} as Work,
   },
 });
 
-const workForm = ref(props.work as Work);
+const workForm = ref(props.item as Work);
 
 workForm.value.starts = workForm.value.starts
   ? new Date(workForm.value.starts).toISOString().split("T", 1)[0]

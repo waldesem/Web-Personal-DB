@@ -90,6 +90,7 @@ async function submitUser() {
           emit('cancel');
           form = {} as UserForm;
         "
+        @clear="form = {} as UserForm;"
       />
     </UForm>
   </UCard>

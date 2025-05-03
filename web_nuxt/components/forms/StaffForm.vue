@@ -4,13 +4,13 @@ import type { Staff } from "@/types";
 const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
-  staff: {
+  item: {
     type: Object as () => Staff,
     default: {} as Staff,
   },
 });
 
-const staffForm = ref(props.staff as Staff);
+const staffForm = ref(props.item as Staff);
 </script>
 
 <template>

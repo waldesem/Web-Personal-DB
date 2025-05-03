@@ -4,13 +4,13 @@ import type { Inquisition } from "@/types";
 const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
-  investigation: {
+  item: {
     type: Object as () => Inquisition,
     default: {} as Inquisition,
   },
 });
 
-const investigationForm = ref(props.investigation as Inquisition);
+const investigationForm = ref(props.item as Inquisition);
 </script>
 
 <template>
