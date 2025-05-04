@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import date, datetime  # noqa: TC003
 
+from flask import current_app
 from sqlalchemy import (
     Boolean,
     Date,
@@ -13,6 +14,7 @@ from sqlalchemy import (
     String,
     Text,
     create_engine,
+    exc,
     func,
 )
 from sqlalchemy.orm import (
@@ -28,10 +30,13 @@ from config import Config
 
 from .classes import Regions, Roles
 
-engine = create_engine(Config.DATABASE_URI)
-db_session = scoped_session(
-    sessionmaker(bind=engine, autoflush=False, autocommit=False),
-)
+try:
+    engine = create_engine(Config.DATABASE_URI)
+    db_session = scoped_session(
+        sessionmaker(bind=engine, autoflush=False, autocommit=False),
+    )
+except exc.OperationalError:
+    current_app.logger.exception()
 
 
 class Base(DeclarativeBase):

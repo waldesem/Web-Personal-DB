@@ -3,14 +3,12 @@
 from pathlib import Path
 
 import click
-from flask import Blueprint, current_app
-from flask.cli import with_appcontext
+from flask import Blueprint, cli, current_app
 from pydantic import ValidationError
-from server_flask.app.model.models import User
-from sqlalchemy import func, select
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import exc, func, select
 
 from app.model.classes import Regions, Roles
+from app.model.models import User
 from app.model.tables import Users, db_session
 
 bp = Blueprint("command", __name__)
@@ -30,7 +28,7 @@ bp = Blueprint("command", __name__)
     type=click.Choice([region.name for region in Regions]),
     default=Regions.main.name,
 )
-@with_appcontext
+@cli.with_appcontext
 def create_user(
     fullname: str,
     username: str,
@@ -72,12 +70,12 @@ def create_user(
 
         else:
             click.echo(f"User {username} already exists")
-    except (ValidationError, SQLAlchemyError) as error:
+    except (ValidationError, exc.SQLAlchemyError) as error:
         click.echo(error)
 
 
 @bp.cli.command("folders")
-@with_appcontext
+@cli.with_appcontext
 def create_folders() -> None:
     """Create the folders structure according to the current configuration.
 
