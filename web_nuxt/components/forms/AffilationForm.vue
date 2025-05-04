@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Affilation } from "@/types";
 
-const emit = defineEmits(["cancel", "update"]);
+const emit = defineEmits(["cancel", "update", 'clear']);
 
 const props = defineProps({
   item: {
@@ -43,6 +43,6 @@ const affilForm = ref(props.item as Affilation);
         maxlength="12"
       />
     </UFormField>
-    <ElementsBtnGroup @cancel="emit('cancel')" />
+    <ElementsBtnGroup @cancel="emit('cancel')" @clear="emit('clear')" />
   </UForm>
 </template>

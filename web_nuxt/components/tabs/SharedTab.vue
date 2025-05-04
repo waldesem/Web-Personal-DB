@@ -104,20 +104,20 @@ async function deleteItem(id: string, idx: number) {
       @click="modal = !modal"
     />
     <UCard
-      v-for="(itm, index) in items"
-      :key="itm.id"
+      v-for="(content, index) in items"
+      :key="content.id"
       :variant="status == 'pending' || pending ? 'soft' : 'outline'"
       class="m-2"
     >
-      <component :is="mappedComponents[props.component][0]" :item="itm" />
+      <component :is="mappedComponents[props.component][0]" :item="content" />
       <template v-if="editable" #footer>
         <ElementsTabMenu
           v-if="items.length > 0 && (status != 'pending' || !pending)"
           :item="props.component"
           @cancel="modal = false"
-          @delete="deleteItem(item.id, index)"
+          @delete="deleteItem(content.id, index)"
           @update="
-            item = item;
+            item = content;
             modal = true;
           "
         />

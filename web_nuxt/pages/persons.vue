@@ -1,13 +1,17 @@
 <script setup lang="ts">
 import type { Persons } from "@/types";
 import { watchDebounced, useFileDialog } from "@vueuse/core";
+import type { TableColumn } from '@nuxt/ui'
 
 preloadRouteComponents("/profile/[id]");
+
+const UIcon = resolveComponent("UIcon");
 
 const toast = useToast();
 
 const search = ref("");
 const page = ref(1);
+const pagination = ref(10);
 const editable = ref(false);
 const hasNext = ref(false);
 const upload = ref(false);
@@ -24,6 +28,7 @@ const { refresh, status } = await useLazyAsyncData(
         params: {
           search: search.value,
           editable: editable.value,
+          pagination: pagination.value,
         },
       }
     )) as Record<string, unknown> as {
@@ -35,7 +40,7 @@ const { refresh, status } = await useLazyAsyncData(
     updated.value = new Date().toLocaleTimeString("ru-RU");
   },
   {
-    watch: [page, editable],
+    watch: [page, pagination, editable],
   }
 );
 
@@ -128,6 +133,70 @@ async function submitResume(form: Persons): Promise<void> {
   upload.value = false;
   sendMessage(person_id, exists);
 }
+
+const columns:TableColumn<Persons>[] = [
+  {
+    accessorKey: "id",
+    header: "#",
+    cell: ({ row }) => {
+      return row.original.id;
+    },
+  },
+  {
+    accessorKey: "region",
+    header: "Регион",
+    cell: ({ row }) => {
+      return row.original.region;
+    },
+  },
+  {
+    accessorKey: "surname",
+    header: "Фамилия Имя Отчество",
+    cell: ({ row }) => {
+      return `${row.original.surname} ${row.original.firstname} ${
+        row.original.patronymic ? row.original.patronymic : ""
+      }`;
+    },
+  },
+  {
+    accessorKey: "birthday",
+    header: "Дата рождения",
+    cell: ({ row }) => {
+      return new Date(row.original.birthday).toLocaleDateString("ru-RU");
+    },
+  },
+  {
+    accessorKey: "editable",
+    header: "Статус",
+    cell: ({ row }) => {
+      return h(UIcon, {
+        name: row.original.editable
+          ? "i-heroicons-arrow-path"
+          : "i-heroicons-check-circle",
+
+        class: row.original.editable
+          ? "text-start w-4 h-4 animate-spin text-red-800"
+          : "text-start w-4 h-4 text-blue-800",
+      });
+    },
+  },
+  {
+    accessorKey: "created",
+    header: "Обновлено",
+    cell: ({ row }) => {
+      return new Date(row.original.created).toLocaleDateString("ru-RU");
+    },
+  },
+  {
+    accessorKey: "username",
+    header: "Сотрудник",
+    cell: ({ row }) => {
+      return row.original.username
+        ? row.original.username.toString().split(" ")[0]
+        : "";
+    },
+  },
+];
 </script>
 
 <template>
@@ -189,67 +258,33 @@ async function submitResume(form: Persons): Promise<void> {
       :loading="status == 'pending' || upload"
       loading-animation="swing"
       empty="Данные не найдены"
-      :columns="[
-        { accessorKey: 'id', header: '#' },
-        { accessorKey: 'region', header: 'Регион' },
-        { accessorKey: 'surname', header: 'Фамилия Имя Отчество' },
-        { accessorKey: 'birthday', header: 'Дата рождения' },
-        { accessorKey: 'editable', header: 'Статус' },
-        { accessorKey: 'created', header: 'Обновлено' },
-        { accessorKey: 'username', header: 'Сотрудник' },
-      ]"
+      :columns="columns"
       :data="candidates"
       @select="navigateTo(`/profile/${$event.original.id}`)"
-    >
-      <template #id-cell="{ row }">{{ row.original.id }}</template>
-      <template #region-cell="{ row }">{{ row.original.region }}</template>
-      <template #surname-cell="{ row }">
-        {{
-          `${row.original.surname} ${row.original.firstname} ${
-            row.original.patronymic ? row.original.patronymic : ""
-          }`
-        }}
-      </template>
-      <template #birthday-cell="{ row }">{{
-        new Date(row.original.birthday).toLocaleDateString("ru-RU")
-      }}</template>
-      <template #editable-cell="{ row }">
-        <UTooltip
-          :text="
-            row.original.editable ? 'Анкета редактируется' : 'Анкета обновлена'
-          "
-        >
-          <UIcon
-            :name="
-              row.original.editable
-                ? 'i-heroicons-arrow-path'
-                : 'i-heroicons-check-circle'
-            "
-            class="text-start w-4 h-4"
-            :class="{ 'animate-spin text-red-800': row.original.editable }"
-          />
-        </UTooltip>
-      </template>
-      <template #created-cell="{ row }">{{
-        new Date(row.original.created).toLocaleDateString("ru-RU")
-      }}</template>
-      <template #username-cell="{ row }">{{
-        row.original.username
-          ? row.original.username.toString().split(" ")[0]
-          : ""
-      }}</template>
-    </UTable>
-
-    <div class="flex items-center justify-between space-x-4">
-      <UButton
-        variant="ghost"
-        icon="i-heroicons-arrow-path"
-        :label="`Обновлено в: ${updated}`"
-        :loading="status == 'pending' || upload"
-        @click="refresh()"
-      />
+    />
+    <div class="flex items-center justify-between space-x-4 mt-4">
+      <UTooltip text="Обновить данные">
+        <UButton
+          variant="ghost"
+          icon="i-heroicons-arrow-path"
+          :label="`Обновлено в: ${updated}`"
+          :loading="status == 'pending' || upload"
+          @click="refresh()"
+        />
+      </UTooltip>
       <div class="flex items-center space-x-2">
-        <div class="text-sm text-blue-600">Показать редактируемые</div>
+        <div class="text-sm">Показывать на странице</div>
+        <USelect
+          v-model="pagination"
+          :items="[10, 20, 30, 50]"
+          :loading="status == 'pending'"
+          variant="soft"
+        />
+      </div>
+      <div class="flex items-center space-x-2">
+        <div class="text-sm text-blue-600">
+          {{ editable ? "Показать все" : "Показать редактируемые" }}
+        </div>
         <USwitch v-model="editable" size="sm" />
       </div>
     </div>

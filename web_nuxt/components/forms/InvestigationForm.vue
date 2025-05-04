@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Inquisition } from "@/types";
 
-const emit = defineEmits(["cancel", "update"]);
+const emit = defineEmits(["cancel", "update", 'clear']);
 
 const props = defineProps({
   item: {
@@ -34,6 +34,6 @@ const investigationForm = ref(props.item as Inquisition);
         placeholder="Информация"
       />
     </UFormField>
-    <ElementsBtnGroup @cancel="emit('cancel')" />
+    <ElementsBtnGroup @cancel="emit('cancel')" @clear="emit('clear')" />
   </UForm>
 </template>

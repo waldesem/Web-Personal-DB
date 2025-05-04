@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Education } from "@/types";
 
-const emit = defineEmits(["cancel", "update"]);
+const emit = defineEmits(["cancel", "update", 'clear']);
 
 const props = defineProps({
   item: {
@@ -57,6 +57,6 @@ const educationForm = ref(props.item as Education);
         maxlength="255"
       />
     </UFormField>
-    <ElementsBtnGroup @cancel="emit('cancel')" />
+    <ElementsBtnGroup @cancel="emit('cancel')" @clear="emit('clear')" />
   </UForm>
 </template>

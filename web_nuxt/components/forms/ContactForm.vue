@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Contact } from "@/types";
 
-const emit = defineEmits(["cancel", "update"]);
+const emit = defineEmits(["cancel", "update", 'clear']);
 
 const props = defineProps({
   item: {
@@ -31,6 +31,6 @@ const contactForm = ref(props.item as Contact);
         maxlength="255"
       />
     </UFormField>
-    <ElementsBtnGroup @cancel="emit('cancel')" />
+    <ElementsBtnGroup @cancel="emit('cancel')" @clear="emit('clear')" />
   </UForm>
 </template>
