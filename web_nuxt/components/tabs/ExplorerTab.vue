@@ -2,7 +2,6 @@
 import type { Files, Folders } from "@/types";
 
 const candId = inject("candId") as Ref<string>;
-const editable = inject("editable") as Ref<boolean>;
 
 const size = ref("lg") as Ref<"xs" | "sm" | "md" | "lg" | "xl">;
 const fullPath = ref("") as Ref<string>;
@@ -105,7 +104,7 @@ async function openFile(path: string, name: string) {
       </div>
       <div v-for="file in listFiles" :key="file.name">
         <UButton
-          :disabled="!editable"
+          :disabled="stateUser.role !== 'user'"
           :label="
             file.name.length < 64 ? file.name : file.name.slice(0, 64) + '...'
           "

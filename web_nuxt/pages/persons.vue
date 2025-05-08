@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Persons } from "@/types";
 import { watchDebounced, useFileDialog } from "@vueuse/core";
-import type { TableColumn } from '@nuxt/ui'
+import type { TableColumn } from "@nuxt/ui";
 
 preloadRouteComponents("/profile/[id]");
 
@@ -18,6 +18,7 @@ const upload = ref(false);
 const modal = ref(false);
 const updated = ref("Данные обновляются...");
 const candidates = ref([] as Persons[]);
+const data = ref(null);
 
 const { refresh, status } = await useLazyAsyncData(
   "candidates",
@@ -29,6 +30,7 @@ const { refresh, status } = await useLazyAsyncData(
           search: search.value,
           editable: editable.value,
           pagination: pagination.value,
+          data: data.value,
         },
       }
     )) as Record<string, unknown> as {
@@ -104,7 +106,7 @@ onChange(async (files) => {
   upload.value = true;
   const formData = new FormData();
   formData.append("file", files[0]);
-  const { person_id, exists } = (await useFetchAuth("/route/anketa/json", {
+  const { person_id, exists } = (await useFetchAuth("/route/json", {
     method: "POST",
     body: formData,
   })) as {
@@ -123,7 +125,7 @@ onCancel(() => {
 async function submitResume(form: Persons): Promise<void> {
   upload.value = true;
   modal.value = false;
-  const { person_id, exists } = (await useFetchAuth("/route/anketa/resume", {
+  const { person_id, exists } = (await useFetchAuth("/route/resume", {
     method: "POST",
     body: form,
   })) as {
@@ -134,7 +136,7 @@ async function submitResume(form: Persons): Promise<void> {
   sendMessage(person_id, exists);
 }
 
-const columns:TableColumn<Persons>[] = [
+const columns: TableColumn<Persons>[] = [
   {
     accessorKey: "id",
     header: "#",
@@ -243,6 +245,7 @@ const columns:TableColumn<Persons>[] = [
         </div>
       </div>
     </div>
+
     <div class="my-6">
       <UInput
         id="search"
@@ -254,15 +257,18 @@ const columns:TableColumn<Persons>[] = [
         placeholder="поиск по фамилии, имени, отчеству"
       />
     </div>
+
     <UTable
       :loading="status == 'pending' || upload"
-      loading-animation="swing"
+      loading-animation="carousel"
       empty="Данные не найдены"
       :columns="columns"
       :data="candidates"
+      :meta="{ class: { tr: 'cursor-pointer' } }"
       @select="navigateTo(`/profile/${$event.original.id}`)"
     />
-    <div class="flex items-center justify-between space-x-4 mt-4">
+
+    <div class="flex items-center justify-between space-x-4 my-2">
       <UTooltip text="Обновить данные">
         <UButton
           variant="ghost"
@@ -272,15 +278,7 @@ const columns:TableColumn<Persons>[] = [
           @click="refresh()"
         />
       </UTooltip>
-      <div class="flex items-center space-x-2">
-        <div class="text-sm">Показывать на странице</div>
-        <USelect
-          v-model="pagination"
-          :items="[10, 20, 30, 50]"
-          :loading="status == 'pending'"
-          variant="soft"
-        />
-      </div>
+      <input v-model="data" type="date" @change="refresh()" >
       <div class="flex items-center space-x-2">
         <div class="text-sm text-blue-600">
           {{ editable ? "Показать все" : "Показать редактируемые" }}
@@ -289,7 +287,7 @@ const columns:TableColumn<Persons>[] = [
       </div>
     </div>
 
-    <div v-if="page > 1 || hasNext" class="justify-center flex pt-4">
+    <div v-if="page > 1 || hasNext" class="flex justify-center space-x-2 my-2">
       <UTooltip text="Предыдущая страница">
         <UButton
           icon="i-heroicons-arrow-small-left-20-solid"
@@ -298,6 +296,12 @@ const columns:TableColumn<Persons>[] = [
           @click="page--"
         />
       </UTooltip>
+      <USelect
+        v-model="pagination"
+        :items="[10, 20, 30, 50]"
+        :loading="status == 'pending'"
+        variant="soft"
+      />
       <UTooltip text="Следующая страница">
         <UButton
           icon="i-heroicons-arrow-small-right-20-solid"

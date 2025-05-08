@@ -6,7 +6,7 @@ import os
 import platform
 import re
 import unicodedata
-from datetime import date
+from datetime import date  # noqa: TC003
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field, validator
@@ -14,16 +14,7 @@ from pydantic import BaseModel, Field, validator
 from .classes import Conclusions, Decisions, Regions, Roles
 
 
-class Model(BaseModel):
-    """Base Pydantic model."""
-
-    class Config:
-        """Pydantic config."""
-
-        use_enum_values = True
-
-
-class Login(Model):
+class Login(BaseModel):
     """Pydantic model for login form."""
 
     username: str
@@ -35,6 +26,24 @@ class Login(Model):
     def username_check(cls, v: str) -> str:
         """Check username."""
         return v.strip().lower()
+
+class Search(BaseModel):
+    """Pydantic model for person search form."""
+
+    search: str = ""
+    pagination: int = 10
+    editable: bool = False
+    data: date | None = None
+
+
+class Model(BaseModel):
+    """Base Pydantic model."""
+
+    class Config:
+        """Pydantic config."""
+
+        use_enum_values = True
+
 
 
 class User(Model):
@@ -60,26 +69,10 @@ class UserActions(Model):
     item: Literal["reset", "block", "delete"] | Roles | Regions | None
 
 
-class Info(Model):
-    """Pydantic model for info form."""
-
-    start: date = date.today()  # noqa: DTZ011
-    end: date = date.today()  # noqa: DTZ011
-    region: Regions | None
-
-
 class Region(Model):
     """Pydantic model for region select form."""
 
     region: Regions
-
-
-class Search(Model):
-    """Pydantic model for person search form."""
-
-    search: str = ""
-    pagination: int = 10
-    editable: bool = False
 
 
 class Person(Model):
@@ -114,7 +107,7 @@ class Person(Model):
         return v.upper().strip() if v else ""
 
 
-class Prev(Model):
+class Prev(BaseModel):
     """Pydantic model for previous form."""
 
     __modelname__ = "previous"
@@ -133,7 +126,7 @@ class Prev(Model):
         return v.upper().strip() if v else ""
 
 
-class Education(Model):
+class Education(BaseModel):
     """Pydantic model for education form."""
 
     __modelname__ = "educations"
@@ -145,7 +138,7 @@ class Education(Model):
     specialty: str | None = ""
 
 
-class Staff(Model):
+class Staff(BaseModel):
     """Pydantic model for staff form."""
 
     __modelname__ = "staffs"
@@ -155,7 +148,7 @@ class Staff(Model):
     department: str | None = ""
 
 
-class Document(Model):
+class Document(BaseModel):
     """Pydantic model for document form."""
 
     __modelname__ = "documents"
@@ -168,7 +161,7 @@ class Document(Model):
     issue: date
 
 
-class Address(Model):
+class Address(BaseModel):
     """Pydantic model for address form."""
 
     __modelname__ = "addresses"
@@ -178,7 +171,7 @@ class Address(Model):
     addresses: str
 
 
-class Contact(Model):
+class Contact(BaseModel):
     """Pydantic model for contact form."""
 
     __modelname__ = "contacts"
@@ -188,7 +181,7 @@ class Contact(Model):
     contact: str
 
 
-class Workplace(Model):
+class Workplace(BaseModel):
     """Pydantic model for workplace form."""
 
     __modelname__ = "workplaces"
@@ -203,7 +196,7 @@ class Workplace(Model):
     reason: str | None = ""
 
 
-class Affilation(Model):
+class Affilation(BaseModel):
     """Pydantic model for affilation form."""
 
     __modelname__ = "affilations"
@@ -249,7 +242,7 @@ class Poligraf(Model):
     conclusion: Decisions
 
 
-class Investigation(Model):
+class Investigation(BaseModel):
     """Pydantic model for investigation form."""
 
     __modelname__ = "investigations"
@@ -259,7 +252,7 @@ class Investigation(Model):
     info: str
 
 
-class Inquiry(Model):
+class Inquiry(BaseModel):
     """Pydantic model for inquiry form."""
 
     __modelname__ = "inquiries"
@@ -270,7 +263,7 @@ class Inquiry(Model):
     origins: str | None = ""
 
 
-class NameWasChangedJson(Model):
+class NameWasChangedJson(BaseModel):
     """Pydantic model for name was changed item."""
 
     first_name: str = Field(alias="firstNameBeforeChange")
@@ -280,7 +273,7 @@ class NameWasChangedJson(Model):
     reason: str | None = ""
 
 
-class EducationJson(Model):
+class EducationJson(BaseModel):
     """Pydantic model for education item."""
 
     education_type: str = Field(default="", alias="educationType")
@@ -289,7 +282,7 @@ class EducationJson(Model):
     specialty: str | None = ""
 
 
-class ExperienceJson(Model):
+class ExperienceJson(BaseModel):
     """Pydantic model for experience item."""
 
     begin_date: date = Field(alias="beginDate")
@@ -301,33 +294,33 @@ class ExperienceJson(Model):
     fire_reason: str = Field(default="", alias="fireReason")
 
 
-class OrganizationsJson(Model):
+class OrganizationsJson(BaseModel):
     """Pydantic model for organizations item."""
 
     name: str | None = ""
     inn: str | None = ""
 
 
-class RelatedPersonsOrganizationsJson(Model):
+class RelatedPersonsOrganizationsJson(BaseModel):
     """Pydantic model for related persons organizations item."""
 
     name: str | None = ""
     inn: str | None = ""
 
 
-class StateOrganizationsJson(Model):
+class StateOrganizationsJson(BaseModel):
     """Pydantic model for state organizations item."""
 
     name: str | None = ""
 
 
-class PublicOfficeOrganizationsJson(Model):
+class PublicOfficeOrganizationsJson(BaseModel):
     """Pydantic model for public office organizations item."""
 
     name: str | None = ""
 
 
-class AnketaJson(Model):
+class AnketaJson(BaseModel):
     """Pydantic model for anketa schema."""
 
     surname: str = Field(alias="lastName")
@@ -377,7 +370,7 @@ class AnketaJson(Model):
         return v.upper().strip() if v else ""
 
 
-class File(Model):
+class File(BaseModel):
     """Pydantic model for file."""
 
     file: Any
@@ -401,7 +394,6 @@ class File(Model):
             "PRN",
             "NUL",
         )
-        windows_executable_files = ("exe", "com", "bat", "cmd")
         filename = unicodedata.normalize("NFKD", v)
         for sep in os.sep, os.path.altsep:
             if sep:
@@ -415,6 +407,4 @@ class File(Model):
             and filename.split(".")[0].upper() in windows_device_files
         ):
             filename = f"_{filename}"
-        if filename and filename.split(".")[-1].lower() in windows_executable_files:
-            filename = f"{filename}_dangerous_extension"
         return filename

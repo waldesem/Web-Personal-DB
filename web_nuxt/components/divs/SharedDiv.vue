@@ -20,7 +20,7 @@ import StaffForm from "@/components/forms/StaffForm.vue";
 import WorkplaceForm from "@/components/forms/WorkplaceForm.vue";
 
 const props = defineProps({
-  component: {
+  view: {
     type: String,
     required: true,
   },
@@ -46,20 +46,17 @@ const modal = ref(false);
 const pending = ref(false);
 const index = ref(0);
 
-const { refresh, status } = await useLazyAsyncData(
-  props.component,
-  async () => {
-    items.value = (await await useFetchAuth(
-      `/route/items/${props.component}/${candId.value}`
-    )) as DivsType[];
-  }
-);
+const { refresh, status } = await useLazyAsyncData(props.view, async () => {
+  items.value = (await await useFetchAuth(
+    `/route/items/${props.view}/${candId.value}`
+  )) as DivsType[];
+});
 
 async function submitItem(form: DivsType) {
   modal.value = false;
   pending.value = true;
   const { message } = (await useFetchAuth(
-    `/route/items/${props.component}/${candId.value}`,
+    `/route/items/${props.view}/${candId.value}`,
     {
       method: "POST",
       body: form,
@@ -74,12 +71,9 @@ async function submitItem(form: DivsType) {
 async function deleteItem(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   pending.value = true;
-  const { message } = (await useFetchAuth(
-    `/route/items/${props.component}/${id}`,
-    {
-      method: "DELETE",
-    }
-  )) as Record<string, string>;
+  const { message } = (await useFetchAuth(`/route/items/${props.view}/${id}`, {
+    method: "DELETE",
+  })) as Record<string, string>;
   pending.value = false;
   index.value = 0;
   if (message == "success") {
@@ -102,7 +96,7 @@ async function deleteItem(id: string, idx: number) {
             <input v-model="index" type="radio" name="item" :value="idx" >
           </div>
           <div class="flex-grow">
-            <component :is="mappedComponents[props.component][0]" :item="itm" />
+            <component :is="mappedComponents[props.view][0]" :item="itm" />
           </div>
         </div>
       </UCard>
@@ -123,13 +117,13 @@ async function deleteItem(id: string, idx: number) {
         <template #content>
           <UCard class="m-2">
             <component
-              :is="mappedComponents[props.component][1]"
+              :is="mappedComponents[props.view][1]"
               :item="item"
               @cancel="
                 item = {} as DivsType;
                 modal = false;
               "
-              @clear="item = {} as DivsType;"
+              @clear="item = {} as DivsType"
               @update="submitItem"
             />
           </UCard>

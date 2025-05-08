@@ -1,11 +1,7 @@
 <script setup lang="ts">
 import type { Persons } from "@/types";
 
-await preloadComponents([
-  "TabsAnketaTab",
-  "TabsSharedTab",
-  "TabsExplorerTab",
-]);
+await preloadComponents(["TabsAnketaTab", "TabsSharedTab", "TabsExplorerTab"]);
 
 const route = useRoute();
 const candId = computed(() => route.params.id) as Ref<string>;
@@ -71,7 +67,11 @@ const tabs = [
 async function switchSelf(): Promise<void> {
   if (person.value.user_id != stateUser.value.id) {
     if (person.value.editable) {
-      if (!confirm("Анкета редактируется другим пользователем. Переключить режим редактирования?")) {
+      if (
+        !confirm(
+          "Анкета редактируется другим пользователем. Переключить режим редактирования?"
+        )
+      ) {
         return;
       }
     }
@@ -97,11 +97,14 @@ async function changeRegion(): Promise<void> {
     return;
   }
   pending.value = true;
-  const { message } = (await useFetchAuth(`/route/anketa/region/${candId.value}`, {
-    params: {
-      region: region.value,
-    },
-  })) as Record<string, string>;
+  const { message } = (await useFetchAuth(
+    `/route/anketa/region/${candId.value}`,
+    {
+      params: {
+        region: region.value,
+      },
+    }
+  )) as Record<string, string>;
   pending.value = false;
   emitMessage(message);
   if (message == "success") {
@@ -146,31 +149,38 @@ async function changeRegion(): Promise<void> {
             @change="changeRegion"
           />
         </UTooltip>
-        <UTooltip text="Переключить режим редактирования">
+        <UTooltip text="Переключить режим">
           <UButton
             :loading="pending || status === 'pending'"
             :disabled="person.region != stateUser.region"
             :color="
-               !person.editable
-                 ? 'secondary'
-                 : person.user_id == stateUser.id
-                 ? 'success'
-                 : 'error'
+              !person.editable
+                ? 'secondary'
+                : person.user_id == stateUser.id
+                ? 'success'
+                : 'error'
             "
             @click="switchSelf"
           >
             {{
               !person.editable
-                 ? "Анкета доступна для редактирования"
-                 : person.user_id == stateUser.id
-                 ? "Анкета назначена текущему пользователю"
-                 : "Анкета редактируется другим пользователем"
+                ? "Анкета доступна для редактирования"
+                : person.user_id == stateUser.id
+                ? "Анкета назначена текущему пользователю"
+                : "Анкета редактируется другим пользователем"
             }}
           </UButton>
         </UTooltip>
       </div>
     </div>
-    <UTabs :unmount-on-hide="false" color="secondary" :items="tabs" variant="link" class="gap-4 w-full" :ui="{ trigger: 'flex-1' }">
+    <UTabs
+      :unmount-on-hide="false"
+      color="secondary"
+      :items="tabs"
+      variant="link"
+      class="gap-4 w-full"
+      :ui="{ trigger: 'flex-1' }"
+    >
       <template #anketaTab>
         <TabsAnketaTab @update="refresh()" />
       </template>

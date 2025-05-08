@@ -1,12 +1,16 @@
 """Route routes."""
 
-from flask import Blueprint, Response, jsonify
-from sqlalchemy import desc, func, select
+import json
+
+from flask import Blueprint, Response, current_app, jsonify
+from pydantic import ValidationError
+from sqlalchemy import desc, select
 
 from app.depends.depend import current_user, jwt_required, roles_required, validate
 from app.model.classes import Regions, Roles
-from app.model.models import Info, Search
-from app.model.tables import Checks, Persons, Users, db_session
+from app.model.models import AnketaJson, File, Person, Search
+from app.model.tables import Persons, Users, db_session
+from app.utils.utils import upload_items, upload_resume
 
 bp = Blueprint("route", __name__)
 
@@ -42,6 +46,9 @@ def get_index(page: int, query_data: Search) -> Response:
     if query_data.editable:
         stmt = stmt.filter(Persons.editable == query_data.editable)
 
+    if query_data.data:
+        stmt = stmt.filter(Persons.created == query_data.data)
+
     query = db_session.execute(
         stmt.order_by(desc(Persons.id))
         .offset((page - 1) * query_data.pagination)
@@ -52,38 +59,65 @@ def get_index(page: int, query_data: Search) -> Response:
     has_next = len(result) > query_data.pagination
     return jsonify(
         {
-            "results": result[:query_data.pagination] if has_next else result,
+            "results": result[: query_data.pagination] if has_next else result,
             "has_next": has_next,
         },
     ), 200
 
 
-@bp.get("/info")
+@bp.post("/resume")
 @validate()
-@roles_required(Roles.admin.value)
-def get_information(query_data: Info) -> Response:
-    """Retrieve the number of conclusion for a given region and period of time.
+@roles_required(Roles.user.value)
+def post_resume(json_data: Person) -> Response:
+    """Create a new person or updates an existing person based on the provided data.
 
-    Arguments:
-        query_data (Info): The query data containing the start and end dates,
-        the region, and the user's role.
+    Args:
+        json_data (Person): The data to create or update the person.
 
     Returns:
-        list: A list of dictionaries, each containing a conclusion and the number
-        of persons with that conclusion.
+        A JSON response containing the person ID and an HTTP status code of 201.
 
     """
-    results = db_session.execute(
-        select(Checks.conclusion, func.count(Checks.id))
-        .where(
-            Checks.person_id == Persons.id,
-            Checks.created.between(query_data.start, query_data.end),
-            Persons.region == query_data.region
-            if query_data.region
-            else current_user.region,
-        )
-        .group_by(Checks.conclusion),
-    ).all()
+    person_id, existed = upload_resume(json_data.dict())
     return jsonify(
-        [{"conclusion": result[0], "count": result[1]} for result in results],
-    )
+        {"person_id": person_id, "exists": existed},
+    ), 201
+
+
+@bp.post("/json")
+@validate()
+@roles_required(Roles.user.value, Roles.api.value)
+def post_json(file_data: list[File]) -> Response:
+    """Create a new person or updates an existing person based on the provided data.
+
+    Args:
+        file_data (File): The data to create or update the person.
+
+    Returns:
+        A JSON response containing the person ID and an HTTP status code of 201.
+
+    """
+    try:
+        json_data = json.load(file_data[0].file)
+        anketa = AnketaJson(**json_data)
+        resume = {
+            "surname": anketa.surname,
+            "firstname": anketa.firstname,
+            "patronymic": anketa.patronymic,
+            "birthday": anketa.birthday,
+            "birthplace": anketa.birthplace,
+            "citizenship": anketa.citizen,
+            "dual": anketa.dual,
+            "marital": anketa.marital,
+            "inn": anketa.inn,
+            "snils": anketa.snils,
+        }
+        person_id, existed = upload_resume(resume)
+        if person_id:
+            upload_items(anketa, person_id)
+        return jsonify(
+            {"person_id": person_id, "exists": existed},
+        ), 201
+    except (ValidationError, json.JSONDecodeError, TypeError):
+        current_app.logger.exception()
+        return jsonify({"person_id": None, "exists": False}), 200
