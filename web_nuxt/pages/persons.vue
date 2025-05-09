@@ -142,7 +142,7 @@ const columns: TableColumn<Persons>[] = [
     header: "Фамилия Имя Отчество",
     cell: ({ row }) => {
       return `${row.original.surname} ${row.original.firstname} ${
-        row.original.patronymic ? row.original.patronymic : ""
+        row.original.patronymic ?? ""
       }`;
     },
   },

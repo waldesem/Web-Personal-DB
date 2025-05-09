@@ -83,34 +83,34 @@ async function changeRegion(): Promise<void> {
   }
 }
 
-const items = [
+const items: TabsItem[] = [
   {
-    slot: "anketa" as const,
+    slot: "anketa",
     label: "Анкета",
     icon: "i-heroicons-user",
   },
   {
-    slot: "checks" as const,
+    slot: "checks",
     label: "Проверки",
     icon: "i-heroicons-check-circle",
   },
   {
-    slot: "poligrafs" as const,
+    slot: "poligrafs",
     label: "Полиграф",
     icon: "i-heroicons-bolt",
   },
   {
-    slot: "investigations" as const,
+    slot: "investigations",
     label: "Расследования",
     icon: "i-heroicons-briefcase",
   },
   {
-    slot: "inquiries" as const,
+    slot: "inquiries",
     label: "Запросы",
     icon: "i-heroicons-document-text",
   },
   {
-    slot: "explorer" as const,
+    slot: "explorer",
     label: "Файлы",
     icon: "i-heroicons-folder",
   },
@@ -125,7 +125,7 @@ const items = [
         <h3 class="text-2xl text-red-800 font-bold">
           {{
             `${person.surname} ${person.firstname} ${
-              person.patronymic ? person.patronymic : ""
+              person.patronymic ?? ""
             }`
           }}
         </h3>
