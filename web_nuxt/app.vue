@@ -1,6 +1,5 @@
 <script setup lang="ts">
 useHead({
-  charset: "utf-8",
   htmlAttrs: { lang: "ru" },
   title: "StaffSec - кадровая безопасность",
   meta: [

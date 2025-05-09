@@ -1,12 +1,7 @@
 <script setup lang="ts">
-definePageMeta({ layout: false });
+import type { Login } from "@/types";
 
-type Login = {
-  username: string;
-  password: string;
-  new_pswd: string;
-  conf_pswd: string;
-};
+definePageMeta({ layout: false });
 
 const loginAction = ref("login");
 const loginForm = ref({} as Login);
@@ -178,18 +173,18 @@ async function submitLogin(): Promise<void> {
               variant="outline"
               type="submit"
             />
-              <UButton 
-                v-if="loginAction === 'login'"
-                label="Изменить"
-                color="secondary"
-                variant="outline"
-                @click="loginAction = 'update'"
-              />
+            <UButton
+              v-if="loginAction === 'login'"
+              label="Изменить"
+              color="secondary"
+              variant="outline"
+              @click="loginAction = 'update'"
+            />
             <UButton
               label="Отмена"
               color="error"
               variant="outline"
-              @click="loginAction = 'login'"
+              @click="loginAction = 'login'; loginForm = ({} as Login)"
             />
           </UButtonGroup>
         </UForm>

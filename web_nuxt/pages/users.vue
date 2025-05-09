@@ -3,6 +3,9 @@ import type { TableColumn } from "@nuxt/ui";
 import { watchDebounced } from "@vueuse/core";
 import type { User } from "@/types";
 
+const UIcon = resolveComponent("UIcon");
+const UBadge = resolveComponent("UBadge");
+
 const search = ref("");
 const users = ref([] as User[]);
 const user = ref({} as User);
@@ -50,10 +53,48 @@ const columns: TableColumn<User>[] = [
   { accessorKey: "username", header: "Логин" },
   { accessorKey: "email", header: "Email" },
   { accessorKey: "region", header: "Регион" },
-  { accessorKey: "role", header: "Роль" },
+  {
+    accessorKey: "role",
+    header: "Роль",
+    cell: ({ row }) => {
+      return h(UBadge, {
+        color:
+          row.original.role === "admin"
+            ? "error"
+            : row.original.role === "user"
+            ? "success"
+            : row.original.role === "guest"
+            ? "secondary"
+            : "neutral",
+        label: row.original.role,
+      });
+    },
+  },
   { accessorKey: "attempt", header: "Попытка" },
-  { accessorKey: "blocked", header: "Блок" },
-  { accessorKey: "change_pswd", header: "Изм.пароля" },
+  {
+    accessorKey: "blocked",
+    header: "Блок",
+    cell: ({ row }) => {
+      return h(UIcon, {
+        name: row.original.blocked
+          ? "i-heroicons-lock-closed"
+          : "i-heroicons-lock-open",
+        class: "text-center w-4 h-4",
+      });
+    },
+  },
+  {
+    accessorKey: "change_pswd",
+    header: "Изм.пароля",
+    cell: ({ row }) => {
+      return h(UIcon, {
+        name: row.original.change_pswd
+          ? "i-heroicons-lock-closed"
+          : "i-heroicons-lock-open",
+        class: "text-center w-4 h-4",
+      });
+    },
+  },
 ];
 </script>
 
@@ -63,7 +104,11 @@ const columns: TableColumn<User>[] = [
       <h3 class="text-2xl text-gray-800 font-bold">ПОЛЬЗОВАТЕЛИ</h3>
     </div>
     <div class="my-6">
-      <UInput v-model="search" placeholder="Поиск по имени пользователя" type="search" />
+      <UInput
+        v-model="search"
+        placeholder="Поиск по имени пользователя"
+        type="search"
+      />
     </div>
     <div class="flex items-center justify-between mb-4">
       <UFormField class="flex items-center space-x-4 mb-3" label="Удаленные">
@@ -112,47 +157,12 @@ const columns: TableColumn<User>[] = [
 
     <UTable
       :loading="status === 'pending'"
-      :progress="{ color: 'red', animation: 'swing' }"
-      :empty-state="{
-        icon: 'i-heroicons-circle-stack-20-solid',
-        label: 'Пользователи не найдены.',
-      }"
+      loading-animation="carousel"
+      empty="Данные не найдены"
       :data="filtredUsers"
       :columns="columns"
+      :meta="{ class: { tr: 'cursor-pointer' } }"
       @select="getUser($event.original.id)"
-    >
-      <template #id-cell="{ row }">{{ row.original.id }}</template>
-      <template #fullname-cell="{ row }">{{ row.original.fullname }}</template>
-      <template #username-cell="{ row }">{{ row.original.username }}</template>
-      <template #region-cell="{ row }">{{ row.original.region }}</template>
-      <template #role-cell="{ row }">{{ row.original.role }}</template>
-      <template #attempt-cell="{ row }">
-        <div class="text-center">
-          {{ row.original.attempt }}
-        </div>
-      </template>
-      <template #blocked-cell="{ row }">
-        <div class="text-center">
-          <UIcon
-            :name="
-              row.original.blocked
-                ? 'i-heroicons-lock-closed'
-                : 'i-heroicons-lock-open'
-            "
-          />
-        </div>
-      </template>
-      <template #change_pswd-cell="{ row }">
-        <div class="text-center">
-          <UIcon
-            :name="
-              row.original.change_pswd
-                ? 'i-heroicons-lock-closed'
-                : 'i-heroicons-lock-open'
-            "
-          />
-        </div>
-      </template>
-    </UTable>
+    />
   </div>
 </template>

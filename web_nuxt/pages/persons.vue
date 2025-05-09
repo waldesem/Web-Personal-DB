@@ -29,7 +29,6 @@ const { refresh, status } = await useLazyAsyncData(
           search: search.value,
           editable: editable.value,
           pagination: pagination.value,
-          data: data.value,
         },
       }
     )) as Record<string, unknown> as {
@@ -136,20 +135,8 @@ async function submitResume(form: Persons): Promise<void> {
 }
 
 const columns: TableColumn<Persons>[] = [
-  {
-    accessorKey: "id",
-    header: "#",
-    cell: ({ row }) => {
-      return row.original.id;
-    },
-  },
-  {
-    accessorKey: "region",
-    header: "Регион",
-    cell: ({ row }) => {
-      return row.original.region;
-    },
-  },
+  { accessorKey: "id", header: "#" },
+  { accessorKey: "region", header: "Регион" },
   {
     accessorKey: "surname",
     header: "Фамилия Имя Отчество",
@@ -206,42 +193,37 @@ const columns: TableColumn<Persons>[] = [
       <div class="py-1">
         <h3 class="text-2xl text-red-800 font-bold">КАНДИДАТЫ</h3>
       </div>
-      <div class="flex items-center space-x-4">
-        <div v-if="stateUser.role == 'user'">
-          <UTooltip text="Создать анкету">
-            <UButton
-              :loading="status == 'pending' || upload"
-              icon="i-heroicons-user-plus"
-              size="xl"
-              variant="ghost"
-              @click="modal = true"
-            />
-          </UTooltip>
-          <UModal
-            v-model:open="modal"
-            :dismissible="false"
-            title="Создание анкеты"
-            description="Введите данные анкеты"
-          >
-            <template #content>
-              <UCard class="m-2">
-                <FormsResumeForm
-                  @cancel="modal = false"
-                  @update="submitResume"
-                />
-              </UCard>
-            </template>
-          </UModal>
-          <UTooltip text="Загрузить json">
-            <UButton
-              :loading="status == 'pending' || upload"
-              icon="i-heroicons-cloud-arrow-up"
-              size="xl"
-              variant="ghost"
-              @click="open()"
-            />
-          </UTooltip>
-        </div>
+      <div v-if="stateUser.role == 'user'" class="flex items-center space-x-4">
+        <UTooltip text="Создать анкету">
+          <UButton
+            :loading="status == 'pending' || upload"
+            icon="i-heroicons-user-plus"
+            size="xl"
+            variant="ghost"
+            @click="modal = true"
+          />
+        </UTooltip>
+        <UModal
+          v-model:open="modal"
+          :dismissible="false"
+          title="Создание анкеты"
+          description="Введите данные анкеты"
+        >
+          <template #content>
+            <UCard class="m-2">
+              <FormsResumeForm @cancel="modal = false" @update="submitResume" />
+            </UCard>
+          </template>
+        </UModal>
+        <UTooltip text="Загрузить json">
+          <UButton
+            :loading="status == 'pending' || upload"
+            icon="i-heroicons-cloud-arrow-up"
+            size="xl"
+            variant="ghost"
+            @click="open()"
+          />
+        </UTooltip>
       </div>
     </div>
 
@@ -250,7 +232,6 @@ const columns: TableColumn<Persons>[] = [
         id="search"
         v-model="search"
         :loading="status == 'pending'"
-        size="lg"
         type="search"
         icon="i-heroicons-magnifying-glass"
         placeholder="поиск по фамилии, имени, отчеству"
@@ -298,6 +279,7 @@ const columns: TableColumn<Persons>[] = [
         v-model="pagination"
         :items="[10, 20, 30, 50]"
         :loading="status == 'pending'"
+        :disabled="!hasNext"
         variant="soft"
       />
       <UTooltip text="Следующая страница">

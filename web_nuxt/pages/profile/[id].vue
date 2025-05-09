@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import type { Persons } from "@/types";
+import type { TabsItem } from '@nuxt/ui'
 
 await preloadComponents(["TabsAnketaTab", "TabsSharedTab", "TabsExplorerTab"]);
 
 const route = useRoute();
+
 const candId = computed(() => route.params.id) as Ref<string>;
 
 provide("candId", candId);
@@ -30,39 +32,6 @@ const editState = computed(() => {
 });
 
 provide("editable", editState);
-
-const tabs = [
-  {
-    slot: "anketaTab",
-    label: "Анкета",
-    icon: "i-heroicons-user",
-  },
-  {
-    slot: "checkTab",
-    label: "Проверки",
-    icon: "i-heroicons-check-circle",
-  },
-  {
-    slot: "poligrafTab",
-    label: "Полиграф",
-    icon: "i-heroicons-bolt",
-  },
-  {
-    slot: "investigateTab",
-    label: "Расследования",
-    icon: "i-heroicons-briefcase",
-  },
-  {
-    slot: "inquiryTab",
-    label: "Запросы",
-    icon: "i-heroicons-document-text",
-  },
-  {
-    slot: "explorerTab",
-    label: "Файлы",
-    icon: "i-heroicons-folder",
-  },
-];
 
 async function switchSelf(): Promise<void> {
   if (person.value.user_id != stateUser.value.id) {
@@ -113,6 +82,39 @@ async function changeRegion(): Promise<void> {
     region.value = person.value.region;
   }
 }
+
+const items = [
+  {
+    slot: "anketa" as const,
+    label: "Анкета",
+    icon: "i-heroicons-user",
+  },
+  {
+    slot: "checks" as const,
+    label: "Проверки",
+    icon: "i-heroicons-check-circle",
+  },
+  {
+    slot: "poligrafs" as const,
+    label: "Полиграф",
+    icon: "i-heroicons-bolt",
+  },
+  {
+    slot: "investigations" as const,
+    label: "Расследования",
+    icon: "i-heroicons-briefcase",
+  },
+  {
+    slot: "inquiries" as const,
+    label: "Запросы",
+    icon: "i-heroicons-document-text",
+  },
+  {
+    slot: "explorer" as const,
+    label: "Файлы",
+    icon: "i-heroicons-folder",
+  },
+] satisfies TabsItem[];
 </script>
 
 <template>
@@ -176,27 +178,27 @@ async function changeRegion(): Promise<void> {
     <UTabs
       :unmount-on-hide="false"
       color="secondary"
-      :items="tabs"
+      :items="items"
       variant="link"
       class="gap-4 w-full"
       :ui="{ trigger: 'flex-1' }"
     >
-      <template #anketaTab>
+      <template #anketa>
         <TabsAnketaTab @update="refresh()" />
       </template>
-      <template #checkTab>
-        <TabsSharedTab :component="'checks'" />
+      <template #checks="{ item }">
+        <TabsSharedTab :component="item.slot" />
       </template>
-      <template #poligrafTab>
-        <TabsSharedTab :component="'poligrafs'" />
+      <template #poligrafs="{ item }">
+        <TabsSharedTab :component="item.slot" />
       </template>
-      <template #investigateTab>
-        <TabsSharedTab :component="'investigations'" />
+      <template #investigations="{ item }">
+        <TabsSharedTab :component="item.slot" />
       </template>
-      <template #inquiryTab>
-        <TabsSharedTab :component="'inquiries'" />
+      <template #inquiries="{ item }">
+        <TabsSharedTab :component="item.slot" />
       </template>
-      <template #explorerTab>
+      <template #explorer>
         <TabsExplorerTab />
       </template>
     </UTabs>
