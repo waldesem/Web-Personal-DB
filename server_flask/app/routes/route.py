@@ -46,9 +46,6 @@ def get_index(page: int, query_data: Search) -> Response:
     if query_data.editable:
         stmt = stmt.filter(Persons.editable == query_data.editable)
 
-    if query_data.data:
-        stmt = stmt.filter(Persons.created == query_data.data)
-
     query = db_session.execute(
         stmt.order_by(desc(Persons.id))
         .offset((page - 1) * query_data.pagination)

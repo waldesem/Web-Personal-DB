@@ -33,7 +33,6 @@ class Search(BaseModel):
     search: str = ""
     pagination: int = 10
     editable: bool = False
-    data: date | None = None
 
 
 class Model(BaseModel):

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const emit = defineEmits(["cancel", "clear"]);
+const emit = defineEmits(["cancel"]);
 </script>
 
 <template>
@@ -10,12 +10,6 @@ const emit = defineEmits(["cancel", "clear"]);
         color="success"
         variant="outline"
         type="submit"
-      />
-      <UButton
-        label="Очистить"
-        color="primary"
-        variant="outline"
-        @click="emit('clear')"
       />
       <UButton
         label="Отмена"

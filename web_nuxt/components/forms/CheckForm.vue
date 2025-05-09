@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Verification } from "@/types";
 
-const emit = defineEmits(["cancel", "update", "clear"]);
+const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
   item: {
@@ -151,6 +151,6 @@ watch(noNegative, () => {
         placeholder="Выберите нужное решение из списка"
       />
     </UFormField>
-    <ElementsBtnGroup @cancel="emit('cancel')" @clear="emit('clear')" />
+    <ElementsBtnGroup @cancel="emit('cancel')" />
   </UForm>
 </template>

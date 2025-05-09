@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Address } from "@/types";
 
-const emit = defineEmits(["cancel", "update", 'clear']);
+const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
   item: {
@@ -30,6 +30,6 @@ const addressForm = ref(props.item as Address);
         placeholder="Адрес"
       />
     </UFormField>
-    <ElementsBtnGroup @cancel="emit('cancel')" @clear="emit('clear')" />
+    <ElementsBtnGroup @cancel="emit('cancel')" />
   </UForm>
 </template>

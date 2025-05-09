@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { UButton } from "@/.nuxt/components";
 
 async function logout() {
   if (confirm("Вы действительно хотите выйти?")) {

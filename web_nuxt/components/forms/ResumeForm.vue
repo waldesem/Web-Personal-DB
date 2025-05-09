@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Persons } from "@/types";
 
-const emit = defineEmits(["cancel", "update", "clear"]);
+const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
   resume: {
@@ -18,22 +18,23 @@ resumeForm.value.birthday = resumeForm.value.birthday
 
 const validate = (state: Partial<Persons>) => {
   const errors = [];
-  if (state.surname && !state.surname.match(/^[а-яёЁА-Я-\s]+$/)) {
+  const namePathern = /^[А-яЁё][А-яЁёIV\-.,'()\s]*[А-яЁё\s]$/
+  if (state.surname && !state.surname.match(namePathern)) {
     errors.push({
       path: "surname",
-      message: "Поле должно содержать только русские буквы",
+      message: "Поле содержит недопустимые символы",
     });
   }
-  if (state.firstname && !state.firstname.match(/^[а-яёЁА-Я-\s]+$/)) {
+  if (state.firstname && !state.firstname.match(namePathern)) {
     errors.push({
       path: "firstname",
-      message: "Поле должно содержать только русские буквы",
+      message: "Поле содержит недопустимые символы",
     });
   }
-  if (state.patronymic && !state.patronymic.match(/^[а-яёЁА-Я-\s]+$/)) {
+  if (state.patronymic && !state.patronymic.match(namePathern)) {
     errors.push({
       path: "patronymic",
-      message: "Поле должно содержать только русские буквы",
+      message: "Поле содержит недопустимые символы",
     });
   }
   if (state.birthday && !state.birthday.match(/^\d{4}-\d{2}-\d{2}$/)) {
@@ -138,12 +139,6 @@ const validate = (state: Partial<Persons>) => {
         placeholder="Дополнительно"
       />
     </UFormField>
-    <ElementsBtnGroup
-      @cancel="emit('cancel')"
-      @clear="
-        emit('clear');
-        resumeForm = {} as Persons;
-      "
-    />
+    <ElementsBtnGroup @cancel="emit('cancel')" />
   </UForm>
 </template>

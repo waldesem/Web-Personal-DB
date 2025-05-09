@@ -89,7 +89,6 @@ async function deleteItem(id: string, idx: number) {
               item = {} as TabsType;
               modal = false;
             "
-            @clear="item = {} as TabsType;"
             @update="submitItem"
           />
         </UCard>

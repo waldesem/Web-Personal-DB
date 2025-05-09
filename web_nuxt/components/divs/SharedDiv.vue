@@ -123,7 +123,6 @@ async function deleteItem(id: string, idx: number) {
                 item = {} as DivsType;
                 modal = false;
               "
-              @clear="item = {} as DivsType"
               @update="submitItem"
             />
           </UCard>

@@ -18,7 +18,6 @@ const upload = ref(false);
 const modal = ref(false);
 const updated = ref("Данные обновляются...");
 const candidates = ref([] as Persons[]);
-const data = ref(null);
 
 const { refresh, status } = await useLazyAsyncData(
   "candidates",
@@ -278,7 +277,6 @@ const columns: TableColumn<Persons>[] = [
           @click="refresh()"
         />
       </UTooltip>
-      <input v-model="data" type="date" @change="refresh()" >
       <div class="flex items-center space-x-2">
         <div class="text-sm text-blue-600">
           {{ editable ? "Показать все" : "Показать редактируемые" }}
