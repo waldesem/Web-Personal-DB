@@ -81,71 +81,72 @@ async function deleteItem(id: string, idx: number) {
   }
   emitMessage(message);
 }
+
+const loading = computed(() => {
+  return status.value == "pending" || pending.value
+});
 </script>
 
 <template>
-  <UCard
-    :variant="status == 'pending' || pending ? 'soft' : 'outline'"
-    class="my-2 mx-1"
-    :class="{ 'animate-pulse': status == 'pending' || pending }"
-  >
-    <div v-for="(itm, idx) in items" :key="idx" class="p-1">
-      <UCard :variant="status == 'pending' || pending ? 'soft' : 'outline'">
-        <div class="flex">
-          <div v-if="editable" class="flex-none mr-6 self-center">
-            <input v-model="index" type="radio" name="item" :value="idx" >
-          </div>
-          <div class="flex-grow">
-            <component :is="mappedComponents[props.view][0]" :item="itm" />
-          </div>
-        </div>
-      </UCard>
-    </div>
-    <div v-if="!items.length" class="flex justify-center text-red-800">
-      <div v-if="status == 'pending' || pending">
-        <UIcon name="i-heroicons-arrow-path" class="animate-spin w-8 h-8" />
+  <div class="flex flex-col items-center justify-center">
+    <UModal
+      v-model:open="loading"
+      :dismissible="false"
+      title="Load"
+      description="Loading data"
+      
+    >
+      <template #content><UProgress animation="swing" /></template>
+    </UModal>
+  </div>
+  <div v-for="(itm, idx) in items" :key="idx" class="py-2 ms-2">
+    <div class="flex">
+      <div v-if="editable" class="flex-none mr-6 self-center">
+        <input v-model="index" type="radio" name="item" :value="idx" >
       </div>
-      <div v-else>Данные отсутствуют</div>
+      <div class="flex-grow">
+        <component :is="mappedComponents[props.view][0]" :item="itm" />
+      </div>
     </div>
-    <template v-if="editable" #footer>
-      <UModal
-        v-model:open="modal"
-        :dismissible="false"
-        title="Адреса"
-        description="Данные профиля"
-      >
-        <template #content>
-          <UCard class="m-2">
-            <component
-              :is="mappedComponents[props.view][1]"
-              :item="item"
-              @cancel="
-                item = {} as DivsType;
-                modal = false;
-              "
-              @update="submitItem"
-            />
-          </UCard>
-        </template>
-      </UModal>
-      <UButton
-        icon="i-heroicons-document-plus"
-        label="Добавить"
-        variant="ghost"
-        :loading="status == 'pending' || pending"
-        @click="
-          item = {} as DivsType;
-          modal = true;
-        "
-      />
-      <ElementsDivMenu
-        v-if="items.length > 0 && (status != 'pending' || !pending)"
-        @update="
-          item = items[index];
-          modal = true;
-        "
-        @delete="deleteItem(items[index].id, index)"
-      />
-    </template>
-  </UCard>
+    <USeparator v-if="idx != items.length - 1" />
+  </div>
+  <div v-if="editable" class="py-2 border-t border-gray-200">
+    <UModal
+      v-model:open="modal"
+      :dismissible="false"
+      title="Адреса"
+      description="Данные профиля"
+    >
+      <template #content>
+        <div class="p-4">
+          <component
+            :is="mappedComponents[props.view][1]"
+            :item="item"
+            @cancel="
+              item = {} as DivsType;
+              modal = false;
+            "
+            @update="submitItem"
+          />
+        </div>
+      </template>
+    </UModal>
+    <UButton
+      icon="i-heroicons-document-plus"
+      label="Добавить"
+      variant="ghost"
+      @click="
+        item = {} as DivsType;
+        modal = true;
+      "
+    />
+    <ElementsDivMenu
+      v-if="items.length > 0"
+      @update="
+        item = items[index];
+        modal = true;
+      "
+      @delete="deleteItem(items[index].id, index)"
+    />
+  </div>
 </template>

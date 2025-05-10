@@ -77,7 +77,7 @@ const columns: TableColumn<User>[] = [
     cell: ({ row }) => {
       return h(UIcon, {
         name: row.original.blocked
-          ? "i-heroicons-lock-closed"
+          ? "i-heroicons-lock-closed-solid"
           : "i-heroicons-lock-open",
         class: "text-center w-4 h-4",
       });
@@ -89,8 +89,8 @@ const columns: TableColumn<User>[] = [
     cell: ({ row }) => {
       return h(UIcon, {
         name: row.original.change_pswd
-          ? "i-heroicons-lock-closed"
-          : "i-heroicons-lock-open",
+          ? "i-heroicons-clock-solid"
+          : "i-heroicons-clock",
         class: "text-center w-4 h-4",
       });
     },
@@ -101,7 +101,7 @@ const columns: TableColumn<User>[] = [
 <template>
   <div class="mb-6">
     <div class="py-1">
-      <h3 class="text-2xl text-gray-800 font-bold">ПОЛЬЗОВАТЕЛИ</h3>
+      <h3 class="text-2xl text-gray-600 font-bold">ПОЛЬЗОВАТЕЛИ</h3>
     </div>
     <div class="my-6">
       <UInput

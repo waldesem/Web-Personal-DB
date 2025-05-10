@@ -1,14 +1,9 @@
 <script setup lang="ts">
+import type { UserForm } from "@/types";
 
 const toast = useToast();
 
 const emit = defineEmits(["cancel", "update"]);
-
-type UserForm = {
-  fullname: string;
-  username: string;
-  email: string;
-};
 
 const form = ref({} as UserForm);
 
@@ -65,7 +60,7 @@ async function submitUser() {
 </script>
 
 <template>
-   <UCard class="m-2">
+  <div class="m-4">
     <UForm :validate="validate" :state="form" @submit.prevent="submitUser">
       <UFormField
         class="mb-3"
@@ -79,11 +74,11 @@ async function submitUser() {
           required
         />
       </UFormField>
-      <UFormField class="mb-3" label="Логин" name="username">
-        <UInput v-model="form.username" placeholder="Логин" required />
+      <UFormField class="mb-3" label="Логин" name="username" required>
+        <UInput v-model="form.username" placeholder="Логин" />
       </UFormField>
-      <UFormField class="mb-3" label="Email" name="email">
-        <UInput v-model="form.email" placeholder="Email" required />
+      <UFormField class="mb-3" label="Email" name="email" required>
+        <UInput v-model="form.email" placeholder="Email" />
       </UFormField>
       <ElementsBtnGroup
         @cancel="
@@ -92,5 +87,5 @@ async function submitUser() {
         "
       />
     </UForm>
-  </UCard>
+  </div>
 </template>

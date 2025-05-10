@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import type { Persons } from "@/types";
 import { watchDebounced, useFileDialog } from "@vueuse/core";
-import type { TableColumn } from "@nuxt/ui";
+import type { DropdownMenuItem, TableColumn } from "@nuxt/ui";
+import type { Persons } from "@/types";
 
 preloadRouteComponents("/profile/[id]");
 
 const UIcon = resolveComponent("UIcon");
+const UButton = resolveComponent("UButton");
+const UDropdownMenu = resolveComponent("UDropdownMenu");
 
 const toast = useToast();
 
@@ -134,6 +136,20 @@ async function submitResume(form: Persons): Promise<void> {
   sendMessage(person_id, exists);
 }
 
+function getRowItems(candidate: Persons, index: number) {
+  return [
+    {
+      label: "Переключить статус",
+      async onSelect() {
+        const person = (await useFetchAuth(
+          "/route/anketa/self/" + candidate.id
+        )) as Persons;
+        candidates.value.splice(index, 1, person);
+      },
+    },
+  ];
+}
+
 const columns: TableColumn<Persons>[] = [
   { accessorKey: "id", header: "#" },
   { accessorKey: "region", header: "Регион" },
@@ -165,6 +181,11 @@ const columns: TableColumn<Persons>[] = [
         class: row.original.editable
           ? "text-start w-4 h-4 animate-spin text-red-800"
           : "text-start w-4 h-4 text-blue-800",
+        title: !row.original.editable
+          ? "Анкета доступна для редактирования"
+          : row.original.user_id == stateUser.value.id
+          ? "Анкета назначена текущему пользователю"
+          : "Анкета редактируется другим пользователем",
       });
     },
   },
@@ -184,6 +205,47 @@ const columns: TableColumn<Persons>[] = [
         : "";
     },
   },
+  {
+    id: "actions",
+    cell: ({ row }) => {
+      return h(
+        "div",
+        { class: "text-right" },
+        h(
+          UDropdownMenu,
+          {
+            content: {
+              align: "end",
+            },
+            items: getRowItems(row.original, row.index),
+          },
+          () =>
+            h(UButton, {
+              icon: "i-heroicons-ellipsis-vertical",
+              color: "neutral",
+              variant: "ghost",
+            })
+        )
+      );
+    },
+  },
+];
+
+const items: DropdownMenuItem[] = [
+  {
+    label: "Создать анкету",
+    icon: "i-heroicons-user-plus",
+    onSelect() {
+      modal.value = true;
+    },
+  },
+  {
+    label: "Загрузить json",
+    icon: "i-heroicons-cloud-arrow-up",
+    onSelect() {
+      open();
+    },
+  },
 ];
 </script>
 
@@ -194,15 +256,13 @@ const columns: TableColumn<Persons>[] = [
         <h3 class="text-2xl text-red-800 font-bold">КАНДИДАТЫ</h3>
       </div>
       <div v-if="stateUser.role == 'user'" class="flex items-center space-x-4">
-        <UTooltip text="Создать анкету">
+        <UDropdownMenu :items="items" :content="{ align: 'end' }">
           <UButton
-            :loading="status == 'pending' || upload"
-            icon="i-heroicons-user-plus"
-            size="xl"
-            variant="ghost"
-            @click="modal = true"
+            icon="i-heroicons-bars-4"
+            variant="outline"
+            title="Выбор действия"
           />
-        </UTooltip>
+        </UDropdownMenu>
         <UModal
           v-model:open="modal"
           :dismissible="false"
@@ -210,20 +270,11 @@ const columns: TableColumn<Persons>[] = [
           description="Введите данные анкеты"
         >
           <template #content>
-            <UCard class="m-2">
+            <div class="m-4">
               <FormsResumeForm @cancel="modal = false" @update="submitResume" />
-            </UCard>
+            </div>
           </template>
         </UModal>
-        <UTooltip text="Загрузить json">
-          <UButton
-            :loading="status == 'pending' || upload"
-            icon="i-heroicons-cloud-arrow-up"
-            size="xl"
-            variant="ghost"
-            @click="open()"
-          />
-        </UTooltip>
       </div>
     </div>
 

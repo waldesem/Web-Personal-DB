@@ -9,13 +9,18 @@ export type Method =
   | "options"
   | "trace";
 
-
-  export interface  Login {
+export interface Login {
   username: string;
   password: string;
   new_pswd: string;
   conf_pswd: string;
-};
+}
+
+export interface UserForm {
+  fullname: string;
+  username: string;
+  email: string;
+}
 
 export interface User {
   id: string;
@@ -213,5 +218,5 @@ export type DivsType =
 export type TabsType = Verification | Pfo | Inquisition | Needs;
 
 export interface MappedCompType {
-  [key: string]: [Component, Component]
-};
+  [key: string]: [Component, Component];
+}

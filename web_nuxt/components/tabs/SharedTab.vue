@@ -33,11 +33,14 @@ const items = ref<TabsType[]>([]);
 const modal = ref(false);
 const pending = ref(false);
 
-const { refresh, status } = await useLazyAsyncData(props.component, async () => {
-  items.value = (await useFetchAuth(
-    `/route/items/${props.component}/${candId.value}`
-  )) as TabsType[];
-});
+const { refresh, status } = await useLazyAsyncData(
+  props.component,
+  async () => {
+    items.value = (await useFetchAuth(
+      `/route/items/${props.component}/${candId.value}`
+    )) as TabsType[];
+  }
+);
 
 async function submitItem(form: TabsType) {
   modal.value = false;
@@ -49,7 +52,6 @@ async function submitItem(form: TabsType) {
       body: form,
     }
   )) as Record<string, string>;
-  pending.value = false;
   item.value = {} as TabsType;
   await refresh();
   emitMessage(message);
@@ -57,22 +59,42 @@ async function submitItem(form: TabsType) {
 
 async function deleteItem(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const { message } = (await useFetchAuth(`/route/items/${props.component}/${id}`, {
-    method: "DELETE",
-  })) as Record<string, string>;
+  const { message } = (await useFetchAuth(
+    `/route/items/${props.component}/${id}`,
+    {
+      method: "DELETE",
+    }
+  )) as Record<string, string>;
   if (message == "success") {
     items.value.splice(idx, 1);
   }
   emitMessage(message);
 }
+
+const loading = computed(() => {
+  return status.value == "pending" || pending.value;
+});
 </script>
 
 <template>
-  <UCard
-    :variant="status == 'pending' || pending ? 'soft' : 'outline'"
-    class="my-2 mx-1"
-    :class="{ 'animate-pulse': status == 'pending' || pending }"
-  > 
+  <div class="flex flex-col items-center justify-center">
+    <UModal
+      v-model:open="loading"
+      :dismissible="false"
+      title="Load"
+      description="Loading data"
+    >
+      <template #content><UProgress animation="swing" /></template>
+    </UModal>
+  </div>
+  <div class="my-2">
+    <UButton
+      v-if="editable"
+      label="Добавить запись"
+      variant="ghost"
+      icon="i-heroicons-plus-circle"
+      @click="modal = !modal"
+    />
     <UModal
       v-model:open="modal"
       :ui="{ content: 'sm:max-w-4xl overflow-y-auto' }"
@@ -81,7 +103,7 @@ async function deleteItem(id: string, idx: number) {
       description="Данные профиля"
     >
       <template #content>
-        <UCard class="m-2">
+        <div class="m-4">
           <component
             :is="mappedComponents[props.component][1]"
             :item="item"
@@ -91,27 +113,15 @@ async function deleteItem(id: string, idx: number) {
             "
             @update="submitItem"
           />
-        </UCard>
+        </div>
       </template>
     </UModal>
-    <UButton
-      v-if="editable"
-      :loading="status == 'pending' || pending"
-      label="Добавить запись"
-      variant="ghost"
-      icon="i-heroicons-plus-circle"
-      @click="modal = !modal"
-    />
-    <UCard
-      v-for="(content, index) in items"
-      :key="content.id"
-      :variant="status == 'pending' || pending ? 'soft' : 'outline'"
-      class="m-2"
-    >
+
+    <UCard v-for="(content, index) in items" :key="content.id" class="my-4">
       <component :is="mappedComponents[props.component][0]" :item="content" />
       <template v-if="editable" #footer>
         <ElementsTabMenu
-          v-if="items.length > 0 && (status != 'pending' || !pending)"
+          v-if="items.length > 0"
           :item="props.component"
           @cancel="modal = false"
           @delete="deleteItem(content.id, index)"
@@ -122,11 +132,5 @@ async function deleteItem(id: string, idx: number) {
         />
       </template>
     </UCard>
-    <div v-if="!items.length" class="flex justify-center text-red-800">
-      <div v-if="status == 'pending' || pending">
-        <UIcon name="i-heroicons-arrow-path" class="animate-spin w-8 h-8" />
-      </div>
-      <div v-else>Данные отсутствуют</div>
-    </div>
-  </UCard>
+  </div>
 </template>

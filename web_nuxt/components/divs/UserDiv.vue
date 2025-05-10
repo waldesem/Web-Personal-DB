@@ -57,7 +57,7 @@ async function userAction(item: string, id: string): Promise<void> {
 </script>
 
 <template>
-   <UCard class="m-2">
+  <div class="m-4">
     <ElementsLabelSlot :label="'ID'">{{ props.user.id }}</ElementsLabelSlot>
     <ElementsLabelSlot :label="'Пользователь'">{{
       props.user.fullname
@@ -126,5 +126,5 @@ async function userAction(item: string, id: string): Promise<void> {
         @click="emit('cancel')"
       />
     </UButtonGroup>
-  </UCard>
+  </div>
 </template>

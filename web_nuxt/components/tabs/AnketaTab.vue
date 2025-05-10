@@ -43,12 +43,7 @@ const items: AccordionItem[] = [
 
 <template>
   <DivsResumeDiv @update="emit('update')" />
-  <UAccordion
-    :items="items"
-    :unmount-on-hide="false"
-    :ui="{ item: 'border rounded-md' }"
-    type="multiple"
-  >
+  <UAccordion :items="items" :unmount-on-hide="false">
     <template #content="{ item }">
       <DivsSharedDiv :view="(item.content as string)" />
     </template>

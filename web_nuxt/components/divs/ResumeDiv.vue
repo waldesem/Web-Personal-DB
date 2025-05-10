@@ -41,56 +41,53 @@ async function deleteItem() {
   emitMessage(message);
   return navigateTo("/persons");
 }
+
+const loading = computed(() => {
+  return status.value == "pending" || pending.value;
+});
 </script>
 
 <template>
-  <UCard
-    :variant="status == 'pending' || pending ? 'soft' : 'outline'"
-    class="my-2 mx-1"
-    :class="{ 'animate-pulse': pending }"
-  >
-    <div v-if="status === 'pending'">
-      <div v-for="i in 14" :key="i" class="flex grid grid-cols-12 gap-3 mb-3">
-        <div class="col-span-3">
-          <USkeleton class="h-4" />
+  <div class="flex flex-col items-center justify-center">
+    <UModal
+      v-model:open="loading"
+      :dismissible="false"
+      title="Load"
+      description="Loading data"
+    >
+      <template #content><UProgress animation="swing" /></template>
+    </UModal>
+  </div>
+  <DivsItemsResumeItem :person="person" />
+  <div v-if="editable" class="py-2">
+    <UModal
+      v-model:open="modal"
+      :ui="{ content: 'overflow-y-auto' }"
+      :dismissible="false"
+      title="Резюме"
+      description="Данные профиля"
+    >
+      <template #content>
+        <div class="m-4">
+          <FormsResumeForm
+            :resume="resume"
+            @update="submitResume"
+            @cancel="
+              resume = {} as Persons;
+              modal = false;
+            "
+          />
         </div>
-        <div class="col-span-9">
-          <USkeleton class="h-4 w-[300px]" />
-        </div>
-      </div>
-    </div>
-    <div v-else>
-      <DivsItemsResumeItem :person="person" />
-    </div>
-    <template v-if="editable" #footer>
-      <UModal
-        v-model:open="modal"
-        :ui="{ content: 'overflow-y-auto' }"
-        :dismissible="false"
-        title="Резюме"
-        description="Данные профиля"
-      >
-        <template #content>
-          <UCard class="m-2">
-            <FormsResumeForm
-              :resume="resume"
-              @update="submitResume"
-              @cancel="
-                resume = {} as Persons;
-                modal = false;
-              "
-            />
-          </UCard>
-        </template>
-      </UModal>
-      <ElementsTabMenu
-        :item="'persons'"
-        @delete="deleteItem"
-        @update="
-          resume = person;
-          modal = true;
-        "
-      />
-    </template>
-  </UCard>
+      </template>
+    </UModal>
+    <ElementsTabMenu
+      :item="'persons'"
+      @delete="deleteItem"
+      @update="
+        resume = person;
+        modal = true;
+      "
+    />
+  </div>
+  <USeparator />
 </template>

@@ -82,14 +82,12 @@ const options = [
 </script>
 
 <template>
-  <UButtonGroup>
-    <UButton
-      v-for="option in options"
-      :key="option.label"
-      :icon="option.icon"
-      :label="option.label"
-      variant="ghost"
-      @click="option.click"
-    />
-  </UButtonGroup>
+  <UButton
+    v-for="option in options"
+    :key="option.label"
+    :icon="option.icon"
+    :label="option.label"
+    variant="ghost"
+    @click="option.click"
+  />
 </template>

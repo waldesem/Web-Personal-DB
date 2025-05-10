@@ -25,7 +25,12 @@ async function logout() {
         </NuxtLink>
       </UTooltip>
       <div v-if="stateUser.role == 'admin'">
-        <NuxtLink to="/users">ПОЛЬЗОВАТЕЛИ</NuxtLink>
+        <UButton 
+          icon="i-heroicons-users" 
+          to="/users" 
+          variant="link"
+          label="Пользователи"
+        />          
       </div>
       <UTooltip text="Выход">
         <UButton
