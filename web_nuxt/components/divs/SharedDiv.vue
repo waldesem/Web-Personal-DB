@@ -44,7 +44,6 @@ const item = ref({} as DivsType);
 const items = ref([] as DivsType[]);
 const modal = ref(false);
 const pending = ref(false);
-const index = ref(0);
 
 const { refresh, status } = await useLazyAsyncData(props.view, async () => {
   items.value = (await await useFetchAuth(
@@ -75,7 +74,6 @@ async function deleteItem(id: string, idx: number) {
     method: "DELETE",
   })) as Record<string, string>;
   pending.value = false;
-  index.value = 0;
   if (message == "success") {
     items.value.splice(idx, 1);
   }
@@ -83,7 +81,7 @@ async function deleteItem(id: string, idx: number) {
 }
 
 const loading = computed(() => {
-  return status.value == "pending" || pending.value
+  return status.value == "pending" || pending.value;
 });
 </script>
 
@@ -94,59 +92,85 @@ const loading = computed(() => {
       :dismissible="false"
       title="Load"
       description="Loading data"
-      
     >
       <template #content><UProgress animation="swing" /></template>
     </UModal>
   </div>
   <div v-for="(itm, idx) in items" :key="idx" class="py-2 ms-2">
-    <div class="flex">
-      <div v-if="editable" class="flex-none mr-6 self-center">
-        <input v-model="index" type="radio" name="item" :value="idx" >
-      </div>
-      <div class="flex-grow">
-        <component :is="mappedComponents[props.view][0]" :item="itm" />
-      </div>
+    <div class="absolute top-2 right-2">
+      <UDropdownMenu
+        :disabled="!editable"
+        :items="[
+          {
+            label: 'Изменить',
+            icon: 'i-heroicons-pencil-square',
+            onSelect() {
+              item = items[idx];
+              modal = true;
+            },
+          },
+          {
+            label: 'Удалить',
+            icon: 'i-heroicons-trash',
+            onSelect() {
+              deleteItem(items[idx].id, idx);
+            },
+          },
+        ]"
+        :content="{ align: 'end' }"
+      >
+        <UButton
+          icon="i-heroicons-ellipsis-vertical"
+          variant="outline"
+          title="Выбор действия"
+        />
+      </UDropdownMenu>
     </div>
+    <component :is="mappedComponents[props.view][0]" :item="itm" />
     <USeparator v-if="idx != items.length - 1" />
   </div>
-  <div v-if="editable" class="py-2 border-t border-gray-200">
-    <UModal
-      v-model:open="modal"
-      :dismissible="false"
-      title="Адреса"
-      description="Данные профиля"
-    >
+  <UModal
+    v-model:open="modal"
+    :dismissible="false"
+    title="Адреса"
+    description="Данные профиля"
+  >
+    <template #content>
+      <div class="p-4">
+        <component
+          :is="mappedComponents[props.view][1]"
+          :item="item"
+          @cancel="
+            item = {} as DivsType;
+            modal = false;
+          "
+          @update="submitItem"
+        />
+      </div>
+    </template>
+  </UModal>
+  <div class="py-2 border-t border-gray-200">
+    <UCollapsible :disabled="!editable" class="flex flex-col gap-2 w-48">
+      <UButton
+        color="neutral"
+        variant="subtle"
+        trailing-icon="i-heroicons-chevron-down"
+        :ui="{
+          trailingIcon:
+            'group-data-[state=open]:rotate-180 transition-transform duration-200',
+        }"
+        block
+      />
       <template #content>
-        <div class="p-4">
-          <component
-            :is="mappedComponents[props.view][1]"
-            :item="item"
-            @cancel="
-              item = {} as DivsType;
-              modal = false;
-            "
-            @update="submitItem"
-          />
-        </div>
+        <UButton
+          icon="i-heroicons-document-plus"
+          size="xl"
+          @click="
+            item = {} as DivsType;
+            modal = true;
+          "
+        />
       </template>
-    </UModal>
-    <UButton
-      icon="i-heroicons-document-plus"
-      label="Добавить"
-      variant="ghost"
-      @click="
-        item = {} as DivsType;
-        modal = true;
-      "
-    />
-    <ElementsDivMenu
-      v-if="items.length > 0"
-      @update="
-        item = items[index];
-        modal = true;
-      "
-      @delete="deleteItem(items[index].id, index)"
-    />
+    </UCollapsible>
   </div>
 </template>
