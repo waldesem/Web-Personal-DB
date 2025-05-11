@@ -10,9 +10,6 @@ const props = defineProps({
 </script>
 
 <template>
-  <ElementsLabelSlot :label="'ID запроса'">
-    {{ props.item.id }}
-  </ElementsLabelSlot>
   <ElementsLabelSlot :label="'Информация'">{{
     props.item.info
   }}</ElementsLabelSlot>

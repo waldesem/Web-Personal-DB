@@ -87,12 +87,13 @@ const loading = computed(() => {
       <template #content><UProgress animation="swing" /></template>
     </UModal>
   </div>
-  <div class="my-2">
+  <div class="mt-2">
     <UButton
       v-if="editable"
+      class="flex justify-end "
       label="Добавить запись"
       variant="ghost"
-      icon="i-heroicons-plus-circle"
+      icon="i-heroicons-document-plus"
       @click="modal = !modal"
     />
     <UModal
@@ -116,21 +117,21 @@ const loading = computed(() => {
         </div>
       </template>
     </UModal>
-
-    <UCard v-for="(content, index) in items" :key="content.id" class="my-4">
+    <div v-for="(content, index) in items" :key="content.id" class="py-4 ms-2">
+      <div v-if="editable" class="relative">
+        <div class="absolute top-2 right-2">
+          <ElementsTabMenu
+            :item="props.component"
+            @delete="deleteItem(content.id, index)"
+            @update="
+              item = content;
+              modal = true;
+            "
+          />
+        </div>
+      </div>
       <component :is="mappedComponents[props.component][0]" :item="content" />
-      <template v-if="editable" #footer>
-        <ElementsTabMenu
-          v-if="items.length > 0"
-          :item="props.component"
-          @cancel="modal = false"
-          @delete="deleteItem(content.id, index)"
-          @update="
-            item = content;
-            modal = true;
-          "
-        />
-      </template>
-    </UCard>
+      <USeparator v-if="index != items.length - 1" />
+    </div>
   </div>
 </template>

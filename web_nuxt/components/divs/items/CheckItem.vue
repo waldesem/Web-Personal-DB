@@ -10,9 +10,6 @@ const props = defineProps({
 </script>
 
 <template>
-  <ElementsLabelSlot :label="'ID проверки'">
-    {{ props.item.id }}
-  </ElementsLabelSlot>
   <ElementsLabelSlot
     v-if="props.item.workplace"
     :label="'Проверка по местам работы'"

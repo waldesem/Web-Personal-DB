@@ -11,9 +11,7 @@ async function logout() {
 </script>
 
 <template>
-  <UContainer
-    :ui="{ constrained: 'max-w-screen-2xl', padding: 'px-4 sm:px-6 lg:px-12' }"
-  >
+  <UContainer>
     <div class="sticky flex items-center justify-between pt-8 pb-16">
       <UTooltip text="На главную страницу">
         <NuxtLink to="/persons">

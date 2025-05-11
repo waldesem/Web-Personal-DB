@@ -97,34 +97,38 @@ const loading = computed(() => {
     </UModal>
   </div>
   <div v-for="(itm, idx) in items" :key="idx" class="py-2 ms-2">
-    <div class="absolute top-2 right-2">
-      <UDropdownMenu
-        :disabled="!editable"
-        :items="[
-          {
-            label: 'Изменить',
-            icon: 'i-heroicons-pencil-square',
-            onSelect() {
-              item = items[idx];
-              modal = true;
+    <div class="relative">
+      <div class="absolute top-2 right-2">
+        <UDropdownMenu
+          :disabled="!editable"
+          :items="[
+            {
+              label: 'Изменить',
+              icon: 'i-heroicons-pencil-square',
+              onSelect() {
+                item = items[idx];
+                modal = true;
+              },
             },
-          },
-          {
-            label: 'Удалить',
-            icon: 'i-heroicons-trash',
-            onSelect() {
-              deleteItem(items[idx].id, idx);
+            {
+              label: 'Удалить',
+              icon: 'i-heroicons-trash',
+              onSelect() {
+                deleteItem(items[idx].id, idx);
+              },
             },
-          },
-        ]"
-        :content="{ align: 'end' }"
-      >
-        <UButton
-          icon="i-heroicons-ellipsis-vertical"
-          variant="outline"
-          title="Выбор действия"
-        />
-      </UDropdownMenu>
+          ]"
+          :content="{ align: 'end' }"
+        >
+          <UButton
+            size="xl"
+            color="neutral"
+            icon="i-heroicons-ellipsis-vertical"
+            variant="ghost"
+            title="Выбор действия"
+          />
+        </UDropdownMenu>
+      </div>
     </div>
     <component :is="mappedComponents[props.view][0]" :item="itm" />
     <USeparator v-if="idx != items.length - 1" />
@@ -150,27 +154,15 @@ const loading = computed(() => {
     </template>
   </UModal>
   <div class="py-2 border-t border-gray-200">
-    <UCollapsible :disabled="!editable" class="flex flex-col gap-2 w-48">
-      <UButton
-        color="neutral"
-        variant="subtle"
-        trailing-icon="i-heroicons-chevron-down"
-        :ui="{
-          trailingIcon:
-            'group-data-[state=open]:rotate-180 transition-transform duration-200',
-        }"
-        block
-      />
-      <template #content>
-        <UButton
-          icon="i-heroicons-document-plus"
-          size="xl"
-          @click="
-            item = {} as DivsType;
-            modal = true;
-          "
-        />
-      </template>
-    </UCollapsible>
+    <UButton
+      :disabled="!editable"
+      label="Добавить запись"
+      icon="i-heroicons-document-plus"
+      variant="ghost"
+      @click="
+        item = {} as DivsType;
+        modal = true;
+      "
+    />
   </div>
 </template>

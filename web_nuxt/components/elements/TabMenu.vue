@@ -61,33 +61,39 @@ onCancel(() => {
   reset();
 });
 
-const options = [
-  {
-    label: "Удалить",
-    icon: "i-heroicons-trash",
-    click: () => emit("delete"),
-  },
+const items = [
   {
     label: "Изменить",
     icon: "i-heroicons-pencil-square",
-    click: () => emit("update"),
+    onSelect() {
+      emit("update");
+    },
   },
   {
     label: "Загрузить",
     icon: "i-heroicons-cloud-arrow-up",
-    slot: "upload",
-    click: () => open(),
+    onSelect() {
+      open();
+    },
+  },
+  {
+    label: "Удалить",
+    icon: "i-heroicons-trash",
+    onSelect() {
+      emit("delete");
+    },
   },
 ];
 </script>
 
 <template>
-  <UButton
-    v-for="option in options"
-    :key="option.label"
-    :icon="option.icon"
-    :label="option.label"
-    variant="ghost"
-    @click="option.click"
-  />
+  <UDropdownMenu :items="items" :content="{ align: 'end'}">
+    <UButton
+      size="xl"
+      color="neutral"
+      icon="i-heroicons-ellipsis-vertical"
+      variant="ghost"
+      title="Выбор действия"
+    />
+  </UDropdownMenu>
 </template>

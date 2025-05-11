@@ -58,36 +58,38 @@ const loading = computed(() => {
       <template #content><UProgress animation="swing" /></template>
     </UModal>
   </div>
-  <DivsItemsResumeItem :person="person" />
-  <div v-if="editable" class="py-2">
-    <UModal
-      v-model:open="modal"
-      :ui="{ content: 'overflow-y-auto' }"
-      :dismissible="false"
-      title="Резюме"
-      description="Данные профиля"
-    >
-      <template #content>
-        <div class="m-4">
-          <FormsResumeForm
-            :resume="resume"
-            @update="submitResume"
-            @cancel="
-              resume = {} as Persons;
-              modal = false;
-            "
-          />
-        </div>
-      </template>
-    </UModal>
-    <ElementsTabMenu
-      :item="'persons'"
-      @delete="deleteItem"
-      @update="
-        resume = person;
-        modal = true;
-      "
-    />
+  <div v-if="editable" class="relative">
+    <div class="absolute top-2 right-2">
+      <ElementsTabMenu
+        :item="'persons'"
+        @delete="deleteItem"
+        @update="
+          resume = person;
+          modal = true;
+        "
+      />
+    </div>
   </div>
+  <DivsItemsResumeItem :person="person" />
+  <UModal
+    v-model:open="modal"
+    :ui="{ content: 'overflow-y-auto' }"
+    :dismissible="false"
+    title="Резюме"
+    description="Данные профиля"
+  >
+    <template #content>
+      <div class="m-4">
+        <FormsResumeForm
+          :resume="resume"
+          @update="submitResume"
+          @cancel="
+            resume = {} as Persons;
+            modal = false;
+          "
+        />
+      </div>
+    </template>
+  </UModal>
   <USeparator />
 </template>
