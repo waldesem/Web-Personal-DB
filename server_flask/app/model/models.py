@@ -106,7 +106,7 @@ class Person(Model):
         return v.upper().strip() if v else ""
 
 
-class Prev(BaseModel):
+class Prev(Model):
     """Pydantic model for previous form."""
 
     __modelname__ = "previous"
@@ -125,7 +125,7 @@ class Prev(BaseModel):
         return v.upper().strip() if v else ""
 
 
-class Education(BaseModel):
+class Education(Model):
     """Pydantic model for education form."""
 
     __modelname__ = "educations"
@@ -137,7 +137,7 @@ class Education(BaseModel):
     specialty: str | None = ""
 
 
-class Staff(BaseModel):
+class Staff(Model):
     """Pydantic model for staff form."""
 
     __modelname__ = "staffs"
@@ -147,7 +147,7 @@ class Staff(BaseModel):
     department: str | None = ""
 
 
-class Document(BaseModel):
+class Document(Model):
     """Pydantic model for document form."""
 
     __modelname__ = "documents"
@@ -160,7 +160,7 @@ class Document(BaseModel):
     issue: date
 
 
-class Address(BaseModel):
+class Address(Model):
     """Pydantic model for address form."""
 
     __modelname__ = "addresses"
@@ -170,7 +170,7 @@ class Address(BaseModel):
     addresses: str
 
 
-class Contact(BaseModel):
+class Contact(Model):
     """Pydantic model for contact form."""
 
     __modelname__ = "contacts"
@@ -180,7 +180,7 @@ class Contact(BaseModel):
     contact: str
 
 
-class Workplace(BaseModel):
+class Workplace(Model):
     """Pydantic model for workplace form."""
 
     __modelname__ = "workplaces"
@@ -195,7 +195,7 @@ class Workplace(BaseModel):
     reason: str | None = ""
 
 
-class Affilation(BaseModel):
+class Affilation(Model):
     """Pydantic model for affilation form."""
 
     __modelname__ = "affilations"
@@ -241,7 +241,7 @@ class Poligraf(Model):
     conclusion: Decisions
 
 
-class Investigation(BaseModel):
+class Investigation(Model):
     """Pydantic model for investigation form."""
 
     __modelname__ = "investigations"
@@ -251,7 +251,7 @@ class Investigation(BaseModel):
     info: str
 
 
-class Inquiry(BaseModel):
+class Inquiry(Model):
     """Pydantic model for inquiry form."""
 
     __modelname__ = "inquiries"
