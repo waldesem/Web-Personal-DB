@@ -135,20 +135,6 @@ async function submitResume(form: Persons): Promise<void> {
   sendMessage(person_id, exists);
 }
 
-function getRowItems(candidate: Persons, index: number) {
-  return [
-    {
-      label: "Переключить статус",
-      async onSelect() {
-        const person = (await useFetchAuth(
-          "/route/anketa/self/" + candidate.id
-        )) as Persons;
-        candidates.value.splice(index, 1, person);
-      },
-    },
-  ];
-}
-
 const columns: TableColumn<Persons>[] = [
   { accessorKey: "id", header: "#" },
   { accessorKey: "region", header: "Регион" },
@@ -202,30 +188,6 @@ const columns: TableColumn<Persons>[] = [
       return row.original.username
         ? row.original.username.toString().split(" ")[0]
         : "";
-    },
-  },
-  {
-    id: "actions",
-    cell: ({ row }) => {
-      return h(
-        "div",
-        { class: "text-right" },
-        h(
-          UDropdownMenu,
-          {
-            content: {
-              align: "end",
-            },
-            items: getRowItems(row.original, row.index),
-          },
-          () =>
-            h(UButton, {
-              icon: "i-heroicons-ellipsis-vertical",
-              color: "neutral",
-              variant: "ghost",
-            })
-        )
-      );
     },
   },
 ];

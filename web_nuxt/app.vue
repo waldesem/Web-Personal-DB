@@ -23,9 +23,17 @@ await navigateTo("/persons");
 </template>
 
 <style>
-html,
+/* html,
 body {
   scrollbar-gutter: stable;
+} */
+
+body {
+  padding-right: 9px;
+  margin-right: 0px;
+  scrollbar-width: 9px;
+  overflow: hidden;
+  pointer-events: none;
 }
 
 .page-enter-active,
