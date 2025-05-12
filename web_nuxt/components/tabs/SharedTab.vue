@@ -12,7 +12,7 @@ import InvestigationForm from "@/components/forms/InvestigationForm.vue";
 import PoligrafForm from "@/components/forms/PoligrafForm.vue";
 
 const props = defineProps({
-  component: {
+  view: {
     type: String,
     required: true,
   },
@@ -31,27 +31,27 @@ const editable = inject("editable") as Ref<boolean>;
 const item = ref({} as TabsType);
 const items = ref<TabsType[]>([]);
 const modal = ref(false);
-const pending = ref(false);
 
 const { refresh, status } = await useLazyAsyncData(
-  props.component,
+  props.view,
   async () => {
     items.value = (await useFetchAuth(
-      `/route/items/${props.component}/${candId.value}`
+      `/route/items/${props.view}/${candId.value}`
     )) as TabsType[];
   }
 );
 
 async function submitItem(form: TabsType) {
   modal.value = false;
-  pending.value = true;
+  status.value = "pending";
   const { message } = (await useFetchAuth(
-    `/route/items/${props.component}/${candId.value}`,
+    `/route/items/${props.view}/${candId.value}`,
     {
       method: "POST",
       body: form,
     }
   )) as Record<string, string>;
+  status.value = "success";
   item.value = {} as TabsType;
   await refresh();
   emitMessage(message);
@@ -59,37 +59,26 @@ async function submitItem(form: TabsType) {
 
 async function deleteItem(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
+  status.value = "pending";
   const { message } = (await useFetchAuth(
-    `/route/items/${props.component}/${id}`,
+    `/route/items/${props.view}/${id}`,
     {
       method: "DELETE",
     }
   )) as Record<string, string>;
+  status.value = "success";
   if (message == "success") {
     items.value.splice(idx, 1);
   }
   emitMessage(message);
 }
-
-const loading = computed(() => {
-  return status.value == "pending" || pending.value;
-});
 </script>
 
 <template>
-  <div class="flex flex-col items-center justify-center">
-    <UModal
-      v-model:open="loading"
-      :dismissible="false"
-      title="Load"
-      description="Loading data"
-    >
-      <template #content><UProgress animation="swing" /></template>
-    </UModal>
-  </div>
   <div class="mt-2">
     <UButton
       v-if="editable"
+      :loading="status == 'pending'"
       class="flex justify-end "
       label="Добавить запись"
       variant="ghost"
@@ -106,7 +95,7 @@ const loading = computed(() => {
       <template #content>
         <div class="m-4">
           <component
-            :is="mappedComponents[props.component][1]"
+            :is="mappedComponents[props.view][1]"
             :item="item"
             @cancel="
               item = {} as TabsType;
@@ -130,7 +119,23 @@ const loading = computed(() => {
           />
         </div>
       </div>
-      <component :is="mappedComponents[props.component][0]" :item="content" />
+      <div v-if="status === 'pending'">
+        <div 
+          v-for="p in Object.keys(item)" 
+          :key="p" 
+          class="flex grid grid-cols-12 gap-3 mb-3"
+        >
+          <div class="col-span-3">
+            <USkeleton class="h-4" />
+          </div>
+          <div class="col-span-9">
+            <USkeleton class="h-4 w-[300px]" />
+          </div>
+        </div>
+      </div>
+      <div v-else>
+        <component :is="mappedComponents[props.view][0]" :item="content" />
+      </div>
       <USeparator v-if="index != items.length - 1" />
     </div>
   </div>

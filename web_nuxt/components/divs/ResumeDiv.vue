@@ -10,17 +10,16 @@ const person = inject("person") as Ref<Persons>;
 const editable = inject("editable") as Ref<boolean>;
 
 const modal = ref(false);
-const pending = ref(false);
 const resume = ref({} as Persons);
 
 async function submitResume(form: Persons) {
-  pending.value = true;
   modal.value = false;
+  status.value = "pending";
   const { message } = (await useFetchAuth("/route/items/persons", {
     method: "POST",
     body: form,
   })) as Record<string, string>;
-  pending.value = false;
+  status.value = "success";
   resume.value = {} as Persons;
   emit("update");
   emitMessage(message);
@@ -30,34 +29,20 @@ async function deleteItem() {
   if (!confirm("Вы действительно хотите удалить профиль и связанные записи?"))
     return;
   if (!confirm("Данные будут удалены безвозвратно!?")) return;
-  pending.value = true;
+  status.value = "pending";
   const { message } = (await useFetchAuth(
     `/route/items/persons/${person.value.id}`,
     {
       method: "DELETE",
     }
   )) as Record<string, string>;
-  pending.value = false;
+  status.value = "success";
   emitMessage(message);
   return navigateTo("/persons");
 }
-
-const loading = computed(() => {
-  return status.value == "pending" || pending.value;
-});
 </script>
 
 <template>
-  <div class="flex flex-col items-center justify-center">
-    <UModal
-      v-model:open="loading"
-      :dismissible="false"
-      title="Load"
-      description="Loading data"
-    >
-      <template #content><UProgress animation="swing" /></template>
-    </UModal>
-  </div>
   <div v-if="editable" class="relative">
     <div class="absolute top-2 right-2">
       <ElementsTabMenu
@@ -70,7 +55,23 @@ const loading = computed(() => {
       />
     </div>
   </div>
-  <DivsItemsResumeItem :person="person" />
+  <div v-if="status === 'pending'">
+    <div 
+      v-for="p in Object.keys(person)" 
+      :key="p" 
+      class="flex grid grid-cols-12 gap-3 mb-3"
+    >
+      <div class="col-span-3">
+        <USkeleton class="h-4" />
+      </div>
+      <div class="col-span-9">
+        <USkeleton class="h-4 w-[300px]" />
+      </div>
+    </div>
+  </div>
+  <div v-else>
+    <DivsItemsResumeItem :person="person" />
+  </div>
   <UModal
     v-model:open="modal"
     :ui="{ content: 'overflow-y-auto' }"

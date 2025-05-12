@@ -11,7 +11,6 @@ const candId = computed(() => route.params.id) as Ref<string>;
 provide("candId", candId);
 
 const person = ref({} as Persons);
-const pending = ref(false);
 const region = ref("");
 
 const { refresh, status } = await useLazyAsyncData("anketa", async () => {
@@ -50,11 +49,11 @@ async function switchSelf(): Promise<void> {
   } else if (!confirm("Переключить режим редактирования?")) {
     return;
   }
-  pending.value = true;
+  status.value = "pending";
   person.value = (await useFetchAuth(
     "/route/anketa/self/" + candId.value
   )) as Persons;
-  pending.value = false;
+  status.value = "success";
 }
 
 async function changeRegion(): Promise<void> {
@@ -65,7 +64,7 @@ async function changeRegion(): Promise<void> {
     region.value = person.value.region;
     return;
   }
-  pending.value = true;
+  status.value = "pending";
   const { message } = (await useFetchAuth(
     `/route/anketa/region/${candId.value}`,
     {
@@ -74,7 +73,7 @@ async function changeRegion(): Promise<void> {
       },
     }
   )) as Record<string, string>;
-  pending.value = false;
+  status.value = "success";
   emitMessage(message);
   if (message == "success") {
     navigateTo("/persons");
@@ -153,7 +152,7 @@ const items: TabsItem[] = [
         </UTooltip>
         <UTooltip text="Переключить режим">
           <UButton
-            :loading="pending || status === 'pending'"
+            :loading="status === 'pending'"
             :disabled="person.region != stateUser.region"
             :color="
               !person.editable
@@ -187,16 +186,16 @@ const items: TabsItem[] = [
         <TabsAnketaTab @update="refresh()" />
       </template>
       <template #checks="{ item }">
-        <TabsSharedTab :component="item.slot" />
+        <TabsSharedTab :view="item.slot" />
       </template>
       <template #poligrafs="{ item }">
-        <TabsSharedTab :component="item.slot" />
+        <TabsSharedTab :view="item.slot" />
       </template>
       <template #investigations="{ item }">
-        <TabsSharedTab :component="item.slot" />
+        <TabsSharedTab :view="item.slot" />
       </template>
       <template #inquiries="{ item }">
-        <TabsSharedTab :component="item.slot" />
+        <TabsSharedTab :view="item.slot" />
       </template>
       <template #explorer>
         <TabsExplorerTab />

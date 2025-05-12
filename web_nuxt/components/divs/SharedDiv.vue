@@ -43,7 +43,6 @@ const mappedComponents = {
 const item = ref({} as DivsType);
 const items = ref([] as DivsType[]);
 const modal = ref(false);
-const pending = ref(false);
 
 const { refresh, status } = await useLazyAsyncData(props.view, async () => {
   items.value = (await await useFetchAuth(
@@ -53,7 +52,7 @@ const { refresh, status } = await useLazyAsyncData(props.view, async () => {
 
 async function submitItem(form: DivsType) {
   modal.value = false;
-  pending.value = true;
+  status.value = "pending";
   const { message } = (await useFetchAuth(
     `/route/items/${props.view}/${candId.value}`,
     {
@@ -61,7 +60,7 @@ async function submitItem(form: DivsType) {
       body: form,
     }
   )) as Record<string, string>;
-  pending.value = false;
+  status.value = "success";
   item.value = {} as DivsType;
   await refresh();
   emitMessage(message);
@@ -69,33 +68,19 @@ async function submitItem(form: DivsType) {
 
 async function deleteItem(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  pending.value = true;
+  status.value = "pending";
   const { message } = (await useFetchAuth(`/route/items/${props.view}/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
-  pending.value = false;
+  status.value = "success";
   if (message == "success") {
     items.value.splice(idx, 1);
   }
   emitMessage(message);
 }
-
-const loading = computed(() => {
-  return status.value == "pending" || pending.value;
-});
 </script>
 
 <template>
-  <div class="flex flex-col items-center justify-center">
-    <UModal
-      v-model:open="loading"
-      :dismissible="false"
-      title="Load"
-      description="Loading data"
-    >
-      <template #content><UProgress animation="swing" /></template>
-    </UModal>
-  </div>
   <div v-for="(itm, idx) in items" :key="idx" class="py-2 ms-2">
     <div class="relative">
       <div class="absolute top-2 right-2">
@@ -121,6 +106,7 @@ const loading = computed(() => {
           :content="{ align: 'end' }"
         >
           <UButton
+            :loading="status == 'pending'"
             size="xl"
             color="neutral"
             icon="i-heroicons-ellipsis-vertical"
@@ -130,7 +116,23 @@ const loading = computed(() => {
         </UDropdownMenu>
       </div>
     </div>
-    <component :is="mappedComponents[props.view][0]" :item="itm" />
+    <div v-if="status === 'pending'">
+      <div 
+        v-for="p in Object.keys(item)" 
+        :key="p" 
+        class="flex grid grid-cols-12 gap-3 mb-3"
+      >
+        <div class="col-span-3">
+          <USkeleton class="h-4" />
+        </div>
+        <div class="col-span-9">
+          <USkeleton class="h-4 w-[300px]" />
+        </div>
+      </div>
+    </div>
+    <div v-else>
+      <component :is="mappedComponents[props.view][0]" :item="itm" />
+    </div>
     <USeparator v-if="idx != items.length - 1" />
   </div>
   <UModal
@@ -156,6 +158,7 @@ const loading = computed(() => {
   <div class="py-2 border-t border-gray-200">
     <UButton
       :disabled="!editable"
+      :loading="status == 'pending'"
       label="Добавить запись"
       icon="i-heroicons-document-plus"
       variant="ghost"

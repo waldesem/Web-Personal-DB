@@ -16,7 +16,6 @@ const page = ref(1);
 const pagination = ref(10);
 const editable = ref(false);
 const hasNext = ref(false);
-const upload = ref(false);
 const modal = ref(false);
 const updated = ref("Данные обновляются...");
 const candidates = ref([] as Persons[]);
@@ -103,7 +102,7 @@ function sendMessage(person_id: string, exists: boolean) {
 
 onChange(async (files) => {
   if (!files) return;
-  upload.value = true;
+  status.value = "pending";
   const formData = new FormData();
   formData.append("file", files[0]);
   const { person_id, exists } = (await useFetchAuth("/route/json", {
@@ -114,7 +113,7 @@ onChange(async (files) => {
     exists: boolean;
   };
   reset();
-  upload.value = false;
+  status.value = "success";
   sendMessage(person_id, exists);
 });
 
@@ -123,8 +122,8 @@ onCancel(() => {
 });
 
 async function submitResume(form: Persons): Promise<void> {
-  upload.value = true;
   modal.value = false;
+  status.value = "pending";
   const { person_id, exists } = (await useFetchAuth("/route/resume", {
     method: "POST",
     body: form,
@@ -132,7 +131,7 @@ async function submitResume(form: Persons): Promise<void> {
     person_id: string;
     exists: boolean;
   };
-  upload.value = false;
+  status.value = "success";;
   sendMessage(person_id, exists);
 }
 
@@ -258,8 +257,9 @@ const items: DropdownMenuItem[] = [
       <div v-if="stateUser.role == 'user'" class="flex items-center space-x-4">
         <UDropdownMenu :items="items" :content="{ align: 'end' }">
           <UButton
+            :loading="status.value = 'pending'";
             icon="i-heroicons-bars-4"
-            variant="outline"
+            variant="ghost"
             title="Выбор действия"
           />
         </UDropdownMenu>
@@ -290,7 +290,7 @@ const items: DropdownMenuItem[] = [
     </div>
 
     <UTable
-      :loading="status == 'pending' || upload"
+      :loading="status == 'pending'"
       loading-animation="carousel"
       empty="Данные не найдены"
       :columns="columns"
@@ -305,7 +305,7 @@ const items: DropdownMenuItem[] = [
           variant="ghost"
           icon="i-heroicons-arrow-path"
           :label="`Обновлено в: ${updated}`"
-          :loading="status == 'pending' || upload"
+          :loading="status == 'pending'"
           @click="refresh()"
         />
       </UTooltip>
@@ -321,7 +321,7 @@ const items: DropdownMenuItem[] = [
       <UTooltip text="Предыдущая страница">
         <UButton
           icon="i-heroicons-arrow-small-left-20-solid"
-          :disabled="page < 2"
+          :disabled="page < 2 || status == 'pending'"
           class="me-2 rounded-full"
           @click="page--"
         />
@@ -329,14 +329,13 @@ const items: DropdownMenuItem[] = [
       <USelect
         v-model="pagination"
         :items="[10, 20, 30, 50]"
-        :loading="status == 'pending'"
-        :disabled="!hasNext"
+        :disabled="!hasNext || status == 'pending'"
         variant="soft"
       />
       <UTooltip text="Следующая страница">
         <UButton
           icon="i-heroicons-arrow-small-right-20-solid"
-          :disabled="!hasNext"
+          :disabled="!hasNext || status == 'pending'"
           class="ms-2 rounded-full"
           @click="page++"
         />
