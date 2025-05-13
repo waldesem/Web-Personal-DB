@@ -36,7 +36,7 @@ def main() -> None:
     parser.add_argument(
         "--mode",
         choices=["debug", "devel", "server", "desktop"],
-        default="desktop",
+        default="server",
         help="The mode to run the server in (debug, devel, server, desktop).",
     )
     args = parser.parse_args()

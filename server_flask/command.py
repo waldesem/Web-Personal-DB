@@ -64,7 +64,7 @@ def create_user(
         if not db_session.execute(
             select(Users).where(func.lower(Users.username) == user["username"]),
         ).all():
-            db_session.add(**user)
+            db_session.add(Users(**user))
             db_session.commit()
             click.echo(f"User {username} created")
 

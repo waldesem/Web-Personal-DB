@@ -7,7 +7,14 @@ const emit = defineEmits(["update"]);
 
 const status = inject("status") as Ref<string>;
 const person = inject("person") as Ref<Persons>;
-const editable = inject("editable") as Ref<boolean>;
+  
+const editable = computed(() => {
+  return (
+    person.value.editable &&
+    stateUser.value.role == "user" &&
+    stateUser.value.id == person.value.user_id
+  );
+});
 
 const modal = ref(false);
 const resume = ref({} as Persons);
@@ -56,9 +63,9 @@ async function deleteItem() {
     </div>
   </div>
   <div v-if="status === 'pending'">
-    <div 
-      v-for="p in Object.keys(person)" 
-      :key="p" 
+    <div
+      v-for="p in Object.keys(person)"
+      :key="p"
       class="flex grid grid-cols-12 gap-3 mb-3"
     >
       <div class="col-span-3">

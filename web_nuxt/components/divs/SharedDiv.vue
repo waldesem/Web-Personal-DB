@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DivsType, MappedCompType } from "@/types";
+import type { DivsType, MappedCompType, Persons } from "@/types";
 
 import AddressItem from "@/components/divs/items/AddressItem.vue";
 import AffilItem from "@/components/divs/items/AffilItem.vue";
@@ -27,7 +27,15 @@ const props = defineProps({
 });
 
 const candId = inject("candId") as Ref<string>;
-const editable = inject("editable") as Ref<boolean>;
+const person = inject("person") as Ref<Persons>;
+  
+const editable = computed(() => {
+  return (
+    person.value.editable &&
+    stateUser.value.role == "user" &&
+    stateUser.value.id == person.value.user_id
+  );
+});
 
 const mappedComponents = {
   addresses: [AddressItem, AddressForm],

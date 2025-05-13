@@ -3,7 +3,6 @@ import type { Files, Folders } from "@/types";
 
 const candId = inject("candId") as Ref<string>;
 
-const size = ref("lg") as Ref<"xs" | "sm" | "md" | "lg" | "xl">;
 const fullPath = ref("") as Ref<string>;
 const listFolders = ref<Folders[]>([]);
 const listFiles = ref<Files[]>([]);
@@ -51,32 +50,15 @@ async function openFile(path: string, name: string) {
 </script>
 
 <template>
-   <UCard class="m-2">
-    <template #header>
-      <div class="flex justify-between">
-        <UButton
-          :loading="pending"
-          label="Домой"
-          variant="ghost"
-          icon="i-heroicons-home"
-          @click="fullPath = ''"
-        />
-
-        <USelect
-          v-model="size"
-          variant="outline"
-          :items="[
-            { label: 'Очень маленькие', value: 'xs' },
-            { label: 'Маленькие значки', value: 'sm' },
-            { label: 'Средние значки', value: 'md' },
-            { label: 'Большие значки', value: 'lg' },
-            { label: 'Очень большие', value: 'xl' },
-          ]"
-          option-attribute="name"
-          value-attribute="value"
-        />
-      </div>
-    </template>
+  <div class="flex flex-col p-2">
+    <UButton
+      :loading="pending"
+      label="Домой"
+      variant="ghost"
+      size="xl"
+      icon="i-heroicons-home"
+      @click="fullPath = ''"
+    />
     <div v-if="pending || status === 'pending'">
       <div v-for="i in listFolders.length + listFiles.length + 1" :key="i">
         <div class="my-3">
@@ -97,7 +79,7 @@ async function openFile(path: string, name: string) {
           "
           icon="i-heroicons-folder"
           variant="ghost"
-          :size="size"
+          size="xl"
           :title="folder.name"
           @click="fullPath = folder.path"
         />
@@ -110,14 +92,13 @@ async function openFile(path: string, name: string) {
           "
           icon="i-heroicons-document"
           variant="ghost"
-          :size="size"
+          size="xl"
           :title="file.name"
           @click="openFile(file.path, file.name)"
         />
       </div>
     </div>
-    <template #footer>
-      <div class="text-sm m-2 text-center break-all">{{ fullPath }}</div>
-    </template>
-  </UCard>
+  </div>
+  <USeparator class="my-4" />
+  <div class="text-sm text-center break-all">{{ fullPath }}</div>
 </template>

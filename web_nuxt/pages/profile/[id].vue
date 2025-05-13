@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Persons } from "@/types";
-import type { TabsItem } from '@nuxt/ui'
+import type { TabsItem } from "@nuxt/ui";
 
 await preloadComponents(["TabsAnketaTab", "TabsSharedTab", "TabsExplorerTab"]);
 
@@ -29,8 +29,6 @@ const editState = computed(() => {
     stateUser.value.id == person.value.user_id
   );
 });
-
-provide("editable", editState);
 
 async function switchSelf(): Promise<void> {
   if (person.value.user_id != stateUser.value.id) {
@@ -123,9 +121,7 @@ const items: TabsItem[] = [
       <div v-else class="py-1">
         <h3 class="text-2xl text-red-800 font-bold">
           {{
-            `${person.surname} ${person.firstname} ${
-              person.patronymic ?? ""
-            }`
+            `${person.surname} ${person.firstname} ${person.patronymic ?? ""}`
           }}
         </h3>
       </div>
@@ -144,8 +140,9 @@ const items: TabsItem[] = [
             ]"
             :placeholder="person.region"
             :disabled="
-              person.region != stateUser.region &&
-              stateUser.region != 'Главный офис'
+              (person.region != stateUser.region &&
+                stateUser.region != 'Главный офис') ||
+              !editState
             "
             @change="changeRegion"
           />

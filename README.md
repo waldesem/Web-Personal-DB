@@ -30,7 +30,7 @@ SQLite3 Database will be used by default and crated automatically in the first r
 For creating regions and alphabeth folders in destination directory add path in settings.ini.
 Then run the command:
 ```
-export FLASK_APP=app
+export FLASK_APP=app # for Windows - $env:FLASK_APP = "app"
 flask command folders
 ```
 For creating new user run the command in terminal:

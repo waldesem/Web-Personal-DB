@@ -14,7 +14,7 @@ const toast = useToast();
 const search = ref("");
 const page = ref(1);
 const pagination = ref(10);
-const editable = ref(false);
+const editables = ref(false);
 const hasNext = ref(false);
 const modal = ref(false);
 const updated = ref("Данные обновляются...");
@@ -28,7 +28,7 @@ const { refresh, status } = await useLazyAsyncData(
       {
         params: {
           search: search.value,
-          editable: editable.value,
+          editable: editables.value,
           pagination: pagination.value,
         },
       }
@@ -41,7 +41,7 @@ const { refresh, status } = await useLazyAsyncData(
     updated.value = new Date().toLocaleTimeString("ru-RU");
   },
   {
-    watch: [page, pagination, editable],
+    watch: [page, pagination, editables],
   }
 );
 
@@ -219,7 +219,7 @@ const items: DropdownMenuItem[] = [
       <div v-if="stateUser.role == 'user'" class="flex items-center space-x-4">
         <UDropdownMenu :items="items" :content="{ align: 'end' }">
           <UButton
-            :loading="status.value = 'pending'";
+            :loading="status == 'pending'"
             icon="i-heroicons-bars-4"
             variant="ghost"
             title="Выбор действия"
@@ -228,6 +228,7 @@ const items: DropdownMenuItem[] = [
         <UModal
           v-model:open="modal"
           :dismissible="false"
+          :ui="{ content: 'overflow-y-auto' }"
           title="Создание анкеты"
           description="Введите данные анкеты"
         >
@@ -273,9 +274,9 @@ const items: DropdownMenuItem[] = [
       </UTooltip>
       <div class="flex items-center space-x-2">
         <div class="text-sm text-blue-600">
-          {{ editable ? "Показать все" : "Показать редактируемые" }}
+          {{ editables ? "Показать все" : "Показать редактируемые" }}
         </div>
-        <USwitch v-model="editable" size="sm" />
+        <USwitch v-model="editables" size="sm" />
       </div>
     </div>
 

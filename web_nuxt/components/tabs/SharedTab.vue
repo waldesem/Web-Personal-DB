@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { TabsType, MappedCompType } from "@/types";
+import type { TabsType, MappedCompType, Persons } from "@/types";
 
 import CheckDiv from "@/components/divs/items/CheckItem.vue";
 import InquiryDiv from "@/components/divs/items/InquiryItem.vue";
@@ -26,7 +26,15 @@ const mappedComponents = {
 } as MappedCompType;
 
 const candId = inject("candId") as Ref<string>;
-const editable = inject("editable") as Ref<boolean>;
+const person = inject("person") as Ref<Persons>;
+  
+const editable = computed(() => {
+  return (
+    person.value.editable &&
+    stateUser.value.role == "user" &&
+    stateUser.value.id == person.value.user_id
+  );
+});
 
 const item = ref({} as TabsType);
 const items = ref<TabsType[]>([]);
@@ -110,7 +118,7 @@ async function deleteItem(id: string, idx: number) {
       <div v-if="editable" class="relative">
         <div class="absolute top-2 right-2">
           <ElementsTabMenu
-            :item="props.component"
+            :item="props.view"
             @delete="deleteItem(content.id, index)"
             @update="
               item = content;
