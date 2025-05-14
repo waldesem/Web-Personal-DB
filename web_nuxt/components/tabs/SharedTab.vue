@@ -18,6 +18,8 @@ const props = defineProps({
   },
 });
 
+const emit = defineEmits(["editable"]);
+
 const mappedComponents = {
   checks: [CheckDiv, CheckForm],
   inquiries: [InquiryDiv, InquiryForm],
