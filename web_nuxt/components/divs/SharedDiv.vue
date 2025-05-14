@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DivsType, MappedCompType, Persons } from "@/types";
+import type { DivsType, MappedCompType } from "@/types";
 
 import AddressItem from "@/components/divs/items/AddressItem.vue";
 import AffilItem from "@/components/divs/items/AffilItem.vue";
@@ -26,17 +26,6 @@ const props = defineProps({
   },
 });
 
-const candId = inject("candId") as Ref<string>;
-const person = inject("person") as Ref<Persons>;
-  
-const editable = computed(() => {
-  return (
-    person.value.editable &&
-    stateUser.value.role == "user" &&
-    stateUser.value.id == person.value.user_id
-  );
-});
-
 const mappedComponents = {
   addresses: [AddressItem, AddressForm],
   affilations: [AffilItem, AffilationForm],
@@ -54,7 +43,7 @@ const modal = ref(false);
 
 const { refresh, status } = await useLazyAsyncData(props.view, async () => {
   items.value = (await await useFetchAuth(
-    `/route/items/${props.view}/${candId.value}`
+    `/route/items/${props.view}/${person.value.id}`
   )) as DivsType[];
 });
 
@@ -62,7 +51,7 @@ async function submitItem(form: DivsType) {
   modal.value = false;
   status.value = "pending";
   const { message } = (await useFetchAuth(
-    `/route/items/${props.view}/${candId.value}`,
+    `/route/items/${props.view}/${person.value.id}`,
     {
       method: "POST",
       body: form,
@@ -71,7 +60,11 @@ async function submitItem(form: DivsType) {
   status.value = "success";
   item.value = {} as DivsType;
   await refresh();
-  emitMessage(message);
+  if (message == "success") {
+    makeToast(message, "Информация успешно обновлена");
+  } else {
+    makeToast();
+  }
 }
 
 async function deleteItem(id: string, idx: number) {
@@ -84,7 +77,11 @@ async function deleteItem(id: string, idx: number) {
   if (message == "success") {
     items.value.splice(idx, 1);
   }
-  emitMessage(message);
+  if (message == "success") {
+    makeToast(message, "Информация успешно удалена");
+  } else {
+    makeToast();
+  }
 }
 </script>
 
@@ -125,9 +122,9 @@ async function deleteItem(id: string, idx: number) {
       </div>
     </div>
     <div v-if="status === 'pending'">
-      <div 
-        v-for="p in Object.keys(item)" 
-        :key="p" 
+      <div
+        v-for="p in Object.keys(item)"
+        :key="p"
         class="flex grid grid-cols-12 gap-3 mb-3"
       >
         <div class="col-span-3">

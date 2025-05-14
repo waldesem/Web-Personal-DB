@@ -1,18 +1,15 @@
 <script setup lang="ts">
 import type { Files, Folders } from "@/types";
 
-const candId = inject("candId") as Ref<string>;
-
-const fullPath = ref("") as Ref<string>;
+const fullPath = ref(person.value.destination) as Ref<string>;
 const listFolders = ref<Folders[]>([]);
 const listFiles = ref<Files[]>([]);
-const pending = ref(false);
 
 const { status } = await useLazyAsyncData(
   "explorer",
   async () => {
     const { path, folders, files } = (await useFetchAuth(
-      "/route/explorer/folder/" + candId.value,
+      "/route/explorer/folder/" + person.value.id,
       {
         params: {
           path: fullPath.value,
@@ -23,7 +20,7 @@ const { status } = await useLazyAsyncData(
       folders: Folders[];
       files: Files[];
     };
-    fullPath.value = path;
+    if (path !== fullPath.value) fullPath.value = path;
     listFolders.value = folders;
     listFiles.value = files;
   },
@@ -31,13 +28,13 @@ const { status } = await useLazyAsyncData(
 );
 
 async function openFile(path: string, name: string) {
-  pending.value = true;
+  status.value = "pending";
   const file = (await useFetchAuth("/route/explorer/file", {
     params: {
       path: path,
     },
   })) as Blob;
-  pending.value = false;
+  status.value = "success";
   const url = URL.createObjectURL(file);
   const link = document.createElement("a");
   link.style.display = "none";
@@ -52,14 +49,14 @@ async function openFile(path: string, name: string) {
 <template>
   <div class="flex flex-col p-2">
     <UButton
-      :loading="pending"
+      :loading="status == 'pending'"
       label="Домой"
       variant="ghost"
       size="xl"
       icon="i-heroicons-home"
-      @click="fullPath = ''"
+      @click="fullPath = person.destination"
     />
-    <div v-if="pending || status === 'pending'">
+    <div v-if="status === 'pending'">
       <div v-for="i in listFolders.length + listFiles.length + 1" :key="i">
         <div class="my-3">
           <USkeleton class="h-6 w-[600px]" />
@@ -86,7 +83,7 @@ async function openFile(path: string, name: string) {
       </div>
       <div v-for="file in listFiles" :key="file.name">
         <UButton
-          :disabled="stateUser.role !== 'user'"
+          :disabled="user.role !== 'user'"
           :label="
             file.name.length < 64 ? file.name : file.name.slice(0, 64) + '...'
           "

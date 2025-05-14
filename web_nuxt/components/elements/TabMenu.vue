@@ -5,12 +5,14 @@ const toast = useToast();
 
 const emit = defineEmits(["delete", "update"]);
 
-const candId = inject("candId") as Ref<string>;
-
 const props = defineProps({
   item: {
     type: String,
     default: "",
+  },
+  candId: {
+    type: String,
+    required: true,
   },
 });
 
@@ -22,37 +24,22 @@ onChange(async (files) => {
   for (const file of files) {
     const maxSize = 10 * 1024 * 1024;
     if (file.size > maxSize) {
-      toast.add({
-        icon: "i-heroicons-exclamation-triangle",
-        title: "Внимание",
-        description: "Размер одного файла не должен превышать 10 МБ",
-        color: "error",
-      });
+      makeToast("info", "Размер одного файла не должен превышать 10 МБ");
       continue;
     }
     formData.append("file", file);
   }
   const { message } = (await useFetchAuth(
-    `/route/explorer/files/${props.item}/${candId.value}`,
+    `/route/explorer/files/${props.item}/${props.candId}`,
     {
       method: "POST",
       body: formData,
     }
   )) as Record<string, string>;
-  if (message !== "success") {
-    toast.add({
-      icon: "i-heroicons-information-circle",
-      title: "Внимание",
-      description: "Загрузка не удалась или отсутствует доступ к папке",
-      color: "error",
-    });
+  if (message == "success") {
+    makeToast("success", "Файлы успешно загружены");
   } else {
-    toast.add({
-      icon: "i-heroicons-check-circle",
-      title: "Информация",
-      description: "Файлы успешно загружены",
-      color: "success",
-    });
+    makeToast();
   }
   reset();
 });
@@ -87,7 +74,7 @@ const items = [
 </script>
 
 <template>
-  <UDropdownMenu :items="items" :content="{ align: 'end'}">
+  <UDropdownMenu :items="items" :content="{ align: 'end' }">
     <UButton
       size="xl"
       color="neutral"

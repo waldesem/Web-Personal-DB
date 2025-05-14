@@ -106,6 +106,7 @@ const columns: TableColumn<User>[] = [
     <div class="my-6">
       <UInput
         v-model="search"
+        icon="i-heroicons-magnifying-glass"
         placeholder="Поиск по имени пользователя"
         type="search"
       />

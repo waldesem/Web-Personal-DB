@@ -42,19 +42,9 @@ async function submitUser() {
   if (message === "success") {
     emit("update");
     form.value = {} as UserForm;
-    toast.add({
-      icon: "i-heroicons-check-circle",
-      title: "Информация",
-      description: "Пользователь успешно добавлен",
-      color: "success",
-    });
+    makeToast("success", "Пользователь успешно добавлен");
   } else {
-    toast.add({
-      icon: "i-heroicons-information-circle",
-      title: "Внимание",
-      description: "Ошибка данных или пользователь уже существует",
-      color: "error",
-    });
+    makeToast();
   }
 }
 </script>

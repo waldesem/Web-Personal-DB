@@ -1,40 +1,22 @@
 <script setup lang="ts">
-import type { Persons } from "@/types";
 import type { TabsItem } from "@nuxt/ui";
+import type { Persons } from "@/types";
 
 await preloadComponents(["TabsAnketaTab", "TabsSharedTab", "TabsExplorerTab"]);
 
 const route = useRoute();
 
-const candId = computed(() => route.params.id) as Ref<string>;
+person.value.id = route.params.id as string;
 
-provide("candId", candId);
-
-const person = ref({} as Persons);
+const status = ref("");
 const region = ref("");
 
-const { refresh, status } = await useLazyAsyncData("anketa", async () => {
-  person.value = (await useFetchAuth(
-    "/route/items/persons/" + candId.value
-  )) as Persons;
-});
-
-provide("person", person);
-
-const editState = computed(() => {
-  return (
-    person.value.editable &&
-    stateUser.value.role == "user" &&
-    stateUser.value.id == person.value.user_id
-  );
-});
-
 async function switchSelf(): Promise<void> {
-  if (person.value.user_id != stateUser.value.id) {
+  if (person.value.user_id != user.value.id) {
     if (person.value.editable) {
       if (
         !confirm(
-          "Анкета редактируется другим пользователем. Переключить режим редактирования?"
+          "Анкета редактируется другим пользователем. Переключить режим?"
         )
       ) {
         return;
@@ -48,7 +30,7 @@ async function switchSelf(): Promise<void> {
   }
   status.value = "pending";
   person.value = (await useFetchAuth(
-    "/route/anketa/self/" + candId.value
+    "/route/anketa/self/" + person.value.id
   )) as Persons;
   status.value = "success";
 }
@@ -63,19 +45,20 @@ async function changeRegion(): Promise<void> {
   }
   status.value = "pending";
   const { message } = (await useFetchAuth(
-    `/route/anketa/region/${candId.value}`,
+    `/route/anketa/region/${person.value.id}`,
     {
       params: {
         region: region.value,
       },
     }
   )) as Record<string, string>;
-  status.value = "success";
-  emitMessage(message);
   if (message == "success") {
-    navigateTo("/persons");
+    makeToast(message, "Регион успешно обновлен");
+    await navigateTo("/persons");
   } else {
+    makeToast();
     region.value = person.value.region;
+    status.value = "error";
   }
 }
 
@@ -124,12 +107,11 @@ const items: TabsItem[] = [
           }}
         </h3>
       </div>
-      <div v-if="stateUser.role == 'user'" class="flex items-center space-x-4">
+      <div v-if="user.role == 'user'" class="flex items-center space-x-4">
         <UTooltip text="Изменить регион">
           <USelect
             id="region"
             v-model="region"
-            icon="i-heroicons-map"
             :items="[
               'Главный офис',
               'РЦ Юг',
@@ -139,9 +121,8 @@ const items: TabsItem[] = [
             ]"
             :placeholder="person.region"
             :disabled="
-              (person.region != stateUser.region &&
-                stateUser.region != 'Главный офис') ||
-              !editState
+              (person.region != user.region && user.region != 'Главный офис') ||
+              !editable
             "
             @change="changeRegion"
           />
@@ -149,11 +130,11 @@ const items: TabsItem[] = [
         <UTooltip text="Переключить режим">
           <UButton
             :loading="status === 'pending'"
-            :disabled="person.region != stateUser.region"
+            :disabled="person.region != user.region"
             :color="
               !person.editable
                 ? 'secondary'
-                : person.user_id == stateUser.id
+                : person.user_id == user.id
                 ? 'success'
                 : 'error'
             "
@@ -162,7 +143,7 @@ const items: TabsItem[] = [
             {{
               !person.editable
                 ? "Анкета доступна для редактирования"
-                : person.user_id == stateUser.id
+                : person.user_id == user.id
                 ? "Анкета назначена текущему пользователю"
                 : "Анкета редактируется другим пользователем"
             }}
@@ -179,19 +160,19 @@ const items: TabsItem[] = [
       :ui="{ trigger: 'flex-1' }"
     >
       <template #anketa>
-        <TabsAnketaTab @update="refresh()" />
+        <TabsAnketaTab />
       </template>
       <template #checks="{ item }">
-        <TabsSharedTab :view="item.slot" @editable=switchSelf'/>
+        <TabsSharedTab :view="item.slot" @editable="switchSelf" />
       </template>
       <template #poligrafs="{ item }">
-        <TabsSharedTab :view="item.slot" @editable=switchSelf'/>
+        <TabsSharedTab :view="item.slot" @editable="switchSelf" />
       </template>
       <template #investigations="{ item }">
-        <TabsSharedTab :view="item.slot" @editable=switchSelf'/>
+        <TabsSharedTab :view="item.slot" @editable="switchSelf" />
       </template>
       <template #inquiries="{ item }">
-        <TabsSharedTab :view="item.slot" @editable=switchSelf'/>
+        <TabsSharedTab :view="item.slot" @editable="switchSelf" />
       </template>
       <template #explorer>
         <TabsExplorerTab />

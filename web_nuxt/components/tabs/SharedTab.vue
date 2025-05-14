@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { TabsType, MappedCompType, Persons } from "@/types";
+import type { TabsType, MappedCompType } from "@/types";
 
 import CheckDiv from "@/components/divs/items/CheckItem.vue";
 import InquiryDiv from "@/components/divs/items/InquiryItem.vue";
@@ -27,61 +27,47 @@ const mappedComponents = {
   poligrafs: [PoligrafDiv, PoligrafForm],
 } as MappedCompType;
 
-const candId = inject("candId") as Ref<string>;
-const person = inject("person") as Ref<Persons>;
-  
-const editable = computed(() => {
-  return (
-    person.value.editable &&
-    stateUser.value.role == "user" &&
-    stateUser.value.id == person.value.user_id
-  );
-});
-
 const item = ref({} as TabsType);
 const items = ref<TabsType[]>([]);
 const modal = ref(false);
 
-const { refresh, status } = await useLazyAsyncData(
-  props.view,
-  async () => {
-    items.value = (await useFetchAuth(
-      `/route/items/${props.view}/${candId.value}`
-    )) as TabsType[];
-  }
-);
+const { refresh, status } = await useLazyAsyncData(props.view, async () => {
+  items.value = (await useFetchAuth(
+    `/route/items/${props.view}/${person.value.id}`
+  )) as TabsType[];
+});
 
 async function submitItem(form: TabsType) {
   modal.value = false;
   status.value = "pending";
   const { message } = (await useFetchAuth(
-    `/route/items/${props.view}/${candId.value}`,
+    `/route/items/${props.view}/${person.value.id}`,
     {
       method: "POST",
       body: form,
     }
   )) as Record<string, string>;
-  status.value = "success";
   item.value = {} as TabsType;
+  if (message == "success") {
+    emit("editable")
+    makeToast(message, "Информация успешно обновлена");
+  } else {
+    makeToast();
+  }  
   await refresh();
-  if (message == "success") emit("editable");
-  emitMessage(message);
 }
 
 async function deleteItem(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   status.value = "pending";
-  const { message } = (await useFetchAuth(
-    `/route/items/${props.view}/${id}`,
-    {
-      method: "DELETE",
-    }
-  )) as Record<string, string>;
+  const { message } = (await useFetchAuth(`/route/items/${props.view}/${id}`, {
+    method: "DELETE",
+  })) as Record<string, string>;
   status.value = "success";
   if (message == "success") {
     items.value.splice(idx, 1);
   }
-  emitMessage(message);
+  showToast(message);
 }
 </script>
 
@@ -90,7 +76,7 @@ async function deleteItem(id: string, idx: number) {
     <UButton
       v-if="editable"
       :loading="status == 'pending'"
-      class="flex justify-end "
+      class="flex justify-end"
       label="Добавить запись"
       variant="ghost"
       icon="i-heroicons-document-plus"
@@ -121,6 +107,7 @@ async function deleteItem(id: string, idx: number) {
       <div v-if="editable" class="relative">
         <div class="absolute top-2 right-2">
           <ElementsTabMenu
+            :cand-id="person.id"
             :item="props.view"
             @delete="deleteItem(content.id, index)"
             @update="
@@ -131,9 +118,9 @@ async function deleteItem(id: string, idx: number) {
         </div>
       </div>
       <div v-if="status === 'pending'">
-        <div 
-          v-for="p in Object.keys(item)" 
-          :key="p" 
+        <div
+          v-for="p in Object.keys(item)"
+          :key="p"
           class="flex grid grid-cols-12 gap-3 mb-3"
         >
           <div class="col-span-3">

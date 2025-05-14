@@ -1,9 +1,53 @@
 <script setup lang="ts">
 import type { AccordionItem } from "@nuxt/ui";
+import type { Persons } from "@/types";
 
-const emit = defineEmits(["update"]);
+await preloadComponents("DivsItemsResumeItem");
 
-await preloadComponents(["DivsResumeDiv", "DivsSharedDiv"]);
+await preloadComponents(["DivsSharedDiv"]);
+
+const modal = ref(false);
+
+const { status, refresh } = await useLazyAsyncData("anketa", async () => {
+  person.value = (await useFetchAuth(
+    "/route/items/persons/" + person.value.id
+  )) as Persons;
+});
+
+async function submitResume(form: Persons) {
+  modal.value = false;
+  status.value = "pending";
+  const { message } = (await useFetchAuth("/route/items/persons", {
+    method: "POST",
+    body: form,
+  })) as Record<string, string>;
+  if (message == "success") {
+    makeToast(message, "Информация успешно обновлена");
+  } else {
+    makeToast();
+  }  
+  await refresh();
+}
+
+async function deleteItem() {
+  if (!confirm("Вы действительно хотите удалить профиль и связанные записи?"))
+    return;
+  if (!confirm("Данные будут удалены безвозвратно!?")) return;
+  status.value = "pending";
+  const { message } = (await useFetchAuth(
+    `/route/items/persons/${person.value.id}`,
+    {
+      method: "DELETE",
+    }
+  )) as Record<string, string>;
+  if (message == "success") {
+    makeToast(message, "Информация успешно обновлена");
+    await navigateTo("/persons");
+  } else {
+    makeToast();
+    status.value = "error";
+  }
+}
 
 const items: AccordionItem[] = [
   { content: "staffs", label: "Должности", icon: "i-heroicons-user" },
@@ -20,29 +64,73 @@ const items: AccordionItem[] = [
   {
     content: "documents",
     label: "Документы",
-    icon: "i-heroicons-document-text",
+    icon: "i-heroicons-document",
   },
   {
     content: "addresses",
     label: "Адреса",
-    icon: "i-heroicons-home-modern",
+    icon: "i-heroicons-home",
   },
   { content: "contacts", label: "Контакты", icon: "i-heroicons-phone" },
   {
     content: "previous",
     label: "Изменения имени",
-    icon: "i-heroicons-pencil",
+    icon: "i-heroicons-pencil-square",
   },
   {
     content: "affilations",
     label: "Аффилированность",
-    icon: "i-heroicons-user-group",
+    icon: "i-heroicons-users",
   },
 ];
 </script>
 
 <template>
-  <DivsResumeDiv @update="emit('update')" />
+  <div v-if="editable" class="relative">
+    <div class="absolute top-2 right-2">
+      <ElementsTabMenu
+        :cand-id="person.id"
+        :item="'persons'"
+        @delete="deleteItem"
+        @update="modal = true"
+      />
+    </div>
+  </div>
+  <div v-if="!person.id">
+    <div
+      v-for="p in Object.keys(person)"
+      :key="p"
+      class="flex grid grid-cols-12 gap-3 mb-3"
+    >
+      <div class="col-span-3">
+        <USkeleton class="h-4" />
+      </div>
+      <div class="col-span-9">
+        <USkeleton class="h-4 w-[300px]" />
+      </div>
+    </div>
+  </div>
+  <div v-else>
+    <DivsItemsResumeItem :person="person" />
+  </div>
+  <UModal
+    v-model:open="modal"
+    :ui="{ content: 'overflow-y-auto' }"
+    :dismissible="false"
+    title="Резюме"
+    description="Данные профиля"
+  >
+    <template #content>
+      <div class="m-4">
+        <FormsResumeForm
+          :resume="person"
+          @update="submitResume"
+          @cancel="modal = false"
+        />
+      </div>
+    </template>
+  </UModal>
+  <USeparator />
   <UAccordion :items="items" :unmount-on-hide="false">
     <template #content="{ item }">
       <DivsSharedDiv :view="(item.content as string)" />

@@ -9,8 +9,6 @@ const UIcon = resolveComponent("UIcon");
 const UButton = resolveComponent("UButton");
 const UDropdownMenu = resolveComponent("UDropdownMenu");
 
-const toast = useToast();
-
 const search = ref("");
 const page = ref(1);
 const pagination = ref(10);
@@ -62,40 +60,22 @@ const { open, reset, onCancel, onChange } = useFileDialog({
   multiple: false,
 });
 
-function sendMessage(person_id: string, exists: boolean) {
+async function createToast(person_id: string, exists: boolean) {
   if (person_id) {
     if (exists) {
-      toast.add({
-        icon: "i-heroicons-exclamation-triangle",
-        title: "Внимание",
-        description: "Кандидат ранее уже был загружен",
-        color: "secondary",
-      });
+      makeToast("info", "Кандидат ранее уже был загружен");
     } else {
-      toast.add({
-        icon: "i-heroicons-information-circle",
-        title: "Успех",
-        description: "Анкета загружена.",
-        color: "success",
-      });
+      makeToast("success", "Анкета успешно загружена");
     }
-    navigateTo("/profile/" + person_id);
+    await navigateTo("/profile/" + person_id);
   } else {
     if (exists) {
-      toast.add({
-        icon: "i-heroicons-information-circle",
-        title: "Внимание",
-        description:
-          "Анкета находится в другом регионе или назначена иному пользователю",
-        color: "warning",
-      });
+      makeToast(
+        "info",
+        "Анкета находится в другом регионе или назначена иному пользователю"
+      );
     } else {
-      toast.add({
-        icon: "i-heroicons-information-circle",
-        title: "Ошибка",
-        description: "Невозможно выполнить действие",
-        color: "error",
-      });
+      makeToast();
     }
   }
 }
@@ -114,7 +94,7 @@ onChange(async (files) => {
   };
   reset();
   status.value = "success";
-  sendMessage(person_id, exists);
+  createToast(person_id, exists);
 });
 
 onCancel(() => {
@@ -131,8 +111,8 @@ async function submitResume(form: Persons): Promise<void> {
     person_id: string;
     exists: boolean;
   };
-  status.value = "success";;
-  sendMessage(person_id, exists);
+  status.value = "success";
+  createToast(person_id, exists);
 }
 
 const columns: TableColumn<Persons>[] = [
@@ -168,7 +148,7 @@ const columns: TableColumn<Persons>[] = [
           : "text-start w-4 h-4 text-blue-800",
         title: !row.original.editable
           ? "Анкета доступна для редактирования"
-          : row.original.user_id == stateUser.value.id
+          : row.original.user_id == user.value.id
           ? "Анкета назначена текущему пользователю"
           : "Анкета редактируется другим пользователем",
       });
@@ -216,7 +196,7 @@ const items: DropdownMenuItem[] = [
       <div class="py-1">
         <h3 class="text-2xl text-red-800 font-bold">КАНДИДАТЫ</h3>
       </div>
-      <div v-if="stateUser.role == 'user'" class="flex items-center space-x-4">
+      <div v-if="user.role == 'user'" class="flex items-center space-x-4">
         <UDropdownMenu :items="items" :content="{ align: 'end' }">
           <UButton
             :loading="status == 'pending'"

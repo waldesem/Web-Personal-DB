@@ -23,13 +23,8 @@ const emit = defineEmits(["update", "cancel"]);
  * @returns {Promise<void>}
  */
 async function userAction(item: string, id: string): Promise<void> {
-  if (id == stateUser.value.id) {
-    toast.add({
-      icon: "i-heroicons-information-circle",
-      title: "Внимание",
-      description: "Невозможно  выполнить действие",
-      color: "error",
-    });
+  if (id == user.value.id) {
+    makeToast();
     return;
   }
   const { message } = (await useFetchAuth("/route/user/" + id, {
@@ -38,19 +33,9 @@ async function userAction(item: string, id: string): Promise<void> {
     },
   })) as Record<string, string>;
   if (message == "success") {
-    toast.add({
-      icon: "i-heroicons-check-circle",
-      title: "Информация",
-      description: "Действие успешно выполнено",
-      color: "success",
-    });
+    makeToast("success", "Действие успешно выполнено");
   } else {
-    toast.add({
-      icon: "i-heroicons-information-circle",
-      title: "Внимание",
-      description: "Действие не было выполнено",
-      color: "error",
-    });
+    makeToast();
   }
   emit("update", id);
 }

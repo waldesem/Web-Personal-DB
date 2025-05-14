@@ -1,25 +1,29 @@
-/**
- * Shows a toast message, depending on the value of the message parameter.
- * If message is "success", shows a green toast with title "Информация" and description "Информация обновлена".
- * Otherwise, shows a red toast with title "Внимание" and description "Ошибка обновления информации".
- *
- * @param message - "success" or any other value
- */
-export function emitMessage(message: string) {
+export function makeToast(
+  color:
+    | "success"
+    | "primary"
+    | "secondary"
+    | "info"
+    | "warning"
+    | "error"
+    | "neutral" = "error",
+  description = "Невозможно выполнить действие или операция завершилсь ошибкой"
+) {
+  const icon = {
+    error: "i-heroicons-exclamation-triangle",
+    info: "i-heroicons-exclamation-circle",
+    success: "i-heroicons-information-circle",
+  };
+  const title = {
+    error: "Ошибка",
+    info: "Внимание",
+    success: "Успех",
+  };
   const toast = useToast();
-  if (message == "success") {
-    toast.add({
-      icon: "i-heroicons-information-circle",
-      title: "Успешно",
-      description: "Информация обновлена",
-      color: "success",
-    });
-  } else {
-    toast.add({
-      icon: "i-heroicons-exclamation-triangle",
-      title: "Ошибка",
-      description: "Невозможно выполнить действие",
-      color: "error",
-    });
-  }
+  toast.add({
+    icon: icon[color as keyof typeof icon],
+    title: title[color as keyof typeof title],
+    description: description,
+    color: color,
+  });
 }

@@ -1,12 +1,21 @@
 import type { NitroFetchOptions } from "nitropack";
 import { useStorageAsync } from "@vueuse/core";
-import type { Method, Token } from "@/types";
+import type { Method, Persons, Token } from "@/types";
 
 export const accessToken = useStorageAsync("accessToken", "", localStorage, {
   mergeDefaults: true,
 });
 
-export const stateUser = ref({} as Token);
+export const user = ref({} as Token);
+export const person = ref({} as Persons);
+
+export const editable = computed(() => {
+  return (
+    person.value.editable &&
+    user.value.role == "user" &&
+    user.value.id == person.value.user_id
+  );
+});
 
 export const useFetchAuth = async (
   url: string,
