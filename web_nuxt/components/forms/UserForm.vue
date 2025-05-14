@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { UserForm } from "@/types";
 
-const toast = useToast();
-
 const emit = defineEmits(["cancel", "update"]);
 
 const form = ref({} as UserForm);

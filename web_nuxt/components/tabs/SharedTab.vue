@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useFileDialog } from "@vueuse/core";
 import type { TabsType, MappedCompType } from "@/types";
 
 import CheckDiv from "@/components/divs/items/CheckItem.vue";
@@ -49,11 +50,11 @@ async function submitItem(form: TabsType) {
   )) as Record<string, string>;
   item.value = {} as TabsType;
   if (message == "success") {
-    emit("editable")
+    emit("editable");
     makeToast(message, "Информация успешно обновлена");
   } else {
     makeToast();
-  }  
+  }
   await refresh();
 }
 
@@ -69,6 +70,38 @@ async function deleteItem(id: string, idx: number) {
   }
   showToast(message);
 }
+
+const { open, reset, onCancel, onChange } = useFileDialog();
+
+onChange(async (files) => {
+  if (!files) return;
+  const formData = new FormData();
+  for (const file of files) {
+    const maxSize = 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+      makeToast("info", "Размер одного файла не должен превышать 10 МБ");
+      continue;
+    }
+    formData.append("file", file);
+  }
+  const { message } = (await useFetchAuth(
+    `/route/explorer/files/${props.view}/${person.value.id}`,
+    {
+      method: "POST",
+      body: formData,
+    }
+  )) as Record<string, string>;
+  if (message == "success") {
+    makeToast("success", "Файлы успешно загружены");
+  } else {
+    makeToast();
+  }
+  reset();
+});
+
+onCancel(() => {
+  reset();
+});
 </script>
 
 <template>
@@ -106,15 +139,41 @@ async function deleteItem(id: string, idx: number) {
     <div v-for="(content, index) in items" :key="content.id" class="py-4 ms-2">
       <div v-if="editable" class="relative">
         <div class="absolute top-2 right-2">
-          <ElementsTabMenu
-            :cand-id="person.id"
-            :item="props.view"
-            @delete="deleteItem(content.id, index)"
-            @update="
-              item = content;
-              modal = true;
-            "
-          />
+          <UDropdownMenu
+            :items="[
+              {
+                label: 'Изменить',
+                icon: 'i-heroicons-pencil-square',
+                onSelect() {
+                  item = content;
+                  modal = true;
+                },
+              },
+              {
+                label: 'Загрузить',
+                icon: 'i-heroicons-cloud-arrow-up',
+                onSelect() {
+                  open();
+                },
+              },
+              {
+                label: 'Удалить',
+                icon: 'i-heroicons-trash',
+                onSelect() {
+                  deleteItem(content.id, index);
+                },
+              },
+            ]"
+            :content="{ align: 'end' }"
+          >
+            <UButton
+              size="xl"
+              color="neutral"
+              icon="i-heroicons-ellipsis-vertical"
+              variant="ghost"
+              title="Выбор действия"
+            />
+          </UDropdownMenu>
         </div>
       </div>
       <div v-if="status === 'pending'">

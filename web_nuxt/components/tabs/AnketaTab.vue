@@ -25,7 +25,7 @@ async function submitResume(form: Persons) {
     makeToast(message, "Информация успешно обновлена");
   } else {
     makeToast();
-  }  
+  }
   await refresh();
 }
 
@@ -88,12 +88,35 @@ const items: AccordionItem[] = [
 <template>
   <div v-if="editable" class="relative">
     <div class="absolute top-2 right-2">
-      <ElementsTabMenu
-        :cand-id="person.id"
-        :item="'persons'"
-        @delete="deleteItem"
-        @update="modal = true"
-      />
+      <UDropdownMenu
+        :disabled="!editable"
+        :items="[
+          {
+            label: 'Изменить',
+            icon: 'i-heroicons-pencil-square',
+            onSelect() {
+              modal = true;
+            },
+          },
+          {
+            label: 'Удалить',
+            icon: 'i-heroicons-trash',
+            onSelect() {
+              deleteItem();
+            },
+          },
+        ]"
+        :content="{ align: 'end' }"
+      >
+        <UButton
+          :loading="status == 'pending'"
+          size="xl"
+          color="neutral"
+          icon="i-heroicons-ellipsis-vertical"
+          variant="ghost"
+          title="Выбор действия"
+        />
+      </UDropdownMenu>
     </div>
   </div>
   <div v-if="!person.id">

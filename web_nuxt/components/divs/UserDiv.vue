@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { User } from "@/types";
 
-const toast = useToast();
-
 const region = ref("");
 const role = ref("");
 
