@@ -64,6 +64,7 @@ async function submitItem(form: TabsType) {
   status.value = "success";
   item.value = {} as TabsType;
   await refresh();
+  if (message == "success") emit("editable");
   emitMessage(message);
 }
 
