@@ -5,7 +5,6 @@ await preloadComponents("DivsItemsResumeItem");
 
 const emit = defineEmits(["update"]);
 
-const status = inject("status") as Ref<string>;
 const person = inject("person") as Ref<Persons>;
   
 const editable = computed(() => {
@@ -21,7 +20,7 @@ const resume = ref({} as Persons);
 
 async function submitResume(form: Persons) {
   modal.value = false;
-  status.value = "pending";
+  person.value = {} as Persons;
   const { message } = (await useFetchAuth("/route/items/persons", {
     method: "POST",
     body: form,
@@ -36,7 +35,7 @@ async function deleteItem() {
   if (!confirm("Вы действительно хотите удалить профиль и связанные записи?"))
     return;
   if (!confirm("Данные будут удалены безвозвратно!?")) return;
-  status.value = "pending";
+  person.value = {} as Persons;
   const { message } = (await useFetchAuth(
     `/route/items/persons/${person.value.id}`,
     {
@@ -62,7 +61,7 @@ async function deleteItem() {
       />
     </div>
   </div>
-  <div v-if="status === 'pending'">
+  <div v-if="!person">
     <div
       v-for="p in Object.keys(person)"
       :key="p"
