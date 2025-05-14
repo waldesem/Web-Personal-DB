@@ -20,7 +20,6 @@ const { refresh, status } = await useLazyAsyncData("anketa", async () => {
 });
 
 provide("person", person);
-provide("status", status);
 
 const editState = computed(() => {
   return (
