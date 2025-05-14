@@ -182,16 +182,16 @@ const items: TabsItem[] = [
         <TabsAnketaTab @update="refresh()" />
       </template>
       <template #checks="{ item }">
-        <TabsSharedTab :view="item.slot" />
+        <TabsSharedTab :view="item.slot" @editable=switchSelf'/>
       </template>
       <template #poligrafs="{ item }">
-        <TabsSharedTab :view="item.slot" />
+        <TabsSharedTab :view="item.slot" @editable=switchSelf'/>
       </template>
       <template #investigations="{ item }">
-        <TabsSharedTab :view="item.slot" />
+        <TabsSharedTab :view="item.slot" @editable=switchSelf'/>
       </template>
       <template #inquiries="{ item }">
-        <TabsSharedTab :view="item.slot" />
+        <TabsSharedTab :view="item.slot" @editable=switchSelf'/>
       </template>
       <template #explorer>
         <TabsExplorerTab />
