@@ -6,16 +6,19 @@ export const accessToken = useStorageAsync("accessToken", "", localStorage, {
   mergeDefaults: true,
 });
 
-export const user = ref({} as Token);
-export const person = ref({} as Persons);
+export const user = useState("user", () => ({} as Token));
 
-export const editable = computed(() => {
-  return (
-    person.value.editable &&
-    user.value.role == "user" &&
-    user.value.id == person.value.user_id
-  );
-});
+export const person = useState("person", () => ({} as Persons));
+
+export const editable = useState("editable", () =>
+  computed(() => {
+    return (
+      person.value.editable &&
+      user.value.role == "user" &&
+      user.value.id == person.value.user_id
+    );
+  })
+);
 
 export const useFetchAuth = async (
   url: string,

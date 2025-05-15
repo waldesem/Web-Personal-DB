@@ -117,7 +117,7 @@ onCancel(() => {
     />
     <UModal
       v-model:open="modal"
-      :ui="{ content: 'sm:max-w-4xl overflow-y-auto' }"
+      :ui="{ content: 'sm:max-w-4xl' }"
       :dismissible="false"
       title="Проверка кандидата"
       description="Данные профиля"

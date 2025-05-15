@@ -138,7 +138,6 @@ const items: AccordionItem[] = [
   </div>
   <UModal
     v-model:open="modal"
-    :ui="{ content: 'overflow-y-auto' }"
     :dismissible="false"
     title="Резюме"
     description="Данные профиля"

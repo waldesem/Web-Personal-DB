@@ -1,6 +1,5 @@
 export default defineAppConfig({
   ui: {
-    fonts: false,
     colors: {
       primary: 'blue',
       neutral: 'zinc'
@@ -9,6 +8,9 @@ export default defineAppConfig({
       slots: {
         root: 'w-full',
       },
+    },
+    modal: {
+      content: 'overflow-y-auto'
     },
     textarea: {
       slots: {

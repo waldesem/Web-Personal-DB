@@ -115,6 +115,10 @@ async function submitResume(form: Persons): Promise<void> {
   createToast(person_id, exists);
 }
 
+async function openPerson(personId: string) {
+  await navigateTo(`/profile/${personId}`);
+}
+
 const columns: TableColumn<Persons>[] = [
   { accessorKey: "id", header: "#" },
   { accessorKey: "region", header: "Регион" },
@@ -208,7 +212,6 @@ const items: DropdownMenuItem[] = [
         <UModal
           v-model:open="modal"
           :dismissible="false"
-          :ui="{ content: 'overflow-y-auto' }"
           title="Создание анкеты"
           description="Введите данные анкеты"
         >
@@ -239,7 +242,7 @@ const items: DropdownMenuItem[] = [
       :columns="columns"
       :data="candidates"
       :meta="{ class: { tr: 'cursor-pointer' } }"
-      @select="navigateTo(`/profile/${$event.original.id}`)"
+      @select="openPerson($event.original.id)"
     />
 
     <div class="flex items-center justify-between space-x-4 my-2">

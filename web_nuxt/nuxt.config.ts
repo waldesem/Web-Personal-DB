@@ -1,43 +1,48 @@
 import { fileURLToPath } from "url";
 
 export default defineNuxtConfig({
-  compatibilityDate: "2024-03-16",
-  devtools: { enabled: true },
-  ssr: false,
+  alias: {
+    "@/": fileURLToPath(new URL("./src", import.meta.url)),
+  },
   app: {
-    pageTransition: { name: "page", mode: "out-in" },
     head: {
+      htmlAttrs: { lang: "ru" },
+      link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
       meta: [
         { name: "description", content: "Кадровая безопасность" },
         { name: "viewport", content: "width=device-width, initial-scale=1" },
         { charset: "utf-8" },
       ],
-      link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
-      htmlAttrs: { lang: "ru" },
       title: "StaffSec - кадровая безопасность",
     },
+    keepalive: { include: "persons" },
+    pageTransition: { name: "page", mode: "out-in" },
   },
-  alias: {
-    "@/": fileURLToPath(new URL("./src", import.meta.url)),
-  },
-  routeRules: {
-    "/route/**": { proxy: "http://127.0.0.1:5000/route/**" },
-  },
-  nitro: {
-    output: {
-      publicDir: "../server_flask/app/static",
-    },
-  },
-  vite: {
-    build: {
-      emptyOutDir: true,
-    },
-  },
-  modules: ["@nuxt/ui", "@nuxt/eslint", "@vueuse/nuxt"],
+  compatibilityDate: "2025-05-16",
   css: ["~/assets/css/main.css"],
+  devtools: { enabled: true },
   icon: {
     clientBundle: {
       scan: true,
     },
   },
+  modules: ["@nuxt/ui", "@nuxt/eslint", "@vueuse/nuxt"],
+  nitro: {
+    output: {
+      publicDir: "../server_flask/app/static",
+    },
+  },
+  routeRules: {
+    "/route/**": { proxy: "http://127.0.0.1:5000/route/**" },
+  },
+  ssr: false,
+  vite: {
+    build: {
+      emptyOutDir: true,
+    },
+  },
+  ui: {
+    fonts: false,
+    colorMode: false,
+  }
 });
