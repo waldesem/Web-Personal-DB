@@ -7,9 +7,10 @@ const loginAction = ref("login");
 const loginForm = ref({} as Login);
 
 const alert = ref({
-  color: "primary",
+  color: "success",
   title: "Информация",
   description: "Введите логин и пароль",
+  icon: "i-heroicons-information-circle",
 });
 
 const validate = (state: Partial<Login>) => {
@@ -61,6 +62,7 @@ async function submitLogin(): Promise<void> {
       color: "success",
       title: "Информация",
       description: "Войдите с новым паролем.",
+      icon: "i-heroicons-information-circle",
     });
   } else if (message === "Denied") {
     loginAction.value = "update";
@@ -68,46 +70,42 @@ async function submitLogin(): Promise<void> {
       color: "warning",
       title: "Предупреждение",
       description: "Пароль просрочен.",
+      icon: "i-heroicons-exclamation-circle",
     });
   } else {
     Object.assign(alert.value, {
       color: "error",
       title: "Внимание",
       description: "Неправильный логин или пароль.",
+      icon: "i-heroicons-exclamation-triangle",
     });
   }
 }
 </script>
 
 <template>
-  <div class="flex justify-center">
-    <div class="py-8">
+  <div class="flex flex-row justify-center">
+    <div class="align-middle py-12">
       <UAlert
         variant="subtle"
         :color="(alert.color as any)"
         :title="alert.title"
         :description="alert.description"
+        :icon="alert.icon"
       />
-      <div class="py-6">
-        <h3 class="text-2xl text-blue-800 font-bold">Кадровая безопасность</h3>
-      </div>
-      <div class="border border-red-600 rounded-md p-5">
-        <div class="py-1">
-          <h3 class="text-xl text-red-800 font-bold">
-            {{
-              loginAction === "login" ? "Вход в систему" : "Обновление пароля"
-            }}
-          </h3>
-        </div>
+      <h3 class="text-2xl text-blue-800 font-bold my-6">
+        Кадровая безопасность
+      </h3>
+      <UCard>
+        <h3 class="text-xl text-red-800 font-bold mb-2">
+          {{ loginAction === "login" ? "Вход в систему" : "Обновление пароля" }}
+        </h3>
         <UForm
           :state="loginForm"
           :validate="validate"
-          class="mt-4"
           @submit.prevent="submitLogin"
         >
           <UFormField
-            class="mb-3"
-            size="md"
             label="Логин"
             name="username"
             required
@@ -120,8 +118,6 @@ async function submitLogin(): Promise<void> {
             />
           </UFormField>
           <UFormField
-            class="mb-3"
-            size="md"
             label="Пароль"
             name="password"
             required
@@ -136,8 +132,6 @@ async function submitLogin(): Promise<void> {
           </UFormField>
           <div v-if="loginAction === 'update'">
             <UFormField
-              class="mb-3"
-              size="md"
               label="Новый пароль"
               name="new_pswd"
               required
@@ -151,8 +145,6 @@ async function submitLogin(): Promise<void> {
               />
             </UFormField>
             <UFormField
-              class="mb-3"
-              size="md"
               label="Повтор пароля"
               name="conf_pswd"
               required
@@ -166,9 +158,9 @@ async function submitLogin(): Promise<void> {
               />
             </UFormField>
           </div>
-          <UButtonGroup class="mt-3">
+          <UButtonGroup class="mt-2">
             <UButton
-              label="Принять"
+              :label="loginAction === 'login' ? 'Войти' : 'Изменить'"
               color="success"
               variant="outline"
               type="submit"
@@ -181,14 +173,18 @@ async function submitLogin(): Promise<void> {
               @click="loginAction = 'update'"
             />
             <UButton
+              v-if="loginAction === 'update'"
               label="Отмена"
               color="error"
               variant="outline"
-              @click="loginAction = 'login'; loginForm = ({} as Login)"
+              @click="
+                loginAction = 'login';
+                loginForm = {} as Login;
+              "
             />
           </UButtonGroup>
         </UForm>
-      </div>
+      </UCard>
     </div>
   </div>
 </template>

@@ -15,7 +15,7 @@ const contactForm = ref(props.item as Contact);
 
 <template>
   <UForm :state="contactForm" @submit.prevent="emit('update', contactForm)">
-    <UFormField class="mb-3" label="Вид контакта" name="view" required>
+    <UFormField label="Вид контакта" name="view" required>
       <USelect
         v-model="contactForm.view"
         required
@@ -23,7 +23,7 @@ const contactForm = ref(props.item as Contact);
         placeholder="Выберите вид контакта"
       />
     </UFormField>
-    <UFormField class="mb-3" label="Контакт" name="contact" required>
+    <UFormField label="Контакт" name="contact" required>
       <UInput
         v-model.trim.lazy="contactForm.contact"
         required

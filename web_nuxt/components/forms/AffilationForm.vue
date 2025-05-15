@@ -15,7 +15,7 @@ const affilForm = ref(props.item as Affilation);
 
 <template>
   <UForm :state="affilForm" @submit.prevent="emit('update', affilForm)">
-    <UFormField class="mb-3" label="Вид участия" name="view" required>
+    <UFormField label="Вид участия" name="view" required>
       <USelect
         v-model="affilForm.view"
         required
@@ -28,7 +28,7 @@ const affilForm = ref(props.item as Affilation);
         placeholder="Выберите вид участия"
       />
     </UFormField>
-    <UFormField class="mb-3" label="Организация" name="organization" required>
+    <UFormField label="Организация" name="organization" required>
       <UInput
         v-model.trim.lazy="affilForm.organization"
         required
@@ -36,7 +36,7 @@ const affilForm = ref(props.item as Affilation);
         maxlength="255"
       />
     </UFormField>
-    <UFormField class="mb-3" label="ИНН" name="inn">
+    <UFormField label="ИНН" name="inn">
       <UInput
         v-model.trim.lazy="affilForm.inn"
         placeholder="ИНН"

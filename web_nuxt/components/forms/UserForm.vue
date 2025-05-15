@@ -50,22 +50,17 @@ async function submitUser() {
 <template>
   <div class="m-4">
     <UForm :validate="validate" :state="form" @submit.prevent="submitUser">
-      <UFormField
-        class="mb-3"
-        label="Имя пользователя"
-        name="fullname"
-        required
-      >
+      <UFormField label="Имя пользователя" name="fullname" required>
         <UInput
           v-model="form.fullname"
           placeholder="Имя пользователя"
           required
         />
       </UFormField>
-      <UFormField class="mb-3" label="Логин" name="username" required>
+      <UFormField label="Логин" name="username" required>
         <UInput v-model="form.username" placeholder="Логин" />
       </UFormField>
-      <UFormField class="mb-3" label="Email" name="email" required>
+      <UFormField label="Email" name="email" required>
         <UInput v-model="form.email" placeholder="Email" />
       </UFormField>
       <ElementsBtnGroup

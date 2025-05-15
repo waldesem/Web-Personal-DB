@@ -33,93 +33,81 @@ watch(noNegative, () => {
 </script>
 
 <template>
-  <UFormField class="mb-3" label="Негатива нет">
+  <UFormField label="Негатива нет">
     <USwitch v-model="noNegative" />
   </UFormField>
   <UForm :state="checkForm" @submit.prevent="emit('update', checkForm)">
-    <UFormField class="mb-3" label="Проверка по местам работы" name="workplace">
+    <UFormField label="Проверка по местам работы" name="workplace">
       <UTextarea
         v-model.trim.lazy="checkForm.workplace"
         autoresize
         placeholder="Проверка по местам работы"
       />
     </UFormField>
-    <UFormField class="mb-3" label="Проверка документов" name="document">
+    <UFormField label="Проверка документов" name="document">
       <UTextarea
         v-model.trim.lazy="checkForm.document"
         autoresize
         placeholder="Проверка документов"
       />
     </UFormField>
-    <UFormField class="mb-3" label="Проверка задолженностей" name="debt">
+    <UFormField label="Проверка задолженностей" name="debt">
       <UTextarea
         v-model.trim.lazy="checkForm.debt"
         autoresize
         placeholder="Проверка задолженностей"
       />
     </UFormField>
-    <UFormField class="mb-3" label="Проверка банкротства" name="bankruptcy">
+    <UFormField label="Проверка банкротства" name="bankruptcy">
       <UTextarea
         v-model.trim.lazy="checkForm.bankruptcy"
         autoresize
         placeholder="Проверка банкротства"
       />
     </UFormField>
-    <UFormField class="mb-3" label="Проверка Кредитной истории" name="bki">
+    <UFormField label="Проверка Кредитной истории" name="bki">
       <UTextarea
         v-model.trim.lazy="checkForm.bki"
         autoresize
         placeholder="Проверка Кредитной истории"
       />
     </UFormField>
-    <UFormField class="mb-3" label="Проверка судебных дел" name="courts">
+    <UFormField label="Проверка судебных дел" name="courts">
       <UTextarea
         v-model.trim.lazy="checkForm.courts"
         autoresize
         placeholder="Проверка судебных дел"
       />
     </UFormField>
-    <UFormField
-      class="mb-3"
-      label="Проверка аффилированности"
-      name="affilation"
-    >
+    <UFormField label="Проверка аффилированности" name="affilation">
       <UTextarea
         v-model.trim.lazy="checkForm.affilation"
         autoresize
         placeholder="Проверка аффилированности"
       />
     </UFormField>
-    <UFormField
-      class="mb-3"
-      label="Проверка в списке террористов"
-      name="terrorist"
-    >
+    <UFormField label="Проверка в списке террористов" name="terrorist">
       <UTextarea
         v-model.trim.lazy="checkForm.terrorist"
         autoresize
         placeholder="Проверка в списке террористов"
       />
     </UFormField>
-    <UFormField
-      class="mb-3"
-      label="Проверка в открытых источниках"
-      name="internet"
-    >
+    <UFormField label="Проверка в открытых источниках" name="internet">
       <UTextarea
         v-model.trim.lazy="checkForm.internet"
         autoresize
         placeholder="Проверка в открытых источниках"
       />
     </UFormField>
-    <UFormField class="mb-3" label="Проверка в Кронос" name="cronos">
+    <UFormField label="Проверка в Кронос" name="cronos">
       <UTextarea
         v-model.trim.lazy="checkForm.cronos"
         autoresize
         placeholder="Проверка в Кронос/Крос"
       />
     </UFormField>
-    <UFormField class="mb-3" label="Дополнительная информация" name="addition">
+    <UFormField label="Дополнительная информация" name="addition">
       <UTextarea
         v-model.trim.lazy="checkForm.addition"
         autoresize
@@ -128,7 +116,6 @@ watch(noNegative, () => {
     </UFormField>
     <UFormField
       v-if="checkForm.conclusion === 'СОГЛАСОВАНО С КОММЕНТАРИЕМ'"
-      class="mb-3"
       label="Комментарии"
       name="comment"
     >
@@ -138,7 +125,7 @@ watch(noNegative, () => {
         placeholder="Комментарии"
       />
     </UFormField>
-    <UFormField class="mb-3" label="Результат" name="conclusion" required>
+    <UFormField label="Результат" name="conclusion" required>
       <USelect
         v-model="checkForm.conclusion"
         required

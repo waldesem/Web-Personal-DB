@@ -7,8 +7,8 @@ const UIcon = resolveComponent("UIcon");
 const UBadge = resolveComponent("UBadge");
 
 const search = ref("");
-const users = ref([] as User[]);
-const user = ref({} as User);
+const usrs = ref([] as User[]);
+const usr = ref({} as User);
 const modalForm = ref(false);
 const modalProfile = ref(false);
 const viewDeleted = ref(false);
@@ -19,7 +19,7 @@ const viewDeleted = ref(false);
  * @return {User[]} An array of user objects
  */
 const filtredUsers = computed(() => {
-  return users.value.filter((user: User) => user.deleted == viewDeleted.value);
+  return usrs.value.filter((user: User) => user.deleted == viewDeleted.value);
 });
 
 const { refresh, status } = await useLazyAsyncData("users", async () => {
@@ -28,11 +28,11 @@ const { refresh, status } = await useLazyAsyncData("users", async () => {
       search: search.value,
     },
   })) as User[];
-  users.value = data;
+  usrs.value = data;
 });
 
 async function getUser(id: string): Promise<void> {
-  user.value = (await useFetchAuth("/route/user/" + id)) as User;
+  usr.value = (await useFetchAuth("/route/user/" + id)) as User;
   modalProfile.value = true;
 }
 
@@ -112,7 +112,7 @@ const columns: TableColumn<User>[] = [
       />
     </div>
     <div class="flex items-center justify-between mb-4">
-      <UFormField class="flex items-center space-x-4 mb-3" label="Удаленные">
+      <UFormField class="flex items-center space-x-4" label="Удаленные">
         <USwitch v-model="viewDeleted" />
       </UFormField>
       <UButton
@@ -146,11 +146,11 @@ const columns: TableColumn<User>[] = [
     >
       <template #content>
         <DivsUserDiv
-          :user="user"
+          :user="usr"
           @update="getUser"
           @cancel="
             modalProfile = false;
-            user = {} as User;
+            usr = {} as User;
             refresh();
           "
       /></template>

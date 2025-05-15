@@ -43,10 +43,10 @@ const validate = (state: Partial<Work>) => {
     :validate="validate"
     @submit.prevent="emit('update', workForm)"
   >
-    <UFormField class="mb-3" label="Текущая работа" name="now_work">
+    <UFormField label="Текущая работа" name="now_work">
       <UCheckbox v-model="workForm.now_work" />
     </UFormField>
-    <UFormField class="mb-3" label="Начало работы" name="starts" required>
+    <UFormField label="Начало работы" name="starts" required>
       <UInput
         v-model="workForm.starts"
         required
@@ -54,7 +54,7 @@ const validate = (state: Partial<Work>) => {
         type="date"
       />
     </UFormField>
-    <UFormField class="mb-3" label="Окончание работы" name="finished" required>
+    <UFormField label="Окончание работы" name="finished" required>
       <UInput
         v-model="workForm.finished"
         required
@@ -62,7 +62,7 @@ const validate = (state: Partial<Work>) => {
         type="date"
       />
     </UFormField>
-    <UFormField class="mb-3" label="Место работы" name="workplace" required>
+    <UFormField label="Место работы" name="workplace" required>
       <UInput
         v-model.trim.lazy="workForm.workplace"
         required
@@ -70,7 +70,7 @@ const validate = (state: Partial<Work>) => {
         maxlength="255"
       />
     </UFormField>
-    <UFormField class="mb-3" label="Должность" name="position" required>
+    <UFormField label="Должность" name="position" required>
       <UInput
         v-model.trim.lazy="workForm.position"
         required
@@ -78,13 +78,13 @@ const validate = (state: Partial<Work>) => {
         maxlength="255"
       />
     </UFormField>
-    <UFormField class="mb-3" label="Адрес организации" name="addresses">
+    <UFormField label="Адрес организации" name="addresses">
       <UTextarea
         v-model.trim.lazy="workForm.addresses"
         placeholder="Адрес организации"
       />
     </UFormField>
-    <UFormField class="mb-3" label="Причина увольнения" name="reason">
+    <UFormField label="Причина увольнения" name="reason">
       <UTextarea
         v-model.trim.lazy="workForm.reason"
         placeholder="Причина увольнения"

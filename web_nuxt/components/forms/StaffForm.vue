@@ -18,7 +18,7 @@ const staffForm = ref(props.item as Staff);
     :state="staffForm"
     @submit.prevent="emit('update', staffForm)"
   >
-    <UFormField class="mb-3" label="Должность" name="position" required>
+    <UFormField label="Должность" name="position" required>
       <UInput
         v-model.trim.lazy="staffForm.position"
         required
@@ -26,7 +26,7 @@ const staffForm = ref(props.item as Staff);
         maxlength="255"
       />
     </UFormField>
-    <UFormField class="mb-3" label="Подразделение" name="department">
+    <UFormField label="Подразделение" name="department">
       <UInput
         v-model.trim.lazy="staffForm.department"
         placeholder="Подразделение"

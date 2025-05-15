@@ -10,7 +10,7 @@ const props = defineProps({
 </script>
 
 <template>
-  <div class="text-center p-8 flex flex-col items-center h-screen">
+  <div class="flex flex-col items-center h-screen p-8">
     <h1 class="text-4xl font-bold text-red-800 mb-4">
       {{ props.error.name }}
     </h1>

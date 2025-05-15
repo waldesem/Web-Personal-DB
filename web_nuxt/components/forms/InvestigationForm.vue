@@ -18,7 +18,7 @@ const investigationForm = ref(props.item as Inquisition);
     :state="investigationForm"
     @submit.prevent="emit('update', investigationForm)"
   >
-    <UFormField class="mb-3" label="Тема проверки" name="theme" required>
+    <UFormField label="Тема проверки" name="theme" required>
       <UInput
         v-model.trim.lazy="investigationForm.theme"
         required
@@ -26,7 +26,7 @@ const investigationForm = ref(props.item as Inquisition);
         maxlength="255"
       />
     </UFormField>
-    <UFormField class="mb-3" label="Информация" name="info" required>
+    <UFormField label="Информация" name="info" required>
       <UTextarea
         v-model.trim.lazy="investigationForm.info"
         required

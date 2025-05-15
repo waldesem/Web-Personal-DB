@@ -15,7 +15,7 @@ const educationForm = ref(props.item as Education);
 
 <template>
   <UForm :state="educationForm" @submit.prevent="emit('update', educationForm)">
-    <UFormField class="mb-3" label="Тип образования" name="view" required>
+    <UFormField label="Тип образования" name="view" required>
       <USelect
         v-model="educationForm.view"
         required
@@ -30,12 +30,7 @@ const educationForm = ref(props.item as Education);
         placeholder="Выберите тип образования"
       />
     </UFormField>
-    <UFormField
-      class="mb-3"
-      label="Название учебного заведения"
-      name="institution"
-      required
-    >
+    <UFormField label="Название учебного заведения" name="institution" required>
       <UInput
         v-model.trim.lazy="educationForm.institution"
         required
@@ -43,14 +38,14 @@ const educationForm = ref(props.item as Education);
         maxlength="255"
       />
     </UFormField>
-    <UFormField class="mb-3" label="Год окончания" name="finished">
+    <UFormField label="Год окончания" name="finished">
       <UInput
         v-model.trim.lazy="educationForm.finished"
         placeholder="Год окончания"
         maxlength="4"
       />
     </UFormField>
-    <UFormField class="mb-3" label="Специальность" name="specialty">
+    <UFormField label="Специальность" name="specialty">
       <UInput
         v-model.trim.lazy="educationForm.specialty"
         placeholder="Специальность"

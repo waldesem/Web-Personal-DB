@@ -34,7 +34,7 @@ const validate = (state: Partial<Passport>) => {
     :validate="validate"
     @submit.prevent="emit('update', docForm)"
   >
-    <UFormField class="mb-3" label="Вид документа" name="view" required>
+    <UFormField label="Вид документа" name="view" required>
       <USelect
         v-model="docForm.view"
         required
@@ -42,14 +42,14 @@ const validate = (state: Partial<Passport>) => {
         placeholder="Выберите вид документа"
       />
     </UFormField>
-    <UFormField class="mb-3" label="Серия документа" name="series">
+    <UFormField label="Серия документа" name="series">
       <UInput
         v-model.trim.lazy="docForm.series"
         placeholder="Серия документа"
         maxlength="12"
       />
     </UFormField>
-    <UFormField class="mb-3" label="Номер документа" name="digits" required>
+    <UFormField label="Номер документа" name="digits" required>
       <UInput
         v-model.trim.lazy="docForm.digits"
         required
@@ -57,14 +57,14 @@ const validate = (state: Partial<Passport>) => {
         maxlength="12"
       />
     </UFormField>
-    <UFormField class="mb-3" label="Кем выдан" name="agency">
+    <UFormField label="Кем выдан" name="agency">
       <UInput
         v-model.trim="docForm.agency"
         placeholder="Кем выдан"
         maxlength="255"
       />
     </UFormField>
-    <UFormField class="mb-3" label="Дата выдачи" name="issue" required>
+    <UFormField label="Дата выдачи" name="issue" required>
       <UInput v-model.trim.lazy="docForm.issue" required type="date" />
     </UFormField>
     <ElementsBtnGroup @cancel="emit('cancel')" />

@@ -1,21 +1,33 @@
 export default defineAppConfig({
   ui: {
+    alert: {
+      slots: {
+        icon: "size-10",
+      },
+    },
     colors: {
-      primary: 'blue',
-      neutral: 'zinc'
+      primary: "blue",
+      neutral: "zinc",
+    },
+    formField: {
+      slots: {
+        root: "mb-3",
+      },
     },
     input: {
       slots: {
-        root: 'w-full',
+        root: "w-full",
       },
     },
     modal: {
-      content: 'overflow-y-auto'
+      slots: {
+        content: "overflow-y-auto",
+      },
     },
     textarea: {
       slots: {
-        root: 'w-full',
+        root: "w-full",
       },
     },
-  }
-})
+  },
+});

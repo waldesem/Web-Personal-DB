@@ -15,7 +15,7 @@ const previousForm = ref(props.item as Previous);
 
 <template>
   <UForm :state="previousForm" @submit.prevent="emit('update', previousForm)">
-    <UFormField class="mb-3" label="Фамилия" name="surname" required>
+    <UFormField label="Фамилия" name="surname" required>
       <UInput
         v-model.trim.lazy="previousForm.surname"
         required
@@ -23,7 +23,7 @@ const previousForm = ref(props.item as Previous);
         maxlength="255"
       />
     </UFormField>
-    <UFormField class="mb-3" label="Имя" name="firstname" required>
+    <UFormField label="Имя" name="firstname" required>
       <UInput
         v-model.trim.lazy="previousForm.firstname"
         required
@@ -31,21 +31,21 @@ const previousForm = ref(props.item as Previous);
         maxlength="255"
       />
     </UFormField>
-    <UFormField class="mb-3" label="Отчество" name="patronymic">
+    <UFormField label="Отчество" name="patronymic">
       <UInput
         v-model.trim.lazy="previousForm.patronymic"
         placeholder="Отчество"
         maxlength="255"
       />
     </UFormField>
-    <UFormField class="mb-3" label="Год изменения" name="changed">
+    <UFormField label="Год изменения" name="changed">
       <UInput
         v-model.trim.lazy="previousForm.changed"
         placeholder="Год изменения"
         maxlength="4"
       />
     </UFormField>
-    <UFormField class="mb-3" label="Причина изменения" name="reason">
+    <UFormField label="Причина изменения" name="reason">
       <UInput
         v-model.trim.lazy="previousForm.reason"
         placeholder="Причина изменения"

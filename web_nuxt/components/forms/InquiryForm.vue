@@ -15,7 +15,7 @@ const inquiryForm = ref(props.item);
 
 <template>
   <UForm :state="inquiryForm" @submit.prevent="emit('update', inquiryForm)">
-    <UFormField class="mb-3" label="Информация" name="info" required>
+    <UFormField label="Информация" name="info" required>
       <UTextarea
         v-model.trim.lazy="inquiryForm.info"
         required
@@ -23,7 +23,7 @@ const inquiryForm = ref(props.item);
         placeholder="Информация"
       />
     </UFormField>
-    <UFormField class="mb-3" label="Инициатор" name="initiator" required>
+    <UFormField label="Инициатор" name="initiator" required>
       <UInput
         v-model.trim.lazy="inquiryForm.initiator"
         required
