@@ -6,6 +6,16 @@ export default defineNuxtConfig({
   ssr: false,
   app: {
     pageTransition: { name: "page", mode: "out-in" },
+    head: {
+      meta: [
+        { name: "description", content: "Кадровая безопасность" },
+        { name: "viewport", content: "width=device-width, initial-scale=1" },
+        { charset: "utf-8" },
+      ],
+      link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
+      htmlAttrs: { lang: "ru" },
+      title: "StaffSec - кадровая безопасность",
+    },
   },
   alias: {
     "@/": fileURLToPath(new URL("./src", import.meta.url)),
@@ -24,7 +34,7 @@ export default defineNuxtConfig({
     },
   },
   modules: ["@nuxt/ui", "@nuxt/eslint", "@vueuse/nuxt"],
-  css: ['~/assets/css/main.css'],
+  css: ["~/assets/css/main.css"],
   icon: {
     clientBundle: {
       scan: true,

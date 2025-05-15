@@ -29,6 +29,6 @@ export const useFetchAuth = async (
     return await $fetch(url, options);
   } catch (error) {
     console.error(error);
-    return navigateTo("/login");
+    await navigateTo("/login");
   }
 };

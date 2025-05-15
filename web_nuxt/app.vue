@@ -1,14 +1,4 @@
 <script setup lang="ts">
-useHead({
-  htmlAttrs: { lang: "ru" },
-  title: "StaffSec - кадровая безопасность",
-  meta: [
-    { name: "description", content: "Кадровая безопасность" },
-    { name: "viewport", content: "width=device-width, initial-scale=1" },
-  ],
-  link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
-});
-
 preloadRouteComponents("/persons");
 
 await navigateTo("/persons");
@@ -16,8 +6,11 @@ await navigateTo("/persons");
 
 <template>
   <UApp>
+    <NuxtLoadingIndicator />
     <NuxtLayout>
-      <NuxtPage :transition="true" />
+      <KeepAlive include="persons">
+        <NuxtPage :transition="true" />
+      </KeepAlive>
     </NuxtLayout>
   </UApp>
 </template>
