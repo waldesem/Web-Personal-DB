@@ -4,7 +4,8 @@ async function logout() {
   if (confirm("Вы действительно хотите выйти?")) {
     accessToken.value = "";
     clearNuxtData();
-    return navigateTo("/login");
+    clearNuxtState();
+    await navigateTo("/login");
   }
   return;
 }
