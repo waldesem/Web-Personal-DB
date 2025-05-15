@@ -6,6 +6,12 @@ export const accessToken = useStorage("accessToken", "", localStorage, {
   mergeDefaults: true,
 });
 
+export const useColor = () => useState<string>('color', () => 'pink')
+
+export const useFoo = () => {
+  return useState('foo', () => 'bar')
+}
+
 export const user = ref({} as Token);
 
 export const person = ref({} as Persons);
