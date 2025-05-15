@@ -6,6 +6,8 @@ export const accessToken = useStorage("accessToken", "", localStorage, {
   mergeDefaults: true,
 });
 
+const useX = () => useState('x')
+
 export const useColor = () => useState<string>('color', () => 'pink')
 
 export const useFoo = () => {
