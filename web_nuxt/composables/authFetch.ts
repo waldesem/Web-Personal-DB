@@ -8,6 +8,8 @@ export const accessToken = useStorage("accessToken", "", localStorage, {
 
 const useX = () => useState('x')
 
+const count = useState('counter', () => Math.round(Math.random() * 100))
+
 export const useColor = () => useState<string>('color', () => 'pink')
 
 export const useFoo = () => {
