@@ -25,7 +25,7 @@ async function userAction(item: string, id: string): Promise<void> {
     makeToast();
     return;
   }
-  const { message } = (await useFetchAuth("/route/user/" + id, {
+  const { message } = (await fetchAuth("/route/user/" + id, {
     params: {
       item: item,
     },

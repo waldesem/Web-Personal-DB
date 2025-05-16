@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import type { Files, Folders } from "@/types";
 
+const user = useUserState();
+const person = usePersonState();
+
 const fullPath = ref(person.value.destination) as Ref<string>;
 const listFolders = ref<Folders[]>([]);
 const listFiles = ref<Files[]>([]);
@@ -8,7 +11,7 @@ const listFiles = ref<Files[]>([]);
 const { status } = await useLazyAsyncData(
   "explorer",
   async () => {
-    const { path, folders, files } = (await useFetchAuth(
+    const { path, folders, files } = (await fetchAuth(
       "/route/explorer/folder/" + person.value.id,
       {
         params: {
@@ -29,7 +32,7 @@ const { status } = await useLazyAsyncData(
 
 async function openFile(path: string, name: string) {
   status.value = "pending";
-  const file = (await useFetchAuth("/route/explorer/file", {
+  const file = (await fetchAuth("/route/explorer/file", {
     params: {
       path: path,
     },

@@ -37,12 +37,15 @@ const mappedComponents = {
   workplaces: [WorkItem, WorkplaceForm],
 } as MappedCompType;
 
+const person = usePersonState();
+const editable = useEditableState();
+
 const item = ref({} as DivsType);
 const items = ref([] as DivsType[]);
 const modal = ref(false);
 
 const { refresh, status } = await useLazyAsyncData(props.view, async () => {
-  items.value = (await await useFetchAuth(
+  items.value = (await fetchAuth(
     `/route/items/${props.view}/${person.value.id}`
   )) as DivsType[];
 });
@@ -50,7 +53,7 @@ const { refresh, status } = await useLazyAsyncData(props.view, async () => {
 async function submitItem(form: DivsType) {
   modal.value = false;
   status.value = "pending";
-  const { message } = (await useFetchAuth(
+  const { message } = (await fetchAuth(
     `/route/items/${props.view}/${person.value.id}`,
     {
       method: "POST",
@@ -70,7 +73,7 @@ async function submitItem(form: DivsType) {
 async function deleteItem(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   status.value = "pending";
-  const { message } = (await useFetchAuth(`/route/items/${props.view}/${id}`, {
+  const { message } = (await fetchAuth(`/route/items/${props.view}/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
   status.value = "success";

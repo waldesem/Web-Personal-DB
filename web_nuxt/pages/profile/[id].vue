@@ -5,6 +5,9 @@ import type { Persons } from "@/types";
 await preloadComponents(["TabsAnketaTab", "TabsSharedTab", "TabsExplorerTab"]);
 
 const route = useRoute();
+const user = useUserState();
+const person = usePersonState();
+const editable = useEditableState();
 
 person.value.id = route.params.id as string;
 
@@ -29,7 +32,7 @@ async function switchSelf(): Promise<void> {
     return;
   }
   status.value = "pending";
-  person.value = (await useFetchAuth(
+  person.value = (await fetchAuth(
     "/route/anketa/self/" + person.value.id
   )) as Persons;
   status.value = "success";
@@ -44,7 +47,7 @@ async function changeRegion(): Promise<void> {
     return;
   }
   status.value = "pending";
-  const { message } = (await useFetchAuth(
+  const { message } = (await fetchAuth(
     `/route/anketa/region/${person.value.id}`,
     {
       params: {

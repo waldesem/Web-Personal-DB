@@ -2,14 +2,16 @@
 import type { AccordionItem } from "@nuxt/ui";
 import type { Persons } from "@/types";
 
+await preloadComponents(["DivsSharedDiv"]);
 await preloadComponents("DivsItemsResumeItem");
 
-await preloadComponents(["DivsSharedDiv"]);
+const person = usePersonState();
+const editable = useEditableState();
 
 const modal = ref(false);
 
 const { status, refresh } = await useLazyAsyncData("anketa", async () => {
-  person.value = (await useFetchAuth(
+  person.value = (await fetchAuth(
     "/route/items/persons/" + person.value.id
   )) as Persons;
 });
@@ -17,7 +19,7 @@ const { status, refresh } = await useLazyAsyncData("anketa", async () => {
 async function submitResume(form: Persons) {
   modal.value = false;
   status.value = "pending";
-  const { message } = (await useFetchAuth("/route/items/persons", {
+  const { message } = (await fetchAuth("/route/items/persons", {
     method: "POST",
     body: form,
   })) as Record<string, string>;
@@ -34,7 +36,7 @@ async function deleteItem() {
     return;
   if (!confirm("Данные будут удалены безвозвратно!?")) return;
   status.value = "pending";
-  const { message } = (await useFetchAuth(
+  const { message } = (await fetchAuth(
     `/route/items/persons/${person.value.id}`,
     {
       method: "DELETE",

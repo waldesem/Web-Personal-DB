@@ -33,7 +33,7 @@ const validate = (state: Partial<UserForm>) => {
 };
 
 async function submitUser() {
-  const { message } = (await useFetchAuth("/route/user", {
+  const { message } = (await fetchAuth("/route/user", {
     method: "POST",
     body: form.value,
   })) as Record<string, string>;

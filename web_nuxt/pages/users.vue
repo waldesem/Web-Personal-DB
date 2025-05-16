@@ -7,8 +7,8 @@ const UIcon = resolveComponent("UIcon");
 const UBadge = resolveComponent("UBadge");
 
 const search = ref("");
-const usrs = ref([] as User[]);
-const usr = ref({} as User);
+const users = ref([] as User[]);
+const user = ref({} as User);
 const modalForm = ref(false);
 const modalProfile = ref(false);
 const viewDeleted = ref(false);
@@ -19,20 +19,20 @@ const viewDeleted = ref(false);
  * @return {User[]} An array of user objects
  */
 const filtredUsers = computed(() => {
-  return usrs.value.filter((user: User) => user.deleted == viewDeleted.value);
+  return users.value.filter((user: User) => user.deleted == viewDeleted.value);
 });
 
 const { refresh, status } = await useLazyAsyncData("users", async () => {
-  const data = (await useFetchAuth("/route/users", {
+  const data = (await fetchAuth("/route/users", {
     params: {
       search: search.value,
     },
   })) as User[];
-  usrs.value = data;
+  users.value = data;
 });
 
 async function getUser(id: string): Promise<void> {
-  usr.value = (await useFetchAuth("/route/user/" + id)) as User;
+  user.value = (await fetchAuth("/route/user/" + id)) as User;
   modalProfile.value = true;
 }
 
@@ -146,11 +146,11 @@ const columns: TableColumn<User>[] = [
     >
       <template #content>
         <DivsUserDiv
-          :user="usr"
+          :user="user"
           @update="getUser"
           @cancel="
             modalProfile = false;
-            usr = {} as User;
+            user = {} as User;
             refresh();
           "
       /></template>

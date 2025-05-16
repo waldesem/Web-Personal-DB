@@ -9,6 +9,8 @@ const UIcon = resolveComponent("UIcon");
 const UButton = resolveComponent("UButton");
 const UDropdownMenu = resolveComponent("UDropdownMenu");
 
+const userState = useUserState();
+
 const search = ref("");
 const page = ref(1);
 const pagination = ref(10);
@@ -21,7 +23,7 @@ const candidates = ref([] as Persons[]);
 const { refresh, status } = await useLazyAsyncData(
   "candidates",
   async () => {
-    const { results, has_next } = (await useFetchAuth(
+    const { results, has_next } = (await fetchAuth(
       "/route/index/" + page.value,
       {
         params: {
@@ -85,7 +87,7 @@ onChange(async (files) => {
   status.value = "pending";
   const formData = new FormData();
   formData.append("file", files[0]);
-  const { person_id, exists } = (await useFetchAuth("/route/json", {
+  const { person_id, exists } = (await fetchAuth("/route/json", {
     method: "POST",
     body: formData,
   })) as {
@@ -104,7 +106,7 @@ onCancel(() => {
 async function submitResume(form: Persons): Promise<void> {
   modal.value = false;
   status.value = "pending";
-  const { person_id, exists } = (await useFetchAuth("/route/resume", {
+  const { person_id, exists } = (await fetchAuth("/route/resume", {
     method: "POST",
     body: form,
   })) as {
@@ -152,7 +154,7 @@ const columns: TableColumn<Persons>[] = [
           : "text-start w-4 h-4 text-blue-800",
         title: !row.original.editable
           ? "Анкета доступна для редактирования"
-          : row.original.user_id == user.value.id
+          : row.original.user_id == userState.value.id
           ? "Анкета назначена текущему пользователю"
           : "Анкета редактируется другим пользователем",
       });
@@ -200,7 +202,7 @@ const items: DropdownMenuItem[] = [
       <div class="py-1">
         <h3 class="text-2xl text-red-800 font-bold">КАНДИДАТЫ</h3>
       </div>
-      <div v-if="user.role == 'user'" class="flex items-center space-x-4">
+      <div v-if="userState.role == 'user'" class="flex items-center space-x-4">
         <UDropdownMenu :items="items" :content="{ align: 'end' }">
           <UButton
             :loading="status == 'pending'"
