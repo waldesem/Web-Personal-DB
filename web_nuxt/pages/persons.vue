@@ -230,7 +230,6 @@ const items: DropdownMenuItem[] = [
       <UInput
         id="search"
         v-model="search"
-        :loading="status == 'pending'"
         type="search"
         icon="i-heroicons-magnifying-glass"
         placeholder="поиск по фамилии, имени, отчеству"

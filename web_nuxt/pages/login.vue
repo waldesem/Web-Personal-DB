@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { AlertProps } from "@nuxt/ui";
 import type { Login } from "@/types";
 
 definePageMeta({ layout: false });
@@ -84,107 +85,93 @@ async function submitLogin(): Promise<void> {
 </script>
 
 <template>
-  <div class="flex flex-row justify-center">
-    <div class="align-middle py-12">
-      <UAlert
-        variant="subtle"
-        :color="(alert.color as any)"
-        :title="alert.title"
-        :description="alert.description"
-        :icon="alert.icon"
-      />
-      <h3 class="text-2xl text-blue-800 font-bold my-6">
-        Кадровая безопасность
-      </h3>
-      <UCard>
-        <h3 class="text-xl text-red-800 font-bold mb-2">
-          {{ loginAction === "login" ? "Вход в систему" : "Обновление пароля" }}
+  <UContainer>
+    <div class="flex flex-row justify-center">
+      <div class="align-middle py-12">
+        <UAlert
+          variant="subtle"
+          :color="(alert.color as AlertProps['color'])"
+          :title="alert.title"
+          :description="alert.description"
+          :icon="alert.icon"
+        />
+        <h3 class="text-2xl text-blue-800 font-bold my-6">
+          Кадровая безопасность
         </h3>
-        <UForm
-          :state="loginForm"
-          :validate="validate"
-          @submit.prevent="submitLogin"
-        >
-          <UFormField
-            label="Логин"
-            name="username"
-            required
+        <UCard>
+          <h3 class="text-xl text-red-800 font-bold mb-2">
+            Вход в систему
+          </h3>
+          <UForm
+            :state="loginForm"
+            :validate="validate"
+            @submit.prevent="submitLogin"
           >
-            <UInput
-              v-model="loginForm['username']"
-              placeholder="username"
-              icon="i-heroicons-user"
-              required
-            />
-          </UFormField>
-          <UFormField
-            label="Пароль"
-            name="password"
-            required
-          >
-            <UInput
-              v-model="loginForm['password']"
-              type="password"
-              placeholder="password"
-              icon="i-heroicons-lock-closed"
-              required
-            />
-          </UFormField>
-          <div v-if="loginAction === 'update'">
-            <UFormField
-              label="Новый пароль"
-              name="new_pswd"
-              required
-            >
+            <UFormField label="Логин" name="username" required>
               <UInput
-                v-model="loginForm['new_pswd']"
+                v-model="loginForm['username']"
+                placeholder="username"
+                icon="i-heroicons-user"
+                required
+              />
+            </UFormField>
+            <UFormField label="Пароль" name="password" required>
+              <UInput
+                v-model="loginForm['password']"
                 type="password"
                 placeholder="password"
                 icon="i-heroicons-lock-closed"
                 required
               />
             </UFormField>
-            <UFormField
-              label="Повтор пароля"
-              name="conf_pswd"
-              required
-            >
-              <UInput
-                v-model="loginForm['conf_pswd']"
-                type="password"
-                placeholder="password"
-                icon="i-heroicons-lock-closed"
-                required
+            <div v-if="loginAction === 'update'">
+              <UFormField label="Новый пароль" name="new_pswd" required>
+                <UInput
+                  v-model="loginForm['new_pswd']"
+                  type="password"
+                  placeholder="password"
+                  icon="i-heroicons-lock-closed"
+                  required
+                />
+              </UFormField>
+              <UFormField label="Повтор пароля" name="conf_pswd" required>
+                <UInput
+                  v-model="loginForm['conf_pswd']"
+                  type="password"
+                  placeholder="password"
+                  icon="i-heroicons-lock-closed"
+                  required
+                />
+              </UFormField>
+            </div>
+            <UButtonGroup class="mt-2">
+              <UButton
+                :label="loginAction === 'login' ? 'Войти' : 'Изменить'"
+                color="success"
+                variant="outline"
+                type="submit"
               />
-            </UFormField>
-          </div>
-          <UButtonGroup class="mt-2">
-            <UButton
-              :label="loginAction === 'login' ? 'Войти' : 'Изменить'"
-              color="success"
-              variant="outline"
-              type="submit"
-            />
-            <UButton
-              v-if="loginAction === 'login'"
-              label="Изменить"
-              color="secondary"
-              variant="outline"
-              @click="loginAction = 'update'"
-            />
-            <UButton
-              v-if="loginAction === 'update'"
-              label="Отмена"
-              color="error"
-              variant="outline"
-              @click="
-                loginAction = 'login';
-                loginForm = {} as Login;
-              "
-            />
-          </UButtonGroup>
-        </UForm>
-      </UCard>
+              <UButton
+                v-if="loginAction === 'login'"
+                label="Изменить"
+                color="secondary"
+                variant="outline"
+                @click="loginAction = 'update'"
+              />
+              <UButton
+                v-if="loginAction === 'update'"
+                label="Отмена"
+                color="error"
+                variant="outline"
+                @click="
+                  loginAction = 'login';
+                  loginForm = {} as Login;
+                "
+              />
+            </UButtonGroup>
+          </UForm>
+        </UCard>
+      </div>
     </div>
-  </div>
+  </UContainer>
 </template>

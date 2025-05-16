@@ -1,12 +1,9 @@
+import type { ToastProps } from "@nuxt/ui";
+
+const toast = useToast();
+
 export function makeToast(
-  color:
-    | "success"
-    | "primary"
-    | "secondary"
-    | "info"
-    | "warning"
-    | "error"
-    | "neutral" = "error",
+  color: ToastProps["color"] = "error",
   description = "Невозможно выполнить действие или операция завершилсь ошибкой"
 ) {
   const icon = {
@@ -19,7 +16,6 @@ export function makeToast(
     info: "Внимание",
     success: "Успех",
   };
-  const toast = useToast();
   toast.add({
     icon: icon[color as keyof typeof icon],
     title: title[color as keyof typeof title],
