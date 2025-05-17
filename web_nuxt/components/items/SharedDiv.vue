@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import type { DivsType, MappedCompType } from "@/types";
+import type { DivsType } from "@/types";
 
-import AddressItem from "@/components/items/AddressItem.vue";
-import AffilItem from "@/components/items/AffilItem.vue";
-import ContactItem from "@/components/items/ContactItem.vue";
-import DocumItem from "@/components/items/DocumItem.vue";
-import EducateItem from "@/components/items/EducateItem.vue";
-import PrevItem from "@/components/items/PrevItem.vue";
-import StaffItem from "@/components/items/StaffItem.vue";
-import WorkItem from "@/components/items/WorkItem.vue";
+// import AddressItem from "@/components/items/AddressItem.vue";
+// import AffilItem from "@/components/items/AffilItem.vue";
+// import ContactItem from "@/components/items/ContactItem.vue";
+// import DocumItem from "@/components/items/DocumItem.vue";
+// import EducateItem from "@/components/items/EducateItem.vue";
+// import PrevItem from "@/components/items/PrevItem.vue";
+// import StaffItem from "@/components/items/StaffItem.vue";
+// import WorkItem from "@/components/items/WorkItem.vue";
 
 import AddressForm from "@/components/forms/AddressForm.vue";
 import AffilationForm from "@/components/forms/AffilationForm.vue";
@@ -26,16 +26,20 @@ const props = defineProps({
   },
 });
 
+interface MappedType {
+  [key: string]: Component;
+}
+
 const mappedComponents = {
-  addresses: [AddressItem, AddressForm],
-  affilations: [AffilItem, AffilationForm],
-  contacts: [ContactItem, ContactForm],
-  documents: [DocumItem, DocumentForm],
-  educations: [EducateItem, EducationForm],
-  previous: [PrevItem, PreviousForm],
-  staffs: [StaffItem, StaffForm],
-  workplaces: [WorkItem, WorkplaceForm],
-} as MappedCompType;
+  addresses: AddressForm,
+  affilations: AffilationForm,
+  contacts: ContactForm,
+  documents: DocumentForm,
+  educations: EducationForm,
+  previous: PreviousForm,
+  staffs: StaffForm,
+  workplaces: WorkplaceForm,
+} as MappedType;
 
 const person = usePersonState();
 const editable = useEditableState();
@@ -126,7 +130,7 @@ async function deleteItem(id: string, idx: number) {
     </div>
     <div v-if="status === 'pending'">
       <div
-        v-for="p in Object.keys(item)"
+        v-for="p in Object.keys(itm)"
         :key="p"
         class="flex grid grid-cols-12 gap-3 mb-3"
       >
@@ -139,7 +143,8 @@ async function deleteItem(id: string, idx: number) {
       </div>
     </div>
     <div v-else>
-      <component :is="mappedComponents[props.view][0]" :item="itm" />
+      <ItemsSharedItem :view="props.view" :item="itm" />
+      <!-- <component :is="mappedComponents[props.view][0]" :item="itm" /> -->
     </div>
     <USeparator v-if="idx != items.length - 1" />
   </div>
@@ -152,7 +157,7 @@ async function deleteItem(id: string, idx: number) {
     <template #content>
       <div class="p-4">
         <component
-          :is="mappedComponents[props.view][1]"
+          :is="mappedComponents[props.view]"
           :item="item"
           @cancel="
             item = {} as DivsType;

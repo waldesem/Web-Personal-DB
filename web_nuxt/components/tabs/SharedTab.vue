@@ -181,7 +181,7 @@ onCancel(() => {
       </div>
       <div v-if="status === 'pending'">
         <div
-          v-for="p in Object.keys(item)"
+          v-for="p in Object.keys(content)"
           :key="p"
           class="flex grid grid-cols-12 gap-3 mb-3"
         >
