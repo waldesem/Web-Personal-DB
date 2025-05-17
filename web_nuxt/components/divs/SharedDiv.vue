@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import type { DivsType, MappedCompType } from "@/types";
 
-import AddressItem from "@/components/divs/items/AddressItem.vue";
-import AffilItem from "@/components/divs/items/AffilItem.vue";
-import ContactItem from "@/components/divs/items/ContactItem.vue";
-import DocumItem from "@/components/divs/items/DocumItem.vue";
-import EducateItem from "@/components/divs/items/EducateItem.vue";
-import PrevItem from "@/components/divs/items/PrevItem.vue";
-import StaffItem from "@/components/divs/items/StaffItem.vue";
-import WorkItem from "@/components/divs/items/WorkItem.vue";
+import AddressItem from "@/components/items/AddressItem.vue";
+import AffilItem from "@/components/items/AffilItem.vue";
+import ContactItem from "@/components/items/ContactItem.vue";
+import DocumItem from "@/components/items/DocumItem.vue";
+import EducateItem from "@/components/items/EducateItem.vue";
+import PrevItem from "@/components/items/PrevItem.vue";
+import StaffItem from "@/components/items/StaffItem.vue";
+import WorkItem from "@/components/items/WorkItem.vue";
 
 import AddressForm from "@/components/forms/AddressForm.vue";
 import AffilationForm from "@/components/forms/AffilationForm.vue";
@@ -146,8 +146,8 @@ async function deleteItem(id: string, idx: number) {
   <UModal
     v-model:open="modal"
     :dismissible="false"
-    title="Адреса"
-    description="Данные профиля"
+    title="Анкетные данные"
+    description="Данные анкеты"
   >
     <template #content>
       <div class="p-4">

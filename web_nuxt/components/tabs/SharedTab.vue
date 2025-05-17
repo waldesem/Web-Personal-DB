@@ -2,10 +2,10 @@
 import { useFileDialog } from "@vueuse/core";
 import type { TabsType, MappedCompType } from "@/types";
 
-import CheckDiv from "@/components/divs/items/CheckItem.vue";
-import InquiryDiv from "@/components/divs/items/InquiryItem.vue";
-import InvestigateDiv from "@/components/divs/items/InvestigateItem.vue";
-import PoligrafDiv from "@/components/divs/items/PoligrafItem.vue";
+import CheckDiv from "@/components/items/CheckItem.vue";
+import InquiryDiv from "@/components/items/InquiryItem.vue";
+import InvestigateDiv from "@/components/items/InvestigateItem.vue";
+import PoligrafDiv from "@/components/items/PoligrafItem.vue";
 
 import CheckForm from "@/components/forms/CheckForm.vue";
 import InquiryForm from "@/components/forms/InquiryForm.vue";
