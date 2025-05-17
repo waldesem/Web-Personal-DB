@@ -6,9 +6,9 @@ body {
   scrollbar-gutter: stable;
 }
 
-/* body {
+body {
   margin-right: 20px;
-} */
+}
 
 .page-enter-active,
 .page-leave-active,

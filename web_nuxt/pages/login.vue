@@ -87,7 +87,7 @@ async function submitLogin(): Promise<void> {
 <template>
   <UContainer>
     <div class="flex flex-row justify-center">
-      <div class="align-middle py-12">
+      <div class="py-12">
         <UAlert
           variant="subtle"
           :color="(alert.color as AlertProps['color'])"
@@ -144,7 +144,7 @@ async function submitLogin(): Promise<void> {
                 />
               </UFormField>
             </div>
-            <UButtonGroup class="mt-2">
+            <div class="flex justify-between mt-2">
               <UButton
                 :label="loginAction === 'login' ? 'Войти' : 'Изменить'"
                 color="success"
@@ -168,7 +168,7 @@ async function submitLogin(): Promise<void> {
                   loginForm = {} as Login;
                 "
               />
-            </UButtonGroup>
+            </div>
           </UForm>
         </UCard>
       </div>

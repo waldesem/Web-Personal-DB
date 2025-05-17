@@ -5,12 +5,14 @@ import type { User } from "@/types";
 
 const UIcon = resolveComponent("UIcon");
 const UBadge = resolveComponent("UBadge");
+const UButton = resolveComponent("UButton");
+const UDropdownMenu = resolveComponent("UDropdownMenu");
+
+const userState = useUserState();
 
 const search = ref("");
 const users = ref([] as User[]);
-const user = ref({} as User);
-const modalForm = ref(false);
-const modalProfile = ref(false);
+const modal = ref(false);
 const viewDeleted = ref(false);
 
 /**
@@ -31,11 +33,6 @@ const { refresh, status } = await useLazyAsyncData("users", async () => {
   users.value = data;
 });
 
-async function getUser(id: string): Promise<void> {
-  user.value = (await fetchAuth("/route/user/" + id)) as User;
-  modalProfile.value = true;
-}
-
 watchDebounced(
   search,
   () => {
@@ -47,7 +44,129 @@ watchDebounced(
   }
 );
 
+async function userAction(item: string, user_id: string): Promise<void> {
+  if (user_id == userState.value.id) {
+    makeToast();
+    return;
+  }
+  const { message } = (await fetchAuth("/route/user/" + user_id, {
+    params: {
+      item: item,
+    },
+  })) as Record<string, string>;
+  if (message == "success") {
+    makeToast("success", "Действие успешно выполнено");
+  } else {
+    makeToast();
+  }
+  refresh();
+}
+
+function getRowItems(user: User) {
+  return [
+    {
+      label: user.deleted ? "Восстановить" : "Удалить",
+      onSelect() {
+        userAction("delete", user.id);
+      },
+    },
+    {
+      label: user.blocked ? "Разблокировать" : "Заблокировать",
+      onSelect() {
+        userAction("block", user.id);
+      },
+    },
+    {
+      label: "Сбросить пароль",
+      onSelect() {
+        userAction("reset", user.id);
+      },
+    },
+    {
+      label: "Регион",
+      children: [
+        {
+          label: "Главный офис",
+          onSelect() {
+            userAction("Главный офис", user.id);
+          },
+        },
+        {
+          label: "РЦ Юг",
+          onSelect() {
+            userAction("РЦ Юг", user.id);
+          },
+        },
+        {
+          label: "РЦ Запад",
+          onSelect() {
+            userAction("РЦ Запад", user.id);
+          },
+        },
+        {
+          label: "РЦ Урал",
+          onSelect() {
+            userAction("РЦ Урал", user.id);
+          },
+        },
+        {
+          label: "РЦ Восток",
+          onSelect() {
+            userAction("РЦ Восток", user.id);
+          },
+        },
+      ],
+    },
+    {
+      label: "Роль",
+      children: [
+        {
+          label: "admin",
+          onSelect() {
+            userAction("admin", user.id);
+          },
+        },
+        {
+          label: "api",
+          onSelect() {
+            userAction("api", user.id);
+          },
+        },
+        {
+          label: "user",
+          onSelect() {
+            userAction("user", user.id);
+          },
+        },
+        {
+          label: "guest",
+          onSelect() {
+            userAction("guest", user.id);
+          },
+        },
+      ],
+    },
+  ];
+}
+
 const columns: TableColumn<User>[] = [
+  {
+    id: "expand",
+    cell: ({ row }) =>
+      h(UButton, {
+        color: "neutral",
+        variant: "ghost",
+        icon: "i-heroicons-chevron-down",
+        square: true,
+        ui: {
+          leadingIcon: [
+            "transition-transform",
+            row.getIsExpanded() ? "duration-200 rotate-180" : "",
+          ],
+        },
+        onClick: () => row.toggleExpanded(),
+      }),
+  },
   { accessorKey: "id", header: "#" },
   { accessorKey: "fullname", header: "Пользователь" },
   { accessorKey: "username", header: "Логин" },
@@ -70,100 +189,123 @@ const columns: TableColumn<User>[] = [
       });
     },
   },
-  { accessorKey: "attempt", header: "Попытка" },
+  {
+    accessorKey: "created",
+    header: "Создан",
+    cell: ({ row }) => {
+      return new Date(row.original.created).toLocaleDateString("ru-RU");
+    },
+  },
+  { accessorKey: "attempt", header: "Попыток" },
   {
     accessorKey: "blocked",
-    header: "Блок",
+    header: "Блокир.",
     cell: ({ row }) => {
       return h(UIcon, {
         name: row.original.blocked
           ? "i-heroicons-lock-closed-solid"
           : "i-heroicons-lock-open",
         class: "text-center w-4 h-4",
+        title: row.original.blocked ? "Заблокирован" : "Разблокирован",
       });
     },
   },
   {
     accessorKey: "change_pswd",
-    header: "Изм.пароля",
+    header: "Пароль",
     cell: ({ row }) => {
       return h(UIcon, {
         name: row.original.change_pswd
           ? "i-heroicons-clock-solid"
           : "i-heroicons-clock",
         class: "text-center w-4 h-4",
+        title: row.original.change_pswd
+          ? "Требуется смена пароля"
+          : "Смена пароля не требуется",
       });
     },
   },
+  {
+    id: "actions",
+    cell: ({ row }) => {
+      return h(
+        "div",
+        { class: "text-right" },
+        h(
+          UDropdownMenu,
+          {
+            content: {
+              align: "end",
+            },
+            items: getRowItems(row.original),
+            "aria-label": "Actions dropdown",
+          },
+          () =>
+            h(UButton, {
+              icon: "i-heroicons-ellipsis-vertical",
+              color: "neutral",
+              variant: "ghost",
+              class: "ml-auto",
+            })
+        )
+      );
+    },
+  },
 ];
+
+const expanded = ref({ 1: false });
 </script>
 
 <template>
   <div class="mb-6">
-    <div class="py-1">
-      <h3 class="text-2xl text-gray-600 font-bold">ПОЛЬЗОВАТЕЛИ</h3>
+    <div class="py-4">
+      <h3 class="text-2xl text-gray-500 font-bold">ПОЛЬЗОВАТЕЛИ</h3>
     </div>
-    <div class="my-6">
-      <UInput
-        v-model="search"
-        icon="i-heroicons-magnifying-glass"
-        placeholder="Поиск по имени пользователя"
-        type="search"
-      />
-    </div>
-    <div class="flex items-center justify-between mb-4">
+    <UInput
+      v-model="search"
+      icon="i-heroicons-magnifying-glass"
+      placeholder="Поиск по имени пользователя"
+      type="search"
+    />
+    <div class="flex items-center justify-between my-4">
       <UFormField class="flex items-center space-x-4" label="Удаленные">
         <USwitch v-model="viewDeleted" />
       </UFormField>
       <UButton
         variant="link"
         label="Добавить пользователя"
-        @click="modalForm = true"
+        @click="modal = true"
       />
     </div>
     <UModal
-      v-model:open="modalForm"
+      v-model:open="modal"
       :dismissible="false"
       title="Добавление пользователя"
       description="Введите данные пользователя"
     >
       <template #content>
         <FormsUserForm
-          @cancel="modalForm = false"
+          @cancel="modal = false"
           @update="
-            modalForm = false;
+            modal = false;
             refresh();
           "
         />
       </template>
     </UModal>
 
-    <UModal
-      v-model:open="modalProfile"
-      :dismissible="false"
-      title="Профиль"
-      description="Данные профиля пользователя"
-    >
-      <template #content>
-        <DivsUserDiv
-          :user="user"
-          @update="getUser"
-          @cancel="
-            modalProfile = false;
-            user = {} as User;
-            refresh();
-          "
-      /></template>
-    </UModal>
-
     <UTable
-      :loading="status === 'pending'"
-      loading-animation="carousel"
-      empty="Данные не найдены"
+      v-model:expanded="expanded"
       :data="filtredUsers"
       :columns="columns"
       :meta="{ class: { tr: 'cursor-pointer' } }"
-      @select="getUser($event.original.id)"
-    />
+      :loading="status === 'pending'"
+      loading-animation="carousel"
+      empty="Данные не найдены"
+    >
+      <template #expanded="{ row }">
+        <pre class="text-break">{{ row.original }}</pre>
+      </template>
+    </UTable>
   </div>
 </template>

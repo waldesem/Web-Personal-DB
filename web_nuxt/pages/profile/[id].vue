@@ -14,22 +14,24 @@ person.value.id = route.params.id as string;
 const status = ref("");
 const region = ref("");
 
-async function switchSelf(): Promise<void> {
-  if (person.value.user_id != user.value.id) {
-    if (person.value.editable) {
-      if (
-        !confirm(
-          "Анкета редактируется другим пользователем. Переключить режим?"
-        )
-      ) {
+async function switchSelf(confirmation = false): Promise<void> {
+  if (confirmation) {
+    if (person.value.user_id != user.value.id) {
+      if (person.value.editable) {
+        if (
+          !confirm(
+            "Анкета редактируется другим пользователем. Переключить режим?"
+          )
+        ) {
+          return;
+        }
+      }
+      if (!confirm("Вы хотите назначить анкету на себя?")) {
         return;
       }
-    }
-    if (!confirm("Вы хотите назначить анкету на себя?")) {
+    } else if (!confirm("Переключить режим редактирования?")) {
       return;
     }
-  } else if (!confirm("Переключить режим редактирования?")) {
-    return;
   }
   status.value = "pending";
   person.value = (await fetchAuth(
@@ -141,7 +143,7 @@ const items: TabsItem[] = [
                 ? 'success'
                 : 'error'
             "
-            @click="switchSelf"
+            @click="switchSelf(true)"
           >
             {{
               !person.editable

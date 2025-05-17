@@ -3,7 +3,7 @@ import type { AccordionItem } from "@nuxt/ui";
 import type { Persons } from "@/types";
 
 await preloadComponents(["DivsSharedDiv"]);
-await preloadComponents("DivsItemsResumeItem");
+await preloadComponents("ItemsResumeItem");
 
 const person = usePersonState();
 const editable = useEditableState();
@@ -136,7 +136,7 @@ const items: AccordionItem[] = [
     </div>
   </div>
   <div v-else>
-    <DivsItemsResumeItem :person="person" />
+    <ItemsResumeItem :person="person" />
   </div>
   <UModal
     v-model:open="modal"
@@ -157,7 +157,7 @@ const items: AccordionItem[] = [
   <USeparator />
   <UAccordion :items="items" :unmount-on-hide="false">
     <template #content="{ item }">
-      <DivsSharedDiv :view="(item.content as string)" />
+      <ItemsSharedDiv :view="(item.content as string)" />
     </template>
   </UAccordion>
 </template>

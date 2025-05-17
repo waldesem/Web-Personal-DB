@@ -5,8 +5,8 @@ await navigateTo("/persons");
 </script>
 
 <template>
-  <UApp :scroll-body="{ margin: 20 }">
-    <NuxtLoadingIndicator />
+  <UApp>
+    <NuxtLoadingIndicator color="red" />
     <NuxtLayout>
       <NuxtPage :transition="true" />
     </NuxtLayout>

@@ -68,9 +68,10 @@ async function deleteItem(id: string, idx: number) {
   })) as Record<string, string>;
   status.value = "success";
   if (message == "success") {
+    makeToast(message, "Информация успешно обновлена")
     items.value.splice(idx, 1);
-  }
-  showToast(message);
+  } else
+    makeToast();
 }
 
 const { open, reset, onCancel, onChange } = useFileDialog();
