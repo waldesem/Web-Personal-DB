@@ -2,9 +2,10 @@
 import type { Files, Folders } from "@/types";
 
 const user = useUserState();
-const person = usePersonState();
 
-const fullPath = ref(person.value.destination) as Ref<string>;
+const candId = inject("candId") as Ref<string>;
+
+const fullPath = ref("") as Ref<string>;
 const listFolders = ref<Folders[]>([]);
 const listFiles = ref<Files[]>([]);
 
@@ -12,7 +13,7 @@ const { status } = await useLazyAsyncData(
   "explorer",
   async () => {
     const { path, folders, files } = (await fetchAuth(
-      "/route/explorer/folder/" + person.value.id,
+      "/route/explorer/folder/" + candId.value,
       {
         params: {
           path: fullPath.value,
@@ -57,7 +58,7 @@ async function openFile(path: string, name: string) {
       variant="ghost"
       size="xl"
       icon="i-heroicons-home"
-      @click="fullPath = person.destination"
+      @click="fullPath = ''"
     />
     <div v-if="status === 'pending'">
       <div v-for="i in listFolders.length + listFiles.length + 1" :key="i">

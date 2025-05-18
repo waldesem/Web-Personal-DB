@@ -2,11 +2,6 @@
 import { useFileDialog } from "@vueuse/core";
 import type { TabsType, MappedType } from "@/types";
 
-// import CheckDiv from "@/components/items/CheckItem.vue";
-// import InquiryDiv from "@/components/items/InquiryItem.vue";
-// import InvestigateDiv from "@/components/items/InvestigateItem.vue";
-// import PoligrafDiv from "@/components/items/PoligrafItem.vue";
-
 import CheckForm from "@/components/forms/CheckForm.vue";
 import InquiryForm from "@/components/forms/InquiryForm.vue";
 import InvestigationForm from "@/components/forms/InvestigationForm.vue";
@@ -28,15 +23,16 @@ const mappedComponents = {
   poligrafs: PoligrafForm,
 } as MappedType;
 
-const person = usePersonState();
-const editable = useEditableState();
+const candId = inject("candId") as Ref<string>;
+const editable = inject("editable") as Ref<boolean>;
+
 const item = ref({} as TabsType);
 const items = ref<TabsType[]>([]);
 const modal = ref(false);
 
 const { refresh, status } = await useLazyAsyncData(props.view, async () => {
   items.value = (await fetchAuth(
-    `/route/items/${props.view}/${person.value.id}`
+    `/route/items/${props.view}/${candId.value}`
   )) as TabsType[];
 });
 
@@ -44,7 +40,7 @@ async function submitItem(form: TabsType) {
   modal.value = false;
   status.value = "pending";
   const { message } = (await fetchAuth(
-    `/route/items/${props.view}/${person.value.id}`,
+    `/route/items/${props.view}/${candId.value}`,
     {
       method: "POST",
       body: form,
@@ -87,7 +83,7 @@ onChange(async (files) => {
     formData.append("file", file);
   }
   const { message } = (await fetchAuth(
-    `/route/explorer/files/${props.view}/${person.value.id}`,
+    `/route/explorer/files/${props.view}/${candId.value}`,
     {
       method: "POST",
       body: formData,
@@ -108,21 +104,13 @@ onCancel(() => {
 
 <template>
   <div class="mt-2">
-    <UButton
-      v-if="editable"
-      :loading="status == 'pending'"
-      class="flex justify-end"
-      label="Добавить запись"
-      variant="ghost"
-      icon="i-heroicons-document-plus"
-      @click="modal = !modal"
-    />
     <UModal
+      v-if="editable"
       v-model:open="modal"
       :ui="{ content: 'sm:max-w-4xl' }"
       :dismissible="false"
       title="Проверка кандидата"
-      description="Данные профиля"
+      description="Данные проверки"
     >
       <template #content>
         <div class="m-4">
@@ -138,6 +126,15 @@ onCancel(() => {
         </div>
       </template>
     </UModal>
+    <UButton
+      v-if="editable"
+      :loading="status == 'pending'"
+      class="flex justify-end"
+      label="Добавить запись"
+      variant="ghost"
+      icon="i-heroicons-document-plus"
+      @click="modal = !modal"
+    />
     <div v-for="(content, index) in items" :key="content.id" class="py-4 ms-2">
       <div v-if="editable" class="relative">
         <div class="absolute top-2 right-2">
@@ -194,7 +191,6 @@ onCancel(() => {
       </div>
       <div v-else>
         <ItemsSharedItem :view="props.view" :item="content" />
-        <!-- <component :is="mappedComponents[props.view][0]" :item="content" /> -->
       </div>
       <USeparator v-if="index != items.length - 1" />
     </div>

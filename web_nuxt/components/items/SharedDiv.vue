@@ -1,15 +1,6 @@
 <script setup lang="ts">
 import type { DivsType, MappedType } from "@/types";
 
-// import AddressItem from "@/components/items/AddressItem.vue";
-// import AffilItem from "@/components/items/AffilItem.vue";
-// import ContactItem from "@/components/items/ContactItem.vue";
-// import DocumItem from "@/components/items/DocumItem.vue";
-// import EducateItem from "@/components/items/EducateItem.vue";
-// import PrevItem from "@/components/items/PrevItem.vue";
-// import StaffItem from "@/components/items/StaffItem.vue";
-// import WorkItem from "@/components/items/WorkItem.vue";
-
 import AddressForm from "@/components/forms/AddressForm.vue";
 import AffilationForm from "@/components/forms/AffilationForm.vue";
 import ContactForm from "@/components/forms/ContactForm.vue";
@@ -39,25 +30,24 @@ const mappedComponents = {
   workplaces: WorkplaceForm,
 } as MappedType;
 
-const person = usePersonState();
-const editable = useEditableState();
+const candId = inject("candId") as Ref<string>;
+const editable = inject("editable") as Ref<boolean>;
 
 const item = ref({} as DivsType);
 const items = ref([] as DivsType[]);
-// const modal = ref(false);
+const modal = ref(false);
 
 const { refresh, status } = await useLazyAsyncData(props.view, async () => {
   items.value = (await fetchAuth(
-    `/route/items/${props.view}/${person.value.id}`
+    `/route/items/${props.view}/${candId.value}`
   )) as DivsType[];
 });
 
 async function submitItem(form: DivsType) {
-  // modal.value = false;
-  emits("open", false);
+  modal.value = false;
   status.value = "pending";
   const { message } = (await fetchAuth(
-    `/route/items/${props.view}/${person.value.id}`,
+    `/route/items/${props.view}/${candId.value}`,
     {
       method: "POST",
       body: form,
@@ -93,16 +83,16 @@ async function deleteItem(id: string, idx: number) {
 
 <template>
   <div v-for="(itm, idx) in items" :key="idx" class="py-2 ms-2">
-    <div class="relative">
+    <div v-if="editable" class="relative">
       <div class="absolute top-2 right-2">
         <UDropdownMenu
-          :disabled="!editable"
           :items="[
             {
               label: 'Изменить',
               icon: 'i-heroicons-pencil-square',
               onSelect() {
                 item = items[idx];
+                modal = true;
                 emits('open', true);
               },
             },
@@ -143,21 +133,31 @@ async function deleteItem(id: string, idx: number) {
     </div>
     <div v-else>
       <ItemsSharedItem :view="props.view" :item="itm" />
-      <!-- <component :is="mappedComponents[props.view][0]" :item="itm" /> -->
     </div>
     <USeparator v-if="idx != items.length - 1" />
   </div>
-  <Teleport to="modals">
-    <component
-      :is="mappedComponents[props.view]"
-      :item="item"
-      @cancel="
-        item = {} as DivsType;
-        emits('open', false);
-      "
-      @update="submitItem"
-    />
-  </Teleport>
+  <UModal
+    v-if="editable" 
+    v-model:open="modal"
+    :ui="{ content: 'sm:max-w-4xl' }"
+    :dismissible="false"
+    title="Проверка кандидата"
+    description="Данные профиля"
+  >
+    <template #content>
+      <div class="m-4">
+        <component
+          :is="mappedComponents[props.view]"
+          :item="item"
+          @cancel="
+            modal = false;
+            item = {} as DivsType;
+          "
+          @update="submitItem"
+        />
+      </div>
+    </template>
+  </UModal>
   <div class="py-2 border-t border-gray-200">
     <UButton
       :disabled="!editable"
@@ -167,7 +167,7 @@ async function deleteItem(id: string, idx: number) {
       variant="ghost"
       @click="
         item = {} as DivsType;
-        emits('open', true);
+        modal = true;
       "
     />
   </div>

@@ -5,14 +5,29 @@ import type { Persons } from "@/types";
 await preloadComponents(["TabsAnketaTab", "TabsSharedTab", "TabsExplorerTab"]);
 
 const route = useRoute();
-const user = useUserState();
-const person = usePersonState();
-const editable = useEditableState();
 
-person.value.id = route.params.id as string;
+const candId = computed(() => route.params.id as string);
+provide("candId", candId);
 
-const status = ref("");
+const person = ref({} as Persons);
 const region = ref("");
+
+const { status, refresh } = await useLazyAsyncData("persons", async () => {
+  person.value = (await fetchAuth(
+    "/route/items/persons/" + candId.value
+  )) as Persons;
+});
+
+const user = useUserState();
+
+const editable = computed(() => {
+  return (
+    person.value.editable &&
+    user.value.role == "user" &&
+    user.value.id == person.value.user_id
+  );
+});
+provide("editable", editable);
 
 async function switchSelf(confirmation = false): Promise<void> {
   if (confirmation) {
@@ -165,7 +180,7 @@ const items: TabsItem[] = [
       :ui="{ trigger: 'flex-1' }"
     >
       <template #anketa>
-        <TabsAnketaTab />
+        <TabsAnketaTab :person="person" @refresh="refresh" />
       </template>
       <template #checks="{ item }">
         <TabsSharedTab :view="item.slot" @editable="switchSelf" />

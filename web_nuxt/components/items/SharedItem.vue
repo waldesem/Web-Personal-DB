@@ -28,7 +28,9 @@ const items = {
     СНИЛС: props.item["snils" as keyof typeof props.item],
     ИНН: props.item["inn" as keyof typeof props.item],
     "Семейное положение": props.item["marital" as keyof typeof props.item],
-    "Дата записи": props.item["created" as keyof typeof props.item],
+    "Дата записи": new Date(
+      props.item["created" as keyof typeof props.item]
+    ).toLocaleString("ru-RU"),
     "Дополнительная информация":
       props.item["addition" as keyof typeof props.item],
   },
@@ -68,11 +70,11 @@ const items = {
     "Год изменения": props.item["changed" as keyof typeof props.item],
     Причина: props.item["reason" as keyof typeof props.item],
   },
-  workplaces: {
+  staffs: {
     Должность: props.item["position" as keyof typeof props.item],
     Департамент: props.item["department" as keyof typeof props.item],
   },
-  work: {
+  workplaces: {
     "Текущая работа": props.item["now_work" as keyof typeof props.item]
       ? "Да"
       : "Нет",
@@ -114,7 +116,6 @@ const items = {
             "С КОММЕНТАРИЯМИ"
           ? "primary"
           : "error",
-
       label: props.item["conclusion" as keyof typeof props.item],
       variant: "soft",
     }),
@@ -168,9 +169,12 @@ const items = {
     v-for="(value, key) in items[props.view as keyof typeof items]"
     :key="key"
   >
-    <div class="flex grid grid-cols-12 gap-3 mb-3">
+    <div v-if="value" class="flex grid grid-cols-12 gap-3 mb-3">
       <div class="col-span-3">{{ key }}</div>
-      <div class="col-span-9 break-words">{{ value }}</div>
+      <div v-if="typeof value == 'object'" class="col-span-9">
+        <component :is="value" />
+      </div>
+      <div v-else class="col-span-9 break-words">{{ value }}</div>
     </div>
   </div>
 </template>

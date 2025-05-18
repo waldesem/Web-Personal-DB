@@ -3,18 +3,21 @@ import type { AccordionItem } from "@nuxt/ui";
 import type { Persons } from "@/types";
 
 await preloadComponents(["DivsSharedDiv"]);
-await preloadComponents("ItemsResumeItem");
+await preloadComponents("ItemsSharedDiv");
 
-const person = usePersonState();
-const editable = useEditableState();
+const props = defineProps({
+  person: {
+    type: Object as PropType<Persons>,
+    required: true,
+  },
+});
+
+const emits = defineEmits(["refresh"]);
+
+const editable = inject("editable") as Ref<boolean>;
 
 const modal = ref(false);
-
-const { status, refresh } = await useLazyAsyncData("anketa", async () => {
-  person.value = (await fetchAuth(
-    "/route/items/persons/" + person.value.id
-  )) as Persons;
-});
+const status = ref("idle");
 
 async function submitResume(form: Persons) {
   modal.value = false;
@@ -28,7 +31,8 @@ async function submitResume(form: Persons) {
   } else {
     makeToast();
   }
-  await refresh();
+  emits("refresh");
+  status.value = "success";
 }
 
 async function deleteItem() {
@@ -37,7 +41,7 @@ async function deleteItem() {
   if (!confirm("Данные будут удалены безвозвратно!?")) return;
   status.value = "pending";
   const { message } = (await fetchAuth(
-    `/route/items/persons/${person.value.id}`,
+    `/route/items/persons/${props.person.id}`,
     {
       method: "DELETE",
     }
@@ -91,7 +95,6 @@ const items: AccordionItem[] = [
   <div v-if="editable" class="relative">
     <div class="absolute top-2 right-2">
       <UDropdownMenu
-        :disabled="!editable"
         :items="[
           {
             label: 'Изменить',
@@ -121,7 +124,7 @@ const items: AccordionItem[] = [
       </UDropdownMenu>
     </div>
   </div>
-  <div v-if="!person.id">
+  <div v-if="!person.id" class="ps-2">
     <div
       v-for="p in Object.keys(person)"
       :key="p"
@@ -135,18 +138,18 @@ const items: AccordionItem[] = [
       </div>
     </div>
   </div>
-  <div v-else>
+  <div v-else class="ps-2">
     <ItemsSharedItem :view="'person'" :item="person" />
-    <!-- <ItemsResumeItem :person="person" /> -->
   </div>
-  <UModal
+  <UModal 
+    v-if="editable" 
     v-model:open="modal"
     :dismissible="false"
     title="Анкетные данные"
     description="Данные профиля"
   >
     <template #content>
-      <div id="modals" class="m-4">
+      <div class="m-4">
         <FormsResumeForm
           :resume="person"
           @update="submitResume"
@@ -158,10 +161,7 @@ const items: AccordionItem[] = [
   <USeparator />
   <UAccordion :items="items" :unmount-on-hide="false">
     <template #content="{ item }">
-      <ItemsSharedDiv 
-        :view="(item.content as string)"
-        @open="() => modal"
-      />
+      <ItemsSharedDiv :view="(item.content as string)" />
     </template>
   </UAccordion>
 </template>
