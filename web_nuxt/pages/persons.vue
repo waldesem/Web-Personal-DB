@@ -202,7 +202,7 @@ const items: DropdownMenuItem[] = [
       <div class="py-1">
         <h3 class="text-2xl text-red-800 font-bold">КАНДИДАТЫ</h3>
       </div>
-      <div v-if="userState.role == 'user'" class="flex items-center space-x-4">
+      <div v-if="userState.role == 'user'">
         <UDropdownMenu :items="items" :content="{ align: 'end' }">
           <UButton
             :loading="status == 'pending'"

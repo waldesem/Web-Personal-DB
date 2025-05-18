@@ -13,15 +13,10 @@ const userState = useUserState();
 const search = ref("");
 const users = ref([] as User[]);
 const modal = ref(false);
-const viewDeleted = ref(false);
+const deleted = ref(false);
 
-/**
- * Filters the list of users based on the current search query.
- *
- * @return {User[]} An array of user objects
- */
 const filtredUsers = computed(() => {
-  return users.value.filter((user: User) => user.deleted == viewDeleted.value);
+  return users.value.filter((user: User) => user.deleted == deleted.value);
 });
 
 const { refresh, status } = await useLazyAsyncData("users", async () => {
@@ -83,7 +78,7 @@ function getRowItems(user: User) {
       },
     },
     {
-      label: "Регион",
+      label: "Изменить регион",
       children: [
         {
           label: "Главный офис",
@@ -118,7 +113,7 @@ function getRowItems(user: User) {
       ],
     },
     {
-      label: "Роль",
+      label: "Изменить роль",
       children: [
         {
           label: "admin",
@@ -269,7 +264,7 @@ const expanded = ref({ 1: false });
     />
     <div class="flex items-center justify-between my-4">
       <UFormField class="flex items-center space-x-4" label="Удаленные">
-        <USwitch v-model="viewDeleted" />
+        <USwitch v-model="deleted" />
       </UFormField>
       <UButton
         variant="link"
