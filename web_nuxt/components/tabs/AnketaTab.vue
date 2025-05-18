@@ -142,11 +142,11 @@ const items: AccordionItem[] = [
   <UModal
     v-model:open="modal"
     :dismissible="false"
-    title="Резюме"
+    title="Анкетные данные"
     description="Данные профиля"
   >
     <template #content>
-      <div class="m-4">
+      <div id="modals" class="m-4">
         <FormsResumeForm
           :resume="person"
           @update="submitResume"
@@ -158,7 +158,10 @@ const items: AccordionItem[] = [
   <USeparator />
   <UAccordion :items="items" :unmount-on-hide="false">
     <template #content="{ item }">
-      <ItemsSharedDiv :view="(item.content as string)" />
+      <ItemsSharedDiv 
+        :view="(item.content as string)"
+        @open="() => modal"
+      />
     </template>
   </UAccordion>
 </template>

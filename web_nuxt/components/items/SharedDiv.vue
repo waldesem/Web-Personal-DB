@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DivsType } from "@/types";
+import type { DivsType, MappedType } from "@/types";
 
 // import AddressItem from "@/components/items/AddressItem.vue";
 // import AffilItem from "@/components/items/AffilItem.vue";
@@ -19,16 +19,14 @@ import PreviousForm from "@/components/forms/PreviousForm.vue";
 import StaffForm from "@/components/forms/StaffForm.vue";
 import WorkplaceForm from "@/components/forms/WorkplaceForm.vue";
 
+const emits = defineEmits(["open"]);
+
 const props = defineProps({
   view: {
     type: String,
     required: true,
   },
 });
-
-interface MappedType {
-  [key: string]: Component;
-}
 
 const mappedComponents = {
   addresses: AddressForm,
@@ -46,7 +44,7 @@ const editable = useEditableState();
 
 const item = ref({} as DivsType);
 const items = ref([] as DivsType[]);
-const modal = ref(false);
+// const modal = ref(false);
 
 const { refresh, status } = await useLazyAsyncData(props.view, async () => {
   items.value = (await fetchAuth(
@@ -55,7 +53,8 @@ const { refresh, status } = await useLazyAsyncData(props.view, async () => {
 });
 
 async function submitItem(form: DivsType) {
-  modal.value = false;
+  // modal.value = false;
+  emits("open", false);
   status.value = "pending";
   const { message } = (await fetchAuth(
     `/route/items/${props.view}/${person.value.id}`,
@@ -104,7 +103,7 @@ async function deleteItem(id: string, idx: number) {
               icon: 'i-heroicons-pencil-square',
               onSelect() {
                 item = items[idx];
-                modal = true;
+                emits('open', true);
               },
             },
             {
@@ -148,26 +147,17 @@ async function deleteItem(id: string, idx: number) {
     </div>
     <USeparator v-if="idx != items.length - 1" />
   </div>
-  <UModal
-    v-model:open="modal"
-    :dismissible="false"
-    title="Анкетные данные"
-    description="Данные анкеты"
-  >
-    <template #content>
-      <div class="p-4">
-        <component
-          :is="mappedComponents[props.view]"
-          :item="item"
-          @cancel="
-            item = {} as DivsType;
-            modal = false;
-          "
-          @update="submitItem"
-        />
-      </div>
-    </template>
-  </UModal>
+  <Teleport to="modals">
+    <component
+      :is="mappedComponents[props.view]"
+      :item="item"
+      @cancel="
+        item = {} as DivsType;
+        emits('open', false);
+      "
+      @update="submitItem"
+    />
+  </Teleport>
   <div class="py-2 border-t border-gray-200">
     <UButton
       :disabled="!editable"
@@ -177,7 +167,7 @@ async function deleteItem(id: string, idx: number) {
       variant="ghost"
       @click="
         item = {} as DivsType;
-        modal = true;
+        emits('open', true);
       "
     />
   </div>

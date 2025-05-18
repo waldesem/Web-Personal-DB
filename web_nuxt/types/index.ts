@@ -217,6 +217,6 @@ export type DivsType =
 
 export type TabsType = Verification | Pfo | Inquisition | Needs;
 
-export interface MappedCompType {
-  [key: string]: [Component, Component];
+export interface MappedType {
+  [key: string]: Component;
 }

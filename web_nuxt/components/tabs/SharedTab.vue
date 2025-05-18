@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useFileDialog } from "@vueuse/core";
-import type { TabsType } from "@/types";
+import type { TabsType, MappedType } from "@/types";
 
 // import CheckDiv from "@/components/items/CheckItem.vue";
 // import InquiryDiv from "@/components/items/InquiryItem.vue";
@@ -20,10 +20,6 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["editable"]);
-
-interface MappedType {
-  [key: string]: Component;
-}
 
 const mappedComponents = {
   checks: CheckForm,
