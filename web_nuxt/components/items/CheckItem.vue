@@ -4,7 +4,7 @@ import type { Verification } from "@/types";
 const props = defineProps({
   item: {
     type: Object as () => Verification,
-    default: {} as Verification,
+    default: () => ({}),
   },
 });
 </script>

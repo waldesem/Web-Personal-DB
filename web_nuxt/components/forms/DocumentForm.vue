@@ -6,11 +6,11 @@ const emit = defineEmits(["cancel", "update"]);
 const props = defineProps({
   item: {
     type: Object as () => Passport,
-    default: {} as Passport,
+    default: () => ({}),
   },
 });
 
-const docForm = ref(props.item as Partial<Passport>);
+const docForm = toRef(props.item as Partial<Passport>);
   
 docForm.value.issue = docForm.value.issue
   ? new Date(docForm.value.issue).toISOString().split("T", 1)[0]

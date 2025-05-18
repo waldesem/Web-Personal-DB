@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { useFileDialog } from "@vueuse/core";
-import type { TabsType, MappedCompType } from "@/types";
+import type { TabsType } from "@/types";
 
-import CheckDiv from "@/components/items/CheckItem.vue";
-import InquiryDiv from "@/components/items/InquiryItem.vue";
-import InvestigateDiv from "@/components/items/InvestigateItem.vue";
-import PoligrafDiv from "@/components/items/PoligrafItem.vue";
+// import CheckDiv from "@/components/items/CheckItem.vue";
+// import InquiryDiv from "@/components/items/InquiryItem.vue";
+// import InvestigateDiv from "@/components/items/InvestigateItem.vue";
+// import PoligrafDiv from "@/components/items/PoligrafItem.vue";
 
 import CheckForm from "@/components/forms/CheckForm.vue";
 import InquiryForm from "@/components/forms/InquiryForm.vue";
@@ -21,12 +21,16 @@ const props = defineProps({
 
 const emit = defineEmits(["editable"]);
 
+interface MappedType {
+  [key: string]: Component;
+}
+
 const mappedComponents = {
-  checks: [CheckDiv, CheckForm],
-  inquiries: [InquiryDiv, InquiryForm],
-  investigations: [InvestigateDiv, InvestigationForm],
-  poligrafs: [PoligrafDiv, PoligrafForm],
-} as MappedCompType;
+  checks: CheckForm,
+  inquiries: InquiryForm,
+  investigations: InvestigationForm,
+  poligrafs: PoligrafForm,
+} as MappedType;
 
 const person = usePersonState();
 const editable = useEditableState();
@@ -68,10 +72,9 @@ async function deleteItem(id: string, idx: number) {
   })) as Record<string, string>;
   status.value = "success";
   if (message == "success") {
-    makeToast(message, "Информация успешно обновлена")
+    makeToast(message, "Информация успешно обновлена");
     items.value.splice(idx, 1);
-  } else
-    makeToast();
+  } else makeToast();
 }
 
 const { open, reset, onCancel, onChange } = useFileDialog();
@@ -128,7 +131,7 @@ onCancel(() => {
       <template #content>
         <div class="m-4">
           <component
-            :is="mappedComponents[props.view][1]"
+            :is="mappedComponents[props.view]"
             :item="item"
             @cancel="
               item = {} as TabsType;
@@ -194,7 +197,8 @@ onCancel(() => {
         </div>
       </div>
       <div v-else>
-        <component :is="mappedComponents[props.view][0]" :item="content" />
+        <ItemsSharedItem :view="props.view" :item="content" />
+        <!-- <component :is="mappedComponents[props.view][0]" :item="content" /> -->
       </div>
       <USeparator v-if="index != items.length - 1" />
     </div>

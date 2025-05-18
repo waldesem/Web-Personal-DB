@@ -136,7 +136,8 @@ const items: AccordionItem[] = [
     </div>
   </div>
   <div v-else>
-    <ItemsResumeItem :person="person" />
+    <ItemsSharedItem :view="'person'" :item="person" />
+    <!-- <ItemsResumeItem :person="person" /> -->
   </div>
   <UModal
     v-model:open="modal"

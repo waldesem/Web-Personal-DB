@@ -6,11 +6,11 @@ const emit = defineEmits(["cancel", "update"]);
 const props = defineProps({
   item: {
     type: Object as () => Affilation,
-    default: {} as Affilation,
+    default: () => ({}),
   },
 });
 
-const affilForm = ref(props.item as Affilation);
+const affilForm = toRef(props.item as Affilation);
 </script>
 
 <template>

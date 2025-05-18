@@ -6,11 +6,11 @@ const emit = defineEmits(["cancel", "update"]);
 const props = defineProps({
   item: {
     type: Object as () => Pfo,
-    default: {} as Pfo,
+    default: () => ({}),
   },
 });
 
-const poligrafForm = ref(props.item as Pfo);
+const poligrafForm = toRef(props.item as Pfo);
 </script>
 
 <template>

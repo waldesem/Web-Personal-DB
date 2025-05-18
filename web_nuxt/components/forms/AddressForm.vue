@@ -6,11 +6,11 @@ const emit = defineEmits(["cancel", "update"]);
 const props = defineProps({
   item: {
     type: Object as () => Address,
-    default: {} as Address,
+    default: () => ({}),
   },
 });
 
-const addressForm = ref(props.item as Address);
+const addressForm = toRef(props.item as Address);
 </script>
 
 <template>

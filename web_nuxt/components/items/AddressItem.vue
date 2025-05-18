@@ -4,7 +4,7 @@ import type { Address } from "@/types";
 const props = defineProps({
   item: {
     type: Object as () => Address,
-    default: {} as Address,
+    default: () => ({}),
   },
 })
 </script>

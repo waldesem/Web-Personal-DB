@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DivsType } from "@/types";
+import type { DivsType, TabsType, Persons } from "@/types";
 
 const props = defineProps({
   view: {
@@ -7,10 +7,12 @@ const props = defineProps({
     required: true,
   },
   item: {
-    type: Object as () => DivsType,
-    default: {} as DivsType,
+    type: Object as () => DivsType | TabsType | Persons,
+    default: () => ({}),
   },
 });
+
+const UBadge = resolveComponent("UBadge");
 
 const items = {
   person: {
@@ -104,7 +106,18 @@ const items = {
   poligrafs: {
     "Тема проверки": props.item["theme" as keyof typeof props.item],
     Результат: props.item["results" as keyof typeof props.item],
-    Заключение: props.item["conclusion" as keyof typeof props.item],
+    Заключение: h(UBadge, {
+      color:
+        props.item["conclusion" as keyof typeof props.item] === "БЕЗ ЗАМЕЧАНИЙ"
+          ? "success"
+          : props.item["conclusion" as keyof typeof props.item] ===
+            "С КОММЕНТАРИЯМИ"
+          ? "primary"
+          : "error",
+
+      label: props.item["conclusion" as keyof typeof props.item],
+      variant: "soft",
+    }),
     "Дата записи": new Date(props.item["created" as keyof typeof props.item])
       .toLocaleString("ru-RU")
       .split(",")[0],
@@ -128,7 +141,21 @@ const items = {
     "Дополнительная информация":
       props.item["addition" as keyof typeof props.item],
     Комментарии: props.item["comment" as keyof typeof props.item],
-    Результат: props.item["conclusion" as keyof typeof props.item],
+    Результат: h(UBadge, {
+      color:
+        props.item["conclusion" as keyof typeof props.item] === "СОГЛАСОВАНО"
+          ? "success"
+          : props.item["conclusion" as keyof typeof props.item] ===
+            "СОГЛАСОВАНО С КОММЕНТАРИЕМ"
+          ? "primary"
+          : props.item["conclusion" as keyof typeof props.item] ===
+            "СНЯТ С ПРОВЕРКИ"
+          ? "warning"
+          : "error",
+
+      label: props.item["conclusion" as keyof typeof props.item],
+      variant: "soft",
+    }),
     "Дата записи": new Date(
       props.item["created" as keyof typeof props.item]
     ).toLocaleString("ru-RU"),
@@ -141,6 +168,9 @@ const items = {
     v-for="(value, key) in items[props.view as keyof typeof items]"
     :key="key"
   >
-    <ElementsLabelSlot v-if="value" :label="key">{{ value }}</ElementsLabelSlot>
+    <div class="flex grid grid-cols-12 gap-3 mb-3">
+      <div class="col-span-3">{{ key }}</div>
+      <div class="col-span-9 break-words">{{ value }}</div>
+    </div>
   </div>
 </template>

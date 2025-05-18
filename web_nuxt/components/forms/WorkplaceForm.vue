@@ -6,11 +6,11 @@ const emit = defineEmits(["cancel", "update"]);
 const props = defineProps({
   item: {
     type: Object as () => Work,
-    default: {} as Work,
+    default: () => ({}),
   },
 });
 
-const workForm = ref(props.item as Work);
+const workForm = toRef(props.item as Work);
 
 workForm.value.starts = workForm.value.starts
   ? new Date(workForm.value.starts).toISOString().split("T", 1)[0]

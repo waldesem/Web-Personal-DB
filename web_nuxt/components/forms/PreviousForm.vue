@@ -6,11 +6,11 @@ const emit = defineEmits(["cancel", "update"]);
 const props = defineProps({
   item: {
     type: Object as () => Previous,
-    default: {} as Previous,
+    default: () => ({}),
   },
 });
 
-const previousForm = ref(props.item as Previous);
+const previousForm = toRef(props.item as Previous);
 </script>
 
 <template>
