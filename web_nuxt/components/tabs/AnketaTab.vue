@@ -15,9 +15,9 @@ const props = defineProps({
 const emits = defineEmits(["refresh"]);
 
 const editable = inject("editable") as Ref<boolean>;
+const status = inject("status") as Ref<String>;
 
 const modal = ref(false);
-const status = ref("idle");
 
 async function submitResume(form: Persons) {
   modal.value = false;
@@ -32,7 +32,6 @@ async function submitResume(form: Persons) {
     makeToast();
   }
   emits("refresh");
-  status.value = "success";
 }
 
 async function deleteItem() {
