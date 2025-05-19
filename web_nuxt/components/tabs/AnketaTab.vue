@@ -123,10 +123,10 @@ const items: AccordionItem[] = [
       </UDropdownMenu>
     </div>
   </div>
-  <div v-if="!person.id" class="ps-2">
+  <div v-if="status == 'pending'" class="ps-2">
     <div
-      v-for="p in Object.keys(person)"
-      :key="p"
+      v-for="i in 14"
+      :key="i"
       class="flex grid grid-cols-12 gap-3 mb-3"
     >
       <div class="col-span-3">
