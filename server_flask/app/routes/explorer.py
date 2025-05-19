@@ -5,7 +5,7 @@ from pathlib import Path
 
 from flask import Blueprint, Response, current_app, jsonify, request, send_file
 
-from app.depends.depend import current_user, roles_required, validate
+from app.depends.depend import current_user, jwt_required, roles_required, validate
 from app.model.classes import Roles
 from app.model.models import File
 from app.model.tables import Persons, db_session
@@ -14,7 +14,7 @@ bp = Blueprint("explorer", __name__, url_prefix="/explorer")
 
 
 @bp.get("/folder/<int:person_id>")
-@roles_required(Roles.user.value)
+@jwt_required()
 def get_folder(person_id: int) -> Response:
     """Update the file manager for the user.
 
