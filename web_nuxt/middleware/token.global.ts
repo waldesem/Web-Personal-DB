@@ -6,6 +6,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
     try {
       const userState = useUserState();
       userState.value = jwtDecode(accessToken.value.split(" ")[1]) as Token;
+      return;
     } catch (error) {
       console.error(error);
       return navigateTo("/login");
