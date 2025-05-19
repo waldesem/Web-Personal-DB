@@ -18,6 +18,8 @@ const { status, refresh } = await useLazyAsyncData("persons", async () => {
   )) as Persons;
 });
 
+provide("status", status);
+
 const user = useUserState();
 
 const editable = computed(() => {
