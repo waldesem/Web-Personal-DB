@@ -8,7 +8,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
       userState.value = jwtDecode(accessToken.value.split(" ")[1]) as Token;
     } catch (error) {
       console.error(error);
-      await navigateTo("/login");
+      return navigateTo("/login");
     }
   }
 });
