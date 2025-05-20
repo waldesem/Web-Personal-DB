@@ -119,8 +119,8 @@ async function deleteItem(id: string, idx: number) {
     </div>
     <div v-if="status === 'pending'">
       <div
-        v-for="p in Object.keys(itm)"
-        :key="p"
+        v-for="i in 3"
+        :key="i"
         class="flex grid grid-cols-12 gap-3 mb-3"
       >
         <div class="col-span-3">
