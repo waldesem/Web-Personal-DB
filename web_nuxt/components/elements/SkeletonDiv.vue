@@ -1,8 +1,8 @@
-<script lang="ts">
+<script setup lang="ts">
 const props = defineProps({
   rows: {
     type: Number,
-    require: true,
+    required: true,
   },
 });
 </script>
