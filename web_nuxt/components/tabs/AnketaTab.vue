@@ -15,7 +15,7 @@ const props = defineProps({
 const emits = defineEmits(["refresh"]);
 
 const editable = inject("editable") as Ref<boolean>;
-const status = inject("status") as Ref<String>;
+const status = inject("status") as Ref<string>;
 
 const modal = ref(false);
 
@@ -124,18 +124,7 @@ const items: AccordionItem[] = [
     </div>
   </div>
   <div v-if="status == 'pending'" class="ps-2">
-    <div
-      v-for="i in 14"
-      :key="i"
-      class="flex grid grid-cols-12 gap-3 mb-3"
-    >
-      <div class="col-span-3">
-        <USkeleton class="h-4" />
-      </div>
-      <div class="col-span-9">
-        <USkeleton class="h-4 w-[300px]" />
-      </div>
-    </div>
+    <ElementsSkeletonDiv :rows=14 />
   </div>
   <div v-else class="ps-2">
     <ItemsSharedItem :view="'person'" :item="person" />

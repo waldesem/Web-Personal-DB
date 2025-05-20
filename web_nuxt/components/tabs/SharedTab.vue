@@ -12,6 +12,10 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  rows: {
+    type: Number,
+    required: true,
+  }
 });
 
 const emit = defineEmits(["editable"]);
@@ -104,28 +108,6 @@ onCancel(() => {
 
 <template>
   <div class="mt-2">
-    <UModal
-      v-if="editable"
-      v-model:open="modal"
-      :ui="{ content: 'sm:max-w-4xl' }"
-      :dismissible="false"
-      title="Проверка кандидата"
-      description="Данные проверки"
-    >
-      <template #content>
-        <div class="m-4">
-          <component
-            :is="mappedComponents[props.view]"
-            :item="item"
-            @cancel="
-              item = {} as TabsType;
-              modal = false;
-            "
-            @update="submitItem"
-          />
-        </div>
-      </template>
-    </UModal>
     <UButton
       v-if="editable"
       :loading="status == 'pending'"
@@ -136,9 +118,10 @@ onCancel(() => {
       @click="modal = !modal"
     />
     <div v-for="(content, index) in items" :key="content.id" class="py-4 ms-2">
-      <div v-if="editable" class="relative">
+      <div class="relative">
         <div class="absolute top-2 right-2">
           <UDropdownMenu
+            :disabled="editable"
             :items="[
               {
                 label: 'Изменить',
@@ -176,23 +159,37 @@ onCancel(() => {
         </div>
       </div>
       <div v-if="status === 'pending'">
-        <div
-          v-for="i in 12"
-          :key="i"
-          class="flex grid grid-cols-12 gap-3 mb-3"
-        >
-          <div class="col-span-3">
-            <USkeleton class="h-4" />
-          </div>
-          <div class="col-span-9">
-            <USkeleton class="h-4 w-[300px]" />
-          </div>
-        </div>
+        <ElementsSkeletonDiv :rows=props.rows />
       </div>
       <div v-else>
         <ItemsSharedItem :view="props.view" :item="content" />
       </div>
       <USeparator v-if="index != items.length - 1" />
     </div>
+    <div v-if="!items.length && status === 'pending'">
+      <ElementsSkeletonDiv :rows=props.rows />
+    </div>
+    <UModal
+      v-if="editable"
+      v-model:open="modal"
+      :ui="{ content: 'sm:max-w-4xl' }"
+      :dismissible="false"
+      title="Проверка кандидата"
+      description="Данные проверки"
+    >
+      <template #content>
+        <div class="m-4">
+          <component
+            :is="mappedComponents[props.view]"
+            :item="item"
+            @cancel="
+              item = {} as TabsType;
+              modal = false;
+            "
+            @update="submitItem"
+          />
+        </div>
+      </template>
+    </UModal>
   </div>
 </template>

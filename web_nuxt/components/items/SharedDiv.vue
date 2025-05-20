@@ -83,9 +83,10 @@ async function deleteItem(id: string, idx: number) {
 
 <template>
   <div v-for="(itm, idx) in items" :key="idx" class="py-2 ms-2">
-    <div v-if="editable" class="relative">
+    <div class="relative">
       <div class="absolute top-2 right-2">
         <UDropdownMenu
+          :disabled="editable"
           :items="[
             {
               label: 'Изменить',
@@ -118,46 +119,16 @@ async function deleteItem(id: string, idx: number) {
       </div>
     </div>
     <div v-if="status === 'pending'">
-      <div
-        v-for="i in 3"
-        :key="i"
-        class="flex grid grid-cols-12 gap-3 mb-3"
-      >
-        <div class="col-span-3">
-          <USkeleton class="h-4" />
-        </div>
-        <div class="col-span-9">
-          <USkeleton class="h-4 w-[300px]" />
-        </div>
-      </div>
+      <ElementsSkeletonDiv :rows=3 />
     </div>
     <div v-else>
       <ItemsSharedItem :view="props.view" :item="itm" />
     </div>
     <USeparator v-if="idx != items.length - 1" />
   </div>
-  <UModal
-    v-if="editable" 
-    v-model:open="modal"
-    :ui="{ content: 'sm:max-w-4xl' }"
-    :dismissible="false"
-    title="Проверка кандидата"
-    description="Данные профиля"
-  >
-    <template #content>
-      <div class="m-4">
-        <component
-          :is="mappedComponents[props.view]"
-          :item="item"
-          @cancel="
-            modal = false;
-            item = {} as DivsType;
-          "
-          @update="submitItem"
-        />
-      </div>
-    </template>
-  </UModal>
+  <div v-if="!items.length && status === 'pending'">
+    <ElementsSkeletonDiv :rows=3 />
+  </div>
   <div class="py-2 border-t border-gray-200">
     <UButton
       :disabled="!editable"
@@ -170,5 +141,27 @@ async function deleteItem(id: string, idx: number) {
         modal = true;
       "
     />
+    <UModal
+      v-if="editable" 
+      v-model:open="modal"
+      :ui="{ content: 'sm:max-w-4xl' }"
+      :dismissible="false"
+      title="Проверка кандидата"
+      description="Данные профиля"
+    >
+      <template #content>
+        <div class="m-4">
+          <component
+            :is="mappedComponents[props.view]"
+            :item="item"
+            @cancel="
+              modal = false;
+              item = {} as DivsType;
+            "
+            @update="submitItem"
+          />
+        </div>
+      </template>
+    </UModal>
   </div>
 </template>

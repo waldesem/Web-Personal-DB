@@ -89,26 +89,31 @@ const items: TabsItem[] = [
     slot: "anketa",
     label: "Анкета",
     icon: "i-heroicons-user",
+    value: 12,
   },
   {
     slot: "checks",
     label: "Проверки",
     icon: "i-heroicons-check-circle",
+    value: 16,
   },
   {
     slot: "poligrafs",
     label: "Полиграф",
     icon: "i-heroicons-bolt",
+    value: 4,
   },
   {
     slot: "investigations",
     label: "Расследования",
     icon: "i-heroicons-briefcase",
+    value: 3,
   },
   {
     slot: "inquiries",
     label: "Запросы",
     icon: "i-heroicons-document-text",
+    value: 3,
   },
   {
     slot: "explorer",
@@ -182,19 +187,35 @@ const items: TabsItem[] = [
       :ui="{ trigger: 'flex-1' }"
     >
       <template #anketa>
-        <TabsAnketaTab :person="person" @refresh="refresh" />
+        <TabsAnketaTab :person="person" :rows="item.value" @refresh="refresh" />
       </template>
       <template #checks="{ item }">
-        <TabsSharedTab :view="item.slot" @editable="switchSelf" />
+        <TabsSharedTab
+          :view="item.slot"
+          :rows="item.value"
+          @editable="switchSelf"
+        />
       </template>
       <template #poligrafs="{ item }">
-        <TabsSharedTab :view="item.slot" @editable="switchSelf" />
+        <TabsSharedTab
+          :view="item.slot"
+          :rows="item.value"
+          @editable="switchSelf"
+        />
       </template>
       <template #investigations="{ item }">
-        <TabsSharedTab :view="item.slot" @editable="switchSelf" />
+        <TabsSharedTab
+          :view="item.slot"
+          :rows="item.value"
+          @editable="switchSelf"
+        />
       </template>
       <template #inquiries="{ item }">
-        <TabsSharedTab :view="item.slot" @editable="switchSelf" />
+        <TabsSharedTab
+          :view="item.slot"
+          :rows="item.value"
+          @editable="switchSelf"
+        />
       </template>
       <template #explorer>
         <TabsExplorerTab />
