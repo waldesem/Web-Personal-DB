@@ -7,8 +7,8 @@ const props = defineProps({
     required: true,
   },
   item: {
-    type: Object as () => DivsType | TabsType | Persons,
-    default: () => ({}),
+    type: Object as PropType<[DivsType, TabsType, Persons]>,
+    // default: () => ({}),
   },
 });
 
