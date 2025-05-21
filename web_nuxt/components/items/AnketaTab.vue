@@ -47,7 +47,7 @@ async function deleteItem() {
   )) as Record<string, string>;
   if (message == "success") {
     makeToast(message, "Информация успешно обновлена");
-    await navigateTo("/persons");
+    return navigateTo("/persons");
   } else {
     makeToast();
     status.value = "error";

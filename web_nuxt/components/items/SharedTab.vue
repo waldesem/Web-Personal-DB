@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useFileDialog } from "@vueuse/core";
-import type { TabsType, MappedType } from "@/types";
+import type { ItemType, MappedType } from "@/types";
 
 import CheckForm from "@/components/forms/CheckForm.vue";
 import InquiryForm from "@/components/forms/InquiryForm.vue";
@@ -18,8 +18,6 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(["editable"]);
-
 const mappedComponents = {
   checks: CheckForm,
   inquiries: InquiryForm,
@@ -30,17 +28,17 @@ const mappedComponents = {
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
-const item = ref({} as TabsType);
-const items = ref<TabsType[]>([]);
+const item = ref({} as ItemType);
+const items = ref<ItemType[]>([]);
 const modal = ref(false);
 
 const { refresh, status } = await useLazyAsyncData(props.view, async () => {
   items.value = (await fetchAuth(
     `/route/items/${props.view}/${candId.value}`
-  )) as TabsType[];
+  )) as ItemType[];
 });
 
-async function submitItem(form: TabsType) {
+async function submitItem(form: ItemType) {
   modal.value = false;
   status.value = "pending";
   const { message } = (await fetchAuth(
@@ -50,9 +48,8 @@ async function submitItem(form: TabsType) {
       body: form,
     }
   )) as Record<string, string>;
-  item.value = {} as TabsType;
+  item.value = {} as ItemType;
   if (message == "success") {
-    emit("editable");
     makeToast(message, "Информация успешно обновлена");
   } else {
     makeToast();
@@ -183,7 +180,7 @@ onCancel(() => {
             :is="mappedComponents[props.view]"
             :item="item"
             @cancel="
-              item = {} as TabsType;
+              item = {} as ItemType;
               modal = false;
             "
             @update="submitItem"

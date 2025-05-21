@@ -65,7 +65,7 @@ export interface Persons {
   created: string;
   region: string;
   username: string;
-  user_id: string;
+  user_id: string
 }
 
 export interface Relation {
@@ -84,7 +84,6 @@ export interface Previous {
   firstname: string;
   patronymic: string;
   changed: string;
-  created: string;
   reason: string;
 }
 
@@ -94,14 +93,12 @@ export interface Education {
   institution: string;
   finished: string;
   specialty: string;
-  created: string;
 }
 
 export interface Staff {
   id: string;
   position: string;
   department: string;
-  created: string;
 }
 
 export interface Passport {
@@ -111,21 +108,18 @@ export interface Passport {
   digits: string;
   agency: string;
   issue: string;
-  created: string;
 }
 
 export interface Address {
   id: string;
   view: string;
   addresses: string;
-  created: string;
 }
 
 export interface Contact {
   id: string;
   view: string;
   contact: string;
-  created: string;
 }
 
 export interface Work {
@@ -137,7 +131,6 @@ export interface Work {
   addresses: string;
   reason: string;
   position: string;
-  created: string;
 }
 
 export interface Affilation {
@@ -145,7 +138,6 @@ export interface Affilation {
   view: string;
   organization: string;
   inn: string;
-  created: string;
 }
 
 export interface Verification {
@@ -174,7 +166,6 @@ export interface Pfo {
   theme: string;
   results: string;
   conclusion: string;
-  user_id: string;
   created: string;
 }
 
@@ -182,7 +173,6 @@ export interface Inquisition {
   id: string;
   theme: string;
   info: string;
-  user_id: string;
   created: string;
 }
 
@@ -191,7 +181,6 @@ export interface Needs {
   info: string;
   initiator: string;
   origins: string;
-  user_id: string;
   created: string;
 }
 
@@ -205,17 +194,9 @@ export interface Files {
   path: string;
 }
 
-export type DivsType =
-  | Address
-  | Affilation
-  | Contact
-  | Passport
-  | Education
-  | Previous
-  | Staff
-  | Work;
-
-export type TabsType = Verification | Pfo | Inquisition | Needs;
+export interface ItemType {
+  id: string;
+}
 
 export interface MappedType {
   [key: string]: Component;

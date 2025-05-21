@@ -2,7 +2,11 @@
 import type { TabsItem } from "@nuxt/ui";
 import type { Persons } from "@/types";
 
-await preloadComponents(["TabsAnketaTab", "TabsSharedTab", "TabsExplorerTab"]);
+await preloadComponents([
+  "ItemsAnketaTab",
+  "ItemsSharedTab",
+  "ItemsExplorerTab",
+]);
 
 const route = useRoute();
 
@@ -31,24 +35,22 @@ const editable = computed(() => {
 });
 provide("editable", editable);
 
-async function switchSelf(confirmation = false): Promise<void> {
-  if (confirmation) {
-    if (person.value.user_id != user.value.id) {
-      if (person.value.editable) {
-        if (
-          !confirm(
-            "Анкета редактируется другим пользователем. Переключить режим?"
-          )
-        ) {
-          return;
-        }
-      }
-      if (!confirm("Вы хотите назначить анкету на себя?")) {
+async function switchSelf(): Promise<void> {
+  if (person.value.user_id != user.value.id) {
+    if (person.value.editable) {
+      if (
+        !confirm(
+          "Анкета редактируется другим пользователем. Переключить режим?"
+        )
+      ) {
         return;
       }
-    } else if (!confirm("Переключить режим редактирования?")) {
+    }
+    if (!confirm("Вы хотите назначить анкету на себя?")) {
       return;
     }
+  } else if (!confirm("Переключить режим редактирования?")) {
+    return;
   }
   status.value = "pending";
   person.value = (await fetchAuth(
@@ -57,7 +59,7 @@ async function switchSelf(confirmation = false): Promise<void> {
   status.value = "success";
 }
 
-async function changeRegion(): Promise<void> {
+async function changeRegion() {
   if (region.value == person.value.region) {
     return;
   }
@@ -76,7 +78,7 @@ async function changeRegion(): Promise<void> {
   )) as Record<string, string>;
   if (message == "success") {
     makeToast(message, "Регион успешно обновлен");
-    await navigateTo("/persons");
+    return navigateTo("/persons");
   } else {
     makeToast();
     region.value = person.value.region;
@@ -154,28 +156,26 @@ const items: TabsItem[] = [
             @change="changeRegion"
           />
         </UTooltip>
-        <UTooltip text="Переключить режим">
-          <UButton
-            :loading="status === 'pending'"
-            :disabled="person.region != user.region"
-            :color="
-              !person.editable
-                ? 'secondary'
-                : person.user_id == user.id
-                ? 'success'
-                : 'error'
-            "
-            @click="switchSelf(true)"
-          >
-            {{
-              !person.editable
-                ? "Анкета доступна для редактирования"
-                : person.user_id == user.id
-                ? "Анкета назначена текущему пользователю"
-                : "Анкета редактируется другим пользователем"
-            }}
-          </UButton>
-        </UTooltip>
+        <UButton
+          :loading="status === 'pending'"
+          :disabled="person.region != user.region"
+          :color="
+            !person.editable
+              ? 'secondary'
+              : person.user_id == user.id
+              ? 'success'
+              : 'error'
+          "
+          @click="switchSelf"
+        >
+          {{
+            !person.editable
+              ? "Анкета доступна для редактирования"
+              : person.user_id == user.id
+              ? "Анкета назначена текущему пользователю"
+              : "Анкета редактируется другим пользователем"
+          }}
+        </UButton>
       </div>
     </div>
     <UTabs
@@ -187,38 +187,26 @@ const items: TabsItem[] = [
       :ui="{ trigger: 'flex-1' }"
     >
       <template #anketa>
-        <TabsAnketaTab :person="person" :rows="item.value" @refresh="refresh" />
+        <ItemsAnketaTab
+          :person="person"
+          :rows="item.value"
+          @refresh="refresh"
+        />
       </template>
       <template #checks="{ item }">
-        <TabsSharedTab
-          :view="item.slot"
-          :rows="item.value"
-          @editable="switchSelf"
-        />
+        <ItemsSharedTab :view="item.slot" :rows="item.value" />
       </template>
       <template #poligrafs="{ item }">
-        <TabsSharedTab
-          :view="item.slot"
-          :rows="item.value"
-          @editable="switchSelf"
-        />
+        <ItemsSharedTab :view="item.slot" :rows="item.value" />
       </template>
       <template #investigations="{ item }">
-        <TabsSharedTab
-          :view="item.slot"
-          :rows="item.value"
-          @editable="switchSelf"
-        />
+        <ItemsSharedTab :view="item.slot" :rows="item.value" />
       </template>
       <template #inquiries="{ item }">
-        <TabsSharedTab
-          :view="item.slot"
-          :rows="item.value"
-          @editable="switchSelf"
-        />
+        <ItemsSharedTab :view="item.slot" :rows="item.value" />
       </template>
       <template #explorer>
-        <TabsExplorerTab />
+        <ItemsExplorerTab />
       </template>
     </UTabs>
   </div>

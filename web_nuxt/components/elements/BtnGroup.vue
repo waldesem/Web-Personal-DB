@@ -12,6 +12,12 @@ const emit = defineEmits(["cancel"]);
         type="submit"
       />
       <UButton
+        label="Очистить"
+        color="secondary"
+        variant="outline"
+        type="reset"
+      />
+      <UButton
         label="Отмена"
         color="error"
         variant="outline"

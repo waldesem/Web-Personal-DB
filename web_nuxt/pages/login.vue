@@ -42,11 +42,7 @@ const validate = (state: Partial<Login>) => {
   return errors;
 };
 
-/**
- * Submit login form to server and get a new token.
- * @returns {Promise<void>}
- */
-async function submitLogin(): Promise<void> {
+async function submitLogin() {
   const { message, access_token } = (await $fetch(
     "/route/auth/" + loginAction.value,
     {
@@ -56,7 +52,7 @@ async function submitLogin(): Promise<void> {
   )) as { message: string; access_token: string };
   if (message === "Success") {
     accessToken.value = access_token;
-    await navigateTo("/persons");
+    return navigateTo("/persons");
   } else if (message === "Updated") {
     loginAction.value = "login";
     Object.assign(alert.value, {
@@ -105,7 +101,7 @@ async function submitLogin(): Promise<void> {
           <UForm
             :state="loginForm"
             :validate="validate"
-            @submit.prevent="submitLogin"
+            @submit.prevent="submitLogin()"
           >
             <UFormField label="Логин" name="username" required>
               <UInput

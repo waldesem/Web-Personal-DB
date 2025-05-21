@@ -6,7 +6,7 @@ async function logout() {
   accessToken.value = "";
   clearNuxtData();
   clearNuxtState();
-  await navigateTo("/login");
+  return navigateTo("/login");
 }
 </script>
 

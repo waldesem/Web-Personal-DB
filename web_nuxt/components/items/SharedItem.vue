@@ -1,14 +1,12 @@
 <script setup lang="ts">
-import type { DivsType, TabsType, Persons } from "@/types";
-
 const props = defineProps({
   view: {
     type: String,
     required: true,
   },
   item: {
-    type: Object as PropType<[DivsType, TabsType, Persons]>,
-    // default: () => ({}),
+    type: Object,
+    default: () => ({}),
   },
 });
 
@@ -16,150 +14,127 @@ const UBadge = resolveComponent("UBadge");
 
 const items = {
   person: {
-    Фамилия: props.item["surname" as keyof typeof props.item],
-    Имя: props.item["firstname" as keyof typeof props.item],
-    Отчество: props.item["patronymic" as keyof typeof props.item],
-    "Дата рождения": new Date(
-      props.item["birthday" as keyof typeof props.item]
-    ).toLocaleDateString("ru-RU"),
-    "Место рождения": props.item["birthplace" as keyof typeof props.item],
-    Гражданство: props.item["citizenship" as keyof typeof props.item],
-    "Двойное гражданство": props.item["dual" as keyof typeof props.item],
-    СНИЛС: props.item["snils" as keyof typeof props.item],
-    ИНН: props.item["inn" as keyof typeof props.item],
-    "Семейное положение": props.item["marital" as keyof typeof props.item],
-    "Дата записи": new Date(
-      props.item["created" as keyof typeof props.item]
-    ).toLocaleString("ru-RU"),
-    "Дополнительная информация":
-      props.item["addition" as keyof typeof props.item],
+    Фамилия: props.item.surname,
+    Имя: props.item.firstname,
+    Отчество: props.item.patronymic,
+    "Дата рождения": new Date(props.item.birthday).toLocaleDateString("ru-RU"),
+    "Место рождения": props.item.birthplace,
+    Гражданство: props.item.citizenship,
+    "Двойное гражданство": props.item.dual,
+    СНИЛС: props.item.snils,
+    ИНН: props.item.inn,
+    "Семейное положение": props.item.marital,
+    "Дата записи": new Date(props.item.created).toLocaleString("ru-RU"),
+    "Дополнительная информация": props.item.addition,
   },
   addresses: {
-    Тип: props.item["view" as keyof typeof props.item],
-    Адрес: props.item["addresses" as keyof typeof props.item],
+    Тип: props.item.view,
+    Адрес: props.item.addresses,
   },
   affilations: {
-    "Тип участия": props.item["view" as keyof typeof props.item],
-    Организация: props.item["organization" as keyof typeof props.item],
-    ИНН: props.item["inn" as keyof typeof props.item],
+    "Тип участия": props.item.view,
+    Организация: props.item.organization,
+    ИНН: props.item.inn,
   },
   contacts: {
-    Вид: props.item["view" as keyof typeof props.item],
-    Контакт: props.item["contact" as keyof typeof props.item],
+    Вид: props.item.view,
+    Контакт: props.item.contact,
   },
   documents: {
-    "Вид документа": props.item["view" as keyof typeof props.item],
-    "Серия документа": props.item["series" as keyof typeof props.item],
-    "Номер документа": props.item["digits" as keyof typeof props.item],
-    "Дата выдачи": new Date(props.item["issue" as keyof typeof props.item])
+    "Вид документа": props.item.view,
+    "Серия документа": props.item.series,
+    "Номер документа": props.item.digits,
+    "Дата выдачи": new Date(props.item.issue)
       .toLocaleDateString("ru-RU")
       .split(",")[0],
-    "Кем выдан": props.item["agency" as keyof typeof props.item],
+    "Кем выдан": props.item.agency,
   },
   educations: {
-    "Уровень образования": props.item["view" as keyof typeof props.item],
-    "Название учебного заведения":
-      props.item["institution" as keyof typeof props.item],
-    "Год окончания": props.item["finished" as keyof typeof props.item],
-    Специальность: props.item["specialty" as keyof typeof props.item],
+    "Уровень образования": props.item.view,
+    "Название учебного заведения": props.item.institution,
+    "Год окончания": props.item.finished,
+    Специальность: props.item.specialty,
   },
   previous: {
-    Фамилия: props.item["surname" as keyof typeof props.item],
-    Имя: props.item["firstname" as keyof typeof props.item],
-    Отчество: props.item["patronymic" as keyof typeof props.item],
-    "Год изменения": props.item["changed" as keyof typeof props.item],
-    Причина: props.item["reason" as keyof typeof props.item],
+    Фамилия: props.item.surname,
+    Имя: props.item.firstname,
+    Отчество: props.item.patronymic,
+    "Год изменения": props.item.changed,
+    Причина: props.item.reason,
   },
   staffs: {
-    Должность: props.item["position" as keyof typeof props.item],
-    Департамент: props.item["department" as keyof typeof props.item],
+    Должность: props.item.position,
+    Департамент: props.item.department,
   },
   workplaces: {
-    "Текущая работа": props.item["now_work" as keyof typeof props.item]
-      ? "Да"
-      : "Нет",
-    "Начало работы": new Date(props.item["starts" as keyof typeof props.item])
+    "Текущая работа": props.item.now_work ? "Да" : "Нет",
+    "Начало работы": new Date(props.item.starts)
       .toLocaleDateString("ru-RU")
       .split(",")[0],
-    "Окончание работы": new Date(
-      props.item["finished" as keyof typeof props.item]
-    )
+    "Окончание работы": new Date(props.item.finished)
       .toLocaleDateString("ru-RU")
       .split(",")[0],
-    Место: props.item["workplace" as keyof typeof props.item],
-    Адрес: props.item["addresses" as keyof typeof props.item],
-    Должность: props.item["position" as keyof typeof props.item],
-    "Причина увольнения": props.item["reason" as keyof typeof props.item],
+    Место: props.item.workplace,
+    Адрес: props.item.addresses,
+    Должность: props.item.position,
+    "Причина увольнения": props.item.reason,
   },
   inquiries: {
-    Информация: props.item["info" as keyof typeof props.item],
-    Иннициатор: props.item["initiator" as keyof typeof props.item],
-    "Дата записи": new Date(props.item["created" as keyof typeof props.item])
+    Информация: props.item.info,
+    Иннициатор: props.item.initiator,
+    "Дата записи": new Date(props.item.created)
       .toLocaleString("ru-RU")
       .split(",")[0],
   },
   investigations: {
-    "Тема проверки": props.item["theme" as keyof typeof props.item],
-    Информация: props.item["info" as keyof typeof props.item],
-    "Дата записи": new Date(props.item["created" as keyof typeof props.item])
+    "Тема проверки": props.item.theme,
+    Информация: props.item.info,
+    "Дата записи": new Date(props.item.created)
       .toLocaleString("ru-RU")
       .split(",")[0],
   },
   poligrafs: {
-    "Тема проверки": props.item["theme" as keyof typeof props.item],
-    Результат: props.item["results" as keyof typeof props.item],
+    "Тема проверки": props.item.theme,
+    Результат: props.item.results,
     Заключение: h(UBadge, {
       color:
-        props.item["conclusion" as keyof typeof props.item] === "БЕЗ ЗАМЕЧАНИЙ"
+        props.item.conclusion === "БЕЗ ЗАМЕЧАНИЙ"
           ? "success"
-          : props.item["conclusion" as keyof typeof props.item] ===
-            "С КОММЕНТАРИЯМИ"
+          : props.item.conclusion === "С КОММЕНТАРИЯМИ"
           ? "primary"
           : "error",
-      label: props.item["conclusion" as keyof typeof props.item],
-      variant: "soft",
+      label: props.item.conclusion,
     }),
-    "Дата записи": new Date(props.item["created" as keyof typeof props.item])
+    "Дата записи": new Date(props.item.created)
       .toLocaleString("ru-RU")
       .split(",")[0],
   },
   checks: {
-    "Проверка по местам работы":
-      props.item["workplace" as keyof typeof props.item],
-    "Проверка документов": props.item["document" as keyof typeof props.item],
-    "Проверка задолженностей": props.item["debt" as keyof typeof props.item],
-    "Проверка банкротства": props.item["bankruptcy" as keyof typeof props.item],
-    "Проверка по БКИ": props.item["bki" as keyof typeof props.item],
-    "Проверка судебных решений":
-      props.item["courts" as keyof typeof props.item],
-    "Проверка аффилированности":
-      props.item["affilation" as keyof typeof props.item],
-    "Проверка по списку террористов":
-      props.item["terrorist" as keyof typeof props.item],
-    "Проверка в открытых источниках":
-      props.item["internet" as keyof typeof props.item],
-    "Проверка Кронос": props.item["cronos" as keyof typeof props.item],
-    "Дополнительная информация":
-      props.item["addition" as keyof typeof props.item],
-    Комментарии: props.item["comment" as keyof typeof props.item],
+    "Проверка по местам работы": props.item.workplace,
+    "Проверка документов": props.item.document,
+    "Проверка задолженностей": props.item.debt,
+    "Проверка банкротства": props.item.bankruptcy,
+    "Проверка по БКИ": props.item.bki,
+    "Проверка судебных решений": props.item.courts,
+    "Проверка аффилированности": props.item.affilation,
+    "Проверка по списку террористов": props.item.terrorist,
+    "Проверка в открытых источниках": props.item.internet,
+    "Проверка Кронос": props.item.cronos,
+    "Дополнительная информация": props.item.addition,
+    Комментарии: props.item.comment,
     Результат: h(UBadge, {
       color:
-        props.item["conclusion" as keyof typeof props.item] === "СОГЛАСОВАНО"
+        props.item.conclusion === "СОГЛАСОВАНО"
           ? "success"
-          : props.item["conclusion" as keyof typeof props.item] ===
-            "СОГЛАСОВАНО С КОММЕНТАРИЕМ"
+          : props.item.conclusion === "СОГЛАСОВАНО С КОММЕНТАРИЕМ"
           ? "primary"
-          : props.item["conclusion" as keyof typeof props.item] ===
-            "СНЯТ С ПРОВЕРКИ"
+          : props.item.conclusion === "СНЯТ С ПРОВЕРКИ"
           ? "warning"
           : "error",
 
-      label: props.item["conclusion" as keyof typeof props.item],
-      variant: "soft",
+      label: props.item.conclusion,
     }),
-    "Дата записи": new Date(
-      props.item["created" as keyof typeof props.item]
-    ).toLocaleString("ru-RU"),
+    "Дата записи": new Date(props.item.created).toLocaleString("ru-RU"),
   },
 };
 </script>

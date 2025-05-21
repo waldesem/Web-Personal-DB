@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DivsType, MappedType } from "@/types";
+import type { ItemType, MappedType } from "@/types";
 
 import AddressForm from "@/components/forms/AddressForm.vue";
 import AffilationForm from "@/components/forms/AffilationForm.vue";
@@ -33,17 +33,17 @@ const mappedComponents = {
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
-const item = ref({} as DivsType);
-const items = ref([] as DivsType[]);
+const item = ref({} as ItemType);
+const items = ref([] as ItemType[]);
 const modal = ref(false);
 
 const { refresh, status } = await useLazyAsyncData(props.view, async () => {
   items.value = (await fetchAuth(
     `/route/items/${props.view}/${candId.value}`
-  )) as DivsType[];
+  )) as ItemType[];
 });
 
-async function submitItem(form: DivsType) {
+async function submitItem(form: ItemType) {
   modal.value = false;
   status.value = "pending";
   const { message } = (await fetchAuth(
@@ -54,7 +54,7 @@ async function submitItem(form: DivsType) {
     }
   )) as Record<string, string>;
   status.value = "success";
-  item.value = {} as DivsType;
+  item.value = {} as ItemType;
   await refresh();
   if (message == "success") {
     makeToast(message, "Информация успешно обновлена");
@@ -137,7 +137,7 @@ async function deleteItem(id: string, idx: number) {
       icon="i-heroicons-document-plus"
       variant="ghost"
       @click="
-        item = {} as DivsType;
+        item = {} as ItemType;
         modal = true;
       "
     />
@@ -156,7 +156,7 @@ async function deleteItem(id: string, idx: number) {
             :item="item"
             @cancel="
               modal = false;
-              item = {} as DivsType;
+              item = {} as ItemType;
             "
             @update="submitItem"
           />

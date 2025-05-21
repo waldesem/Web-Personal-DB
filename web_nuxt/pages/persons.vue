@@ -69,7 +69,7 @@ async function createToast(person_id: string, exists: boolean) {
     } else {
       makeToast("success", "Анкета успешно загружена");
     }
-    await navigateTo("/profile/" + person_id);
+    return navigateTo("/profile/" + person_id);
   } else {
     if (exists) {
       makeToast(
@@ -117,8 +117,8 @@ async function submitResume(form: Persons): Promise<void> {
   createToast(person_id, exists);
 }
 
-async function openPerson(personId: string) {
-  await navigateTo(`/profile/${personId}`);
+function openPerson(personId: string) {
+  return navigateTo(`/profile/${personId}`);
 }
 
 const columns: TableColumn<Persons>[] = [
@@ -265,28 +265,24 @@ const items: DropdownMenuItem[] = [
     </div>
 
     <div v-if="page > 1 || hasNext" class="flex justify-center space-x-2 my-2">
-      <UTooltip text="Предыдущая страница">
-        <UButton
-          icon="i-heroicons-arrow-small-left-20-solid"
-          :disabled="page < 2 || status == 'pending'"
-          class="me-2 rounded-full"
-          @click="page--"
-        />
-      </UTooltip>
+      <UButton
+        icon="i-heroicons-arrow-small-left-20-solid"
+        :disabled="page < 2 || status == 'pending'"
+        class="me-2 rounded-full"
+        @click="page--"
+      />
       <USelect
         v-model="pagination"
         :items="[10, 20, 30, 50]"
         :disabled="!hasNext || status == 'pending'"
         variant="soft"
       />
-      <UTooltip text="Следующая страница">
-        <UButton
-          icon="i-heroicons-arrow-small-right-20-solid"
-          :disabled="!hasNext || status == 'pending'"
-          class="ms-2 rounded-full"
-          @click="page++"
-        />
-      </UTooltip>
+      <UButton
+        icon="i-heroicons-arrow-small-right-20-solid"
+        :disabled="!hasNext || status == 'pending'"
+        class="ms-2 rounded-full"
+        @click="page++"
+      />
     </div>
   </div>
 </template>
