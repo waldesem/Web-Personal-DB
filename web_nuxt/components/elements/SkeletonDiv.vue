@@ -9,8 +9,8 @@ const props = defineProps({
 
 <template>
   <div
-    v-for="i in props.rows"
-    :key="i"
+    v-for="row in props.rows"
+    :key="row"
     class="flex grid grid-cols-12 gap-3 mb-3"
   >
     <div class="col-span-3">

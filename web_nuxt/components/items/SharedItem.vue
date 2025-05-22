@@ -95,7 +95,7 @@ const items = {
   },
   poligrafs: {
     "Тема проверки": props.item.theme,
-    Результат: props.item.results,
+    Результаты: props.item.results,
     Заключение: h(UBadge, {
       color:
         props.item.conclusion === "БЕЗ ЗАМЕЧАНИЙ"
@@ -141,15 +141,21 @@ const items = {
 
 <template>
   <div
-    v-for="(value, key) in items[props.view as keyof typeof items]"
+    v-for="(value, key, index) in items[props.view as keyof typeof items]"
     :key="key"
   >
-    <div v-if="value" class="flex grid grid-cols-12 gap-3 mb-3">
-      <div class="col-span-3">{{ key }}</div>
-      <div v-if="typeof value == 'object'" class="col-span-9">
-        <component :is="value" />
+    <div v-if="value" class="flex grid grid-cols-12 gap-3">
+      <div class="mt-1 mb-2">
+        <div class="col-span-3">{{ key }}</div>
+        <div v-if="typeof value == 'object'" class="col-span-9">
+          <component :is="value" />
+        </div>
+        <div v-else class="col-span-9 break-words">{{ value }}</div>
       </div>
-      <div v-else class="col-span-9 break-words">{{ value }}</div>
+      <USeparator
+        v-if="index != Object.keys(items[props.view as keyof typeof items]).length - 1"
+        type="dotted"
+      />
     </div>
   </div>
 </template>

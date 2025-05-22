@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ItemType, MappedType } from "@/types";
+import type { MappedType } from "@/types";
 
 import AddressForm from "@/components/forms/AddressForm.vue";
 import AffilationForm from "@/components/forms/AffilationForm.vue";
@@ -33,17 +33,17 @@ const mappedComponents = {
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
-const item = ref({} as ItemType);
-const items = ref([] as ItemType[]);
+const item = ref({} as object);
+const items = ref([] as object[]);
 const modal = ref(false);
 
 const { refresh, status } = await useLazyAsyncData(props.view, async () => {
   items.value = (await fetchAuth(
     `/route/items/${props.view}/${candId.value}`
-  )) as ItemType[];
+  )) as object[];
 });
 
-async function submitItem(form: ItemType) {
+async function submitItem(form: object) {
   modal.value = false;
   status.value = "pending";
   const { message } = (await fetchAuth(
@@ -54,7 +54,7 @@ async function submitItem(form: ItemType) {
     }
   )) as Record<string, string>;
   status.value = "success";
-  item.value = {} as ItemType;
+  item.value = {} as object;
   await refresh();
   if (message == "success") {
     makeToast(message, "Информация успешно обновлена");
@@ -101,7 +101,7 @@ async function deleteItem(id: string, idx: number) {
               label: 'Удалить',
               icon: 'i-heroicons-trash',
               onSelect() {
-                deleteItem(items[idx].id, idx);
+                deleteItem(item['id' as keyof typeof item], idx);
               },
             },
           ]"
@@ -124,7 +124,7 @@ async function deleteItem(id: string, idx: number) {
     <div v-else>
       <ItemsSharedItem :view="props.view" :item="itm" />
     </div>
-    <USeparator v-if="idx != items.length - 1" />
+    <USeparator v-if="idx != items.length - 1" icon="i-heroicons-bolt" />
   </div>
   <div v-if="!items.length && status === 'pending'">
     <ElementsSkeletonDiv :rows=3 />
@@ -137,7 +137,7 @@ async function deleteItem(id: string, idx: number) {
       icon="i-heroicons-document-plus"
       variant="ghost"
       @click="
-        item = {} as ItemType;
+        item = {} as object;
         modal = true;
       "
     />
@@ -156,7 +156,7 @@ async function deleteItem(id: string, idx: number) {
             :item="item"
             @cancel="
               modal = false;
-              item = {} as ItemType;
+              item = {} as object;
             "
             @update="submitItem"
           />

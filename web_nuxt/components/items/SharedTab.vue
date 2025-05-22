@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { useFileDialog } from "@vueuse/core";
-import type { ItemType, MappedType } from "@/types";
+import type { MappedType } from "@/types";
 
 import CheckForm from "@/components/forms/CheckForm.vue";
 import InquiryForm from "@/components/forms/InquiryForm.vue";
-import InvestigationForm from "@/components/forms/InvestigationForm.vue";
+import InvestigateForm from "@/components/forms/InvestigateForm.vue";
 import PoligrafForm from "@/components/forms/PoligrafForm.vue";
 
 const props = defineProps({
@@ -15,30 +15,30 @@ const props = defineProps({
   rows: {
     type: Number,
     required: true,
-  }
+  },
 });
 
 const mappedComponents = {
   checks: CheckForm,
   inquiries: InquiryForm,
-  investigations: InvestigationForm,
+  investigations: InvestigateForm,
   poligrafs: PoligrafForm,
 } as MappedType;
 
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
-const item = ref({} as ItemType);
-const items = ref<ItemType[]>([]);
+const item = ref({} as object);
+const items = ref<object[]>([]);
 const modal = ref(false);
 
 const { refresh, status } = await useLazyAsyncData(props.view, async () => {
   items.value = (await fetchAuth(
     `/route/items/${props.view}/${candId.value}`
-  )) as ItemType[];
+  )) as object[];
 });
 
-async function submitItem(form: ItemType) {
+async function submitItem(form: object) {
   modal.value = false;
   status.value = "pending";
   const { message } = (await fetchAuth(
@@ -48,7 +48,7 @@ async function submitItem(form: ItemType) {
       body: form,
     }
   )) as Record<string, string>;
-  item.value = {} as ItemType;
+  item.value = {} as object;
   if (message == "success") {
     makeToast(message, "Информация успешно обновлена");
   } else {
@@ -114,7 +114,11 @@ onCancel(() => {
       icon="i-heroicons-document-plus"
       @click="modal = !modal"
     />
-    <div v-for="(content, index) in items" :key="content.id" class="py-4 ms-2">
+    <div
+      v-for="(content, index) in items"
+      :key="content['id' as keyof typeof content]"
+      class="py-4 ms-2"
+    >
       <div class="relative">
         <div class="absolute top-2 right-2">
           <UDropdownMenu
@@ -139,7 +143,7 @@ onCancel(() => {
                 label: 'Удалить',
                 icon: 'i-heroicons-trash',
                 onSelect() {
-                  deleteItem(content.id, index);
+                  deleteItem(content['id' as keyof typeof content], index);
                 },
               },
             ]"
@@ -156,15 +160,15 @@ onCancel(() => {
         </div>
       </div>
       <div v-if="status === 'pending'">
-        <ElementsSkeletonDiv :rows=props.rows />
+        <ElementsSkeletonDiv :rows="props.rows" />
       </div>
       <div v-else>
         <ItemsSharedItem :view="props.view" :item="content" />
       </div>
-      <USeparator v-if="index != items.length - 1" />
+      <USeparator v-if="index != items.length - 1" icon="i-heroicons-bolt" />
     </div>
     <div v-if="!items.length && status === 'pending'">
-      <ElementsSkeletonDiv :rows=props.rows />
+      <ElementsSkeletonDiv :rows="props.rows" />
     </div>
     <UModal
       v-if="editable"
@@ -180,7 +184,7 @@ onCancel(() => {
             :is="mappedComponents[props.view]"
             :item="item"
             @cancel="
-              item = {} as ItemType;
+              item = {} as object;
               modal = false;
             "
             @update="submitItem"

@@ -194,10 +194,6 @@ export interface Files {
   path: string;
 }
 
-export interface ItemType {
-  id: string;
-}
-
 export interface MappedType {
   [key: string]: Component;
 }
