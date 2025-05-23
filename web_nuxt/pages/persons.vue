@@ -3,7 +3,7 @@ import { watchDebounced, useFileDialog } from "@vueuse/core";
 import type { DropdownMenuItem, TableColumn } from "@nuxt/ui";
 import type { Persons } from "@/types";
 
-preloadRouteComponents("/profile/[id]");
+await preloadRouteComponents("/profile/[id]");
 
 const UIcon = resolveComponent("UIcon");
 const UButton = resolveComponent("UButton");
@@ -211,7 +211,11 @@ const items: DropdownMenuItem[] = [
         <UModal
           v-model:open="modal"
           :dismissible="false"
-          close-icon="i-heroicons-x-mark"
+          :close="{
+            onClick: () => {
+              modal = false;
+            },
+          }"
           title="Добавить анкету"
           description="Введите анкетные данные кандидата"
         >

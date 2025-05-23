@@ -1,5 +1,5 @@
 <script setup lang="ts">
-preloadRouteComponents("/persons");
+await preloadRouteComponents("/persons");
 
 await navigateTo("/persons");
 </script>
