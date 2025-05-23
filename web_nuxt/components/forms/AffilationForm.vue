@@ -5,7 +5,7 @@ const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
   item: {
-    type: Object as () => Affilation,
+    type:  Object as PropType<Affilation>,
     default: () => ({}),
   },
 });

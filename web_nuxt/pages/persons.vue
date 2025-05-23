@@ -117,10 +117,6 @@ async function submitResume(form: Persons): Promise<void> {
   createToast(person_id, exists);
 }
 
-function openPerson(personId: string) {
-  return navigateTo(`/profile/${personId}`);
-}
-
 const columns: TableColumn<Persons>[] = [
   { accessorKey: "id", header: "#" },
   { accessorKey: "region", header: "Регион" },
@@ -208,16 +204,18 @@ const items: DropdownMenuItem[] = [
             :loading="status == 'pending'"
             icon="i-heroicons-bars-4"
             variant="ghost"
+            size="lg"
             title="Выбор действия"
           />
         </UDropdownMenu>
         <UModal
           v-model:open="modal"
           :dismissible="false"
-          title="Создание анкеты"
-          description="Введите данные анкеты"
+          close-icon="i-heroicons-x-mark"
+          title="Добавить анкету"
+          description="Введите анкетные данные кандидата"
         >
-          <template #content>
+          <template #body>
             <div class="m-4">
               <FormsResumeForm @cancel="modal = false" @update="submitResume" />
             </div>
@@ -243,7 +241,7 @@ const items: DropdownMenuItem[] = [
       :columns="columns"
       :data="candidates"
       :meta="{ class: { tr: 'cursor-pointer' } }"
-      @select="openPerson($event.original.id)"
+      @select="navigateTo(`/profile/${$event.original.id}`)"
     />
 
     <div class="flex items-center justify-between space-x-4 my-2">
@@ -266,19 +264,19 @@ const items: DropdownMenuItem[] = [
 
     <div v-if="page > 1 || hasNext" class="flex justify-center space-x-2 my-2">
       <UButton
-        icon="i-heroicons-arrow-small-left-20-solid"
+        icon="i-heroicons-arrow-left"
         :disabled="page < 2 || status == 'pending'"
         class="me-2 rounded-full"
         @click="page--"
       />
       <USelect
         v-model="pagination"
-        :items="[10, 20, 30, 50]"
-        :disabled="!hasNext || status == 'pending'"
+        :items="[10, 20, 30]"
+        :disabled="status == 'pending'"
         variant="soft"
       />
       <UButton
-        icon="i-heroicons-arrow-small-right-20-solid"
+        icon="i-heroicons-arrow-right"
         :disabled="!hasNext || status == 'pending'"
         class="ms-2 rounded-full"
         @click="page++"

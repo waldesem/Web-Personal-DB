@@ -113,7 +113,7 @@ async function submitLogin() {
             </UFormField>
             <UFormField label="Пароль" name="password" required>
               <UInput
-                v-model="loginForm['password']"
+                v-model="loginForm.password"
                 type="password"
                 placeholder="password"
                 icon="i-heroicons-lock-closed"
@@ -123,7 +123,7 @@ async function submitLogin() {
             <div v-if="loginAction === 'update'">
               <UFormField label="Новый пароль" name="new_pswd" required>
                 <UInput
-                  v-model="loginForm['new_pswd']"
+                  v-model="loginForm.new_pswd"
                   type="password"
                   placeholder="password"
                   icon="i-heroicons-lock-closed"
@@ -132,7 +132,7 @@ async function submitLogin() {
               </UFormField>
               <UFormField label="Повтор пароля" name="conf_pswd" required>
                 <UInput
-                  v-model="loginForm['conf_pswd']"
+                  v-model="loginForm.conf_pswd"
                   type="password"
                   placeholder="password"
                   icon="i-heroicons-lock-closed"

@@ -5,7 +5,7 @@ const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
   resume: {
-    type: Object as () => Persons,
+    type:  Object as PropType<Persons>,
     default: () => ({}),
   },
 });

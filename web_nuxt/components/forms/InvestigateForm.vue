@@ -5,7 +5,7 @@ const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
   item: {
-    type: Object as () => Inquisition,
+    type:  Object as PropType<Inquisition>,
     default: () => ({}),
   },
 });

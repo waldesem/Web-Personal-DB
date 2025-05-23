@@ -5,7 +5,7 @@ const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
   item: {
-    type: Object as () => Staff,
+    type:  Object as PropType<Staff>,
     default: () => ({}),
   },
 });

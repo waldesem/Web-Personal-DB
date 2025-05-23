@@ -275,10 +275,10 @@ const expanded = ref({ 1: false });
     <UModal
       v-model:open="modal"
       :dismissible="false"
-      title="Добавление пользователя"
+      title="Добавить пользователя"
       description="Введите данные пользователя"
     >
-      <template #content>
+      <template #body>
         <FormsUserForm
           @cancel="modal = false"
           @update="

@@ -6,6 +6,7 @@ import CheckForm from "@/components/forms/CheckForm.vue";
 import InquiryForm from "@/components/forms/InquiryForm.vue";
 import InvestigateForm from "@/components/forms/InvestigateForm.vue";
 import PoligrafForm from "@/components/forms/PoligrafForm.vue";
+import type { Component } from "vue";
 
 const props = defineProps({
   view: {
@@ -175,13 +176,13 @@ onCancel(() => {
       v-model:open="modal"
       :ui="{ content: 'sm:max-w-4xl' }"
       :dismissible="false"
-      title="Проверка кандидата"
-      description="Данные проверки"
+      title="Данные проверки"
+      description="Введите или отредактируйте информацию о проверке"
     >
-      <template #content>
+      <template #body>
         <div class="m-4">
           <component
-            :is="mappedComponents[props.view]"
+            :is="(mappedComponents[props.view] as Component)"
             :item="item"
             @cancel="
               item = {} as object;

@@ -146,13 +146,13 @@ async function deleteItem(id: string, idx: number) {
       v-model:open="modal"
       :ui="{ content: 'sm:max-w-4xl' }"
       :dismissible="false"
-      title="Проверка кандидата"
-      description="Данные профиля"
+      title="Данные профиля"
+      description="Введите или отредактируйте данные профиля"
     >
-      <template #content>
+      <template #body>
         <div class="m-4">
           <component
-            :is="mappedComponents[props.view]"
+            :is="(mappedComponents[props.view] as Component)"
             :item="item"
             @cancel="
               modal = false;

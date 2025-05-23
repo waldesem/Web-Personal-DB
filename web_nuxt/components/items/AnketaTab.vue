@@ -6,6 +6,10 @@ await preloadComponents(["DivsSharedDiv"]);
 await preloadComponents("ItemsSharedDiv");
 
 const props = defineProps({
+  rows: {
+    type: Number,
+    required: true,
+  },
   person: {
     type: Object as PropType<Persons>,
     required: true,
@@ -124,7 +128,7 @@ const items: AccordionItem[] = [
     </div>
   </div>
   <div v-if="status == 'pending'" class="ps-2">
-    <ElementsSkeletonDiv :rows=14 />
+    <ElementsSkeletonDiv :rows=props.rows />
   </div>
   <div v-else class="ps-2">
     <ItemsSharedItem :view="'person'" :item="person" />
@@ -133,10 +137,11 @@ const items: AccordionItem[] = [
     v-if="editable" 
     v-model:open="modal"
     :dismissible="false"
-    title="Анкетные данные"
-    description="Данные профиля"
+    close-icon="i-heroicons-x-mark"
+    title="Редактирование анкеты"
+    description="Отредактируйте анкетные данные"
   >
-    <template #content>
+    <template #body>
       <div class="m-4">
         <FormsResumeForm
           :resume="person"
