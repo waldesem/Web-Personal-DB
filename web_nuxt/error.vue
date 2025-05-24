@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { NuxtError } from 'nuxt/app';
+import type { NuxtError } from "nuxt/app";
 
 const props = defineProps({
   error: {
@@ -18,6 +18,9 @@ const props = defineProps({
       <div class="text-2xl">{{ props.error.message }}</div>
       <div class="text-xl">{{ props.error.stack }}</div>
     </div>
-    <UButton label="Очистить ошибку" @click="clearError({ redirect: '/'})"/>
+    <UButton
+      label="Очистить ошибку"
+      @click="clearError({ redirect: '/persons' })"
+    />
   </div>
 </template>

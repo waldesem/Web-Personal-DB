@@ -210,8 +210,6 @@ const items: DropdownMenuItem[] = [
         </UDropdownMenu>
         <UModal
           v-model:open="modal"
-          :dismissible="false"
-          close-icon="i-heroicons-x-mark"
           title="Добавить анкету"
           description="Введите анкетные данные кандидата"
         >
@@ -262,7 +260,7 @@ const items: DropdownMenuItem[] = [
 
     <div v-if="page > 1 || hasNext" class="flex justify-center space-x-2 my-2">
       <UButton
-        icon="i-heroicons-arrow-left"
+        icon="i-heroicons-arrow-small-left"
         :disabled="page < 2 || status == 'pending'"
         class="me-2 rounded-full"
         @click="page--"
@@ -274,7 +272,7 @@ const items: DropdownMenuItem[] = [
         variant="soft"
       />
       <UButton
-        icon="i-heroicons-arrow-right"
+        icon="i-heroicons-arrow-small-right"
         :disabled="!hasNext || status == 'pending'"
         class="ms-2 rounded-full"
         @click="page++"

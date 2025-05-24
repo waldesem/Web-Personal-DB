@@ -274,8 +274,6 @@ const expanded = ref({ 1: false });
     </div>
     <UModal
       v-model:open="modal"
-      :dismissible="false"
-      close-icon="i-heroicons-x-mark"
       title="Добавить пользователя"
       description="Введите данные пользователя"
     >

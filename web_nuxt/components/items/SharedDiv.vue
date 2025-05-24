@@ -144,8 +144,6 @@ async function deleteItem(id: string, idx: number) {
       v-if="editable"
       v-model:open="modal"
       :ui="{ content: 'sm:max-w-4xl' }"
-      :dismissible="false"
-      close-icon="i-heroicons-x-mark"
       title="Данные профиля"
       description="Введите или отредактируйте данные профиля"
     >

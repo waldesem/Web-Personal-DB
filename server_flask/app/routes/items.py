@@ -1,5 +1,7 @@
 """Items routes."""
 
+from pathlib import Path
+
 from flask import Blueprint, Response, current_app, jsonify
 from flask.views import MethodView
 from sqlalchemy import desc, text
@@ -28,7 +30,19 @@ class PersonView(MethodView):
             the retrieved item(s) and an HTTP status code of 200.
 
         """
-        return jsonify(db_session.get(Persons, person_id).to_dict()), 200
+        person = db_session.get(Persons, person_id)
+        if not person.destination or not Path(person.destination).is_dir():
+            destination = Path(
+                current_app.config["BASE_PATH"],
+                person.region,
+                person.surname[0],
+                f"{person.id}-{person.surname} {person.firstname} "
+                f"{person.patronymic}".rstrip(),
+            )
+            destination.mkdir(parents=True, exist_ok=True)
+            person.destination = str(destination)
+            db_session.commit()
+        return jsonify(person.to_dict()), 200
 
     @validate()
     @roles_required(Roles.user.value)

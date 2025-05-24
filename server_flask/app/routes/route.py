@@ -116,5 +116,5 @@ def post_json(file_data: list[File]) -> Response:
             {"person_id": person_id, "exists": existed},
         ), 201
     except (ValidationError, json.JSONDecodeError, TypeError):
-        current_app.logger.exception()
+        current_app.logger.exception("JSON Error")
         return jsonify({"person_id": None, "exists": False}), 200

@@ -2,11 +2,7 @@
 import type { TabsItem } from "@nuxt/ui";
 import type { Persons } from "@/types";
 
-await preloadComponents([
-  "ItemsAnketaTab",
-  "ItemsSharedTab",
-  "ItemsExplorerTab",
-]);
+await preloadComponents(["ItemsAnketaTab", "ItemsSharedTab"]);
 
 const route = useRoute();
 
@@ -21,7 +17,6 @@ const { status, refresh } = await useLazyAsyncData("persons", async () => {
     "/route/items/persons/" + candId.value
   )) as Persons;
 });
-
 provide("status", status);
 
 const user = useUserState();
@@ -177,11 +172,7 @@ const items: TabsItem[] = [
       :ui="{ trigger: 'flex-1' }"
     >
       <template #anketa>
-        <ItemsAnketaTab
-          :person="person"
-          :rows="12"
-          @refresh="refresh"
-        />
+        <ItemsAnketaTab :person="person" :rows="12" @refresh="refresh" />
       </template>
       <template #checks="{ item }">
         <ItemsSharedTab :view="item.slot" :rows="16" />

@@ -12,11 +12,12 @@ async function logout() {
 
 <template>
   <UContainer>
-    <div class="sticky flex items-center justify-between pt-8 pb-16">
+    <div class="flex items-center justify-between sticky top-0 z-50 bg-white pt-8 pb-16">
       <UTooltip text="На главную страницу">
         <NuxtLink to="/persons">
-          <div class="flex inline-flex items-center text-xl font-bold spase-x-4">
+          <div class="flex inline-flex items-center text-xl font-bold">
             <h3 class="text-blue-600">STAFFSEC</h3>
+            <USeparator orientation="vertical" size="lg" />
             <h3 class="text-red-600">ФИНТЕХ</h3>
           </div> 
         </NuxtLink>
@@ -39,7 +40,7 @@ async function logout() {
         />
       </UTooltip>
     </div>
-    <div>
+    <div class="flex flex-col gap-4 px-1">
       <slot />
     </div>
   </UContainer>

@@ -36,7 +36,7 @@ try:
         sessionmaker(bind=engine, autoflush=False, autocommit=False),
     )
 except exc.OperationalError:
-    current_app.logger.exception()
+    current_app.logger.exception("Database connection error")
 
 
 class Base(DeclarativeBase):

@@ -137,15 +137,11 @@ const items: AccordionItem[] = [
     <UModal
       v-if="editable"
       v-model:open="modal"
-      :dismissible="false"
-      close-icon="i-heroicons-x-mark"
       title="Редактирование анкеты"
       description="Отредактируйте анкетные данные"
     >
       <template #body>
-        <div class="m-4">
-          <FormsResumeForm :resume="person" @update="submitResume" />
-        </div>
+        <FormsResumeForm :resume="person" @update="submitResume" />
       </template>
     </UModal>
     <USeparator />

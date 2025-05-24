@@ -174,8 +174,6 @@ onCancel(() => {
       v-if="editable"
       v-model:open="modal"
       :ui="{ content: 'sm:max-w-4xl' }"
-      :dismissible="false"
-      close-icon="i-heroicons-x-mark"
       title="Данные проверки"
       description="Введите или отредактируйте информацию о проверке"
     >
