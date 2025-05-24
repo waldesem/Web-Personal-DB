@@ -14,7 +14,7 @@
     "@nuxt/icon": "^1.13.0",
     "@nuxt/ui": "^3.1.2",
     "jwt-decode": "^4.0.0",
-    "nuxt": "^3.17.3",
+    "nuxt": "^3.17.4",
     "vue": "^3.5.14"
   },
   "devDependencies": {
