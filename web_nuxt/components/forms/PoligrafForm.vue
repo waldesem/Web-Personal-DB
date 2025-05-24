@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Pfo } from "@/types";
 
-const emit = defineEmits(["cancel", "update"]);
+const emit = defineEmits(["update"]);
 
 const props = defineProps({
   item: {
@@ -48,6 +48,11 @@ const poligrafForm = toRef(props.item as Pfo);
         placeholder="Выберите результат"
       />
     </UFormField>
-    <ElementsBtnGroup @cancel="emit('cancel')" />
+    <UButton
+        label="Принять"
+        color="success"
+        variant="outline"
+        type="submit"
+      />
   </UForm>
 </template>

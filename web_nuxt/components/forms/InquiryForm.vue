@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Needs } from "@/types";
 
-const emit = defineEmits(["cancel", "update"]);
+const emit = defineEmits(["update"]);
 
 const props = defineProps({
   item: {
@@ -31,6 +31,11 @@ const inquiryForm = toRef(props.item);
         maxlength="255"
       />
     </UFormField>
-    <ElementsBtnGroup @cancel="emit('cancel')" />
+    <UButton
+        label="Принять"
+        color="success"
+        variant="outline"
+        type="submit"
+      />
   </UForm>
 </template>

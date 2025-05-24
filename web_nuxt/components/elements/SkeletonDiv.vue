@@ -14,10 +14,10 @@ const props = defineProps({
     class="flex grid grid-cols-12 gap-3 mb-3"
   >
     <div class="col-span-3">
-      <USkeleton class="h-4" />
+      <USkeleton class="h-6" />
     </div>
     <div class="col-span-9">
-      <USkeleton class="h-4 w-[300px]" />
+      <USkeleton class="h-6 w-[300px]" />
     </div>
   </div>
 </template>

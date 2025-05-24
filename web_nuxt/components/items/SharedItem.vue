@@ -26,6 +26,7 @@ const items = {
     "Семейное положение": props.item.marital,
     "Дата записи": new Date(props.item.created).toLocaleString("ru-RU"),
     "Дополнительная информация": props.item.addition,
+    "Материалы проверок": props.item.destination,
   },
   addresses: {
     Тип: props.item.view,
@@ -141,21 +142,15 @@ const items = {
 
 <template>
   <div
-    v-for="(value, key, index) in items[props.view as keyof typeof items]"
+    v-for="(value, key) in items[props.view as keyof typeof items]"
     :key="key"
   >
-    <div v-if="value" class="flex grid grid-cols-12 gap-3">
-      <div class="mt-1 mb-2">
-        <div class="col-span-3">{{ key }}</div>
-        <div v-if="typeof value == 'object'" class="col-span-9">
-          <component :is="value" />
-        </div>
-        <div v-else class="col-span-9 break-words">{{ value }}</div>
+    <div v-if="value" class="flex grid grid-cols-12 gap-3 mb-4">
+      <div class="col-span-3">{{ key }}</div>
+      <div v-if="typeof value == 'object'" class="col-span-9">
+        <component :is="value" />
       </div>
-      <USeparator
-        v-if="index != Object.keys(items[props.view as keyof typeof items]).length - 1"
-        type="dotted"
-      />
+      <div v-else class="col-span-9 break-words">{{ value }}</div>
     </div>
   </div>
 </template>

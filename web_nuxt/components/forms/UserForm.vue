@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { UserForm } from "@/types";
 
-const emit = defineEmits(["cancel", "update"]);
+const emit = defineEmits(["update"]);
 
 const form = ref({} as UserForm);
 
@@ -63,11 +63,11 @@ async function submitUser() {
       <UFormField label="Email" name="email" required>
         <UInput v-model="form.email" placeholder="Email" />
       </UFormField>
-      <ElementsBtnGroup
-        @cancel="
-          emit('cancel');
-          form = {} as UserForm;
-        "
+      <UButton
+        label="Принять"
+        color="success"
+        variant="outline"
+        type="submit"
       />
     </UForm>
   </div>

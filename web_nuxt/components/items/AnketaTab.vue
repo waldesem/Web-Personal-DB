@@ -95,66 +95,64 @@ const items: AccordionItem[] = [
 </script>
 
 <template>
-  <div v-if="editable" class="relative">
-    <div class="absolute top-2 right-2">
-      <UDropdownMenu
-        :items="[
-          {
-            label: 'Изменить',
-            icon: 'i-heroicons-pencil-square',
-            onSelect() {
-              modal = true;
+  <div class="mt-6">
+    <div v-if="editable" class="relative">
+      <div class="absolute top-2 right-2">
+        <UDropdownMenu
+          :items="[
+            {
+              label: 'Изменить',
+              icon: 'i-heroicons-pencil-square',
+              onSelect() {
+                modal = true;
+              },
             },
-          },
-          {
-            label: 'Удалить',
-            icon: 'i-heroicons-trash',
-            onSelect() {
-              deleteItem();
+            {
+              label: 'Удалить',
+              icon: 'i-heroicons-trash',
+              onSelect() {
+                deleteItem();
+              },
             },
-          },
-        ]"
-        :content="{ align: 'end' }"
-      >
-        <UButton
-          :loading="status == 'pending'"
-          size="xl"
-          color="neutral"
-          icon="i-heroicons-ellipsis-vertical"
-          variant="ghost"
-          title="Выбор действия"
-        />
-      </UDropdownMenu>
-    </div>
-  </div>
-  <div v-if="status == 'pending'" class="ps-2">
-    <ElementsSkeletonDiv :rows=props.rows />
-  </div>
-  <div v-else class="ps-2">
-    <ItemsSharedItem :view="'person'" :item="person" />
-  </div>
-  <UModal 
-    v-if="editable" 
-    v-model:open="modal"
-    :dismissible="false"
-    close-icon="i-heroicons-x-mark"
-    title="Редактирование анкеты"
-    description="Отредактируйте анкетные данные"
-  >
-    <template #body>
-      <div class="m-4">
-        <FormsResumeForm
-          :resume="person"
-          @update="submitResume"
-          @cancel="modal = false"
-        />
+          ]"
+          :content="{ align: 'end' }"
+        >
+          <UButton
+            :loading="status == 'pending'"
+            size="xl"
+            color="neutral"
+            icon="i-heroicons-ellipsis-vertical"
+            variant="ghost"
+            title="Выбор действия"
+          />
+        </UDropdownMenu>
       </div>
-    </template>
-  </UModal>
-  <USeparator />
-  <UAccordion :items="items" :unmount-on-hide="false">
-    <template #content="{ item }">
-      <ItemsSharedDiv :view="(item.content as string)" />
-    </template>
-  </UAccordion>
+    </div>
+    <div v-if="status == 'pending'" class="ps-2">
+      <ElementsSkeletonDiv :rows="props.rows" />
+    </div>
+    <div v-else class="ps-2">
+      <ItemsSharedItem :view="'person'" :item="person" />
+    </div>
+    <UModal
+      v-if="editable"
+      v-model:open="modal"
+      :dismissible="false"
+      close-icon="i-heroicons-x-mark"
+      title="Редактирование анкеты"
+      description="Отредактируйте анкетные данные"
+    >
+      <template #body>
+        <div class="m-4">
+          <FormsResumeForm :resume="person" @update="submitResume" />
+        </div>
+      </template>
+    </UModal>
+    <USeparator />
+    <UAccordion :items="items" :unmount-on-hide="false">
+      <template #content="{ item }">
+        <ItemsSharedDiv :view="(item.content as string)" />
+      </template>
+    </UAccordion>
+  </div>
 </template>

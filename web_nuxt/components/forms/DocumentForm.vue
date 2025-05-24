@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Passport } from "@/types";
 
-const emit = defineEmits(["cancel", "update"]);
+const emit = defineEmits(["update"]);
 
 const props = defineProps({
   item: {
@@ -67,6 +67,11 @@ const validate = (state: Partial<Passport>) => {
     <UFormField label="Дата выдачи" name="issue" required>
       <UInput v-model.trim.lazy="docForm.issue" required type="date" />
     </UFormField>
-    <ElementsBtnGroup @cancel="emit('cancel')" />
+    <UButton
+        label="Принять"
+        color="success"
+        variant="outline"
+        type="submit"
+      />
   </UForm>
 </template>

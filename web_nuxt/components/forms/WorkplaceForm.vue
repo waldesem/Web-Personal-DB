@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Work } from "@/types";
 
-const emit = defineEmits(["cancel", "update"]);
+const emit = defineEmits(["update"]);
 
 const props = defineProps({
   item: {
@@ -90,6 +90,11 @@ const validate = (state: Partial<Work>) => {
         placeholder="Причина увольнения"
       />
     </UFormField>
-    <ElementsBtnGroup @cancel="emit('cancel')" />
+    <UButton
+        label="Принять"
+        color="success"
+        variant="outline"
+        type="submit"
+      />
   </UForm>
 </template>

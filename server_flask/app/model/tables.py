@@ -317,7 +317,7 @@ class Investigations(Base):
     created: Mapped[datetime] = mapped_column(
         DateTime,
         default=func.now(),
-        nullable=True,
+        onupdate=func.now(),
     )
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
@@ -335,7 +335,7 @@ class Inquiries(Base):
     created: Mapped[datetime] = mapped_column(
         DateTime,
         default=func.now(),
-        nullable=True,
+        onupdate=func.now(),
     )
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))

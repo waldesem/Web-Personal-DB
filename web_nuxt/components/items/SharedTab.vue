@@ -85,7 +85,7 @@ onChange(async (files) => {
     formData.append("file", file);
   }
   const { message } = (await fetchAuth(
-    `/route/explorer/files/${props.view}/${candId.value}`,
+    `/route/anketa/files/${props.view}/${candId.value}`,
     {
       method: "POST",
       body: formData,
@@ -120,10 +120,9 @@ onCancel(() => {
       :key="content['id' as keyof typeof content]"
       class="py-4 ms-2"
     >
-      <div class="relative">
+      <div v-if="editable" class="relative">
         <div class="absolute top-2 right-2">
           <UDropdownMenu
-            :disabled="editable"
             :items="[
               {
                 label: 'Изменить',
@@ -176,21 +175,16 @@ onCancel(() => {
       v-model:open="modal"
       :ui="{ content: 'sm:max-w-4xl' }"
       :dismissible="false"
+      close-icon="i-heroicons-x-mark"
       title="Данные проверки"
       description="Введите или отредактируйте информацию о проверке"
     >
       <template #body>
-        <div class="m-4">
-          <component
-            :is="(mappedComponents[props.view] as Component)"
-            :item="item"
-            @cancel="
-              item = {} as object;
-              modal = false;
-            "
-            @update="submitItem"
-          />
-        </div>
+        <component
+          :is="(mappedComponents[props.view] as Component)"
+          :item="item"
+          @update="submitItem"
+        />
       </template>
     </UModal>
   </div>

@@ -211,18 +211,12 @@ const items: DropdownMenuItem[] = [
         <UModal
           v-model:open="modal"
           :dismissible="false"
-          :close="{
-            onClick: () => {
-              modal = false;
-            },
-          }"
+          close-icon="i-heroicons-x-mark"
           title="Добавить анкету"
           description="Введите анкетные данные кандидата"
         >
           <template #body>
-            <div class="m-4">
-              <FormsResumeForm @cancel="modal = false" @update="submitResume" />
-            </div>
+            <FormsResumeForm @update="submitResume" />
           </template>
         </UModal>
       </div>

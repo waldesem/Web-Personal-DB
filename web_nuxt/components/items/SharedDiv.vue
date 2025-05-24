@@ -83,10 +83,9 @@ async function deleteItem(id: string, idx: number) {
 
 <template>
   <div v-for="(itm, idx) in items" :key="idx" class="py-2 ms-2">
-    <div class="relative">
+    <div v-if="editable" class="relative">
       <div class="absolute top-2 right-2">
         <UDropdownMenu
-          :disabled="editable"
           :items="[
             {
               label: 'Изменить',
@@ -119,7 +118,7 @@ async function deleteItem(id: string, idx: number) {
       </div>
     </div>
     <div v-if="status === 'pending'">
-      <ElementsSkeletonDiv :rows=3 />
+      <ElementsSkeletonDiv :rows="3" />
     </div>
     <div v-else>
       <ItemsSharedItem :view="props.view" :item="itm" />
@@ -127,7 +126,7 @@ async function deleteItem(id: string, idx: number) {
     <USeparator v-if="idx != items.length - 1" icon="i-heroicons-bolt" />
   </div>
   <div v-if="!items.length && status === 'pending'">
-    <ElementsSkeletonDiv :rows=3 />
+    <ElementsSkeletonDiv :rows="3" />
   </div>
   <div class="py-2 border-t border-gray-200">
     <UButton
@@ -142,25 +141,20 @@ async function deleteItem(id: string, idx: number) {
       "
     />
     <UModal
-      v-if="editable" 
+      v-if="editable"
       v-model:open="modal"
       :ui="{ content: 'sm:max-w-4xl' }"
       :dismissible="false"
+      close-icon="i-heroicons-x-mark"
       title="Данные профиля"
       description="Введите или отредактируйте данные профиля"
     >
       <template #body>
-        <div class="m-4">
-          <component
-            :is="(mappedComponents[props.view] as Component)"
-            :item="item"
-            @cancel="
-              modal = false;
-              item = {} as object;
-            "
-            @update="submitItem"
-          />
-        </div>
+        <component
+          :is="(mappedComponents[props.view] as Component)"
+          :item="item"
+          @update="submitItem"
+        />
       </template>
     </UModal>
   </div>

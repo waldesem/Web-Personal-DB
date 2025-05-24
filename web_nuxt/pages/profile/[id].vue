@@ -91,36 +91,26 @@ const items: TabsItem[] = [
     slot: "anketa",
     label: "Анкета",
     icon: "i-heroicons-user",
-    value: 12,
   },
   {
     slot: "checks",
     label: "Проверки",
     icon: "i-heroicons-check-circle",
-    value: 16,
   },
   {
     slot: "poligrafs",
     label: "Полиграф",
     icon: "i-heroicons-bolt",
-    value: 4,
   },
   {
     slot: "investigations",
     label: "Расследования",
     icon: "i-heroicons-briefcase",
-    value: 3,
   },
   {
     slot: "inquiries",
     label: "Запросы",
     icon: "i-heroicons-document-text",
-    value: 3,
-  },
-  {
-    slot: "explorer",
-    label: "Файлы",
-    icon: "i-heroicons-folder",
   },
 ] satisfies TabsItem[];
 </script>
@@ -189,24 +179,21 @@ const items: TabsItem[] = [
       <template #anketa>
         <ItemsAnketaTab
           :person="person"
-          :rows="item.value"
+          :rows="12"
           @refresh="refresh"
         />
       </template>
       <template #checks="{ item }">
-        <ItemsSharedTab :view="item.slot" :rows="item.value" />
+        <ItemsSharedTab :view="item.slot" :rows="16" />
       </template>
       <template #poligrafs="{ item }">
-        <ItemsSharedTab :view="item.slot" :rows="item.value" />
+        <ItemsSharedTab :view="item.slot" :rows="4" />
       </template>
       <template #investigations="{ item }">
-        <ItemsSharedTab :view="item.slot" :rows="item.value" />
+        <ItemsSharedTab :view="item.slot" :rows="3" />
       </template>
       <template #inquiries="{ item }">
-        <ItemsSharedTab :view="item.slot" :rows="item.value" />
-      </template>
-      <template #explorer>
-        <ItemsExplorerTab />
+        <ItemsSharedTab :view="item.slot" :rows="3" />
       </template>
     </UTabs>
   </div>
