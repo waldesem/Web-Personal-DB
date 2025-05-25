@@ -89,15 +89,19 @@ def post_files(item: str, person_id: int, file_data: list[File]) -> Response:
 
     """
     person = db_session.get(Persons, person_id)
-    subfolder = Path(
-        person.destination,
-        item,
-        datetime.now().strftime("%Y-%m-%d"),
-    )
-    subfolder.mkdir(parents=True, exist_ok=True)
-    for data in file_data:
-        file_path = Path(subfolder, data.filename)
-        if not file_path.is_file():
-            data.file.save(file_path)
+    try:
+        subfolder = Path(
+            person.destination,
+            item,
+            datetime.now().strftime("%Y-%m-%d"),
+        )
+        subfolder.mkdir(parents=True, exist_ok=True)
+        for data in file_data:
+            file_path = Path(subfolder, data.filename)
+            if not file_path.is_file():
+                data.file.save(file_path)
 
-    return jsonify({"message": "success"}), 201
+        return jsonify({"message": "success"}), 201
+    except Exception:
+        current_app.logger.exception("Exception in post_files")
+        return jsonify({"message": "error"}), 200
