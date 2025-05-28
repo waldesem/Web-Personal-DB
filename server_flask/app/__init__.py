@@ -2,19 +2,11 @@
 
 from __future__ import annotations
 
-import logging
-
 from flask import Flask, Response
 from werkzeug.exceptions import HTTPException
 
-from config import Config
-
-from .model.tables import db_session
-
-handler = logging.FileHandler("error.log", mode="w", encoding="utf-8")
-handler.setLevel(logging.ERROR)
-formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-handler.setFormatter(formatter)
+from app.model.tables import db_session
+from config import Config, handler
 
 
 def create_app(config_class: Config = Config) -> Flask:
@@ -31,12 +23,10 @@ def create_app(config_class: Config = Config) -> Flask:
     app.config.from_object(config_class)
     app.logger.addHandler(handler)
 
-    from .routes import bp as route_bp
-
-    app.register_blueprint(route_bp)
-
+    from app.routes import bp as route_bp
     from command import bp as command_bp
 
+    app.register_blueprint(route_bp)
     app.register_blueprint(command_bp)
 
     @app.teardown_appcontext

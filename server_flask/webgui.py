@@ -17,7 +17,7 @@ from wsgi import wsgi_server
 
 def start_browser(address: str, port: int) -> None:
     """Start the browser."""
-    profile_dir = tempfile.mkdtemp(prefix=f"webgui{uuid.uuid4().hex}")
+    profile_dir = tempfile.mkdtemp(prefix=f"webgui{uuid.uuid1().hex}")
     paths = [
         r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
         r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
@@ -25,7 +25,7 @@ def start_browser(address: str, port: int) -> None:
         r"C:\Program Files\Google\Chrome\Application\chrome.exe",
     ]
 
-    if browser_path := list(filter(lambda path: Path(path).exists(), paths)):
+    if browser_path := list(filter(lambda path: Path(path).is_file(), paths)):
         subprocess.Popen(  # noqa: S603
             [
                 browser_path[0](),
@@ -50,7 +50,7 @@ def start_browser(address: str, port: int) -> None:
 
 def run_desktop(app: Flask, address: str, port: int, workers: int) -> None:
     """Run the application in a desktop environment."""
-    with ThreadPoolExecutor(max_workers=2) as executor:
+    with ThreadPoolExecutor(max_workers=workers) as executor:
         server_future = executor.submit(wsgi_server, app, address, port, workers)
         browser_future = executor.submit(start_browser, address, port)
         try:

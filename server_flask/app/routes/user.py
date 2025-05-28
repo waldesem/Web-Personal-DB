@@ -5,7 +5,7 @@ from typing import ClassVar
 
 from flask import Blueprint, Response, current_app, jsonify, request
 from flask.views import MethodView
-from sqlalchemy import desc, func, select
+from sqlalchemy import desc, select
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import generate_password_hash
 
@@ -32,13 +32,9 @@ def get_users() -> Response:
     stmt = select(Users)
     if search := request.args.get("search"):
         if re.match(r"^[A-z_]{3,}", search):
-            stmt = stmt.filter(
-                Users.username == search.lower(),
-            )
+            stmt = stmt.filter(Users.username == search.lower())
         else:
-            stmt = stmt.filter(
-                func.lower(Users.fullname) == search.lower(),
-            )
+            stmt = stmt.filter(Users.fullname == search.upper())
     users = db_session.execute(stmt.order_by(desc(Users.id))).scalars()
     return jsonify([user.to_dict() for user in users]), 200
 
@@ -80,7 +76,7 @@ class UserView(MethodView):
         elif query_data.item in [reg.value for reg in Regions]:
             user.region = query_data.item
         else:
-            return jsonify(user.to_dict()), 200
+            return jsonify({"message": "error"}), 200
         db_session.commit()
         get_current_user.cache_clear()
         return jsonify({"message": "success"}), 201

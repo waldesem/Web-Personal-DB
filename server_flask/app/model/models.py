@@ -27,6 +27,7 @@ class Login(BaseModel):
         """Check username."""
         return v.strip().lower()
 
+
 class Search(BaseModel):
     """Pydantic model for person search form."""
 
@@ -44,7 +45,6 @@ class Model(BaseModel):
         use_enum_values = True
 
 
-
 class User(Model):
     """Pydantic model for user form."""
 
@@ -60,6 +60,12 @@ class User(Model):
     def username_check(cls, v: str) -> str:
         """Check username."""
         return v.strip().lower()
+
+    @validator("fullname")
+    @classmethod
+    def fullname_check(cls, v: str) -> str:
+        """Check fullname."""
+        return v.strip().upper()
 
 
 class UserActions(Model):

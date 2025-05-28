@@ -53,7 +53,10 @@ def post_login(action: str, json_data: Login) -> Response:
             return jsonify({"message": "Updated"})
 
         delta_change = datetime.now() - user.pswd_create
-        if not user.change_pswd and delta_change.days < 365:  # noqa: PLR2004
+        if (
+            not user.change_pswd
+            and delta_change.days < current_app.config["JWT_SECRET_KEY_LIVE"]
+        ):
             user.attempt = 0
             db_session.commit()
             return jsonify(

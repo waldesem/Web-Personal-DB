@@ -32,7 +32,7 @@ class PersonView(MethodView):
 
         """
         person = db_session.get(Persons, person_id)
-        if not person.destination or not Path(person.destination).exists():
+        if not person.destination or not Path(person.destination).is_dir():
             person.destination = create_destination(person)
             db_session.commit()
         return jsonify(person.to_dict()), 200

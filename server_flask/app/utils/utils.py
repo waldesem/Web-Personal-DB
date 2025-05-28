@@ -73,7 +73,7 @@ def upload_resume(resume: dict) -> tuple[int, bool]:
         for k, v in resume.items():
             if v:
                 setattr(person, k, v)
-        if not person.destination or not Path(person.destination).exists():
+        if not person.destination or not Path(person.destination).is_dir():
             person.destination = create_destination(person)
         db_session.commit()
     except SQLAlchemyError:
