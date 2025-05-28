@@ -1,5 +1,7 @@
 """Utils module."""
 
+from pathlib import Path
+
 from flask import current_app
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
@@ -18,6 +20,18 @@ from app.model.tables import (
     Workplaces,
     db_session,
 )
+
+
+def create_destination(person: Persons) -> str:
+    """Create destination."""
+    destination = Path(
+        current_app.config["BASE_PATH"],
+        person.region,
+        person.surname[0],
+        f"{person.id}-{person.surname} {person.firstname} {person.patronymic}".rstrip(),
+    )
+    destination.mkdir(parents=True, exist_ok=True)
+    return str(destination)
 
 
 def upload_resume(resume: dict) -> tuple[int, bool]:
@@ -48,6 +62,8 @@ def upload_resume(resume: dict) -> tuple[int, bool]:
         if not person:
             person = Persons(**resume)
             db_session.add(person)
+            db_session.flush()
+            person.destination = create_destination(person)
             db_session.commit()
             return person.id, False
 
@@ -57,6 +73,8 @@ def upload_resume(resume: dict) -> tuple[int, bool]:
         for k, v in resume.items():
             if v:
                 setattr(person, k, v)
+        if not person.destination or not Path(person.destination).exists():
+            person.destination = create_destination(person)
         db_session.commit()
     except SQLAlchemyError:
         current_app.logger.exception("Database error")

@@ -33,7 +33,7 @@ def get_users() -> Response:
     if search := request.args.get("search"):
         if re.match(r"^[A-z_]{3,}", search):
             stmt = stmt.filter(
-                func.lower(Users.username) == search.lower(),
+                Users.username == search.lower(),
             )
         else:
             stmt = stmt.filter(
@@ -85,7 +85,6 @@ class UserView(MethodView):
         get_current_user.cache_clear()
         return jsonify({"message": "success"}), 201
 
-
     @validate()
     def post(self, json_data: User) -> Response:
         """Handle the POST request to create a user in the database.
@@ -99,9 +98,7 @@ class UserView(MethodView):
 
         """
         user = db_session.execute(
-            select(Users).filter(
-                func.lower(Users.username) == json_data.username.lower(),
-            ),
+            select(Users).filter(Users.username == json_data.username),
         ).all()
         if user:
             return jsonify({"message": "error"}), 200

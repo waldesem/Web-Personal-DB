@@ -5,7 +5,8 @@ from pathlib import Path
 import click
 from flask import Blueprint, cli, current_app
 from pydantic import ValidationError
-from sqlalchemy import exc, func, select
+from sqlalchemy import select
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.model.classes import Regions, Roles
 from app.model.models import User
@@ -60,17 +61,16 @@ def create_user(
             email=email,
             role=role,
             region=region,
-        ).dict()
+        )
         if not db_session.execute(
-            select(Users).where(func.lower(Users.username) == user["username"]),
+            select(Users).where(Users.username == user.username),
         ).all():
-            db_session.add(Users(**user))
+            db_session.add(Users(**user.dict()))
             db_session.commit()
-            click.echo(f"User {username} created")
-
+            click.echo(f"User {user.username} created")
         else:
-            click.echo(f"User {username} already exists")
-    except (ValidationError, exc.SQLAlchemyError) as error:
+            click.echo(f"User {user.username} already exists")
+    except (ValidationError, SQLAlchemyError) as error:
         click.echo(error)
 
 
@@ -85,9 +85,9 @@ def create_folders() -> None:
     if Path(current_app.config["BASE_PATH"]).is_dir():
         for region in Regions:
             region_path = Path(current_app.config["BASE_PATH"], region.value)
-            region_path.mkdir(exist_ok=True)
+            region_path.mkdir(exist_ok=True, parents=True)
             for letter in "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЫЭЮЯ":
-                Path(region_path, letter).mkdir(exist_ok=True)
+                Path(region_path, letter).mkdir(exist_ok=True, parents=True)
         click.echo("Folders created")
     else:
         click.echo("BASE_PATH is not a directory")

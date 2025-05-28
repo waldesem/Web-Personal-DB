@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 import jwt
 from flask import Blueprint, Response, current_app, jsonify
-from sqlalchemy import func, select
+from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -13,9 +13,6 @@ from app.model.models import Login
 from app.model.tables import Users, db_session
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
-
-DELTA_CHANGE_DAYS = 365
-ATTEMPT_LIMIT = 5
 
 
 @bp.post("/<action>")
@@ -33,14 +30,14 @@ def post_login(action: str, json_data: Login) -> Response:
     """
     try:
         user = db_session.execute(
-            select(Users).filter(func.lower(Users.username) == json_data.username),
+            select(Users).filter(Users.username == json_data.username),
         ).scalar_one_or_none()
 
         if not user or user.blocked or user.deleted:
             return jsonify({"message": "Invalid"})
 
         if not check_password_hash(user.passhash, json_data.password):
-            if user.attempt < ATTEMPT_LIMIT:
+            if user.attempt < 5:  # noqa: PLR2004
                 user.attempt += 1
             else:
                 user.blocked = True
@@ -56,7 +53,7 @@ def post_login(action: str, json_data: Login) -> Response:
             return jsonify({"message": "Updated"})
 
         delta_change = datetime.now() - user.pswd_create
-        if not user.change_pswd and delta_change.days < DELTA_CHANGE_DAYS:
+        if not user.change_pswd and delta_change.days < 365:  # noqa: PLR2004
             user.attempt = 0
             db_session.commit()
             return jsonify(

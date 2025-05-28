@@ -53,7 +53,7 @@ class User(Model):
     username: str
     email: str | None = ""
     region: str = Regions.main.name
-    role: str = Roles.user.value
+    role: str = Roles.guest.value
 
     @validator("username")
     @classmethod

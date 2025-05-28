@@ -1,6 +1,6 @@
 """WebGUI module."""
+from __future__ import annotations
 
-import platform
 import shutil
 import signal
 import subprocess
@@ -10,45 +10,25 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import psutil
-from flask import Flask
+from flask import Flask  # noqa: TC002
 
 from wsgi import wsgi_server
 
 
-def find_browser_on_linux() -> str:
-    """Find the path to the browser on Linux."""
-    paths = ["/snap/bin/chromium", "/snap/bin/firefox"]
-    for path in paths:
-        if Path(path).exists():
-            return path
-    return None
-
-
-def find_browser_on_windows() -> str:
-    """Find the path to the browser on Windows."""
+def start_browser(address: str, port: int) -> None:
+    """Start the browser."""
+    profile_dir = tempfile.mkdtemp(prefix=f"webgui{uuid.uuid4().hex}")
     paths = [
         r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
         r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
         r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
         r"C:\Program Files\Google\Chrome\Application\chrome.exe",
     ]
-    for path in paths:
-        if Path(path).exists():
-            return path
-    return None
 
-
-def start_browser(address: str, port: int) -> None:
-    """Start the browser."""
-    profile_dir = tempfile.mkdtemp(prefix=f"webgui{uuid.uuid4().hex}")
-    browser_path_dispacher = {
-        "windows": find_browser_on_windows,
-        "linux": find_browser_on_linux,
-    }
-    if browser_path := browser_path_dispacher.get(platform.system().lower()):
+    if browser_path := list(filter(lambda path: Path(path).exists(), paths)):
         subprocess.Popen(  # noqa: S603
             [
-                browser_path(),
+                browser_path[0](),
                 f"--app=http://{address}:{port}",
                 f"--user-data-dir={profile_dir}",
                 "--new-window",

@@ -11,6 +11,7 @@ from app.depends.depend import current_user, jwt_required, roles_required, valid
 from app.model.classes import Roles
 from app.model.models import Model, Person
 from app.model.tables import Base, Persons, db_session
+from app.utils.utils import create_destination
 
 bp = Blueprint("items", __name__, url_prefix="/items")
 
@@ -31,16 +32,8 @@ class PersonView(MethodView):
 
         """
         person = db_session.get(Persons, person_id)
-        if not person.destination or not Path(person.destination).is_dir():
-            destination = Path(
-                current_app.config["BASE_PATH"],
-                person.region,
-                person.surname[0],
-                f"{person.id}-{person.surname} {person.firstname} "
-                f"{person.patronymic}".rstrip(),
-            )
-            destination.mkdir(parents=True, exist_ok=True)
-            person.destination = str(destination)
+        if not person.destination or not Path(person.destination).exists():
+            person.destination = create_destination(person)
             db_session.commit()
         return jsonify(person.to_dict()), 200
 

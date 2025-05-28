@@ -98,7 +98,7 @@ def post_files(item: str, person_id: int, file_data: list[File]) -> Response:
         subfolder.mkdir(parents=True, exist_ok=True)
         for data in file_data:
             file_path = Path(subfolder, data.filename)
-            if not file_path.is_file():
+            if not file_path.exists():
                 data.file.save(file_path)
 
         return jsonify({"message": "success"}), 201
