@@ -25,7 +25,7 @@ def start_browser(address: str, port: int) -> None:
         r"C:\Program Files\Google\Chrome\Application\chrome.exe",
     ]
 
-    if browser_paths := list(filter(lambda path: Path(path).is_file(), paths)):
+    if browser_paths := [path for path in paths if Path(path).is_file()]:
         subprocess.Popen(  # noqa: S603
             [
                 browser_paths[0](),
