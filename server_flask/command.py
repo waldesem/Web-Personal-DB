@@ -84,10 +84,8 @@ def create_folders() -> None:
     """
     if Path(current_app.config["BASE_PATH"]).is_dir():
         for region in Regions:
-            region_path = Path(current_app.config["BASE_PATH"], region.value)
-            region_path.mkdir(exist_ok=True, parents=True)
             for letter in "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЫЭЮЯ":
-                Path(region_path, letter).mkdir(exist_ok=True, parents=True)
+                Path(current_app.config["BASE_PATH"], region.value, letter).mkdir(exist_ok=True, parents=True)
         click.echo("Folders created")
     else:
         click.echo("BASE_PATH is not a directory")
