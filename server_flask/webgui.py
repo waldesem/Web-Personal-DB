@@ -25,10 +25,10 @@ def start_browser(address: str, port: int) -> None:
         r"C:\Program Files\Google\Chrome\Application\chrome.exe",
     ]
 
-    if browser_path := list(filter(lambda path: Path(path).is_file(), paths)):
+    if browser_paths := list(filter(lambda path: Path(path).is_file(), paths)):
         subprocess.Popen(  # noqa: S603
             [
-                browser_path[0](),
+                browser_paths[0](),
                 f"--app=http://{address}:{port}",
                 f"--user-data-dir={profile_dir}",
                 "--new-window",

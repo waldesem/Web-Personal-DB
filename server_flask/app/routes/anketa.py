@@ -5,11 +5,13 @@ from datetime import datetime
 from pathlib import Path
 
 from flask import Blueprint, Response, current_app, jsonify
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.depends.depend import current_user, roles_required, validate
 from app.model.classes import Roles
 from app.model.models import File, Region
 from app.model.tables import Persons, db_session
+from app.utils.utils import create_destination
 
 bp = Blueprint("anketa", __name__, url_prefix="/anketa")
 
@@ -28,22 +30,17 @@ def change_region(person_id: int, query_data: Region) -> Response:
         The HTTP status code is 200.
 
     """
-    person = db_session.get(Persons, person_id)
-    destination = Path(
-        current_app.config["BASE_PATH"],
-        query_data.region,
-        person.surname[0],
-        f"{person_id}-{person.surname} {person.firstname} "
-        f"{person.patronymic}".rstrip(),
-    )
     try:
-        shutil.copytree(person.destination, destination, dirs_exist_ok=True)
-        person.destination = str(destination)
+        person = db_session.get(Persons, person_id)
         person.region = query_data.region
+        destination = create_destination(person)
+        if person.destination:
+            Path(person.destination).rename(destination)
+        person.destination = destination
         person.editable = False
         db_session.commit()
         return jsonify({"message": "success"}), 201
-    except shutil.Error:
+    except (shutil.Error, SQLAlchemyError):
         current_app.logger.exception("Exception in change_region")
     return jsonify({"message": "error"}), 200
 
@@ -89,6 +86,9 @@ def post_files(item: str, person_id: int, file_data: list[File]) -> Response:
 
     """
     person = db_session.get(Persons, person_id)
+    if not person.destination:
+        person.destination = create_destination(person)
+        db_session.commit()
     try:
         subfolder = Path(
             person.destination,
@@ -96,6 +96,7 @@ def post_files(item: str, person_id: int, file_data: list[File]) -> Response:
             datetime.now().strftime("%Y-%m-%d"),
         )
         subfolder.mkdir(parents=True, exist_ok=True)
+
         for data in file_data:
             file_path = Path(subfolder, data.filename)
             if not file_path.is_file():

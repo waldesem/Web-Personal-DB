@@ -385,7 +385,7 @@ class File(BaseModel):
     @classmethod
     def check_filename(cls, v: str) -> str:
         """Check filename for valid chars."""
-        filename_ascii_strip_re = re.compile(r"[^A-Za-zА-ЯЁа-яё0-9_.-]")  # noqa: RUF001
+        filename_ascii_strip_re = re.compile(r"[^A-zА-яЁё0-9_.-]")  # noqa: RUF001
         windows_device_files = (
             "CON",
             "AUX",
