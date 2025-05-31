@@ -11,7 +11,7 @@ from flask import Response, abort, current_app, g, jsonify, make_response, reque
 from pydantic import BaseModel, ValidationError
 from werkzeug.local import LocalProxy
 
-from app.model.models import File, Model
+from app.model.models import Model
 from app.model.tables import Users, db_session
 
 current_user: Users = LocalProxy(lambda: get_current_user(g.user_id))
@@ -133,15 +133,13 @@ def validate() -> Callable:
             The model to validate the query data with.
         json_data: Optional[BaseModel]
             The model to validate the body data with.
-        file_data: BaseModel | list[BaseModel]
-            The model to validate the file or files data with.
 
     The decorator can be used as follows:
 
     @app.route("/endpoint", methods=["GET"])
-    @validate(query_data=QueryData, json_data=BodyData, file_data=FileData)
-    def endpoint(query_data, json_data, file_data):
-        # The query_data, json_data and file_data are validated and available here
+    @validate(query_data=QueryData, json_data=BodyData)
+    def endpoint(query_data, json_data):
+        # The query_data, json_data are validated and available here
         pass
     """
 
@@ -172,23 +170,6 @@ def validate() -> Callable:
                 if not json_result:
                     return make_response(jsonify({"message": "error"}))
                 kwargs["json_data"] = json_result
-
-            # if funcion has file model argument
-            if func.__annotations__.get("file_data"):
-                file_data = request.files.getlist("file")
-                file_result = [
-                    validate_data(
-                        {
-                            "file": file,
-                            "filename": file.filename,
-                        },
-                        File,
-                    )
-                    for file in file_data
-                ]
-                if not all(file_result):
-                    return make_response(jsonify({"message": "error"}))
-                kwargs["file_data"] = file_result
 
             return func(*args, **kwargs)
 

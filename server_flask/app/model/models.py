@@ -2,12 +2,8 @@
 
 from __future__ import annotations
 
-import os
-import platform
-import re
-import unicodedata
 from datetime import date  # noqa: TC003
-from typing import Any, Literal
+from typing import Literal
 
 from pydantic import BaseModel, Field, validator
 
@@ -373,43 +369,3 @@ class AnketaJson(BaseModel):
     def check_names(cls, v: str) -> str:
         """Check names."""
         return v.upper().strip() if v else ""
-
-
-class File(BaseModel):
-    """Pydantic model for file."""
-
-    file: Any
-    filename: str
-
-    @validator("filename")
-    @classmethod
-    def check_filename(cls, v: str) -> str:
-        """Check filename for valid chars."""
-        filename_ascii_strip_re = re.compile(r"[^A-zА-яЁё0-9_.-]")  # noqa: RUF001
-        windows_device_files = (
-            "CON",
-            "AUX",
-            "COM1",
-            "COM2",
-            "COM3",
-            "COM4",
-            "LPT1",
-            "LPT2",
-            "LPT3",
-            "PRN",
-            "NUL",
-        )
-        filename = unicodedata.normalize("NFKD", v)
-        for sep in os.sep, os.path.altsep:
-            if sep:
-                filename = filename.replace(sep, " ")
-        filename = str(
-            filename_ascii_strip_re.sub("", "_".join(filename.split())),
-        ).strip("._")
-        if (
-            platform.system().lower() == "windows"
-            and filename
-            and filename.split(".")[0].upper() in windows_device_files
-        ):
-            filename = f"_{filename}"
-        return filename

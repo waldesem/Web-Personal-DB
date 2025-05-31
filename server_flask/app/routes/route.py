@@ -2,13 +2,13 @@
 
 import json
 
-from flask import Blueprint, Response, current_app, jsonify
+from flask import Blueprint, Response, current_app, jsonify, request
 from pydantic import ValidationError
 from sqlalchemy import desc, select
 
 from app.depends.depend import current_user, jwt_required, roles_required, validate
 from app.model.classes import Regions, Roles
-from app.model.models import AnketaJson, File, Person, Search
+from app.model.models import AnketaJson, Person, Search
 from app.model.tables import Persons, Users, db_session
 from app.utils.utils import upload_items, upload_resume
 
@@ -82,9 +82,8 @@ def post_resume(json_data: Person) -> Response:
 
 
 @bp.post("/json")
-@validate()
 @roles_required(Roles.user.value, Roles.api.value)
-def post_json(file_data: list[File]) -> Response:
+def post_json() -> Response:
     """Create a new person or updates an existing person based on the provided data.
 
     Args:
@@ -94,8 +93,9 @@ def post_json(file_data: list[File]) -> Response:
         A JSON response containing the person ID and an HTTP status code of 201.
 
     """
+    file_data = request.files.get("file")
     try:
-        json_data = json.load(file_data[0].file)
+        json_data = json.load(file_data)
         anketa = AnketaJson(**json_data)
         resume = {
             "surname": anketa.surname,

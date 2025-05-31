@@ -1,5 +1,9 @@
 """Utils module."""
 
+import os
+import platform
+import re
+import unicodedata
 from pathlib import Path
 
 from flask import current_app
@@ -217,3 +221,35 @@ def upload_items(anketa: AnketaJson, person_id: int) -> None:
     except SQLAlchemyError:
         current_app.logger.exception("SQLAlchemyError in post json items")
         db_session.rollback()
+
+
+def check_filename(name: str) -> str:
+        """Check filename for valid chars."""
+        filename_ascii_strip_re = re.compile(r"[^A-zА-яЁё0-9_.-]")  # noqa: RUF001
+        windows_device_files = (
+            "CON",
+            "AUX",
+            "COM1",
+            "COM2",
+            "COM3",
+            "COM4",
+            "LPT1",
+            "LPT2",
+            "LPT3",
+            "PRN",
+            "NUL",
+        )
+        filename = unicodedata.normalize("NFKD", name)
+        for sep in os.sep, os.path.altsep:
+            if sep:
+                filename = filename.replace(sep, " ")
+        filename = str(
+            filename_ascii_strip_re.sub("", "_".join(filename.split())),
+        ).strip("._")
+        if (
+            platform.system().lower() == "windows"
+            and filename
+            and filename.split(".")[0].upper() in windows_device_files
+        ):
+            filename = f"_{filename}"
+        return filename

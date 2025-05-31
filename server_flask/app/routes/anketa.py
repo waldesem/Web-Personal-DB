@@ -4,14 +4,14 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
-from flask import Blueprint, Response, current_app, jsonify
+from flask import Blueprint, Response, current_app, jsonify, request
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.depends.depend import current_user, roles_required, validate
 from app.model.classes import Roles
-from app.model.models import File, Region
+from app.model.models import Region
 from app.model.tables import Persons, db_session
-from app.utils.utils import create_destination
+from app.utils.utils import check_filename, create_destination
 
 bp = Blueprint("anketa", __name__, url_prefix="/anketa")
 
@@ -73,7 +73,7 @@ def change_self_id(person_id: int) -> Response:
 @bp.post("/files/<item>/<int:person_id>")
 @validate()
 @roles_required(Roles.user.value)
-def post_files(item: str, person_id: int, file_data: list[File]) -> Response:
+def post_files(item: str, person_id: int) -> Response:
     """Upload a file to the server.
 
     Args:
@@ -85,6 +85,7 @@ def post_files(item: str, person_id: int, file_data: list[File]) -> Response:
         The HTTP status code is 200.
 
     """
+    file_data = request.files.getlist("file")
     person = db_session.get(Persons, person_id)
     if not person.destination:
         person.destination = create_destination(person)
@@ -98,9 +99,9 @@ def post_files(item: str, person_id: int, file_data: list[File]) -> Response:
         subfolder.mkdir(parents=True, exist_ok=True)
 
         for data in file_data:
-            file_path = Path(subfolder, data.filename)
+            file_path = Path(subfolder, check_filename(data.filename))
             if not file_path.is_file():
-                data.file.save(file_path)
+                data.save(file_path)
 
         return jsonify({"message": "success"}), 201
     except Exception:
