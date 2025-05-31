@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Address } from "@/types";
-import * as v from "valibot";
 
 const emit = defineEmits(["update"]);
 
@@ -11,16 +10,11 @@ const props = defineProps({
   },
 });
 
-const schema = v.object({
-  view: v.string(),
-  addresses: v.string(),
-});
-
 const addressForm = toRef(props.item as Address);
 </script>
 
 <template>
-  <UForm :schema="schema" :state="addressForm" @submit.prevent="emit('update', addressForm)">
+  <UForm :state="addressForm" @submit.prevent="emit('update', addressForm)">
     <UFormField label="Вид адреса" name="view" required>
       <USelect
         v-model="addressForm.view"

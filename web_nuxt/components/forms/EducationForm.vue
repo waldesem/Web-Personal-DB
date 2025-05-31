@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Education } from "@/types";
-import * as v from "valibot";
 
 const emit = defineEmits(["update"]);
 
@@ -11,19 +10,11 @@ const props = defineProps({
   },
 });
 
-const schema = v.object({
-  view: v.string(),
-  institution: v.string(v.maxLength(255)),
-  specialty: v.string(v.maxLength(255)),
-  finished: v.string(v.maxLength(4)),
-});
-
 const educationForm = toRef(props.item as Education);
 </script>
 
 <template>
   <UForm
-    :schema="schema"
     :state="educationForm"
     @submit.prevent="emit('update', educationForm)"
   >

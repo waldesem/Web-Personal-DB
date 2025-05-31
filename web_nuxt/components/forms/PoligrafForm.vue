@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Pfo } from "@/types";
-import * as v from "valibot";
 
 const emit = defineEmits(["update"]);
 
@@ -11,18 +10,11 @@ const props = defineProps({
   },
 });
 
-const schema = v.object({
-  theme: v.string(),
-  results: v.string(),
-  conclusion: v.string(),
-});
-
 const poligrafForm = toRef(props.item as Pfo);
 </script>
 
 <template>
   <UForm
-    :schema="schema"
     :state="poligrafForm"
     @submit.prevent="emit('update', poligrafForm)"
   >

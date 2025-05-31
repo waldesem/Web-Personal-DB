@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Verification } from "@/types";
-import * as v from "valibot";
 
 const emit = defineEmits(["update"]);
 
@@ -9,21 +8,6 @@ const props = defineProps({
     type: Object as PropType<Verification>,
     default: () => ({}),
   },
-});
-
-const schema = v.object({
-  workplace: v.string(),
-  document: v.string(),
-  debt: v.string(),
-  bankruptcy: v.string(),
-  bki: v.string(),
-  courts: v.string(),
-  affilation: v.string(),
-  terrorist: v.string(),
-  internet: v.string(),
-  cronos: v.string(),
-  additional: v.string(),
-  conclusion: v.string(),
 });
 
 const checkForm = toRef(props.item as Verification);
@@ -67,7 +51,6 @@ const textAreas = {
     <USwitch v-model="noNegative" />
   </UFormField>
   <UForm
-    :schema="schema"
     :state="checkForm"
     @submit.prevent="emit('update', checkForm)"
   >

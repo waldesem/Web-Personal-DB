@@ -12,16 +12,7 @@ const props = defineProps({
 });
 
 const schema = v.object({
-  series: v.pipe(
-    v.string(),
-    v.maxLength(4, "Серия документа должна содержать не более 4 цифр")
-  ),
-  digits: v.pipe(
-    v.string,
-    v.maxLength(8, "Номер документа должен содержать не более 8 цифр")
-  ),
-  issue: v.date(),
-  agency: v.string(v.maxLength(255)),
+  issue: v.date("Дата выдачи должна быть корректной"),
 });
 
 const docForm = toRef(props.item as Partial<Passport>);
@@ -60,7 +51,7 @@ docForm.value.issue = docForm.value.issue
       <UInput
         v-model.trim.lazy="docForm.series"
         placeholder="Серия документа"
-        maxlength="12"
+        maxlength="4"
       />
     </UFormField>
     <UFormField label="Номер документа" name="digits" required>
@@ -68,7 +59,7 @@ docForm.value.issue = docForm.value.issue
         v-model.trim.lazy="docForm.digits"
         required
         placeholder="Номер документа"
-        maxlength="12"
+        maxlength="8"
       />
     </UFormField>
     <UFormField label="Кем выдан" name="agency">

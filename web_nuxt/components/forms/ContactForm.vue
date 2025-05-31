@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Contact } from "@/types";
-import * as v from "valibot";
 
 const emit = defineEmits(["update"]);
 
@@ -11,20 +10,11 @@ const props = defineProps({
   },
 });
 
-const schema = v.object({
-  view: v.string(),
-  contact: v.pipe(
-    v.string(),
-    v.maxLength(255, "Максимальная длина 255 символов")
-  ),
-});
-
 const contactForm = toRef(props.item as Contact);
 </script>
 
 <template>
   <UForm
-    :schema="schema"
     :state="contactForm"
     @submit.prevent="emit('update', contactForm)"
   >
