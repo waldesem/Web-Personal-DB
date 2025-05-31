@@ -18,7 +18,6 @@ const addressForm = toRef(props.item as Address);
     <UFormField label="Вид адреса" name="view" required>
       <USelect
         v-model="addressForm.view"
-        required
         :items="['Адрес регистрации', 'Адрес проживания', 'Другое']"
         placeholder="Выберите вид адреса"
       />
@@ -26,7 +25,6 @@ const addressForm = toRef(props.item as Address);
     <UFormField label="Адрес" name="addresses" required>
       <UTextarea
         v-model.trim.lazy="addressForm.addresses"
-        required
         placeholder="Адрес"
       />
     </UFormField>

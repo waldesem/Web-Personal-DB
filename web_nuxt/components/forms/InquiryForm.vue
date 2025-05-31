@@ -15,14 +15,12 @@ const inquiryForm = toRef(props.item);
 
 <template>
   <UForm
-    :schema="schema"
     :state="inquiryForm"
     @submit.prevent="emit('update', inquiryForm)"
   >
     <UFormField label="Информация" name="info" required>
       <UTextarea
         v-model.trim.lazy="inquiryForm.info"
-        required
         autoresize
         placeholder="Информация"
       />
@@ -30,7 +28,6 @@ const inquiryForm = toRef(props.item);
     <UFormField label="Инициатор" name="initiator" required>
       <UInput
         v-model.trim.lazy="inquiryForm.initiator"
-        required
         placeholder="Инициатор"
         maxlength="255"
       />

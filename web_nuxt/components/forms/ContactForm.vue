@@ -21,7 +21,6 @@ const contactForm = toRef(props.item as Contact);
     <UFormField label="Вид контакта" name="view" required>
       <USelect
         v-model="contactForm.view"
-        required
         :items="['Телефон', 'Электронная почта', 'Другое']"
         placeholder="Выберите вид контакта"
       />
@@ -29,7 +28,6 @@ const contactForm = toRef(props.item as Contact);
     <UFormField label="Контакт" name="contact" required>
       <UInput
         v-model.trim.lazy="contactForm.contact"
-        required
         placeholder="Контакт"
       />
     </UFormField>

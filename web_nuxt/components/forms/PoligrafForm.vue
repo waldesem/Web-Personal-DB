@@ -21,7 +21,6 @@ const poligrafForm = toRef(props.item as Pfo);
     <UFormField label="Тема проверки" name="theme" required>
       <USelect
         v-model="poligrafForm.theme"
-        required
         :items="[
           'Проверка кандидата',
           'Служебная проверка',
@@ -34,7 +33,6 @@ const poligrafForm = toRef(props.item as Pfo);
     <UFormField label="Результат" name="results" required>
       <UTextarea
         v-model.trim.lazy="poligrafForm.results"
-        required
         autoresize
         placeholder="Результат"
       />
@@ -42,7 +40,6 @@ const poligrafForm = toRef(props.item as Pfo);
     <UFormField label="Результат" name="conclusion" required>
       <USelect
         v-model="poligrafForm.conclusion"
-        required
         :items="['БЕЗ ЗАМЕЧАНИЙ', 'С КОММЕНТАРИЯМИ', 'НЕГАТИВ']"
         placeholder="Выберите результат"
       />

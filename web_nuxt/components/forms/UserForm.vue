@@ -7,7 +7,7 @@ const schema = v.object({
     v.string(),
     v.maxLength(255, "Максимальная длина 255 символов"),
     v.minLength(3, "Минимальная длина 3 символа"),
-    v.regex(/^[а-яёЁА-Я-\s]+$/, "Поле должно содержать только русские буквы")
+    v.regex(/^[а-яёЁА-Я-\s]+$/, "Поле должно содержать только русские буквы от 3 до 255 символов")
   ),
   username: v.pipe(
     v.string(),
@@ -45,16 +45,15 @@ async function submitUser() {
     <UForm :schema="schema" :state="form" @submit.prevent="submitUser">
       <UFormField label="Имя пользователя" name="fullname" required>
         <UInput
-          v-model="form.fullname"
+          v-model.lazy.trim="form.fullname"
           placeholder="Имя пользователя"
-          required
         />
       </UFormField>
       <UFormField label="Логин" name="username" required>
-        <UInput v-model="form.username" placeholder="Логин" />
+        <UInput v-model.lazy.trim="form.username" placeholder="Логин" />
       </UFormField>
       <UFormField label="Email" name="email" required>
-        <UInput v-model="form.email" placeholder="Email" />
+        <UInput v-model.lazy.trim="form.email" placeholder="Email" />
       </UFormField>
       <UButton
         label="Принять"

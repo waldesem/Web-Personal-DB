@@ -8,7 +8,7 @@ from typing import Callable
 
 import jwt
 from flask import Response, abort, current_app, g, jsonify, make_response, request
-from pydantic import BaseModel, ValidationError
+from pydantic import ValidationError
 from werkzeug.local import LocalProxy
 
 from app.model.models import Model
@@ -30,22 +30,20 @@ def get_current_user(user_id: int) -> Users | Response:
 
     """
     user = db_session.get(Users, user_id)
-    return (
-        user
-        if all(
-            (
-                user,
-                not user.blocked,
-                not user.deleted,
-                not user.change_pswd,
-                user.pswd_create + timedelta(days=365) > datetime.now(),
-            ),
-        )
-        else abort(401)
-    )
+    if all(
+        (
+            user,
+            not user.blocked,
+            not user.deleted,
+            not user.change_pswd,
+            user.pswd_create + timedelta(days=365) > datetime.now(),
+        ),
+    ):
+        return user
+    return abort(401)
 
 
-def jwt_required() -> Callable:
+def jwt_required(func: Callable) -> Callable:
     """Decorate a function that checks if the request contains a valid JWT token.
 
     The decorated function checks if the request contains a valid JWT token in the
@@ -61,33 +59,30 @@ def jwt_required() -> Callable:
 
     """
 
-    def decorator(func: Callable) -> Callable:
-        @wraps(func)
-        def wrapper(*args: tuple, **kwargs: dict) -> Callable:
-            try:
-                header = request.headers.get("Authorization", type=str)
-                user: dict = jwt.decode(
-                    header[7:],
-                    current_app.config["JWT_SECRET_KEY"],
-                    algorithms=["HS256"],
-                    options={"verify_exp": True},
-                )
-                if user.get("id"):
-                    g.user_id = user["id"]
-                    return func(*args, **kwargs)
+    @wraps(func)
+    def wrapper(*args: tuple, **kwargs: dict) -> Callable:
+        try:
+            header = request.headers.get("Authorization", type=str)
+            user: dict = jwt.decode(
+                header[7:],
+                current_app.config["JWT_SECRET_KEY"],
+                algorithms=["HS256"],
+                options={"verify_exp": True},
+            )
+            if user.get("id"):
+                g.user_id = user["id"]
+                return func(*args, **kwargs)
 
-            except ValueError:
-                current_app.logger.exception("Headers not found")
-            except jwt.exceptions.PyJWTError:
-                current_app.logger.exception("Error decoding token")
-            return abort(401)
+        except ValueError:
+            current_app.logger.exception("Headers not found")
+        except jwt.exceptions.PyJWTError:
+            current_app.logger.exception("Error decoding token")
+        return abort(401)
 
-        return wrapper
-
-    return decorator
+    return wrapper
 
 
-def roles_required(*roles: list[str]) -> Callable:
+def roles_required(*roles: str) -> Callable:
     """Decorate a function that checks if the user has one of the specified roles.
 
     The decorated function checks if the user has one of the specified roles in
@@ -115,16 +110,7 @@ def roles_required(*roles: list[str]) -> Callable:
     return decorator
 
 
-def validate_data(data: dict, model: BaseModel) -> BaseModel | None:
-    """Validate data using Pydantic model."""
-    try:
-        return model(**data)
-    except ValidationError:
-        current_app.logger.exception("Error validating data")
-        return None
-
-
-def validate() -> Callable:
+def validate(func: Callable) -> Callable:
     """Decorate a function for validating request data using Pydantic models.
 
     The decorator accepts the following keyword arguments:
@@ -143,17 +129,14 @@ def validate() -> Callable:
         pass
     """
 
-    def decorate(func: Callable) -> Callable:
-        @wraps(func)
-        def wrapper(*args: tuple, **kwargs: dict) -> Callable:
-            """Validate request data using Pydantic models."""
-            # if funcion has query model argument
+    @wraps(func)
+    def wrapper(*args: tuple, **kwargs: dict) -> Callable:
+        """Validate request data using Pydantic models."""
+        # if funcion has query model argument
+        try:
             if query_model := func.__annotations__.get("query_data"):
                 query_data = request.args.to_dict()
-                query_result = validate_data(query_data, query_model)
-                if not query_result:
-                    return make_response(jsonify({"message": "error"}))
-                kwargs["query_data"] = query_result
+                kwargs["query_data"] = query_model(**query_data)
 
             # if funcion has json model argument
             if json_model := func.__annotations__.get("json_data"):
@@ -166,13 +149,12 @@ def validate() -> Callable:
                     }
                     json_model = models[kwargs["item"]]
                 json_data = request.get_json()
-                json_result = validate_data(json_data, json_model)
-                if not json_result:
-                    return make_response(jsonify({"message": "error"}))
-                kwargs["json_data"] = json_result
+                kwargs["json_data"] = json_model(**json_data)
 
+        except ValidationError:
+            current_app.logger.exception("Error validating data")
+            return make_response(jsonify({"message": "error"}))
+        else:
             return func(*args, **kwargs)
 
-        return wrapper
-
-    return decorate
+    return wrapper

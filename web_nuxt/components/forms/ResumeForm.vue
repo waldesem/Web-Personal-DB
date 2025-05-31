@@ -16,26 +16,36 @@ const namePathern = /^[А-яЁё][А-яЁёIV\-.,'()\s]*[А-яЁё\s]$/;
 const schema = v.object({
   surname: v.pipe(
     v.string(),
-    v.regex(namePathern, "Поле содержит недопустимые символы")
+    v.regex(namePathern, "Поле содержит недопустимые символы"),
+    v.maxLength(255, "Поле должно содержать не более 255 символов")
   ),
   firstname: v.pipe(
     v.string(),
-    v.regex(namePathern, "Поле содержит недопустимые символы")
+    v.regex(namePathern, "Поле содержит недопустимые символы"),
+    v.maxLength(255, "Поле должно содержать не более 255 символов")
   ),
   patronymic: v.optional(
     v.pipe(
       v.string(),
-      v.regex(namePathern, "Поле содержит недопустимые символы")
+      v.regex(namePathern, "Поле содержит недопустимые символы"),
+      v.maxLength(255, "Поле должно содержать не более 255 символов")
     )
   ),
-  birthday: v.date(),
-  birthplace: v.string(v.maxLength(255)),
-  citizenship: v.string(v.maxLength(255)),
-  dual: v.string(v.maxLength(255)),
-  snils: v.string(v.maxLength(11, "СНИЛС должен содержать 11 цифр")),
-  inn: v.string(v.maxLength(12, "ИНН должен содержать 12 цифр")),
-  marital: v.string(v.maxLength(255)),
-  additional: v.string(),
+  birthday: v.pipe(
+    v.string(),
+    v.regex(/^\d{4}-\d{2}-\d{2}$/, "Неверный формат даты")
+  ),
+  birthplace: v.optional(v.pipe(v.string(), v.maxLength(255))),
+  citizenship: v.optional(v.pipe(v.string(), v.maxLength(255))),
+  dual: v.optional(v.pipe(v.string(), v.maxLength(255))),
+  snils: v.optional(
+    v.pipe(v.string(), v.maxLength(11, "СНИЛС должен содержать 11 цифр"))
+  ),
+  inn: v.optional(
+    v.pipe(v.string(), v.maxLength(12, "ИНН должен содержать 12 цифр"))
+  ),
+  marital: v.optional(v.pipe(v.string(), v.maxLength(255))),
+  additional: v.optional(v.string()),
 });
 
 const resumeForm = ref(props.resume);
@@ -95,75 +105,73 @@ resumeForm.value.birthday = resumeForm.value.birthday
   >
     <UFormField label="Фамилия" name="surname" required>
       <UInput
-        v-model.trim="resumeForm.surname"
-        required
+        v-model.lazy.trim="resumeForm.surname"
         placeholder="Фамилия"
         maxlength="255"
       />
     </UFormField>
     <UFormField label="Имя" name="firstname" required>
       <UInput
-        v-model.trim="resumeForm.firstname"
-        required
+        v-model.lazy.trim="resumeForm.firstname"
         placeholder="Имя"
         maxlength="255"
       />
     </UFormField>
     <UFormField label="Отчество" name="patronymic">
       <UInput
-        v-model.trim="resumeForm.patronymic"
+        v-model.lazy.trim="resumeForm.patronymic"
         placeholder="Отчество"
         maxlength="255"
       />
     </UFormField>
     <UFormField label="Дата рождения" name="birthday" required>
-      <UInput v-model="resumeForm.birthday" required type="date" />
+      <UInput v-model.lazy="resumeForm.birthday" type="date" />
     </UFormField>
     <UFormField label="Место рождения" name="birthplace">
       <UInput
-        v-model.trim.lazy="resumeForm.birthplace"
+        v-model.lazy.trim="resumeForm.birthplace"
         placeholder="Место рождения"
         maxlength="255"
       />
     </UFormField>
     <UFormField label="Гражданство" name="citizenship">
       <UInput
-        v-model.trim.lazy="resumeForm.citizenship"
+        v-model.lazy.trim="resumeForm.citizenship"
         placeholder="Гражданство"
         maxlength="255"
       />
     </UFormField>
     <UFormField label="Двойное гражданство" name="dual">
       <UInput
-        v-model.trim.lazy="resumeForm.dual"
+        v-model.lazy.trim="resumeForm.dual"
         placeholder="Двойное гражданство"
         maxlength="255"
       />
     </UFormField>
     <UFormField label="СНИЛС" name="snils">
       <UInput
-        v-model.trim.lazy="resumeForm.snils"
+        v-model.lazy.trim="resumeForm.snils"
         placeholder="СНИЛС"
         maxlength="11"
       />
     </UFormField>
     <UFormField label="ИНН" name="inn">
       <UInput
-        v-model.trim.lazy="resumeForm.inn"
+        v-model.lazy.trim="resumeForm.inn"
         placeholder="ИНН"
         maxlength="12"
       />
     </UFormField>
     <UFormField label="Семейное положение" name="marital">
       <UInput
-        v-model.trim.lazy="resumeForm.marital"
+        v-model.lazy.trim="resumeForm.marital"
         placeholder="Семейное положение"
         maxlength="255"
       />
     </UFormField>
     <UFormField label="Дополнительно" name="addition">
       <UTextarea
-        v-model.trim.lazy="resumeForm.addition"
+        v-model.lazy.trim="resumeForm.addition"
         placeholder="Дополнительно"
       />
     </UFormField>

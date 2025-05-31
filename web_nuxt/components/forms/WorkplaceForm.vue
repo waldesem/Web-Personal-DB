@@ -49,7 +49,6 @@ const validate = (state: Partial<Work>) => {
     <UFormField label="Начало работы" name="starts" required>
       <UInput
         v-model="workForm.starts"
-        required
         placeholder="Начало работы"
         type="date"
       />
@@ -57,7 +56,6 @@ const validate = (state: Partial<Work>) => {
     <UFormField label="Окончание работы" name="finished" required>
       <UInput
         v-model="workForm.finished"
-        required
         placeholder="Окончание работы"
         type="date"
       />
@@ -65,7 +63,6 @@ const validate = (state: Partial<Work>) => {
     <UFormField label="Место работы" name="workplace" required>
       <UInput
         v-model.trim.lazy="workForm.workplace"
-        required
         placeholder="Место работы"
         maxlength="255"
       />
@@ -73,7 +70,6 @@ const validate = (state: Partial<Work>) => {
     <UFormField label="Должность" name="position" required>
       <UInput
         v-model.trim.lazy="workForm.position"
-        required
         placeholder="Должность"
         maxlength="255"
       />

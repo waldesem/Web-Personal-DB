@@ -66,7 +66,6 @@ const textAreas = {
     <UFormField label="Результат" name="conclusion" required>
       <USelect
         v-model="checkForm.conclusion"
-        required
         :items="[
           'СОГЛАСОВАНО',
           'СОГЛАСОВАНО С КОММЕНТАРИЕМ',

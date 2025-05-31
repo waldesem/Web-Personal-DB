@@ -21,7 +21,6 @@ const staffForm = toRef(props.item as Staff);
     <UFormField label="Должность" name="position" required>
       <UInput
         v-model.trim.lazy="staffForm.position"
-        required
         placeholder="Должность"
         maxlength="255"
       />

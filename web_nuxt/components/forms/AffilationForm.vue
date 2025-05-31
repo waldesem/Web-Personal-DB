@@ -21,7 +21,6 @@ const affilForm = toRef(props.item as Affilation);
     <UFormField label="Вид участия" name="view" required>
       <USelect
         v-model="affilForm.view"
-        required
         :items="[
           'Являлся государственным/муниципальным служащим',
           'Являлся государственным должностным лицом',
@@ -34,7 +33,6 @@ const affilForm = toRef(props.item as Affilation);
     <UFormField label="Организация" name="organization" required>
       <UInput
         v-model.trim.lazy="affilForm.organization"
-        required
         placeholder="Организация"
         maxlength="255"
       />

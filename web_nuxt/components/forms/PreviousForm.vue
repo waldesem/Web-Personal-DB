@@ -18,7 +18,6 @@ const previousForm = toRef(props.item as Previous);
     <UFormField label="Фамилия" name="surname" required>
       <UInput
         v-model.trim.lazy="previousForm.surname"
-        required
         placeholder="Фамилия"
         maxlength="255"
       />
@@ -26,7 +25,6 @@ const previousForm = toRef(props.item as Previous);
     <UFormField label="Имя" name="firstname" required>
       <UInput
         v-model.trim.lazy="previousForm.firstname"
-        required
         placeholder="Имя"
         maxlength="255"
       />

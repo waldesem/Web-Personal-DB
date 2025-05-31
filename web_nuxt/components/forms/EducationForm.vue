@@ -21,7 +21,6 @@ const educationForm = toRef(props.item as Education);
     <UFormField label="Тип образования" name="view" required>
       <USelect
         v-model="educationForm.view"
-        required
         :items="[
           'Основное общее',
           'Среднее общее',
@@ -36,7 +35,6 @@ const educationForm = toRef(props.item as Education);
     <UFormField label="Название учебного заведения" name="institution" required>
       <UInput
         v-model.trim.lazy="educationForm.institution"
-        required
         placeholder="Название учебного заведения"
         maxlength="255"
       />
