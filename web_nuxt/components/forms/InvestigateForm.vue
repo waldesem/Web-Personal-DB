@@ -1,13 +1,19 @@
 <script setup lang="ts">
 import type { Inquisition } from "@/types";
+import * as v from "valibot";
 
 const emit = defineEmits(["update"]);
 
 const props = defineProps({
   item: {
-    type:  Object as PropType<Inquisition>,
+    type: Object as PropType<Inquisition>,
     default: () => ({}),
   },
+});
+
+const schema = v.object({
+  theme: v.pipe(v.string(), v.maxLength(255, "Максимальная длина 255 символов")),
+  info: v.string(),
 });
 
 const investigationForm = toRef(props.item as Inquisition);
@@ -15,6 +21,7 @@ const investigationForm = toRef(props.item as Inquisition);
 
 <template>
   <UForm
+    :schema="schema"
     :state="investigationForm"
     @submit.prevent="emit('update', investigationForm)"
   >
@@ -34,11 +41,6 @@ const investigationForm = toRef(props.item as Inquisition);
         placeholder="Информация"
       />
     </UFormField>
-    <UButton
-        label="Принять"
-        color="success"
-        variant="outline"
-        type="submit"
-      />
+    <UButton label="Принять" color="success" variant="outline" type="submit" />
   </UForm>
 </template>

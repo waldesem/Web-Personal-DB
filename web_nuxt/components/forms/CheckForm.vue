@@ -1,13 +1,29 @@
 <script setup lang="ts">
 import type { Verification } from "@/types";
+import * as v from "valibot";
 
 const emit = defineEmits(["update"]);
 
 const props = defineProps({
   item: {
-    type:  Object as PropType<Verification>,
+    type: Object as PropType<Verification>,
     default: () => ({}),
   },
+});
+
+const schema = v.object({
+  workplace: v.string(),
+  document: v.string(),
+  debt: v.string(),
+  bankruptcy: v.string(),
+  bki: v.string(),
+  courts: v.string(),
+  affilation: v.string(),
+  terrorist: v.string(),
+  internet: v.string(),
+  cronos: v.string(),
+  additional: v.string(),
+  conclusion: v.string(),
 });
 
 const checkForm = toRef(props.item as Verification);
@@ -50,7 +66,11 @@ const textAreas = {
   <UFormField label="Негатива нет">
     <USwitch v-model="noNegative" />
   </UFormField>
-  <UForm :state="checkForm" @submit.prevent="emit('update', checkForm)">
+  <UForm
+    :schema="schema"
+    :state="checkForm"
+    @submit.prevent="emit('update', checkForm)"
+  >
     <div v-for="(value, key) in textAreas" :key="key">
       <UFormField :label="value[0]" :name="key">
         <UTextarea
@@ -73,11 +93,6 @@ const textAreas = {
         placeholder="Выберите нужное решение из списка"
       />
     </UFormField>
-    <UButton
-        label="Принять"
-        color="success"
-        variant="outline"
-        type="submit"
-      />
+    <UButton label="Принять" color="success" variant="outline" type="submit" />
   </UForm>
 </template>

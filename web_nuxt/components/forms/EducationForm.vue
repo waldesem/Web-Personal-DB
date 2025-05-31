@@ -1,20 +1,32 @@
 <script setup lang="ts">
 import type { Education } from "@/types";
+import * as v from "valibot";
 
 const emit = defineEmits(["update"]);
 
 const props = defineProps({
   item: {
-    type:  Object as PropType<Education>,
+    type: Object as PropType<Education>,
     default: () => ({}),
   },
+});
+
+const schema = v.object({
+  view: v.string(),
+  institution: v.string(v.maxLength(255)),
+  specialty: v.string(v.maxLength(255)),
+  finished: v.string(v.maxLength(4)),
 });
 
 const educationForm = toRef(props.item as Education);
 </script>
 
 <template>
-  <UForm :state="educationForm" @submit.prevent="emit('update', educationForm)">
+  <UForm
+    :schema="schema"
+    :state="educationForm"
+    @submit.prevent="emit('update', educationForm)"
+  >
     <UFormField label="Тип образования" name="view" required>
       <USelect
         v-model="educationForm.view"
@@ -52,11 +64,6 @@ const educationForm = toRef(props.item as Education);
         maxlength="255"
       />
     </UFormField>
-    <UButton
-        label="Принять"
-        color="success"
-        variant="outline"
-        type="submit"
-      />
+    <UButton label="Принять" color="success" variant="outline" type="submit" />
   </UForm>
 </template>

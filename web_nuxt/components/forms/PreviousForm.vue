@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Previous } from "@/types";
+import * as v from "valibot";
 
 const emit = defineEmits(["update"]);
 
@@ -10,17 +11,39 @@ const props = defineProps({
   },
 });
 
+const schema = v.object({
+  surname: v.pipe(
+    v.string(),
+    v.maxLength(255, "Максимальная длина 255 символов")
+  ),
+  firstname: v.pipe(
+    v.string(),
+    v.maxLength(255, "Максимальная длина 255 символов")
+  ),
+  patronymic: v.pipe(
+    v.string(),
+    v.maxLength(255, "Максимальная длина 255 символов")
+  ),
+  changed: v.pipe(
+    v.string(),
+    v.maxLength(4, "Максимальная длина 4 символа")
+  ),
+  reason: v.pipe(
+    v.string(),
+    v.maxLength(255, "Максимальная длина 255 символа")
+  ),
+});
+
 const previousForm = toRef(props.item as Previous);
 </script>
 
 <template>
-  <UForm :state="previousForm" @submit.prevent="emit('update', previousForm)">
+  <UForm :schema="schema" :state="previousForm" @submit.prevent="emit('update', previousForm)">
     <UFormField label="Фамилия" name="surname" required>
       <UInput
         v-model.trim.lazy="previousForm.surname"
         required
         placeholder="Фамилия"
-        maxlength="255"
       />
     </UFormField>
     <UFormField label="Имя" name="firstname" required>
@@ -28,28 +51,24 @@ const previousForm = toRef(props.item as Previous);
         v-model.trim.lazy="previousForm.firstname"
         required
         placeholder="Имя"
-        maxlength="255"
       />
     </UFormField>
     <UFormField label="Отчество" name="patronymic">
       <UInput
         v-model.trim.lazy="previousForm.patronymic"
         placeholder="Отчество"
-        maxlength="255"
       />
     </UFormField>
     <UFormField label="Год изменения" name="changed">
       <UInput
         v-model.trim.lazy="previousForm.changed"
         placeholder="Год изменения"
-        maxlength="4"
       />
     </UFormField>
     <UFormField label="Причина изменения" name="reason">
       <UInput
         v-model.trim.lazy="previousForm.reason"
         placeholder="Причина изменения"
-        maxlength="255"
       />
     </UFormField>
     <UButton

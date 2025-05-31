@@ -1,13 +1,41 @@
 <script setup lang="ts">
 import type { Persons } from "@/types";
+import * as v from "valibot";
 
 const emit = defineEmits(["update"]);
 
 const props = defineProps({
   resume: {
-    type:  Object as PropType<Persons>,
+    type: Object as PropType<Persons>,
     default: () => ({}),
   },
+});
+
+const namePathern = /^[А-яЁё][А-яЁёIV\-.,'()\s]*[А-яЁё\s]$/;
+
+const schema = v.object({
+  surname: v.pipe(
+    v.string(),
+    v.regex(namePathern, "Поле содержит недопустимые символы")
+  ),
+  firstname: v.pipe(
+    v.string(),
+    v.regex(namePathern, "Поле содержит недопустимые символы")
+  ),
+  patronymic: v.optional(
+    v.pipe(
+      v.string(),
+      v.regex(namePathern, "Поле содержит недопустимые символы")
+    )
+  ),
+  birthday: v.date(),
+  birthplace: v.string(v.maxLength(255)),
+  citizenship: v.string(v.maxLength(255)),
+  dual: v.string(v.maxLength(255)),
+  snils: v.string(v.maxLength(11, "СНИЛС должен содержать 11 цифр")),
+  inn: v.string(v.maxLength(12, "ИНН должен содержать 12 цифр")),
+  marital: v.string(v.maxLength(255)),
+  additional: v.string(),
 });
 
 const resumeForm = ref(props.resume);
@@ -16,53 +44,53 @@ resumeForm.value.birthday = resumeForm.value.birthday
   ? new Date(resumeForm.value.birthday).toISOString().split("T", 1)[0]
   : "";
 
-const validate = (state: Partial<Persons>) => {
-  const errors = [];
-  const namePathern = /^[А-яЁё][А-яЁёIV\-.,'()\s]*[А-яЁё\s]$/
-  if (state.surname && !state.surname.match(namePathern)) {
-    errors.push({
-      path: "surname",
-      message: "Поле содержит недопустимые символы",
-    });
-  }
-  if (state.firstname && !state.firstname.match(namePathern)) {
-    errors.push({
-      path: "firstname",
-      message: "Поле содержит недопустимые символы",
-    });
-  }
-  if (state.patronymic && !state.patronymic.match(namePathern)) {
-    errors.push({
-      path: "patronymic",
-      message: "Поле содержит недопустимые символы",
-    });
-  }
-  if (state.birthday && !state.birthday.match(/^\d{4}-\d{2}-\d{2}$/)) {
-    errors.push({
-      path: "birthday",
-      message: "Поле должно содержать корректную дату",
-    });
-  }
-  if (state.inn && !state.inn.match(/^[0-9]{12}$/)) {
-    errors.push({
-      path: "inn",
-      message: "Поле должно содержать 12 цифр",
-    });
-  }
-  if (state.snils && !state.snils.match(/^[0-9]{11}$/)) {
-    errors.push({
-      path: "snils",
-      message: "Поле должно содержать 11 цифр",
-    });
-  }
-  return errors;
-};
+// const validate = (state: Partial<Persons>) => {
+//   const errors = [];
+//   const namePathern = /^[А-яЁё][А-яЁёIV\-.,'()\s]*[А-яЁё\s]$/;
+//   if (state.surname && !state.surname.match(namePathern)) {
+//     errors.push({
+//       path: "surname",
+//       message: "Поле содержит недопустимые символы",
+//     });
+//   }
+//   if (state.firstname && !state.firstname.match(namePathern)) {
+//     errors.push({
+//       path: "firstname",
+//       message: "Поле содержит недопустимые символы",
+//     });
+//   }
+//   if (state.patronymic && !state.patronymic.match(namePathern)) {
+//     errors.push({
+//       path: "patronymic",
+//       message: "Поле содержит недопустимые символы",
+//     });
+//   }
+//   if (state.birthday && !state.birthday.match(/^\d{4}-\d{2}-\d{2}$/)) {
+//     errors.push({
+//       path: "birthday",
+//       message: "Поле должно содержать корректную дату",
+//     });
+//   }
+//   if (state.inn && !state.inn.match(/^[0-9]{12}$/)) {
+//     errors.push({
+//       path: "inn",
+//       message: "Поле должно содержать 12 цифр",
+//     });
+//   }
+//   if (state.snils && !state.snils.match(/^[0-9]{11}$/)) {
+//     errors.push({
+//       path: "snils",
+//       message: "Поле должно содержать 11 цифр",
+//     });
+//   }
+//   return errors;
+// };
 </script>
 
 <template>
   <UForm
+    :schema="schema"
     :state="resumeForm"
-    :validate="validate"
     @submit.prevent="emit('update', resumeForm)"
   >
     <UFormField label="Фамилия" name="surname" required>
@@ -139,11 +167,6 @@ const validate = (state: Partial<Persons>) => {
         placeholder="Дополнительно"
       />
     </UFormField>
-    <UButton
-        label="Принять"
-        color="success"
-        variant="outline"
-        type="submit"
-      />
+    <UButton label="Принять" color="success" variant="outline" type="submit" />
   </UForm>
 </template>

@@ -1,36 +1,29 @@
 <script setup lang="ts">
 import type { UserForm } from "@/types";
+import * as v from "valibot";
+
+const schema = v.object({
+  fullname: v.pipe(
+    v.string(),
+    v.maxLength(255, "Максимальная длина 255 символов"),
+    v.minLength(3, "Минимальная длина 3 символа"),
+    v.regex(/^[а-яёЁА-Я-\s]+$/, "Поле должно содержать только русские буквы")
+  ),
+  username: v.pipe(
+    v.string(),
+    v.maxLength(255, "Максимальная длина 255 символов"),
+    v.minLength(3, "Минимальная длина 3 символа"),
+    v.regex(
+      /^[a-zA-Z_\s]+$/,
+      "Поле должно содержать только латинские буквы и знаки подчеркивания"
+    )
+  ),
+  email: v.pipe(v.string(), v.email("Некорректный email")),
+});
 
 const emit = defineEmits(["update"]);
 
 const form = ref({} as UserForm);
-
-const validate = (state: Partial<UserForm>) => {
-  const errors = [];
-  if (state.fullname && !state.fullname.match(/^[а-яёЁА-Я-\s]+$/)) {
-    errors.push({
-      path: "fullname",
-      message: "Поле должно содержать только русские буквы",
-    });
-  }
-  if (state.username && !state.username.match(/^[a-zA-Z_\s]+$/)) {
-    errors.push({
-      path: "username",
-      message:
-        "Поле должно содержать только латинские буквы и знаки подчеркивания",
-    });
-  }
-  if (
-    state.email &&
-    !state.email.match(/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/)
-  ) {
-    errors.push({
-      path: "email",
-      message: "Поле должно содержать корректную почту",
-    });
-  }
-  return errors;
-};
 
 async function submitUser() {
   const { message } = (await fetchAuth("/route/user", {
@@ -49,7 +42,7 @@ async function submitUser() {
 
 <template>
   <div class="m-4">
-    <UForm :validate="validate" :state="form" @submit.prevent="submitUser">
+    <UForm :schema="schema" :state="form" @submit.prevent="submitUser">
       <UFormField label="Имя пользователя" name="fullname" required>
         <UInput
           v-model="form.fullname"

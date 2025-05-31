@@ -1,37 +1,51 @@
 <script setup lang="ts">
 import type { Passport } from "@/types";
+import * as v from "valibot";
 
 const emit = defineEmits(["update"]);
 
 const props = defineProps({
   item: {
-    type:  Object as PropType<Passport>,
+    type: Object as PropType<Passport>,
     default: () => ({}),
   },
 });
 
+const schema = v.object({
+  series: v.pipe(
+    v.string(),
+    v.maxLength(4, "Серия документа должна содержать не более 4 цифр")
+  ),
+  digits: v.pipe(
+    v.string,
+    v.maxLength(8, "Номер документа должен содержать не более 8 цифр")
+  ),
+  issue: v.date(),
+  agency: v.string(v.maxLength(255)),
+});
+
 const docForm = toRef(props.item as Partial<Passport>);
-  
+
 docForm.value.issue = docForm.value.issue
   ? new Date(docForm.value.issue).toISOString().split("T", 1)[0]
   : "";
 
-const validate = (state: Partial<Passport>) => {
-  const errors = [];
-  if (state.issue && !state.issue.match(/^\d{4}-\d{2}-\d{2}$/)) {
-    errors.push({
-      path: "issue",
-      message: "Поле должно содержать корректную дату",
-    });
-  }
-  return errors;
-};
+// const validate = (state: Partial<Passport>) => {
+//   const errors = [];
+//   if (state.issue && !state.issue.match(/^\d{4}-\d{2}-\d{2}$/)) {
+//     errors.push({
+//       path: "issue",
+//       message: "Поле должно содержать корректную дату",
+//     });
+//   }
+//   return errors;
+// };
 </script>
 
 <template>
   <UForm
+    :schema="schema"
     :state="docForm"
-    :validate="validate"
     @submit.prevent="emit('update', docForm)"
   >
     <UFormField label="Вид документа" name="view" required>
@@ -67,11 +81,6 @@ const validate = (state: Partial<Passport>) => {
     <UFormField label="Дата выдачи" name="issue" required>
       <UInput v-model.trim.lazy="docForm.issue" required type="date" />
     </UFormField>
-    <UButton
-        label="Принять"
-        color="success"
-        variant="outline"
-        type="submit"
-      />
+    <UButton label="Принять" color="success" variant="outline" type="submit" />
   </UForm>
 </template>

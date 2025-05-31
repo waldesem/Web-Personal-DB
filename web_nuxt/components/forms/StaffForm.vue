@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Staff } from "@/types";
+import * as v from "valibot";
 
 const emit = defineEmits(["update"]);
 
@@ -10,11 +11,23 @@ const props = defineProps({
   },
 });
 
+const schema = v.object({
+  position: v.pipe(
+    v.string(),
+    v.maxLength(255, "Максимальная длина 255 символов")
+  ),
+  department: v.pipe(
+    v.string(),
+    v.maxLength(255, "Максимальная длина 255 символов")
+  ),
+});
+
 const staffForm = toRef(props.item as Staff);
 </script>
 
 <template>
   <UForm
+  :schema="schema"
     :state="staffForm"
     @submit.prevent="emit('update', staffForm)"
   >
@@ -23,14 +36,12 @@ const staffForm = toRef(props.item as Staff);
         v-model.trim.lazy="staffForm.position"
         required
         placeholder="Должность"
-        maxlength="255"
       />
     </UFormField>
     <UFormField label="Подразделение" name="department">
       <UInput
         v-model.trim.lazy="staffForm.department"
         placeholder="Подразделение"
-        maxlength="255"
       />
     </UFormField>
     <UButton

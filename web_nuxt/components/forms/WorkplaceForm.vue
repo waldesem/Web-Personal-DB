@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Work } from "@/types";
+import * as v from "valibot";
 
 const emit = defineEmits(["update"]);
 
@@ -8,6 +9,16 @@ const props = defineProps({
     type:  Object as PropType<Work>,
     default: () => ({}),
   },
+});
+
+const schema = v.object({
+  now_work: v.boolean(),
+  starts: v.date(),
+  finished: v.date(),
+  workplace: v.string(v.maxLength(255)),
+  position: v.string(v.maxLength(255)),
+  addresses: v.string(v.maxLength(255)),
+  reason: v.string(),
 });
 
 const workForm = toRef(props.item as Work);
@@ -39,6 +50,7 @@ const validate = (state: Partial<Work>) => {
 
 <template>
   <UForm
+    :schema="schema"
     :state="workForm"
     :validate="validate"
     @submit.prevent="emit('update', workForm)"
