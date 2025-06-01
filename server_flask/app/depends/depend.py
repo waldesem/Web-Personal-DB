@@ -49,7 +49,8 @@ def auth_required(roles: tuple | None = None) -> Callable:
     The decorated function checks if the request contains a valid JWT token in the
     'Authorization' header. If the token is valid, the decorated function is executed.
     Otherwise, a 401 HTTP status code is returned.
-    The decorated function checks if the user has one of the specified roles in
+
+    Else decorated function checks if the user has one of the specified roles in
     the 'Authorization' header. If the user has the specified role, the decorated
     function is executed. Otherwise, a 403 HTTP status code is returned.
 

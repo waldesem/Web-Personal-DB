@@ -104,7 +104,7 @@ async function submitLogin() {
             <UFormField label="Логин" name="username" required>
               <UInput
                 v-model="loginForm['username']"
-                placeholder="username"
+                placeholder="Имя пользователя"
                 icon="i-heroicons-user"
                 autofocus
                 required
@@ -114,7 +114,7 @@ async function submitLogin() {
               <UInput
                 v-model="loginForm.password"
                 type="password"
-                placeholder="password"
+                placeholder="Пароль"
                 icon="i-heroicons-lock-closed"
                 required
               />
@@ -124,7 +124,7 @@ async function submitLogin() {
                 <UInput
                   v-model="loginForm.new_pswd"
                   type="password"
-                  placeholder="От 8 до 16 цифр и латинских букв в нижнем и верхнем регистре"
+                  placeholder="Новый пароль"
                   icon="i-heroicons-lock-closed"
                   required
                 />
@@ -133,7 +133,7 @@ async function submitLogin() {
                 <UInput
                   v-model="loginForm.conf_pswd"
                   type="password"
-                  placeholder="password"
+                  placeholder="Подтверждение пароля"
                   icon="i-heroicons-lock-closed"
                   required
                 />
