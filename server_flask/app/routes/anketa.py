@@ -7,7 +7,7 @@ from pathlib import Path
 from flask import Blueprint, Response, current_app, jsonify, request
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.depends.depend import current_user, roles_required, validate
+from app.depends.depend import auth_required, current_user, validate
 from app.model.classes import Roles
 from app.model.models import Region
 from app.model.tables import Persons, db_session
@@ -17,8 +17,8 @@ bp = Blueprint("anketa", __name__, url_prefix="/anketa")
 
 
 @bp.get("/region/<int:person_id>")
-@validate()
-@roles_required(Roles.user.value)
+@validate
+@auth_required(Roles.user.value)
 def change_region(person_id: int, query_data: Region) -> Response:
     """Change a person's region in the database based on their person ID.
 
@@ -46,7 +46,7 @@ def change_region(person_id: int, query_data: Region) -> Response:
 
 
 @bp.get("/self/<int:person_id>")
-@roles_required(Roles.user.value)
+@auth_required(Roles.user.value)
 def change_self_id(person_id: int) -> Response:
     """Toggle the editable status of a person with the given item ID.
 
@@ -71,8 +71,8 @@ def change_self_id(person_id: int) -> Response:
 
 
 @bp.post("/files/<item>/<int:person_id>")
-@validate()
-@roles_required(Roles.user.value)
+@validate
+@auth_required(Roles.user.value)
 def post_files(item: str, person_id: int) -> Response:
     """Upload a file to the server.
 

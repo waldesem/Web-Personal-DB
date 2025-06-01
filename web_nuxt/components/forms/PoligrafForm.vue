@@ -28,6 +28,7 @@ const poligrafForm = toRef(props.item as Pfo);
           'Плановое мероприятие',
         ]"
         placeholder="Выберите тему проверки"
+        required
       />
     </UFormField>
     <UFormField label="Результат" name="results" required>
@@ -35,6 +36,7 @@ const poligrafForm = toRef(props.item as Pfo);
         v-model.trim.lazy="poligrafForm.results"
         autoresize
         placeholder="Результат"
+        required
       />
     </UFormField>
     <UFormField label="Результат" name="conclusion" required>
@@ -42,6 +44,7 @@ const poligrafForm = toRef(props.item as Pfo);
         v-model="poligrafForm.conclusion"
         :items="['БЕЗ ЗАМЕЧАНИЙ', 'С КОММЕНТАРИЯМИ', 'НЕГАТИВ']"
         placeholder="Выберите результат"
+        required
       />
     </UFormField>
     <UButton label="Принять" color="success" variant="outline" type="submit" />

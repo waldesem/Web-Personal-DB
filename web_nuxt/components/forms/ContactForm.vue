@@ -23,12 +23,15 @@ const contactForm = toRef(props.item as Contact);
         v-model="contactForm.view"
         :items="['Телефон', 'Электронная почта', 'Другое']"
         placeholder="Выберите вид контакта"
+        required
       />
     </UFormField>
     <UFormField label="Контакт" name="contact" required>
       <UInput
         v-model.trim.lazy="contactForm.contact"
         placeholder="Контакт"
+        maxlength="255"
+        required
       />
     </UFormField>
     <UButton label="Принять" color="success" variant="outline" type="submit" />

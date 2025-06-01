@@ -23,6 +23,7 @@ const inquiryForm = toRef(props.item);
         v-model.trim.lazy="inquiryForm.info"
         autoresize
         placeholder="Информация"
+        required
       />
     </UFormField>
     <UFormField label="Инициатор" name="initiator" required>
@@ -30,6 +31,7 @@ const inquiryForm = toRef(props.item);
         v-model.trim.lazy="inquiryForm.initiator"
         placeholder="Инициатор"
         maxlength="255"
+        required
       />
     </UFormField>
     <UButton label="Принять" color="success" variant="outline" type="submit" />

@@ -30,6 +30,7 @@ const educationForm = toRef(props.item as Education);
           'Другое образование',
         ]"
         placeholder="Выберите тип образования"
+        required
       />
     </UFormField>
     <UFormField label="Название учебного заведения" name="institution" required>
@@ -37,6 +38,7 @@ const educationForm = toRef(props.item as Education);
         v-model.trim.lazy="educationForm.institution"
         placeholder="Название учебного заведения"
         maxlength="255"
+        required
       />
     </UFormField>
     <UFormField label="Год окончания" name="finished">

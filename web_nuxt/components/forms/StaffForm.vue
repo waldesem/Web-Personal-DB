@@ -23,6 +23,7 @@ const staffForm = toRef(props.item as Staff);
         v-model.trim.lazy="staffForm.position"
         placeholder="Должность"
         maxlength="255"
+        required
       />
     </UFormField>
     <UFormField label="Подразделение" name="department">

@@ -7,7 +7,7 @@ from flask.views import MethodView
 from sqlalchemy import desc, text
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.depends.depend import current_user, jwt_required, roles_required, validate
+from app.depends.depend import auth_required, current_user, validate
 from app.model.classes import Roles
 from app.model.models import Model, Person
 from app.model.tables import Base, Persons, db_session
@@ -19,7 +19,7 @@ bp = Blueprint("items", __name__, url_prefix="/items")
 class PersonView(MethodView):
     """Person routes."""
 
-    @jwt_required()
+    @auth_required()
     def get(self, person_id: int) -> Response:
         """Retrieve an item from the database based on the provided item ID.
 
@@ -37,8 +37,8 @@ class PersonView(MethodView):
             db_session.commit()
         return jsonify(person.to_dict()), 200
 
-    @validate()
-    @roles_required(Roles.user.value)
+    @validate
+    @auth_required(Roles.user.value)
     def post(self, json_data: Person) -> Response:
         """Insert or replaces a record in the specified table with the given item ID.
 
@@ -59,7 +59,7 @@ class PersonView(MethodView):
             db_session.rollback()
             return jsonify({"message": "error"}), 200
 
-    @roles_required(Roles.user.value)
+    @auth_required(Roles.user.value)
     def delete(self, person_id: int) -> Response:
         """Delete an item from the database based on the provided item name and item ID.
 
@@ -114,7 +114,7 @@ class ItemsView(MethodView):
 
     tables = Base.metadata.tables
 
-    @jwt_required()
+    @auth_required()
     def get(self, item: str, item_id: int) -> Response:
         """Retrieve an item from the database based on the provided item ID.
 
@@ -133,8 +133,8 @@ class ItemsView(MethodView):
         query = db_session.execute(stmt.order_by(desc(self.tables[item].c.id)))
         return jsonify([row._asdict() for row in query])
 
-    @validate()
-    @roles_required(Roles.user.value)
+    @validate
+    @auth_required(Roles.user.value)
     def post(self, item: str, item_id: int, json_data: Model) -> Response:
         """Insert or replaces a record in the specified table with the given item ID.
 
@@ -169,7 +169,7 @@ class ItemsView(MethodView):
             db_session.rollback()
             return jsonify({"message": "error"}), 200
 
-    @roles_required(Roles.user.value)
+    @auth_required(Roles.user.value)
     def delete(self, item: str, item_id: int) -> Response:
         """Delete an item from the database based on the provided item name and item ID.
 

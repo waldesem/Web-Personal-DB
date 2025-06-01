@@ -3,9 +3,8 @@ const userState = useUserState();
 
 async function logout() {
   if (!confirm("Вы действительно хотите выйти?")) return;
-  accessToken.value = "";
+  accessToken.value = null;
   clearNuxtData();
-  clearNuxtState();
   return navigateTo("/login");
 }
 </script>

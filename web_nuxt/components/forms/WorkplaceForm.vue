@@ -18,29 +18,11 @@ workForm.value.starts = workForm.value.starts
 workForm.value.finished = workForm.value.finished
   ? new Date(workForm.value.finished).toISOString().split("T", 1)[0]
   : "";
-
-const validate = (state: Partial<Work>) => {
-  const errors = [];
-  if (state.starts && !state.starts.match(/^\d{4}-\d{2}-\d{2}$/)) {
-    errors.push({
-      path: "issue",
-      message: "Поле должно содержать корректную дату",
-    });
-  }
-  if (state.finished && !state.finished.match(/^\d{4}-\d{2}-\d{2}$/)) {
-    errors.push({
-      path: "issue",
-      message: "Поле должно содержать корректную дату",
-    });
-  }
-  return errors;
-};
 </script>
 
 <template>
   <UForm
     :state="workForm"
-    :validate="validate"
     @submit.prevent="emit('update', workForm)"
   >
     <UFormField label="Текущая работа" name="now_work">
@@ -51,6 +33,7 @@ const validate = (state: Partial<Work>) => {
         v-model="workForm.starts"
         placeholder="Начало работы"
         type="date"
+        required
       />
     </UFormField>
     <UFormField label="Окончание работы" name="finished" required>
@@ -58,6 +41,7 @@ const validate = (state: Partial<Work>) => {
         v-model="workForm.finished"
         placeholder="Окончание работы"
         type="date"
+        required
       />
     </UFormField>
     <UFormField label="Место работы" name="workplace" required>
@@ -65,6 +49,7 @@ const validate = (state: Partial<Work>) => {
         v-model.trim.lazy="workForm.workplace"
         placeholder="Место работы"
         maxlength="255"
+        required
       />
     </UFormField>
     <UFormField label="Должность" name="position" required>
@@ -72,6 +57,7 @@ const validate = (state: Partial<Work>) => {
         v-model.trim.lazy="workForm.position"
         placeholder="Должность"
         maxlength="255"
+        required
       />
     </UFormField>
     <UFormField label="Адрес организации" name="addresses">

@@ -16,7 +16,7 @@ bp = Blueprint("auth", __name__, url_prefix="/auth")
 
 
 @bp.post("/<action>")
-@validate()
+@validate
 def post_login(action: str, json_data: Login) -> Response:
     """Handle the login process.
 

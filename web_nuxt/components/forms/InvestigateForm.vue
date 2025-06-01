@@ -23,6 +23,7 @@ const investigationForm = toRef(props.item as Inquisition);
         v-model.trim.lazy="investigationForm.theme"
         placeholder="Тема проверки"
         maxlength="255"
+        required
       />
     </UFormField>
     <UFormField label="Информация" name="info" required>
@@ -30,6 +31,7 @@ const investigationForm = toRef(props.item as Inquisition);
         v-model.trim.lazy="investigationForm.info"
         autoresize
         placeholder="Информация"
+        required
       />
     </UFormField>
     <UButton label="Принять" color="success" variant="outline" type="submit" />

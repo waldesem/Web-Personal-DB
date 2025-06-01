@@ -27,6 +27,7 @@ docForm.value.issue = docForm.value.issue
         v-model="docForm.view"
         :items="['Паспорт', 'Иностранный паспорт', 'Другое']"
         placeholder="Выберите вид документа"
+        required
       />
     </UFormField>
     <UFormField label="Серия документа" name="series">
@@ -34,6 +35,7 @@ docForm.value.issue = docForm.value.issue
         v-model.trim.lazy="docForm.series"
         placeholder="Серия документа"
         maxlength="4"
+        pattern="[0-9]*"
       />
     </UFormField>
     <UFormField label="Номер документа" name="digits" required>
@@ -41,6 +43,8 @@ docForm.value.issue = docForm.value.issue
         v-model.trim.lazy="docForm.digits"
         placeholder="Номер документа"
         maxlength="8"
+        pattern="[0-9]*"
+        required
       />
     </UFormField>
     <UFormField label="Кем выдан" name="agency">
@@ -51,7 +55,7 @@ docForm.value.issue = docForm.value.issue
       />
     </UFormField>
     <UFormField label="Дата выдачи" name="issue" required>
-      <UInput v-model.trim.lazy="docForm.issue" type="date" />
+      <UInput v-model.trim.lazy="docForm.issue" type="date" required />
     </UFormField>
     <UButton label="Принять" color="success" variant="outline" type="submit" />
   </UForm>

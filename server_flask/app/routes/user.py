@@ -9,13 +9,7 @@ from sqlalchemy import desc, select
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import generate_password_hash
 
-from app.depends.depend import (
-    auth_required,
-    current_user,
-    get_current_user,
-    roles_required,
-    validate,
-)
+from app.depends.depend import auth_required, current_user, get_current_user, validate
 from app.model.classes import Regions, Roles
 from app.model.models import User, UserActions
 from app.model.tables import Users, db_session
@@ -48,9 +42,9 @@ def get_users() -> Response:
 class UserView(MethodView):
     """User view class."""
 
-    decorators: ClassVar = [roles_required(Roles.admin.value)]
+    decorators: ClassVar = [auth_required(Roles.admin.value)]
 
-    @validate()
+    @validate
     def get(self, user_id: int, query_data: UserActions) -> Response:
         """Change a user's information in the database based on their user ID.
 
@@ -87,7 +81,7 @@ class UserView(MethodView):
         get_current_user.cache_clear()
         return jsonify({"message": "success"}), 201
 
-    @validate()
+    @validate
     def post(self, json_data: User) -> Response:
         """Handle the POST request to create a user in the database.
 

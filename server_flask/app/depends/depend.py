@@ -43,74 +43,6 @@ def get_current_user(user_id: int) -> Users | Response:
     return abort(401)
 
 
-def jwt_required(func: Callable) -> Callable:
-    """Decorate a function that checks if the request contains a valid JWT token.
-
-    The decorated function checks if the request contains a valid JWT token in the
-    'Authorization' header. If the token is valid, the decorated function is executed.
-    Otherwise, a 401 HTTP status code is returned.
-
-    Args:
-        func (function): The function to be decorated.
-        verify_exp: check token expired
-
-    Returns:
-        function: The decorated function.
-
-    """
-
-    @wraps(func)
-    def wrapper(*args: tuple, **kwargs: dict) -> Callable:
-        try:
-            header = request.headers.get("Authorization", type=str)
-            user: dict = jwt.decode(
-                header[7:],
-                current_app.config["JWT_SECRET_KEY"],
-                algorithms=["HS256"],
-                options={"verify_exp": True},
-            )
-            if user.get("id"):
-                g.user_id = user["id"]
-                return func(*args, **kwargs)
-
-        except ValueError:
-            current_app.logger.exception("Headers not found")
-        except jwt.exceptions.PyJWTError:
-            current_app.logger.exception("Error decoding token")
-        return abort(401)
-
-    return wrapper
-
-
-def roles_required(*roles: str) -> Callable:
-    """Decorate a function that checks if the user has one of the specified roles.
-
-    Decorate a function that checks if the request contains a valid JWT token.
-    The decorated function checks if the user has one of the specified roles in
-    the 'Authorization' header. If the user has the specified role, the decorated
-    function is executed. Otherwise, a 403 HTTP status code is returned.
-
-    Args:
-        roles (str): The roles to check for.
-
-    Returns:
-        function: The decorated function.
-
-    """
-
-    def decorator(func: Callable) -> Callable:
-        @jwt_required()
-        @wraps(func)
-        def wrapper(*args: tuple, **kwargs: dict) -> Callable:
-            if current_user.role in roles:
-                return func(*args, **kwargs)
-            return abort(403)
-
-        return wrapper
-
-    return decorator
-
-
 def auth_required(roles: tuple | None = None) -> Callable:
     """Decorate a function that checks a valid JWT token and the user has roles.
 
@@ -180,13 +112,13 @@ def validate(func: Callable) -> Callable:
     @wraps(func)
     def wrapper(*args: tuple, **kwargs: dict) -> Callable:
         """Validate request data using Pydantic models."""
-        # if funcion has query model argument
+        # if funcion has query_model argument with Pydantic model
         try:
             if query_model := func.__annotations__.get("query_data"):
                 query_data = request.args.to_dict()
                 kwargs["query_data"] = query_model(**query_data)
 
-            # if funcion has json model argument
+            # if funcion has json model argument with Pydantic model
             if json_model := func.__annotations__.get("json_data"):
                 # if json model annotation is Model
                 if json_model.__name__ == "Model":

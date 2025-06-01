@@ -28,6 +28,7 @@ const affilForm = toRef(props.item as Affilation);
           'Участвует в деятельности коммерческих организаций',
         ]"
         placeholder="Выберите вид участия"
+        required
       />
     </UFormField>
     <UFormField label="Организация" name="organization" required>
@@ -35,6 +36,7 @@ const affilForm = toRef(props.item as Affilation);
         v-model.trim.lazy="affilForm.organization"
         placeholder="Организация"
         maxlength="255"
+        required
       />
     </UFormField>
     <UFormField label="ИНН" name="inn">

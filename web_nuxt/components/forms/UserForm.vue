@@ -1,29 +1,32 @@
 <script setup lang="ts">
 import type { UserForm } from "@/types";
-import * as v from "valibot";
-
-const schema = v.object({
-  fullname: v.pipe(
-    v.string(),
-    v.maxLength(255, "Максимальная длина 255 символов"),
-    v.minLength(3, "Минимальная длина 3 символа"),
-    v.regex(/^[а-яёЁА-Я-\s]+$/, "Поле должно содержать только русские буквы от 3 до 255 символов")
-  ),
-  username: v.pipe(
-    v.string(),
-    v.maxLength(255, "Максимальная длина 255 символов"),
-    v.minLength(3, "Минимальная длина 3 символа"),
-    v.regex(
-      /^[a-zA-Z_\s]+$/,
-      "Поле должно содержать только латинские буквы и знаки подчеркивания"
-    )
-  ),
-  email: v.pipe(v.string(), v.email("Некорректный email")),
-});
 
 const emit = defineEmits(["update"]);
 
 const form = ref({} as UserForm);
+
+const validate = (state: Partial<UserForm>) => {
+  const errors = [];
+  if (
+    state.fullname &&
+    !state.fullname.match(/^[а-яёЁА-Я-\s]+$/)
+  ) {
+    errors.push({
+      name: "fullname",
+      message: "Поле содержит недопустимые символы",
+    });
+  }
+  if (
+    state.username &&
+    !state.username.match(/^[a-z0-9_-]{3,16}$/)
+  ) {
+    errors.push({
+      name: "username",
+      message: "Поле содержит недопустимые символы",
+    });
+  }
+  return errors;
+};
 
 async function submitUser() {
   const { message } = (await fetchAuth("/route/user", {
@@ -41,26 +44,27 @@ async function submitUser() {
 </script>
 
 <template>
-  <div class="m-4">
-    <UForm :schema="schema" :state="form" @submit.prevent="submitUser">
-      <UFormField label="Имя пользователя" name="fullname" required>
-        <UInput
-          v-model.lazy.trim="form.fullname"
-          placeholder="Имя пользователя"
-        />
-      </UFormField>
-      <UFormField label="Логин" name="username" required>
-        <UInput v-model.lazy.trim="form.username" placeholder="Логин" />
-      </UFormField>
-      <UFormField label="Email" name="email" required>
-        <UInput v-model.lazy.trim="form.email" placeholder="Email" />
-      </UFormField>
-      <UButton
-        label="Принять"
-        color="success"
-        variant="outline"
-        type="submit"
+  <UForm :validate="validate" :state="form" @submit.prevent="submitUser">
+    <UFormField label="Имя пользователя" name="fullname" required>
+      <UInput
+        v-model.lazy.trim="form.fullname"
+        placeholder="Имя пользователя"
+        maxlength="255"
+        required
       />
-    </UForm>
-  </div>
+    </UFormField>
+    <UFormField label="Логин" name="username" required>
+      <UInput
+        v-model.lazy.trim="form.username"
+        placeholder="Логин"
+        maxlength="255"
+        minlength="3"
+        required
+      />
+    </UFormField>
+    <UFormField label="Email" name="email" type="email" required>
+      <UInput v-model.lazy.trim="form.email" placeholder="Email" required />
+    </UFormField>
+    <UButton label="Принять" color="success" variant="outline" type="submit" />
+  </UForm>
 </template>

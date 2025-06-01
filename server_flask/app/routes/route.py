@@ -6,13 +6,7 @@ from flask import Blueprint, Response, current_app, jsonify, request
 from pydantic import ValidationError
 from sqlalchemy import desc, select
 
-from app.depends.depend import (
-    auth_required,
-    current_user,
-    # jwt_required,
-    roles_required,
-    validate,
-)
+from app.depends.depend import auth_required, current_user, validate
 from app.model.classes import Regions, Roles
 from app.model.models import AnketaJson, Person, Search
 from app.model.tables import Persons, Users, db_session
@@ -22,7 +16,7 @@ bp = Blueprint("route", __name__)
 
 
 @bp.get("/index/<int:page>")
-@validate()
+@validate
 @auth_required()
 def get_index(page: int, query_data: Search) -> Response:
     """Retrieve a paginated list of persons from the database.
@@ -69,8 +63,8 @@ def get_index(page: int, query_data: Search) -> Response:
 
 
 @bp.post("/resume")
-@validate()
-@roles_required(Roles.user.value)
+@validate
+@auth_required(Roles.user.value)
 def post_resume(json_data: Person) -> Response:
     """Create a new person or updates an existing person based on the provided data.
 
@@ -88,7 +82,7 @@ def post_resume(json_data: Person) -> Response:
 
 
 @bp.post("/json")
-@roles_required(Roles.user.value, Roles.api.value)
+@auth_required(roles=(Roles.user.value, Roles.api.value))
 def post_json() -> Response:
     """Create a new person or updates an existing person based on the provided data.
 
