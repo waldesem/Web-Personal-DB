@@ -9,7 +9,13 @@ from sqlalchemy import desc, select
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import generate_password_hash
 
-from app.depends.depend import current_user, get_current_user, roles_required, validate
+from app.depends.depend import (
+    auth_required,
+    current_user,
+    get_current_user,
+    roles_required,
+    validate,
+)
 from app.model.classes import Regions, Roles
 from app.model.models import User, UserActions
 from app.model.tables import Users, db_session
@@ -18,7 +24,7 @@ bp = Blueprint("users", __name__)
 
 
 @bp.get("/users")
-@roles_required(Roles.admin.value)
+@auth_required(Roles.admin.value)
 def get_users() -> Response:
     """Retrieve a list of users from the database.
 
