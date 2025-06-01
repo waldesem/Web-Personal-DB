@@ -55,7 +55,7 @@ def auth_required(roles: tuple | None = None) -> Callable:
     function is executed. Otherwise, a 403 HTTP status code is returned.
 
     Args:
-        roles (str): The roles to check for.
+        roles (str): The roles to check for (optional).
 
     Returns:
         function: The decorated function.

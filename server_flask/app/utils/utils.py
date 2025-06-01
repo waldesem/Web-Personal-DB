@@ -11,7 +11,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.depends.depend import current_user
-from app.model.models import AnketaJson
+from app.model.models import AnketaJson, Person
 from app.model.tables import (
     Addresses,
     Affilations,
@@ -38,29 +38,34 @@ def create_destination(person: Persons) -> str:
     return str(destination)
 
 
-def upload_resume(resume: dict) -> tuple[int, bool]:
+def upload_resume(cand: Person) -> tuple[int, bool]:
     """Upload a resume to the database.
 
     Args:
-        resume (dict): The resume to be uploaded.
+        cand (Person): The resume to be uploaded.
 
     Returns:
         int: The ID of the uploaded resume.
         bool: True if the resume existed earlier.
 
     """
+    person = (
+        db_session.execute(
+            select(Persons).where(
+                Persons.surname == cand.surname,
+                Persons.firstname == cand.firstname,
+                Persons.patronymic == cand.patronymic,
+                Persons.birthday == cand.birthday,
+            ),
+        ).scalar_one_or_none()
+        if not cand.id
+        else db_session.get(Persons, cand.id)
+    )
+
+    resume = cand.dict()
     resume["editable"] = True
     resume["user_id"] = current_user.id
     resume["region"] = current_user.region
-
-    person = db_session.execute(
-        select(Persons).where(
-            Persons.surname == resume["surname"],
-            Persons.firstname == resume["firstname"],
-            Persons.patronymic == resume["patronymic"],
-            Persons.birthday == resume["birthday"],
-        ),
-    ).scalar_one_or_none()
 
     try:
         if not person:
@@ -71,7 +76,9 @@ def upload_resume(resume: dict) -> tuple[int, bool]:
             db_session.commit()
             return person.id, False
 
-        if person.region != resume["region"] or person.editable:
+        if person.user_id != current_user.id or (
+            person.user_id == current_user.id and person.editable
+        ):
             return None, True
 
         for k, v in resume.items():
@@ -224,32 +231,32 @@ def upload_items(anketa: AnketaJson, person_id: int) -> None:
 
 
 def check_filename(name: str) -> str:
-        """Check filename for valid chars."""
-        filename_ascii_strip_re = re.compile(r"[^A-zА-яЁё0-9_.-]")  # noqa: RUF001
-        windows_device_files = (
-            "CON",
-            "AUX",
-            "COM1",
-            "COM2",
-            "COM3",
-            "COM4",
-            "LPT1",
-            "LPT2",
-            "LPT3",
-            "PRN",
-            "NUL",
-        )
-        filename = unicodedata.normalize("NFKD", name)
-        for sep in os.sep, os.path.altsep:
-            if sep:
-                filename = filename.replace(sep, " ")
-        filename = str(
-            filename_ascii_strip_re.sub("", "_".join(filename.split())),
-        ).strip("._")
-        if (
-            platform.system().lower() == "windows"
-            and filename
-            and filename.split(".")[0].upper() in windows_device_files
-        ):
-            filename = f"_{filename}"
-        return filename
+    """Check filename for valid chars."""
+    filename_ascii_strip_re = re.compile(r"[^A-zА-яЁё0-9_.-]")  # noqa: RUF001
+    windows_device_files = (
+        "CON",
+        "AUX",
+        "COM1",
+        "COM2",
+        "COM3",
+        "COM4",
+        "LPT1",
+        "LPT2",
+        "LPT3",
+        "PRN",
+        "NUL",
+    )
+    filename = unicodedata.normalize("NFKD", name)
+    for sep in os.sep, os.path.altsep:
+        if sep:
+            filename = filename.replace(sep, " ")
+    filename = str(
+        filename_ascii_strip_re.sub("", "_".join(filename.split())),
+    ).strip("._")
+    if (
+        platform.system().lower() == "windows"
+        and filename
+        and filename.split(".")[0].upper() in windows_device_files
+    ):
+        filename = f"_{filename}"
+    return filename

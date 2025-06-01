@@ -75,7 +75,7 @@ def post_resume(json_data: Person) -> Response:
         A JSON response containing the person ID and an HTTP status code of 201.
 
     """
-    person_id, existed = upload_resume(json_data.dict())
+    person_id, existed = upload_resume(json_data)
     return jsonify(
         {"person_id": person_id, "exists": existed},
     ), 201
@@ -97,18 +97,7 @@ def post_json() -> Response:
     try:
         json_data = json.load(file_data)
         anketa = AnketaJson(**json_data)
-        resume = {
-            "surname": anketa.surname,
-            "firstname": anketa.firstname,
-            "patronymic": anketa.patronymic,
-            "birthday": anketa.birthday,
-            "birthplace": anketa.birthplace,
-            "citizenship": anketa.citizen,
-            "dual": anketa.dual,
-            "marital": anketa.marital,
-            "inn": anketa.inn,
-            "snils": anketa.snils,
-        }
+        resume = Person(anketa.dict())
         person_id, existed = upload_resume(resume)
         if person_id:
             upload_items(anketa, person_id)

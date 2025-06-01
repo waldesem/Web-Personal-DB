@@ -11,7 +11,7 @@ from app.depends.depend import auth_required, current_user, validate
 from app.model.classes import Roles
 from app.model.models import Model, Person
 from app.model.tables import Base, Persons, db_session
-from app.utils.utils import create_destination
+from app.utils.utils import create_destination, upload_resume
 
 bp = Blueprint("items", __name__, url_prefix="/items")
 
@@ -40,7 +40,7 @@ class PersonView(MethodView):
     @validate
     @auth_required(Roles.user.value)
     def post(self, json_data: Person) -> Response:
-        """Insert or replaces a record in the specified table with the given item ID.
+        """Replace a record in persons table.
 
         Args:
             json_data (Person): The data to replace in the table.
@@ -50,14 +50,10 @@ class PersonView(MethodView):
             code of 201.
 
         """
-        try:
-            db_session.merge(Persons(**json_data.dict()))
-            db_session.commit()
+        cand_id, _ = upload_resume(json_data)
+        if cand_id:
             return jsonify({"message": "success"}), 201
-        except SQLAlchemyError:
-            current_app.logger.exception("Database error")
-            db_session.rollback()
-            return jsonify({"message": "error"}), 200
+        return jsonify({"message": "error"}), 200
 
     @auth_required(Roles.user.value)
     def delete(self, person_id: int) -> Response:

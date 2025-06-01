@@ -81,13 +81,12 @@ class Person(Model):
 
     __modelname__ = "persons"
 
+    __PATTERN = r"^[А-яЁё][А-яЁёIV\-\s\.\,\'\(\)]*[А-яЁё\s]$"  # noqa: RUF001
+
     id: int | str | None = None
-    surname: str = Field(regex=r"^[А-яЁё][А-яЁёIV\-\s\.\,\'\(\)]*[А-яЁё\s]$")  # noqa: RUF001
-    firstname: str = Field(regex=r"^[А-яЁё][А-яЁёIV\-\s\.\,\'\(\)]*[А-яЁё\s]$")  # noqa: RUF001
-    patronymic: str | None = Field(
-        regex=r"^$|^[А-яЁё][А-яЁёIV\-\s\.\,\'\(\)]*[А-яЁё\s]$",  # noqa: RUF001
-        default="",
-    )
+    surname: str = Field(regex=__PATTERN)
+    firstname: str = Field(regex=__PATTERN)
+    patronymic: str | None = Field(regex=__PATTERN, default="")
     birthday: date
     birthplace: str | None = ""
     citizenship: str | None = ""
@@ -99,7 +98,6 @@ class Person(Model):
     destination: str | None = ""
     region: Regions = ""
     editable: bool = False
-    user_id: str | int = None
 
     @validator("surname", "firstname", "patronymic")
     @classmethod
@@ -329,7 +327,7 @@ class AnketaJson(BaseModel):
     patronymic: str = Field(default="", alias="midName")
     birthday: date
     birthplace: str | None = ""
-    citizen: str | None = ""
+    citizenship: str = Field(default="", alias="citizen")
     dual: str = Field(default="", alias="additionalCitizenship")
     marital: str = Field(default="", alias="maritalStatus")
     inn: str | None = ""
