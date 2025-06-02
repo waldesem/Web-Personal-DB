@@ -361,9 +361,3 @@ class AnketaJson(BaseModel):
         default=[],
         alias="publicOfficeOrganizations",
     )
-
-    @validator("surname", "firstname", "patronymic")
-    @classmethod
-    def check_names(cls, v: str) -> str:
-        """Check names."""
-        return v.upper().strip() if v else ""
