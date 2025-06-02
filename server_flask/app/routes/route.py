@@ -97,7 +97,7 @@ def post_json() -> Response:
     try:
         json_data = json.load(file_data)
         anketa = AnketaJson(**json_data)
-        resume = Person(anketa.dict())
+        resume = Person(**anketa.dict())
         person_id, existed = upload_resume(resume)
         if person_id:
             upload_items(anketa, person_id)
