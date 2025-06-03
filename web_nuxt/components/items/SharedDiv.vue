@@ -10,8 +10,6 @@ import PreviousForm from "@/components/forms/PreviousForm.vue";
 import StaffForm from "@/components/forms/StaffForm.vue";
 import WorkplaceForm from "@/components/forms/WorkplaceForm.vue";
 
-const emits = defineEmits(["open"]);
-
 const props = defineProps({
   view: {
     type: String,
@@ -72,8 +70,6 @@ async function deleteItem(id: string, idx: number) {
   status.value = "success";
   if (message == "success") {
     items.value.splice(idx, 1);
-  }
-  if (message == "success") {
     makeToast(message, "Информация успешно удалена");
   } else {
     makeToast();
@@ -82,7 +78,7 @@ async function deleteItem(id: string, idx: number) {
 </script>
 
 <template>
-  <div v-for="(itm, idx) in items" :key="idx" class="py-2 ms-2">
+  <div v-for="(content, index) in items" :key="index" class="py-2 ms-2">
     <div v-if="editable" class="relative">
       <div class="absolute top-2 right-2">
         <UDropdownMenu
@@ -91,16 +87,15 @@ async function deleteItem(id: string, idx: number) {
               label: 'Изменить',
               icon: 'i-heroicons-pencil-square',
               onSelect() {
-                item = items[idx];
+                item = content;
                 modal = true;
-                emits('open', true);
               },
             },
             {
               label: 'Удалить',
               icon: 'i-heroicons-trash',
               onSelect() {
-                deleteItem(item['id' as keyof typeof item], idx);
+                deleteItem(content['id' as keyof typeof content], index);
               },
             },
           ]"
@@ -121,16 +116,15 @@ async function deleteItem(id: string, idx: number) {
       <ElementsSkeletonDiv :rows="3" />
     </div>
     <div v-else>
-      <ItemsSharedItem :view="props.view" :item="itm" />
+      <ItemsSharedItem :view="props.view" :item="content" />
     </div>
-    <USeparator v-if="idx != items.length - 1" icon="i-heroicons-bolt" />
+    <USeparator v-if="index != (items.length - 1)" icon="i-heroicons-bolt" />
   </div>
   <div v-if="!items.length && status === 'pending'">
     <ElementsSkeletonDiv :rows="3" />
   </div>
-  <div class="py-2 border-t border-gray-200">
+  <div v-if="editable" class="py-2 border-t border-gray-200">
     <UButton
-      :disabled="!editable"
       :loading="status == 'pending'"
       label="Добавить запись"
       icon="i-heroicons-document-plus"
@@ -141,7 +135,6 @@ async function deleteItem(id: string, idx: number) {
       "
     />
     <UModal
-      v-if="editable"
       v-model:open="modal"
       :ui="{ content: 'sm:max-w-4xl' }"
       title="Данные профиля"

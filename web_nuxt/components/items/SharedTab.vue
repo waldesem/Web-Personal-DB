@@ -49,13 +49,14 @@ async function submitItem(form: object) {
       body: form,
     }
   )) as Record<string, string>;
+  status.value = "success";
   item.value = {} as object;
+  await refresh();
   if (message == "success") {
     makeToast(message, "Информация успешно обновлена");
   } else {
     makeToast();
   }
-  await refresh();
 }
 
 async function deleteItem(id: string, idx: number) {
@@ -109,17 +110,12 @@ onCancel(() => {
     <UButton
       v-if="editable"
       :loading="status == 'pending'"
-      class="flex justify-end"
       label="Добавить запись"
       variant="ghost"
       icon="i-heroicons-document-plus"
-      @click="modal = !modal"
+      @click="modal = true"
     />
-    <div
-      v-for="(content, index) in items"
-      :key="content['id' as keyof typeof content]"
-      class="py-4 ms-2"
-    >
+    <div v-for="(content, index) in items" :key="index" class="py-2 ms-2">
       <div v-if="editable" class="relative">
         <div class="absolute top-2 right-2">
           <UDropdownMenu
@@ -165,13 +161,12 @@ onCancel(() => {
       <div v-else>
         <ItemsSharedItem :view="props.view" :item="content" />
       </div>
-      <USeparator v-if="index != items.length - 1" icon="i-heroicons-bolt" />
+      <USeparator v-if="index != (items.length - 1)" icon="i-heroicons-bolt" />
     </div>
     <div v-if="!items.length && status === 'pending'">
       <ElementsSkeletonDiv :rows="props.rows" />
     </div>
     <UModal
-      v-if="editable"
       v-model:open="modal"
       :ui="{ content: 'sm:max-w-4xl' }"
       title="Данные проверки"
