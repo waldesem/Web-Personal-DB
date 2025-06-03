@@ -265,32 +265,32 @@ class Inquiry(Model):
 class NameWasChangedJson(BaseModel):
     """Pydantic model for name was changed item."""
 
-    first_name: str = Field(alias="firstNameBeforeChange")
-    last_name: str = Field(default="", alias="lastNameBeforeChange")
-    mid_name: str = Field(default="", alias="midNameBeforeChange")
-    year_change: str | int = Field(default="", alias="yearOfChange")
+    firstname: str = Field(alias="firstNameBeforeChange")
+    surname: str = Field(default="", alias="lastNameBeforeChange")
+    patronymic: str = Field(default="", alias="midNameBeforeChange")
+    changed: str | int = Field(default="", alias="yearOfChange")
     reason: str | None = ""
 
 
 class EducationJson(BaseModel):
     """Pydantic model for education item."""
 
-    education_type: str = Field(default="", alias="educationType")
-    institution_name: str = Field(default="", alias="institutionName")
-    end_year: str | int = Field(default="", alias="endYear")
+    view: str = Field(default="", alias="educationType")
+    institution: str = Field(default="", alias="institutionName")
+    finished: str | int = Field(default="", alias="endYear")
     specialty: str | None = ""
 
 
 class ExperienceJson(BaseModel):
     """Pydantic model for experience item."""
 
-    begin_date: date = Field(alias="beginDate")
-    end_date: date = Field(default=None, alias="endDate")
-    current_job: bool = Field(default=False, alias="currentJob")
-    name: str | None = ""
-    address: str | None = ""
+    starts: date = Field(alias="beginDate")
+    finished: date = Field(default=None, alias="endDate")
+    now_work: bool = Field(default=False, alias="currentJob")
+    workplace: str | None = ""
+    addresses: str | None = ""
     position: str | None = ""
-    fire_reason: str = Field(default="", alias="fireReason")
+    reason: str = Field(default="", alias="fireReason")
 
 
 class OrganizationsJson(BaseModel):

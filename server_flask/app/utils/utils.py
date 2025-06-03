@@ -150,10 +150,7 @@ def upload_items(anketa: AnketaJson, person_id: int) -> None:
                 ),
                 *[
                     Educations(
-                        view=edu.education_type,
-                        institution=edu.institution_name,
-                        finished=edu.end_year,
-                        specialty=edu.specialty,
+                        **edu.dict(),
                         person_id=person_id,
                         user_id=current_user.id,
                     )
@@ -161,13 +158,7 @@ def upload_items(anketa: AnketaJson, person_id: int) -> None:
                 ],
                 *[
                     Workplaces(
-                        starts=work.begin_date,
-                        finished=work.end_date,
-                        now_work=work.current_job,
-                        workplace=work.name,
-                        addresses=work.address,
-                        reason=work.fire_reason,
-                        position=work.position,
+                        **work.dict(),
                         person_id=person_id,
                         user_id=current_user.id,
                     )
@@ -175,11 +166,7 @@ def upload_items(anketa: AnketaJson, person_id: int) -> None:
                 ],
                 *[
                     Previous(
-                        firstname=prev.first_name,
-                        surname=prev.last_name,
-                        patronymic=prev.mid_name,
-                        changed=prev.year_change,
-                        reason=prev.reason,
+                        **prev.dict(),
                         person_id=person_id,
                         user_id=current_user.id,
                     )

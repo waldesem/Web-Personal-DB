@@ -15,7 +15,7 @@ export default defineNuxtConfig({
       ],
       title: "StaffSec - кадровая безопасность",
     },
-    keepalive: { include: "persons" },
+    keepalive: { include: "persons", max: 3 },
     pageTransition: { name: "page", mode: "out-in" },
   },
   compatibilityDate: "2025-05-16",

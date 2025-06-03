@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import { watchDebounced, useArrayFilter } from "@vueuse/core";
 import type { TableColumn } from "@nuxt/ui";
-import { watchDebounced } from "@vueuse/core";
 import type { User } from "@/types";
 
 const UIcon = resolveComponent("UIcon");
@@ -14,10 +14,13 @@ const search = ref("");
 const users = ref([] as User[]);
 const modal = ref(false);
 const deleted = ref(false);
+const expanded = ref({ 1: false });
 
-const filtredUsers = computed(() => {
-  return users.value.filter((user: User) => user.deleted == deleted.value);
-});
+// const filtredUsers = computed(() => {
+//   return users.value.filter((user: User) => user.deleted == deleted.value);
+// });
+
+const filtredUsers = useArrayFilter(users.value, u => u.deleted == deleted.value);
 
 const { refresh, status } = await useLazyAsyncData("users", async () => {
   const data = (await fetchAuth("/route/users", {
@@ -44,6 +47,7 @@ async function userAction(item: string, user_id: string): Promise<void> {
     makeToast();
     return;
   }
+  if (!confirm("Подтвердите выполнение действия")) return;
   const { message } = (await fetchAuth("/route/user/" + user_id, {
     params: {
       item: item,
@@ -247,12 +251,10 @@ const columns: TableColumn<User>[] = [
     },
   },
 ];
-
-const expanded = ref({ 1: false });
 </script>
 
 <template>
-  <div class="mb-6">
+  <div>
     <div class="py-4">
       <h3 class="text-2xl text-gray-500 font-bold">ПОЛЬЗОВАТЕЛИ</h3>
     </div>
@@ -263,7 +265,7 @@ const expanded = ref({ 1: false });
       type="search"
     />
     <div class="flex items-center justify-between my-4">
-      <UFormField class="flex items-center space-x-4" label="Удаленные">
+      <UFormField label="Удаленные">
         <USwitch v-model="deleted" />
       </UFormField>
       <UButton

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { watchDebounced, useFileDialog } from "@vueuse/core";
+import { usePersonState } from "@/composables/personState";
 import type { DropdownMenuItem, TableColumn } from "@nuxt/ui";
 import type { Persons } from "@/types";
 
@@ -10,6 +11,7 @@ const UButton = resolveComponent("UButton");
 const UDropdownMenu = resolveComponent("UDropdownMenu");
 
 const userState = useUserState();
+const personState = usePersonState()
 
 const search = ref("");
 const page = ref(1);
@@ -117,6 +119,11 @@ async function submitResume(form: Persons): Promise<void> {
   createToast(person_id, exists);
 }
 
+async function navigateToPerson(person: Persons) {
+  personState.person.value = person;
+  await navigateTo(`/profile/${person.id}`)
+}
+
 const columns: TableColumn<Persons>[] = [
   { accessorKey: "id", header: "#" },
   { accessorKey: "region", header: "Регион" },
@@ -193,7 +200,7 @@ const items: DropdownMenuItem[] = [
 </script>
 
 <template>
-  <div class="mb-6">
+  <div>
     <div class="flex items-center justify-between mb-3">
       <div class="py-1">
         <h3 class="text-2xl text-red-800 font-bold">КАНДИДАТЫ</h3>
@@ -237,7 +244,7 @@ const items: DropdownMenuItem[] = [
       :columns="columns"
       :data="candidates"
       :meta="{ class: { tr: 'cursor-pointer' } }"
-      @select="navigateTo(`/profile/${$event.original.id}`)"
+      @select="navigateToPerson($event.original)"
     />
 
     <div class="flex items-center justify-between space-x-4 my-2">

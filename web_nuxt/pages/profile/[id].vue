@@ -1,38 +1,39 @@
 <script setup lang="ts">
+import { usePersonState } from "@/composables/personState";
 import type { TabsItem } from "@nuxt/ui";
 import type { Persons } from "@/types";
 
 await preloadComponents(["ItemsAnketaTab", "ItemsSharedTab"]);
 
 const route = useRoute();
+const userState = useUserState();
+const personState = usePersonState();
 
 const candId = computed(() => route.params.id as string);
 provide("candId", candId);
 
-const person = ref({} as Persons);
+// const person = ref({} as Persons);
 const region = ref("");
 
 const { status, refresh } = await useLazyAsyncData("persons", async () => {
-  person.value = (await fetchAuth(
+  personState.person.value = (await fetchAuth(
     "/route/items/persons/" + candId.value
   )) as Persons;
 });
 provide("status", status);
 
-const user = useUserState();
-
 const editable = computed(() => {
   return (
-    person.value.editable &&
-    user.value.role == "user" &&
-    user.value.id == person.value.user_id
+    personState.person.value.editable &&
+    userState.value.role == "user" &&
+    userState.value.id == personState.person.value.user_id
   );
 });
 provide("editable", editable);
 
 async function switchSelf(): Promise<void> {
-  if (person.value.user_id != user.value.id) {
-    if (person.value.editable) {
+  if (personState.person.value.user_id != userState.value.id) {
+    if (personState.person.value.editable) {
       if (
         !confirm(
           "Анкета редактируется другим пользователем. Переключить режим?"
@@ -48,23 +49,23 @@ async function switchSelf(): Promise<void> {
     return;
   }
   status.value = "pending";
-  person.value = (await fetchAuth(
-    "/route/anketa/self/" + person.value.id
+  personState.person.value = (await fetchAuth(
+    "/route/anketa/self/" + personState.person.value.id
   )) as Persons;
   status.value = "success";
 }
 
 async function changeRegion() {
-  if (region.value == person.value.region) {
+  if (region.value == personState.person.value.region) {
     return;
   }
   if (!confirm("Вы действительно хотите изменить регион?")) {
-    region.value = person.value.region;
+    region.value = personState.person.value.region;
     return;
   }
   status.value = "pending";
   const { message } = (await fetchAuth(
-    `/route/anketa/region/${person.value.id}`,
+    `/route/anketa/region/${personState.person.value.id}`,
     {
       params: {
         region: region.value,
@@ -76,7 +77,7 @@ async function changeRegion() {
     return navigateTo("/persons");
   } else {
     makeToast();
-    region.value = person.value.region;
+    region.value = personState.person.value.region;
     status.value = "error";
   }
 }
@@ -111,17 +112,19 @@ const items: TabsItem[] = [
 </script>
 
 <template>
-  <div class="mb-6">
+  <div>
     <div class="flex items-center justify-between mb-6">
       <USkeleton v-if="status == 'pending'" class="py-1 h-10 w-96" />
       <div v-else class="py-1">
         <h3 class="text-2xl text-red-800 font-bold">
           {{
-            `${person.surname} ${person.firstname} ${person.patronymic ?? ""}`
+            `${personState.person.value.surname} ${
+              personState.person.value.firstname
+            } ${personState.person.value.patronymic ?? ""}`
           }}
         </h3>
       </div>
-      <div v-if="user.role == 'user'" class="flex items-center space-x-4">
+      <div v-if="userState.role == 'user'" class="flex items-center space-x-4">
         <UTooltip text="Изменить регион">
           <USelect
             id="region"
@@ -133,9 +136,10 @@ const items: TabsItem[] = [
               'РЦ Урал',
               'РЦ Восток',
             ]"
-            :placeholder="person.region"
+            :placeholder="personState.person.value.region"
             :disabled="
-              (person.region != user.region && user.region != 'Главный офис') ||
+              (personState.person.value.region != userState.region &&
+                userState.region != 'Главный офис') ||
               !editable
             "
             @change="changeRegion"
@@ -143,20 +147,20 @@ const items: TabsItem[] = [
         </UTooltip>
         <UButton
           :loading="status === 'pending'"
-          :disabled="person.region != user.region"
+          :disabled="personState.person.value.region != userState.region"
           :color="
-            !person.editable
+            !personState.person.value.editable
               ? 'secondary'
-              : person.user_id == user.id
+              : personState.person.value.user_id == userState.id
               ? 'success'
               : 'error'
           "
           @click="switchSelf"
         >
           {{
-            !person.editable
+            !personState.person.value.editable
               ? "Анкета доступна для редактирования"
-              : person.user_id == user.id
+              : personState.person.value.user_id == userState.id
               ? "Анкета назначена текущему пользователю"
               : "Анкета редактируется другим пользователем"
           }}
@@ -172,7 +176,11 @@ const items: TabsItem[] = [
       :ui="{ trigger: 'flex-1' }"
     >
       <template #anketa>
-        <ItemsAnketaTab :person="person" :rows="12" @refresh="refresh" />
+        <ItemsAnketaTab
+          :person="personState.person.value"
+          :rows="12"
+          @refresh="refresh"
+        />
       </template>
       <template #checks="{ item }">
         <ItemsSharedTab :view="item.slot" :rows="16" />

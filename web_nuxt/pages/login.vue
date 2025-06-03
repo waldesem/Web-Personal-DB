@@ -4,7 +4,7 @@ import type { Login } from "@/types";
 
 definePageMeta({ layout: false });
 
-const loginAction = ref("login");
+const action = ref("login");
 const loginForm = ref({} as Login);
 
 const alert = ref({
@@ -16,7 +16,7 @@ const alert = ref({
 
 const validate = (state: Partial<Login>) => {
   const errors = [];
-  if (loginAction.value === "update") {
+  if (action.value === "update") {
     if (
       state.new_pswd &&
       !state.new_pswd.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,16}$/)
@@ -44,7 +44,7 @@ const validate = (state: Partial<Login>) => {
 
 async function submitLogin() {
   const { message, access_token } = (await $fetch(
-    "/route/auth/" + loginAction.value,
+    "/route/auth/" + action.value,
     {
       method: "POST",
       body: loginForm.value,
@@ -54,7 +54,7 @@ async function submitLogin() {
     accessToken.value = access_token;
     return navigateTo("/persons");
   } else if (message === "Updated") {
-    loginAction.value = "login";
+    action.value = "login";
     Object.assign(alert.value, {
       color: "success",
       title: "Информация",
@@ -62,7 +62,7 @@ async function submitLogin() {
       icon: "i-heroicons-information-circle",
     });
   } else if (message === "Denied") {
-    loginAction.value = "update";
+    action.value = "update";
     Object.assign(alert.value, {
       color: "warning",
       title: "Предупреждение",
@@ -119,7 +119,7 @@ async function submitLogin() {
                 required
               />
             </UFormField>
-            <div v-if="loginAction === 'update'">
+            <div v-if="action === 'update'">
               <UFormField label="Новый пароль" name="new_pswd" required>
                 <UInput
                   v-model="loginForm.new_pswd"
@@ -141,27 +141,24 @@ async function submitLogin() {
             </div>
             <div class="flex justify-between mt-2">
               <UButton
-                :label="loginAction === 'login' ? 'Войти' : 'Изменить'"
+                :label="action === 'login' ? 'Войти' : 'Изменить'"
                 color="success"
                 variant="outline"
                 type="submit"
               />
               <UButton
-                v-if="loginAction === 'login'"
+                v-if="action === 'login'"
                 label="Изменить"
                 color="secondary"
                 variant="outline"
-                @click="loginAction = 'update'"
+                @click="action = 'update'"
               />
               <UButton
-                v-if="loginAction === 'update'"
+                v-if="action === 'update'"
                 label="Отмена"
                 color="error"
                 variant="outline"
-                @click="
-                  loginAction = 'login';
-                  loginForm = {} as Login;
-                "
+                @click="action = 'login'"
               />
             </div>
           </UForm>
