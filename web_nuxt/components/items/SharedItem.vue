@@ -19,14 +19,18 @@ const items = {
     Фамилия: props.item.surname,
     Имя: props.item.firstname,
     Отчество: props.item.patronymic,
-    "Дата рождения": new Date(props.item.birthday).toLocaleDateString("ru-RU"),
+    "Дата рождения": props.item.birthday
+      ? new Date(props.item.birthday).toLocaleDateString("ru-RU")
+      : "",
     "Место рождения": props.item.birthplace,
     Гражданство: props.item.citizenship,
     "Двойное гражданство": props.item.dual,
     СНИЛС: props.item.snils,
     ИНН: props.item.inn,
     "Семейное положение": props.item.marital,
-    "Дата записи": new Date(props.item.created).toLocaleString("ru-RU"),
+    "Дата записи": props.item.created
+      ? new Date(props.item.created).toLocaleString("ru-RU")
+      : "",
     "Дополнительная информация": props.item.addition,
     "Материалы проверок": props.item.destination,
   },
@@ -47,9 +51,9 @@ const items = {
     "Вид документа": props.item.view,
     "Серия документа": props.item.series,
     "Номер документа": props.item.digits,
-    "Дата выдачи": new Date(props.item.issue)
-      .toLocaleDateString("ru-RU")
-      .split(",")[0],
+    "Дата выдачи": props.item.issue
+      ? new Date(props.item.issue).toLocaleDateString("ru-RU").split(",")[0]
+      : "",
     "Кем выдан": props.item.agency,
   },
   educations: {
@@ -71,12 +75,12 @@ const items = {
   },
   workplaces: {
     "Текущая работа": props.item.now_work ? "Да" : "Нет",
-    "Начало работы": new Date(props.item.starts)
-      .toLocaleDateString("ru-RU")
-      .split(",")[0],
-    "Окончание работы": new Date(props.item.finished)
-      .toLocaleDateString("ru-RU")
-      .split(",")[0],
+    "Начало работы": props.item.starts
+      ? new Date(props.item.starts).toLocaleDateString("ru-RU").split(",")[0]
+      : "",
+    "Окончание работы": props.item.finished
+      ? new Date(props.item.finished).toLocaleDateString("ru-RU").split(",")[0]
+      : "",
     Место: props.item.workplace,
     Адрес: props.item.addresses,
     Должность: props.item.position,
@@ -85,16 +89,16 @@ const items = {
   inquiries: {
     Информация: props.item.info,
     Иннициатор: props.item.initiator,
-    "Дата записи": new Date(props.item.created)
-      .toLocaleString("ru-RU")
-      .split(",")[0],
+    "Дата записи": props.item.created
+      ? new Date(props.item.created).toLocaleString("ru-RU").split(",")[0]
+      : "",
   },
   investigations: {
     "Тема проверки": props.item.theme,
     Информация: props.item.info,
-    "Дата записи": new Date(props.item.created)
-      .toLocaleString("ru-RU")
-      .split(",")[0],
+    "Дата записи": props.item.created
+      ? new Date(props.item.created).toLocaleString("ru-RU").split(",")[0]
+      : "",
   },
   poligrafs: {
     "Тема проверки": props.item.theme,
@@ -108,9 +112,9 @@ const items = {
           : "error",
       label: props.item.conclusion,
     }),
-    "Дата записи": new Date(props.item.created)
-      .toLocaleString("ru-RU")
-      .split(",")[0],
+    "Дата записи": props.item.created
+      ? new Date(props.item.created).toLocaleString("ru-RU").split(",")[0]
+      : "",
   },
   checks: {
     "Проверка по местам работы": props.item.workplace,
@@ -137,7 +141,9 @@ const items = {
 
       label: props.item.conclusion,
     }),
-    "Дата записи": new Date(props.item.created).toLocaleString("ru-RU"),
+    "Дата записи": props.item.created
+      ? new Date(props.item.created).toLocaleString("ru-RU")
+      : "",
   },
 };
 </script>

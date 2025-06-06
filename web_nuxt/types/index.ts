@@ -29,20 +29,6 @@ export type MappedTab = {
   [key in TabItems]: Component;
 };
 
-export type Profile = Persons &
-  Address &
-  Affilation &
-  Contact &
-  Passport &
-  Education &
-  Previous &
-  Staff &
-  Work &
-  Needs &
-  Inquisition &
-  Pfo &
-  Verification;
-
 export interface Login {
   username: string;
   password: string;
@@ -198,3 +184,17 @@ export interface Needs {
   origins: string;
   created: string;
 }
+
+export type Profile = Persons &
+  Address &
+  Affilation &
+  Contact &
+  Passport &
+  Education &
+  Previous &
+  Staff &
+  Work &
+  Needs &
+  Inquisition &
+  Pfo &
+  Verification;
