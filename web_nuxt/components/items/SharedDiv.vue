@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { MappedType, DivItems } from "@/types";
+import type { MappedDiv, DivItems } from "@/types";
 
 import AddressForm from "@/components/forms/AddressForm.vue";
 import AffilationForm from "@/components/forms/AffilationForm.vue";
@@ -26,7 +26,7 @@ const mappedForms = {
   previous: PreviousForm,
   staffs: StaffForm,
   workplaces: WorkplaceForm,
-} as MappedType;
+} as MappedDiv;
 
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;

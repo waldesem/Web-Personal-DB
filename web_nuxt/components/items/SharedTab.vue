@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useFileDialog } from "@vueuse/core";
-import type { MappedType, TabItems } from "@/types";
+import type { MappedTab, TabItems } from "@/types";
 
 import type { Component } from "vue";
 import CheckForm from "@/components/forms/CheckForm.vue";
@@ -24,7 +24,7 @@ const mappedForms = {
   inquiries: InquiryForm,
   investigations: InvestigateForm,
   poligrafs: PoligrafForm,
-} as MappedType;
+} as MappedTab;
 
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;

@@ -10,7 +10,6 @@ export type Method =
   | "trace";
 
 export type DivItems =
-  | "person"
   | "staffs"
   | "educations"
   | "workplaces"
@@ -22,9 +21,27 @@ export type DivItems =
 
 export type TabItems = "checks" | "poligrafs" | "investigations" | "inquiries";
 
-export type MappedType = {
-  [key in DivItems & TabItems]: Component;
+export type MappedDiv = {
+  [key in DivItems]: Component;
 };
+
+export type MappedTab = {
+  [key in TabItems]: Component;
+};
+
+export type Profile = Persons &
+  Address &
+  Affilation &
+  Contact &
+  Passport &
+  Education &
+  Previous &
+  Staff &
+  Work &
+  Needs &
+  Inquisition &
+  Pfo &
+  Verification;
 
 export interface Login {
   username: string;

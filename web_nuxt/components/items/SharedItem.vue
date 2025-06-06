@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import type { TabItems, DivItems } from "@/types";
+import type { TabItems, DivItems, Profile } from "@/types";
 
 const props = defineProps({
   view: {
-    type: String as () => TabItems | DivItems,
+    type: String as () => "person" | TabItems | DivItems,
     required: true,
   },
   item: {
-    type: Object,
+    type: Object as () => Partial<Profile>,
     default: () => ({}),
   },
 });
