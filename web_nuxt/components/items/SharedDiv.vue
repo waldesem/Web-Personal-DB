@@ -1,6 +1,14 @@
 <script setup lang="ts">
-import type { MappedType } from "@/types";
+import type { MappedType, DivItems } from "@/types";
 
+import Address from "@/components/contents/Address.vue";
+import Affilation from "@/components/contents/Affilation.vue";
+import Contact from "@/components/contents/Contact.vue";
+import Document from "@/components/contents/Document.vue";
+import Education from "@/components/contents/Education.vue";
+import Previous from "@/components/contents/Previous.vue";
+import Staff from "@/components/contents/Staff.vue";
+import Workplace from "@/components/contents/Workplace.vue";
 import AddressForm from "@/components/forms/AddressForm.vue";
 import AffilationForm from "@/components/forms/AffilationForm.vue";
 import ContactForm from "@/components/forms/ContactForm.vue";
@@ -12,12 +20,12 @@ import WorkplaceForm from "@/components/forms/WorkplaceForm.vue";
 
 const props = defineProps({
   view: {
-    type: String,
+    type: String as PropType<DivItems>,
     required: true,
   },
 });
 
-const mappedComponents = {
+const mappedForms = {
   addresses: AddressForm,
   affilations: AffilationForm,
   contacts: ContactForm,
@@ -26,6 +34,17 @@ const mappedComponents = {
   previous: PreviousForm,
   staffs: StaffForm,
   workplaces: WorkplaceForm,
+} as MappedType;
+
+const mappedItems = {
+  addresses: Address,
+  affilations: Affilation,
+  contacts: Contact,
+  documents: Document,
+  educations: Education,
+  previous: Previous,
+  staffs: Staff,
+  workplaces: Workplace,
 } as MappedType;
 
 const candId = inject("candId") as Ref<string>;
@@ -116,9 +135,12 @@ async function deleteItem(id: string, idx: number) {
       <ElementsSkeletonDiv :rows="3" />
     </div>
     <div v-else>
-      <ItemsSharedItem :view="props.view" :item="content" />
+      <component
+        :is="(mappedItems[props.view as keyof typeof mappedItems] as Component)"
+        :item="content"
+      />
     </div>
-    <USeparator v-if="index != (items.length - 1)" icon="i-heroicons-bolt" />
+    <USeparator v-if="index != items.length - 1" icon="i-heroicons-bolt" />
   </div>
   <div v-if="!items.length && status === 'pending'">
     <ElementsSkeletonDiv :rows="3" />
@@ -142,7 +164,7 @@ async function deleteItem(id: string, idx: number) {
     >
       <template #body>
         <component
-          :is="(mappedComponents[props.view] as Component)"
+          :is="(mappedForms[props.view as keyof typeof mappedForms] as Component)"
           :item="item"
           @update="submitItem"
         />

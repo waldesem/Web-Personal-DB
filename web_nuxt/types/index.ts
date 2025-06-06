@@ -9,6 +9,23 @@ export type Method =
   | "options"
   | "trace";
 
+export type DivItems =
+  | "person"
+  | "staffs"
+  | "educations"
+  | "workplaces"
+  | "documents"
+  | "addresses"
+  | "contacts"
+  | "previous"
+  | "affilations";
+
+export type TabItems = "checks" | "poligrafs" | "investigations" | "inquiries";
+
+export type MappedType = {
+  [key in DivItems & TabItems]: Component;
+};
+
 export interface Login {
   username: string;
   password: string;
@@ -29,7 +46,7 @@ export interface Token extends UserForm {
   exp: number;
 }
 
-export interface User extends Omit<Token, 'exp'> {
+export interface User extends Omit<Token, "exp"> {
   pswd_create: string;
   change_pswd: boolean;
   blocked: boolean;
@@ -56,7 +73,7 @@ export interface Persons {
   created: string;
   region: string;
   username: string;
-  user_id: string
+  user_id: string;
 }
 
 export interface Previous {
@@ -163,8 +180,4 @@ export interface Needs {
   initiator: string;
   origins: string;
   created: string;
-}
-
-export interface MappedType {
-  [key: string]: Component;
 }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { AccordionItem } from "@nuxt/ui";
-import type { Persons } from "@/types";
+import type { Persons, DivItems } from "@/types";
 
 await preloadComponents(["DivsSharedDiv"]);
 await preloadComponents("ItemsSharedDiv");
@@ -132,7 +132,7 @@ const items: AccordionItem[] = [
       <ElementsSkeletonDiv :rows="props.rows" />
     </div>
     <div v-else class="ps-2">
-      <ItemsSharedItem :view="'person'" :item="person" />
+      <ContentsPerson :item="person" />
     </div>
     <UModal
       v-if="editable"
@@ -147,7 +147,7 @@ const items: AccordionItem[] = [
     <USeparator />
     <UAccordion :items="items" :unmount-on-hide="false">
       <template #content="{ item }">
-        <ItemsSharedDiv :view="(item.content as string)" />
+        <ItemsSharedDiv :view="(item.content as DivItems)" />
       </template>
     </UAccordion>
   </div>

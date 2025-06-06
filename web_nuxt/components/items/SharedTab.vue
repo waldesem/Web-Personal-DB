@@ -1,16 +1,20 @@
 <script setup lang="ts">
 import { useFileDialog } from "@vueuse/core";
-import type { MappedType } from "@/types";
+import type { MappedType, TabItems } from "@/types";
 
+import type { Component } from "vue";
+import Check from "@/components/contents/Check.vue";
+import Inquiry from "@/components/contents/Inquiry.vue";
+import Investigation from "@/components/contents/Investigation.vue";
+import Poligraf from "@/components/contents/Poligraf.vue";
 import CheckForm from "@/components/forms/CheckForm.vue";
 import InquiryForm from "@/components/forms/InquiryForm.vue";
 import InvestigateForm from "@/components/forms/InvestigateForm.vue";
 import PoligrafForm from "@/components/forms/PoligrafForm.vue";
-import type { Component } from "vue";
 
 const props = defineProps({
   view: {
-    type: String,
+    type: String as PropType<TabItems>,
     required: true,
   },
   rows: {
@@ -19,11 +23,18 @@ const props = defineProps({
   },
 });
 
-const mappedComponents = {
+const mappedForms = {
   checks: CheckForm,
   inquiries: InquiryForm,
   investigations: InvestigateForm,
   poligrafs: PoligrafForm,
+} as MappedType;
+
+const mappedItems = {
+  checks: Check,
+  inquiries: Inquiry,
+  investigations: Investigation,
+  poligrafs: Poligraf,
 } as MappedType;
 
 const candId = inject("candId") as Ref<string>;
@@ -159,9 +170,12 @@ onCancel(() => {
         <ElementsSkeletonDiv :rows="props.rows" />
       </div>
       <div v-else>
-        <ItemsSharedItem :view="props.view" :item="content" />
+        <component
+          :is="(mappedItems[props.view as keyof typeof mappedItems] as Component)"
+          :item="content"
+        />
       </div>
-      <USeparator v-if="index != (items.length - 1)" icon="i-heroicons-bolt" />
+      <USeparator v-if="index != items.length - 1" icon="i-heroicons-bolt" />
     </div>
     <div v-if="!items.length && status === 'pending'">
       <ElementsSkeletonDiv :rows="props.rows" />
@@ -174,7 +188,7 @@ onCancel(() => {
     >
       <template #body>
         <component
-          :is="(mappedComponents[props.view] as Component)"
+          :is="(mappedForms[props.view as keyof typeof mappedForms] as Component)"
           :item="item"
           @update="submitItem"
         />
