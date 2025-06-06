@@ -22,23 +22,20 @@ export interface UserForm {
   email: string;
 }
 
-export interface User extends UserForm {
+export interface Token extends UserForm {
   id: string;
+  region: string;
+  role: string;
+  exp: number;
+}
+
+export interface User extends Token {
   pswd_create: string;
   change_pswd: boolean;
   blocked: boolean;
   deleted: boolean;
   created: string;
   attempt: string;
-  region: string;
-  role: string;
-}
-
-export interface Token extends UserForm {
-  id: string;
-  region: string;
-  role: string;
-  exp: number;
 }
 
 export interface Persons {
