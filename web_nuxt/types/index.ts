@@ -22,11 +22,8 @@ export interface UserForm {
   email: string;
 }
 
-export interface User {
+export interface User extends UserForm {
   id: string;
-  fullname: string;
-  username: string;
-  email: string;
   pswd_create: string;
   change_pswd: boolean;
   blocked: boolean;
@@ -37,11 +34,8 @@ export interface User {
   role: string;
 }
 
-export interface Token {
+export interface Token extends UserForm {
   id: string;
-  fullname: string;
-  username: string;
-  email: string;
   region: string;
   role: string;
   exp: number;
