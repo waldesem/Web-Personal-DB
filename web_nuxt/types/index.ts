@@ -29,7 +29,7 @@ export interface Token extends UserForm {
   exp: number;
 }
 
-export interface User extends Token {
+export interface User extends Omit<Token, 'exp'> {
   pswd_create: string;
   change_pswd: boolean;
   blocked: boolean;
