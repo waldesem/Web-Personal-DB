@@ -132,7 +132,7 @@ const items: AccordionItem[] = [
       <ElementsSkeletonDiv :rows="props.rows" />
     </div>
     <div v-else class="ps-2">
-      <ContentsPerson :item="person" />
+      <ItemsSharedItem :view="'person'" :item="person" />
     </div>
     <UModal
       v-if="editable"

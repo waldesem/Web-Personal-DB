@@ -1,14 +1,6 @@
 <script setup lang="ts">
 import type { MappedType, DivItems } from "@/types";
 
-import Address from "@/components/contents/Address.vue";
-import Affilation from "@/components/contents/Affilation.vue";
-import Contact from "@/components/contents/Contact.vue";
-import Document from "@/components/contents/Document.vue";
-import Education from "@/components/contents/Education.vue";
-import Previous from "@/components/contents/Previous.vue";
-import Staff from "@/components/contents/Staff.vue";
-import Workplace from "@/components/contents/Workplace.vue";
 import AddressForm from "@/components/forms/AddressForm.vue";
 import AffilationForm from "@/components/forms/AffilationForm.vue";
 import ContactForm from "@/components/forms/ContactForm.vue";
@@ -34,17 +26,6 @@ const mappedForms = {
   previous: PreviousForm,
   staffs: StaffForm,
   workplaces: WorkplaceForm,
-} as MappedType;
-
-const mappedItems = {
-  addresses: Address,
-  affilations: Affilation,
-  contacts: Contact,
-  documents: Document,
-  educations: Education,
-  previous: Previous,
-  staffs: Staff,
-  workplaces: Workplace,
 } as MappedType;
 
 const candId = inject("candId") as Ref<string>;
@@ -135,10 +116,7 @@ async function deleteItem(id: string, idx: number) {
       <ElementsSkeletonDiv :rows="3" />
     </div>
     <div v-else>
-      <component
-        :is="(mappedItems[props.view as keyof typeof mappedItems] as Component)"
-        :item="content"
-      />
+      <ItemsShareditems :view="props.view" :item="content"/>
     </div>
     <USeparator v-if="index != items.length - 1" icon="i-heroicons-bolt" />
   </div>

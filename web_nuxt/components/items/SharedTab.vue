@@ -3,10 +3,6 @@ import { useFileDialog } from "@vueuse/core";
 import type { MappedType, TabItems } from "@/types";
 
 import type { Component } from "vue";
-import Check from "@/components/contents/Check.vue";
-import Inquiry from "@/components/contents/Inquiry.vue";
-import Investigation from "@/components/contents/Investigation.vue";
-import Poligraf from "@/components/contents/Poligraf.vue";
 import CheckForm from "@/components/forms/CheckForm.vue";
 import InquiryForm from "@/components/forms/InquiryForm.vue";
 import InvestigateForm from "@/components/forms/InvestigateForm.vue";
@@ -28,13 +24,6 @@ const mappedForms = {
   inquiries: InquiryForm,
   investigations: InvestigateForm,
   poligrafs: PoligrafForm,
-} as MappedType;
-
-const mappedItems = {
-  checks: Check,
-  inquiries: Inquiry,
-  investigations: Investigation,
-  poligrafs: Poligraf,
 } as MappedType;
 
 const candId = inject("candId") as Ref<string>;
@@ -170,10 +159,7 @@ onCancel(() => {
         <ElementsSkeletonDiv :rows="props.rows" />
       </div>
       <div v-else>
-        <component
-          :is="(mappedItems[props.view as keyof typeof mappedItems] as Component)"
-          :item="content"
-        />
+        <ItemsShareditems :view="props.view" :item="content"/>
       </div>
       <USeparator v-if="index != items.length - 1" icon="i-heroicons-bolt" />
     </div>
