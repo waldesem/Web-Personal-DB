@@ -59,16 +59,6 @@ export interface Persons {
   user_id: string
 }
 
-export interface Relation {
-  right_id: string;
-  type: string;
-}
-
-export interface Relationship {
-  left_id: string;
-  type: string;
-}
-
 export interface Previous {
   id: string;
   surname: string;
@@ -173,16 +163,6 @@ export interface Needs {
   initiator: string;
   origins: string;
   created: string;
-}
-
-export interface Folders {
-  name: string;
-  path: string;
-}
-
-export interface Files {
-  name: string;
-  path: string;
 }
 
 export interface MappedType {
