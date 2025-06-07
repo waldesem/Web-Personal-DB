@@ -50,7 +50,7 @@ def main() -> None:
             app.run(host=args.host, port=args.port, debug=False)
         case "server":
             wsgi_server(app, address=args.host, port=args.port, workers=args.workers)
-        case "desktop":
+        case _:
             run_desktop(app, address=args.host, port=args.port, workers=args.workers)
 
 
