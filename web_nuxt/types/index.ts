@@ -21,6 +21,13 @@ export type DivItems =
 
 export type TabItems = "checks" | "poligrafs" | "investigations" | "inquiries";
 
+export type Regions =
+  | "Главный офис"
+  | "РЦ Юг"
+  | "РЦ Запад"
+  | "РЦ Урал"
+  | "РЦ Восток";
+
 export interface Login {
   username: string;
   password: string;
@@ -36,8 +43,8 @@ export interface UserForm {
 
 export interface Token extends UserForm {
   id: string;
-  region: string;
-  role: string;
+  region: Regions;
+  role: "admin" | "api" | "user" | "guest";
   exp: number;
 }
 
@@ -71,7 +78,7 @@ export interface Persons extends Omit<Previous, "changed" | "reason"> {
   destination?: string;
   editable: boolean;
   created: string;
-  region: string;
+  region: Regions;
   username: string;
   user_id: string;
 }
@@ -145,7 +152,11 @@ export interface Verification {
   cronos: string;
   cros: string;
   addition: string;
-  conclusion: string;
+  conclusion:
+    | "СОГЛАСОВАНО"
+    | "СОГЛАСОВАНО С КОММЕНТАРИЕМ"
+    | "ОТКАЗАНО В СОГЛАСОВАНИИ"
+    | "СНЯТ С ПРОВЕРКИ";
   comment: string;
   created: string;
 }
@@ -154,7 +165,11 @@ export interface Pfo {
   id: string;
   theme: string;
   results: string;
-  conclusion: string;
+  conclusion:
+    | "БЕЗ ЗАМЕЧАНИЙ"
+    | "С КОММЕНТАРИЯМИ"
+    | "ОТКАЗ ОТ ПРОВЕРКИ"
+    | "НЕГАТИВ";
   created: string;
 }
 
@@ -172,17 +187,3 @@ export interface Needs {
   origins: string;
   created: string;
 }
-
-export type Profile = Persons &
-  Address &
-  Affilation &
-  Contact &
-  Passport &
-  Education &
-  Previous &
-  Staff &
-  Work &
-  Needs &
-  Inquisition &
-  Pfo &
-  Verification;

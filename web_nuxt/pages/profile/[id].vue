@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useFileDialog } from "@vueuse/core";
 import type { TabsItem } from "@nuxt/ui";
-import type { Persons } from "@/types";
+import type { Persons, Regions } from "@/types";
 
 await preloadComponents(["ContentAnketaTab", "ContentSharedView"]);
 
@@ -12,7 +12,7 @@ const candId = computed(() => route.params.id as string);
 provide("candId", candId);
 
 const person = ref({} as Persons);
-const region = ref("");
+const region = ref("" as Regions);
 
 const { status, refresh } = await useLazyAsyncData("persons", async () => {
   person.value = (await fetchAuth(
@@ -81,7 +81,6 @@ async function changeRegion() {
   }
 }
 
-
 const { open, reset, onCancel, onChange } = useFileDialog();
 
 onChange(async (files) => {
@@ -95,13 +94,10 @@ onChange(async (files) => {
     }
     formData.append("file", file);
   }
-  const { message } = (await fetchAuth(
-    `/route/anketa/files//${candId.value}`,
-    {
-      method: "POST",
-      body: formData,
-    }
-  )) as Record<string, string>;
+  const { message } = (await fetchAuth(`/route/anketa/files/${candId.value}`, {
+    method: "POST",
+    body: formData,
+  })) as Record<string, string>;
   if (message == "success") {
     makeToast("success", "Файлы успешно загружены");
   } else {
@@ -116,27 +112,27 @@ onCancel(() => {
 
 const items: TabsItem[] = [
   {
-    slot: "anketa",
+    slot: "anketa" as const,
     label: "Анкета",
     icon: "i-heroicons-user",
   },
   {
-    slot: "checks",
+    slot: "checks" as const,
     label: "Проверки",
     icon: "i-heroicons-check-circle",
   },
   {
-    slot: "poligrafs",
+    slot: "poligrafs" as const,
     label: "Полиграф",
     icon: "i-heroicons-bolt",
   },
   {
-    slot: "investigations",
+    slot: "investigations" as const,
     label: "Расследования",
     icon: "i-heroicons-briefcase",
   },
   {
-    slot: "inquiries",
+    slot: "inquiries" as const,
     label: "Запросы",
     icon: "i-heroicons-document-text",
   },
@@ -150,9 +146,7 @@ const items: TabsItem[] = [
       <div v-else class="py-1">
         <h3 class="text-2xl text-red-800 font-bold">
           {{
-            `${person.surname} ${
-              person.firstname
-            } ${person.patronymic ?? ""}`
+            `${person.surname} ${person.firstname} ${person.patronymic ?? ""}`
           }}
         </h3>
       </div>
@@ -160,7 +154,6 @@ const items: TabsItem[] = [
         <UButton
           :loading="status === 'pending'"
           icon="i-heroicons-cloud-arrow-up"
-          variant="ghost"
           label="Загрузить файлы"
           @click="open()"
         />
@@ -194,16 +187,15 @@ const items: TabsItem[] = [
               ? 'success'
               : 'error'
           "
-          @click="switchSelf"
-        >
-          {{
+          :label="
             !person.editable
-              ? "Анкета доступна для редактирования"
+              ? 'Доступно  для редактирования'
               : person.user_id == userState.id
-              ? "Анкета назначена текущему пользователю"
-              : "Анкета редактируется другим пользователем"
-          }}
-        </UButton>
+              ? 'Назначено текущему пользователю'
+              : 'Редактируется другим пользователем'
+          "
+          @click="switchSelf"
+        />
       </div>
     </div>
     <UTabs
@@ -215,11 +207,7 @@ const items: TabsItem[] = [
       :ui="{ trigger: 'flex-1' }"
     >
       <template #anketa>
-        <ContentAnketaTab
-          :person="person"
-          :rows="12"
-          @refresh="refresh"
-        />
+        <ContentAnketaTab :person="person" :rows="12" @refresh="refresh" />
       </template>
       <template #checks="{ item }">
         <ContentSharedView :view="item.slot" :rows="16" />

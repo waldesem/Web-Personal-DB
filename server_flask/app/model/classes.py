@@ -36,4 +36,5 @@ class Decisions(Enum):
 
     agreed = "БЕЗ ЗАМЕЧАНИЙ"
     comments = "С КОММЕНТАРИЯМИ"
+    cancel = "ОТКАЗ ОТ ПРОВЕРКИ"
     denied = "НЕГАТИВ"

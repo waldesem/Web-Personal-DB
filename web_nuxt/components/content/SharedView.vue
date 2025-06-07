@@ -2,6 +2,19 @@
 import type { DivItems, TabItems } from "@/types";
 
 import type { Component } from "vue";
+import AddressItem from "@/components/items/AddressItem.vue";
+import AffilationItem from "@/components/items/AffilationItem.vue";
+import ContactItem from "@/components/items/ContactItem.vue";
+import DocumentItem from "@/components/items/DocumentItem.vue";
+import EducationItem from "@/components/items/EducationItem.vue";
+import PreviousItem from "@/components/items/PreviousItem.vue";
+import StaffItem from "@/components/items/StaffItem.vue";
+import WorkplaceItem from "@/components/items/WorkplaceItem.vue";
+import CheckItem from "@/components/items/CheckItem.vue";
+import InquiryItem from "@/components/items/InquiryItem.vue";
+import InvestigateItem from "@/components/items/InvestigationItem.vue";
+import PoligrafItem from "@/components/items/PoligrafItem.vue";
+
 import AddressForm from "@/components/forms/AddressForm.vue";
 import AffilationForm from "@/components/forms/AffilationForm.vue";
 import ContactForm from "@/components/forms/ContactForm.vue";
@@ -15,11 +28,9 @@ import InquiryForm from "@/components/forms/InquiryForm.vue";
 import InvestigateForm from "@/components/forms/InvestigateForm.vue";
 import PoligrafForm from "@/components/forms/PoligrafForm.vue";
 
-await preloadComponents(["ContentSharedItem"]);
-
 const props = defineProps({
   view: {
-    type: String as PropType<TabItems>,
+    type: String as PropType<TabItems | DivItems>,
     required: true,
   },
   rows: {
@@ -28,20 +39,20 @@ const props = defineProps({
   },
 });
 
-const mappedForms = {
-  addresses: AddressForm,
-  affilations: AffilationForm,
-  contacts: ContactForm,
-  documents: DocumentForm,
-  educations: EducationForm,
-  previous: PreviousForm,
-  staffs: StaffForm,
-  workplaces: WorkplaceForm,
-  checks: CheckForm,
-  inquiries: InquiryForm,
-  investigations: InvestigateForm,
-  poligrafs: PoligrafForm,
-} as { [key in DivItems | TabItems]: Component };
+const mappedContent = {
+  addresses: [AddressForm, AddressItem],
+  affilations: [AffilationForm, AffilationItem],
+  contacts: [ContactForm, ContactItem],
+  documents: [DocumentForm, DocumentItem],
+  educations: [EducationForm, EducationItem],
+  previous: [PreviousForm, PreviousItem],
+  staffs: [StaffForm, StaffItem],
+  workplaces: [WorkplaceForm, WorkplaceItem],
+  checks: [CheckForm, CheckItem],
+  inquiries: [InquiryForm, InquiryItem],
+  investigations: [InvestigateForm, InvestigateItem],
+  poligrafs: [PoligrafForm, PoligrafItem],
+} as { [key in DivItems | TabItems]: Component[] };
 
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
@@ -93,7 +104,7 @@ async function deleteItem(id: string, idx: number) {
 <template>
   <div v-for="(content, index) in items" :key="index" class="py-2 ms-2">
     <div v-if="editable" class="relative">
-      <div class="absolute top-2 right-2">
+      <div class="absolute right-1">
         <UDropdownMenu
           :items="[
             {
@@ -124,18 +135,21 @@ async function deleteItem(id: string, idx: number) {
         </UDropdownMenu>
       </div>
     </div>
-    <div v-if="status === 'pending'">
-      <ElementsSkeletonDiv :rows="props.rows" />
-    </div>
+    <ElementsSkeletonDiv v-if="status === 'pending'" :rows="props.rows" />
     <div v-else>
-      <ContentSharedItem :view="props.view" :item="content" />
+      <component
+        :is="(mappedContent[props.view as keyof typeof mappedContent][0] as Component)"
+        :item="content"
+        @update="submitItem"
+      />
     </div>
-    <USeparator v-if="index != items.length - 1" icon="i-heroicons-bolt" />
+    <USeparator v-if="index < items.length - 1" />
   </div>
-  <div v-if="!items.length && status === 'pending'">
-    <ElementsSkeletonDiv :rows="props.rows" />
-  </div>
-  <div v-if="editable" class="py-2 border-t border-gray-200">
+  <div
+    v-if="editable"
+    class="flex justify-start py-2"
+    :class="{ 'border-t border-gray-200': items.length > 0 }"
+  >
     <UButton
       :loading="status == 'pending'"
       label="Добавить запись"
@@ -155,7 +169,7 @@ async function deleteItem(id: string, idx: number) {
   >
     <template #body>
       <component
-        :is="(mappedForms[props.view as keyof typeof mappedForms] as Component)"
+        :is="(mappedContent[props.view as keyof typeof mappedContent][1] as Component)"
         :item="item"
         @update="submitItem"
       />

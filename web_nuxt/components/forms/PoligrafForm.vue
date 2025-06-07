@@ -14,10 +14,7 @@ const poligrafForm = toRef(props.item as Pfo);
 </script>
 
 <template>
-  <UForm
-    :state="poligrafForm"
-    @submit.prevent="emit('update', poligrafForm)"
-  >
+  <UForm :state="poligrafForm" @submit.prevent="emit('update', poligrafForm)">
     <UFormField label="Тема проверки" name="theme" required>
       <USelect
         v-model="poligrafForm.theme"
@@ -42,7 +39,12 @@ const poligrafForm = toRef(props.item as Pfo);
     <UFormField label="Результат" name="conclusion" required>
       <USelect
         v-model="poligrafForm.conclusion"
-        :items="['БЕЗ ЗАМЕЧАНИЙ', 'С КОММЕНТАРИЯМИ', 'НЕГАТИВ']"
+        :items="[
+          'БЕЗ ЗАМЕЧАНИЙ',
+          'С КОММЕНТАРИЯМИ',
+          'ОТКАЗ ОТ ПРОВЕРКИ',
+          'НЕГАТИВ',
+        ]"
         placeholder="Выберите результат"
         required
       />

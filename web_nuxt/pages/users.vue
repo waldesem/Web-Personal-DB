@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { watchDebounced, useArrayFilter } from "@vueuse/core";
+import { watchDebounced } from "@vueuse/core";
 import type { TableColumn } from "@nuxt/ui";
 import type { User } from "@/types";
 
@@ -16,11 +16,9 @@ const modal = ref(false);
 const deleted = ref(false);
 const expanded = ref({ 1: false });
 
-// const filtredUsers = computed(() => {
-//   return users.value.filter((user: User) => user.deleted == deleted.value);
-// });
-
-const filtredUsers = useArrayFilter(users.value, u => u.deleted == deleted.value);
+const filtredUsers = computed(() => {
+  return users.value.filter((user: User) => user.deleted == deleted.value);
+});
 
 const { refresh, status } = await useLazyAsyncData("users", async () => {
   const data = (await fetchAuth("/route/users", {
@@ -169,7 +167,6 @@ const columns: TableColumn<User>[] = [
   { accessorKey: "id", header: "#" },
   { accessorKey: "fullname", header: "Пользователь" },
   { accessorKey: "username", header: "Логин" },
-  { accessorKey: "email", header: "Email" },
   { accessorKey: "region", header: "Регион" },
   {
     accessorKey: "role",
