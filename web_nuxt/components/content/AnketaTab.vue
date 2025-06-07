@@ -2,9 +2,6 @@
 import type { AccordionItem } from "@nuxt/ui";
 import type { Persons, DivItems } from "@/types";
 
-await preloadComponents(["DivsSharedDiv"]);
-await preloadComponents("ItemsSharedDiv");
-
 const props = defineProps({
   rows: {
     type: Number,
@@ -132,7 +129,7 @@ const items: AccordionItem[] = [
       <ElementsSkeletonDiv :rows="props.rows" />
     </div>
     <div v-else class="ps-2">
-      <ItemsSharedItem :view="'person'" :item="person" />
+      <ContentSharedItem :view="'person'" :item="person" />
     </div>
     <UModal
       v-if="editable"
@@ -147,7 +144,7 @@ const items: AccordionItem[] = [
     <USeparator />
     <UAccordion :items="items" :unmount-on-hide="false">
       <template #content="{ item }">
-        <ItemsSharedDiv :view="(item.content as DivItems)" />
+        <ContentSharedView :rows="3" :view="(item.content as DivItems)" />
       </template>
     </UAccordion>
   </div>

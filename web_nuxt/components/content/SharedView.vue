@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import type { MappedDiv, DivItems } from "@/types";
+import type { DivItems, TabItems } from "@/types";
 
+import type { Component } from "vue";
 import AddressForm from "@/components/forms/AddressForm.vue";
 import AffilationForm from "@/components/forms/AffilationForm.vue";
 import ContactForm from "@/components/forms/ContactForm.vue";
@@ -9,10 +10,20 @@ import EducationForm from "@/components/forms/EducationForm.vue";
 import PreviousForm from "@/components/forms/PreviousForm.vue";
 import StaffForm from "@/components/forms/StaffForm.vue";
 import WorkplaceForm from "@/components/forms/WorkplaceForm.vue";
+import CheckForm from "@/components/forms/CheckForm.vue";
+import InquiryForm from "@/components/forms/InquiryForm.vue";
+import InvestigateForm from "@/components/forms/InvestigateForm.vue";
+import PoligrafForm from "@/components/forms/PoligrafForm.vue";
+
+await preloadComponents(["ContentSharedItem"]);
 
 const props = defineProps({
   view: {
-    type: String as PropType<DivItems>,
+    type: String as PropType<TabItems>,
+    required: true,
+  },
+  rows: {
+    type: Number,
     required: true,
   },
 });
@@ -26,13 +37,17 @@ const mappedForms = {
   previous: PreviousForm,
   staffs: StaffForm,
   workplaces: WorkplaceForm,
-} as MappedDiv;
+  checks: CheckForm,
+  inquiries: InquiryForm,
+  investigations: InvestigateForm,
+  poligrafs: PoligrafForm,
+} as { [key in DivItems | TabItems]: Component };
 
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
 const item = ref({} as object);
-const items = ref([] as object[]);
+const items = ref<object[]>([]);
 const modal = ref(false);
 
 const { refresh, status } = await useLazyAsyncData(props.view, async () => {
@@ -69,11 +84,9 @@ async function deleteItem(id: string, idx: number) {
   })) as Record<string, string>;
   status.value = "success";
   if (message == "success") {
+    makeToast(message, "Информация успешно обновлена");
     items.value.splice(idx, 1);
-    makeToast(message, "Информация успешно удалена");
-  } else {
-    makeToast();
-  }
+  } else makeToast();
 }
 </script>
 
@@ -102,7 +115,6 @@ async function deleteItem(id: string, idx: number) {
           :content="{ align: 'end' }"
         >
           <UButton
-            :loading="status == 'pending'"
             size="xl"
             color="neutral"
             icon="i-heroicons-ellipsis-vertical"
@@ -113,15 +125,15 @@ async function deleteItem(id: string, idx: number) {
       </div>
     </div>
     <div v-if="status === 'pending'">
-      <ElementsSkeletonDiv :rows="3" />
+      <ElementsSkeletonDiv :rows="props.rows" />
     </div>
     <div v-else>
-      <ItemsShareditems :view="props.view" :item="content"/>
+      <ContentSharedItem :view="props.view" :item="content" />
     </div>
     <USeparator v-if="index != items.length - 1" icon="i-heroicons-bolt" />
   </div>
   <div v-if="!items.length && status === 'pending'">
-    <ElementsSkeletonDiv :rows="3" />
+    <ElementsSkeletonDiv :rows="props.rows" />
   </div>
   <div v-if="editable" class="py-2 border-t border-gray-200">
     <UButton
@@ -134,19 +146,19 @@ async function deleteItem(id: string, idx: number) {
         modal = true;
       "
     />
-    <UModal
-      v-model:open="modal"
-      :ui="{ content: 'sm:max-w-4xl' }"
-      title="Данные профиля"
-      description="Введите или отредактируйте данные профиля"
-    >
-      <template #body>
-        <component
-          :is="(mappedForms[props.view as keyof typeof mappedForms] as Component)"
-          :item="item"
-          @update="submitItem"
-        />
-      </template>
-    </UModal>
   </div>
+  <UModal
+    v-model:open="modal"
+    :ui="{ content: 'sm:max-w-4xl' }"
+    title="Данные проверки"
+    description="Введите или отредактируйте информацию о проверке"
+  >
+    <template #body>
+      <component
+        :is="(mappedForms[props.view as keyof typeof mappedForms] as Component)"
+        :item="item"
+        @update="submitItem"
+      />
+    </template>
+  </UModal>
 </template>

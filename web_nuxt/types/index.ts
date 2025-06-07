@@ -21,14 +21,6 @@ export type DivItems =
 
 export type TabItems = "checks" | "poligrafs" | "investigations" | "inquiries";
 
-export type MappedDiv = {
-  [key in DivItems]: Component;
-};
-
-export type MappedTab = {
-  [key in TabItems]: Component;
-};
-
 export interface Login {
   username: string;
   password: string;
@@ -58,34 +50,30 @@ export interface User extends Omit<Token, "exp"> {
   attempt: string;
 }
 
-export interface Persons {
+export interface Previous {
   id: string;
   surname: string;
   firstname: string;
-  patronymic: string;
+  patronymic?: string;
+  changed?: string;
+  reason?: string;
+}
+
+export interface Persons extends Omit<Previous, "changed" | "reason"> {
   birthday: string;
-  birthplace: string;
-  citizenship: string;
-  dual: string;
-  snils: string;
-  inn: string;
-  marital: string;
-  addition: string;
-  destination: string;
+  birthplace?: string;
+  citizenship?: string;
+  dual?: string;
+  snils?: string;
+  inn?: string;
+  marital?: string;
+  addition?: string;
+  destination?: string;
   editable: boolean;
   created: string;
   region: string;
   username: string;
   user_id: string;
-}
-
-export interface Previous {
-  id: string;
-  surname: string;
-  firstname: string;
-  patronymic: string;
-  changed: string;
-  reason: string;
 }
 
 export interface Education {

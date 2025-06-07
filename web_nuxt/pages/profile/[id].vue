@@ -1,23 +1,21 @@
-
 <script setup lang="ts">
-import { usePersonState } from "@/composables/personState";
+import { useFileDialog } from "@vueuse/core";
 import type { TabsItem } from "@nuxt/ui";
 import type { Persons } from "@/types";
 
-await preloadComponents(["ItemsAnketaTab", "ItemsSharedTab"]);
+await preloadComponents(["ContentAnketaTab", "ContentSharedView"]);
 
 const route = useRoute();
 const userState = useUserState();
-const personState = usePersonState();
 
 const candId = computed(() => route.params.id as string);
 provide("candId", candId);
 
-// const person = ref({} as Persons);
+const person = ref({} as Persons);
 const region = ref("");
 
 const { status, refresh } = await useLazyAsyncData("persons", async () => {
-  personState.person.value = (await fetchAuth(
+  person.value = (await fetchAuth(
     "/route/items/persons/" + candId.value
   )) as Persons;
 });
@@ -25,16 +23,16 @@ provide("status", status);
 
 const editable = computed(() => {
   return (
-    personState.person.value.editable &&
+    person.value.editable &&
     userState.value.role == "user" &&
-    userState.value.id == personState.person.value.user_id
+    userState.value.id == person.value.user_id
   );
 });
 provide("editable", editable);
 
 async function switchSelf(): Promise<void> {
-  if (personState.person.value.user_id != userState.value.id) {
-    if (personState.person.value.editable) {
+  if (person.value.user_id != userState.value.id) {
+    if (person.value.editable) {
       if (
         !confirm(
           "Анкета редактируется другим пользователем. Переключить режим?"
@@ -50,23 +48,23 @@ async function switchSelf(): Promise<void> {
     return;
   }
   status.value = "pending";
-  personState.person.value = (await fetchAuth(
-    "/route/anketa/self/" + personState.person.value.id
+  person.value = (await fetchAuth(
+    "/route/anketa/self/" + person.value.id
   )) as Persons;
   status.value = "success";
 }
 
 async function changeRegion() {
-  if (region.value == personState.person.value.region) {
+  if (region.value == person.value.region) {
     return;
   }
   if (!confirm("Вы действительно хотите изменить регион?")) {
-    region.value = personState.person.value.region;
+    region.value = person.value.region;
     return;
   }
   status.value = "pending";
   const { message } = (await fetchAuth(
-    `/route/anketa/region/${personState.person.value.id}`,
+    `/route/anketa/region/${person.value.id}`,
     {
       params: {
         region: region.value,
@@ -78,10 +76,43 @@ async function changeRegion() {
     return navigateTo("/persons");
   } else {
     makeToast();
-    region.value = personState.person.value.region;
+    region.value = person.value.region;
     status.value = "error";
   }
 }
+
+
+const { open, reset, onCancel, onChange } = useFileDialog();
+
+onChange(async (files) => {
+  if (!files) return;
+  const formData = new FormData();
+  for (const file of files) {
+    const maxSize = 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+      makeToast("info", "Размер одного файла не должен превышать 10 МБ");
+      continue;
+    }
+    formData.append("file", file);
+  }
+  const { message } = (await fetchAuth(
+    `/route/anketa/files//${candId.value}`,
+    {
+      method: "POST",
+      body: formData,
+    }
+  )) as Record<string, string>;
+  if (message == "success") {
+    makeToast("success", "Файлы успешно загружены");
+  } else {
+    makeToast();
+  }
+  reset();
+});
+
+onCancel(() => {
+  reset();
+});
 
 const items: TabsItem[] = [
   {
@@ -119,13 +150,20 @@ const items: TabsItem[] = [
       <div v-else class="py-1">
         <h3 class="text-2xl text-red-800 font-bold">
           {{
-            `${personState.person.value.surname} ${
-              personState.person.value.firstname
-            } ${personState.person.value.patronymic ?? ""}`
+            `${person.surname} ${
+              person.firstname
+            } ${person.patronymic ?? ""}`
           }}
         </h3>
       </div>
       <div v-if="userState.role == 'user'" class="flex items-center space-x-4">
+        <UButton
+          :loading="status === 'pending'"
+          icon="i-heroicons-cloud-arrow-up"
+          variant="ghost"
+          label="Загрузить файлы"
+          @click="open()"
+        />
         <UTooltip text="Изменить регион">
           <USelect
             id="region"
@@ -137,9 +175,9 @@ const items: TabsItem[] = [
               'РЦ Урал',
               'РЦ Восток',
             ]"
-            :placeholder="personState.person.value.region"
+            :placeholder="person.region"
             :disabled="
-              (personState.person.value.region != userState.region &&
+              (person.region != userState.region &&
                 userState.region != 'Главный офис') ||
               !editable
             "
@@ -148,20 +186,20 @@ const items: TabsItem[] = [
         </UTooltip>
         <UButton
           :loading="status === 'pending'"
-          :disabled="personState.person.value.region != userState.region"
+          :disabled="person.region != userState.region"
           :color="
-            !personState.person.value.editable
+            !person.editable
               ? 'secondary'
-              : personState.person.value.user_id == userState.id
+              : person.user_id == userState.id
               ? 'success'
               : 'error'
           "
           @click="switchSelf"
         >
           {{
-            !personState.person.value.editable
+            !person.editable
               ? "Анкета доступна для редактирования"
-              : personState.person.value.user_id == userState.id
+              : person.user_id == userState.id
               ? "Анкета назначена текущему пользователю"
               : "Анкета редактируется другим пользователем"
           }}
@@ -177,23 +215,23 @@ const items: TabsItem[] = [
       :ui="{ trigger: 'flex-1' }"
     >
       <template #anketa>
-        <ItemsAnketaTab
-          :person="personState.person.value"
+        <ContentAnketaTab
+          :person="person"
           :rows="12"
           @refresh="refresh"
         />
       </template>
       <template #checks="{ item }">
-        <ItemsSharedTab :view="item.slot" :rows="16" />
+        <ContentSharedView :view="item.slot" :rows="16" />
       </template>
       <template #poligrafs="{ item }">
-        <ItemsSharedTab :view="item.slot" :rows="4" />
+        <ContentSharedView :view="item.slot" :rows="4" />
       </template>
       <template #investigations="{ item }">
-        <ItemsSharedTab :view="item.slot" :rows="3" />
+        <ContentSharedView :view="item.slot" :rows="3" />
       </template>
       <template #inquiries="{ item }">
-        <ItemsSharedTab :view="item.slot" :rows="3" />
+        <ContentSharedView :view="item.slot" :rows="3" />
       </template>
     </UTabs>
   </div>

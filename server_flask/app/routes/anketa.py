@@ -70,10 +70,10 @@ def change_self_id(person_id: int) -> Response:
     return jsonify(person.to_dict()), 201
 
 
-@bp.post("/files/<item>/<int:person_id>")
+@bp.post("/files/<int:person_id>")
 @validate
 @auth_required(Roles.user.value)
-def post_files(item: str, person_id: int) -> Response:
+def post_files(person_id: int) -> Response:
     """Upload a file to the server.
 
     Args:
@@ -93,8 +93,7 @@ def post_files(item: str, person_id: int) -> Response:
     try:
         subfolder = Path(
             person.destination,
-            item,
-            datetime.now().strftime("%Y-%m-%d"),
+            datetime.now().strftime("%d-%m-%Y %H-%M-%S"),
         )
         subfolder.mkdir(parents=True, exist_ok=True)
 
