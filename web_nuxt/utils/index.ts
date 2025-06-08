@@ -1,6 +1,5 @@
 import type { NitroFetchOptions } from "nitropack";
 import type { ToastProps } from "@nuxt/ui";
-import type { Method } from "@/types";
 
 export const fetchAuth = async (
   url: string,

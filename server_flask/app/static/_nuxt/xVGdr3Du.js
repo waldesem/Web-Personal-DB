@@ -1,1 +1,0 @@
-import{d as t,w as a,n as o,c as s,o as r}from"./D5vZBSTw.js";const l=t({__name:"index",async setup(_){let e,n;return[e,n]=a(()=>o("/persons")),await e,n(),(c,p)=>(r(),s("div",null,"Index"))}});export{l as default};

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { Affilation } from "@/types";
 
 const props = defineProps({
   item: {

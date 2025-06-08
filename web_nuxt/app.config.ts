@@ -7,7 +7,7 @@ export default defineAppConfig({
     },
     colors: {
       primary: "blue",
-      neutral: "zinc",
+      neutral: "gray",
     },
     formField: {
       slots: {
@@ -21,7 +21,8 @@ export default defineAppConfig({
     },
     modal: {
       slots: {
-        content: "overflow-y-auto",
+        content: "overflow-y-auto sm:max-w-4xl",
+        header: "p-3",
       },
     },
     textarea: {

@@ -4,4 +4,8 @@ definePageMeta({ layout: false });
 await navigateTo("/persons");
 </script>
 
-<template><div>Index</div></template>
+<template>
+  <div class="flex flex-col justify-center">
+    <LazyUProgress animation="swing" />
+  </div>
+</template>

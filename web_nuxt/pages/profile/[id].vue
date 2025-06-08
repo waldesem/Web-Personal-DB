@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useFileDialog } from "@vueuse/core";
-import type { TabsItem } from "@nuxt/ui";
-import type { Persons, Regions } from "@/types";
+// import type { TabsItem } from "@nuxt/ui";
 
 await preloadComponents(["ContentAnketaTab", "ContentSharedView"]);
 
@@ -110,7 +109,7 @@ onCancel(() => {
   reset();
 });
 
-const items: TabsItem[] = [
+const items = [
   {
     slot: "anketa" as const,
     label: "Анкета",
@@ -136,12 +135,12 @@ const items: TabsItem[] = [
     label: "Запросы",
     icon: "i-heroicons-document-text",
   },
-] satisfies TabsItem[];
+];// as TabsItem[];
 </script>
 
 <template>
   <div>
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center justify-between mb-8">
       <USkeleton v-if="status == 'pending'" class="py-1 h-10 w-96" />
       <div v-else class="py-1">
         <h3 class="text-2xl text-red-800 font-bold">

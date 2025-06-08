@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { watchDebounced, useFileDialog } from "@vueuse/core";
 import type { DropdownMenuItem, TableColumn } from "@nuxt/ui";
-import type { Persons } from "@/types";
 
 await preloadRouteComponents("/profile/[id]");
 

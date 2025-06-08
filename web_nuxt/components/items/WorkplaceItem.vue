@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { Work } from "@/types";
 
 const props = defineProps({
   item: {

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Component } from "vue";
-import type { DivItems, TabItems } from "@/types";
 
 const AddressItem = defineAsyncComponent(
   () => import("@/components/items/AddressItem.vue")
@@ -211,7 +210,6 @@ async function deleteItem(id: string, idx: number) {
   <UModal
     v-if="editable"
     v-model:open="modal"
-    :ui="{ content: 'sm:max-w-4xl' }"
     title="Данные проверки"
     description="Введите или отредактируйте информацию о проверке"
   >

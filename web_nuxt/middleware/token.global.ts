@@ -1,5 +1,4 @@
 import { jwtDecode } from "jwt-decode";
-import type { Token } from "@/types";
 
 export default defineNuxtRouteMiddleware(async (to) => {
   if (to.path !== "/login" && to.path !== "/") {

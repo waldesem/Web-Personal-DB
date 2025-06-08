@@ -1,5 +1,4 @@
 import { useStorage } from "@vueuse/core";
-import type { Token } from "@/types";
 
 export const useUserState = () => useState("user", () => ({} as Token));
 

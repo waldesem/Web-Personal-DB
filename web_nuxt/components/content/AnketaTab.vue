@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { AccordionItem } from "@nuxt/ui";
-import type { Persons, DivItems } from "@/types";
 
 const props = defineProps({
   rows: {

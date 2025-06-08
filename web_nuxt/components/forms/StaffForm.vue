@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { Staff } from "@/types";
 
 const emit = defineEmits(["update"]);
 
