@@ -153,6 +153,7 @@ const items: TabsItem[] = [
       <div v-if="userState.role == 'user'" class="flex items-center space-x-4">
         <UButton
           :loading="status === 'pending'"
+          variant="outline"
           icon="i-heroicons-cloud-arrow-up"
           label="Загрузить файлы"
           @click="open()"
@@ -200,9 +201,9 @@ const items: TabsItem[] = [
     </div>
     <UTabs
       :unmount-on-hide="false"
-      color="secondary"
+      color="info"
       :items="items"
-      variant="link"
+      variant="pill"
       class="gap-4 w-full"
       :ui="{ trigger: 'flex-1' }"
     >

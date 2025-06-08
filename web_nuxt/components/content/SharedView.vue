@@ -186,9 +186,8 @@ async function deleteItem(id: string, idx: number) {
     <ElementsSkeletonDiv v-if="status === 'pending'" :rows="props.rows" />
     <div v-else>
       <component
-        :is="(mappedContent[props.view as keyof typeof mappedContent][0] as Component)"
+        :is="(mappedContent[props.view as keyof typeof mappedContent][1] as Component)"
         :item="content"
-        @update="submitItem"
       />
     </div>
     <USeparator v-if="index < items.length - 1" />
@@ -218,7 +217,7 @@ async function deleteItem(id: string, idx: number) {
   >
     <template #body>
       <component
-        :is="(mappedContent[props.view as keyof typeof mappedContent][1] as Component)"
+        :is="(mappedContent[props.view as keyof typeof mappedContent][0] as Component)"
         :item="item"
         @update="submitItem"
       />

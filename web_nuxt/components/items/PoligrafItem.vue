@@ -18,9 +18,9 @@ const poligraf = {
       props.item.conclusion === "БЕЗ ЗАМЕЧАНИЙ"
         ? "success"
         : props.item.conclusion === "С КОММЕНТАРИЯМИ"
-        ? "primary"
-        : props.item.conclusion === "ОТКАЗ ОТ ПРОВЕРКИ"
         ? "warning"
+        : props.item.conclusion === "ОТКАЗ ОТ ПРОВЕРКИ"
+        ? "neutral"
         : "error",
     label: props.item.conclusion,
   }),

@@ -10,10 +10,10 @@ const props = defineProps({
 
 const investigation = {
   "Тема проверки": props.item.theme,
-    Информация: props.item.info,
-    "Дата записи": props.item.created
-      ? new Date(props.item.created).toLocaleString("ru-RU").split(",")[0]
-      : "",
+  Информация: props.item.info,
+  "Дата записи": props.item.created
+    ? new Date(props.item.created).toLocaleString("ru-RU").split(",")[0]
+    : "",
 };
 </script>
 

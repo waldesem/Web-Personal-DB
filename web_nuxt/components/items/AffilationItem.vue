@@ -10,8 +10,8 @@ const props = defineProps({
 
 const affilation = {
   "Тип участия": props.item.view,
-    Организация: props.item.organization,
-    ИНН: props.item.inn,
+  Организация: props.item.organization,
+  ИНН: props.item.inn,
 };
 </script>
 

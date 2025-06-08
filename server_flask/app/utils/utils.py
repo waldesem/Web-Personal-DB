@@ -76,9 +76,7 @@ def upload_resume(cand: Person) -> tuple[int, bool]:
             db_session.commit()
             return person.id, False
 
-        if person.user_id != current_user.id or (
-            person.user_id == current_user.id and person.editable
-        ):
+        if person.user_id != current_user.id:
             return None, True
 
         for k, v in resume.items():
