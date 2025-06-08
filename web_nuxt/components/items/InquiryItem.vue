@@ -19,9 +19,6 @@ const inquiry = {
 
 <template>
   <div v-for="(value, key) in inquiry" :key="key">
-    <div v-if="value" class="flex grid grid-cols-12 gap-3 mb-4">
-      <div class="col-span-3">{{ key }}</div>
-      <div class="col-span-9 break-words">{{ value }}</div>
-    </div>
+    <ElementsLabelValue :label="key" :value="value" />
   </div>
 </template>

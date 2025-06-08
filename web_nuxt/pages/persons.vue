@@ -214,7 +214,7 @@ const items: DropdownMenuItem[] = [
           description="Введите анкетные данные кандидата"
         >
           <template #body>
-            <FormsResumeForm @update="submitResume" />
+            <LazyFormsResumeForm @update="submitResume" />
           </template>
         </UModal>
       </div>

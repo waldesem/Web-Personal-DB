@@ -1,32 +1,80 @@
 <script setup lang="ts">
+import type { Component } from "vue";
 import type { DivItems, TabItems } from "@/types";
 
-import type { Component } from "vue";
-import AddressItem from "@/components/items/AddressItem.vue";
-import AffilationItem from "@/components/items/AffilationItem.vue";
-import ContactItem from "@/components/items/ContactItem.vue";
-import DocumentItem from "@/components/items/DocumentItem.vue";
-import EducationItem from "@/components/items/EducationItem.vue";
-import PreviousItem from "@/components/items/PreviousItem.vue";
-import StaffItem from "@/components/items/StaffItem.vue";
-import WorkplaceItem from "@/components/items/WorkplaceItem.vue";
-import CheckItem from "@/components/items/CheckItem.vue";
-import InquiryItem from "@/components/items/InquiryItem.vue";
-import InvestigateItem from "@/components/items/InvestigationItem.vue";
-import PoligrafItem from "@/components/items/PoligrafItem.vue";
+const AddressItem = defineAsyncComponent(
+  () => import("@/components/items/AddressItem.vue")
+);
+const AffilationItem = defineAsyncComponent(
+  () => import("@/components/items/AffilationItem.vue")
+);
+const ContactItem = defineAsyncComponent(
+  () => import("@/components/items/ContactItem.vue")
+);
+const DocumentItem = defineAsyncComponent(
+  () => import("@/components/items/DocumentItem.vue")
+);
+const EducationItem = defineAsyncComponent(
+  () => import("@/components/items/EducationItem.vue")
+);
+const PreviousItem = defineAsyncComponent(
+  () => import("@/components/items/PreviousItem.vue")
+);
+const StaffItem = defineAsyncComponent(
+  () => import("@/components/items/StaffItem.vue")
+);
+const WorkplaceItem = defineAsyncComponent(
+  () => import("@/components/items/WorkplaceItem.vue")
+);
+const CheckItem = defineAsyncComponent(
+  () => import("@/components/items/CheckItem.vue")
+);
+const InquiryItem = defineAsyncComponent(
+  () => import("@/components/items/InquiryItem.vue")
+);
+const InvestigateItem = defineAsyncComponent(
+  () => import("@/components/items/InvestigationItem.vue")
+);
+const PoligrafItem = defineAsyncComponent(
+  () => import("@/components/items/PoligrafItem.vue")
+);
 
-import AddressForm from "@/components/forms/AddressForm.vue";
-import AffilationForm from "@/components/forms/AffilationForm.vue";
-import ContactForm from "@/components/forms/ContactForm.vue";
-import DocumentForm from "@/components/forms/DocumentForm.vue";
-import EducationForm from "@/components/forms/EducationForm.vue";
-import PreviousForm from "@/components/forms/PreviousForm.vue";
-import StaffForm from "@/components/forms/StaffForm.vue";
-import WorkplaceForm from "@/components/forms/WorkplaceForm.vue";
-import CheckForm from "@/components/forms/CheckForm.vue";
-import InquiryForm from "@/components/forms/InquiryForm.vue";
-import InvestigateForm from "@/components/forms/InvestigateForm.vue";
-import PoligrafForm from "@/components/forms/PoligrafForm.vue";
+const AddressForm = defineAsyncComponent(
+  () => import("@/components/forms/AddressForm.vue")
+);
+const AffilationForm = defineAsyncComponent(
+  () => import("@/components/forms/AffilationForm.vue")
+);
+const ContactForm = defineAsyncComponent(
+  () => import("@/components/forms/ContactForm.vue")
+);
+const DocumentForm = defineAsyncComponent(
+  () => import("@/components/forms/DocumentForm.vue")
+);
+const EducationForm = defineAsyncComponent(
+  () => import("@/components/forms/EducationForm.vue")
+);
+const PreviousForm = defineAsyncComponent(
+  () => import("@/components/forms/PreviousForm.vue")
+);
+const StaffForm = defineAsyncComponent(
+  () => import("@/components/forms/StaffForm.vue")
+);
+const WorkplaceForm = defineAsyncComponent(
+  () => import("@/components/forms/WorkplaceForm.vue")
+);
+const CheckForm = defineAsyncComponent(
+  () => import("@/components/forms/CheckForm.vue")
+);
+const InquiryForm = defineAsyncComponent(
+  () => import("@/components/forms/InquiryForm.vue")
+);
+const InvestigateForm = defineAsyncComponent(
+  () => import("@/components/forms/InvestigateForm.vue")
+);
+const PoligrafForm = defineAsyncComponent(
+  () => import("@/components/forms/PoligrafForm.vue")
+);
 
 const props = defineProps({
   view: {
@@ -162,6 +210,7 @@ async function deleteItem(id: string, idx: number) {
     />
   </div>
   <UModal
+    v-if="editable"
     v-model:open="modal"
     :ui="{ content: 'sm:max-w-4xl' }"
     title="Данные проверки"

@@ -138,7 +138,7 @@ const items: AccordionItem[] = [
       description="Отредактируйте анкетные данные"
     >
       <template #body>
-        <FormsResumeForm :resume="person" @update="submitResume" />
+        <LazyFormsResumeForm :resume="person" @update="submitResume" />
       </template>
     </UModal>
     <USeparator />
