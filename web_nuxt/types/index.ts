@@ -1,3 +1,9 @@
+export interface Settings {
+  pagination: number;
+  unmountOnHideTabs: boolean;
+  unmountOnHideAccordion: boolean;
+}
+
 export type Method =
   | "get"
   | "post"
@@ -9,7 +15,7 @@ export type Method =
   | "options"
   | "trace";
 
-export type DivItems =
+export type DivsItems =
   | "staffs"
   | "educations"
   | "workplaces"
@@ -19,7 +25,11 @@ export type DivItems =
   | "previous"
   | "affilations";
 
-export type TabItems = "checks" | "poligrafs" | "investigations" | "inquiries";
+export type PillsItems =
+  | "checks"
+  | "poligrafs"
+  | "investigations"
+  | "inquiries";
 
 export type Regions =
   | "Главный офис"

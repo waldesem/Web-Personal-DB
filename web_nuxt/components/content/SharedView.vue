@@ -77,7 +77,7 @@ const PoligrafForm = defineAsyncComponent(
 
 const props = defineProps({
   view: {
-    type: String as PropType<TabItems | DivItems>,
+    type: String as PropType<PillsItems | DivsItems>,
     required: true,
   },
   rows: {
@@ -99,7 +99,7 @@ const mappedContent = {
   inquiries: [InquiryForm, InquiryItem],
   investigations: [InvestigateForm, InvestigateItem],
   poligrafs: [PoligrafForm, PoligrafItem],
-} as { [key in DivItems | TabItems]: Component[] };
+} as { [props.view]: [Component, Component] };
 
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
@@ -124,13 +124,14 @@ async function submitItem(form: object) {
       body: form,
     }
   )) as Record<string, string>;
-  status.value = "success";
-  item.value = {} as object;
   await refresh();
   if (message == "success") {
+    item.value = {} as object;
+    status.value = "success";
     makeToast(message, "Информация успешно обновлена");
   } else {
     makeToast();
+    status.value = "error";
   }
 }
 
@@ -140,54 +141,30 @@ async function deleteItem(id: string, idx: number) {
   const { message } = (await fetchAuth(`/route/items/${props.view}/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
-  status.value = "success";
   if (message == "success") {
     makeToast(message, "Информация успешно обновлена");
     items.value.splice(idx, 1);
-  } else makeToast();
+    status.value = "success";
+  } else {
+    makeToast();
+    status.value = "error";
+  }
 }
 </script>
 
 <template>
   <div v-for="(content, index) in items" :key="index" class="py-2 ms-2">
-    <div v-if="editable" class="relative">
-      <div class="absolute right-1">
-        <UDropdownMenu
-          :items="[
-            {
-              label: 'Изменить',
-              icon: 'i-heroicons-pencil-square',
-              onSelect() {
-                item = content;
-                modal = true;
-              },
-            },
-            {
-              label: 'Удалить',
-              icon: 'i-heroicons-trash',
-              onSelect() {
-                deleteItem(content['id' as keyof typeof content], index);
-              },
-            },
-          ]"
-          :content="{ align: 'end' }"
-        >
-          <UButton
-            size="xl"
-            color="neutral"
-            icon="i-heroicons-ellipsis-vertical"
-            variant="ghost"
-            title="Выбор действия"
-          />
-        </UDropdownMenu>
-      </div>
-    </div>
+    <LazyElementsDivMenu
+      v-if="editable"
+      @change="
+        item = content;
+        modal = true;
+      "
+      @delete="deleteItem(content['id' as keyof typeof content], index)"
+    />
     <ElementsSkeletonDiv v-if="status === 'pending'" :rows="props.rows" />
     <div v-else>
-      <component
-        :is="(mappedContent[props.view as keyof typeof mappedContent][1] as Component)"
-        :item="content"
-      />
+      <component :is="mappedContent[1]" :item="content" />
     </div>
     <USeparator v-if="index < items.length - 1" />
   </div>
@@ -215,7 +192,7 @@ async function deleteItem(id: string, idx: number) {
   >
     <template #body>
       <component
-        :is="(mappedContent[props.view as keyof typeof mappedContent][0] as Component)"
+        :is="mappedContent[props.view][0]"
         :item="item"
         @update="submitItem"
       />

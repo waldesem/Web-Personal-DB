@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useFileDialog } from "@vueuse/core";
-// import type { TabsItem } from "@nuxt/ui";
+import type { TabsItem } from "@nuxt/ui";
 
 await preloadComponents(["ContentAnketaTab", "ContentSharedView"]);
 
@@ -109,9 +109,13 @@ onCancel(() => {
   reset();
 });
 
-const items = [
+interface Pills extends TabsItem {
+  slot: PillsItems | "person";
+}
+
+const items: Pills[] = [
   {
-    slot: "anketa" as const,
+    slot: "person" as const,
     label: "Анкета",
     icon: "i-heroicons-user",
   },
@@ -135,7 +139,7 @@ const items = [
     label: "Запросы",
     icon: "i-heroicons-document-text",
   },
-];// as TabsItem[];
+];
 </script>
 
 <template>
@@ -206,7 +210,7 @@ const items = [
       class="gap-4 w-full"
       :ui="{ trigger: 'flex-1' }"
     >
-      <template #anketa>
+      <template #person>
         <ContentAnketaTab :person="person" :rows="12" @refresh="refresh" />
       </template>
       <template #checks="{ item }">

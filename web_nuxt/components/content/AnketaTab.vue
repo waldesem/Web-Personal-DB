@@ -29,9 +29,9 @@ async function submitResume(form: Persons) {
   if (message == "success") {
     makeToast(message, "Информация успешно обновлена");
   } else {
+    emits("refresh");
     makeToast();
   }
-  emits("refresh");
 }
 
 async function deleteItem() {
@@ -54,7 +54,11 @@ async function deleteItem() {
   }
 }
 
-const items: AccordionItem[] = [
+interface Accordion extends AccordionItem {
+  content: DivsItems;
+}
+
+const items: Accordion[] = [
   { content: "staffs", label: "Должности", icon: "i-heroicons-user" },
   {
     content: "educations",
@@ -92,38 +96,11 @@ const items: AccordionItem[] = [
 
 <template>
   <div class="mt-6">
-    <div v-if="editable" class="relative">
-      <div class="absolute top-2 right-2">
-        <UDropdownMenu
-          :items="[
-            {
-              label: 'Изменить',
-              icon: 'i-heroicons-pencil-square',
-              onSelect() {
-                modal = true;
-              },
-            },
-            {
-              label: 'Удалить',
-              icon: 'i-heroicons-trash',
-              onSelect() {
-                deleteItem();
-              },
-            },
-          ]"
-          :content="{ align: 'end' }"
-        >
-          <UButton
-            :loading="status == 'pending'"
-            size="xl"
-            color="neutral"
-            icon="i-heroicons-ellipsis-vertical"
-            variant="ghost"
-            title="Выбор действия"
-          />
-        </UDropdownMenu>
-      </div>
-    </div>
+    <LazyElementsDivMenu
+      v-if="editable"
+      @change="modal = true"
+      @delete="deleteItem()"
+    />
     <div v-if="status == 'pending'" class="ps-2">
       <ElementsSkeletonDiv :rows="props.rows" />
     </div>
@@ -143,7 +120,7 @@ const items: AccordionItem[] = [
     <USeparator />
     <UAccordion :items="items" :unmount-on-hide="false">
       <template #content="{ item }">
-        <ContentSharedView :rows="3" :view="(item.content as DivItems)" />
+        <ContentSharedView :rows="3" :view="(item.content as DivsItems)" />
       </template>
     </UAccordion>
   </div>
