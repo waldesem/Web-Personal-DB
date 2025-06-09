@@ -17,7 +17,7 @@ const editables = ref(false);
 const hasNext = ref(false);
 const modal = ref(false);
 const updated = ref("Данные обновляются...");
-const candidates = ref([] as Persons[]);
+const candidates = shallowRef([] as Persons[]);
 
 const { refresh, status } = await useLazyAsyncData(
   "candidates",
