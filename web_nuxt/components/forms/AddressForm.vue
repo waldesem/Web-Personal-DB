@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 const emit = defineEmits(["update"]);
 
 const props = defineProps({
@@ -29,11 +28,6 @@ const addressForm = toRef(props.item as Address);
         required
       />
     </UFormField>
-    <UButton
-        label="Принять"
-        color="success"
-        variant="outline"
-        type="submit"
-      />
+    <UButton label="Принять" color="success" variant="outline" type="submit" />
   </UForm>
 </template>

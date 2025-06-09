@@ -1,10 +1,9 @@
 <script setup lang="ts">
-
 const emit = defineEmits(["update"]);
 
 const props = defineProps({
   item: {
-    type:  Object as PropType<Work>,
+    type: Object as PropType<Work>,
     default: () => ({}),
   },
 });
@@ -20,10 +19,7 @@ workForm.value.finished = workForm.value.finished
 </script>
 
 <template>
-  <UForm
-    :state="workForm"
-    @submit.prevent="emit('update', workForm)"
-  >
+  <UForm :state="workForm" @submit.prevent="emit('update', workForm)">
     <UFormField label="Текущая работа" name="now_work">
       <UCheckbox v-model="workForm.now_work" />
     </UFormField>
@@ -71,11 +67,6 @@ workForm.value.finished = workForm.value.finished
         placeholder="Причина увольнения"
       />
     </UFormField>
-    <UButton
-        label="Принять"
-        color="success"
-        variant="outline"
-        type="submit"
-      />
+    <UButton label="Принять" color="success" variant="outline" type="submit" />
   </UForm>
 </template>

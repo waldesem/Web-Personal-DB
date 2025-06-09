@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 const emit = defineEmits(["update"]);
 
 const props = defineProps({
@@ -10,6 +9,20 @@ const props = defineProps({
 });
 
 const checkForm = toRef(props.item as Verification);
+
+const textAreas = {
+  workplace: "Проверка по местам работы",
+  document: "Проверка документов",
+  debt: "Проверка задолженностей",
+  bankruptcy: "Проверка банкротства",
+  bki: "Проверка Кредитной истории",
+  courts: "Проверка судебных дел",
+  affilation: "Проверка аффилированности",
+  terrorist: "Проверка в списке террористов",
+  internet: "Проверка в открытых источниках",
+  cronos: "Проверка в Кронос",
+  addition: "Дополнительная информация",
+};
 
 const noNegative = ref(false);
 
@@ -29,36 +42,19 @@ watch(noNegative, () => {
     });
   }
 });
-
-const textAreas = {
-  workplace: ["Проверка по местам работы", checkForm.value.workplace],
-  document: ["Проверка документов", checkForm.value.document],
-  debt: ["Проверка задолженностей", checkForm.value.debt],
-  bankruptcy: ["Проверка банкротства", checkForm.value.bankruptcy],
-  bki: ["Проверка Кредитной истории", checkForm.value.bki],
-  courts: ["Проверка судебных дел", checkForm.value.courts],
-  affilation: ["Проверка аффилированности", checkForm.value.affilation],
-  terrorist: ["Проверка в списке террористов", checkForm.value.terrorist],
-  internet: ["Проверка в открытых источниках", checkForm.value.internet],
-  cronos: ["Проверка в Кронос", checkForm.value.cronos],
-  addition: ["Дополнительная информация", checkForm.value.addition],
-};
 </script>
 
 <template>
   <UFormField label="Негатива нет">
     <USwitch v-model="noNegative" />
   </UFormField>
-  <UForm
-    :state="checkForm"
-    @submit.prevent="emit('update', checkForm)"
-  >
+  <UForm :state="checkForm" @submit.prevent="emit('update', checkForm)">
     <div v-for="(value, key) in textAreas" :key="key">
-      <UFormField :label="value[0]" :name="key">
+      <UFormField :label="value" :name="key">
         <UTextarea
           v-model.trim.lazy="checkForm[key]"
           autoresize
-          :placeholder="value[0]"
+          :placeholder="value"
         />
       </UFormField>
     </div>

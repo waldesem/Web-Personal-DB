@@ -1,10 +1,9 @@
 <script setup lang="ts">
-
 const emit = defineEmits(["update"]);
 
 const props = defineProps({
   item: {
-    type:  Object as PropType<Previous>,
+    type: Object as PropType<Previous>,
     default: () => ({}),
   },
 });
@@ -51,11 +50,6 @@ const previousForm = toRef(props.item as Previous);
         maxlength="255"
       />
     </UFormField>
-    <UButton
-        label="Принять"
-        color="success"
-        variant="outline"
-        type="submit"
-      />
+    <UButton label="Принять" color="success" variant="outline" type="submit" />
   </UForm>
 </template>

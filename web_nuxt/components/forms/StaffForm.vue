@@ -1,10 +1,9 @@
 <script setup lang="ts">
-
 const emit = defineEmits(["update"]);
 
 const props = defineProps({
   item: {
-    type:  Object as PropType<Staff>,
+    type: Object as PropType<Staff>,
     default: () => ({}),
   },
 });
@@ -13,10 +12,7 @@ const staffForm = toRef(props.item as Staff);
 </script>
 
 <template>
-  <UForm
-    :state="staffForm"
-    @submit.prevent="emit('update', staffForm)"
-  >
+  <UForm :state="staffForm" @submit.prevent="emit('update', staffForm)">
     <UFormField label="Должность" name="position" required>
       <UInput
         v-model.trim.lazy="staffForm.position"
@@ -32,11 +28,6 @@ const staffForm = toRef(props.item as Staff);
         maxlength="255"
       />
     </UFormField>
-    <UButton
-        label="Принять"
-        color="success"
-        variant="outline"
-        type="submit"
-      />
+    <UButton label="Принять" color="success" variant="outline" type="submit" />
   </UForm>
 </template>
