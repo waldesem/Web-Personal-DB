@@ -104,8 +104,8 @@ const mappedContent = {
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
-const item = ref({} as object);
-const items = ref<object[]>([]);
+const item = shallowRef({} as object);
+const items = shallowRef<object[]>([]);
 const modal = ref(false);
 
 const { refresh, status } = await useLazyAsyncData(props.view, async () => {
