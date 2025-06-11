@@ -105,110 +105,58 @@ def upload_items(anketa: AnketaJson, person_id: int) -> None:
 
     """
     try:
-        db_session.add_all(
-            [
-                Staffs(
-                    position=anketa.position_name,
-                    department=anketa.department,
-                    person_id=person_id,
-                    user_id=current_user.id,
-                ),
-                Documents(
-                    view="Паспорт",
-                    digits=anketa.digits,
-                    series=anketa.series,
-                    issue=anketa.issue,
-                    agency=anketa.agency,
-                    person_id=person_id,
-                    user_id=current_user.id,
-                ),
-                Addresses(
-                    view="Адрес проживания",
-                    addresses=anketa.valid_address,
-                    person_id=person_id,
-                    user_id=current_user.id,
-                ),
-                Addresses(
-                    view="Адрес регистрации",
-                    addresses=anketa.reg_address,
-                    person_id=person_id,
-                    user_id=current_user.id,
-                ),
-                Contacts(
-                    view="Телефон",
-                    contact=anketa.contact_phone,
-                    person_id=person_id,
-                    user_id=current_user.id,
-                ),
-                Contacts(
-                    view="Электронная почта",
-                    contact=anketa.email,
-                    person_id=person_id,
-                    user_id=current_user.id,
-                ),
-                *[
-                    Educations(
-                        **edu.dict(),
-                        person_id=person_id,
-                        user_id=current_user.id,
-                    )
-                    for edu in anketa.education
-                ],
-                *[
-                    Workplaces(
-                        **work.dict(),
-                        person_id=person_id,
-                        user_id=current_user.id,
-                    )
-                    for work in anketa.experience
-                ],
-                *[
-                    Previous(
-                        **prev.dict(),
-                        person_id=person_id,
-                        user_id=current_user.id,
-                    )
-                    for prev in anketa.name_was_changed
-                ],
-                *[
-                    Affilations(
-                        view="Участвует в деятельности коммерческих организаций",
-                        organization=aff.name,
-                        inn=aff.inn,
-                        person_id=person_id,
-                        user_id=current_user.id,
-                    )
-                    for aff in anketa.organizations
-                ],
-                *[
-                    Affilations(
-                        view="Являлся государственным должностным лицом",
-                        organization=aff.name,
-                        person_id=person_id,
-                        user_id=current_user.id,
-                    )
-                    for aff in anketa.state_organizations
-                ],
-                *[
-                    Affilations(
-                        view="Связанные лица работают в государственных организациях",
-                        organization=aff.name,
-                        person_id=person_id,
-                        user_id=current_user.id,
-                    )
-                    for aff in anketa.related_organizations
-                ],
-                *[
-                    Affilations(
-                        view="Являлся государственным или муниципальным служащим",
-                        organization=aff.name,
-                        person_id=person_id,
-                        user_id=current_user.id,
-                    )
-                    for aff in anketa.public_organizations
-                ],
+        items = [
+            Documents(
+                view="Паспорт",
+                digits=anketa.digits,
+                series=anketa.series,
+                issue=anketa.issue,
+                agency=anketa.agency,
+            ),
+            Staffs(position=anketa.position_name, department=anketa.department),
+            Addresses(view="Адрес проживания", addresses=anketa.valid_address),
+            Addresses(view="Адрес регистрации", addresses=anketa.reg_address),
+            Contacts(view="Телефон", contact=anketa.contact_phone),
+            Contacts(view="Электронная почта", contact=anketa.email),
+            *[Educations(**edu.dict()) for edu in anketa.education],
+            *[Workplaces(**work.dict()) for work in anketa.experience],
+            *[Previous(**prev.dict()) for prev in anketa.name_was_changed],
+            *[
+                Affilations(
+                    view="Участвует в деятельности коммерческих организаций",
+                    organization=aff.name,
+                    inn=aff.inn,
+                )
+                for aff in anketa.organizations
             ],
-        )
+            *[
+                Affilations(
+                    view="Являлся государственным должностным лицом",
+                    organization=aff.name,
+                )
+                for aff in anketa.state_organizations
+            ],
+            *[
+                Affilations(
+                    view="Связанные лица работают в государственных организациях",
+                    organization=aff.name,
+                )
+                for aff in anketa.related_organizations
+            ],
+            *[
+                Affilations(
+                    view="Являлся государственным или муниципальным служащим",
+                    organization=aff.name,
+                )
+                for aff in anketa.public_organizations
+            ],
+        ]
+
+        for item in items:
+            item.person_id = person_id
+            item.user_id = current_user.id
+
+        db_session.add_all(items)
         db_session.commit()
     except SQLAlchemyError:
         current_app.logger.exception("SQLAlchemyError in post json items")
