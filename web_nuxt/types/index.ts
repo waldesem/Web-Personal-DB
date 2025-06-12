@@ -205,6 +205,7 @@ export interface Phone {
   city: string;
   fullname: string;
   phone: string;
+  mobile: string;
   email: string;
   created: string;
   comments?: string;

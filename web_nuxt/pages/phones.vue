@@ -8,7 +8,7 @@ const UDropdownMenu = resolveComponent("UDropdownMenu");
 
 const search = ref("");
 const phones = ref([] as Phone[]);
-const phone = ref([] as Phone[]);
+const phone = ref({} as Phone);
 const modal = ref(false);
 const expanded = ref({ 1: false });
 
@@ -45,17 +45,20 @@ async function deletePhone(phone_id: string): Promise<void> {
   refresh();
 }
 
-function getRowItems(phone: Phone) {
+function getRowItems(item: Phone) {
   return [
     {
       label: "Удалить",
       onSelect() {
-        deletePhone(phone.id);
+        deletePhone(item.id);
       },
     },
     {
       label: "Изменить",
-      onSelect() {},
+      onSelect() {
+        phone.value = item;
+        modal.value = true;
+      },
     },
   ];
 }
@@ -131,7 +134,7 @@ const columns: TableColumn<Phone>[] = [
       description="Введите данные"
     >
       <template #body>
-        <LazyPhoneForm
+        <LazyFormsPhoneStepper
           :phone="phone"
           @update="
             modal = false;
