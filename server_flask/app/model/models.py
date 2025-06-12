@@ -70,6 +70,27 @@ class UserActions(Model):
     item: Literal["reset", "block", "delete"] | Roles | Regions | None
 
 
+class Phone(Model):
+    """Pydantic model for phone form."""
+
+    __modelname__ = "phones"
+
+    id: int | str | None = None
+    organization: str
+    city: str | None = ""
+    fullname: str
+    phone: str | None = ""
+    email: str | None = ""
+    created: date
+    comments: str | None = ""
+
+    @validator("organization", "fullname")
+    @classmethod
+    def name_check(cls, v: str) -> str:
+        """Check name."""
+        return v.strip().upper()
+
+
 class Region(Model):
     """Pydantic model for region select form."""
 

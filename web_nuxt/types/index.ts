@@ -197,3 +197,15 @@ export interface Needs {
   origins: string;
   created: string;
 }
+
+
+export interface Phone {
+  id: string;
+  organization: string;
+  city: string;
+  fullname: string;
+  phone: string;
+  email: string;
+  created: string;
+  comments?: string;
+}

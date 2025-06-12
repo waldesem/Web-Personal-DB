@@ -15,20 +15,25 @@ async function logout() {
       class="flex items-center justify-between sticky top-0 z-50 bg-white pt-8 pb-16"
     >
       <NuxtLink to="/persons" title="На главную страницу">
-        <div class="flex inline-flex items-center text-xl font-bold">
+        <div class="flex inline-flex items-center text-xl font-bold space-x-1">
           <h3 class="text-blue-600">STAFFSEC</h3>
-          <USeparator orientation="vertical" size="lg" />
           <h3 class="text-red-600">ФИНТЕХ</h3>
         </div>
       </NuxtLink>
-      <div v-if="userState.role == 'admin'">
-        <UButton
-          icon="i-heroicons-users"
-          to="/users"
-          variant="link"
-          label="Пользователи"
-        />
-      </div>
+      <UButton
+        v-if="userState.role == 'admin'"
+        icon="i-heroicons-users"
+        to="/users"
+        variant="ghost"
+        label="Пользователи"
+      />
+      <!-- <UButton
+        icon="i-heroicons-phone-arrow-up-right-solid"
+        size="lg"
+        to="/phones"
+        variant="ghost"
+        title="Телефонный справочник" 
+      /> -->
       <UButton
         class="rounded-full"
         :label="userState.username"

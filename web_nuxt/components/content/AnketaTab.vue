@@ -96,7 +96,7 @@ const items: Accordion[] = [
 </script>
 
 <template>
-  <div class="mt-6">
+  <div class="mt-4">
     <LazyElementsDivMenu
       v-if="editable"
       @change="modal = true"
@@ -121,7 +121,7 @@ const items: Accordion[] = [
     <USeparator />
     <UAccordion :items="items" :unmount-on-hide="false">
       <template #content="{ item }">
-        <ContentSharedView :rows="3" :view="(item.content as DivsItems)" />
+        <ContentSharedView :rows="3" :view="item.content" />
       </template>
     </UAccordion>
   </div>

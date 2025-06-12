@@ -105,8 +105,8 @@ const mappedContent = {
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
-const item = shallowRef({} as object);
-const items = shallowRef<object[]>([]);
+const item = ref({} as object);
+const items = ref<object[]>([]);
 const modal = ref(false);
 
 const { refresh, status } = await useLazyAsyncData(props.view, async () => {
@@ -154,7 +154,7 @@ async function deleteItem(id: string, idx: number) {
 </script>
 
 <template>
-  <div v-for="(content, index) in items" :key="index" class="py-2 ms-2">
+  <div v-for="(content, index) in items" :key="index" class="py-4 ms-2">
     <LazyElementsDivMenu
       v-if="editable"
       @change="
@@ -165,7 +165,7 @@ async function deleteItem(id: string, idx: number) {
     />
     <ElementsSkeletonDiv v-if="status === 'pending'" :rows="props.rows" />
     <div v-else>
-      <component :is="mappedContent[1]" :item="content" />
+      <component :is="mappedContent[props.view][1]" :item="content" />
     </div>
     <USeparator v-if="index < items.length - 1" />
   </div>

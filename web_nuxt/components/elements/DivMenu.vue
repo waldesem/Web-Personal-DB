@@ -4,7 +4,7 @@ const emits = defineEmits(["change", "delete"])
 
 <template>
   <div class="relative">
-    <div class="absolute right-">
+    <div class="absolute right-0">
       <UDropdownMenu
         :items="[
           {

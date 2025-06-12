@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Pfo } from '@/types';
+import type { Pfo } from "@/types";
 
 const UBadge = resolveComponent("UBadge");
 
