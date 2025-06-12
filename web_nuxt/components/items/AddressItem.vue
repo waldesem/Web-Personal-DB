@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { Address } from '@/types';
 
 const props = defineProps({
   item: {

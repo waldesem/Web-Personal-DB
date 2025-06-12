@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { Verification } from '@/types';
 
 const UBadge = resolveComponent("UBadge");
 

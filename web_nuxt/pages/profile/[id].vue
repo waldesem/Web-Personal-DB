@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useFileDialog } from "@vueuse/core";
 import type { TabsItem } from "@nuxt/ui";
+import type { Persons, PillsItems, Regions } from "@/types";
 
 await preloadComponents(["ContentAnketaTab", "ContentSharedView"]);
 

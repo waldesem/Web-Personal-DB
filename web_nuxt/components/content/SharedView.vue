@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Component } from "vue";
+import type { DivsItems, PillsItems } from "@/types";
 
 const AddressItem = defineAsyncComponent(
   () => import("@/components/items/AddressItem.vue")

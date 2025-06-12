@@ -26,9 +26,6 @@ export default defineNuxtConfig({
       scan: true,
     },
   },
-  imports: {
-    dirs: ['types/*.ts'],
-  },
   modules: ["@nuxt/ui", "@nuxt/eslint", "@vueuse/nuxt", "nuxt-security"],
   nitro: {
     output: {

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { Inquisition } from '@/types';
 
 const props = defineProps({
   item: {

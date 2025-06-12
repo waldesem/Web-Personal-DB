@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { watchDebounced } from "@vueuse/core";
 import type { TableColumn } from "@nuxt/ui";
+import type { User } from "@/types";
 
 const UIcon = resolveComponent("UIcon");
 const UBadge = resolveComponent("UBadge");

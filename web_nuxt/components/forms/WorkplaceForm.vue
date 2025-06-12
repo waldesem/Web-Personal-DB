@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { Work } from '@/types';
+
 const emit = defineEmits(["update"]);
 
 const props = defineProps({

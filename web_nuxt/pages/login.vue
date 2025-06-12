@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { AlertProps } from "@nuxt/ui";
+import type { Login } from "@/types";
 
 definePageMeta({ layout: false });
 

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { Address } from '@/types';
+
 const emit = defineEmits(["update"]);
 
 const props = defineProps({

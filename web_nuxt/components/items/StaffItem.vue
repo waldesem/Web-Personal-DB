@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { Staff } from '@/types';
 
 const props = defineProps({
   item: {

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { Pfo } from '@/types';
 
 const emit = defineEmits(["update"]);
 
