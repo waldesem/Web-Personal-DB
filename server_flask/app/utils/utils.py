@@ -1,7 +1,6 @@
 """Utils module."""
 
 import os
-import platform
 import re
 import unicodedata
 from pathlib import Path
@@ -11,19 +10,8 @@ from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.depends.depend import current_user
-from app.model.models import AnketaJson, Person
-from app.model.tables import (
-    Addresses,
-    Affilations,
-    Contacts,
-    Documents,
-    Educations,
-    Persons,
-    Previous,
-    Staffs,
-    Workplaces,
-    db_session,
-)
+from app.model.models import Person
+from app.model.tables import Persons, db_session
 
 
 def create_destination(person: Persons) -> str:
@@ -93,76 +81,6 @@ def upload_resume(cand: Person) -> tuple[int, bool]:
         return person.id, True
 
 
-def upload_items(anketa: AnketaJson, person_id: int) -> None:
-    """Get the anketa items.
-
-    Args:
-        anketa (AnketaSchemaJson): The anketa data.
-        person_id (int): The ID of the person.
-
-    Returns:
-        None
-
-    """
-    try:
-        items = [
-            Documents(
-                view="Паспорт",
-                digits=anketa.digits,
-                series=anketa.series,
-                issue=anketa.issue,
-                agency=anketa.agency,
-            ),
-            Staffs(position=anketa.position_name, department=anketa.department),
-            Addresses(view="Адрес проживания", addresses=anketa.valid_address),
-            Addresses(view="Адрес регистрации", addresses=anketa.reg_address),
-            Contacts(view="Телефон", contact=anketa.contact_phone),
-            Contacts(view="Электронная почта", contact=anketa.email),
-            *[Educations(**edu.dict()) for edu in anketa.education],
-            *[Workplaces(**work.dict()) for work in anketa.experience],
-            *[Previous(**prev.dict()) for prev in anketa.name_was_changed],
-            *[
-                Affilations(
-                    view="Участвует в деятельности коммерческих организаций",
-                    organization=aff.name,
-                    inn=aff.inn,
-                )
-                for aff in anketa.organizations
-            ],
-            *[
-                Affilations(
-                    view="Являлся государственным должностным лицом",
-                    organization=aff.name,
-                )
-                for aff in anketa.state_organizations
-            ],
-            *[
-                Affilations(
-                    view="Связанные лица работают в государственных организациях",
-                    organization=aff.name,
-                )
-                for aff in anketa.related_organizations
-            ],
-            *[
-                Affilations(
-                    view="Являлся государственным или муниципальным служащим",
-                    organization=aff.name,
-                )
-                for aff in anketa.public_organizations
-            ],
-        ]
-
-        for item in items:
-            item.person_id = person_id
-            item.user_id = current_user.id
-
-        db_session.add_all(items)
-        db_session.commit()
-    except SQLAlchemyError:
-        current_app.logger.exception("SQLAlchemyError in post json items")
-        db_session.rollback()
-
-
 def check_filename(name: str) -> str:
     """Check filename for valid chars."""
     filename_ascii_strip_re = re.compile(r"[^A-zА-яЁё0-9_.-]")  # noqa: RUF001
@@ -186,10 +104,6 @@ def check_filename(name: str) -> str:
     filename = str(
         filename_ascii_strip_re.sub("", "_".join(filename.split())),
     ).strip("._")
-    if (
-        platform.system().lower() == "windows"
-        and filename
-        and filename.split(".")[0].upper() in windows_device_files
-    ):
+    if filename and filename.split(".")[0].upper() in windows_device_files:
         filename = f"_{filename}"
     return filename

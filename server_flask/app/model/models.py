@@ -27,9 +27,9 @@ class Login(BaseModel):
 class Search(BaseModel):
     """Pydantic model for person search form."""
 
-    search: str = ""
-    pagination: int = 10
-    editable: bool = False
+    search: str | None = ""
+    pagination: int | None = 10
+    editable: bool | None = False
 
 
 class Model(BaseModel):
@@ -48,8 +48,8 @@ class User(Model):
     fullname: str
     username: str
     email: str | None = ""
-    region: str = Regions.main.name
-    role: str = Roles.guest.value
+    region: Regions = Regions.main.name
+    role: Roles = Roles.guest.value
 
     @validator("username")
     @classmethod
@@ -96,7 +96,7 @@ class Person(Model):
     marital: str | None = ""
     addition: str | None = ""
     destination: str | None = ""
-    region: Regions = ""
+    region: Regions
     editable: bool = False
 
     @validator("surname", "firstname", "patronymic")
@@ -332,7 +332,7 @@ class AnketaJson(BaseModel):
     marital: str = Field(default="", alias="maritalStatus")
     inn: str | None = ""
     snils: str | None = ""
-    position_name: str = Field(default="", alias="positionName")
+    position: str = Field(default="", alias="positionName")
     department: str | None = ""
     series: str = Field(default="", alias="passportSerial")
     digits: str = Field(default="", alias="passportNumber")

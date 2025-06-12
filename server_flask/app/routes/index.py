@@ -5,12 +5,25 @@ import json
 from flask import Blueprint, Response, current_app, jsonify, request
 from pydantic import ValidationError
 from sqlalchemy import desc, select
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.depends.depend import auth_required, current_user, validate
 from app.model.classes import Regions, Roles
 from app.model.models import AnketaJson, Person, Search
-from app.model.tables import Persons, Users, db_session
-from app.utils.utils import upload_items, upload_resume
+from app.model.tables import (
+    Addresses,
+    Affilations,
+    Contacts,
+    Documents,
+    Educations,
+    Persons,
+    Previous,
+    Staffs,
+    Users,
+    Workplaces,
+    db_session,
+)
+from app.utils.utils import upload_resume
 
 bp = Blueprint("route", __name__)
 
@@ -76,9 +89,7 @@ def post_resume(json_data: Person) -> Response:
 
     """
     person_id, existed = upload_resume(json_data)
-    return jsonify(
-        {"person_id": person_id, "exists": existed},
-    ), 201
+    return jsonify({"person_id": person_id, "exists": existed}), 201
 
 
 @bp.post("/json")
@@ -93,17 +104,67 @@ def post_json() -> Response:
         A JSON response containing the person ID and an HTTP status code of 201.
 
     """
-    file_data = request.files.get("file")
     try:
+        file_data = request.files.get("file")
         json_data = json.load(file_data)
         anketa = AnketaJson(**json_data)
         resume = Person(**anketa.dict())
         person_id, existed = upload_resume(resume)
         if person_id:
-            upload_items(anketa, person_id)
-        return jsonify(
-            {"person_id": person_id, "exists": existed},
-        ), 201
-    except (ValidationError, json.JSONDecodeError, TypeError):
+            items = [
+                Documents(
+                    view="Паспорт",
+                    digits=anketa.digits,
+                    series=anketa.series,
+                    issue=anketa.issue,
+                    agency=anketa.agency,
+                ),
+                Staffs(position=anketa.position, department=anketa.department),
+                Addresses(view="Адрес проживания", addresses=anketa.valid_address),
+                Addresses(view="Адрес регистрации", addresses=anketa.reg_address),
+                Contacts(view="Телефон", contact=anketa.contact_phone),
+                Contacts(view="Электронная почта", contact=anketa.email),
+                *[Educations(**edu.dict()) for edu in anketa.education],
+                *[Workplaces(**work.dict()) for work in anketa.experience],
+                *[Previous(**prev.dict()) for prev in anketa.name_was_changed],
+                *[
+                    Affilations(
+                        view="Участвует в деятельности коммерческих организаций",
+                        organization=aff.name,
+                        inn=aff.inn,
+                    )
+                    for aff in anketa.organizations
+                ],
+                *[
+                    Affilations(
+                        view="Являлся государственным должностным лицом",
+                        organization=aff.name,
+                    )
+                    for aff in anketa.state_organizations
+                ],
+                *[
+                    Affilations(
+                        view="Связанные лица работают в государственных организациях",
+                        organization=aff.name,
+                    )
+                    for aff in anketa.related_organizations
+                ],
+                *[
+                    Affilations(
+                        view="Являлся государственным или муниципальным служащим",
+                        organization=aff.name,
+                    )
+                    for aff in anketa.public_organizations
+                ],
+            ]
+
+            for item in items:
+                item.person_id = person_id
+                item.user_id = current_user.id
+
+            db_session.add_all(items)
+            db_session.commit()
+        return jsonify({"person_id": person_id, "exists": existed}), 201
+    except (ValidationError, json.JSONDecodeError, SQLAlchemyError, TypeError):
         current_app.logger.exception("JSON Error")
         return jsonify({"person_id": None, "exists": False}), 200

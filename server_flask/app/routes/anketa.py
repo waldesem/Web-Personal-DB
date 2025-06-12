@@ -42,7 +42,7 @@ def change_region(person_id: int, query_data: Region) -> Response:
         return jsonify({"message": "success"}), 201
     except (shutil.Error, SQLAlchemyError):
         current_app.logger.exception("Exception in change_region")
-    return jsonify({"message": "error"}), 200
+        return jsonify({"message": "error"}), 200
 
 
 @bp.get("/self/<int:person_id>")
@@ -57,17 +57,21 @@ def change_self_id(person_id: int) -> Response:
         The HTTP status code is 200.
 
     """
-    person = db_session.get(Persons, person_id)
-    if person.user_id != current_user.id:
-        if person.editable:
-            person.editable = False
+    try:
+        person = db_session.get(Persons, person_id)
+        if person.user_id != current_user.id:
+            if person.editable:
+                person.editable = False
+            else:
+                person.user_id = current_user.id
+                person.editable = True
         else:
-            person.user_id = current_user.id
-            person.editable = True
-    else:
-        person.editable = not person.editable
-    db_session.commit()
-    return jsonify(person.to_dict()), 201
+            person.editable = not person.editable
+        db_session.commit()
+        return jsonify(person.to_dict()), 201
+    except SQLAlchemyError:
+        current_app.logger.exception("Exception in change_self_id")
+        return jsonify({"message": "error"}), 200
 
 
 @bp.post("/files/<int:person_id>")
@@ -101,7 +105,6 @@ def post_files(person_id: int) -> Response:
             file_path = Path(subfolder, check_filename(data.filename))
             if not file_path.is_file():
                 data.save(file_path)
-
         return jsonify({"message": "success"}), 201
     except Exception:
         current_app.logger.exception("Exception in post_files")
