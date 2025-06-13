@@ -24,14 +24,6 @@ class Login(BaseModel):
         return v.strip().lower()
 
 
-class Search(BaseModel):
-    """Pydantic model for person search form."""
-
-    search: str | None = ""
-    pagination: int | None = 10
-    editable: bool | None = False
-
-
 class Model(BaseModel):
     """Base Pydantic model."""
 
@@ -39,6 +31,31 @@ class Model(BaseModel):
         """Pydantic config."""
 
         use_enum_values = True
+
+
+class Phone(Model):
+    """Pydantic model for phone form."""
+
+    __modelname__ = "phones"
+
+    id: int | str | None = None
+    organization: str
+    fullname: str | None = ""
+    phone: str | None = ""
+    email: str | None = ""
+    comments: str | None = ""
+
+    @validator("organization", "fullname")
+    @classmethod
+    def name_check(cls, v: str) -> str:
+        """Check name."""
+        return v.strip().upper()
+
+
+class Region(Model):
+    """Pydantic model for region select form."""
+
+    region: Regions
 
 
 class User(Model):
@@ -68,31 +85,6 @@ class UserActions(Model):
     """Pydantic model for user actions form."""
 
     item: Literal["reset", "block", "delete"] | Roles | Regions | None
-
-
-class Phone(Model):
-    """Pydantic model for phone form."""
-
-    __modelname__ = "phones"
-
-    id: int | str | None = None
-    organization: str
-    fullname: str | None = ""
-    phone: str | None = ""
-    email: str | None = ""
-    comments: str | None = ""
-
-    @validator("organization", "fullname")
-    @classmethod
-    def name_check(cls, v: str) -> str:
-        """Check name."""
-        return v.strip().upper()
-
-
-class Region(Model):
-    """Pydantic model for region select form."""
-
-    region: Regions
 
 
 class Person(Model):

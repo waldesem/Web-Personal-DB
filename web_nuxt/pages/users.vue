@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { watchDebounced } from "@vueuse/core";
 import type { TableColumn } from "@nuxt/ui";
 import type { User } from "@/types";
 
@@ -10,35 +9,14 @@ const UDropdownMenu = resolveComponent("UDropdownMenu");
 
 const userState = useUserState();
 
-const search = ref("");
 const users = ref([] as User[]);
 const modal = ref(false);
-const deleted = ref(false);
 const expanded = ref({ 1: false });
-
-const filtredUsers = computed(() => {
-  return users.value.filter((user: User) => user.deleted == deleted.value);
-});
+const globalFilter = ref("");
 
 const { refresh, status } = await useLazyAsyncData("users", async () => {
-  const data = (await fetchAuth("/route/users", {
-    params: {
-      search: search.value,
-    },
-  })) as User[];
-  users.value = data;
+  users.value = (await fetchAuth("/route/users")) as User[];
 });
-
-watchDebounced(
-  search,
-  () => {
-    refresh();
-  },
-  {
-    debounce: 1000,
-    maxWait: 2000,
-  }
-);
 
 async function userAction(item: string, user_id: string): Promise<void> {
   if (user_id == userState.value.id) {
@@ -251,44 +229,45 @@ const columns: TableColumn<User>[] = [
 </script>
 
 <template>
-  <div>
-    <div class="py-4">
+  <div class="py-4">
+    <div class="flex items-center justify-between mb-3">
       <h3 class="text-2xl text-gray-500 font-bold">ПОЛЬЗОВАТЕЛИ</h3>
+      <UModal
+        v-model:open="modal"
+        title="Добавить пользователя"
+        description="Введите данные пользователя"
+      >
+        <UButton
+          variant="ghost"
+          size="lg"
+          icon="i-heroicons-user-plus"
+          title="Добавить пользователя"
+          @click="modal = true"
+        />
+        <template #body>
+          <LazyFormsUserForm
+            @update="
+              modal = false;
+              refresh();
+            "
+          />
+        </template>
+      </UModal>
     </div>
-    <UInput
-      v-model="search"
-      icon="i-heroicons-magnifying-glass"
-      placeholder="Поиск по имени пользователя"
-      type="search"
-    />
-    <div class="flex items-center justify-between my-4">
-      <UFormField label="Удаленные">
-        <USwitch v-model="deleted" />
-      </UFormField>
-      <UButton
-        variant="link"
-        label="Добавить пользователя"
-        @click="modal = true"
+    <div class="my-6">
+      <UInput
+        v-model="globalFilter"
+        icon="i-heroicons-magnifying-glass"
+        placeholder="Поиск по имени пользователя"
+        type="search"
       />
     </div>
-    <UModal
-      v-model:open="modal"
-      title="Добавить пользователя"
-      description="Введите данные пользователя"
-    >
-      <template #body>
-        <LazyFormsUserForm
-          @update="
-            modal = false;
-            refresh();
-          "
-        />
-      </template>
-    </UModal>
-
     <UTable
       v-model:expanded="expanded"
-      :data="filtredUsers"
+      v-model:global-filter="globalFilter"
+      sticky
+      class="flex-1 max-h-[800px]"
+      :data="users"
       :columns="columns"
       :meta="{ class: { tr: 'cursor-pointer' } }"
       :loading="status === 'pending'"

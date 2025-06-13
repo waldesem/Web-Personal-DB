@@ -1,9 +1,3 @@
-export interface Settings {
-  pagination: number;
-  unmountOnHideTabs: boolean;
-  unmountOnHideAccordion: boolean;
-}
-
 export type Method =
   | "get"
   | "post"

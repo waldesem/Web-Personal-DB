@@ -1,61 +1,28 @@
 <script setup lang="ts">
-import { watchDebounced, useFileDialog } from "@vueuse/core";
+import { useFileDialog } from "@vueuse/core";
+import { getPaginationRowModel } from "@tanstack/vue-table";
 import type { DropdownMenuItem, TableColumn } from "@nuxt/ui";
 import type { Persons } from "@/types";
 
 await preloadRouteComponents("/profile/[id]");
 
+const table = useTemplateRef("table");
 const UIcon = resolveComponent("UIcon");
 const UButton = resolveComponent("UButton");
 const UDropdownMenu = resolveComponent("UDropdownMenu");
 
 const userState = useUserState();
 
-const search = ref("");
-const page = ref(1);
-const pagination = ref(10);
-const editables = ref(false);
-const hasNext = ref(false);
 const modal = ref(false);
 const updated = ref("Данные обновляются...");
 const candidates = shallowRef([] as Persons[]);
+const columnFilters = ref([{ id: "surname", value: "" }]);
+const pagination = ref({ pageIndex: 0, pageSize: 10 });
 
-const { refresh, status } = await useLazyAsyncData(
-  "candidates",
-  async () => {
-    const { results, has_next } = (await fetchAuth(
-      "/route/index/" + page.value,
-      {
-        params: {
-          search: search.value,
-          editable: editables.value,
-          pagination: pagination.value,
-        },
-      }
-    )) as Record<string, unknown> as {
-      results: Persons[];
-      has_next: boolean;
-    };
-    candidates.value = results;
-    hasNext.value = has_next;
-    updated.value = new Date().toLocaleTimeString("ru-RU");
-  },
-  {
-    watch: [page, pagination, editables],
-  }
-);
-
-watchDebounced(
-  search,
-  () => {
-    page.value = 1;
-    refresh();
-  },
-  {
-    debounce: 1000,
-    maxWait: 2000,
-  }
-);
+const { refresh, status } = await useLazyAsyncData("candidates", async () => {
+  candidates.value = (await fetchAuth("/route/index")) as Persons[];
+  updated.value = new Date().toLocaleTimeString("ru-RU");
+});
 
 const { open, reset, onCancel, onChange } = useFileDialog({
   accept: ".json",
@@ -221,14 +188,23 @@ const items: DropdownMenuItem[] = [
     <div class="my-6">
       <UInput
         id="search"
-        v-model="search"
+        :model-value="(table?.tableApi?.getColumn('surname')?.getFilterValue() as string)"
         type="search"
         icon="i-heroicons-magnifying-glass"
         placeholder="поиск по фамилии, имени, отчеству"
+        @update:model-value="
+          table?.tableApi?.getColumn('surname')?.setFilterValue($event)
+        "
       />
     </div>
 
     <UTable
+      ref="table"
+      v-model:column-filters="columnFilters"
+      v-model:pagination="pagination"
+      :pagination-options="{
+        getPaginationRowModel: getPaginationRowModel(),
+      }"
       :loading="status == 'pending'"
       loading-animation="carousel"
       empty="Данные не найдены"
@@ -238,42 +214,26 @@ const items: DropdownMenuItem[] = [
       @select="navigateTo(`/profile/${$event.original.id}`)"
     />
 
-    <div class="flex items-center justify-between space-x-4 my-2">
-      <UTooltip text="Обновить данные">
-        <UButton
-          variant="ghost"
-          icon="i-heroicons-arrow-path"
-          :label="`Обновлено в: ${updated}`"
-          :loading="status == 'pending'"
-          @click="refresh()"
-        />
-      </UTooltip>
-      <div class="flex items-center space-x-2">
-        <div class="text-sm text-blue-600">
-          {{ editables ? "Показать все" : "Показать редактируемые" }}
-        </div>
-        <USwitch v-model="editables" size="sm" />
-      </div>
+    <div class="my-2">
+      <UButton
+        variant="ghost"
+        icon="i-heroicons-arrow-path"
+        :label="`Обновлено в: ${updated}`"
+        :loading="status == 'pending'"
+        title="Обновить данные"
+        @click="refresh()"
+      />
     </div>
 
-    <div v-if="page > 1 || hasNext" class="flex justify-center space-x-2 my-2">
-      <UButton
-        icon="i-heroicons-arrow-small-left"
-        :disabled="page < 2 || status == 'pending'"
-        class="me-2 rounded-full"
-        @click="page--"
-      />
-      <USelect
-        v-model="pagination"
-        :items="[10, 20, 30]"
-        :disabled="status == 'pending'"
-        variant="soft"
-      />
-      <UButton
-        icon="i-heroicons-arrow-small-right"
-        :disabled="!hasNext || status == 'pending'"
-        class="ms-2 rounded-full"
-        @click="page++"
+    <div class="flex justify-center border-t border-default py-4">
+      <UPagination
+        size="lg"
+        :default-page="
+          (table?.tableApi?.getState().pagination.pageIndex || 0) + 1
+        "
+        :items-per-page="table?.tableApi?.getState().pagination.pageSize"
+        :total="table?.tableApi?.getFilteredRowModel().rows.length"
+        @update:page="(p) => table?.tableApi?.setPageIndex(p - 1)"
       />
     </div>
   </div>

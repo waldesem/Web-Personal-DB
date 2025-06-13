@@ -9,7 +9,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app.depends.depend import auth_required, current_user, validate
 from app.model.classes import Regions, Roles
-from app.model.models import AnketaJson, Person, Search
+from app.model.models import AnketaJson, Person
 from app.model.tables import (
     Addresses,
     Affilations,
@@ -28,51 +28,38 @@ from app.utils.utils import upload_resume
 bp = Blueprint("route", __name__)
 
 
-@bp.get("/index/<int:page>")
+@bp.get("/index")
 @validate
 @auth_required()
-def get_index(page: int, query_data: Search) -> Response:
+def get_index() -> Response:
     """Retrieve a paginated list of persons from the database.
 
     Arguments:
-        page (int): The page number of the results.
-        query_data (Search): The search criteria, pagination, and sorting options.
+        None
 
     Returns:
         tuple: A tuple containing the list of persons, a boolean indicating if
         there are more results, and a 200 status code.
 
     """
-    stmt = select(Persons, Users.fullname).filter(
+    stmt = select(
+        Persons.id,
+        Persons.surname,
+        Persons.firstname,
+        Persons.patronymic,
+        Persons.region,
+        Persons.birthday,
+        Persons.editable,
+        Persons.created,
+        Users.fullname.label("username"),
+    ).filter(
         Persons.user_id == Users.id,
         Persons.region == current_user.region
         if current_user.region != Regions.main.value
         else True,
     )
-    if query_data.search:
-        fio = query_data.search.upper().split()[:3]
-        stmt = stmt.filter(
-            Persons.surname == fio[0] if fio else True,
-            Persons.firstname == fio[1] if len(fio) > 1 else True,
-            Persons.patronymic == fio[2] if len(fio) > 2 else True,  # noqa: PLR2004
-        )
-    if query_data.editable:
-        stmt = stmt.filter(Persons.editable == query_data.editable)
-
-    query = db_session.execute(
-        stmt.order_by(desc(Persons.id))
-        .offset((page - 1) * query_data.pagination)
-        .limit(query_data.pagination + 1),
-    ).all()
-
-    result = [row[0].to_dict() | {"username": row[1]} for row in query]
-    has_next = len(result) > query_data.pagination
-    return jsonify(
-        {
-            "results": result[: query_data.pagination] if has_next else result,
-            "has_next": has_next,
-        },
-    ), 200
+    query = db_session.execute(stmt.order_by(desc(Persons.id))).all()
+    return jsonify([row._asdict() for row in query]), 200
 
 
 @bp.post("/resume")

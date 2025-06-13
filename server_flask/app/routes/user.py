@@ -1,11 +1,10 @@
 """User routes."""
 
-import re
 from typing import ClassVar
 
-from flask import Blueprint, Response, current_app, jsonify, request
+from flask import Blueprint, Response, current_app, jsonify
 from flask.views import MethodView
-from sqlalchemy import desc, select
+from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import generate_password_hash
 
@@ -23,20 +22,16 @@ def get_users() -> Response:
     """Retrieve a list of users from the database.
 
     Arguments:
-        item (str): The table name from which to retrieve the users.
+       None.
 
     Returns:
         tuple: A tuple containing the JSON-encoded list of users.
 
     """
-    stmt = select(Users)
-    if search := request.args.get("search"):
-        if re.match(r"^[A-z_]{3,}", search):
-            stmt = stmt.filter(Users.username == search.lower())
-        else:
-            stmt = stmt.filter(Users.fullname == search.upper())
-    users = db_session.execute(stmt.order_by(desc(Users.id))).scalars()
-    return jsonify([user.to_dict() for user in users]), 200
+    columns = list(filter(lambda x: x != "passhash", Users.__table__.columns.keys()))
+    stmt = select(*[getattr(Users, column) for column in columns])
+    users = db_session.execute(stmt).all()
+    return jsonify([user._asdict() for user in users]), 200
 
 
 class UserView(MethodView):

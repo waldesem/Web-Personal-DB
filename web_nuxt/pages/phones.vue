@@ -1,42 +1,33 @@
 <script setup lang="ts">
-import { watchDebounced } from "@vueuse/core";
+import { getPaginationRowModel } from "@tanstack/vue-table";
 import type { TableColumn } from "@nuxt/ui";
-import type { Column } from "@tanstack/vue-table";
 import type { Phone } from "@/types";
 
 const UButton = resolveComponent("UButton");
 const UDropdownMenu = resolveComponent("UDropdownMenu");
+const table = useTemplateRef("table");
 
-const search = ref("");
 const items = ref([] as string[]);
 const phones = shallowRef([] as Phone[]);
 const phone = ref({} as Phone);
 const modal = ref(false);
 const expanded = ref({ 1: false });
+const globalFilter = ref("");
+const pagination = ref({
+  pageIndex: 0,
+  pageSize: 10,
+});
 
 const { refresh, status } = await useLazyAsyncData("users", async () => {
-  const { results, organizations } = (await fetchAuth("/route/phones", {
-    params: {
-      search: search.value,
-    },
-  })) as Record<string, unknown> as {
+  const { results, organizations } = (await fetchAuth(
+    "/route/phones"
+  )) as Record<string, unknown> as {
     results: Phone[];
     organizations: string[];
   };
   phones.value = results;
   items.value = organizations;
 });
-
-watchDebounced(
-  search,
-  () => {
-    refresh();
-  },
-  {
-    debounce: 1000,
-    maxWait: 2000,
-  }
-);
 
 async function deletePhone(phone_id: string): Promise<void> {
   if (!confirm("Подтвердите выполнение действия")) return;
@@ -89,7 +80,7 @@ const columns: TableColumn<Phone>[] = [
   },
   {
     accessorKey: "organization",
-    header: ({ column }) => getHeader(column, "Организация"),
+    header: "Организация",
   },
   { accessorKey: "fullname", header: "Полное имя" },
   { accessorKey: "phone", header: "Телефон" },
@@ -127,70 +118,6 @@ const columns: TableColumn<Phone>[] = [
     },
   },
 ];
-
-function getHeader(column: Column<Phone>, label: string) {
-  const isSorted = column.getIsSorted();
-
-  return h(
-    UDropdownMenu,
-    {
-      content: {
-        align: "start",
-      },
-      "aria-label": "Actions dropdown",
-      items: [
-        {
-          label: "Asc",
-          type: "checkbox",
-          icon: "i-lucide-arrow-up-narrow-wide",
-          checked: isSorted === "asc",
-          onSelect: () => {
-            if (isSorted === "asc") {
-              column.clearSorting();
-            } else {
-              column.toggleSorting(false);
-            }
-          },
-        },
-        {
-          label: "Desc",
-          icon: "i-lucide-arrow-down-wide-narrow",
-          type: "checkbox",
-          checked: isSorted === "desc",
-          onSelect: () => {
-            if (isSorted === "desc") {
-              column.clearSorting();
-            } else {
-              column.toggleSorting(true);
-            }
-          },
-        },
-      ],
-    },
-    () =>
-      h(UButton, {
-        color: "neutral",
-        variant: "ghost",
-        label,
-        icon: isSorted
-          ? isSorted === "asc"
-            ? "i-lucide-arrow-up-narrow-wide"
-            : "i-lucide-arrow-down-wide-narrow"
-          : "i-lucide-arrow-up-down",
-        class: "-mx-2.5 data-[state=open]:bg-elevated",
-        "aria-label": `Sort by ${
-          isSorted === "asc" ? "descending" : "ascending"
-        }`,
-      })
-  );
-}
-
-const sorting = ref([
-  {
-    id: "id",
-    desc: false,
-  },
-]);
 </script>
 
 <template>
@@ -200,13 +127,14 @@ const sorting = ref([
       <UButton
         variant="ghost"
         icon="i-heroicons-user-plus"
+        size="lg"
         title="Добавить контакт"
         @click="modal = true"
       />
     </div>
     <div class="my-6">
       <UInput
-        v-model="search"
+        v-model="globalFilter"
         icon="i-heroicons-magnifying-glass"
         placeholder="Поиск по имени или организации"
         type="search"
@@ -230,10 +158,13 @@ const sorting = ref([
       </template>
     </UModal>
     <UTable
+      ref="table"
       v-model:expanded="expanded"
-      v-model:sorting="sorting"
-      sticky
-      class="flex-1 max-h-[800px]"
+      v-model:global-filter="globalFilter"
+      v-model:pagination="pagination"
+      :pagination-options="{
+        getPaginationRowModel: getPaginationRowModel(),
+      }"
       :data="phones"
       :columns="columns"
       :meta="{ class: { tr: 'cursor-pointer' } }"
@@ -266,5 +197,16 @@ const sorting = ref([
         />
       </template>
     </UTable>
+    <div class="flex justify-center border-t border-default py-4">
+      <UPagination
+        size="lg"
+        :default-page="
+          (table?.tableApi?.getState().pagination.pageIndex || 0) + 1
+        "
+        :items-per-page="table?.tableApi?.getState().pagination.pageSize"
+        :total="table?.tableApi?.getFilteredRowModel().rows.length"
+        @update:page="(p) => table?.tableApi?.setPageIndex(p - 1)"
+      />
+    </div>
   </div>
 </template>

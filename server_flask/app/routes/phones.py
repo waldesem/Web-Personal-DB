@@ -2,9 +2,9 @@
 
 from typing import ClassVar
 
-from flask import Blueprint, Response, current_app, jsonify, request
+from flask import Blueprint, Response, current_app, jsonify
 from flask.views import MethodView
-from sqlalchemy import desc, select
+from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.depends.depend import auth_required, validate
@@ -30,15 +30,12 @@ class PhoneView(MethodView):
             tuple: A tuple containing the JSON-encoded list of phones.
 
         """
-        stmt = select(Phones)
-        if search := request.args.get("search"):
-            stmt = stmt.filter_by(organization=search.upper())
-        results = db_session.execute(stmt.order_by(desc(Phones.id))).scalars()
-        organizations = set(db_session.execute(select(Phones.organization)).scalars())
+        results = db_session.execute(select(Phones)).scalars()
+        orgs = set(db_session.execute(select(Phones.organization)).scalars())
         return jsonify(
             {
                 "results": [result.to_dict() for result in results],
-                "organizations": list(organizations),
+                "organizations": list(orgs),
             },
         ), 200
 
