@@ -66,7 +66,8 @@ async function changeRegion() {
   const { message } = (await fetchAuth(
     `/route/anketa/region/${person.value.id}`,
     {
-      params: {
+      method: "POST",
+      body: {
         region: region.value,
       },
     }

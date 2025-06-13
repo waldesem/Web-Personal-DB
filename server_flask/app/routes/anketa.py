@@ -16,15 +16,15 @@ from app.utils.utils import check_filename, create_destination
 bp = Blueprint("anketa", __name__, url_prefix="/anketa")
 
 
-@bp.get("/region/<int:person_id>")
+@bp.post("/region/<int:person_id>")
 @validate
 @auth_required(Roles.user.value)
-def change_region(person_id: int, query_data: Region) -> Response:
+def change_region(person_id: int, json_data: Region) -> Response:
     """Change a person's region in the database based on their person ID.
 
     Args:
         person_id (int): The ID of the person.
-        query_data (Region): The data to change the person's region.
+        json_data (Region): The data to change the person's region.
 
     Returns:
         The HTTP status code is 200.
@@ -32,7 +32,7 @@ def change_region(person_id: int, query_data: Region) -> Response:
     """
     try:
         person = db_session.get(Persons, person_id)
-        person.region = query_data.region
+        person.region = json_data.region
         destination = create_destination(person)
         if person.destination:
             Path(person.destination).rename(destination)

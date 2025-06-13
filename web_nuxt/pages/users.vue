@@ -25,9 +25,8 @@ async function userAction(item: string, user_id: string): Promise<void> {
   }
   if (!confirm("Подтвердите выполнение действия")) return;
   const { message } = (await fetchAuth("/route/user/" + user_id, {
-    params: {
-      item: item,
-    },
+    method: "POST",
+    body: { item: item },
   })) as Record<string, string>;
   if (message == "success") {
     makeToast("success", "Действие успешно выполнено");

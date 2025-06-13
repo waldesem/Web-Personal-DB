@@ -1,5 +1,6 @@
 """Route routes."""
 
+# import gzip
 import json
 
 from flask import Blueprint, Response, current_app, jsonify, request
@@ -59,6 +60,10 @@ def get_index() -> Response:
         else True,
     )
     query = db_session.execute(stmt.order_by(desc(Persons.id))).all()
+    # compressed_data = gzip.compress(json.dumps(results).encode("utf-8"))
+    # response = Response(compressed_data, mimetype="application/json")
+    # response.headers["Content-Encoding"] = "gzip"
+    # return response, 200
     return jsonify([row._asdict() for row in query]), 200
 
 
