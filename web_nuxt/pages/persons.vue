@@ -193,11 +193,9 @@ const items: DropdownMenuItem[] = [
 </script>
 
 <template>
-  <div>
+  <div class="py-4">
     <div class="flex items-center justify-between mb-3">
-      <div class="py-1">
-        <h3 class="text-2xl text-red-800 font-bold">КАНДИДАТЫ</h3>
-      </div>
+      <h3 class="text-2xl text-red-800 font-bold">КАНДИДАТЫ</h3>
       <div v-if="userState.role == 'user'">
         <UDropdownMenu :items="items" :content="{ align: 'end' }">
           <UButton

@@ -77,11 +77,9 @@ class Phone(Model):
 
     id: int | str | None = None
     organization: str
-    city: str | None = ""
-    fullname: str
+    fullname: str | None = ""
     phone: str | None = ""
     email: str | None = ""
-    created: date
     comments: str | None = ""
 
     @validator("organization", "fullname")

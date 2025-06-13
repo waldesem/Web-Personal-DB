@@ -32,18 +32,13 @@ class PhoneView(MethodView):
         """
         stmt = select(Phones)
         if search := request.args.get("search"):
-            stmt = stmt.where(
-                Phones.organization == search.upper()
-                or Phones.fullname == search.upper(),
-            )
-        phones = db_session.execute(stmt.order_by(desc(Phones.id))).scalars()
+            stmt = stmt.filter_by(organization=search.upper())
+        results = db_session.execute(stmt.order_by(desc(Phones.id))).scalars()
         organizations = set(db_session.execute(select(Phones.organization)).scalars())
-        cities = set(db_session.execute(select(Phones.city)).scalars())
         return jsonify(
             {
-                "phones": [phone.to_dict() for phone in phones],
+                "results": [result.to_dict() for result in results],
                 "organizations": list(organizations),
-                "cities": list(cities),
             },
         ), 200
 

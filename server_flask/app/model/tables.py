@@ -80,15 +80,27 @@ class Users(Base):
 
 
 class Phones(Base):
-    """Phone model."""
+    """Phone model.
+
+    CREATE TABLE phones (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        organization VARCHAR(255) NOT NULL,
+        fullname VARCHAR(255) NOT NULL,
+        phone VARCHAR(255),
+        mobile VARCHAR(255),
+        email VARCHAR(255),
+        comments TEXT,
+        created DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+    """
 
     __tablename__ = "phones"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     organization: Mapped[str] = mapped_column(String(255), nullable=False)
-    city: Mapped[str] = mapped_column(String(255), nullable=True)
     fullname: Mapped[str] = mapped_column(String(255), nullable=False)
     phone: Mapped[str] = mapped_column(String(255), nullable=True)
+    mobile: Mapped[str] = mapped_column(String(255), nullable=True)
     email: Mapped[str] = mapped_column(String(255), nullable=True)
     comments: Mapped[str] = mapped_column(Text, nullable=True)
     created: Mapped[datetime] = mapped_column(

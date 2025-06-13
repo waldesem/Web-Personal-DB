@@ -20,28 +20,29 @@ async function logout() {
           <h3 class="text-red-600">ФИНТЕХ</h3>
         </div>
       </NuxtLink>
-      <UButton
-        v-if="userState.role == 'admin'"
-        icon="i-heroicons-users"
-        to="/users"
-        variant="ghost"
-        label="Пользователи"
-      />
-      <!-- <UButton
-        icon="i-heroicons-phone-arrow-up-right-solid"
-        size="lg"
-        to="/phones"
-        variant="ghost"
-        title="Телефонный справочник" 
-      /> -->
-      <UButton
-        class="rounded-full"
-        :label="userState.username"
-        color="error"
-        icon="i-heroicons-arrow-left-end-on-rectangle"
-        title="Выход"
-        @click="logout()"
-      />
+      <div class="flex items-center space-x-4">
+        <UButton
+          v-if="userState.role == 'admin'"
+          class="rounded-full"
+          icon="i-heroicons-users"
+          to="/users"
+          label="Пользователи"
+        />
+        <UButton
+          class="rounded-full"
+          icon="i-heroicons-phone-arrow-up-right-solid"
+          to="/phones"
+          label="Справочник"
+        />
+        <UButton
+          class="rounded-full"
+          :label="userState.username"
+          color="error"
+          icon="i-heroicons-arrow-left-end-on-rectangle"
+          title="Выход"
+          @click="logout()"
+        />
+      </div>
     </div>
     <div class="flex flex-col gap-4 px-1 mb-6">
       <slot />

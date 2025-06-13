@@ -202,7 +202,6 @@ export interface Needs {
 export interface Phone {
   id: string;
   organization: string;
-  city: string;
   fullname: string;
   phone: string;
   mobile: string;
