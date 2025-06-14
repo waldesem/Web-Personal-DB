@@ -31,6 +31,7 @@ class Model(BaseModel):
         """Pydantic config."""
 
         use_enum_values = True
+        allow_population_by_field_name = True
 
 
 class Phone(Model):
@@ -92,22 +93,22 @@ class Person(Model):
 
     __modelname__ = "persons"
 
-    __PATTERN = r"^[А-яЁё][А-яЁёIV\-\s\.\,\'\(\)]*[А-яЁё\s]$"  # noqa: RUF001
+    __PATTERN = r"^[А-яЁёIV\-\s\.\,\'\(\)]*$"  # noqa: RUF001
 
     id: int | str | None = None
-    surname: str = Field(regex=__PATTERN)
-    firstname: str = Field(regex=__PATTERN)
-    patronymic: str | None = Field(regex=__PATTERN, default="")
+    surname: str = Field(alias="lastName", regex=__PATTERN)
+    firstname: str = Field(alias="firstName", regex=__PATTERN)
+    patronymic: str = Field(default="", alias="midName")
     birthday: date
     birthplace: str | None = ""
-    citizenship: str | None = ""
-    dual: str | None = ""
+    citizenship: str = Field(default="", alias="citizen")
+    dual: str = Field(default="", alias="additionalCitizenship")
     snils: str | None = ""
     inn: str | None = ""
-    marital: str | None = ""
+    marital: str = Field(default="", alias="maritalStatus")
     addition: str | None = ""
     destination: str | None = ""
-    region: Regions
+    region: None | Regions
     editable: bool = False
 
     @validator("surname", "firstname", "patronymic")
@@ -123,10 +124,10 @@ class Prev(Model):
     __modelname__ = "previous"
 
     id: int | str | None = None
-    surname: str
-    firstname: str | None = ""
-    patronymic: str | None = ""
-    changed: str | None = ""
+    surname: str = Field(default="", alias="lastNameBeforeChange")
+    firstname: str = Field(alias="firstNameBeforeChange")
+    patronymic: str = Field(default="", alias="midNameBeforeChange")
+    changed: str | int = Field(default="", alias="yearOfChange")
     reason: str | None = ""
 
     @validator("surname", "firstname", "patronymic")
@@ -142,9 +143,9 @@ class Education(Model):
     __modelname__ = "educations"
 
     id: int | str | None = None
-    view: str
-    institution: str
-    finished: str | int = ""
+    view: str = Field(default="", alias="educationType")
+    institution: str = Field(default="", alias="institutionName")
+    finished: str | int = Field(default="", alias="endYear")
     specialty: str | None = ""
 
 
@@ -197,13 +198,13 @@ class Workplace(Model):
     __modelname__ = "workplaces"
 
     id: int | str | None = None
-    now_work: bool = False
-    starts: date
-    finished: date
-    workplace: str
+    now_work: bool = Field(default=False, alias="currentJob")
+    starts: date = Field(alias="beginDate")
+    finished: date = Field(default=None, alias="endDate")
+    workplace: str | None = ""
     addresses: str | None = ""
-    position: str
-    reason: str | None = ""
+    position: str | None = ""
+    reason: str = Field(default="", alias="fireReason")
 
 
 class Affilation(Model):
@@ -212,8 +213,8 @@ class Affilation(Model):
     __modelname__ = "affilations"
 
     id: int | str | None = None
-    view: str
-    organization: str
+    view: str | None = ""
+    organization: str = Field(default="", alias="name")
     inn: str | None = ""
 
 
@@ -273,76 +274,9 @@ class Inquiry(Model):
     origins: str | None = ""
 
 
-class NameWasChangedJson(BaseModel):
-    """Pydantic model for name was changed item."""
-
-    firstname: str = Field(alias="firstNameBeforeChange")
-    surname: str = Field(default="", alias="lastNameBeforeChange")
-    patronymic: str = Field(default="", alias="midNameBeforeChange")
-    changed: str | int = Field(default="", alias="yearOfChange")
-    reason: str | None = ""
-
-
-class EducationJson(BaseModel):
-    """Pydantic model for education item."""
-
-    view: str = Field(default="", alias="educationType")
-    institution: str = Field(default="", alias="institutionName")
-    finished: str | int = Field(default="", alias="endYear")
-    specialty: str | None = ""
-
-
-class ExperienceJson(BaseModel):
-    """Pydantic model for experience item."""
-
-    starts: date = Field(alias="beginDate")
-    finished: date = Field(default=None, alias="endDate")
-    now_work: bool = Field(default=False, alias="currentJob")
-    workplace: str | None = ""
-    addresses: str | None = ""
-    position: str | None = ""
-    reason: str = Field(default="", alias="fireReason")
-
-
-class OrganizationsJson(BaseModel):
-    """Pydantic model for organizations item."""
-
-    name: str | None = ""
-    inn: str | None = ""
-
-
-class RelatedPersonsOrganizationsJson(BaseModel):
-    """Pydantic model for related persons organizations item."""
-
-    name: str | None = ""
-    inn: str | None = ""
-
-
-class StateOrganizationsJson(BaseModel):
-    """Pydantic model for state organizations item."""
-
-    name: str | None = ""
-
-
-class PublicOfficeOrganizationsJson(BaseModel):
-    """Pydantic model for public office organizations item."""
-
-    name: str | None = ""
-
-
-class AnketaJson(BaseModel):
+class AnketaJson(Person):
     """Pydantic model for anketa schema."""
 
-    surname: str = Field(alias="lastName")
-    firstname: str = Field(alias="firstName")
-    patronymic: str = Field(default="", alias="midName")
-    birthday: date
-    birthplace: str | None = ""
-    citizenship: str = Field(default="", alias="citizen")
-    dual: str = Field(default="", alias="additionalCitizenship")
-    marital: str = Field(default="", alias="maritalStatus")
-    inn: str | None = ""
-    snils: str | None = ""
     position: str = Field(default="", alias="positionName")
     department: str | None = ""
     series: str = Field(default="", alias="passportSerial")
@@ -353,22 +287,22 @@ class AnketaJson(BaseModel):
     reg_address: str = Field(default="", alias="regAddress")
     email: str | None = ""
     contact_phone: str = Field(default="", alias="contactPhone")
-    education: list[EducationJson] = []
-    experience: list[ExperienceJson] = []
-    name_was_changed: list[NameWasChangedJson] = Field(
+    education: list[Education] = []
+    experience: list[Workplace] = []
+    name_was_changed: list[Prev] = Field(
         default=[],
         alias="nameWasChanged",
     )
-    organizations: list[OrganizationsJson] = []
-    related_organizations: list[RelatedPersonsOrganizationsJson] = Field(
+    organizations: list[Affilation] = []
+    related_organizations: list[Affilation] = Field(
         default=[],
         alias="relatedPersonsOrganizations",
     )
-    state_organizations: list[StateOrganizationsJson] = Field(
+    state_organizations: list[Affilation] = Field(
         default=[],
         alias="stateOrganizations",
     )
-    public_organizations: list[PublicOfficeOrganizationsJson] = Field(
+    public_organizations: list[Affilation] = Field(
         default=[],
         alias="publicOfficeOrganizations",
     )

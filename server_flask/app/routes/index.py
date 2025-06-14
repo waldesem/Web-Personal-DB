@@ -43,6 +43,7 @@ def get_index() -> Response:
         there are more results, and a 200 status code.
 
     """
+    # Создание SQL-запроса для получения списка кандидатов с учетом региона пользователя
     stmt = select(
         Persons.id,
         Persons.surname,
@@ -60,12 +61,18 @@ def get_index() -> Response:
         else True,
     )
     query = db_session.execute(stmt.order_by(desc(Persons.id))).all()
+    # Создание списка словарей с данными кандидатов и сериализация их в JSON
     resp = jsonify([row._asdict() for row in query])
+    # Сжатие данных с помощью алгоритма gzip
     compressed_data = gzip.compress(resp.data)
+    # Возвращение ответа с сжатыми данными и соответствующими заголовками
     return Response(
         compressed_data,
         mimetype="application/json",
-        headers={"Content-Encoding": "gzip", "Content-Length": len(compressed_data)},
+        headers={
+            "Content-Encoding": "gzip",
+            "Content-Length": len(compressed_data),
+        },
         status=200,
     )
 
@@ -83,6 +90,7 @@ def post_resume(json_data: Person) -> Response:
         A JSON response containing the person ID and an HTTP status code of 201.
 
     """
+    # Загузка резюме в БД
     person_id, existed = upload_resume(json_data)
     return jsonify({"person_id": person_id, "exists": existed}), 201
 
@@ -100,12 +108,15 @@ def post_json() -> Response:
 
     """
     try:
+        # Чтение файла JSON и создание объектов классов для сохранения в БД
         file_data = request.files.get("file")
         json_data = json.load(file_data)
         anketa = AnketaJson(**json_data)
-        resume = Person(**anketa.dict())
+        resume = Person(**anketa.dict(exclude_none=True))
+        # Загузка резюме в БД
         person_id, existed = upload_resume(resume)
         if person_id:
+            # Сохранение дополнительной информации о кандидате в БД
             items = [
                 Documents(
                     view="Паспорт",
@@ -125,7 +136,7 @@ def post_json() -> Response:
                 *[
                     Affilations(
                         view="Участвует в деятельности коммерческих организаций",
-                        organization=aff.name,
+                        organization=aff.organization,
                         inn=aff.inn,
                     )
                     for aff in anketa.organizations
@@ -133,26 +144,26 @@ def post_json() -> Response:
                 *[
                     Affilations(
                         view="Являлся государственным должностным лицом",
-                        organization=aff.name,
+                        organization=aff.organization,
                     )
                     for aff in anketa.state_organizations
                 ],
                 *[
                     Affilations(
                         view="Связанные лица работают в государственных организациях",
-                        organization=aff.name,
+                        organization=aff.organization,
                     )
                     for aff in anketa.related_organizations
                 ],
                 *[
                     Affilations(
                         view="Являлся государственным или муниципальным служащим",
-                        organization=aff.name,
+                        organization=aff.organization,
                     )
                     for aff in anketa.public_organizations
                 ],
             ]
-
+            # Добавление объектов в сессию и сохранение изменений в БД
             for item in items:
                 item.person_id = person_id
                 item.user_id = current_user.id

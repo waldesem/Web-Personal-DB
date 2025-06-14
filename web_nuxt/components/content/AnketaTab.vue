@@ -29,6 +29,7 @@ async function submitResume(form: Persons) {
   })) as Record<string, string>;
   if (message == "success") {
     makeToast(message, "Информация успешно обновлена");
+    status.value = "success";
   } else {
     emits("refresh");
     makeToast();

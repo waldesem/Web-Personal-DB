@@ -108,11 +108,12 @@ bp.add_url_rule(
 class ItemsView(MethodView):
     """Items view."""
 
+    # Создаем словарь таблиц и связываем его с базой данных
     tables = Base.metadata.tables
 
     @auth_required()
     def get(self, item: str, item_id: int) -> Response:
-        """Retrieve an item from the database based on the provided item ID.
+        """Retrieve an item from the database based on the provided item.
 
         Args:
             item (str): The type of item to retrieve.
@@ -123,10 +124,13 @@ class ItemsView(MethodView):
             the retrieved item(s) and an HTTP status code of 200.
 
         """
+        # Создаем запрос к таблице и сортируем результаты по id в обратном порядке
         stmt = (
             self.tables[item].select().filter(self.tables[item].c.person_id == item_id)
         )
+        # Выполняем запрос и получаем результаты
         query = db_session.execute(stmt.order_by(desc(self.tables[item].c.id)))
+        # Преобразуем результаты в словарь и возвращаем их в формате JSON
         return jsonify([row._asdict() for row in query])
 
     @validate

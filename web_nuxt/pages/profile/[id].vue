@@ -213,7 +213,7 @@ const items: Pills[] = [
       :ui="{ trigger: 'flex-1' }"
     >
       <template #person>
-        <ContentAnketaTab :person="person" :rows="12" @refresh="refresh" />
+        <ContentAnketaTab :person="person" :rows="12" @refresh="refresh()" />
       </template>
       <template #checks="{ item }">
         <ContentSharedView :view="item.slot" :rows="16" />
