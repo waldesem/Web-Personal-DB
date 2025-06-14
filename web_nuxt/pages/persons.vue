@@ -20,9 +20,10 @@ const columnFilters = ref([{ id: "surname", value: "" }]);
 const pagination = ref({ pageIndex: 0, pageSize: 10 });
 
 const { refresh, status } = await useLazyAsyncData("candidates", async () => {
-  candidates.value = (await fetchAuth("/route/index")) as Persons[];
+  candidates.value = await fetchAuth("/route/index") as Persons[];
   updated.value = new Date().toLocaleTimeString("ru-RU");
 });
+
 
 const { open, reset, onCancel, onChange } = useFileDialog({
   accept: ".json",

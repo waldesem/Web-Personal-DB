@@ -18,7 +18,7 @@ bp = Blueprint("phones", __name__)
 class PhoneView(MethodView):
     """Phone view class."""
 
-    decorators: ClassVar = [auth_required(roles=(Roles.admin.value, Roles.user.value))]
+    decorators: ClassVar = [auth_required(roles=[Roles.admin.value, Roles.user.value])]
 
     def get(self) -> Response:
         """Retrieve a list of phones from the database.
@@ -30,11 +30,11 @@ class PhoneView(MethodView):
             tuple: A tuple containing the JSON-encoded list of phones.
 
         """
-        results = db_session.execute(select(Phones)).scalars()
+        results = db_session.execute(select(Phones)).all()
         orgs = set(db_session.execute(select(Phones.organization)).scalars())
         return jsonify(
             {
-                "results": [result.to_dict() for result in results],
+                "results": [result._asdict() for result in results],
                 "organizations": list(orgs),
             },
         ), 200
