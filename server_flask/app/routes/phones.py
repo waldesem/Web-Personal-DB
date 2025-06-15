@@ -1,11 +1,10 @@
 """User routes."""
 
-from datetime import datetime, timezone
 from typing import ClassVar
 
 from flask import Blueprint, Response, current_app, jsonify
 from flask.views import MethodView
-from sqlalchemy import select, text
+from sqlalchemy import select, text, update
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.depends.depend import auth_required, validate
@@ -31,8 +30,11 @@ class PhoneView(MethodView):
             tuple: A tuple containing the JSON-encoded list of phones.
 
         """
+        # Запрос к базе данных для получения списка телефонов
         results = db_session.execute(select(Phones)).scalars()
+        # Запрос к базе данных для получения списка организаций
         orgs = set(db_session.execute(select(Phones.organization)).scalars())
+        # Возврат данных в формате JSON и в виде ответа на запрос
         return jsonify(
             {
                 "results": [result.to_dict() for result in results],
@@ -53,24 +55,24 @@ class PhoneView(MethodView):
 
         """
         try:
-            if json_data.id:
-                phone = db_session.get(Phones, json_data.id)
-                if not phone:
-                    return jsonify({"message": "error"}), 200
-                for key, value in json_data.dict().items():
-                    if value:
-                        phone.created = datetime.now(timezone.utc).replace(
-                            microsecond=0,
-                        )
-                        setattr(phone, key, value)
+            json_dict = json_data.dict(exclude_none=True)
+            # Обновление существующей записи
+            if item_id := json_dict.pop("id", None):
+                db_session.execute(
+                    update(Phones)
+                    .where(Phones.id == item_id)
+                    .values(**json_dict),
+                )
             else:
-                db_session.add(Phones(**json_data.dict()))
-            db_session.commit()
-            return jsonify({"message": "success"}), 201
+                # Создание новой записи
+                db_session.add(Phones(**json_dict))
         except SQLAlchemyError:
             current_app.logger.exception("Database error")
             db_session.rollback()
             return jsonify({"message": "error"}), 200
+        else:
+            db_session.commit()
+            return jsonify({"message": "success"}), 201
 
     def delete(self, phone_id: int) -> Response:
         """Handle the DELETE request to delete a phone from the database.
@@ -82,6 +84,7 @@ class PhoneView(MethodView):
             The HTTP status code is 200.
 
         """
+        # Удаление записи из таблицы phones
         db_session.execute(text("DELETE FROM phones WHERE id = :id"), {"id": phone_id})
         db_session.commit()
         return jsonify({"message": "success"}), 200

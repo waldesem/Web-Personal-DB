@@ -71,6 +71,7 @@ def get_index() -> Response:
         mimetype="application/json",
         headers={
             "Content-Encoding": "gzip",
+            "Content-Type": "application/json",
             "Content-Length": len(compressed_data),
         },
         status=200,

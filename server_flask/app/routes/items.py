@@ -153,7 +153,7 @@ class ItemsView(MethodView):
 
         """
         # Получаем таблицу из словаря таблиц по имени item
-        json_dict = json_data.dict()
+        json_dict = json_data.dict(exclude_none=True)
         # Добавляем ключ "person_id" в словарь json_dict с значением item_id
         json_dict["person_id"] = item_id
         # Добавляем ключ "user_id" в словарь json_dict с значением текущего пользователя

@@ -39,7 +39,6 @@ async function submitForm(form: Phone) {
   phone.value = {} as Phone;
   await refresh();
   if (message === "success") {
-    emit("update");
     makeToast("success", "Контакт успешно добавлен/обновлен");
   } else {
     makeToast();
@@ -114,10 +113,10 @@ const columns: TableColumn<Phone>[] = [
     cell: ({ row }) => {
       return h(UBadge, {
         color:
-          new Date() - new Date(row.original.created) <
+          new Date().getTime() - new Date(row.original.created).getTime() <
           365 * 24 * 60 * 60 * 1000
             ? "success"
-            : new Date() - new Date(row.original.created) <
+            : new Date().getTime() - new Date(row.original.created).getTime() <
               365 * 24 * 60 * 60 * 1000 * 3
             ? "primary"
             : "error",

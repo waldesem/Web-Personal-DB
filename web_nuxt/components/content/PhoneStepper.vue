@@ -15,6 +15,7 @@ const props = defineProps({
   },
 });
 
+const stepper = useTemplateRef("stepper");
 const form = ref(props.phone as Phone);
 const orgs = ref(props.organizations as string[]);
 
@@ -50,8 +51,6 @@ const items = [
     icon: "i-heroicons-book-open",
   },
 ] satisfies StepperItem[];
-
-const stepper = useTemplateRef("stepper");
 </script>
 
 <template>
