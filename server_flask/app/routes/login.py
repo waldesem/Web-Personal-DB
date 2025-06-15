@@ -37,7 +37,7 @@ def post_login(action: str, json_data: Login) -> Response:
             return jsonify({"message": "Invalid"})
 
         if not check_password_hash(user.passhash, json_data.password):
-            if user.attempt < 5:  # noqa: PLR2004
+            if user.attempt < 5:
                 user.attempt += 1
             else:
                 user.blocked = True

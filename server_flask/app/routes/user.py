@@ -96,7 +96,7 @@ def post_user(json_data: User) -> Response:
         - Otherwise returns a response with status code 201.
 
     """
-    # Проверить, существует ли уже пользователь с таким именем  # noqa: RUF003
+    # Проверить, существует ли уже пользователь с таким именем
     user = db_session.execute(
         select(Users).filter(Users.username == json_data.username),
     ).all()

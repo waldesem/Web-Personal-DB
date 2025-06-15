@@ -4,7 +4,7 @@ from typing import ClassVar
 
 from flask import Blueprint, Response, current_app, jsonify
 from flask.views import MethodView
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.depends.depend import auth_required, validate
@@ -78,8 +78,7 @@ class PhoneView(MethodView):
             The HTTP status code is 200.
 
         """
-        phone = db_session.get(Phones, phone_id)
-        db_session.delete(phone)
+        db_session.execute(text("DELETE FROM phones WHERE id = :id"), {"id": phone_id})
         db_session.commit()
         return jsonify({"message": "success"}), 200
 

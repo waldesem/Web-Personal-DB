@@ -62,7 +62,7 @@ def get_index() -> Response:
     )
     query = db_session.execute(stmt.order_by(desc(Persons.id))).all()
     # Создание списка словарей с данными кандидатов и сериализация их в JSON
-    resp = jsonify([row._asdict() for row in query])
+    resp = jsonify(row._asdict() for row in query)
     # Сжатие данных с помощью алгоритма gzip
     compressed_data = gzip.compress(resp.data)
     # Возвращение ответа с сжатыми данными и соответствующими заголовками

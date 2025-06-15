@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
-from datetime import date  # noqa: TC003
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
+
+if TYPE_CHECKING:
+    from datetime import date
 
 from pydantic import BaseModel, Field, validator
 
@@ -93,7 +95,7 @@ class Person(Model):
 
     __modelname__ = "persons"
 
-    __PATTERN = r"^[А-яЁёIV\-\s\.\,\'\(\)]*$"  # noqa: RUF001
+    __PATTERN = r"^[А-яЁёIV\-\s\.\,\'\(\)]*$"
 
     id: int | str | None = None
     surname: str = Field(alias="lastName", regex=__PATTERN)
@@ -116,6 +118,25 @@ class Person(Model):
     def check_names(cls, v: str) -> str:
         """Check names."""
         return v.upper().strip() if v else ""
+
+
+class Items(BaseModel):
+    """Base Pydantic model for items."""
+
+    items = Literal[
+        "previous",
+        "educations",
+        "addresses",
+        "affilations",
+        "staffs",
+        "workplaces",
+        "contacts",
+        "documents",
+        "checks",
+        "poligrafs",
+        "inquiries",
+        "investigations",
+    ]
 
 
 class Prev(Model):

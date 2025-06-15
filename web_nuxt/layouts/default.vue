@@ -1,12 +1,47 @@
 <script setup lang="ts">
+import type { NavigationMenuItem } from '@nuxt/ui'
+
 const userState = useUserState();
 
-async function logout() {
-  if (!confirm("Вы действительно хотите выйти?")) return;
-  accessToken.value = null;
-  clearNuxtData();
-  return navigateTo("/login");
-}
+// async function logout() {
+//   if (!confirm("Вы действительно хотите выйти?")) return;
+//   accessToken.value = null;
+//   clearNuxtData();
+//   return navigateTo("/login");
+// }
+
+const items = ref<NavigationMenuItem[]>([
+  {
+    label: 'Кандидаты',
+    icon: 'i-heroicons-user-group',
+    to: '/persons',
+    active: true,
+  },
+  {
+    label: 'Пользователи',
+    icon: 'i-heroicons-users',
+    to: '/users',
+    disabled: !userState.role == 'admin',
+  },
+  {
+    label: 'Справочник',
+    icon: 'i-heroicons-phone-arrow-up-right-solid',
+    to: '/phones',
+    target: '_blank',
+  },
+  {
+    label: 'GitHub',
+    icon: 'i-simple-icons-github',
+    to: 'https://github.com/waldesem/Web-Personal-DB',
+    target: '_blank',
+  },
+  {
+    label: userState.username,
+    icon: 'i-heroicons-arrow-left-end-on-rectangle',
+    disabled: true,
+    to: '/login',
+  }
+])
 </script>
 
 <template>
@@ -21,10 +56,12 @@ async function logout() {
         </div>
       </NuxtLink>
       <div class="flex items-center space-x-4">
-        <UButton
+        <UNavigationMenu :items="items" class="w-full justify-center" />
+        <!-- <UButton
           v-if="userState.role == 'admin'"
           class="rounded-full"
           icon="i-heroicons-users"
+          color="warning"
           to="/users"
           label="Пользователи"
         />
@@ -41,7 +78,7 @@ async function logout() {
           icon="i-heroicons-arrow-left-end-on-rectangle"
           title="Выход"
           @click="logout()"
-        />
+        /> -->
       </div>
     </div>
     <div class="flex flex-col gap-4 px-1 mb-6">

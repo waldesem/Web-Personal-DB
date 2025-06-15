@@ -1,6 +1,5 @@
 """Anketa routes."""
 
-import shutil
 from datetime import datetime
 from pathlib import Path
 
@@ -40,7 +39,7 @@ def change_region(person_id: int, json_data: Region) -> Response:
         person.editable = False
         db_session.commit()
         return jsonify({"message": "success"}), 201
-    except (shutil.Error, SQLAlchemyError):
+    except (SQLAlchemyError):
         current_app.logger.exception("Exception in change_region")
         return jsonify({"message": "error"}), 200
 

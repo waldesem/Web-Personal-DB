@@ -9,7 +9,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app.depends.depend import auth_required, current_user, validate
 from app.model.classes import Roles
-from app.model.models import Model, Person
+from app.model.models import Items, Model, Person
 from app.model.tables import Base, Persons, db_session
 from app.utils.utils import create_destination, upload_resume
 
@@ -31,6 +31,7 @@ class PersonView(MethodView):
             the retrieved item(s) and an HTTP status code of 200.
 
         """
+        # Получаем данные кандидата и создаем папку для него, если ее нет
         person = db_session.get(Persons, person_id)
         if not person.destination or not Path(person.destination).is_dir():
             person.destination = create_destination(person)
@@ -50,6 +51,7 @@ class PersonView(MethodView):
             code of 201.
 
         """
+        # Загружаем отредактированное резюме и получаем id кандидата
         cand_id, _ = upload_resume(json_data)
         if cand_id:
             return jsonify({"message": "success"}), 201
@@ -82,8 +84,10 @@ class PersonView(MethodView):
                 "inquiries",
                 "investigations",
             ]:
+                # Удаляем записи из таблицы, связанные с кандидатом
                 table = Base.metadata.tables.get(item)
                 db_session.execute(table.delete().where(table.c.person_id == person_id))
+            # Удаляем запись о кандидате из таблицы persons
             db_session.execute(
                 text("DELETE FROM persons WHERE id = :person_id"),
                 {"person_id": person_id},
@@ -112,7 +116,7 @@ class ItemsView(MethodView):
     tables = Base.metadata.tables
 
     @auth_required()
-    def get(self, item: str, item_id: int) -> Response:
+    def get(self, item: Items, item_id: int) -> Response:
         """Retrieve an item from the database based on the provided item.
 
         Args:
@@ -135,7 +139,7 @@ class ItemsView(MethodView):
 
     @validate
     @auth_required(Roles.user.value)
-    def post(self, item: str, item_id: int, json_data: Model) -> Response:
+    def post(self, item: Items, item_id: int, json_data: Model) -> Response:
         """Insert or replaces a record in the specified table with the given item ID.
 
         Args:
@@ -148,11 +152,16 @@ class ItemsView(MethodView):
             code of 201.
 
         """
+        # Получаем таблицу из словаря таблиц по имени item
         json_dict = json_data.dict()
+        # Добавляем ключ "person_id" в словарь json_dict с значением item_id
         json_dict["person_id"] = item_id
+        # Добавляем ключ "user_id" в словарь json_dict с значением текущего пользователя
         json_dict["user_id"] = current_user.id
         try:
+            # Проверяем, есть ли ключ "id" в словаре json_dict
             if table_id := json_dict.pop("id", None):
+                # Если есть, создаем запрос на обновление записи с указанным id
                 stmt = (
                     self.tables[item]
                     .update()
@@ -160,6 +169,7 @@ class ItemsView(MethodView):
                     .values(json_dict)
                 )
             else:
+                # Если нет, создаем запрос на вставку новой записи
                 stmt = self.tables[item].insert().values(json_dict)
             db_session.execute(stmt)
             db_session.commit()
@@ -170,7 +180,7 @@ class ItemsView(MethodView):
             return jsonify({"message": "error"}), 200
 
     @auth_required(Roles.user.value)
-    def delete(self, item: str, item_id: int) -> Response:
+    def delete(self, item: Items, item_id: int) -> Response:
         """Delete an item from the database based on the provided item name and item ID.
 
         Args:
@@ -183,6 +193,7 @@ class ItemsView(MethodView):
 
         """
         try:
+            # Удаляем запись из таблицы items с указанным id
             db_session.execute(
                 self.tables[item].delete().where(self.tables[item].c.id == item_id),
             )

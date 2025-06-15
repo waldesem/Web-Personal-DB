@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
-from datetime import date, datetime  # noqa: TC003
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from datetime import date, datetime
 
 from flask import current_app
 from sqlalchemy import (
