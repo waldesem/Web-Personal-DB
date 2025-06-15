@@ -18,19 +18,6 @@ const props = defineProps({
 const form = ref(props.phone as Phone);
 const orgs = ref(props.organizations as string[]);
 
-async function submitForm() {
-  const { message } = (await fetchAuth("/route/phones", {
-    method: "POST",
-    body: form.value,
-  })) as Record<string, string>;
-  if (message === "success") {
-    emit("update");
-    makeToast("success", "Контакт успешно добавлен/изменен");
-  } else {
-    makeToast();
-  }
-}
-
 const items = [
   {
     slot: "organization" as const,
@@ -39,7 +26,7 @@ const items = [
   },
   {
     slot: "fullname" as const,
-    title: "Полное имя*",
+    title: "Полное имя",
     icon: "i-heroicons-user-circle",
   },
   {
@@ -65,11 +52,10 @@ const items = [
 ] satisfies StepperItem[];
 
 const stepper = useTemplateRef("stepper");
-
 </script>
 
 <template>
-  <UForm :state="form" @submit.prevent="submitForm">
+  <UForm :state="form" @submit.prevent="emit('update', form)">
     <UStepper ref="stepper" :items="items" class="w-full" disabled>
       <template #organization>
         <div class="flex my-4">

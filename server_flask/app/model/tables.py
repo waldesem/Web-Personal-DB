@@ -2,10 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from datetime import date, datetime
+from datetime import date, datetime  # noqa: TC003
 
 from flask import current_app
 from sqlalchemy import (
@@ -109,6 +106,7 @@ class Phones(Base):
     created: Mapped[datetime] = mapped_column(
         DateTime,
         default=func.now(),
+        onupdate=func.now(),
         nullable=True,
     )
 

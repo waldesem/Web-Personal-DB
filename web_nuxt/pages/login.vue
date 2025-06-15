@@ -4,9 +4,6 @@ import type { Login } from "@/types";
 
 definePageMeta({ layout: false });
 
-accessToken.value = null;
-clearNuxtData();
-
 const action = ref("login");
 const loginForm = ref({} as Login);
 

@@ -1,47 +1,38 @@
 <script setup lang="ts">
-import type { NavigationMenuItem } from '@nuxt/ui'
+import type { NavigationMenuItem } from "@nuxt/ui";
 
 const userState = useUserState();
 
-// async function logout() {
-//   if (!confirm("Вы действительно хотите выйти?")) return;
-//   accessToken.value = null;
-//   clearNuxtData();
-//   return navigateTo("/login");
-// }
+async function logout() {
+  if (!confirm("Вы действительно хотите выйти?")) return;
+  accessToken.value = null;
+  clearNuxtData();
+  return navigateTo("/login");
+}
 
 const items = ref<NavigationMenuItem[]>([
   {
-    label: 'Кандидаты',
-    icon: 'i-heroicons-user-group',
-    to: '/persons',
-    active: true,
+    label: "Пользователи",
+    icon: "i-heroicons-users",
+    to: "/users",
   },
   {
-    label: 'Пользователи',
-    icon: 'i-heroicons-users',
-    to: '/users',
-    disabled: !userState.role == 'admin',
+    label: "Кандидаты",
+    icon: "i-heroicons-user-group",
+    to: "/persons",
   },
   {
-    label: 'Справочник',
-    icon: 'i-heroicons-phone-arrow-up-right-solid',
-    to: '/phones',
-    target: '_blank',
+    label: "Справочник",
+    icon: "i-heroicons-phone-arrow-up-right",
+    to: "/phones",
   },
   {
-    label: 'GitHub',
-    icon: 'i-simple-icons-github',
-    to: 'https://github.com/waldesem/Web-Personal-DB',
-    target: '_blank',
+    label: "Исходный код",
+    icon: "i-heroicons-code-bracket",
+    to: "https://github.com/waldesem/Web-Personal-DB",
+    target: "_blank",
   },
-  {
-    label: userState.username,
-    icon: 'i-heroicons-arrow-left-end-on-rectangle',
-    disabled: true,
-    to: '/login',
-  }
-])
+]);
 </script>
 
 <template>
@@ -56,30 +47,20 @@ const items = ref<NavigationMenuItem[]>([
         </div>
       </NuxtLink>
       <div class="flex items-center space-x-4">
-        <UNavigationMenu :items="items" class="w-full justify-center" />
-        <!-- <UButton
-          v-if="userState.role == 'admin'"
-          class="rounded-full"
-          icon="i-heroicons-users"
-          color="warning"
-          to="/users"
-          label="Пользователи"
+        <UNavigationMenu
+          highlight
+          :items="userState.role === 'admin' ? items : items.slice(1)"
+          class="w-full justify-center"
         />
-        <UButton
-          class="rounded-full"
-          icon="i-heroicons-phone-arrow-up-right-solid"
-          to="/phones"
-          label="Справочник"
-        />
-        <UButton
-          class="rounded-full"
-          :label="userState.username"
-          color="error"
-          icon="i-heroicons-arrow-left-end-on-rectangle"
-          title="Выход"
-          @click="logout()"
-        /> -->
       </div>
+      <UButton
+        class="rounded-full"
+        :label="userState.username"
+        color="error"
+        icon="i-heroicons-arrow-left-end-on-rectangle"
+        title="Выход"
+        @click="logout()"
+      />
     </div>
     <div class="flex flex-col gap-4 px-1 mb-6">
       <slot />

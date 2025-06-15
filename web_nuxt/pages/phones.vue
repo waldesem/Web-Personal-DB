@@ -3,6 +3,7 @@ import { getPaginationRowModel } from "@tanstack/vue-table";
 import type { TableColumn } from "@nuxt/ui";
 import type { Phone } from "@/types";
 
+const UBadge = resolveComponent("UBadge");
 const UButton = resolveComponent("UButton");
 const UDropdownMenu = resolveComponent("UDropdownMenu");
 const table = useTemplateRef("table");
@@ -28,6 +29,22 @@ const { refresh, status } = await useLazyAsyncData("users", async () => {
   phones.value = results;
   items.value = organizations;
 });
+
+async function submitForm(form: Phone) {
+  const { message } = (await fetchAuth("/route/phones", {
+    method: "POST",
+    body: form,
+  })) as Record<string, string>;
+  modal.value = false;
+  phone.value = {} as Phone;
+  await refresh();
+  if (message === "success") {
+    emit("update");
+    makeToast("success", "Контакт успешно добавлен/обновлен");
+  } else {
+    makeToast();
+  }
+}
 
 async function deletePhone(phone_id: string): Promise<void> {
   if (!confirm("Подтвердите выполнение действия")) return;
@@ -57,6 +74,12 @@ function getRowItems(item: Phone) {
         modal.value = true;
       },
     },
+    {
+      label: "Обновить дату",
+      onSelect() {
+        submitForm(item);
+      },
+    },
   ];
 }
 
@@ -74,6 +97,7 @@ const columns: TableColumn<Phone>[] = [
             "transition-transform",
             row.getIsExpanded() ? "duration-200 rotate-180" : "",
           ],
+          class: "flex items-center justify-center",
         },
         onClick: () => row.toggleExpanded(),
       }),
@@ -88,7 +112,17 @@ const columns: TableColumn<Phone>[] = [
     accessorKey: "created",
     header: "Обновлено",
     cell: ({ row }) => {
-      return new Date(row.original.created).toLocaleDateString("ru-RU");
+      return h(UBadge, {
+        color:
+          new Date() - new Date(row.original.created) <
+          365 * 24 * 60 * 60 * 1000
+            ? "success"
+            : new Date() - new Date(row.original.created) <
+              365 * 24 * 60 * 60 * 1000 * 3
+            ? "primary"
+            : "error",
+        label: new Date(row.original.created).toLocaleDateString("ru-RU"),
+      });
     },
   },
   {
@@ -149,11 +183,7 @@ const columns: TableColumn<Phone>[] = [
         <LazyContentPhoneStepper
           :phone="phone"
           :organizations="items"
-          @update="
-            modal = false;
-            phone = {} as Phone;
-            refresh();
-          "
+          @update="submitForm"
         />
       </template>
     </UModal>
@@ -173,28 +203,23 @@ const columns: TableColumn<Phone>[] = [
       empty="Данные не найдены"
     >
       <template #expanded="{ row }">
-        <ElementsLabelValue
-          label="Название организации"
-          :value="row.original.organization"
-        />
-        <ElementsLabelValue label="Полное имя" :value="row.original.fullname" />
-        <ElementsLabelValue label="Телефон" :value="row.original.phone" />
-        <ElementsLabelValue label="Мобильный" :value="row.original.mobile" />
-        <ElementsLabelValue label="Email" :value="row.original.email" />
-        <ElementsLabelValue
-          label="Комментарий"
-          :value="row.original.comments"
-        />
-        <ElementsLabelValue
-          label="Дата записи"
-          :value="
-            row.original.created
-              ? new Date(row.original.created)
-                  .toLocaleDateString('ru-RU')
-                  .split(',')[0]
-              : ''
-          "
-        />
+        <UCard>
+          <ElementsLabelValue
+            label="Название организации"
+            :value="row.original.organization"
+          />
+          <ElementsLabelValue
+            label="Полное имя"
+            :value="row.original.fullname"
+          />
+          <ElementsLabelValue label="Телефон" :value="row.original.phone" />
+          <ElementsLabelValue label="Мобильный" :value="row.original.mobile" />
+          <ElementsLabelValue label="Email" :value="row.original.email" />
+          <ElementsLabelValue
+            label="Комментарий"
+            :value="row.original.comments"
+          />
+        </UCard>
       </template>
     </UTable>
     <div class="flex justify-center border-t border-default py-4">

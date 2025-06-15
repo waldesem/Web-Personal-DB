@@ -2,10 +2,8 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal
-
-if TYPE_CHECKING:
-    from datetime import date
+from datetime import date  # noqa: TC003
+from typing import Literal
 
 from pydantic import BaseModel, Field, validator
 
@@ -45,6 +43,7 @@ class Phone(Model):
     organization: str
     fullname: str | None = ""
     phone: str | None = ""
+    mobile: str | None = ""
     email: str | None = ""
     comments: str | None = ""
 
@@ -123,7 +122,7 @@ class Person(Model):
 class Items(BaseModel):
     """Base Pydantic model for items."""
 
-    items = Literal[
+    items: Literal[
         "previous",
         "educations",
         "addresses",

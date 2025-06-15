@@ -1,5 +1,6 @@
 """User routes."""
 
+from datetime import datetime, timezone
 from typing import ClassVar
 
 from flask import Blueprint, Response, current_app, jsonify
@@ -30,11 +31,11 @@ class PhoneView(MethodView):
             tuple: A tuple containing the JSON-encoded list of phones.
 
         """
-        results = db_session.execute(select(Phones)).all()
+        results = db_session.execute(select(Phones)).scalars()
         orgs = set(db_session.execute(select(Phones.organization)).scalars())
         return jsonify(
             {
-                "results": [result._asdict() for result in results],
+                "results": [result.to_dict() for result in results],
                 "organizations": list(orgs),
             },
         ), 200
@@ -58,6 +59,9 @@ class PhoneView(MethodView):
                     return jsonify({"message": "error"}), 200
                 for key, value in json_data.dict().items():
                     if value:
+                        phone.created = datetime.now(timezone.utc).replace(
+                            microsecond=0,
+                        )
                         setattr(phone, key, value)
             else:
                 db_session.add(Phones(**json_data.dict()))
