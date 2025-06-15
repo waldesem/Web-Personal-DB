@@ -1,0 +1,2 @@
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["./CADjFyMu.js","./spIu-R-5.js","./entry.VEN2czxA.css","./CHIgUVhi.js"])))=>i.map(i=>d[i]);
+import{d as a,w as s,n as _,c as r,o as c,a as i,b as m,_ as p}from"./spIu-R-5.js";const l=m(()=>p(()=>import("./CADjFyMu.js"),__vite__mapDeps([0,1,2,3]),import.meta.url).then(e=>e.default||e)),d={class:"flex flex-col justify-center"},y=a({__name:"index",async setup(e){let t,n;return[t,n]=s(()=>_("/persons")),await t,n(),(f,u)=>{const o=l;return c(),r("div",d,[i(o,{animation:"swing"})])}}});export{y as default};

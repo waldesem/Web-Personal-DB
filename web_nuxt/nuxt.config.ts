@@ -28,9 +28,16 @@ export default defineNuxtConfig({
   },
   modules: ["@nuxt/ui", "@nuxt/eslint", "@vueuse/nuxt", "nuxt-security"],
   nitro: {
+    // compressPublicAssets: {
+    //   gzip: true,
+    //   brotli: false
+    // },
     output: {
       publicDir: "../server_flask/app/static",
     },
+    // prerender: {
+    //   crawlLinks: true
+    // },
   },
   routeRules: {
     "/route/**": { proxy: "http://127.0.0.1:5000/route/**" },
