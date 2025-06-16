@@ -11,7 +11,7 @@ const alert = ref({
   color: "success",
   title: "Информация",
   description: "Введите логин и пароль",
-  icon: "i-heroicons-information-circle",
+  icon: "i-lucide-circle-alert",
 });
 
 const validate = (state: Partial<Login>) => {
@@ -59,7 +59,7 @@ async function submitLogin() {
       color: "success",
       title: "Информация",
       description: "Войдите с новым паролем.",
-      icon: "i-heroicons-information-circle",
+      icon: "i-lucide-circle-alert",
     });
   } else if (message === "Denied") {
     action.value = "update";
@@ -67,14 +67,14 @@ async function submitLogin() {
       color: "warning",
       title: "Предупреждение",
       description: "Пароль просрочен.",
-      icon: "i-heroicons-exclamation-circle",
+      icon: "i-lucide-circle-alert",
     });
   } else {
     Object.assign(alert.value, {
       color: "error",
       title: "Внимание",
       description: "Неправильный логин или пароль.",
-      icon: "i-heroicons-exclamation-triangle",
+      icon: "i-lucide-triangle-alert",
     });
   }
 }
@@ -105,7 +105,7 @@ async function submitLogin() {
               <UInput
                 v-model="loginForm['username']"
                 placeholder="Имя пользователя"
-                icon="i-heroicons-user"
+                icon="i-lucide-user"
                 autofocus
                 required
               />
@@ -115,7 +115,7 @@ async function submitLogin() {
                 v-model="loginForm.password"
                 type="password"
                 placeholder="Пароль"
-                icon="i-heroicons-lock-closed"
+                icon="i-lucide-lock-keyhole"
                 required
               />
             </UFormField>
@@ -125,7 +125,7 @@ async function submitLogin() {
                   v-model="loginForm.new_pswd"
                   type="password"
                   placeholder="Новый пароль"
-                  icon="i-heroicons-lock-closed"
+                  icon="i-i-lucide-lock-keyhole"
                   required
                 />
               </UFormField>
@@ -134,7 +134,7 @@ async function submitLogin() {
                   v-model="loginForm.conf_pswd"
                   type="password"
                   placeholder="Подтверждение пароля"
-                  icon="i-heroicons-lock-closed"
+                  icon="i-i-lucide-lock-keyhole"
                   required
                 />
               </UFormField>

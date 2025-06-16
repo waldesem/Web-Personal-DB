@@ -89,7 +89,7 @@ const columns: TableColumn<Phone>[] = [
       h(UButton, {
         color: "neutral",
         variant: "ghost",
-        icon: "i-heroicons-chevron-down",
+        icon: "i-lucide-chevron-down",
         square: true,
         ui: {
           leadingIcon: [
@@ -141,7 +141,7 @@ const columns: TableColumn<Phone>[] = [
           },
           () =>
             h(UButton, {
-              icon: "i-heroicons-ellipsis-vertical",
+              icon: "i-lucide-ellipsis-vertical",
               color: "neutral",
               variant: "ghost",
               class: "ml-auto",
@@ -159,7 +159,7 @@ const columns: TableColumn<Phone>[] = [
       <h3 class="text-2xl text-red-800 font-bold">КОНТАКТЫ</h3>
       <UButton
         variant="ghost"
-        icon="i-heroicons-user-plus"
+        icon="i-lucide-user-plus"
         size="lg"
         title="Добавить контакт"
         @click="modal = true"
@@ -168,7 +168,7 @@ const columns: TableColumn<Phone>[] = [
     <div class="my-6">
       <UInput
         v-model="globalFilter"
-        icon="i-heroicons-magnifying-glass"
+        icon="i-lucide-search"
         placeholder="Поиск по имени или организации"
         type="search"
       />

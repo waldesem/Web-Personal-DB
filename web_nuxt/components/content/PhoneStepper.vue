@@ -23,32 +23,32 @@ const items = [
   {
     slot: "organization" as const,
     title: "Название организации*",
-    icon: "i-heroicons-building-office",
+    icon: "i-lucide-building",
   },
   {
     slot: "fullname" as const,
     title: "Полное имя",
-    icon: "i-heroicons-user-circle",
+    icon: "i-lucide-user-circle",
   },
   {
     slot: "phone" as const,
     title: "Телефон",
-    icon: "i-heroicons-phone",
+    icon: "i-lucide-phone",
   },
   {
     slot: "mobile" as const,
     title: "Мобильный телефон",
-    icon: "i-heroicons-device-phone-mobile",
+    icon: "i-lucide-device-smartphone",
   },
   {
     slot: "email" as const,
     title: "Email",
-    icon: "i-heroicons-envelope",
+    icon: "i-lucide-mail",
   },
   {
     slot: "comments" as const,
     title: "Комментарий",
-    icon: "i-heroicons-book-open",
+    icon: "i-lucide-notebook-text",
   },
 ] satisfies StepperItem[];
 </script>
@@ -120,7 +120,7 @@ const items = [
       <UButton
         class="rounded-full"
         title="Назад"
-        leading-icon="i-heroicons-arrow-left"
+        leading-icon="i-lucide-arrow-left"
         :disabled="!stepper?.hasPrev"
         @click="stepper?.prev()"
       />
@@ -134,7 +134,7 @@ const items = [
       <UButton
         class="rounded-full"
         title="Вперед"
-        trailing-icon="i-heroicons-arrow-right"
+        trailing-icon="i-lucide-arrow-right"
         :disabled="!stepper?.hasNext || !form.organization"
         @click="stepper?.next()"
       />

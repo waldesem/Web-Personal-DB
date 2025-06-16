@@ -177,7 +177,7 @@ async function deleteItem(id: string, idx: number) {
     <UButton
       :loading="status == 'pending'"
       label="Добавить запись"
-      icon="i-heroicons-document-plus"
+      icon="i-lucide-file-plus"
       variant="ghost"
       @click="
         item = {} as object;

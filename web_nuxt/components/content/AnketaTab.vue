@@ -61,37 +61,37 @@ interface Accordion extends AccordionItem {
 }
 
 const items: Accordion[] = [
-  { content: "staffs", label: "Должности", icon: "i-heroicons-user" },
+  { content: "staffs", label: "Должности", icon: "i-lucide-user" },
   {
     content: "educations",
     label: "Образование",
-    icon: "i-heroicons-academic-cap",
+    icon: "i-lucide-graduation-cap",
   },
   {
     content: "workplaces",
     label: "Места работы",
-    icon: "i-heroicons-briefcase",
+    icon: "i-lucide-briefcase-business",
   },
   {
     content: "documents",
     label: "Документы",
-    icon: "i-heroicons-document",
+    icon: "i-lucide-book-text",
   },
   {
     content: "addresses",
     label: "Адреса",
-    icon: "i-heroicons-home",
+    icon: "i-lucide-house",
   },
-  { content: "contacts", label: "Контакты", icon: "i-heroicons-phone" },
+  { content: "contacts", label: "Контакты", icon: "i-lucide-phone-call" },
   {
     content: "previous",
     label: "Изменения имени",
-    icon: "i-heroicons-pencil-square",
+    icon: "i-lucide-file-pen-line",
   },
   {
     content: "affilations",
     label: "Аффилированность",
-    icon: "i-heroicons-users",
+    icon: "i-lucide-users-round",
   },
 ];
 </script>

@@ -119,27 +119,27 @@ const items: Pills[] = [
   {
     slot: "person" as const,
     label: "Анкета",
-    icon: "i-heroicons-user",
+    icon: "i-lucide-user",
   },
   {
     slot: "checks" as const,
     label: "Проверки",
-    icon: "i-heroicons-check-circle",
+    icon: "i-lucide-circle-check-big",
   },
   {
     slot: "poligrafs" as const,
     label: "Полиграф",
-    icon: "i-heroicons-bolt",
+    icon: "i-lucide-heart-pulse",
   },
   {
     slot: "investigations" as const,
     label: "Расследования",
-    icon: "i-heroicons-briefcase",
+    icon: "i-lucide-briefcase-business",
   },
   {
     slot: "inquiries" as const,
     label: "Запросы",
-    icon: "i-heroicons-document-text",
+    icon: "i-lucide-book-text",
   },
 ];
 </script>
@@ -159,7 +159,7 @@ const items: Pills[] = [
         <UButton
           :loading="status === 'pending'"
           variant="outline"
-          icon="i-heroicons-cloud-arrow-up"
+          icon="i-lucide-cloud-upload"
           label="Загрузить файлы"
           @click="open()"
         />

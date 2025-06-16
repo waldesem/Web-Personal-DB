@@ -9,14 +9,14 @@ const emits = defineEmits(["change", "delete"])
         :items="[
           {
             label: 'Изменить',
-            icon: 'i-heroicons-pencil-square',
+            icon: 'i-lucide-pencil',
             onSelect() {
               emits('change');
             },
           },
           {
             label: 'Удалить',
-            icon: 'i-heroicons-trash',
+            icon: 'i-lucide-trash',
             onSelect() {
               emits('delete');
             },
@@ -27,7 +27,7 @@ const emits = defineEmits(["change", "delete"])
         <UButton
           size="xl"
           color="neutral"
-          icon="i-heroicons-ellipsis-vertical"
+          icon="i-lucide-ellipsis-vertical"
           variant="ghost"
           title="Выбор действия"
         />

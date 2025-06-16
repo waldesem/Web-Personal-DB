@@ -110,8 +110,8 @@ const columns: TableColumn<Persons>[] = [
     cell: ({ row }) => {
       return h(UIcon, {
         name: row.original.editable
-          ? "i-heroicons-arrow-path"
-          : "i-heroicons-check-circle",
+          ? "i-lucide-refresh-ccw"
+          : "i-lucide-circle-check",
 
         class: row.original.editable
           ? "text-start w-4 h-4 animate-spin text-red-800"
@@ -145,14 +145,14 @@ const columns: TableColumn<Persons>[] = [
 const items: DropdownMenuItem[] = [
   {
     label: "Создать анкету",
-    icon: "i-heroicons-user-plus",
+    icon: "i-lucide-user-plus",
     onSelect() {
       modal.value = true;
     },
   },
   {
     label: "Загрузить json",
-    icon: "i-heroicons-cloud-arrow-up",
+    icon: "i-lucide-cloud-upload",
     onSelect() {
       open();
     },
@@ -168,7 +168,7 @@ const items: DropdownMenuItem[] = [
         <UDropdownMenu :items="items" :content="{ align: 'end' }">
           <UButton
             :loading="status == 'pending'"
-            icon="i-heroicons-bars-4"
+            icon="i-lucide-refresh-ccw"
             variant="ghost"
             size="lg"
             title="Выбор действия"
@@ -191,7 +191,7 @@ const items: DropdownMenuItem[] = [
         id="search"
         :model-value="(table?.tableApi?.getColumn('surname')?.getFilterValue() as string)"
         type="search"
-        icon="i-heroicons-magnifying-glass"
+        icon="i-lucide-search"
         placeholder="поиск по фамилии, имени, отчеству"
         @update:model-value="
           table?.tableApi?.getColumn('surname')?.setFilterValue($event)
@@ -218,7 +218,7 @@ const items: DropdownMenuItem[] = [
     <div class="my-2">
       <UButton
         variant="ghost"
-        icon="i-heroicons-arrow-path"
+        icon="i-lucide-refresh-ccw"
         :label="`Обновлено в: ${updated}`"
         :loading="status == 'pending'"
         title="Обновить данные"

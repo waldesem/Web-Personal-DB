@@ -130,7 +130,7 @@ const columns: TableColumn<User>[] = [
       h(UButton, {
         color: "neutral",
         variant: "ghost",
-        icon: "i-heroicons-chevron-down",
+        icon: "i-lucid-chevron-down",
         square: true,
         ui: {
           leadingIcon: [
@@ -176,8 +176,8 @@ const columns: TableColumn<User>[] = [
     cell: ({ row }) => {
       return h(UIcon, {
         name: row.original.blocked
-          ? "i-heroicons-lock-closed-solid"
-          : "i-heroicons-lock-open",
+          ? "i-lucide-lock-keyhole"
+          : "i-lucide-lock-keyhole-open",
         class: "text-center w-4 h-4",
         title: row.original.blocked ? "Заблокирован" : "Разблокирован",
       });
@@ -189,8 +189,8 @@ const columns: TableColumn<User>[] = [
     cell: ({ row }) => {
       return h(UIcon, {
         name: row.original.change_pswd
-          ? "i-heroicons-clock-solid"
-          : "i-heroicons-clock",
+          ? "i-lucide-clock-alert"
+          : "i-lucide-clock",
         class: "text-center w-4 h-4",
         title: row.original.change_pswd
           ? "Требуется смена пароля"
@@ -215,7 +215,7 @@ const columns: TableColumn<User>[] = [
           },
           () =>
             h(UButton, {
-              icon: "i-heroicons-ellipsis-vertical",
+              icon: "i-lucide-ellipsis-vertical",
               color: "neutral",
               variant: "ghost",
               class: "ml-auto",
@@ -239,7 +239,7 @@ const columns: TableColumn<User>[] = [
         <UButton
           variant="ghost"
           size="lg"
-          icon="i-heroicons-user-plus"
+          icon="i-lucide-user-plus"
           title="Добавить пользователя"
           @click="modal = true"
         />
@@ -256,7 +256,7 @@ const columns: TableColumn<User>[] = [
     <div class="my-6">
       <UInput
         v-model="globalFilter"
-        icon="i-heroicons-magnifying-glass"
+        icon="i-lucide-search"
         placeholder="Поиск по имени пользователя"
         type="search"
       />

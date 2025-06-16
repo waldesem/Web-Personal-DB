@@ -13,22 +13,22 @@ async function logout() {
 const items = ref<NavigationMenuItem[]>([
   {
     label: "Пользователи",
-    icon: "i-heroicons-users",
+    icon: "i-lucide-users",
     to: "/users",
   },
   {
     label: "Кандидаты",
-    icon: "i-heroicons-user-group",
+    icon: "i-lucide-users-round",
     to: "/persons",
   },
   {
     label: "Справочник",
-    icon: "i-heroicons-phone-arrow-up-right",
+    icon: "i-lucide-users-round",
     to: "/phones",
   },
   {
     label: "Исходный код",
-    icon: "i-heroicons-code-bracket",
+    icon: "i-lucide-code",
     to: "https://github.com/waldesem/Web-Personal-DB",
     target: "_blank",
   },
@@ -57,7 +57,7 @@ const items = ref<NavigationMenuItem[]>([
         class="rounded-full"
         :label="userState.username"
         color="error"
-        icon="i-heroicons-arrow-left-end-on-rectangle"
+        icon="i-lucide-log-out"
         title="Выход"
         @click="logout()"
       />
