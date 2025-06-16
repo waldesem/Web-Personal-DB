@@ -6,7 +6,6 @@ from flask import Flask, Response
 from werkzeug.exceptions import HTTPException
 
 from app.model.tables import db_session
-from app.utils.compress import Compress
 from config import Config, handler
 
 
@@ -23,9 +22,6 @@ def create_app(config_class: Config = Config) -> Flask:
     app = Flask(__name__)
     app.config.from_object(config_class)
     app.logger.addHandler(handler)
-
-    compress = Compress()
-    compress.init_app(app)
 
     from app.routes import bp as route_bp
     from command import bp as command_bp
