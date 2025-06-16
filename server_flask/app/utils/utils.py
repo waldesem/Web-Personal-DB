@@ -83,7 +83,7 @@ def upload_resume(cand: Person) -> tuple[int, bool]:
 
 def check_filename(name: str) -> str:
     """Check filename for valid chars."""
-    filename_ascii_strip_re = re.compile(r"[^A-zА-яЁё0-9_.-]")  # noqa: RUF001
+    filename_ascii_strip_re = re.compile(r"[^A-zА-яЁё0-9_.-]")
     windows_device_files = (
         "CON",
         "AUX",
