@@ -24,7 +24,7 @@ from app.model.tables import (
     Workplaces,
     db_session,
 )
-from app.utils.utils import upload_resume
+from app.utils.utilities import upload_resume
 
 bp = Blueprint("route", __name__)
 

@@ -10,7 +10,7 @@ from app.depends.depend import auth_required, current_user, validate
 from app.model.classes import Roles
 from app.model.models import Region
 from app.model.tables import Persons, db_session
-from app.utils.utils import check_filename, create_destination
+from app.utils.utilities import check_filename, create_destination
 
 bp = Blueprint("anketa", __name__, url_prefix="/anketa")
 

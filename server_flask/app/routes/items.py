@@ -11,7 +11,7 @@ from app.depends.depend import auth_required, current_user, validate
 from app.model.classes import Roles
 from app.model.models import Items, Model, Person
 from app.model.tables import Base, Persons, db_session
-from app.utils.utils import create_destination, upload_resume
+from app.utils.utilities import create_destination, upload_resume
 
 bp = Blueprint("items", __name__, url_prefix="/items")
 

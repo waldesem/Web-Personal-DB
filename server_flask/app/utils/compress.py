@@ -2,39 +2,35 @@
 
 from __future__ import annotations
 
-import functools
 import gzip
 import zlib
 from collections import defaultdict
-from functools import lru_cache
+from functools import lru_cache, wraps
 
 from flask import Flask, Response, after_this_request, current_app, request
 
 
 @lru_cache(maxsize=128)
-def _choose_algorithm(enabled_algorithms: tuple, accept_encoding: str) -> None | tuple:  # noqa: C901
+def _choose_algorithm(algorithms: tuple, encoding: str) -> None | tuple:  # noqa: C901
     """Determine which compression algorithm used based on the client request.
 
     Args:
-        enabled_algorithms: Tuple of supported compression algorithms.
-        accept_encoding: Content of the `Accept-Encoding` header.
+        algorithms: Tuple of supported compression algorithms.
+        encoding: Content of the `Accept-Encoding` header.
 
     Return:
-        name of a compression algorithm (`gzip`, `deflate`, `br`, 'zstd')
-        or `None` if the client and server don't agree on any.
+        name of a compression algorithm (`gzip`, `deflate`) or `None`.
 
     """
     # A flag denoting that client requested using any (`*`) algorithm,
     # in case a specific one is not supported by the server
     fallback_to_any = False
-
     # Map quality factors to requested algorithm names.
     algos_by_quality = defaultdict(set)
-
     # Set of supported algorithms
-    server_algos_set = set(enabled_algorithms)
+    server_algos_set = set(algorithms)
 
-    for chunk in accept_encoding.lower().split(","):
+    for chunk in encoding.lower().split(","):
         part = chunk.strip()
         if ";q=" in part:
             # If the client associated a quality factor with an algorithm, parse it.
@@ -64,7 +60,7 @@ def _choose_algorithm(enabled_algorithms: tuple, accept_encoding: str) -> None |
             return server_algo[0]
 
     if fallback_to_any:
-        return enabled_algorithms[0]
+        return algorithms[0]
     return None
 
 
@@ -202,7 +198,7 @@ class Compress:
         def decorator(f: callable) -> callable:
             """Decorate."""
 
-            @functools.wraps(f)
+            @wraps(f)
             def decorated_function(*args: tuple, **kwargs: dict) -> callable:
                 @after_this_request
                 def compressor(response: Response) -> callable:
