@@ -118,8 +118,6 @@ class Compress:
             ("COMPRESS_LEVEL", 6),
             ("COMPRESS_DEFLATE_LEVEL", -1),
             ("COMPRESS_MIN_SIZE", 500),
-            ("COMPRESS_CACHE_KEY", None),
-            ("COMPRESS_CACHE_BACKEND", None),
             ("COMPRESS_REGISTER", True),
             ("COMPRESS_STREAMS", True),
             ("COMPRESS_ALGORITHM", ["gzip", "deflate"]),
@@ -127,10 +125,6 @@ class Compress:
 
         for k, v in defaults:
             app.config.setdefault(k, v)
-
-        backend = app.config["COMPRESS_CACHE_BACKEND"]
-        self.cache = backend() if backend else None
-        self.cache_key = app.config["COMPRESS_CACHE_KEY"]
 
         self.compress_mimetypes_set = set(app.config["COMPRESS_MIMETYPES"])
 
@@ -172,14 +166,7 @@ class Compress:
 
         response.direct_passthrough = False
 
-        if self.cache is not None:
-            key = f"{chosen_algorithm};{self.cache_key(request)}"
-            compressed_content = self.cache.get(key)
-            if compressed_content is None:
-                compressed_content = self.compress(app, response, chosen_algorithm)
-            self.cache.set(key, compressed_content)
-        else:
-            compressed_content = self.compress(app, response, chosen_algorithm)
+        compressed_content = self.compress(app, response, chosen_algorithm)
 
         response.set_data(compressed_content)
 
