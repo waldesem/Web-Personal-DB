@@ -192,24 +192,6 @@ class Compress:
 
         return response
 
-    def compressed(self) -> None:
-        """Compress."""
-
-        def decorator(f: callable) -> callable:
-            """Decorate."""
-
-            @wraps(f)
-            def decorated_function(*args: tuple, **kwargs: dict) -> callable:
-                @after_this_request
-                def compressor(response: Response) -> callable:
-                    return self.after_request(response)
-
-                return f(*args, **kwargs)
-
-            return decorated_function
-
-        return decorator
-
     def compress(self, app: Flask, response: Response, algorithm: str) -> bytes:
         """Compress response data."""
         if algorithm == "deflate":
