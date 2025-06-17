@@ -257,7 +257,7 @@ const columns: TableColumn<User>[] = [
       <UInput
         v-model="globalFilter"
         icon="i-lucide-search"
-        placeholder="Поиск по имени пользователя"
+        placeholder="Поиск пользователей"
         type="search"
       />
     </div>

@@ -169,7 +169,7 @@ const columns: TableColumn<Phone>[] = [
       <UInput
         v-model="globalFilter"
         icon="i-lucide-search"
-        placeholder="Поиск по имени или организации"
+        placeholder="Поиск контактов"
         type="search"
       />
     </div>

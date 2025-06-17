@@ -14,9 +14,9 @@ const UDropdownMenu = resolveComponent("UDropdownMenu");
 const userState = useUserState();
 
 const modal = ref(false);
+const globalFilter = ref("");
 const updated = ref("Данные обновляются...");
 const candidates = shallowRef([] as Persons[]);
-const columnFilters = ref([{ id: "surname", value: "" }]);
 const pagination = ref({ pageIndex: 0, pageSize: 10 });
 
 const { refresh, status } = await useLazyAsyncData("candidates", async () => {
@@ -189,19 +189,16 @@ const items: DropdownMenuItem[] = [
     <div class="my-6">
       <UInput
         id="search"
-        :model-value="(table?.tableApi?.getColumn('surname')?.getFilterValue() as string)"
+        v-model="globalFilter"
         type="search"
         icon="i-lucide-search"
-        placeholder="поиск по фамилии, имени, отчеству"
-        @update:model-value="
-          table?.tableApi?.getColumn('surname')?.setFilterValue($event)
-        "
+        placeholder="поиск по кандидат"
       />
     </div>
 
     <UTable
       ref="table"
-      v-model:column-filters="columnFilters"
+      v-model:global-filter="globalFilter"
       v-model:pagination="pagination"
       :pagination-options="{
         getPaginationRowModel: getPaginationRowModel(),

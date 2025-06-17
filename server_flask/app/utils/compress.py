@@ -1,47 +1,45 @@
-# Authors: William Fagan
-# Copyright (c) 2013-2017 William Fagan
-# License: The MIT License (MIT)
+"""Compress module.
+
+Original code - https://github.com/colour-science/flask-compress
+"""
+
+from __future__ import annotations
 
 import gzip
-import types
 import zlib
-import functools
 from collections import defaultdict
 from functools import lru_cache
 
-try:
-    import brotlicffi as brotli
-except ImportError:
-    import brotli
-
-from flask import after_this_request, current_app, request
-
-from .compat import compression
+from flask import Flask, Response, current_app, request
 
 
 class DictCache:
+    """Dict Cache."""
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """Init."""
         self.data = {}
 
-    def get(self, key):
+    def get(self, key: str) -> None:
+        """Getter."""
         return self.data.get(key)
 
-    def set(self, key, value):
+    def set(self, key: str, value: bytes | None) -> None:
+        """Setter."""
         self.data[key] = value
 
 
-@lru_cache(maxsize=128)
-def _choose_algorithm(enabled_algorithms, accept_encoding):
-    """
-    Determine which compression algorithm we're going to use based on the
-    client request. The `Accept-Encoding` header may list one or more desired
+@lru_cache(maxsize=64)
+def _choose_algorithm(algorithms: tuple, encoding: str) -> str:  # noqa: C901, PLR0912
+    """Determine which compression algorithm to use based on the client request.
+
+    The `Accept-Encoding` header may list one or more desired
     algorithms, together with a "quality factor" for each one (higher quality
     means the client prefers that algorithm more).
 
     :param enabled_algorithms: Tuple of supported compression algorithms
     :param accept_encoding: Content of the `Accept-Encoding` header
-    :return: name of a compression algorithm (`gzip`, `deflate`, `br`, 'zstd')
+    :return: name of a compression algorithm (`gzip`, `deflate`)
         or `None` if the client and server don't agree on any.
     """
     # A flag denoting that client requested using any (`*`) algorithm,
@@ -52,10 +50,10 @@ def _choose_algorithm(enabled_algorithms, accept_encoding):
     algos_by_quality = defaultdict(set)
 
     # Set of supported algorithms
-    server_algos_set = set(enabled_algorithms)
+    server_algos_set = set(algorithms)
 
-    for part in accept_encoding.lower().split(","):
-        part = part.strip()
+    for chunk in encoding.lower().split(","):
+        part = chunk.strip()
         if ";q=" in part:
             # If the client associated a quality factor with an algorithm,
             # try to parse it. We could do the matching using a regex, but
@@ -89,19 +87,17 @@ def _choose_algorithm(enabled_algorithms, accept_encoding):
     for _, viable_algos in sorted(algos_by_quality.items(), reverse=True):
         if len(viable_algos) == 1:
             return viable_algos.pop()
-        elif len(viable_algos) > 1:
-            for server_algo in enabled_algorithms:
-                if server_algo in viable_algos:
-                    return server_algo
+        for server_algo in algorithms:
+            if server_algo in viable_algos:
+                return server_algo
 
     if fallback_to_any:
-        return enabled_algorithms[0]
+        return algorithms[0]
     return None
 
 
 class Compress:
-    """
-    The Compress object allows your application to use Flask-Compress.
+    """The Compress object allows your application to use Flask-Compress.
 
     When initialising a Compress object you may optionally provide your
     :class:`flask.Flask` application object if it is ready. Otherwise,
@@ -111,9 +107,9 @@ class Compress:
     :type app: :class:`flask.Flask` or None
     """
 
-    def __init__(self, app=None):
-        """
-        An alternative way to pass your :class:`flask.Flask` application
+    def __init__(self, app: Flask | None = None) -> None:
+        """Init Class."""
+        """An alternative way to pass your :class:`flask.Flask` application
         object to Flask-Compress. :meth:`init_app` also takes care of some
         default `settings`_.
 
@@ -123,7 +119,8 @@ class Compress:
         if app is not None:
             self.init_app(app)
 
-    def init_app(self, app):
+    def init_app(self, app: Flask | None) -> None:
+        """Init app."""
         defaults = [
             (
                 "COMPRESS_MIMETYPES",
@@ -157,18 +154,13 @@ class Compress:
                 ],
             ),
             ("COMPRESS_LEVEL", 6),
-            ("COMPRESS_BR_LEVEL", 4),
-            ("COMPRESS_BR_MODE", 0),
-            ("COMPRESS_BR_WINDOW", 22),
-            ("COMPRESS_BR_BLOCK", 0),
-            ("COMPRESS_ZSTD_LEVEL", 3),
             ("COMPRESS_DEFLATE_LEVEL", -1),
             ("COMPRESS_MIN_SIZE", 500),
             ("COMPRESS_CACHE_KEY", None),
             ("COMPRESS_CACHE_BACKEND", None),
             ("COMPRESS_REGISTER", True),
             ("COMPRESS_STREAMS", True),
-            ("COMPRESS_ALGORITHM", ["zstd", "br", "gzip", "deflate"]),
+            ("COMPRESS_ALGORITHM", ["gzip", "deflate"]),
         ]
 
         for k, v in defaults:
@@ -189,7 +181,8 @@ class Compress:
         if app.config["COMPRESS_REGISTER"] and app.config["COMPRESS_MIMETYPES"]:
             app.after_request(self.after_request)
 
-    def after_request(self, response):
+    def after_request(self, response: Response) -> Response:
+        """After response."""
         app = self.app or current_app
 
         vary = response.headers.get("Vary")
@@ -239,38 +232,13 @@ class Compress:
 
         return response
 
-    def compressed(self):
-        def decorator(f):
-            @functools.wraps(f)
-            def decorated_function(*args, **kwargs):
-                @after_this_request
-                def compressor(response):
-                    return self.after_request(response)
-
-                return f(*args, **kwargs)
-
-            return decorated_function
-
-        return decorator
-
-    def compress(self, app, response, algorithm):
-        if algorithm == "gzip":
-            return compression.gzip.compress(
-                response.get_data(), app.config["COMPRESS_LEVEL"]
+    def compress(self, app: Flask, response: Response, algorithm: str) -> bytes:
+        """Compress response."""
+        if algorithm == "deflate":
+            return zlib.compress(
+                response.get_data(), app.config["COMPRESS_DEFLATE_LEVEL"],
             )
-        elif algorithm == "deflate":
-            return compression.zlib.compress(
-                response.get_data(), app.config["COMPRESS_DEFLATE_LEVEL"]
-            )
-        elif algorithm == "br":
-            return brotli.compress(
-                response.get_data(),
-                mode=app.config["COMPRESS_BR_MODE"],
-                quality=app.config["COMPRESS_BR_LEVEL"],
-                lgwin=app.config["COMPRESS_BR_WINDOW"],
-                lgblock=app.config["COMPRESS_BR_BLOCK"],
-            )
-        elif algorithm == "zstd":
-            return compression.zstd.compress(
-                response.get_data(), app.config["COMPRESS_ZSTD_LEVEL"]
-            )
+        return gzip.compress(
+            response.get_data(),
+            app.config["COMPRESS_LEVEL"],
+        )
