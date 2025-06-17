@@ -153,9 +153,9 @@ class Compress:
                     "font/opentype",
                 ],
             ),
-            ("COMPRESS_LEVEL", 6),
+            ("COMPRESS_LEVEL", 9),
             ("COMPRESS_DEFLATE_LEVEL", -1),
-            ("COMPRESS_MIN_SIZE", 500),
+            ("COMPRESS_MIN_SIZE", 1000),
             ("COMPRESS_CACHE_KEY", None),
             ("COMPRESS_CACHE_BACKEND", None),
             ("COMPRESS_REGISTER", True),
@@ -224,8 +224,6 @@ class Compress:
         response.headers["Content-Encoding"] = chosen_algorithm
         response.headers["Content-Length"] = response.content_length
 
-        # "123456789"   => "123456789:gzip"   - A strong ETag validator
-        # W/"123456789" => W/"123456789:gzip" - A weak ETag validator
         etag = response.headers.get("ETag")
         if etag:
             response.headers["ETag"] = f'{etag[:-1]}:{chosen_algorithm}"'

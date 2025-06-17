@@ -163,12 +163,19 @@ async function deleteItem(id: string, idx: number) {
       "
       @delete="deleteItem(content['id' as keyof typeof content], index)"
     />
-    <ElementsSkeletonDiv v-if="status === 'pending'" :rows="props.rows" />
+    <ElementsSkeletonDiv
+      v-if="status === 'pending'"
+      :rows="Object.keys(content).length"
+    />
     <div v-else>
       <component :is="mappedContent[props.view][1]" :item="content" />
     </div>
     <USeparator v-if="index < items.length - 1" />
   </div>
+  <ElementsSkeletonDiv
+    v-if="!items.length && status === 'pending'"
+    :rows="props.rows"
+  />
   <div
     v-if="editable"
     class="flex justify-start py-2"
@@ -189,7 +196,7 @@ async function deleteItem(id: string, idx: number) {
     v-if="editable"
     v-model:open="modal"
     title="Данные проверки"
-    description="Введите или отредактируйте информацию о проверке"
+    description="Введите или отредактируйте данные"
   >
     <template #body>
       <component
