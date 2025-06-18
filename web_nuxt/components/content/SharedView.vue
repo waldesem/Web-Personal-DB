@@ -173,6 +173,7 @@ async function deleteItem(id: string, idx: number) {
       <component :is="mappedContent[props.view][1]" :item="content" />
       <USeparator v-if="index < items.length - 1" />
     </div>
+    <div v-if="!items.length">Данные отсутствуют</div>
   </div>
   <div
     v-if="editable"
