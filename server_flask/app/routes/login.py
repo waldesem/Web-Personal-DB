@@ -9,8 +9,8 @@ from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app.depends.depend import validate
-from app.model.models import Login
-from app.model.tables import Users, db_session
+from app.structures.models import Login
+from app.structures.tables import Users, db_session
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 

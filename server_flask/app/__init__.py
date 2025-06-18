@@ -5,8 +5,8 @@ from __future__ import annotations
 from flask import Flask, Response
 from werkzeug.exceptions import HTTPException
 
-from app.model.tables import db_session
-from app.utils.compress import Compress, DictCache
+from app.structures.tables import db_session
+from app.utils.compress import Compress
 from config import Config, handler
 
 
@@ -26,7 +26,6 @@ def create_app(config_class: Config = Config) -> Flask:
 
     compress = Compress()
     compress.init_app(app)
-    compress.cache = DictCache()
 
     from app.routes import bp as route_bp
     from command import bp as command_bp

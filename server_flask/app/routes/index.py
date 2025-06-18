@@ -9,9 +9,9 @@ from sqlalchemy import desc, select
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.depends.depend import auth_required, current_user, validate
-from app.model.classes import Regions, Roles
-from app.model.models import AnketaJson, Person
-from app.model.tables import (
+from app.structures.classes import Regions, Roles
+from app.structures.models import AnketaJson, Person
+from app.structures.tables import (
     Addresses,
     Affilations,
     Contacts,

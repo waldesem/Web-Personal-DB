@@ -11,8 +11,8 @@ from flask import Response, abort, current_app, g, jsonify, make_response, reque
 from pydantic import ValidationError
 from werkzeug.local import LocalProxy
 
-from app.model.models import Model
-from app.model.tables import Users, db_session
+from app.structures.models import Model
+from app.structures.tables import Users, db_session
 
 current_user: Users = LocalProxy(lambda: get_current_user(g.user_id))
 

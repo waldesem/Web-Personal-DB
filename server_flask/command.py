@@ -8,9 +8,9 @@ from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.model.classes import Regions, Roles
-from app.model.models import User
-from app.model.tables import Users, db_session
+from app.structures.classes import Regions, Roles
+from app.structures.models import User
+from app.structures.tables import Users, db_session
 
 bp = Blueprint("command", __name__)
 

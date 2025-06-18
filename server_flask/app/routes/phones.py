@@ -8,9 +8,9 @@ from sqlalchemy import select, text, update
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.depends.depend import auth_required, validate
-from app.model.classes import Roles
-from app.model.models import Phone
-from app.model.tables import Phones, db_session
+from app.structures.classes import Roles
+from app.structures.models import Phone
+from app.structures.tables import Phones, db_session
 
 bp = Blueprint("phones", __name__)
 

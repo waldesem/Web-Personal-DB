@@ -6,9 +6,9 @@ from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import generate_password_hash
 
 from app.depends.depend import auth_required, current_user, get_current_user, validate
-from app.model.classes import Regions, Roles
-from app.model.models import User, UserActions
-from app.model.tables import Users, db_session
+from app.structures.classes import Regions, Roles
+from app.structures.models import User, UserActions
+from app.structures.tables import Users, db_session
 
 bp = Blueprint("users", __name__)
 

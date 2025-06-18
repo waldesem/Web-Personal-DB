@@ -10,8 +10,8 @@ from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.depends.depend import current_user
-from app.model.models import Person
-from app.model.tables import Persons, db_session
+from app.structures.models import Person
+from app.structures.tables import Persons, db_session
 
 
 def create_destination(person: Persons) -> str:

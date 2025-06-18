@@ -80,19 +80,7 @@ class Users(Base):
 
 
 class Phones(Base):
-    """Phone model.
-
-    CREATE TABLE phones (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        organization VARCHAR(255) NOT NULL,
-        fullname VARCHAR(255) NOT NULL,
-        phone VARCHAR(255),
-        mobile VARCHAR(255),
-        email VARCHAR(255),
-        comments TEXT,
-        created DATETIME DEFAULT CURRENT_TIMESTAMP
-    );
-    """
+    """Phone model."""
 
     __tablename__ = "phones"
 

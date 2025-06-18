@@ -154,28 +154,26 @@ async function deleteItem(id: string, idx: number) {
 </script>
 
 <template>
-  <div v-for="(content, index) in items" :key="index" class="py-4 ms-2">
-    <LazyElementsDivMenu
-      v-if="editable"
-      @change="
-        item = content;
-        modal = true;
-      "
-      @delete="deleteItem(content['id' as keyof typeof content], index)"
-    />
-    <ElementsSkeletonDiv
-      v-if="status === 'pending'"
-      :rows="Object.keys(content).length"
-    />
-    <div v-else>
-      <component :is="mappedContent[props.view][1]" :item="content" />
+  <div v-if="status === 'pending'">
+    <div v-for="i in items.length + 1" :key="i">
+      <ElementsSkeletonDiv :rows="props.rows" />
+      <USeparator v-if="i < items.length" />
     </div>
-    <USeparator v-if="index < items.length - 1" />
   </div>
-  <ElementsSkeletonDiv
-    v-if="!items.length && status === 'pending'"
-    :rows="props.rows"
-  />
+  <div v-else>
+    <div v-for="(content, index) in items" :key="index" class="py-4 ms-2">
+      <LazyElementsDivMenu
+        v-if="editable"
+        @change="
+          item = content;
+          modal = true;
+        "
+        @delete="deleteItem(content['id' as keyof typeof content], index)"
+      />
+      <component :is="mappedContent[props.view][1]" :item="content" />
+      <USeparator v-if="index < items.length - 1" />
+    </div>
+  </div>
   <div
     v-if="editable"
     class="flex justify-start py-2"

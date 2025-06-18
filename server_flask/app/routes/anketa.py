@@ -7,9 +7,9 @@ from flask import Blueprint, Response, current_app, jsonify, request
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.depends.depend import auth_required, current_user, validate
-from app.model.classes import Roles
-from app.model.models import Region
-from app.model.tables import Persons, db_session
+from app.structures.classes import Roles
+from app.structures.models import Region
+from app.structures.tables import Persons, db_session
 from app.utils.utilities import check_filename, create_destination
 
 bp = Blueprint("anketa", __name__, url_prefix="/anketa")
