@@ -4,15 +4,46 @@ from datetime import datetime
 from pathlib import Path
 
 from flask import Blueprint, Response, current_app, jsonify, request
+from sqlalchemy import desc
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.depends.depend import auth_required, current_user, validate
 from app.structures.classes import Roles
 from app.structures.models import Region
-from app.structures.tables import Persons, db_session
+from app.structures.tables import Base, Persons, db_session
 from app.utils.utilities import check_filename, create_destination
 
 bp = Blueprint("anketa", __name__, url_prefix="/anketa")
+
+
+@bp.get("/profile/<int:person_id>")
+@auth_required()
+def get_profile(person_id: int) -> Response:
+    """Get candidate profile.
+
+    Args:
+        person_id (int): The ID of the person.
+
+    Returns:
+        Tuple[Response, int]: A tuple containing the JSON response containing
+            the retrieved item(s) and an HTTP status code of 200.
+
+    """
+    person = db_session.get(Persons, person_id)
+    if not person.destination or not Path(person.destination).is_dir():
+            person.destination = create_destination(person)
+            db_session.commit()
+    profile = {"person": person.to_dict()}
+
+    for name, table in Base.metadata.tables.items():
+        if name not in ["persons", "phones", "users"]:
+            stmt = (
+                table.select().filter(table.c.person_id == person_id)
+            )
+            # Выполняем запрос и получаем результаты
+            profile[name] = db_session.execute(stmt.order_by(desc(table.c.id)))
+    # Преобразуем результаты в словарь и возвращаем их в формате JSON
+    return jsonify(profile), 200
 
 
 @bp.post("/region/<int:person_id>")

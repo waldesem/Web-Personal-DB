@@ -203,3 +203,19 @@ export interface Phone {
   created: string;
   comments?: string;
 }
+
+export interface Profile {
+  person: Persons;
+  staffs: Staff[];
+  educations: Education[];
+  workplaces: Work[];
+  documents: Passport[];
+  addresses: Address[];
+  contacts: Contact[];
+  previous: Previous[];
+  affilations: Affilation[];
+  checks: Verification[];
+  poligrafs: Pfo[];
+  investigations: Inquisition[];
+  inquiries: Needs[];
+} //DivsItems | PillsItems + person

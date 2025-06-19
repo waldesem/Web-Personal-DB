@@ -1,24 +1,33 @@
 <script setup lang="ts">
 import type { AccordionItem } from "@nuxt/ui";
-import type { DivsItems, Persons } from "@/types";
+import type { DivsItems, Persons, Profile } from "@/types";
 
 const props = defineProps({
   rows: {
     type: Number,
     required: true,
   },
-  person: {
-    type: Object as PropType<Persons>,
+  profile: {
+    type: Object as PropType<Profile>,
     required: true,
   },
 });
 
-const emits = defineEmits(["refresh"]);
-
-const editable = inject("editable") as Ref<boolean>;
-const status = inject("status") as Ref<string>;
-
+const person = toRef(props.profile.person as Persons);
+const mainStatus = inject("status") as Ref<string>;
 const modal = ref(false);
+
+const { status, refresh } = await useLazyAsyncData(
+  "persons",
+  async () => {
+    person.value = (await fetchAuth(
+      "/route/items/persons/" + person.value.id
+    )) as Persons;
+  },
+  {
+    server: false,
+  }
+);
 
 async function submitResume(form: Persons) {
   modal.value = false;
@@ -27,11 +36,11 @@ async function submitResume(form: Persons) {
     method: "POST",
     body: form,
   })) as Record<string, string>;
+  await refresh();
   if (message == "success") {
     makeToast(message, "Информация успешно обновлена");
     status.value = "success";
   } else {
-    emits("refresh");
     makeToast();
   }
 }
@@ -42,7 +51,7 @@ async function deleteItem() {
   if (!confirm("Данные будут удалены безвозвратно!?")) return;
   status.value = "pending";
   const { message } = (await fetchAuth(
-    `/route/items/persons/${props.person.id}`,
+    `/route/items/persons/${person.value.id}`,
     {
       method: "DELETE",
     }
@@ -99,18 +108,18 @@ const items: Accordion[] = [
 <template>
   <div class="mt-4">
     <LazyElementsDivMenu
-      v-if="editable"
+      v-if="person.editable"
       @change="modal = true"
       @delete="deleteItem()"
     />
-    <div v-if="status == 'pending'" class="ps-2">
+    <div v-if="status == 'pending' || mainStatus == 'pending'" class="ps-2">
       <ElementsSkeletonDiv :rows="props.rows" />
     </div>
     <div v-else class="ps-2">
       <ItemsPersonItem :item="person" />
     </div>
     <UModal
-      v-if="editable"
+      v-if="person.editable"
       v-model:open="modal"
       title="Редактирование анкеты"
       description="Отредактируйте анкетные данные"
@@ -122,7 +131,11 @@ const items: Accordion[] = [
     <USeparator />
     <UAccordion :items="items" :unmount-on-hide="false">
       <template #content="{ item }">
-        <ContentSharedView :rows="3" :view="item.content" />
+        <ContentSharedView
+          :rows="3"
+          :view="item.content"
+          :contents="profile[item.content]"
+        />
       </template>
     </UAccordion>
   </div>

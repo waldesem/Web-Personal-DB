@@ -85,6 +85,10 @@ const props = defineProps({
     type: Number,
     required: true,
   },
+  contents: {
+    type: Object,
+    required: true,
+  },
 });
 
 const mappedContent = {
@@ -106,13 +110,16 @@ const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
 const item = ref({} as object);
-const items = ref<object[]>([]);
+const items = toRef(props.contents[props.view]);
 const modal = ref(false);
 
 const { refresh, status } = await useLazyAsyncData(props.view, async () => {
   items.value = (await fetchAuth(
     `/route/items/${props.view}/${candId.value}`
-  )) as object[];
+  ));
+},
+{
+  server: false,
 });
 
 async function submitItem(form: object) {
@@ -173,7 +180,7 @@ async function deleteItem(id: string, idx: number) {
       <component :is="mappedContent[props.view][1]" :item="content" />
       <USeparator v-if="index < items.length - 1" />
     </div>
-    <div v-if="!items.length">Данные отсутствуют</div>
+    <div v-if="!items.length" class="text-red-800">Данные отсутствуют</div>
   </div>
   <div
     v-if="editable"

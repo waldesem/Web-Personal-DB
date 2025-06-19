@@ -70,23 +70,12 @@ class PersonView(MethodView):
 
         """
         try:
-            for item in [
-                "previous",
-                "educations",
-                "addresses",
-                "affilations",
-                "staffs",
-                "workplaces",
-                "contacts",
-                "documents",
-                "checks",
-                "poligrafs",
-                "inquiries",
-                "investigations",
-            ]:
-                # Удаляем записи из таблицы, связанные с кандидатом
-                table = Base.metadata.tables.get(item)
-                db_session.execute(table.delete().where(table.c.person_id == person_id))
+            for name, table in Base.metadata.tables.items():
+                if name not in ["persons", "phones", "users"]:
+                    # Удаляем записи из таблицы, связанные с кандидатом
+                    db_session.execute(
+                        table.delete().where(table.c.person_id == person_id),
+                    )
             # Удаляем запись о кандидате из таблицы persons
             db_session.execute(
                 text("DELETE FROM persons WHERE id = :person_id"),
