@@ -25,7 +25,7 @@ const { status, refresh } = await useLazyAsyncData(
     )) as Persons;
   },
   {
-    server: false,
+    immediate: false,
   }
 );
 
@@ -132,7 +132,6 @@ const items: Accordion[] = [
     <UAccordion :items="items" :unmount-on-hide="false">
       <template #content="{ item }">
         <ContentSharedView
-          :rows="3"
           :view="item.content"
           :contents="profile[item.content]"
         />

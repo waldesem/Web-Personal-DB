@@ -192,7 +192,6 @@ export interface Needs {
   created: string;
 }
 
-
 export interface Phone {
   id: string;
   organization: string;
@@ -218,4 +217,4 @@ export interface Profile {
   poligrafs: Pfo[];
   investigations: Inquisition[];
   inquiries: Needs[];
-} //DivsItems | PillsItems + person
+}

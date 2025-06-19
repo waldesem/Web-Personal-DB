@@ -83,7 +83,7 @@ const props = defineProps({
   },
   rows: {
     type: Number,
-    required: true,
+    default: 3,
   },
   contents: {
     type: Object,
@@ -113,14 +113,15 @@ const item = ref({} as object);
 const items = toRef(props.contents[props.view]);
 const modal = ref(false);
 
-const { refresh, status } = await useLazyAsyncData(props.view, async () => {
-  items.value = (await fetchAuth(
-    `/route/items/${props.view}/${candId.value}`
-  ));
-},
-{
-  server: false,
-});
+const { refresh, status } = await useLazyAsyncData(
+  props.view,
+  async () => {
+    items.value = await fetchAuth(`/route/items/${props.view}/${candId.value}`);
+  },
+  {
+    immediate: false,
+  }
+);
 
 async function submitItem(form: object) {
   modal.value = false;
