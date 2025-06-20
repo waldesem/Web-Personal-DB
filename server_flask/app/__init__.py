@@ -2,12 +2,23 @@
 
 from __future__ import annotations
 
+import logging
+
 from flask import Flask, Response
 from werkzeug.exceptions import HTTPException
 
+from app.extensions.authorization import Authorize
+from app.extensions.compression import Compress
 from app.structures.tables import db_session
-from app.utils.compress import Compress
-from config import Config, handler
+from config import Config
+
+compress = Compress()
+authorize = Authorize()
+
+handler = logging.FileHandler("error.log", mode="w", encoding="utf-8")
+handler.setLevel(logging.ERROR)
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+handler.setFormatter(formatter)
 
 
 def create_app(config_class: Config = Config) -> Flask:
@@ -24,11 +35,11 @@ def create_app(config_class: Config = Config) -> Flask:
     app.config.from_object(config_class)
     app.logger.addHandler(handler)
 
-    compress = Compress()
     compress.init_app(app)
+    authorize.init_app(app)
 
-    from app.routes import bp as route_bp
-    from command import bp as command_bp
+    from app.routes import bp as route_bp  # noqa: PLC0415
+    from command import bp as command_bp  # noqa: PLC0415
 
     app.register_blueprint(route_bp)
     app.register_blueprint(command_bp)

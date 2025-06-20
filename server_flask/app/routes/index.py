@@ -8,6 +8,7 @@ from pydantic import ValidationError
 from sqlalchemy import desc, select
 from sqlalchemy.exc import SQLAlchemyError
 
+from app import authorize
 from app.depends.depend import auth_required, current_user, validate
 from app.structures.classes import Regions, Roles
 from app.structures.models import AnketaJson, Person
@@ -31,7 +32,7 @@ bp = Blueprint("route", __name__)
 
 @bp.get("/index")
 @validate
-@auth_required()
+@authorize.auth_required()
 def get_index() -> Response:
     """Retrieve a paginated list of persons from the database.
 
@@ -56,8 +57,8 @@ def get_index() -> Response:
         Users.fullname.label("username"),
     ).filter(
         Persons.user_id == Users.id,
-        Persons.region == current_user.region
-        if current_user.region != Regions.main.value
+        Persons.region == authorize.current_user.region
+        if authorize.current_user.region != Regions.main.value
         else True,
     )
     query = db_session.execute(stmt.order_by(desc(Persons.id))).all()

@@ -1,4 +1,4 @@
-"""Compress module.
+"""Compression module.
 
 Original code - https://github.com/colour-science/flask-compress
 """
@@ -11,10 +11,12 @@ from flask import Flask, Response  # noqa: TC002
 
 
 class Compress:
-    """The Compress object allows your application to use Flask-Compress."""
+    """The Compress object allows your application."""
 
-    def __init__(self) -> None:
+    def __init__(self, app: Flask | None = None) -> None:
         """Init class."""
+        if app is not None:
+            self.init_app(app)
         self.cache = None
         self.cache_key = None
 
