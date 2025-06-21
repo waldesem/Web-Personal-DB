@@ -86,7 +86,7 @@ const props = defineProps({
     default: 3,
   },
   contents: {
-    type: Object,
+    type: Array as PropType<object[]>,
     required: true,
   },
 });
@@ -110,13 +110,13 @@ const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
 const item = ref({} as object);
-const items = toRef(props.contents[props.view]);
+const items = ref(props.contents);
 const modal = ref(false);
 
-const { refresh, status } = await useLazyAsyncData(
+const { refresh, status } = await useAsyncData(
   props.view,
   async () => {
-    items.value = await fetchAuth(`/route/items/${props.view}/${candId.value}`);
+    items.value = await fetchAuth(`/route/items/${props.view}/${candId.value}`) as object[];
   },
   {
     immediate: false,

@@ -14,7 +14,7 @@ provide("candId", candId);
 const profile = ref({} as Profile);
 const region = ref("" as Regions);
 
-const { status } = await useLazyAsyncData("profile", async () => {
+const { status } = await useAsyncData("profile", async () => {
   profile.value = (await fetchAuth(
     "/route/anketa/profile/" + candId.value
   )) as Profile;

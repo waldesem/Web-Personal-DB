@@ -41,7 +41,8 @@ def get_profile(person_id: int) -> Response:
                 table.select().filter(table.c.person_id == person_id)
             )
             # Выполняем запрос и получаем результаты
-            profile[name] = db_session.execute(stmt.order_by(desc(table.c.id)))
+            results = db_session.execute(stmt.order_by(desc(table.c.id))).all()
+            profile[name] = [result._asdict() for result in results]
     # Преобразуем результаты в словарь и возвращаем их в формате JSON
     return jsonify(profile), 200
 

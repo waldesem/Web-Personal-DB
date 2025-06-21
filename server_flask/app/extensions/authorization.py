@@ -12,6 +12,8 @@ from werkzeug.local import LocalProxy
 
 from app.structures.tables import Users, db_session
 
+current_user: Users = LocalProxy(lambda: _get_current_user(g.user_id))
+
 
 @lru_cache(maxsize=2)
 def _get_current_user(user_id: int) -> Users | Response:
@@ -46,13 +48,10 @@ class Authorize:
         """Init class."""
         if app is not None:
             self.init_app(app)
-        self.cache = None
-        self.cache_key = None
-        self.current_user = None
 
     def init_app(self, app: Flask) -> None:
         """Init app."""
-        app.before_request(self.before_request)
+        # app.before_request(self.before_request)
 
     def before_request(self, response: Response, header: str | None = None) -> Response:
         """Before request."""
@@ -74,11 +73,6 @@ class Authorize:
                 return abort(401)
 
         return response
-
-    @property
-    def current_user() -> Users:
-        """Define current user."""
-        return LocalProxy(lambda: _get_current_user(g.user_id))
 
     def auth_required(self, roles: tuple | None = None) -> Callable:
         """Decorate a function that checks a valid JWT token and the user has roles.
@@ -102,11 +96,14 @@ class Authorize:
         def decorator(func: Callable) -> Callable:
             @wraps(func)
             def wrapper(*args: tuple, **kwargs: dict) -> Response | Callable:
-                # JWT validation
-                self.before_request(header=request.headers.get("Authorization"))
+                def auth(response: Response) -> Response:
+                    return self.before_request(
+                        response,
+                        header=request.headers.get("Authorization"),
+                    )
 
                 # Role validation
-                if roles and self.current_user.role not in roles:
+                if roles and current_user.role not in roles:
                     return abort(403)
 
                 return func(*args, **kwargs)

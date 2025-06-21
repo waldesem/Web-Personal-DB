@@ -12,6 +12,7 @@ const props = defineProps({
     required: true,
   },
 });
+const editable = inject("editable") as Ref<boolean>;
 
 const person = toRef(props.profile.person as Persons);
 const mainStatus = inject("status") as Ref<string>;
@@ -108,7 +109,7 @@ const items: Accordion[] = [
 <template>
   <div class="mt-4">
     <LazyElementsDivMenu
-      v-if="person.editable"
+      v-if="editable"
       @change="modal = true"
       @delete="deleteItem()"
     />
@@ -119,7 +120,7 @@ const items: Accordion[] = [
       <ItemsPersonItem :item="person" />
     </div>
     <UModal
-      v-if="person.editable"
+      v-if="editable"
       v-model:open="modal"
       title="Редактирование анкеты"
       description="Отредактируйте анкетные данные"

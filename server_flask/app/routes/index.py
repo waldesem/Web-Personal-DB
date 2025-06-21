@@ -57,26 +57,27 @@ def get_index() -> Response:
         Users.fullname.label("username"),
     ).filter(
         Persons.user_id == Users.id,
-        Persons.region == authorize.current_user.region
-        if authorize.current_user.region != Regions.main.value
+        Persons.region == current_user.region
+        if current_user.region != Regions.main.value
         else True,
     )
     query = db_session.execute(stmt.order_by(desc(Persons.id))).all()
     # Создание списка словарей с данными кандидатов и сериализация их в JSON
     resp = jsonify([row._asdict() for row in query])
-    # Сжатие данных с помощью алгоритма gzip
-    compressed_data = gzip.compress(resp.data)
-    # Возвращение ответа с сжатыми данными и соответствующими заголовками
-    return Response(
-        compressed_data,
-        mimetype="application/json",
-        headers={
-            "Content-Encoding": "gzip",
-            "Content-Type": "application/json",
-            "Content-Length": len(compressed_data),
-        },
-        status=200,
-    )
+    return resp, 200
+    # # Сжатие данных с помощью алгоритма gzip
+    # compressed_data = gzip.compress(resp.data)
+    # # Возвращение ответа с сжатыми данными и соответствующими заголовками
+    # return Response(
+    #     compressed_data,
+    #     mimetype="application/json",
+    #     headers={
+    #         "Content-Encoding": "gzip",
+    #         "Content-Type": "application/json",
+    #         "Content-Length": len(compressed_data),
+    #     },
+    #     status=200,
+    # )
 
 
 @bp.post("/resume")

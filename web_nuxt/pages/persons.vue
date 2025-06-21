@@ -167,8 +167,8 @@ const items: DropdownMenuItem[] = [
       <div v-if="userState.role == 'user'">
         <UDropdownMenu :items="items" :content="{ align: 'end' }">
           <UButton
-            :loading="status == 'pending'"
-            icon="i-lucide-refresh-ccw"
+            :loading="status === 'pending'"
+            icon="i-lucide-ellipsis-vertical"
             variant="ghost"
             size="lg"
             title="Выбор действия"
@@ -203,7 +203,7 @@ const items: DropdownMenuItem[] = [
       :pagination-options="{
         getPaginationRowModel: getPaginationRowModel(),
       }"
-      :loading="status == 'pending'"
+      :loading="status === 'pending'"
       loading-animation="carousel"
       empty="Данные не найдены"
       :columns="columns"
@@ -217,7 +217,7 @@ const items: DropdownMenuItem[] = [
         variant="ghost"
         icon="i-lucide-refresh-ccw"
         :label="`Обновлено в: ${updated}`"
-        :loading="status == 'pending'"
+        :loading="status === 'pending'"
         title="Обновить данные"
         @click="refresh()"
       />
