@@ -7,13 +7,11 @@ import logging
 from flask import Flask, Response
 from werkzeug.exceptions import HTTPException
 
-from app.extensions.authorization import Authorize
-from app.extensions.compression import Compress
+from app.extensions.compress import Compress
 from app.structures.tables import db_session
 from config import Config
 
 compress = Compress()
-authorize = Authorize()
 
 handler = logging.FileHandler("error.log", mode="w", encoding="utf-8")
 handler.setLevel(logging.ERROR)
@@ -36,7 +34,6 @@ def create_app(config_class: Config = Config) -> Flask:
     app.logger.addHandler(handler)
 
     compress.init_app(app)
-    authorize.init_app(app)
 
     from app.routes import bp as route_bp  # noqa: PLC0415
     from command import bp as command_bp  # noqa: PLC0415

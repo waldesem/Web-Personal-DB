@@ -1,6 +1,5 @@
 """Route routes."""
 
-import gzip
 import json
 
 from flask import Blueprint, Response, current_app, jsonify, request
@@ -8,7 +7,6 @@ from pydantic import ValidationError
 from sqlalchemy import desc, select
 from sqlalchemy.exc import SQLAlchemyError
 
-from app import authorize
 from app.depends.depend import auth_required, current_user, validate
 from app.structures.classes import Regions, Roles
 from app.structures.models import AnketaJson, Person
@@ -32,7 +30,7 @@ bp = Blueprint("route", __name__)
 
 @bp.get("/index")
 @validate
-@authorize.auth_required()
+@auth_required()
 def get_index() -> Response:
     """Retrieve a paginated list of persons from the database.
 
@@ -63,21 +61,7 @@ def get_index() -> Response:
     )
     query = db_session.execute(stmt.order_by(desc(Persons.id))).all()
     # Создание списка словарей с данными кандидатов и сериализация их в JSON
-    resp = jsonify([row._asdict() for row in query])
-    return resp, 200
-    # # Сжатие данных с помощью алгоритма gzip
-    # compressed_data = gzip.compress(resp.data)
-    # # Возвращение ответа с сжатыми данными и соответствующими заголовками
-    # return Response(
-    #     compressed_data,
-    #     mimetype="application/json",
-    #     headers={
-    #         "Content-Encoding": "gzip",
-    #         "Content-Type": "application/json",
-    #         "Content-Length": len(compressed_data),
-    #     },
-    #     status=200,
-    # )
+    return jsonify([row._asdict() for row in query]), 200
 
 
 @bp.post("/resume")
