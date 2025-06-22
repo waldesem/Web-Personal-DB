@@ -21,6 +21,7 @@ from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
     mapped_column,
+    relationship,
     scoped_session,
     sessionmaker,
 )
@@ -125,6 +126,54 @@ class Persons(Base):
     region: Mapped[str] = mapped_column(String(255), default=Regions.main.value)
     editable: Mapped[bool] = mapped_column(Boolean(), default=False)
     user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"))
+    previous: Mapped[list[Previous]] = relationship(
+        back_populates="person",
+        cascade="all, delete",
+    )
+    educations: Mapped[list[Educations]] = relationship(
+        back_populates="person",
+        cascade="all, delete",
+    )
+    staffs: Mapped[list[Staffs]] = relationship(
+        back_populates="person",
+        cascade="all, delete",
+    )
+    addresses: Mapped[list[Addresses]] = relationship(
+        back_populates="person",
+        cascade="all, delete",
+    )
+    documents: Mapped[list[Documents]] = relationship(
+        back_populates="person",
+        cascade="all, delete",
+    )
+    contacts: Mapped[list[Contacts]] = relationship(
+        back_populates="person",
+        cascade="all, delete",
+    )
+    workplaces: Mapped[list[Workplaces]] = relationship(
+        back_populates="person",
+        cascade="all, delete",
+    )
+    affilations: Mapped[list[Affilations]] = relationship(
+        back_populates="person",
+        cascade="all, delete",
+    )
+    checks: Mapped[list[Checks]] = relationship(
+        back_populates="person",
+        cascade="all, delete",
+    )
+    poligrafs: Mapped[list[Poligrafs]] = relationship(
+        back_populates="person",
+        cascade="all, delete",
+    )
+    investigations: Mapped[list[Investigations]] = relationship(
+        back_populates="person",
+        cascade="all, delete",
+    )
+    inquiries: Mapped[list[Inquiries]] = relationship(
+        back_populates="person",
+        cascade="all, delete",
+    )
 
 
 class Previous(Base):
@@ -145,6 +194,7 @@ class Previous(Base):
     )
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
+    person: Mapped[Persons] = relationship(back_populates="previous")
 
 
 class Educations(Base):
@@ -164,6 +214,7 @@ class Educations(Base):
     )
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
+    person: Mapped[Persons] = relationship(back_populates="educations")
 
 
 class Staffs(Base):
@@ -181,6 +232,7 @@ class Staffs(Base):
     )
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
+    person: Mapped[Persons] = relationship(back_populates="staffs")
 
 
 class Documents(Base):
@@ -201,6 +253,7 @@ class Documents(Base):
     )
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
+    person: Mapped[Persons] = relationship(back_populates="documents")
 
 
 class Addresses(Base):
@@ -218,6 +271,7 @@ class Addresses(Base):
     )
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
+    person: Mapped[Persons] = relationship(back_populates="addresses")
 
 
 class Contacts(Base):
@@ -235,6 +289,7 @@ class Contacts(Base):
     )
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
+    person: Mapped[Persons] = relationship(back_populates="contacts")
 
 
 class Workplaces(Base):
@@ -257,6 +312,7 @@ class Workplaces(Base):
     )
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
+    person: Mapped[Persons] = relationship(back_populates="workplaces")
 
 
 class Affilations(Base):
@@ -275,6 +331,7 @@ class Affilations(Base):
     )
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
+    person: Mapped[Persons] = relationship(back_populates="affilations")
 
 
 class Checks(Base):
@@ -306,6 +363,7 @@ class Checks(Base):
     )
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
+    person: Mapped[Persons] = relationship(back_populates="checks")
 
 
 class Poligrafs(Base):
@@ -324,6 +382,7 @@ class Poligrafs(Base):
     )
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
+    person: Mapped[Persons] = relationship(back_populates="poligrafs")
 
 
 class Investigations(Base):
@@ -341,6 +400,7 @@ class Investigations(Base):
     )
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
+    person: Mapped[Persons] = relationship(back_populates="investigations")
 
 
 class Inquiries(Base):
@@ -359,6 +419,7 @@ class Inquiries(Base):
     )
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
+    person: Mapped[Persons] = relationship(back_populates="inquiries")
 
 
 Base.metadata.create_all(bind=engine)

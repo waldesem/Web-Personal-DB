@@ -26,34 +26,16 @@ class Compress:
 
     def after_request(self, response: Response) -> Response:
         """After request."""
+        # Compress the response if possible.
         vary = response.headers.get("Vary")
         if not vary:
             response.headers["Vary"] = "Accept-Encoding"
         elif "accept-encoding" not in vary.lower():
             response.headers["Vary"] = f"{vary}, Accept-Encoding"
 
+        # Only compress text/* and application/json content types.
         if (
-            response.mimetype
-            not in [
-                "text/html",
-                "text/css",
-                "text/plain",
-                "text/xml",
-                "text/x-component",
-                "text/javascript",
-                "application/x-javascript",
-                "application/javascript",
-                "application/json",
-                "application/manifest+json",
-                "application/x-font-ttf",
-                "application/x-font-opentype",
-                "application/x-font-truetype",
-                "image/x-icon",
-                "font/ttf",
-                "font/eot",
-                "font/otf",
-                "font/opentype",
-            ]
+            not response.mimetype.startswith(("text/", "application/json"))
             or response.status_code < 200
             or response.status_code >= 300
             or "Content-Encoding" in response.headers
@@ -61,12 +43,12 @@ class Compress:
         ):
             return response
 
+        # Don't compress if it is already compressed.
         response.direct_passthrough = False
-
+        # Compress the response body.
         compressed_content = gzip.compress(response.get_data(), 6)
         response.set_data(compressed_content)
 
         response.headers["Content-Encoding"] = "gzip"
         response.headers["Content-Length"] = response.content_length
-
         return response

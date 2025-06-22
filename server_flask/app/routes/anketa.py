@@ -4,7 +4,6 @@ from datetime import datetime
 from pathlib import Path
 
 from flask import Blueprint, Response, current_app, jsonify, request
-from sqlalchemy import desc
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.depends.depend import auth_required, current_user, validate
@@ -31,19 +30,19 @@ def get_profile(person_id: int) -> Response:
     """
     person = db_session.get(Persons, person_id)
     if not person.destination or not Path(person.destination).is_dir():
-            person.destination = create_destination(person)
-            db_session.commit()
+        person.destination = create_destination(person)
+        db_session.commit()
     profile = {"person": person.to_dict()}
 
+    # Получаем все связанные таблицы из метаданных SQLAlchemy
     for name, table in Base.metadata.tables.items():
         if name not in ["persons", "phones", "users"]:
-            stmt = (
-                table.select().filter(table.c.person_id == person_id)
+            # Получаем все записи из таблицы и добавляем их в словарь profile
+            profile[name] = sorted(
+                [item.to_dict() for item in getattr(person, table.name)],
+                key=lambda x: x["id"],
+                reverse=True,
             )
-            # Выполняем запрос и получаем результаты
-            results = db_session.execute(stmt.order_by(desc(table.c.id))).all()
-            profile[name] = [result._asdict() for result in results]
-    # Преобразуем результаты в словарь и возвращаем их в формате JSON
     return jsonify(profile), 200
 
 
@@ -71,7 +70,7 @@ def change_region(person_id: int, json_data: Region) -> Response:
         person.editable = False
         db_session.commit()
         return jsonify({"message": "success"}), 201
-    except (SQLAlchemyError):
+    except SQLAlchemyError:
         current_app.logger.exception("Exception in change_region")
         return jsonify({"message": "error"}), 200
 
