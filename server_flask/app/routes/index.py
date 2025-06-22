@@ -4,7 +4,7 @@ import json
 
 from flask import Blueprint, Response, current_app, jsonify, request
 from pydantic import ValidationError
-from sqlalchemy import desc, select
+from sqlalchemy import desc, func, select
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.depends.depend import auth_required, current_user, validate
@@ -45,14 +45,16 @@ def get_index() -> Response:
     # Создание SQL-запроса для получения списка кандидатов с учетом региона пользователя
     stmt = select(
         Persons.id,
-        Persons.surname,
-        Persons.firstname,
-        Persons.patronymic,
+        (Persons.surname + " " + Persons.firstname + " " + Persons.patronymic).label(
+            "fullname",
+        ),
         Persons.region,
-        Persons.birthday,
+        func.strftime("%d.%m.%Y", Persons.birthday).label("birthday"),
         Persons.editable,
-        Persons.created,
-        Users.fullname.label("username"),
+        func.strftime("%d.%m.%Y", Persons.created).label("created"),
+        func.substr(Users.fullname, 1, func.instr(Users.fullname, " ") - 1).label(
+            "username",
+        ),
     ).filter(
         Persons.user_id == Users.id,
         Persons.region == current_user.region

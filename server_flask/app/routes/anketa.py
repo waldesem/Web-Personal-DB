@@ -33,13 +33,11 @@ def get_profile(person_id: int) -> Response:
         person.destination = create_destination(person)
         db_session.commit()
     profile = {"person": person.to_dict()}
-
-    # Получаем все связанные таблицы из метаданных SQLAlchemy
-    for name, table in Base.metadata.tables.items():
-        if name not in ["persons", "phones", "users"]:
-            # Получаем все записи из таблицы и добавляем их в словарь profile
-            profile[name] = sorted(
-                [item.to_dict() for item in getattr(person, table.name)],
+    # Получаем все связанные таблицы и добавляем их в словарь profile
+    for key in person.__annotations__:
+        if key in Base.metadata.tables:
+            profile[key] = sorted(
+                [item.to_dict() for item in getattr(person, key)],
                 key=lambda x: x["id"],
                 reverse=True,
             )

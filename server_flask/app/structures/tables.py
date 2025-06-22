@@ -129,6 +129,7 @@ class Persons(Base):
     previous: Mapped[list[Previous]] = relationship(
         back_populates="person",
         cascade="all, delete",
+        lazy="joined",
     )
     educations: Mapped[list[Educations]] = relationship(
         back_populates="person",

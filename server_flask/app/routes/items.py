@@ -4,7 +4,7 @@ from pathlib import Path
 
 from flask import Blueprint, Response, current_app, jsonify
 from flask.views import MethodView
-from sqlalchemy import desc, text
+from sqlalchemy import desc
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.depends.depend import auth_required, current_user, validate
@@ -70,17 +70,8 @@ class PersonView(MethodView):
 
         """
         try:
-            for name, table in Base.metadata.tables.items():
-                if name not in ["persons", "phones", "users"]:
-                    # Удаляем записи из таблицы, связанные с кандидатом
-                    db_session.execute(
-                        table.delete().where(table.c.person_id == person_id),
-                    )
-            # Удаляем запись о кандидате из таблицы persons
-            db_session.execute(
-                text("DELETE FROM persons WHERE id = :person_id"),
-                {"person_id": person_id},
-            )
+            person = db_session.get(Persons, person_id)
+            db_session.delete(person)
             db_session.commit()
             return jsonify({"message": "success"}), 201
         except SQLAlchemyError:

@@ -61,17 +61,20 @@ export interface User extends Omit<Token, "exp"> {
   attempt: string;
 }
 
-export interface Previous {
+export interface Candidate {
   id: string;
+  fullname: string;
+  birthday: string;
+  editable: boolean;
+  region: Regions;
+  created: string;
+  username: string;
+}
+
+export interface Persons extends Omit<Candidate, "fullname"> {
   surname: string;
   firstname: string;
   patronymic?: string;
-  changed?: string;
-  reason?: string;
-}
-
-export interface Persons extends Omit<Previous, "changed" | "reason"> {
-  birthday: string;
   birthplace?: string;
   citizenship?: string;
   dual?: string;
@@ -80,13 +83,17 @@ export interface Persons extends Omit<Previous, "changed" | "reason"> {
   marital?: string;
   addition?: string;
   destination?: string;
-  editable: boolean;
-  created: string;
-  region: Regions;
-  username: string;
   user_id: string;
 }
 
+export interface Previous {
+  id: string;
+  surname: string;
+  firstname: string;
+  patronymic?: string;
+  changed?: string;
+  reason?: string;
+}
 export interface Education {
   id: string;
   view: string;

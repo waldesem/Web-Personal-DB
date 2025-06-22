@@ -2,7 +2,7 @@
 import { useFileDialog } from "@vueuse/core";
 import { getPaginationRowModel } from "@tanstack/vue-table";
 import type { DropdownMenuItem, TableColumn } from "@nuxt/ui";
-import type { Persons } from "@/types";
+import type { Candidate, Persons } from "@/types";
 
 await preloadRouteComponents("/profile/[id]");
 
@@ -16,14 +16,14 @@ const userState = useUserState();
 const modal = ref(false);
 const globalFilter = ref("");
 const updated = ref("Данные обновляются...");
-const candidates = shallowRef([] as Persons[]);
+const candidates = shallowRef([] as Candidate[]);
 const pagination = ref({ pageIndex: 0, pageSize: 10 });
 
 const { refresh, status } = await useLazyAsyncData("candidates", async () => {
-  candidates.value = await fetchAuth("/route/index") as Persons[];
+  candidates.value = (await fetchAuth("/route/index")) as Candidate[];
+  console.log(candidates.value);
   updated.value = new Date().toLocaleTimeString("ru-RU");
 });
-
 
 const { open, reset, onCancel, onChange } = useFileDialog({
   accept: ".json",
@@ -85,25 +85,11 @@ async function submitResume(form: Persons): Promise<void> {
   createToast(person_id, exists);
 }
 
-const columns: TableColumn<Persons>[] = [
+const columns: TableColumn<Candidate>[] = [
   { accessorKey: "id", header: "#" },
   { accessorKey: "region", header: "Регион" },
-  {
-    accessorKey: "surname",
-    header: "Фамилия Имя Отчество",
-    cell: ({ row }) => {
-      return `${row.original.surname} ${row.original.firstname} ${
-        row.original.patronymic ?? ""
-      }`;
-    },
-  },
-  {
-    accessorKey: "birthday",
-    header: "Дата рождения",
-    cell: ({ row }) => {
-      return new Date(row.original.birthday).toLocaleDateString("ru-RU");
-    },
-  },
+  { accessorKey: "fullname", header: "Фамилия Имя Отчество" },
+  { accessorKey: "birthday", header: "Дата рождения" },
   {
     accessorKey: "editable",
     header: "Статус",
@@ -118,28 +104,16 @@ const columns: TableColumn<Persons>[] = [
           : "text-start w-4 h-4 text-blue-800",
         title: !row.original.editable
           ? "Анкета доступна для редактирования"
-          : row.original.user_id == userState.value.id
+          : userState.value.fullname
+              .toLowerCase()
+              .includes(row.original.fullname.trim().toLowerCase())
           ? "Анкета назначена текущему пользователю"
           : "Анкета редактируется другим пользователем",
       });
     },
   },
-  {
-    accessorKey: "created",
-    header: "Обновлено",
-    cell: ({ row }) => {
-      return new Date(row.original.created).toLocaleDateString("ru-RU");
-    },
-  },
-  {
-    accessorKey: "username",
-    header: "Сотрудник",
-    cell: ({ row }) => {
-      return row.original.username
-        ? row.original.username.toString().split(" ")[0]
-        : "";
-    },
-  },
+  { accessorKey: "created", header: "Обновлено" },
+  { accessorKey: "username", header: "Сотрудник" },
 ];
 
 const items: DropdownMenuItem[] = [
