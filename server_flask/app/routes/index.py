@@ -4,7 +4,7 @@ import json
 
 from flask import Blueprint, Response, current_app, jsonify, request
 from pydantic import ValidationError
-from sqlalchemy import desc, func, select
+from sqlalchemy import Integer, cast, desc, func, select
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.depends.depend import auth_required, current_user, validate
@@ -46,14 +46,14 @@ def get_index() -> Response:
     stmt = select(
         Persons.id,
         (Persons.surname + " " + Persons.firstname + " " + Persons.patronymic).label(
-            "fullname",
+            "name",
         ),
-        Persons.region,
-        func.strftime("%d.%m.%Y", Persons.birthday).label("birthday"),
-        Persons.editable,
-        func.strftime("%d.%m.%Y", Persons.created).label("created"),
+        Persons.region.label("area"),
+        func.strftime("%d.%m.%Y", Persons.birthday).label("birth"),
+        func.avg(cast(Persons.editable, Integer)).label("edit"),
+        func.strftime("%d.%m.%Y", Persons.created).label("data"),
         func.substr(Users.fullname, 1, func.instr(Users.fullname, " ") - 1).label(
-            "username",
+            "user",
         ),
     ).filter(
         Persons.user_id == Users.id,

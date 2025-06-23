@@ -63,18 +63,19 @@ export interface User extends Omit<Token, "exp"> {
 
 export interface Candidate {
   id: string;
-  fullname: string;
-  birthday: string;
-  editable: boolean;
-  region: Regions;
-  created: string;
-  username: string;
+  name: string;
+  birth: string;
+  edit: boolean;
+  area: Regions;
+  data: string;
+  user: string;
 }
 
-export interface Persons extends Omit<Candidate, "fullname"> {
+export interface Persons {
   surname: string;
   firstname: string;
   patronymic?: string;
+  birthday: string;
   birthplace?: string;
   citizenship?: string;
   dual?: string;
@@ -83,6 +84,10 @@ export interface Persons extends Omit<Candidate, "fullname"> {
   marital?: string;
   addition?: string;
   destination?: string;
+  editable: boolean;
+  region: Regions;
+  created: string;
+  username: string;
   user_id: string;
 }
 

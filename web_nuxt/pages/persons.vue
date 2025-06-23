@@ -87,33 +87,33 @@ async function submitResume(form: Persons): Promise<void> {
 
 const columns: TableColumn<Candidate>[] = [
   { accessorKey: "id", header: "#" },
-  { accessorKey: "region", header: "Регион" },
-  { accessorKey: "fullname", header: "Фамилия Имя Отчество" },
-  { accessorKey: "birthday", header: "Дата рождения" },
+  { accessorKey: "area", header: "Регион" },
+  { accessorKey: "name", header: "Фамилия Имя Отчество" },
+  { accessorKey: "birth", header: "Дата рождения" },
   {
-    accessorKey: "editable",
+    accessorKey: "edit",
     header: "Статус",
     cell: ({ row }) => {
       return h(UIcon, {
-        name: row.original.editable
+        name: row.original.edit
           ? "i-lucide-refresh-ccw"
           : "i-lucide-circle-check",
 
-        class: row.original.editable
+        class: row.original.edit
           ? "text-start w-4 h-4 animate-spin text-red-800"
           : "text-start w-4 h-4 text-blue-800",
         title: !row.original.editable
           ? "Анкета доступна для редактирования"
           : userState.value.fullname
               .toLowerCase()
-              .includes(row.original.fullname.trim().toLowerCase())
+              .includes(row.original.name.trim().toLowerCase())
           ? "Анкета назначена текущему пользователю"
           : "Анкета редактируется другим пользователем",
       });
     },
   },
-  { accessorKey: "created", header: "Обновлено" },
-  { accessorKey: "username", header: "Сотрудник" },
+  { accessorKey: "data", header: "Обновлено" },
+  { accessorKey: "user", header: "Сотрудник" },
 ];
 
 const items: DropdownMenuItem[] = [
