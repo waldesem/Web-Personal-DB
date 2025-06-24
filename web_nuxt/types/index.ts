@@ -230,3 +230,11 @@ export interface Profile {
   investigations: Inquisition[];
   inquiries: Needs[];
 }
+
+enum Regions {
+    main = "Главный офис",
+    south = "РЦ Юг",
+    west = "РЦ Запад",
+    ural = "РЦ Урал",
+    east = "РЦ Восток",
+}
