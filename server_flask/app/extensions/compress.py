@@ -7,7 +7,23 @@ from __future__ import annotations
 
 import gzip
 
-from flask import Flask, Response  # noqa: TC002
+from flask import Flask, Response, request
+
+
+class DictCache:
+    """Dict Cache."""
+
+    def __init__(self) -> None:
+        """Init cache."""
+        self.data = {}
+
+    def get(self, key: str) -> str:
+        """Get cache key."""
+        return self.data.get(key)
+
+    def set(self, key: str, value: Response) -> None:
+        """Set cache value."""
+        self.data[key] = value
 
 
 class Compress:
@@ -17,7 +33,7 @@ class Compress:
         """Init class."""
         if app is not None:
             self.init_app(app)
-        self.cache = None
+        self.cache = DictCache()
         self.cache_key = None
 
     def init_app(self, app: Flask) -> None:
@@ -43,10 +59,17 @@ class Compress:
         ):
             return response
 
-        # Don't compress if it is already compressed.
         response.direct_passthrough = False
-        # Compress the response body.
-        compressed_content = gzip.compress(response.get_data(), 6)
+
+        if response.mimetype.startswith("text/"):
+            key = f"{self.cache_key(request.url)}"
+            compressed_content = self.cache.get(key)
+            if compressed_content is None:
+                compressed_content = gzip.compress(response.get_data())
+            self.cache.set(key, compressed_content)
+        else:
+            compressed_content = gzip.compress(response.get_data())
+
         response.set_data(compressed_content)
 
         response.headers["Content-Encoding"] = "gzip"

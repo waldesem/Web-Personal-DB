@@ -229,6 +229,7 @@ const columns: TableColumn<Phone>[] = [
         "
         :items-per-page="table?.tableApi?.getState().pagination.pageSize"
         :total="table?.tableApi?.getFilteredRowModel().rows.length"
+        :sibling-count="1"
         @update:page="(p) => table?.tableApi?.setPageIndex(p - 1)"
       />
     </div>

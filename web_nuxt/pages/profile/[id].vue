@@ -19,7 +19,6 @@ const { status } = await useAsyncData("profile", async () => {
     "/route/anketa/profile/" + candId.value
   )) as Profile;
 });
-provide("status", status);
 
 const editable = computed(() => {
   return (

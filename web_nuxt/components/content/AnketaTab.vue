@@ -15,7 +15,6 @@ const props = defineProps({
 const editable = inject("editable") as Ref<boolean>;
 
 const person = toRef(props.profile.person as Persons);
-const mainStatus = inject("status") as Ref<string>;
 const modal = ref(false);
 
 const { status, refresh } = await useLazyAsyncData(
@@ -113,7 +112,7 @@ const items: Accordion[] = [
       @change="modal = true"
       @delete="deleteItem()"
     />
-    <div v-if="status == 'pending' || mainStatus == 'pending'" class="ps-2">
+    <div v-if="status == 'pending' == 'pending'" class="ps-2">
       <ElementsSkeletonDiv :rows="props.rows" />
     </div>
     <div v-else class="ps-2">
