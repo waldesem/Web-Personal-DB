@@ -10,8 +10,14 @@ class DictCache:
         return self.data.get(key)
 
     def set(self, key: str, value: Any) -> None:
-        """Delete cache value."""
+        """Set cache value."""
         self.data[key] = value
 
     def delete(self, key: str) -> None:
-        delete self.data[key]
+        """Delete cache key."""
+        if self.data.get(key):
+            delete self.data[key]
+
+    def clear(self) -> None:
+        """Clear cache."""
+        self.data.clear()
