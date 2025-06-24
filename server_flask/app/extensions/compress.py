@@ -17,7 +17,7 @@ class DictCache:
         """Init cache."""
         self.data = {}
 
-    def get(self, key: str) -> str:
+    def get(self, key: str) -> Response | None:
         """Get cache key."""
         return self.data.get(key)
 
@@ -34,7 +34,6 @@ class Compress:
         if app is not None:
             self.init_app(app)
         self.cache = DictCache()
-        self.cache_key = None
 
     def init_app(self, app: Flask) -> None:
         """Init app."""
@@ -62,7 +61,7 @@ class Compress:
         response.direct_passthrough = False
 
         if response.mimetype.startswith("text/"):
-            key = f"{self.cache_key(request.url)}"
+            key = request.url
             compressed_content = self.cache.get(key)
             if compressed_content is None:
                 compressed_content = gzip.compress(response.get_data())
