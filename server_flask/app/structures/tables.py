@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from datetime import date, datetime  # noqa: TC003
 
-from flask import current_app
 from sqlalchemy import (
     Boolean,
     Date,
@@ -13,42 +12,18 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
-    create_engine,
-    exc,
     func,
 )
-from sqlalchemy.orm import (
-    DeclarativeBase,
-    Mapped,
-    mapped_column,
-    relationship,
-    scoped_session,
-    sessionmaker,
-)
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from werkzeug.security import generate_password_hash
 
+from app import db
 from config import Config
 
 from .classes import Regions, Roles
 
-try:
-    engine = create_engine(Config.DATABASE_URI)
-    db_session = scoped_session(
-        sessionmaker(bind=engine, autoflush=False, autocommit=False),
-    )
-except exc.OperationalError:
-    current_app.logger.exception("Database connection error")
 
-
-class Base(DeclarativeBase):
-    """Base class for models."""
-
-    def to_dict(self) -> dict:
-        """Convert model to dict."""
-        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
-
-
-class Users(Base):
+class Users(db.Model):
     """User model."""
 
     __tablename__ = "users"
@@ -80,7 +55,7 @@ class Users(Base):
     region: Mapped[str] = mapped_column(String(255), default=Regions.main.value)
 
 
-class Phones(Base):
+class Phones(db.Model):
     """Phone model."""
 
     __tablename__ = "phones"
@@ -100,7 +75,7 @@ class Phones(Base):
     )
 
 
-class Persons(Base):
+class Persons(db.Model):
     """Person model."""
 
     __tablename__ = "persons"
@@ -177,7 +152,7 @@ class Persons(Base):
     )
 
 
-class Previous(Base):
+class Previous(db.Model):
     """Previous model."""
 
     __tablename__ = "previous"
@@ -198,7 +173,7 @@ class Previous(Base):
     person: Mapped[Persons] = relationship(back_populates="previous")
 
 
-class Educations(Base):
+class Educations(db.Model):
     """Education model."""
 
     __tablename__ = "educations"
@@ -218,7 +193,7 @@ class Educations(Base):
     person: Mapped[Persons] = relationship(back_populates="educations")
 
 
-class Staffs(Base):
+class Staffs(db.Model):
     """Staff model."""
 
     __tablename__ = "staffs"
@@ -236,7 +211,7 @@ class Staffs(Base):
     person: Mapped[Persons] = relationship(back_populates="staffs")
 
 
-class Documents(Base):
+class Documents(db.Model):
     """Document model."""
 
     __tablename__ = "documents"
@@ -257,7 +232,7 @@ class Documents(Base):
     person: Mapped[Persons] = relationship(back_populates="documents")
 
 
-class Addresses(Base):
+class Addresses(db.Model):
     """Address model."""
 
     __tablename__ = "addresses"
@@ -275,7 +250,7 @@ class Addresses(Base):
     person: Mapped[Persons] = relationship(back_populates="addresses")
 
 
-class Contacts(Base):
+class Contacts(db.Model):
     """Create model for contacts."""
 
     __tablename__ = "contacts"
@@ -293,7 +268,7 @@ class Contacts(Base):
     person: Mapped[Persons] = relationship(back_populates="contacts")
 
 
-class Workplaces(Base):
+class Workplaces(db.Model):
     """Workplace model."""
 
     __tablename__ = "workplaces"
@@ -316,7 +291,7 @@ class Workplaces(Base):
     person: Mapped[Persons] = relationship(back_populates="workplaces")
 
 
-class Affilations(Base):
+class Affilations(db.Model):
     """Affiliation model."""
 
     __tablename__ = "affilations"
@@ -335,7 +310,7 @@ class Affilations(Base):
     person: Mapped[Persons] = relationship(back_populates="affilations")
 
 
-class Checks(Base):
+class Checks(db.Model):
     """Check model."""
 
     __tablename__ = "checks"
@@ -367,7 +342,7 @@ class Checks(Base):
     person: Mapped[Persons] = relationship(back_populates="checks")
 
 
-class Poligrafs(Base):
+class Poligrafs(db.Model):
     """Poligraf model."""
 
     __tablename__ = "poligrafs"
@@ -386,7 +361,7 @@ class Poligrafs(Base):
     person: Mapped[Persons] = relationship(back_populates="poligrafs")
 
 
-class Investigations(Base):
+class Investigations(db.Model):
     """Investigation model."""
 
     __tablename__ = "investigations"
@@ -404,7 +379,7 @@ class Investigations(Base):
     person: Mapped[Persons] = relationship(back_populates="investigations")
 
 
-class Inquiries(Base):
+class Inquiries(db.Model):
     """Inquiry model."""
 
     __tablename__ = "inquiries"
@@ -421,6 +396,3 @@ class Inquiries(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     person: Mapped[Persons] = relationship(back_populates="inquiries")
-
-
-Base.metadata.create_all(bind=engine)

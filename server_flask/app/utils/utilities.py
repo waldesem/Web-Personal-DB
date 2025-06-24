@@ -9,9 +9,10 @@ from flask import current_app
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 
+from app import db
 from app.depends.depend import current_user
 from app.structures.models import Person
-from app.structures.tables import Persons, db_session
+from app.structures.tables import Persons
 
 
 def create_destination(person: Persons) -> str:
@@ -38,7 +39,7 @@ def upload_resume(cand: Person) -> tuple[int, bool]:
 
     """
     person = (
-        db_session.execute(
+        db.session.execute(
             select(Persons).where(
                 Persons.surname == cand.surname,
                 Persons.firstname == cand.firstname,
@@ -47,7 +48,7 @@ def upload_resume(cand: Person) -> tuple[int, bool]:
             ),
         ).scalar_one_or_none()
         if not cand.id
-        else db_session.get(Persons, cand.id)
+        else db.session.get(Persons, cand.id)
     )
 
     resume = cand.dict()
@@ -58,10 +59,10 @@ def upload_resume(cand: Person) -> tuple[int, bool]:
     try:
         if not person:
             person = Persons(**resume)
-            db_session.add(person)
-            db_session.flush()
+            db.session.add(person)
+            db.session.flush()
             person.destination = create_destination(person)
-            db_session.commit()
+            db.session.commit()
             return person.id, False
 
         if person.user_id != current_user.id:
@@ -72,10 +73,10 @@ def upload_resume(cand: Person) -> tuple[int, bool]:
                 setattr(person, k, v)
         if not person.destination or not Path(person.destination).is_dir():
             person.destination = create_destination(person)
-        db_session.commit()
+        db.session.commit()
     except SQLAlchemyError:
         current_app.logger.exception("Database error")
-        db_session.rollback()
+        db.session.rollback()
         return None, False
     else:
         return person.id, True

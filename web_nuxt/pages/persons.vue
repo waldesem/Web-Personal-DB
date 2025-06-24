@@ -87,7 +87,6 @@ async function submitResume(form: Persons): Promise<void> {
 
 const columns: TableColumn<Candidate>[] = [
   { accessorKey: "id", header: "#" },
-  { accessorKey: "area", header: "Регион" },
   { accessorKey: "name", header: "Фамилия Имя Отчество" },
   { accessorKey: "birth", header: "Дата рождения" },
   {

@@ -5,10 +5,11 @@ from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import generate_password_hash
 
+from app import db
 from app.depends.depend import auth_required, current_user, get_current_user, validate
 from app.structures.classes import Regions, Roles
 from app.structures.models import User, UserActions
-from app.structures.tables import Users, db_session
+from app.structures.tables import Users
 
 bp = Blueprint("users", __name__)
 
@@ -29,7 +30,7 @@ def get_users() -> Response:
     columns = filter(lambda x: x != "passhash", Users.__table__.columns.keys())
     # Создать запрос для выборки пользователей
     stmt = select(*[getattr(Users, column) for column in columns])
-    users = db_session.execute(stmt).all()
+    users = db.session.execute(stmt).all()
     # Преобразовать результат в список словарей и вернуть в качестве ответа
     return jsonify([user._asdict() for user in users]), 200
 
@@ -49,7 +50,7 @@ def post_user_actions(user_id: int, json_data: UserActions) -> Response:
 
     """
     # Получить пользователя по ID
-    user = db_session.get(Users, user_id)
+    user = db.session.get(Users, user_id)
     # Если пользователь не найден или пытается изменить собственный профиль
     if not user or current_user.id == user.id:
         return jsonify({"message": "error"}), 200
@@ -76,7 +77,7 @@ def post_user_actions(user_id: int, json_data: UserActions) -> Response:
         user.region = json_data.item
     else:
         return jsonify({"message": "error"}), 200
-    db_session.commit()
+    db.session.commit()
     # Очистить кэш для id пользователей
     get_current_user.cache_clear()
     return jsonify({"message": "success"}), 201
@@ -97,17 +98,17 @@ def post_user(json_data: User) -> Response:
 
     """
     # Проверить, существует ли уже пользователь с таким именем
-    user = db_session.execute(
+    user = db.session.execute(
         select(Users).filter(Users.username == json_data.username),
     ).all()
     if user:
         return jsonify({"message": "error"}), 200
     try:
         # Создать нового пользователя
-        db_session.add(Users(**json_data.dict()))
-        db_session.commit()
+        db.session.add(Users(**json_data.dict()))
+        db.session.commit()
         return jsonify({"message": "success"}), 201
     except SQLAlchemyError:
         current_app.logger.exception("Database error")
-        db_session.rollback()
+        db.session.rollback()
         return jsonify({"message": "error"}), 200

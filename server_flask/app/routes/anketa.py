@@ -6,10 +6,11 @@ from pathlib import Path
 from flask import Blueprint, Response, current_app, jsonify, request
 from sqlalchemy.exc import SQLAlchemyError
 
+from app import db
 from app.depends.depend import auth_required, current_user, validate
 from app.structures.classes import Roles
 from app.structures.models import Region
-from app.structures.tables import Base, Persons, db_session
+from app.structures.tables import Persons
 from app.utils.utilities import check_filename, create_destination
 
 bp = Blueprint("anketa", __name__, url_prefix="/anketa")
@@ -28,14 +29,14 @@ def get_profile(person_id: int) -> Response:
             the retrieved item(s) and an HTTP status code of 200.
 
     """
-    person = db_session.get(Persons, person_id)
+    person = db.session.get(Persons, person_id)
     if not person.destination or not Path(person.destination).is_dir():
         person.destination = create_destination(person)
-        db_session.commit()
+        db.session.commit()
     profile = {"person": person.to_dict()}
     # Получаем все связанные таблицы и добавляем их в словарь profile
     for key in person.__annotations__:
-        if key in Base.metadata.tables:
+        if key in db.metadata:
             profile[key] = sorted(
                 [item.to_dict() for item in getattr(person, key)],
                 key=lambda x: x["id"],
@@ -59,14 +60,14 @@ def change_region(person_id: int, json_data: Region) -> Response:
 
     """
     try:
-        person = db_session.get(Persons, person_id)
+        person = db.session.get(Persons, person_id)
         person.region = json_data.region
         destination = create_destination(person)
         if person.destination:
             Path(person.destination).rename(destination)
         person.destination = destination
         person.editable = False
-        db_session.commit()
+        db.session.commit()
         return jsonify({"message": "success"}), 201
     except SQLAlchemyError:
         current_app.logger.exception("Exception in change_region")
@@ -86,7 +87,7 @@ def change_self_id(person_id: int) -> Response:
 
     """
     try:
-        person = db_session.get(Persons, person_id)
+        person = db.session.get(Persons, person_id)
         if person.user_id != current_user.id:
             if person.editable:
                 person.editable = False
@@ -95,7 +96,7 @@ def change_self_id(person_id: int) -> Response:
                 person.editable = True
         else:
             person.editable = not person.editable
-        db_session.commit()
+        db.session.commit()
         return jsonify(person.to_dict()), 201
     except SQLAlchemyError:
         current_app.logger.exception("Exception in change_self_id")
@@ -118,10 +119,10 @@ def post_files(person_id: int) -> Response:
 
     """
     file_data = request.files.getlist("file")
-    person = db_session.get(Persons, person_id)
+    person = db.session.get(Persons, person_id)
     if not person.destination:
         person.destination = create_destination(person)
-        db_session.commit()
+        db.session.commit()
     try:
         subfolder = Path(
             person.destination,

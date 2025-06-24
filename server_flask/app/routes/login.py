@@ -8,9 +8,10 @@ from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from app import db
 from app.depends.depend import validate
 from app.structures.models import Login
-from app.structures.tables import Users, db_session
+from app.structures.tables import Users
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
@@ -29,7 +30,7 @@ def post_login(action: str, json_data: Login) -> Response:
 
     """
     try:
-        user = db_session.execute(
+        user = db.session.execute(
             select(Users).filter(Users.username == json_data.username),
         ).scalar_one_or_none()
 
@@ -41,7 +42,7 @@ def post_login(action: str, json_data: Login) -> Response:
                 user.attempt += 1
             else:
                 user.blocked = True
-            db_session.commit()
+            db.session.commit()
             return jsonify({"message": "Invalid"})
 
         if action == "update":
@@ -49,7 +50,7 @@ def post_login(action: str, json_data: Login) -> Response:
             user.pswd_create = datetime.now()
             user.change_pswd = False
             user.attempt = 0
-            db_session.commit()
+            db.session.commit()
             return jsonify({"message": "Updated"})
 
         delta_change = datetime.now() - user.pswd_create
@@ -58,7 +59,7 @@ def post_login(action: str, json_data: Login) -> Response:
             and delta_change.days < current_app.config["JWT_SECRET_KEY_LIVE"]
         ):
             user.attempt = 0
-            db_session.commit()
+            db.session.commit()
             return jsonify(
                 {
                     "message": "Success",
@@ -81,5 +82,5 @@ def post_login(action: str, json_data: Login) -> Response:
         return jsonify({"message": "Denied"})
     except SQLAlchemyError:
         current_app.logger.exception("Database error")
-        db_session.rollback()
+        db.session.rollback()
         return jsonify({"message": "Invalid"}), 200

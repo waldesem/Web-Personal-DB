@@ -8,10 +8,11 @@ from flask import Flask, Response
 from werkzeug.exceptions import HTTPException
 
 from app.extensions.compress import Compress
-from app.structures.tables import db_session
+from app.extensions.database import Database
 from config import Config
 
 compress = Compress()
+db = Database()
 
 handler = logging.FileHandler("error.log", mode="w", encoding="utf-8")
 handler.setLevel(logging.ERROR)
@@ -34,19 +35,13 @@ def create_app(config_class: Config = Config) -> Flask:
     app.logger.addHandler(handler)
 
     compress.init_app(app)
+    db.init_app(app)
 
     from app.routes import bp as route_bp  # noqa: PLC0415
     from command import bp as command_bp  # noqa: PLC0415
 
     app.register_blueprint(route_bp)
     app.register_blueprint(command_bp)
-
-    @app.teardown_appcontext
-    def shutdown_session(
-        exception: Exception | None = None,  # noqa: ARG001
-    ) -> None:
-        """Close the database session after each request or exception."""
-        db_session.remove()
 
     @app.get("/", defaults={"path": ""})
     def main(path: str = "") -> str:  # noqa: ARG001

@@ -7,6 +7,7 @@ from pydantic import ValidationError
 from sqlalchemy import Integer, cast, desc, func, select
 from sqlalchemy.exc import SQLAlchemyError
 
+from app import db
 from app.depends.depend import auth_required, current_user, validate
 from app.structures.classes import Regions, Roles
 from app.structures.models import AnketaJson, Person
@@ -21,7 +22,6 @@ from app.structures.tables import (
     Staffs,
     Users,
     Workplaces,
-    db_session,
 )
 from app.utils.utilities import upload_resume
 
@@ -48,7 +48,6 @@ def get_index() -> Response:
         (Persons.surname + " " + Persons.firstname + " " + Persons.patronymic).label(
             "name",
         ),
-        Persons.region.label("area"),
         func.strftime("%d.%m.%Y", Persons.birthday).label("birth"),
         func.avg(cast(Persons.editable, Integer)).label("edit"),
         func.strftime("%d.%m.%Y", Persons.created).label("data"),
@@ -61,7 +60,7 @@ def get_index() -> Response:
         if current_user.region != Regions.main.value
         else True,
     )
-    query = db_session.execute(stmt.order_by(desc(Persons.id))).all()
+    query = db.session.execute(stmt.order_by(desc(Persons.id))).all()
     # Создание списка словарей с данными кандидатов и сериализация их в JSON
     return jsonify([row._asdict() for row in query]), 200
 
@@ -157,8 +156,8 @@ def post_json() -> Response:
                 item.person_id = person_id
                 item.user_id = current_user.id
 
-            db_session.add_all(items)
-            db_session.commit()
+            db.session.add_all(items)
+            db.session.commit()
         return jsonify({"person_id": person_id, "exists": existed}), 201
     except (ValidationError, json.JSONDecodeError, SQLAlchemyError, TypeError):
         current_app.logger.exception("JSON Error")

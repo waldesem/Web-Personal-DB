@@ -11,8 +11,9 @@ from flask import Response, abort, current_app, g, jsonify, make_response, reque
 from pydantic import ValidationError
 from werkzeug.local import LocalProxy
 
+from app import db
 from app.structures.models import Model
-from app.structures.tables import Users, db_session
+from app.structures.tables import Users
 
 current_user: Users = LocalProxy(lambda: get_current_user(g.user_id))
 
@@ -29,7 +30,7 @@ def get_current_user(user_id: int) -> Users | Response:
         status code.
 
     """
-    user = db_session.get(Users, user_id)
+    user = db.session.get(Users, user_id)
     if all(
         (
             user,

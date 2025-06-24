@@ -8,9 +8,10 @@ from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 
+from app import db
 from app.structures.classes import Regions, Roles
 from app.structures.models import User
-from app.structures.tables import Users, db_session
+from app.structures.tables import Users
 
 bp = Blueprint("command", __name__)
 
@@ -62,11 +63,11 @@ def create_user(
             role=role,
             region=region,
         )
-        if not db_session.execute(
+        if not db.session.execute(
             select(Users).where(Users.username == user.username),
         ).all():
-            db_session.add(Users(**user.dict()))
-            db_session.commit()
+            db.session.add(Users(**user.dict()))
+            db.session.commit()
             click.echo(f"User {user.username} created")
         else:
             click.echo(f"User {user.username} already exists")

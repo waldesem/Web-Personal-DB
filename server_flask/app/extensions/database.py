@@ -52,4 +52,3 @@ class Database:
     def metadata(self) -> MetaData:
         """The default metadata if no bind key is set."""
         return self.metadatas.tables[None]
-

@@ -7,10 +7,11 @@ from flask.views import MethodView
 from sqlalchemy import select, text, update
 from sqlalchemy.exc import SQLAlchemyError
 
+from app import db
 from app.depends.depend import auth_required, validate
 from app.structures.classes import Roles
 from app.structures.models import Phone
-from app.structures.tables import Phones, db_session
+from app.structures.tables import Phones
 
 bp = Blueprint("phones", __name__)
 
@@ -31,9 +32,9 @@ class PhoneView(MethodView):
 
         """
         # Запрос к базе данных для получения списка телефонов
-        results = db_session.execute(select(Phones)).scalars()
+        results = db.session.execute(select(Phones)).scalars()
         # Запрос к базе данных для получения списка организаций
-        orgs = set(db_session.execute(select(Phones.organization)).scalars())
+        orgs = set(db.session.execute(select(Phones.organization)).scalars())
         # Возврат данных в формате JSON и в виде ответа на запрос
         return jsonify(
             {
@@ -58,20 +59,20 @@ class PhoneView(MethodView):
             json_dict = json_data.dict(exclude_none=True)
             # Обновление существующей записи
             if item_id := json_dict.pop("id", None):
-                db_session.execute(
+                db.session.execute(
                     update(Phones)
                     .where(Phones.id == item_id)
                     .values(**json_dict),
                 )
             else:
                 # Создание новой записи
-                db_session.add(Phones(**json_dict))
+                db.session.add(Phones(**json_dict))
         except SQLAlchemyError:
             current_app.logger.exception("Database error")
-            db_session.rollback()
+            db.session.rollback()
             return jsonify({"message": "error"}), 200
         else:
-            db_session.commit()
+            db.session.commit()
             return jsonify({"message": "success"}), 201
 
     def delete(self, phone_id: int) -> Response:
@@ -85,8 +86,8 @@ class PhoneView(MethodView):
 
         """
         # Удаление записи из таблицы phones
-        db_session.execute(text("DELETE FROM phones WHERE id = :id"), {"id": phone_id})
-        db_session.commit()
+        db.session.execute(text("DELETE FROM phones WHERE id = :id"), {"id": phone_id})
+        db.session.commit()
         return jsonify({"message": "success"}), 200
 
 

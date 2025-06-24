@@ -7,10 +7,11 @@ from flask.views import MethodView
 from sqlalchemy import desc
 from sqlalchemy.exc import SQLAlchemyError
 
+from app import db
 from app.depends.depend import auth_required, current_user, validate
 from app.structures.classes import Roles
 from app.structures.models import Items, Model, Person
-from app.structures.tables import Base, Persons, db_session
+from app.structures.tables import Persons
 from app.utils.utilities import create_destination, upload_resume
 
 bp = Blueprint("items", __name__, url_prefix="/items")
@@ -32,10 +33,10 @@ class PersonView(MethodView):
 
         """
         # Получаем данные кандидата и создаем папку для него, если ее нет
-        person = db_session.get(Persons, person_id)
+        person = db.session.get(Persons, person_id)
         if not person.destination or not Path(person.destination).is_dir():
             person.destination = create_destination(person)
-            db_session.commit()
+            db.session.commit()
         return jsonify(person.to_dict()), 200
 
     @validate
@@ -70,13 +71,13 @@ class PersonView(MethodView):
 
         """
         try:
-            person = db_session.get(Persons, person_id)
-            db_session.delete(person)
-            db_session.commit()
+            person = db.session.get(Persons, person_id)
+            db.session.delete(person)
+            db.session.commit()
             return jsonify({"message": "success"}), 201
         except SQLAlchemyError:
             current_app.logger.exception("Database error")
-            db_session.rollback()
+            db.session.rollback()
             return jsonify({"message": "error"}), 200
 
 
@@ -91,9 +92,6 @@ bp.add_url_rule(
 
 class ItemsView(MethodView):
     """Items view."""
-
-    # Создаем словарь таблиц и связываем его с базой данных
-    tables = Base.metadata.tables
 
     @auth_required()
     def get(self, item: Items, item_id: int) -> Response:
@@ -110,10 +108,10 @@ class ItemsView(MethodView):
         """
         # Создаем запрос к таблице и сортируем результаты по id в обратном порядке
         stmt = (
-            self.tables[item].select().filter(self.tables[item].c.person_id == item_id)
+            db.metadata[item].select().filter(db.metadata[item].c.person_id == item_id)
         )
         # Выполняем запрос и получаем результаты
-        query = db_session.execute(stmt.order_by(desc(self.tables[item].c.id)))
+        query = db.session.execute(stmt.order_by(desc(db.metadata[item].c.id)))
         # Преобразуем результаты в словарь и возвращаем их в формате JSON
         return jsonify([row._asdict() for row in query])
 
@@ -143,20 +141,20 @@ class ItemsView(MethodView):
             if table_id := json_dict.pop("id", None):
                 # Если есть, создаем запрос на обновление записи с указанным id
                 stmt = (
-                    self.tables[item]
+                    db.metadata[item]
                     .update()
-                    .where(self.tables[item].c.id == table_id)
+                    .where(db.metadata[item].c.id == table_id)
                     .values(json_dict)
                 )
             else:
                 # Если нет, создаем запрос на вставку новой записи
-                stmt = self.tables[item].insert().values(json_dict)
-            db_session.execute(stmt)
-            db_session.commit()
+                stmt = db.metadata[item].insert().values(json_dict)
+            db.session.execute(stmt)
+            db.session.commit()
             return jsonify({"message": "success"}), 201
         except SQLAlchemyError:
             current_app.logger.exception("Database error")
-            db_session.rollback()
+            db.session.rollback()
             return jsonify({"message": "error"}), 200
 
     @auth_required(Roles.user.value)
@@ -174,14 +172,14 @@ class ItemsView(MethodView):
         """
         try:
             # Удаляем запись из таблицы items с указанным id
-            db_session.execute(
-                self.tables[item].delete().where(self.tables[item].c.id == item_id),
+            db.session.execute(
+                db.metadata[item].delete().where(db.metadata[item].c.id == item_id),
             )
-            db_session.commit()
+            db.session.commit()
             return jsonify({"message": "success"}), 201
         except SQLAlchemyError:
             current_app.logger.exception("Database error")
-            db_session.rollback()
+            db.session.rollback()
             return jsonify({"message": "error"}), 200
 
 

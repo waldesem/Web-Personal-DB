@@ -66,7 +66,6 @@ export interface Candidate {
   name: string;
   birth: string;
   edit: boolean;
-  area: Regions;
   data: string;
   user: string;
 }
@@ -229,12 +228,4 @@ export interface Profile {
   poligrafs: Pfo[];
   investigations: Inquisition[];
   inquiries: Needs[];
-}
-
-enum Regions {
-    main = "Главный офис",
-    south = "РЦ Юг",
-    west = "РЦ Запад",
-    ural = "РЦ Урал",
-    east = "РЦ Восток",
 }
