@@ -41,8 +41,18 @@ def get_current_user(user_id: int) -> Users | Response:
         return user
     return abort(401)
 
+class Authorization:
+    """The Authorize allows your application."""
 
-def auth_required(roles: tuple | None = None) -> Callable:
+    def __init__(self, app: Flask | None = None) -> None:
+        """Init class."""
+        if app is not None:
+            self.init_app(app)
+
+    def init_app(self, app: Flask) -> None:
+        """Init app."""
+
+def auth_required(self, roles: tuple | None = None) -> Callable:
     """Decorate a function that checks a valid JWT token and the user has roles.
 
     The decorated function checks if the request contains a valid JWT token in the
