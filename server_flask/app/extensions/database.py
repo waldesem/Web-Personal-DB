@@ -25,6 +25,9 @@ class Database:
         self.session = None | Session
         if app is not None:
             self.init_app(app)
+        if not hasattr(app, "extensions"):
+            app.extensions = {}
+        app.extensions["flask-database"] = self
 
     def init_app(self, app: Flask) -> None:
         """Init app."""

@@ -7,12 +7,10 @@ from functools import lru_cache, wraps
 from typing import Callable
 
 import jwt
-from flask import Response, abort, current_app, g, jsonify, make_response, request
-from pydantic import ValidationError
+from flask import Response, abort, current_app, g, request
 from werkzeug.local import LocalProxy
 
 from app import db
-from app.structures.models import Model
 from app.structures.tables import Users
 
 current_user: Users = LocalProxy(lambda: get_current_user(g.user_id))
@@ -44,6 +42,29 @@ def get_current_user(user_id: int) -> Users | Response:
     return abort(401)
 
 
+def encode_jwt(**kwargs: dict) -> str:
+        """Encode jwt."""
+        return (
+            jwt.encode(kwargs, current_app.config["JWT_SECRET_KEY"], algorithm="HS256"),
+        )
+
+
+def decode_jwt(header: str) -> int | None:
+    """Decode jwt."""
+    try:
+        # JWT validation
+        user: dict = jwt.decode(
+            header[7:],
+            current_app.config["JWT_SECRET_KEY"],
+            algorithms=["HS256"],
+            options={"verify_exp": True},
+        )
+    except (ValueError, jwt.exceptions.PyJWTError):
+        return None
+    else:
+        return user.get("id")
+
+
 def auth_required(roles: tuple | None = None) -> Callable:
     """Decorate a function that checks a valid JWT token and the user has roles.
 
@@ -67,19 +88,12 @@ def auth_required(roles: tuple | None = None) -> Callable:
         @wraps(func)
         def wrapper(*args: tuple, **kwargs: dict) -> Response | Callable:
             # JWT validation
-            try:
-                header = request.headers.get("Authorization", type=str)
-                user: dict = jwt.decode(
-                    header[7:],
-                    current_app.config["JWT_SECRET_KEY"],
-                    algorithms=["HS256"],
-                    options={"verify_exp": True},
-                )
-                if not user.get("id"):
-                    return abort(401)
-                g.user_id = user["id"]
-            except (ValueError, jwt.exceptions.PyJWTError):
+            header = request.headers.get("Authorization", type=str)
+            user_id = decode_jwt(header)
+            if not user_id:
                 return abort(401)
+
+            g.user_id = user_id
 
             # Role validation
             if roles and current_user.role not in roles:
@@ -90,45 +104,3 @@ def auth_required(roles: tuple | None = None) -> Callable:
         return wrapper
 
     return decorator
-
-
-def validate(func: Callable) -> Callable:
-    """Decorate a function for validating request data using Pydantic models.
-
-    The decorator accepts the following keyword arguments:
-        json_data: Optional[BaseModel]
-            The model to validate the body data with.
-
-    The decorator can be used as follows:
-
-    @app.route("/endpoint", methods=["GET"])
-    @validate(json_data=BodyData)
-    def endpoint(json_data):
-        # The json_data are validated and available here
-        pass
-    """
-
-    @wraps(func)
-    def wrapper(*args: tuple, **kwargs: dict) -> Callable:
-        """Validate request data using Pydantic models."""
-        try:
-            # if funcion has json model argument with Pydantic model
-            if json_model := func.__annotations__.get("json_data"):
-                # if json model annotation is Model
-                if json_model.__name__ == "Model":
-                    models = {
-                        cls.__modelname__: cls
-                        for cls in Model.__subclasses__()
-                        if hasattr(cls, "__modelname__")
-                    }
-                    json_model = models[kwargs["item"]]
-                json_data = request.get_json()
-                kwargs["json_data"] = json_model(**json_data)
-
-        except ValidationError:
-            current_app.logger.exception("Error validating data")
-            return make_response(jsonify({"message": "error"}))
-        else:
-            return func(*args, **kwargs)
-
-    return wrapper

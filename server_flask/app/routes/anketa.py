@@ -7,7 +7,8 @@ from flask import Blueprint, Response, current_app, jsonify, request
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
-from app.depends.depend import auth_required, current_user, validate
+from app.depends.depend import auth_required, current_user
+from app.depends.validate import validate
 from app.structures.classes import Roles
 from app.structures.models import Region
 from app.structures.tables import Persons

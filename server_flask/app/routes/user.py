@@ -6,7 +6,8 @@ from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import generate_password_hash
 
 from app import db
-from app.depends.depend import auth_required, current_user, get_current_user, validate
+from app.depends.depend import auth_required, current_user, get_current_user
+from app.depends.validate import validate
 from app.structures.classes import Regions, Roles
 from app.structures.models import User, UserActions
 from app.structures.tables import Users

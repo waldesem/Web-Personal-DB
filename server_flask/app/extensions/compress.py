@@ -9,21 +9,7 @@ import gzip
 
 from flask import Flask, Response, request
 
-
-class DictCache:
-    """Dict Cache."""
-
-    def __init__(self) -> None:
-        """Init cache."""
-        self.data = {}
-
-    def get(self, key: str) -> Response | None:
-        """Get cache key."""
-        return self.data.get(key)
-
-    def set(self, key: str, value: Response) -> None:
-        """Set cache value."""
-        self.data[key] = value
+from app.utils.caching import DictCache
 
 
 class Compress:
@@ -33,7 +19,10 @@ class Compress:
         """Init class."""
         if app is not None:
             self.init_app(app)
-        self.cache = DictCache()
+        self.cache = DictCache[Response]()
+        if not hasattr(app, "extensions"):
+            app.extensions = {}
+        app.extensions["flask-compress"] = self
 
     def init_app(self, app: Flask) -> None:
         """Init app."""
