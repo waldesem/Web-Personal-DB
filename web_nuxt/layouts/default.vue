@@ -23,7 +23,7 @@ const items = ref<NavigationMenuItem[]>([
   },
   {
     label: "Справочник",
-    icon: "i-lucide-users-round",
+    icon: "i-lucide-notebook",
     to: "/phones",
   },
   {

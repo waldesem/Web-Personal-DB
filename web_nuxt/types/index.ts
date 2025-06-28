@@ -71,6 +71,7 @@ export interface Candidate {
 }
 
 export interface Persons {
+  id: string;
   surname: string;
   firstname: string;
   patronymic?: string;

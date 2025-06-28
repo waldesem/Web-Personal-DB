@@ -93,13 +93,21 @@ const columns: TableColumn<Candidate>[] = [
     header: "Статус",
     cell: ({ row }) => {
       return h(UIcon, {
-        name: row.original.edit
-          ? "i-lucide-refresh-ccw"
-          : "i-lucide-circle-check",
+        name: !row.original.edit
+          ? "i-lucide-circle-check"
+          : userState.value.fullname
+          .toLowerCase()
+          .includes(row.original.user.toLowerCase())
+          ? "i-lucide-octagon-alert"
+          : "i-lucide-triangle-alert",
 
-        class: row.original.edit
-          ? "text-start w-4 h-4 animate-spin text-red-800"
-          : "text-start w-4 h-4 text-blue-800",
+        class: !row.original.edit
+          ? "text-start w-5 h-5 text-blue-800"
+          : userState.value.fullname
+              .toLowerCase()
+              .includes(row.original.user.toLowerCase())
+          ? "text-start w-5 h-5 text-green-800"
+          : "text-start w-5 h-5 text-red-800",
         title: !row.original.edit
           ? "Анкета доступна для редактирования"
           : userState.value.fullname

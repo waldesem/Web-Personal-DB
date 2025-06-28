@@ -16,27 +16,24 @@ const editable = inject("editable") as Ref<boolean>;
 
 const person = toRef(props.profile.person as Persons);
 const modal = ref(false);
+const status = ref("success");
 
-const { status, refresh } = await useLazyAsyncData(
-  "persons",
-  async () => {
-    person.value = (await fetchAuth(
-      "/route/items/persons/" + person.value.id
-    )) as Persons;
-  },
-  {
-    immediate: false,
-  }
-);
+async function getPerson() {
+  status.value = "pending";
+  person.value = (await fetchAuth(
+    "/route/items/persons/" + person.value.id
+  )) as Persons;
+  status.value = "success";
+}
 
-async function submitResume(form: Persons) {
+async function submitPerson(form: Persons) {
   modal.value = false;
   status.value = "pending";
   const { message } = (await fetchAuth("/route/items/persons", {
     method: "POST",
     body: form,
   })) as Record<string, string>;
-  await refresh();
+  await getPerson();
   if (message == "success") {
     makeToast(message, "Информация успешно обновлена");
     status.value = "success";
@@ -45,7 +42,7 @@ async function submitResume(form: Persons) {
   }
 }
 
-async function deleteItem() {
+async function deletePerson() {
   if (!confirm("Вы действительно хотите удалить профиль и связанные записи?"))
     return;
   if (!confirm("Данные будут удалены безвозвратно!?")) return;
@@ -110,9 +107,9 @@ const items: Accordion[] = [
     <LazyElementsDivMenu
       v-if="editable"
       @change="modal = true"
-      @delete="deleteItem()"
+      @delete="deletePerson()"
     />
-    <div v-if="status == 'pending' == 'pending'" class="ps-2">
+    <div v-if="status == 'pending'" class="ps-2">
       <ElementsSkeletonDiv :rows="props.rows" />
     </div>
     <div v-else class="ps-2">
@@ -125,7 +122,7 @@ const items: Accordion[] = [
       description="Отредактируйте анкетные данные"
     >
       <template #body>
-        <LazyFormsResumeForm :resume="person" @update="submitResume" />
+        <LazyFormsResumeForm :resume="person" @update="submitPerson" />
       </template>
     </UModal>
     <USeparator />

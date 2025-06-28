@@ -6,7 +6,7 @@ await navigateTo("/persons");
 
 <template>
   <UApp>
-    <NuxtLoadingIndicator color="red" />
+    <NuxtLoadingIndicator color="red" :height="5" />
     <NuxtLayout>
       <NuxtPage :transition="true" />
     </NuxtLayout>

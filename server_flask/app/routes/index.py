@@ -4,7 +4,7 @@ import json
 
 from flask import Blueprint, Response, current_app, jsonify, request
 from pydantic import ValidationError
-from sqlalchemy import case, func, select
+from sqlalchemy import Integer, case, cast, func, select
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
@@ -46,16 +46,17 @@ def get_index() -> Response:
     # Создание SQL-запроса для получения списка кандидатов с учетом региона пользователя
     stmt = select(
         Persons.id,
-        (Persons.surname + " " + Persons.firstname + " " + Persons.patronymic).label(
+        (
+            Persons.surname
+            + " "
+            + Persons.firstname
+            + " "
+            + func.coalesce(Persons.patronymic, "")
+        ).label(
             "name",
         ),
         func.strftime("%d.%m.%Y", Persons.birthday).label("birth"),
-        case(
-            (
-                Persons.editable, 0,
-            ),
-            else_=1,
-        ).label("edit"),
+        cast(Persons.editable, Integer).label("edit"),
         func.strftime("%d.%m.%Y", Persons.created).label("data"),
         case(
             (
@@ -74,7 +75,7 @@ def get_index() -> Response:
     )
     query = db.session.execute(stmt).all()
     # Создание списка словарей с данными кандидатов и сериализация их в JSON
-    return jsonify([row._asdict() for row in query[::-1]]), 200
+    return jsonify([row._asdict() for row in query][::-1]), 200
 
 
 @bp.post("/resume")

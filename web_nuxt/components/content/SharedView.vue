@@ -112,16 +112,15 @@ const editable = inject("editable") as Ref<boolean>;
 const item = ref({} as object);
 const items = ref(props.contents);
 const modal = ref(false);
+const status = ref("success");
 
-const { refresh, status } = await useAsyncData(
-  props.view,
-  async () => {
-    items.value = await fetchAuth(`/route/items/${props.view}/${candId.value}`) as object[];
-  },
-  {
-    immediate: false,
-  }
-);
+async function getItem() {
+  status.value = "pending";
+  items.value = (await fetchAuth(
+    `/route/items/${props.view}/${candId.value}`
+  )) as object[];
+  status.value = "success";
+}
 
 async function submitItem(form: object) {
   modal.value = false;
@@ -133,7 +132,7 @@ async function submitItem(form: object) {
       body: form,
     }
   )) as Record<string, string>;
-  await refresh();
+  await getItem();
   if (message == "success") {
     item.value = {} as object;
     status.value = "success";

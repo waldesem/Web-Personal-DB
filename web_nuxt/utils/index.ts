@@ -59,13 +59,3 @@ export async function decompressGzip(compressedBuffer: Buffer) {
   }
   return result;
 }
-
-// const buffer = Buffer.from(data);
-//   const compressedBuffer = new Uint8Array([buffer]);
-//   decompressGzip(compressedBuffer)
-//     .then(decompressedBuffer => {
-//       candidates.value = JSON.parse(new TextDecoder().decode(decompressedBuffer));
-//   })
-//     .catch(error => {
-//       console.error('Error:', error);
-//   });
