@@ -38,11 +38,7 @@ def get_profile(person_id: int) -> Response:
     # Получаем все связанные таблицы и добавляем их в словарь profile
     for key in person.__annotations__:
         if key in db.metadata:
-            profile[key] = sorted(
-                [item.to_dict() for item in getattr(person, key)],
-                key=lambda x: x["id"],
-                reverse=True,
-            )
+            profile[key] = [item.to_dict() for item in getattr(person, key)][::-1]
     return jsonify(profile), 200
 
 

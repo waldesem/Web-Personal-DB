@@ -4,7 +4,7 @@ import json
 
 from flask import Blueprint, Response, current_app, jsonify, request
 from pydantic import ValidationError
-from sqlalchemy import Integer, cast, desc, func, select
+from sqlalchemy import case, func, select
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
@@ -50,9 +50,20 @@ def get_index() -> Response:
             "name",
         ),
         func.strftime("%d.%m.%Y", Persons.birthday).label("birth"),
-        func.avg(cast(Persons.editable, Integer)).label("edit"),
+        case(
+            (
+                Persons.editable, 0,
+            ),
+            else_=1,
+        ).label("edit"),
         func.strftime("%d.%m.%Y", Persons.created).label("data"),
-        func.substr(Users.fullname, 1, func.instr(Users.fullname, " ") - 1).label(
+        case(
+            (
+                func.instr(Users.fullname, " ") > 0,
+                func.substr(Users.fullname, 1, func.instr(Users.fullname, " ") - 1),
+            ),
+            else_=Users.fullname,
+        ).label(
             "user",
         ),
     ).filter(
@@ -61,9 +72,9 @@ def get_index() -> Response:
         if current_user.region != Regions.main.value
         else True,
     )
-    query = db.session.execute(stmt.order_by(desc(Persons.id))).all()
+    query = db.session.execute(stmt).all()
     # Создание списка словарей с данными кандидатов и сериализация их в JSON
-    return jsonify([row._asdict() for row in query]), 200
+    return jsonify([row._asdict() for row in query[::-1]]), 200
 
 
 @bp.post("/resume")

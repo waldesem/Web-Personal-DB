@@ -1,10 +1,7 @@
 """Items routes."""
 
-from pathlib import Path
-
 from flask import Blueprint, Response, current_app, jsonify
 from flask.views import MethodView
-from sqlalchemy import desc
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
@@ -13,7 +10,7 @@ from app.depends.validate import validate
 from app.structures.classes import Roles
 from app.structures.models import Items, Model, Person
 from app.structures.tables import Persons
-from app.utils.utilities import create_destination, upload_resume
+from app.utils.utilities import upload_resume
 
 bp = Blueprint("items", __name__, url_prefix="/items")
 
@@ -35,9 +32,6 @@ class PersonView(MethodView):
         """
         # Получаем данные кандидата и создаем папку для него, если ее нет
         person = db.session.get(Persons, person_id)
-        if not person.destination or not Path(person.destination).is_dir():
-            person.destination = create_destination(person)
-            db.session.commit()
         return jsonify(person.to_dict()), 200
 
     @validate
@@ -112,9 +106,9 @@ class ItemsView(MethodView):
             db.metadata[item].select().filter(db.metadata[item].c.person_id == item_id)
         )
         # Выполняем запрос и получаем результаты
-        query = db.session.execute(stmt.order_by(desc(db.metadata[item].c.id)))
+        query = db.session.execute(stmt)
         # Преобразуем результаты в словарь и возвращаем их в формате JSON
-        return jsonify([row._asdict() for row in query])
+        return jsonify([row._asdict() for row in query][::-1]), 200
 
     @validate
     @auth_required(Roles.user.value)

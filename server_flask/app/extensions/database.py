@@ -25,9 +25,6 @@ class Database:
         self.session = None | Session
         if app is not None:
             self.init_app(app)
-        if not hasattr(app, "extensions"):
-            app.extensions = {}
-        app.extensions["flask-database"] = self
 
     def init_app(self, app: Flask) -> None:
         """Init app."""
@@ -54,4 +51,4 @@ class Database:
     @property
     def metadata(self) -> MetaData:
         """The default metadata if no bind key is set."""
-        return self.metadatas.tables[None]
+        return self.metadatas.tables

@@ -21,7 +21,6 @@ const pagination = ref({ pageIndex: 0, pageSize: 10 });
 
 const { refresh, status } = await useLazyAsyncData("candidates", async () => {
   candidates.value = (await fetchAuth("/route/index")) as Candidate[];
-  console.log(candidates.value);
   updated.value = new Date().toLocaleTimeString("ru-RU");
 });
 
@@ -101,11 +100,11 @@ const columns: TableColumn<Candidate>[] = [
         class: row.original.edit
           ? "text-start w-4 h-4 animate-spin text-red-800"
           : "text-start w-4 h-4 text-blue-800",
-        title: !row.original.editable
+        title: !row.original.edit
           ? "Анкета доступна для редактирования"
           : userState.value.fullname
               .toLowerCase()
-              .includes(row.original.name.trim().toLowerCase())
+              .includes(row.original.user.toLowerCase())
           ? "Анкета назначена текущему пользователю"
           : "Анкета редактируется другим пользователем",
       });

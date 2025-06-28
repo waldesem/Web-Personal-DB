@@ -43,11 +43,8 @@ def get_current_user(user_id: int) -> Users | Response:
 
 
 def encode_jwt(**kwargs: dict) -> str:
-        """Encode jwt."""
-        return (
-            jwt.encode(kwargs, current_app.config["JWT_SECRET_KEY"], algorithm="HS256"),
-        )
-
+    """Encode jwt."""
+    return jwt.encode(kwargs, current_app.config["JWT_SECRET_KEY"], algorithm="HS256")
 
 def decode_jwt(header: str) -> int | None:
     """Decode jwt."""
