@@ -65,9 +65,6 @@ def upload_resume(cand: Person) -> tuple[int, bool]:
             db.session.commit()
             return person.id, False
 
-        if person.user_id != current_user.id:
-            return None, True
-
         for k, v in resume.items():
             if v:
                 setattr(person, k, v)

@@ -24,27 +24,26 @@ def get_current_user(user_id: int) -> Users | Response:
         user_id (int): The ID of the user.
 
     Returns:
-        If the user is found, returns the user object. Otherwise, returns a 401 HTTP
-        status code.
+        Returns the user object or a 401 HTTP status code.
 
     """
-    user = db.session.get(Users, user_id)
-    if all(
-        (
-            user,
-            not user.blocked,
-            not user.deleted,
-            not user.change_pswd,
-            user.pswd_create + timedelta(days=365) > datetime.now(),
-        ),
-    ):
-        return user
+    if user_id:
+        user = db.session.get(Users, user_id)
+        if (
+            user
+            and not user.blocked
+            and not user.deleted
+            and not user.change_pswd
+            and user.pswd_create + timedelta(days=365) > datetime.now()
+        ):
+            return user
     return abort(401)
 
 
 def encode_jwt(**kwargs: dict) -> str:
     """Encode jwt."""
     return jwt.encode(kwargs, current_app.config["JWT_SECRET_KEY"], algorithm="HS256")
+
 
 def decode_jwt(header: str) -> int | None:
     """Decode jwt."""
@@ -57,21 +56,13 @@ def decode_jwt(header: str) -> int | None:
             options={"verify_exp": True},
         )
     except (ValueError, jwt.exceptions.PyJWTError):
-        return None
+        abort(401)
     else:
         return user.get("id")
 
 
 def auth_required(roles: tuple | None = None) -> Callable:
     """Decorate a function that checks a valid JWT token and the user has roles.
-
-    The decorated function checks if the request contains a valid JWT token in the
-    'Authorization' header. If the token is valid, the decorated function is executed.
-    Otherwise, a 401 HTTP status code is returned.
-
-    Else decorated function checks if the user has one of the specified roles in
-    the 'Authorization' header. If the user has the specified role, the decorated
-    function is executed. Otherwise, a 403 HTTP status code is returned.
 
     Args:
         roles (str): The roles to check for (optional).
@@ -84,13 +75,9 @@ def auth_required(roles: tuple | None = None) -> Callable:
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args: tuple, **kwargs: dict) -> Response | Callable:
+            header = request.headers.get("Authorization")
             # JWT validation
-            header = request.headers.get("Authorization", type=str)
-            user_id = decode_jwt(header)
-            if not user_id:
-                return abort(401)
-
-            g.user_id = user_id
+            g.user_id = decode_jwt(header)
 
             # Role validation
             if roles and current_user.role not in roles:

@@ -29,13 +29,13 @@ async function getPerson() {
 async function submitPerson(form: Persons) {
   modal.value = false;
   status.value = "pending";
-  const { message } = (await fetchAuth("/route/items/persons", {
+  const { person_id, _ } = (await fetchAuth("/route/items/persons", {
     method: "POST",
     body: form,
   })) as Record<string, string>;
   await getPerson();
-  if (message == "success") {
-    makeToast(message, "Информация успешно обновлена");
+  if (person_id == person.value.id) {
+    makeToast("success", "Информация успешно обновлена");
     status.value = "success";
   } else {
     makeToast();

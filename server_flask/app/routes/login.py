@@ -76,7 +76,7 @@ def post_login(action: str, json_data: Login) -> Response:
                 },
             )
         return jsonify({"message": "Denied"})
-    except SQLAlchemyError:
-        current_app.logger.exception("Database error")
+    except (SQLAlchemyError, ValueError):
+        current_app.logger.exception("Error occurred in login route")
         db.session.rollback()
         return jsonify({"message": "Invalid"}), 200

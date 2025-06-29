@@ -9,7 +9,6 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
 from app.depends.depend import auth_required, current_user
-from app.depends.validate import validate
 from app.structures.classes import Regions, Roles
 from app.structures.models import AnketaJson, Person
 from app.structures.tables import (
@@ -30,7 +29,6 @@ bp = Blueprint("route", __name__)
 
 
 @bp.get("/index")
-@validate
 @auth_required()
 def get_index() -> Response:
     """Retrieve a paginated list of persons from the database.
@@ -75,25 +73,7 @@ def get_index() -> Response:
     )
     query = db.session.execute(stmt).all()
     # Создание списка словарей с данными кандидатов и сериализация их в JSON
-    return jsonify([row._asdict() for row in query][::-1]), 200
-
-
-@bp.post("/resume")
-@validate
-@auth_required(Roles.user.value)
-def post_resume(json_data: Person) -> Response:
-    """Create a new person or updates an existing person based on the provided data.
-
-    Args:
-        json_data (Person): The data to create or update the person.
-
-    Returns:
-        A JSON response containing the person ID and an HTTP status code of 201.
-
-    """
-    # Загузка резюме в БД
-    person_id, existed = upload_resume(json_data)
-    return jsonify({"person_id": person_id, "exists": existed}), 201
+    return jsonify([row._asdict() for row in reversed(query)]), 200
 
 
 @bp.post("/json")

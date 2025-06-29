@@ -48,10 +48,8 @@ class PersonView(MethodView):
 
         """
         # Загружаем отредактированное резюме и получаем id кандидата
-        cand_id, _ = upload_resume(json_data)
-        if cand_id:
-            return jsonify({"message": "success"}), 201
-        return jsonify({"message": "error"}), 200
+        cand_id, existed = upload_resume(json_data)
+        return jsonify({"person_id": cand_id, "exists": existed}), 201
 
     @auth_required(Roles.user.value)
     def delete(self, person_id: int) -> Response:

@@ -73,7 +73,7 @@ onCancel(() => {
 async function submitResume(form: Persons): Promise<void> {
   modal.value = false;
   status.value = "pending";
-  const { person_id, exists } = (await fetchAuth("/route/resume", {
+  const { person_id, exists } = (await fetchAuth("route/items/persons", {
     method: "POST",
     body: form,
   })) as {
@@ -102,12 +102,12 @@ const columns: TableColumn<Candidate>[] = [
           : "i-lucide-triangle-alert",
 
         class: !row.original.edit
-          ? "text-start w-5 h-5 text-blue-800"
+          ? "text-start w-5 h-5 text-blue-600"
           : userState.value.fullname
               .toLowerCase()
               .includes(row.original.user.toLowerCase())
-          ? "text-start w-5 h-5 text-green-800"
-          : "text-start w-5 h-5 text-red-800",
+          ? "text-start w-5 h-5 text-green-600"
+          : "text-start w-5 h-5 text-red-600",
         title: !row.original.edit
           ? "Анкета доступна для редактирования"
           : userState.value.fullname

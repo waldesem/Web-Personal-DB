@@ -43,13 +43,14 @@ DEFAULT_PASSWORD for created user - `88888888`.
 
 ### Build frontend
 
+First you need install Bun - an all-in-one toolkit for JavaScript and TypeScript apps.
 Change directory to web_nuxt and run the command to install packages:
 ```
-npm i
+bun i
 ```
 To build Nuxt3 with Client-side Only Rendering:
 ```
-npx nuxi generate
+bunx nuxi generate
 ```
 Builded files can be found in `server_flask/app/static`.
 

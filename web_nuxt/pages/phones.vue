@@ -3,6 +3,8 @@ import { getPaginationRowModel } from "@tanstack/vue-table";
 import type { TableColumn } from "@nuxt/ui";
 import type { Phone } from "@/types";
 
+prefetchComponents(["ElementsLabelValue"]);
+
 const UBadge = resolveComponent("UBadge");
 const UButton = resolveComponent("UButton");
 const UDropdownMenu = resolveComponent("UDropdownMenu");

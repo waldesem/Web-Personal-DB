@@ -105,7 +105,6 @@ def change_self_id(person_id: int) -> Response:
 
 
 @bp.post("/files/<int:person_id>")
-@validate
 @auth_required(Roles.user.value)
 def post_files(person_id: int) -> Response:
     """Upload a file to the server.
