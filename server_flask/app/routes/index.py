@@ -37,43 +37,48 @@ def get_index() -> Response:
         None
 
     Returns:
-        tuple: A tuple containing the list of persons, a boolean indicating if
-        there are more results, and a 200 status code.
+        A JSON response containing a list of persons and an HTTP status code of 200.
 
     """
     # Создание SQL-запроса для получения списка кандидатов с учетом региона пользователя
-    stmt = select(
-        Persons.id,
-        (
-            Persons.surname
-            + " "
-            + Persons.firstname
-            + " "
-            + func.coalesce(Persons.patronymic, "")
-        ).label(
-            "name",
-        ),
-        func.strftime("%d.%m.%Y", Persons.birthday).label("birth"),
-        cast(Persons.editable, Integer).label("edit"),
-        func.strftime("%d.%m.%Y", Persons.created).label("data"),
-        case(
-            (
-                func.instr(Users.fullname, " ") > 0,
-                func.substr(Users.fullname, 1, func.instr(Users.fullname, " ") - 1),
+    try:
+        stmt = select(
+            Persons.id,
+            # Получение полного имени кандидата
+            func.concat_ws(
+                " ",
+                Persons.surname,
+                Persons.firstname,
+                func.coalesce(Persons.patronymic, ""),
+            ).label("name"),
+            # Получение даты рождения кандидата в формате "дд.мм.гггг"
+            func.strftime("%d.%m.%Y", Persons.birthday).label("birth"),
+            # Получение cтатуса редактирования кандидата
+            cast(Persons.editable, Integer).label("edit"),
+            # Получение даты создания кандидата в формате "дд.мм.гггг"
+            func.strftime("%d.%m.%Y", Persons.created).label("data"),
+            # Получение имени пользователя
+            case(
+                (
+                    func.instr(Users.fullname, " ") > 0,
+                    func.substr(Users.fullname, 1, func.instr(Users.fullname, " ") - 1),
+                ),
+                else_=Users.fullname,
+            ).label(
+                "user",
             ),
-            else_=Users.fullname,
-        ).label(
-            "user",
-        ),
-    ).filter(
-        Persons.user_id == Users.id,
-        Persons.region == current_user.region
-        if current_user.region != Regions.main.value
-        else True,
-    )
-    query = db.session.execute(stmt).all()
-    # Создание списка словарей с данными кандидатов и сериализация их в JSON
-    return jsonify([row._asdict() for row in reversed(query)]), 200
+        ).filter(
+            Persons.user_id == Users.id,
+            Persons.region == current_user.region
+            if current_user.region != Regions.main.value
+            else True,
+        )
+        query = db.session.execute(stmt).all()
+        # Создание списка словарей с данными кандидатов и сериализация их в JSON
+        return jsonify([row._asdict() for row in reversed(query)]), 200
+    except SQLAlchemyError:
+        current_app.logger.exception("SQL Error")
+        return jsonify([]), 500
 
 
 @bp.post("/json")
@@ -82,7 +87,7 @@ def post_json() -> Response:
     """Create a new person or updates an existing person based on the provided data.
 
     Args:
-        file_data (File): The data to create or update the person.
+        file (file): A JSON file containing the person data.
 
     Returns:
         A JSON response containing the person ID and an HTTP status code of 201.
@@ -90,14 +95,20 @@ def post_json() -> Response:
     """
     try:
         # Чтение файла JSON и создание объектов классов для сохранения в БД
-        file_data = request.files.get("file")
-        json_data = json.load(file_data)
+        file = request.files.get("file")
+        if not file:
+            return jsonify({"person_id": None, "exists": False}), 500
+
+        json_data = json.load(file)
         anketa = AnketaJson(**json_data)
+
+        # Валидация данных и создание объекта класса Person
         resume = Person(**anketa.dict(exclude_none=True))
-        # Загузка резюме в БД
+        # Загрузка резюме в БД
         person_id, existed = upload_resume(resume)
+
+        # Сохранение дополнительной информации о кандидате в БД
         if person_id:
-            # Сохранение дополнительной информации о кандидате в БД
             items = [
                 Documents(
                     view="Паспорт",
@@ -144,14 +155,14 @@ def post_json() -> Response:
                     for aff in anketa.public_organizations
                 ],
             ]
-            # Добавление объектов в сессию и сохранение изменений в БД
+            # Добавляем аттибуты person_id и user_id к объектам
             for item in items:
                 item.person_id = person_id
                 item.user_id = current_user.id
 
-            db.session.add_all(items)
+            db.session.bulk_save_objects(items)
             db.session.commit()
         return jsonify({"person_id": person_id, "exists": existed}), 201
     except (ValidationError, json.JSONDecodeError, SQLAlchemyError, TypeError):
         current_app.logger.exception("JSON Error")
-        return jsonify({"person_id": None, "exists": False}), 200
+        return jsonify({"person_id": None, "exists": False}), 500
