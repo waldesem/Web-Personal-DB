@@ -5,7 +5,7 @@ Original code - https://github.com/colour-science/flask-compress
 
 from __future__ import annotations
 
-import gzip
+import zlib
 
 from flask import Flask, Response  # noqa: TC002
 
@@ -25,8 +25,7 @@ class Compress:
     def after_request(self, response: Response) -> Response:
         """After request."""
         # Compress the response if possible.
-        vary = response.headers.get("Vary")
-        if not vary:
+        if not (vary := response.headers.get("Vary")):
             response.headers["Vary"] = "Accept-Encoding"
         elif "accept-encoding" not in vary.lower():
             response.headers["Vary"] = f"{vary}, Accept-Encoding"
@@ -34,8 +33,7 @@ class Compress:
         # Only compress text/* and application/json content types.
         if (
             not response.mimetype.startswith(("text/", "application/json"))
-            or response.status_code < 200
-            or response.status_code >= 300
+            or 200 > response.status_code >= 300
             or "Content-Encoding" in response.headers
             or (response.content_length is not None and response.content_length < 1000)
         ):
@@ -43,7 +41,7 @@ class Compress:
 
         response.direct_passthrough = False
 
-        compressed_content = gzip.compress(response.get_data())
+        compressed_content = zlib.compress(response.get_data(), -1)
         response.set_data(compressed_content)
 
         response.headers["Content-Encoding"] = "gzip"

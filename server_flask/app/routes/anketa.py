@@ -34,11 +34,15 @@ def get_profile(person_id: int) -> Response:
     if not person.destination or not Path(person.destination).is_dir():
         person.destination = create_destination(person)
         db.session.commit()
+    # Инициализация профиля
     profile = {"person": person.to_dict()}
-    # Получаем все связанные таблицы и добавляем их в словарь profile
-    for key in person.__annotations__:
-        if key in db.metadata:
-            profile[key] = [item.to_dict() for item in getattr(person, key)][::-1]
+    # Получаем только нужные ключи из аннотаций
+    valid_keys = [key for key in person.__annotations__ if key in db.metadata]
+    # Обновляем профиль в цикле
+    for key in valid_keys:
+        items = getattr(person, key)
+        # Оптимизация: создаем список и сразу переворачиваем его
+        profile[key] = [item.to_dict() for item in items][::-1]
     return jsonify(profile), 200
 
 
