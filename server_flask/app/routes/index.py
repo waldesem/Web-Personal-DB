@@ -45,11 +45,12 @@ def get_index() -> Response:
         stmt = select(
             Persons.id,
             # Получение полного имени кандидата
-            func.concat_ws(
-                " ",
-                Persons.surname,
-                Persons.firstname,
-                func.coalesce(Persons.patronymic, ""),
+            (
+                Persons.surname
+                + " "
+                + Persons.firstname
+                + " "
+                + func.coalesce(Persons.patronymic, ""),
             ).label("name"),
             # Получение даты рождения кандидата в формате "дд.мм.гггг"
             func.strftime("%d.%m.%Y", Persons.birthday).label("birth"),
