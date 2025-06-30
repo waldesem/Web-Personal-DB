@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
-from flask import Flask  # noqa: TC002
-from sqlalchemy import MetaData, create_engine
+from dataclasses import dataclass
+
+from flask import Flask, current_app, request
+from sqlalchemy import MetaData, Select, Sequence, create_engine
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import DeclarativeBase, Session, scoped_session, sessionmaker
 
 
@@ -13,6 +16,14 @@ class Base(DeclarativeBase):
     def to_dict(self) -> dict:
         """Convert model to dict."""
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+@dataclass
+class Paging:
+    """Pagination class."""
+
+    page: int = 1
+    total: int = 1
+    query: Sequence = list[None]
 
 
 class Database:
@@ -52,3 +63,19 @@ class Database:
     def metadata(self) -> MetaData:
         """The default metadata if no bind key is set."""
         return self.metadatas.tables
+
+    def paginate(self, stmt: Select) -> Paging:
+        """Paginate query."""
+        pagination = Paging()
+        try:
+            iter(stmt)
+            pagination.page = request.args.get("page", 1)
+            pagination.total = len(stmt)
+            pagination.query = self.execute(
+                stmt.offset(
+                    (pagination.page - 1) * current_app.config["PAGINATION"],
+                ).limit(current_app.config["PAGINATION"]),
+            ).all()
+        except (SQLAlchemyError, TypeError):
+            current_app.logger.exception("Pagination Error")
+        return pagination

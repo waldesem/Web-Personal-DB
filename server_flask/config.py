@@ -22,3 +22,4 @@ class Config:
     BASE_PATH = setting["Destination"].get("path")
     DATABASE_URI = "sqlite:///" + str(Path(BASE_PATH, "database.db"))
     DEFAULT_PASSWORD = setting["Password"].get("password")
+    PAGINATION = 10
