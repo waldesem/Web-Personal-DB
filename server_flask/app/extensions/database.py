@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from flask import Flask, current_app, request
-from sqlalchemy import MetaData, Select, Sequence, create_engine
+from sqlalchemy import MetaData, Select, Sequence, create_engine, func, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import DeclarativeBase, Session, scoped_session, sessionmaker
 
@@ -68,9 +68,10 @@ class Database:
         """Paginate query."""
         pagination = Paging()
         try:
-            iter(stmt)
             pagination.page = request.args.get("page", 1)
-            pagination.total = len(stmt)
+            pagination.total = self.session.execute(
+                select(func.count()).select_from(stmt),
+            ).scalar()
             pagination.query = self.execute(
                 stmt.offset(
                     (pagination.page - 1) * current_app.config["PAGINATION"],

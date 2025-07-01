@@ -104,62 +104,50 @@ class Persons(db.Model):
     previous: Mapped[list[Previous]] = relationship(
         back_populates="person",
         cascade="all, delete",
-        lazy="dynamic",
     )
     educations: Mapped[list[Educations]] = relationship(
         back_populates="person",
         cascade="all, delete",
-        lazy="dynamic",
     )
     staffs: Mapped[list[Staffs]] = relationship(
         back_populates="person",
         cascade="all, delete",
-        lazy="dynamic",
     )
     addresses: Mapped[list[Addresses]] = relationship(
         back_populates="person",
         cascade="all, delete",
-        lazy="dynamic",
     )
     documents: Mapped[list[Documents]] = relationship(
         back_populates="person",
         cascade="all, delete",
-        lazy="dynamic",
     )
     contacts: Mapped[list[Contacts]] = relationship(
         back_populates="person",
         cascade="all, delete",
-        lazy="dynamic",
     )
     workplaces: Mapped[list[Workplaces]] = relationship(
         back_populates="person",
         cascade="all, delete",
-        lazy="dynamic",
     )
     affilations: Mapped[list[Affilations]] = relationship(
         back_populates="person",
         cascade="all, delete",
-        lazy="dynamic",
     )
     checks: Mapped[list[Checks]] = relationship(
         back_populates="person",
         cascade="all, delete",
-        lazy="dynamic",
     )
     poligrafs: Mapped[list[Poligrafs]] = relationship(
         back_populates="person",
         cascade="all, delete",
-        lazy="dynamic",
     )
     investigations: Mapped[list[Investigations]] = relationship(
         back_populates="person",
         cascade="all, delete",
-        lazy="dynamic",
     )
     inquiries: Mapped[list[Inquiries]] = relationship(
         back_populates="person",
         cascade="all, delete",
-        lazy="dynamic",
     )
 
 

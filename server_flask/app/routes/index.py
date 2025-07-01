@@ -4,7 +4,7 @@ import json
 
 from flask import Blueprint, Response, current_app, jsonify, request
 from pydantic import ValidationError
-from sqlalchemy import Integer, case, cast, func, select
+from sqlalchemy import Integer, case, cast, desc, func, select
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
@@ -65,18 +65,23 @@ def get_index() -> Response:
                     func.substr(Users.fullname, 1, func.instr(Users.fullname, " ") - 1),
                 ),
                 else_=Users.fullname,
-            ).label(
-                "user",
-            ),
+            ).label("user"),
         ).filter(
             Persons.user_id == Users.id,
             Persons.region == current_user.region
             if current_user.region != Regions.main.value
             else True,
         )
-        query = db.session.execute(stmt).all()
+        if search_str := request.args.get("search"):
+            search = search_str.upper().split(maxsplit=3)[:3]
+            stmt = stmt.where(
+                Persons.surname == search[0],
+                Persons.firstname == search[1] if len(search) > 1 else True,
+                Persons.patronymic == search[2] if len(search) > 2 else True,
+            )
+        query = db.session.execute(stmt.order_by(desc(Persons.id))).all()
         # Создание списка словарей с данными кандидатов и сериализация их в JSON
-        return jsonify([row._asdict() for row in reversed(query)]), 200
+        return jsonify([row._asdict() for row in query]), 200
     except SQLAlchemyError:
         current_app.logger.exception("SQL Error")
         return jsonify([]), 500
