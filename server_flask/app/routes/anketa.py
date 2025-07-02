@@ -34,6 +34,7 @@ def get_profile(person_id: int) -> Response:
     """
     anketa = db.session.execute(
         select(Persons)
+        .filter_by(id=person_id)
         .options(
             selectinload(Persons.previous),
             selectinload(Persons.educations),
@@ -46,8 +47,7 @@ def get_profile(person_id: int) -> Response:
             selectinload(Persons.checks),
             selectinload(Persons.poligrafs),
             selectinload(Persons.investigations),
-            selectinload(Persons.inquiries))
-        .filter_by(id=person_id),
+            selectinload(Persons.inquiries)),
     ).one_or_none()
 
     if not anketa.Persons.destination or not Path(anketa.Persons.destination).is_dir():

@@ -67,7 +67,7 @@ def get_index() -> Response:
                 else_=Users.fullname,
             ).label("user"),
         ).filter(
-            Persons.user_id == Users.id,
+            Users.id == Persons.user_id,
             Persons.region == current_user.region
             if current_user.region != Regions.main.value
             else True,
@@ -79,7 +79,7 @@ def get_index() -> Response:
                 Persons.firstname == search[1] if len(search) > 1 else True,
                 Persons.patronymic == search[2] if len(search) > 2 else True,
             )
-        query = db.session.execute(stmt.order_by(desc(Persons.id))).all()
+        query = db.paginate(stmt.order_by(desc(Persons.id))).all()
         # Создание списка словарей с данными кандидатов и сериализация их в JSON
         return jsonify([row._asdict() for row in query]), 200
     except SQLAlchemyError:
@@ -117,7 +117,6 @@ def post_json() -> Response:
         if person_id:
             items = [
                 Documents(
-                    view="Паспорт",
                     digits=anketa.digits,
                     series=anketa.series,
                     issue=anketa.issue,

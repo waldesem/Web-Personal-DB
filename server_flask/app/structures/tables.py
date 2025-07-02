@@ -216,7 +216,7 @@ class Documents(db.Model):
     __tablename__ = "documents"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    view: Mapped[str] = mapped_column(String(255), nullable=True)
+    view: Mapped[str] = mapped_column(String(255), nullable=True, default="Паспорт")
     series: Mapped[str] = mapped_column(String(255), nullable=True)
     digits: Mapped[str] = mapped_column(String(255), nullable=True)
     agency: Mapped[str] = mapped_column(Text, nullable=True)

@@ -76,7 +76,7 @@ class Database:
                 stmt.offset(
                     (pagination.page - 1) * current_app.config["PAGINATION"],
                 ).limit(current_app.config["PAGINATION"]),
-            ).all()
+            )
         except (SQLAlchemyError, TypeError):
             current_app.logger.exception("Pagination Error")
         return pagination
