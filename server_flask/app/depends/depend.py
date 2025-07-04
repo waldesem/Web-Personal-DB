@@ -45,7 +45,7 @@ def encode_jwt(**kwargs: dict) -> str:
     return jwt.encode(kwargs, current_app.config["JWT_SECRET_KEY"], algorithm="HS256")
 
 
-def decode_jwt(header: str) -> int | None:
+def decode_jwt(header: str) -> int | Response:
     """Decode jwt."""
     try:
         # JWT validation
@@ -55,10 +55,13 @@ def decode_jwt(header: str) -> int | None:
             algorithms=["HS256"],
             options={"verify_exp": True},
         )
+        identity = user.get("identity")
     except (ValueError, jwt.exceptions.PyJWTError):
-        abort(401)
+        return abort(401)
     else:
-        return user.get("id")
+        if user_id := user.get("id"):
+            return user_id
+        return abort(401)
 
 
 def auth_required(roles: tuple | None = None) -> Callable:
