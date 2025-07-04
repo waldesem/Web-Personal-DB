@@ -1,35 +1,60 @@
 <script setup lang="ts">
-import { useFileDialog } from "@vueuse/core";
-import { getPaginationRowModel } from "@tanstack/vue-table";
+import { useFileDialog, watchDebounced } from "@vueuse/core";
 import type { DropdownMenuItem, TableColumn } from "@nuxt/ui";
-import type { Candidate, Persons } from "@/types";
 
 await preloadRouteComponents("/profile/[id]");
 
-const table = useTemplateRef("table");
 const UIcon = resolveComponent("UIcon");
 const UButton = resolveComponent("UButton");
 const UDropdownMenu = resolveComponent("UDropdownMenu");
 
 const userState = useUserState();
 
+export interface Candidate {
+  id: string;
+  name: string;
+  birth: string;
+  edit: boolean;
+  data: string;
+  user: string;
+}
+
+const page = ref(1);
+const search = ref("");
 const modal = ref(false);
-const globalFilter = ref("");
+
+const total = ref(1);
 const updated = ref("Данные обновляются...");
 const candidates = shallowRef([] as Candidate[]);
-const pagination = ref({ pageIndex: 0, pageSize: 10 });
 
-const { refresh, status } = await useLazyAsyncData("candidates", async () => {
-  candidates.value = (await fetchAuth("/route/index")) as Candidate[];
-  updated.value = new Date().toLocaleTimeString("ru-RU");
-});
+const { refresh, status } = await useLazyAsyncData(
+  "candidates",
+  async () => {
+    const data = (await fetchAuth("/route/index", {
+      params: {
+        search: search.value,
+        page: page.value,
+      },
+    })) as {
+      query: Candidate[];
+      total: number;
+    };
+    candidates.value = data.query;
+    total.value = data.total;
+    updated.value = new Date().toLocaleTimeString("ru-RU");
+  },
+  { watch: [page] }
+);
 
-const { open, reset, onCancel, onChange } = useFileDialog({
+watchDebounced(search, () => refresh(), { debounce: 1000, maxWait: 2000 });
+
+const { open, onChange } = useFileDialog({
   accept: ".json",
   multiple: false,
 });
 
 async function createToast(person_id: string, exists: boolean) {
+  status.value = "success";
   if (person_id) {
     if (exists) {
       makeToast("info", "Кандидат ранее уже был загружен");
@@ -61,26 +86,11 @@ onChange(async (files) => {
     person_id: string;
     exists: boolean;
   };
-  reset();
-  status.value = "success";
   createToast(person_id, exists);
 });
 
-onCancel(() => {
-  reset();
-});
-
-async function submitResume(form: Persons): Promise<void> {
+function submitResume(person_id: string, exists: boolean) {
   modal.value = false;
-  status.value = "pending";
-  const { person_id, exists } = (await fetchAuth("route/items/persons", {
-    method: "POST",
-    body: form,
-  })) as {
-    person_id: string;
-    exists: boolean;
-  };
-  status.value = "success";
   createToast(person_id, exists);
 }
 
@@ -96,8 +106,8 @@ const columns: TableColumn<Candidate>[] = [
         name: !row.original.edit
           ? "i-lucide-circle-check"
           : userState.value.fullname
-          .toLowerCase()
-          .includes(row.original.user.toLowerCase())
+              .toLowerCase()
+              .includes(row.original.user.toLowerCase())
           ? "i-lucide-octagon-alert"
           : "i-lucide-triangle-alert",
 
@@ -169,20 +179,14 @@ const items: DropdownMenuItem[] = [
     <div class="my-6">
       <UInput
         id="search"
-        v-model="globalFilter"
+        v-model="search"
         type="search"
         icon="i-lucide-search"
-        placeholder="поиск по кандидат"
+        placeholder="поиск по фаимилии, имени, отчеству"
       />
     </div>
 
     <UTable
-      ref="table"
-      v-model:global-filter="globalFilter"
-      v-model:pagination="pagination"
-      :pagination-options="{
-        getPaginationRowModel: getPaginationRowModel(),
-      }"
       :loading="status === 'pending'"
       loading-animation="carousel"
       empty="Данные не найдены"
@@ -205,14 +209,10 @@ const items: DropdownMenuItem[] = [
 
     <div class="flex justify-center border-t border-default py-4">
       <UPagination
-        size="lg"
-        :default-page="
-          (table?.tableApi?.getState().pagination.pageIndex || 0) + 1
-        "
-        :items-per-page="table?.tableApi?.getState().pagination.pageSize"
-        :total="table?.tableApi?.getFilteredRowModel().rows.length"
+        v-model:page="page"
+        :total="total"
         :sibling-count="1"
-        @update:page="(p) => table?.tableApi?.setPageIndex(p - 1)"
+        @update:page="(p) => (page = p)"
       />
     </div>
   </div>

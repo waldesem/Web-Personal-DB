@@ -1,25 +1,23 @@
 <script setup lang="ts">
-import type { UserForm } from '@/types';
-
 const emit = defineEmits(["update"]);
+
+interface UserForm {
+  fullname: string;
+  username: string;
+  email: string;
+}
 
 const form = ref({} as UserForm);
 
 const validate = (state: Partial<UserForm>) => {
   const errors = [];
-  if (
-    state.fullname &&
-    !state.fullname.match(/^[а-яёЁА-Я-\s]+$/)
-  ) {
+  if (state.fullname && !state.fullname.match(/^[а-яёЁА-Я-\s]+$/)) {
     errors.push({
       name: "fullname",
       message: "Поле содержит недопустимые символы",
     });
   }
-  if (
-    state.username &&
-    !state.username.match(/^[a-z0-9_-]{3,16}$/)
-  ) {
+  if (state.username && !state.username.match(/^[a-z0-9_-]{3,16}$/)) {
     errors.push({
       name: "username",
       message: "Поле содержит недопустимые символы",

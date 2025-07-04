@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from typing import TypedDict
 
 from flask import Flask, current_app, request
 from sqlalchemy import MetaData, Select, Sequence, create_engine, func, select
@@ -17,13 +17,11 @@ class Base(DeclarativeBase):
         """Convert model to dict."""
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
-@dataclass
-class Paging:
+class Paging(TypedDict, total = False):
     """Pagination class."""
 
-    page: int = 1
-    total: int = 1
-    query: Sequence = list[None]
+    total: int
+    query: Sequence
 
 
 class Database:
@@ -68,15 +66,16 @@ class Database:
         """Paginate query."""
         pagination = Paging()
         try:
-            pagination.page = request.args.get("page", 1)
-            pagination.total = self.session.execute(
+            page = request.args.get("page", 1)
+            pagination["total"] = self.session.execute(
                 select(func.count()).select_from(stmt),
             ).scalar()
-            pagination.query = self.execute(
+            query = self.execute(
                 stmt.offset(
-                    (pagination.page - 1) * current_app.config["PAGINATION"],
+                    (page - 1) * current_app.config["PAGINATION"],
                 ).limit(current_app.config["PAGINATION"]),
-            )
+            ).all()
+            pagination["query"] = [row._asdict() for row in query]
         except (SQLAlchemyError, TypeError):
             current_app.logger.exception("Pagination Error")
         return pagination

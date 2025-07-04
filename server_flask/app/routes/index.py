@@ -79,9 +79,9 @@ def get_index() -> Response:
                 Persons.firstname == search[1] if len(search) > 1 else True,
                 Persons.patronymic == search[2] if len(search) > 2 else True,
             )
-        query = db.paginate(stmt.order_by(desc(Persons.id))).all()
+        result = db.paginate(stmt.order_by(desc(Persons.id)))
         # Создание списка словарей с данными кандидатов и сериализация их в JSON
-        return jsonify([row._asdict() for row in query]), 200
+        return jsonify(result), 200
     except SQLAlchemyError:
         current_app.logger.exception("SQL Error")
         return jsonify([]), 500

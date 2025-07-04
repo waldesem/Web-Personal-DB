@@ -1,8 +1,14 @@
 <script setup lang="ts">
 import type { AlertProps } from "@nuxt/ui";
-import type { Login } from "@/types";
 
 definePageMeta({ layout: false });
+
+interface Login {
+  username: string;
+  password: string;
+  new_pswd: string;
+  conf_pswd: string;
+}
 
 const action = ref("login");
 const loginForm = ref({} as Login);

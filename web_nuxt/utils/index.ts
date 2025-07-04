@@ -1,6 +1,16 @@
 import type { NitroFetchOptions } from "nitropack";
 import type { ToastProps } from "@nuxt/ui";
-import type { Method } from "@/types";
+
+export type Method =
+  | "get"
+  | "post"
+  | "put"
+  | "delete"
+  | "patch"
+  | "head"
+  | "connect"
+  | "options"
+  | "trace";
 
 export const fetchAuth = async (
   url: string,

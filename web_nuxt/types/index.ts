@@ -1,14 +1,3 @@
-export type Method =
-  | "get"
-  | "post"
-  | "put"
-  | "delete"
-  | "patch"
-  | "head"
-  | "connect"
-  | "options"
-  | "trace";
-
 export type DivsItems =
   | "staffs"
   | "educations"
@@ -32,21 +21,11 @@ export type Regions =
   | "РЦ Урал"
   | "РЦ Восток";
 
-export interface Login {
-  username: string;
-  password: string;
-  new_pswd: string;
-  conf_pswd: string;
-}
-
-export interface UserForm {
+export interface Token {
+  id: string;
   fullname: string;
   username: string;
   email: string;
-}
-
-export interface Token extends UserForm {
-  id: string;
   region: Regions;
   role: "admin" | "api" | "user" | "guest";
   exp: number;
@@ -59,15 +38,6 @@ export interface User extends Omit<Token, "exp"> {
   deleted: boolean;
   created: string;
   attempt: string;
-}
-
-export interface Candidate {
-  id: string;
-  name: string;
-  birth: string;
-  edit: boolean;
-  data: string;
-  user: string;
 }
 
 export interface Persons {

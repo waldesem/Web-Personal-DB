@@ -225,7 +225,6 @@ const columns: TableColumn<Phone>[] = [
     </UTable>
     <div class="flex justify-center border-t border-default py-4">
       <UPagination
-        size="lg"
         :default-page="
           (table?.tableApi?.getState().pagination.pageIndex || 0) + 1
         "

@@ -16,6 +16,14 @@ resumeForm.value.birthday = resumeForm.value.birthday
   ? new Date(resumeForm.value.birthday).toISOString().split("T", 1)[0]
   : "";
 
+async function submitPerson() {
+  const { person_id, exists } = (await fetchAuth("/route/items/persons", {
+    method: "POST",
+    body: resumeForm.value,
+  })) as Record<string, string>;
+  emit("update", person_id, exists)
+} 
+
 const validate = (state: Partial<Persons>) => {
   const errors = [];
   const namePathern = /^[А-яЁё][А-яЁёIV\-.,'()\s]*[А-яЁё\s]$/;
@@ -57,7 +65,7 @@ const validate = (state: Partial<Persons>) => {
   <UForm
     :validate="validate"
     :state="resumeForm"
-    @submit.prevent="emit('update', resumeForm)"
+    @submit.prevent="submitPerson()"
   >
     <UFormField label="Фамилия" name="surname" required>
       <UInput

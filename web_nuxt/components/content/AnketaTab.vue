@@ -26,13 +26,9 @@ async function getPerson() {
   status.value = "success";
 }
 
-async function submitPerson(form: Persons) {
+async function submitPerson(person_id: string) {
   modal.value = false;
   status.value = "pending";
-  const { person_id, _ } = (await fetchAuth("/route/items/persons", {
-    method: "POST",
-    body: form,
-  })) as Record<string, string>;
   await getPerson();
   if (person_id == person.value.id) {
     makeToast("success", "Информация успешно обновлена");
