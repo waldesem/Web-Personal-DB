@@ -2,13 +2,13 @@
 
 from datetime import datetime, timedelta
 
+import jwt
 from flask import Blueprint, Response, current_app, jsonify
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app import db
-from app.depends.depend import encode_jwt
 from app.depends.validate import validate
 from app.structures.models import Login
 from app.structures.tables import Users
@@ -64,14 +64,18 @@ def post_login(action: str, json_data: Login) -> Response:
                 {
                     "message": "Success",
                     "access_token": "Bearer "
-                    + encode_jwt(
-                        id=user.id,
-                        fullname=user.fullname,
-                        username=user.username,
-                        email=user.email,
-                        region=user.region,
-                        role=user.role,
-                        exp=datetime.now() + timedelta(hours=12),
+                    + jwt.encode(
+                        {
+                            "id": user.id,
+                            "fullname": user.fullname,
+                            "username": user.username,
+                            "email": user.email,
+                            "region": user.region,
+                            "role": user.role,
+                            "exp": datetime.now() + timedelta(hours=12),
+                        },
+                        current_app.config["JWT_SECRET_KEY"],
+                        algorithm="HS256",
                     ),
                 },
             )

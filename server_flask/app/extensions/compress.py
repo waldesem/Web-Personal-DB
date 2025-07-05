@@ -20,9 +20,9 @@ class Compress:
 
     def init_app(self, app: Flask) -> None:
         """Init app."""
-        app.after_request(self.after_request)
+        app.after_request(self._after_request)
 
-    def after_request(self, response: Response) -> Response:
+    def _after_request(self, response: Response) -> Response:
         """After request."""
         # Compress the response if possible.
         if not (vary := response.headers.get("Vary")):

@@ -1,11 +1,11 @@
-"""A simple cache for JWT tokens."""
+"""Caching module."""
 
 
-class JWTCache:
-    """A simple cache for JWT tokens."""
+class CacheDatabase:
+    """A simple database for JWT tokens."""
 
     def __init__(self) -> None:
-        """Initialize the cache."""
+        """Initialize the database."""
         if not hasattr(self, "data"):
             self.data = {}
         else:
@@ -24,13 +24,13 @@ class JWTCache:
         if self.get(key):
             del self.data[key]
         else:
-            msg = f"Key '{key}' not found in cache."
+            msg = f"Key '{key}' not found in database."
             raise KeyError(msg)
 
     def clear(self) -> None:
-        """Clear the cache."""
+        """Clear the database."""
         if self.data:
             self.data.clear()
         else:
-            msg = "Cache is already empty."
+            msg = "Database is already empty."
             raise ValueError(msg)

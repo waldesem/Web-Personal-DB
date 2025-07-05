@@ -10,7 +10,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
-from app.depends.depend import current_user
+from app import auth
 from app.structures.models import Person
 from app.structures.tables import Persons
 
@@ -53,8 +53,8 @@ def upload_resume(cand: Person) -> tuple[int, bool]:
 
     resume = cand.dict()
     resume["editable"] = True
-    resume["user_id"] = current_user.id
-    resume["region"] = current_user.region
+    resume["user_id"] = auth.current_user.id
+    resume["region"] = auth.current_user.region
 
     try:
         if not person:
@@ -81,27 +81,32 @@ def upload_resume(cand: Person) -> tuple[int, bool]:
 
 def check_filename(name: str) -> str:
     """Check filename for valid chars."""
-    filename_ascii_strip_re = re.compile(r"[^A-zА-яЁё0-9_.-]")
-    windows_device_files = (
-        "CON",
-        "AUX",
-        "COM1",
-        "COM2",
-        "COM3",
-        "COM4",
-        "LPT1",
-        "LPT2",
-        "LPT3",
-        "PRN",
-        "NUL",
-    )
-    filename = unicodedata.normalize("NFKD", name)
-    for sep in os.sep, os.path.altsep:
-        if sep:
-            filename = filename.replace(sep, " ")
-    filename = str(
-        filename_ascii_strip_re.sub("", "_".join(filename.split())),
-    ).strip("._")
-    if filename and filename.split(".")[0].upper() in windows_device_files:
-        filename = f"_{filename}"
-    return filename
+    try:
+        filename_ascii_strip_re = re.compile(r"[^A-zА-яЁё0-9_.-]")
+        windows_device_files = (
+            "CON",
+            "AUX",
+            "COM1",
+            "COM2",
+            "COM3",
+            "COM4",
+            "LPT1",
+            "LPT2",
+            "LPT3",
+            "PRN",
+            "NUL",
+        )
+        filename = unicodedata.normalize("NFKD", name)
+        for sep in os.sep, os.path.altsep:
+            if sep:
+                filename = filename.replace(sep, " ")
+        filename = str(
+            filename_ascii_strip_re.sub("", "_".join(filename.split())),
+        ).strip("._")
+        if filename and filename.split(".")[0].upper() in windows_device_files:
+            filename = f"_{filename}"
+    except (TypeError, ValueError, AttributeError):
+        current_app.logger.exception()
+        return None
+    else:
+        return filename

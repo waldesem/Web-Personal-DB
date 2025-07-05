@@ -7,17 +7,19 @@ import logging
 from flask import Flask, Response
 from werkzeug.exceptions import HTTPException
 
+from app.extensions.authorize import JwtAuth
 from app.extensions.compress import Compress
 from app.extensions.database import Database
 from config import Config
-
-compress = Compress()
-db = Database()
 
 handler = logging.FileHandler("error.log", mode="w", encoding="utf-8")
 handler.setLevel(logging.ERROR)
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 handler.setFormatter(formatter)
+
+auth = JwtAuth()
+compress = Compress()
+db = Database()
 
 
 def create_app(config_class: Config = Config) -> Flask:
@@ -34,6 +36,7 @@ def create_app(config_class: Config = Config) -> Flask:
     app.config.from_object(config_class)
     app.logger.addHandler(handler)
 
+    auth.init_app(app)
     compress.init_app(app)
     db.init_app(app)
 

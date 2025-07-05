@@ -79,7 +79,7 @@ def change_region(person_id: int, json_data: Region) -> Response:
         return jsonify({"message": "success"}), 201
     except SQLAlchemyError:
         current_app.logger.exception("Exception in change_region")
-        return jsonify({"message": "error"}), 200
+        return jsonify({"message": "error"}), 500
 
 
 @bp.get("/self/<int:person_id>")
@@ -108,7 +108,7 @@ def change_self_id(person_id: int) -> Response:
         return jsonify(person.to_dict()), 201
     except SQLAlchemyError:
         current_app.logger.exception("Exception in change_self_id")
-        return jsonify({"message": "error"}), 200
+        return jsonify({"message": "error"}), 500
 
 
 @bp.post("/files/<int:person_id>")
@@ -138,10 +138,12 @@ def post_files(person_id: int) -> Response:
         subfolder.mkdir(parents=True, exist_ok=True)
 
         for data in file_data:
-            file_path = Path(subfolder, check_filename(data.filename))
-            if not file_path.is_file():
-                data.save(file_path)
+            secure_filename = check_filename(data.filename)
+            if secure_filename:
+                file_path = Path(subfolder, secure_filename)
+                if not file_path.is_file():
+                    data.save(file_path)
         return jsonify({"message": "success"}), 201
-    except Exception:
+    except (TypeError, ValueError, AttributeError):
         current_app.logger.exception("Exception in post_files")
-        return jsonify({"message": "error"}), 200
+        return jsonify({"message": "error"}), 500

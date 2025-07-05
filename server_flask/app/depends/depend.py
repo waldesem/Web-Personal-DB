@@ -6,8 +6,7 @@ from datetime import datetime, timedelta
 from functools import lru_cache, wraps
 from typing import Callable
 
-import jwt
-from flask import Response, abort, current_app, g, request
+from flask import Response, abort, g
 from werkzeug.local import LocalProxy
 
 from app import db
@@ -40,29 +39,6 @@ def get_current_user(user_id: int) -> Users | Response:
     return abort(401)
 
 
-def encode_jwt(**kwargs: dict) -> str:
-    """Encode jwt."""
-    return jwt.encode(kwargs, current_app.config["JWT_SECRET_KEY"], algorithm="HS256")
-
-
-def decode_jwt(header: str) -> int | Response:
-    """Decode jwt."""
-    try:
-        # JWT validation
-        user: dict = jwt.decode(
-            header[7:],
-            current_app.config["JWT_SECRET_KEY"],
-            algorithms=["HS256"],
-            options={"verify_exp": True},
-        )
-    except (ValueError, jwt.exceptions.PyJWTError):
-        return abort(401)
-    else:
-        if user_id := user.get("id"):
-            return user_id
-        return abort(401)
-
-
 def auth_required(roles: tuple | None = None) -> Callable:
     """Decorate a function that checks a valid JWT token and the user has roles.
 
@@ -77,9 +53,8 @@ def auth_required(roles: tuple | None = None) -> Callable:
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args: tuple, **kwargs: dict) -> Response | Callable:
-            header = request.headers.get("Authorization")
-            # JWT validation
-            g.user_id = decode_jwt(header)
+            if g.user_id is None or not current_user:
+                return abort(401)
 
             # Role validation
             if roles and current_user.role not in roles:

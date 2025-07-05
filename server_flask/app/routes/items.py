@@ -71,7 +71,7 @@ class PersonView(MethodView):
         except SQLAlchemyError:
             current_app.logger.exception("Database error")
             db.session.rollback()
-            return jsonify({"message": "error"}), 200
+            return jsonify({"message": "error"}), 500
 
 
 view_func = PersonView.as_view("person")
@@ -148,7 +148,7 @@ class ItemsView(MethodView):
         except SQLAlchemyError:
             current_app.logger.exception("Database error")
             db.session.rollback()
-            return jsonify({"message": "error"}), 200
+            return jsonify({"message": "error"}), 500
 
     @auth_required(Roles.user.value)
     def delete(self, item: Items, item_id: int) -> Response:
@@ -173,7 +173,7 @@ class ItemsView(MethodView):
         except SQLAlchemyError:
             current_app.logger.exception("Database error")
             db.session.rollback()
-            return jsonify({"message": "error"}), 200
+            return jsonify({"message": "error"}), 500
 
 
 bp.add_url_rule("/<item>/<int:item_id>", view_func=ItemsView.as_view("item"))

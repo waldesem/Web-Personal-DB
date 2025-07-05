@@ -2,12 +2,29 @@
 
 from __future__ import annotations
 
-from datetime import date  # noqa: TC003
+from datetime import date, datetime  # noqa: TC003
 from typing import Literal
 
 from pydantic import BaseModel, Field, validator
 
 from .classes import Conclusions, Decisions, Regions, Roles
+
+
+class Token(BaseModel):
+    """Pydantic model for JWT."""
+
+    id: str | int
+    fullname: str
+    username: str
+    email: str
+    region: Regions
+    role: Roles
+    exp: datetime
+
+    class Config:
+        """Pydantic config."""
+
+        use_enum_values = True
 
 
 class Login(BaseModel):
