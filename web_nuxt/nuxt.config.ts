@@ -18,7 +18,10 @@ export default defineNuxtConfig({
     keepalive: { include: "persons", max: 3 },
     pageTransition: { name: "page", mode: "out-in" },
   },
-  compatibilityDate: "2025-06-29",
+  build: {
+    analyze: true,
+  },
+  compatibilityDate: "2025-07-05",
   css: ["~/assets/css/main.css"],
   devtools: { enabled: true },
   icon: {

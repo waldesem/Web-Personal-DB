@@ -55,7 +55,6 @@ def decode_jwt(header: str) -> int | Response:
             algorithms=["HS256"],
             options={"verify_exp": True},
         )
-        identity = user.get("identity")
     except (ValueError, jwt.exceptions.PyJWTError):
         return abort(401)
     else:

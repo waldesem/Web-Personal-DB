@@ -4,9 +4,7 @@ from datetime import datetime
 from pathlib import Path
 
 from flask import Blueprint, Response, current_app, jsonify, request
-from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import selectinload
 
 from app import db
 from app.depends.depend import auth_required, current_user
@@ -32,36 +30,14 @@ def get_profile(person_id: int) -> Response:
             the retrieved item(s) and an HTTP status code of 200.
 
     """
-    anketa = db.session.execute(
-        select(Persons)
-        .filter_by(id=person_id)
-        .options(
-            selectinload(Persons.previous),
-            selectinload(Persons.educations),
-            selectinload(Persons.staffs),
-            selectinload(Persons.addresses),
-            selectinload(Persons.documents),
-            selectinload(Persons.contacts),
-            selectinload(Persons.workplaces),
-            selectinload(Persons.affilations),
-            selectinload(Persons.checks),
-            selectinload(Persons.poligrafs),
-            selectinload(Persons.investigations),
-            selectinload(Persons.inquiries)),
-    ).one_or_none()
-
-    if not anketa.Persons.destination or not Path(anketa.Persons.destination).is_dir():
-        anketa.Persons.destination = create_destination(anketa.Persons)
+    person = db.session.get(Persons, person_id)
+    if not person.destination or not Path(person.destination).is_dir():
+        person.destination = create_destination(person)
         db.session.commit()
-
-    # Инициализация профиля
-    profile = {"person": anketa.Persons.to_dict()}
-    # Получаем только нужные ключи из аннотаций
-    valid_keys = [key for key in anketa.Persons.__annotations__ if key in db.metadata]
-    # Обновляем профиль в цикле
-    for key in valid_keys:
-        # Оптимизация: создаем список и сразу переворачиваем его
-        profile[key] = [item.to_dict() for item in getattr(anketa.Persons, key)]
+    profile = {"person": person.to_dict()}
+    for key in person.__annotations__:
+        if key in db.metadata:
+            profile[key] = [item.to_dict() for item in getattr(person, key)][::-1]
     return jsonify(profile), 200
 
 

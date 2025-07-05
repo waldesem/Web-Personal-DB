@@ -20,12 +20,12 @@ export interface Candidate {
 }
 
 const page = ref(1);
+const total = ref(1);
 const search = ref("");
 const modal = ref(false);
-
-const total = ref(1);
 const updated = ref("Данные обновляются...");
 const candidates = shallowRef([] as Candidate[]);
+const pagination = 10
 
 const { refresh, status } = await useLazyAsyncData(
   "candidates",
@@ -33,6 +33,7 @@ const { refresh, status } = await useLazyAsyncData(
     const data = (await fetchAuth("/route/index", {
       params: {
         search: search.value,
+        pagination: pagination,
         page: page.value,
       },
     })) as {
@@ -96,8 +97,19 @@ function submitResume(person_id: string, exists: boolean) {
 
 const columns: TableColumn<Candidate>[] = [
   { accessorKey: "id", header: "#" },
+  { accessorKey: "region", header: "Регион" },
   { accessorKey: "name", header: "Фамилия Имя Отчество" },
-  { accessorKey: "birth", header: "Дата рождения" },
+  {
+    accessorKey: "birth",
+    header: "Дата рождения",
+    cell: ({ row }) => {
+      try {
+        return new Date(row.original.birth).toLocaleDateString("ru-RU");
+      } catch {
+        return "";
+      }
+    },
+  },
   {
     accessorKey: "edit",
     header: "Статус",
@@ -128,8 +140,28 @@ const columns: TableColumn<Candidate>[] = [
       });
     },
   },
-  { accessorKey: "data", header: "Обновлено" },
-  { accessorKey: "user", header: "Сотрудник" },
+  {
+    accessorKey: "data",
+    header: "Обновлено",
+    cell: ({ row }) => {
+      try {
+        return new Date(row.original.data).toLocaleDateString("ru-RU");
+      } catch {
+        return "";
+      }
+    },
+  },
+  {
+    accessorKey: "user",
+    header: "Сотрудник",
+    cell: ({ row }) => {
+      try {
+        return row.original.user.split(" ")[0];
+      } catch {
+        return "";
+      }
+    },
+  },
 ];
 
 const items: DropdownMenuItem[] = [
@@ -210,6 +242,7 @@ const items: DropdownMenuItem[] = [
     <div class="flex justify-center border-t border-default py-4">
       <UPagination
         v-model:page="page"
+        :items-per-page="pagination"
         :total="total"
         :sibling-count="1"
         @update:page="(p) => (page = p)"

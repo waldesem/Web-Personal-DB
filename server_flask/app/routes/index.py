@@ -4,7 +4,7 @@ import json
 
 from flask import Blueprint, Response, current_app, jsonify, request
 from pydantic import ValidationError
-from sqlalchemy import Integer, case, cast, desc, func, select
+from sqlalchemy import desc, func, select
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
@@ -50,22 +50,13 @@ def get_index() -> Response:
                 + " "
                 + Persons.firstname
                 + " "
-                + func.coalesce(Persons.patronymic, ""),
+                + func.coalesce(Persons.patronymic, "")
             ).label("name"),
-            # Получение даты рождения кандидата в формате "дд.мм.гггг"
-            func.strftime("%d.%m.%Y", Persons.birthday).label("birth"),
-            # Получение cтатуса редактирования кандидата
-            cast(Persons.editable, Integer).label("edit"),
-            # Получение даты создания кандидата в формате "дд.мм.гггг"
-            func.strftime("%d.%m.%Y", Persons.created).label("data"),
-            # Получение имени пользователя
-            case(
-                (
-                    func.instr(Users.fullname, " ") > 0,
-                    func.substr(Users.fullname, 1, func.instr(Users.fullname, " ") - 1),
-                ),
-                else_=Users.fullname,
-            ).label("user"),
+            Persons.birthday.label("birth"),
+            Persons.editable.label("edit"),
+            Persons.created.label("data"),
+            Persons.region,
+            Users.fullname.label("user"),
         ).filter(
             Users.id == Persons.user_id,
             Persons.region == current_user.region
@@ -79,8 +70,8 @@ def get_index() -> Response:
                 Persons.firstname == search[1] if len(search) > 1 else True,
                 Persons.patronymic == search[2] if len(search) > 2 else True,
             )
+        # Пагинация списка кандидатов
         result = db.paginate(stmt.order_by(desc(Persons.id)))
-        # Создание списка словарей с данными кандидатов и сериализация их в JSON
         return jsonify(result), 200
     except SQLAlchemyError:
         current_app.logger.exception("SQL Error")

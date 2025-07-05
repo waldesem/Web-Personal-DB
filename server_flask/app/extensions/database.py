@@ -64,18 +64,19 @@ class Database:
 
     def paginate(self, stmt: Select) -> Paging:
         """Paginate query."""
-        pagination = Paging()
+        paging = Paging()
         try:
             page = request.args.get("page", 1)
-            pagination["total"] = self.session.execute(
+            pagination = request.args.get("pagination", 10)
+            paging["total"] = self.session.execute(
                 select(func.count()).select_from(stmt),
             ).scalar()
-            query = self.execute(
+            query = self.session.execute(
                 stmt.offset(
-                    (page - 1) * current_app.config["PAGINATION"],
-                ).limit(current_app.config["PAGINATION"]),
+                    (int(page) - 1) * int(pagination),
+                ).limit(int(pagination)),
             ).all()
-            pagination["query"] = [row._asdict() for row in query]
+            paging["query"] = [row._asdict() for row in query]
         except (SQLAlchemyError, TypeError):
             current_app.logger.exception("Pagination Error")
-        return pagination
+        return paging

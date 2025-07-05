@@ -1,7 +1,6 @@
 """Login routes."""
 
 from datetime import datetime, timedelta
-from uuid import uuid4
 
 from flask import Blueprint, Response, current_app, jsonify
 from sqlalchemy import select
@@ -61,14 +60,12 @@ def post_login(action: str, json_data: Login) -> Response:
         ):
             user.attempt = 0
             db.session.commit()
-            identity=uuid4()
             return jsonify(
                 {
                     "message": "Success",
                     "access_token": "Bearer "
                     + encode_jwt(
                         id=user.id,
-                        identity=identity,
                         fullname=user.fullname,
                         username=user.username,
                         email=user.email,
