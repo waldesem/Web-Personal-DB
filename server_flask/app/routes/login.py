@@ -1,5 +1,6 @@
 """Login routes."""
 
+import secrets
 from datetime import datetime, timedelta
 
 import jwt
@@ -8,7 +9,8 @@ from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from app import db
+from app import auth, db
+from app.depends.depend import auth_required
 from app.depends.validate import validate
 from app.structures.models import Login
 from app.structures.tables import Users
@@ -73,6 +75,7 @@ def post_login(action: str, json_data: Login) -> Response:
                             "region": user.region,
                             "role": user.role,
                             "exp": datetime.now() + timedelta(hours=12),
+                            "jti": secrets.token_hex(16),
                         },
                         current_app.config["JWT_SECRET_KEY"],
                         algorithm="HS256",
@@ -84,3 +87,16 @@ def post_login(action: str, json_data: Login) -> Response:
         current_app.logger.exception("Error occurred in login route")
         db.session.rollback()
         return jsonify({"message": "Invalid"}), 200
+
+
+@bp.get("/logout")
+@auth_required
+def get_logout() -> Response:
+    """Logout the user.
+
+    Returns:
+        The function returns a tuple containing an empty string and a status code.
+
+    """
+    auth.jwt_revoked_db.set(auth.token.jti)
+    return jsonify({"message": "success"}), 200

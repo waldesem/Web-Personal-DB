@@ -1,7 +1,7 @@
 """Caching module."""
 
 
-class CacheDatabase:
+class SimpleDB:
     """A simple database for JWT tokens."""
 
     def __init__(self) -> None:

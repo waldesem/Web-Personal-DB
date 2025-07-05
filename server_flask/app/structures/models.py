@@ -20,6 +20,7 @@ class Token(BaseModel):
     region: Regions
     role: Roles
     exp: datetime
+    jti: str
 
     class Config:
         """Pydantic config."""

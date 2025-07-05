@@ -6,6 +6,7 @@ import jwt
 from flask import Flask, current_app, g, request
 from pydantic import ValidationError
 
+from app.extensions.simpedb import SimpleDB
 from app.structures.models import Token
 
 
@@ -16,6 +17,8 @@ class JwtAuth:
         """Initialize the database."""
         if app is not None:
             self.init_app(app)
+        self.token = None
+        self.jwt_revoked_db = SimpleDB()
 
     def init_app(self, app: Flask) -> None:
         """Register the before_request handler."""
@@ -25,10 +28,12 @@ class JwtAuth:
         """Authenticate user via JWT and populate g.user_id."""
         g.user_id = None
         if header := request.headers.get("Authorization"):
-            g.user_id = self._decode_token(header[7:])
+            token = self._decode_token(header[7:])
+            if token:
+                self.token = token
+                g.user_id = token.id
 
-    @staticmethod
-    def _decode_token(payload: str) -> Token | None:
+    def _decode_token(self, payload: str) -> Token | None:
         """Decode JWT token and return payload."""
         try:
             decoded = jwt.decode(
@@ -38,8 +43,10 @@ class JwtAuth:
                 options={"verify_exp": True},
             )
             token = Token(**decoded)
+            if token.jti in self.jwt_revoked_db.data:
+                return None
         except (jwt.exceptions.PyJWTError, ValidationError):
             current_app.logger.exception("JWT decode failed")
             return None
         else:
-            return token.id
+            return token
