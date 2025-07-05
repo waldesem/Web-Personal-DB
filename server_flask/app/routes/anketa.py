@@ -1,5 +1,6 @@
 """Anketa routes."""
 
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from pathlib import Path
 
@@ -30,14 +31,25 @@ def get_profile(person_id: int) -> Response:
             the retrieved item(s) and an HTTP status code of 200.
 
     """
+    def process_key(key: str, person: Persons) -> list:
+        """Функция для обработки одного ключа."""
+        items = getattr(person, key)
+        return [item.to_dict() for item in items][::-1]
+
     person = db.session.get(Persons, person_id)
     if not person.destination or not Path(person.destination).is_dir():
         person.destination = create_destination(person)
         db.session.commit()
     profile = {"person": person.to_dict()}
-    for key in person.__annotations__:
-        if key in db.metadata:
-            profile[key] = [item.to_dict() for item in getattr(person, key)][::-1]
+
+    # Сбор ключей, которые нужно обработать
+    keys = [key for key in person.__annotations__ if key in db.metadata]
+    # Параллельная обработка ключей
+    with ThreadPoolExecutor() as executor:
+        results = executor.map(process_key, keys, [person] * len(keys))
+    # Сохранение результатов в `profile`
+    profile.update(dict(zip(keys, results)))
+    # Вернуть ответ
     return jsonify(profile), 200
 
 
