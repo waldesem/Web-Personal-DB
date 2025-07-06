@@ -53,6 +53,7 @@ def auth_required(roles: tuple | None = None) -> Callable:
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args: tuple, **kwargs: dict) -> Response | Callable:
+            # User validation
             if g.user_id is None or not current_user:
                 return abort(401)
 

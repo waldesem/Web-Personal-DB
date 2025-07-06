@@ -27,13 +27,16 @@ class JwtAuth:
     def _before_request(self) -> None:
         """Authenticate user via JWT and populate g.user_id."""
         g.user_id = None
-        if header := request.headers.get("Authorization"):
-            token = self._decode_token(header[7:])
-            if token:
-                self.token = token
-                g.user_id = token.id
+        if (
+            (header := request.headers.get("Authorization"))
+            and (token := self._decode_token(header[7:]))
+            and token.jti not in self.jwt_revoked_db.data
+        ):
+            self.token = token
+            g.user_id = token.id
 
-    def _decode_token(self, payload: str) -> Token | None:
+    @staticmethod
+    def _decode_token(payload: str) -> Token | None:
         """Decode JWT token and return payload."""
         try:
             decoded = jwt.decode(
@@ -43,8 +46,6 @@ class JwtAuth:
                 options={"verify_exp": True},
             )
             token = Token(**decoded)
-            if token.jti in self.jwt_revoked_db.data:
-                return None
         except (jwt.exceptions.PyJWTError, ValidationError):
             current_app.logger.exception("JWT decode failed")
             return None

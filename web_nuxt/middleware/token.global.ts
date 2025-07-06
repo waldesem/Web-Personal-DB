@@ -7,6 +7,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
       const userState = useUserState();
       userState.value = jwtDecode(accessToken.value.split(" ")[1]) as Token;
       if (userState.value.exp < new Date().getTime() / 1000) {
+        accessToken.value = null;
         return navigateTo("/login", { redirectCode: 301 });
       }
       return;

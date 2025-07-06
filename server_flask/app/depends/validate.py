@@ -15,23 +15,29 @@ def validate(func: Callable) -> Callable:
     """Decorate a function for validating request data using Pydantic models.
 
     The decorator accepts the following keyword arguments:
+        json_query: Optional[BaseModel]
+            The model to validate the query parameters with.
         json_data: Optional[BaseModel]
             The model to validate the body data with.
 
     The decorator can be used as follows:
 
     @app.route("/endpoint", methods=["GET"])
-    @validate(json_data=BodyData)
-    def endpoint(json_data):
-        # The json_data are validated and available here
-        pass
+    @validate(json_data=BodyData, json_query=QueryData)
+    def endpoint(json_data, json_query):
+        # The json_data or/and json_query are validated and available here
     """
 
     @wraps(func)
     def wrapper(*args: tuple, **kwargs: dict) -> Callable:
         """Validate request data using Pydantic models."""
         try:
-            # if funcion has json model argument with Pydantic model
+            # if funcion has json_query argument with Pydantic model
+            if json_model := func.__annotations__.get("json_query"):
+                json_query = request.args.get("json_query")
+                kwargs["json_query"] = json_model(**json_query)
+
+            # if funcion has json_data argument with Pydantic model
             if json_model := func.__annotations__.get("json_data"):
                 # if json model annotation is Model
                 if json_model.__name__ == "Model":

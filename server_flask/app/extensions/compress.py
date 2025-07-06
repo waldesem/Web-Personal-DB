@@ -40,7 +40,7 @@ class Compress:
             return response
 
         response.direct_passthrough = False
-        compressed_content = zlib.compress(response.get_data(), -1)
+        compressed_content = zlib.compress(response.get_data())
         response.set_data(compressed_content)
 
         response.headers["Content-Encoding"] = "deflate"

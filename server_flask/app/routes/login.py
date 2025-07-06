@@ -2,6 +2,7 @@
 
 import secrets
 from datetime import datetime, timedelta
+from threading import Thread
 
 import jwt
 from flask import Blueprint, Response, current_app, jsonify
@@ -98,5 +99,14 @@ def get_logout() -> Response:
         The function returns a tuple containing an empty string and a status code.
 
     """
-    auth.jwt_revoked_db.set(auth.token.jti)
-    return jsonify({"message": "success"}), 200
+    auth.jwt_revoked_db.set(auth.token.jti, auth.token.exp)
+
+    def revoke_token() -> None:
+        for key, value in auth.jwt_revoked_db.data.items():
+            if value < datetime.now():
+                auth.jwt_revoked_db.delete(key)
+
+    thread = Thread(target=revoke_token)
+    thread.start()
+
+    return "", 200

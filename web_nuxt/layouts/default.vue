@@ -5,6 +5,7 @@ const userState = useUserState();
 
 async function logout() {
   if (!confirm("Вы действительно хотите выйти?")) return;
+  await fetchAuth("/route/auth/logout") as Record<string, string>;
   accessToken.value = null;
   clearNuxtData();
   return navigateTo("/login");
