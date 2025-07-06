@@ -28,7 +28,8 @@ class JwtAuth:
         """Authenticate user via JWT and populate g.user_id."""
         g.user_id = None
         if (
-            (header := request.headers.get("Authorization"))
+            # (header := request.headers.get("Authorization"))
+            (header := request.authorization.get())
             and (token := self._decode_token(header[7:]))
             and token.jti not in self.jwt_revoked_db.data
         ):
