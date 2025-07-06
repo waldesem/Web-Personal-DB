@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Optional, TypedDict
 
-from flask import Flask, current_app, request
+from flask import Flask, current_app
 from sqlalchemy import MetaData, Select, Sequence, create_engine, func, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import DeclarativeBase, Session, scoped_session, sessionmaker
@@ -55,19 +55,17 @@ class Database:
         self.session.remove()
 
     @property
-    def metadata(self) -> MetaData:
+    def metatables(self) -> MetaData:
         """The default metadata."""
         return self.metadata.tables
 
-    def paginate(self, stmt: Select) -> Paging:
+    def paginate(self, stmt: Select, page: int = 1, per_page: int = 10) -> Paging:
         """Paginate query."""
         paging = Paging()
         try:
             # Получаем параметры пагинации из запроса
-            page = int(request.args.get("page", 1))
             page = max(page, 1)
-            pagination = int(request.args.get("pagination", 10))
-            pagination = max(pagination, 1)
+            per_page = max(per_page, 1)
 
             # Получаем общее количество записей
             paging["total"] = self.session.execute(
@@ -76,8 +74,8 @@ class Database:
             # Получаем данные для текущей страницы
             query = self.session.execute(
                 stmt.offset(
-                    (page - 1) * pagination,
-                ).limit(pagination),
+                    (page - 1) * per_page,
+                ).limit(per_page),
             ).all()
             # Преобразуем данные в список словарей
             paging["query"] = [row._asdict() for row in query]

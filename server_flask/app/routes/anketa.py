@@ -8,8 +8,8 @@ from flask import Blueprint, Response, current_app, jsonify, request
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
-from app.depends.depend import auth_required, current_user
-from app.depends.validate import validate
+from app.decorators.depend import auth_required, current_user
+from app.decorators.validate import validate
 from app.structures.classes import Roles
 from app.structures.models import Region
 from app.structures.tables import Persons
@@ -43,7 +43,7 @@ def get_profile(person_id: int) -> Response:
     profile = {"person": person.to_dict()}
 
     # Сбор ключей, которые нужно обработать
-    keys = [key for key in person.__annotations__ if key in db.metadata]
+    keys = [key for key in person.__annotations__ if key in db.metatables]
     # Параллельная обработка ключей
     with ThreadPoolExecutor() as executor:
         results = executor.map(process_key, keys, [person] * len(keys))

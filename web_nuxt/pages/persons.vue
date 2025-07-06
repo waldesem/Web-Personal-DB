@@ -25,7 +25,7 @@ const search = ref("");
 const modal = ref(false);
 const updated = ref("Данные обновляются...");
 const candidates = shallowRef([] as Candidate[]);
-const pagination = 10
+const per_page = 10
 
 const { refresh, status } = await useLazyAsyncData(
   "candidates",
@@ -33,7 +33,7 @@ const { refresh, status } = await useLazyAsyncData(
     const data = (await fetchAuth("/route/index", {
       params: {
         search: search.value,
-        pagination: pagination,
+        per_page: per_page,
         page: page.value,
       },
     })) as {
@@ -242,7 +242,7 @@ const items: DropdownMenuItem[] = [
     <div class="flex justify-center border-t border-default py-4">
       <UPagination
         v-model:page="page"
-        :items-per-page="pagination"
+        :items-per-page="per_page"
         :total="total"
         :sibling-count="1"
         @update:page="(p) => (page = p)"

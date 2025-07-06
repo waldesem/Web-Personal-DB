@@ -10,6 +10,14 @@ from pydantic import BaseModel, Field, validator
 from .classes import Conclusions, Decisions, Regions, Roles
 
 
+class Index(BaseModel):
+    """Pydantic model for pagination."""
+
+    page: int
+    per_page: int
+    search: str | None = None
+
+
 class Token(BaseModel):
     """Pydantic model for JWT."""
 

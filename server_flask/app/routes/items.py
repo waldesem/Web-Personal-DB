@@ -5,8 +5,8 @@ from flask.views import MethodView
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
-from app.depends.depend import auth_required, current_user
-from app.depends.validate import validate
+from app.decorators.depend import auth_required, current_user
+from app.decorators.validate import validate
 from app.structures.classes import Roles
 from app.structures.models import Items, Model, Person
 from app.structures.tables import Persons
@@ -101,7 +101,9 @@ class ItemsView(MethodView):
         """
         # Создаем запрос к таблице и сортируем результаты по id в обратном порядке
         stmt = (
-            db.metadata[item].select().filter(db.metadata[item].c.person_id == item_id)
+            db.metatables[item]
+            .select()
+            .filter(db.metatables[item].c.person_id == item_id)
         )
         # Выполняем запрос и получаем результаты
         query = db.session.execute(stmt)
@@ -134,14 +136,14 @@ class ItemsView(MethodView):
             if table_id := json_dict.pop("id", None):
                 # Если есть, создаем запрос на обновление записи с указанным id
                 stmt = (
-                    db.metadata[item]
+                    db.metatables[item]
                     .update()
-                    .where(db.metadata[item].c.id == table_id)
+                    .where(db.metatables[item].c.id == table_id)
                     .values(json_dict)
                 )
             else:
                 # Если нет, создаем запрос на вставку новой записи
-                stmt = db.metadata[item].insert().values(json_dict)
+                stmt = db.metatables[item].insert().values(json_dict)
             db.session.execute(stmt)
             db.session.commit()
             return jsonify({"message": "success"}), 201
@@ -166,7 +168,7 @@ class ItemsView(MethodView):
         try:
             # Удаляем запись из таблицы items с указанным id
             db.session.execute(
-                db.metadata[item].delete().where(db.metadata[item].c.id == item_id),
+                db.metatables[item].delete().where(db.metatables[item].c.id == item_id),
             )
             db.session.commit()
             return jsonify({"message": "success"}), 201

@@ -8,9 +8,10 @@ from sqlalchemy import desc, func, select
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
-from app.depends.depend import auth_required, current_user
+from app.decorators.depend import auth_required, current_user
+from app.decorators.validate import validate
 from app.structures.classes import Regions, Roles
-from app.structures.models import AnketaJson, Person
+from app.structures.models import AnketaJson, Index, Person
 from app.structures.tables import (
     Addresses,
     Affilations,
@@ -29,12 +30,13 @@ bp = Blueprint("route", __name__)
 
 
 @bp.get("/index")
+@validate
 @auth_required()
-def get_index() -> Response:
+def get_index(json_query: Index) -> Response:
     """Retrieve a paginated list of persons from the database.
 
     Arguments:
-        None
+        json_query (Page): An object containing query info.
 
     Returns:
         A JSON response containing a list of persons and an HTTP status code of 200.
@@ -63,15 +65,19 @@ def get_index() -> Response:
             if current_user.region != Regions.main.value
             else True,
         )
-        if search_str := request.args.get("search"):
-            search = search_str.upper().split(maxsplit=3)[:3]
+        if json_query.search:
+            search = json_query.search.upper().split(maxsplit=3)[:3]
             stmt = stmt.where(
                 Persons.surname == search[0],
                 Persons.firstname == search[1] if len(search) > 1 else True,
                 Persons.patronymic == search[2] if len(search) > 2 else True,
             )
         # Пагинация списка кандидатов
-        result = db.paginate(stmt.order_by(desc(Persons.id)))
+        result = db.paginate(
+            stmt.order_by(desc(Persons.id)),
+            page=json_query.page,
+            per_page=json_query.per_page,
+        )
         return jsonify(result), 200
     except SQLAlchemyError:
         current_app.logger.exception("SQL Error")
@@ -106,59 +112,68 @@ def post_json() -> Response:
 
         # Сохранение дополнительной информации о кандидате в БД
         if person_id:
-            items = [
-                Documents(
-                    digits=anketa.digits,
-                    series=anketa.series,
-                    issue=anketa.issue,
-                    agency=anketa.agency,
-                ),
-                Staffs(position=anketa.position, department=anketa.department),
-                Addresses(view="Адрес проживания", addresses=anketa.valid_address),
-                Addresses(view="Адрес регистрации", addresses=anketa.reg_address),
-                Contacts(view="Телефон", contact=anketa.contact_phone),
-                Contacts(view="Электронная почта", contact=anketa.email),
-                *[Educations(**edu.dict()) for edu in anketa.education],
-                *[Workplaces(**work.dict()) for work in anketa.experience],
-                *[Previous(**prev.dict()) for prev in anketa.name_was_changed],
-                *[
-                    Affilations(
-                        view="Участвует в деятельности коммерческих организаций",
-                        organization=aff.organization,
-                        inn=aff.inn,
-                    )
-                    for aff in anketa.organizations
-                ],
-                *[
-                    Affilations(
-                        view="Являлся государственным должностным лицом",
-                        organization=aff.organization,
-                    )
-                    for aff in anketa.state_organizations
-                ],
-                *[
-                    Affilations(
-                        view="Связанные лица работают в государственных организациях",
-                        organization=aff.organization,
-                    )
-                    for aff in anketa.related_organizations
-                ],
-                *[
-                    Affilations(
-                        view="Являлся государственным или муниципальным служащим",
-                        organization=aff.organization,
-                    )
-                    for aff in anketa.public_organizations
-                ],
-            ]
-            # Добавляем аттибуты person_id и user_id к объектам
-            for item in items:
+            upload_items(anketa, person_id)
+        return jsonify({"person_id": person_id, "exists": existed}), 201
+    except (ValidationError, json.JSONDecodeError, TypeError):
+        current_app.logger.exception("JSON Error")
+        return jsonify({"person_id": None, "exists": False}), 500
+
+
+def upload_items(anketa: AnketaJson, person_id: int) -> None:
+    """Save additional information about a person in the database."""
+    try:
+        items = [
+            Documents(
+                digits=anketa.digits,
+                series=anketa.series,
+                issue=anketa.issue,
+                agency=anketa.agency,
+            ),
+            Staffs(position=anketa.position, department=anketa.department),
+            Addresses(view="Адрес проживания", addresses=anketa.valid_address),
+            Addresses(view="Адрес регистрации", addresses=anketa.reg_address),
+            Contacts(view="Телефон", contact=anketa.contact_phone),
+            Contacts(view="Электронная почта", contact=anketa.email),
+            *[Educations(**edu.dict()) for edu in anketa.education],
+            *[Workplaces(**work.dict()) for work in anketa.experience],
+            *[Previous(**prev.dict()) for prev in anketa.name_was_changed],
+            *[
+                Affilations(
+                    view="Участвует в деятельности коммерческих организаций",
+                    organization=aff.organization,
+                    inn=aff.inn,
+                )
+                for aff in anketa.organizations
+            ],
+            *[
+                Affilations(
+                    view="Являлся государственным должностным лицом",
+                    organization=aff.organization,
+                )
+                for aff in anketa.state_organizations
+            ],
+            *[
+                Affilations(
+                    view="Связанные лица работают в государственных организациях",
+                    organization=aff.organization,
+                )
+                for aff in anketa.related_organizations
+            ],
+            *[
+                Affilations(
+                    view="Являлся государственным или муниципальным служащим",
+                    organization=aff.organization,
+                )
+                for aff in anketa.public_organizations
+            ],
+        ]
+        # Добавляем аттибуты person_id и user_id к объектам
+        for item in items:
+            if item:
                 item.person_id = person_id
                 item.user_id = current_user.id
 
-            db.session.bulk_save_objects(items)
-            db.session.commit()
-        return jsonify({"person_id": person_id, "exists": existed}), 201
-    except (ValidationError, json.JSONDecodeError, SQLAlchemyError, TypeError):
-        current_app.logger.exception("JSON Error")
-        return jsonify({"person_id": None, "exists": False}), 500
+        db.session.bulk_save_objects(items)
+        db.session.commit()
+    except SQLAlchemyError:
+        current_app.logger.exception("Add items Error")

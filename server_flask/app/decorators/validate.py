@@ -34,7 +34,7 @@ def validate(func: Callable) -> Callable:
         try:
             # if funcion has json_query argument with Pydantic model
             if json_model := func.__annotations__.get("json_query"):
-                json_query = request.args.get("json_query")
+                json_query = request.args
                 kwargs["json_query"] = json_model(**json_query)
 
             # if funcion has json_data argument with Pydantic model

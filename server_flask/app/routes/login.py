@@ -1,7 +1,7 @@
 """Login routes."""
 
 import secrets
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from threading import Thread
 
 import jwt
@@ -11,8 +11,8 @@ from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app import auth, db
-from app.depends.depend import auth_required
-from app.depends.validate import validate
+from app.decorators.depend import auth_required
+from app.decorators.validate import validate
 from app.structures.models import Login
 from app.structures.tables import Users
 
@@ -91,7 +91,7 @@ def post_login(action: str, json_data: Login) -> Response:
 
 
 @bp.get("/logout")
-@auth_required
+@auth_required()
 def get_logout() -> Response:
     """Logout the user.
 
@@ -103,7 +103,7 @@ def get_logout() -> Response:
 
     def revoke_token() -> None:
         for key, value in auth.jwt_revoked_db.data.items():
-            if value < datetime.now():
+            if value < datetime.now(tz=timezone.utc):
                 auth.jwt_revoked_db.delete(key)
 
     thread = Thread(target=revoke_token)

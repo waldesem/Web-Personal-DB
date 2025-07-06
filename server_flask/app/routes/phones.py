@@ -8,8 +8,8 @@ from sqlalchemy import select, text, update
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
-from app.depends.depend import auth_required
-from app.depends.validate import validate
+from app.decorators.depend import auth_required
+from app.decorators.validate import validate
 from app.structures.classes import Roles
 from app.structures.models import Phone
 from app.structures.tables import Phones
