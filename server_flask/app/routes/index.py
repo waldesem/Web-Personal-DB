@@ -53,12 +53,12 @@ def get_index(json_query: Index) -> Response:
                 + Persons.firstname
                 + " "
                 + func.coalesce(Persons.patronymic, "")
-            ).label("name"),
-            Persons.birthday.label("birth"),
-            Persons.editable.label("edit"),
-            Persons.created.label("data"),
+            ).label("fullname"),
+            Persons.birthday,
+            Persons.editable,
+            Persons.created,
             Persons.region,
-            Users.fullname.label("user"),
+            Users.fullname.label("username"),
         ).filter(
             Users.id == Persons.user_id,
             Persons.region == current_user.region
@@ -72,13 +72,22 @@ def get_index(json_query: Index) -> Response:
                 Persons.firstname == search[1] if len(search) > 1 else True,
                 Persons.patronymic == search[2] if len(search) > 2 else True,
             )
+
         # Пагинация списка кандидатов
-        result = db.paginate(
-            stmt.order_by(desc(Persons.id)),
-            page=json_query.page,
-            per_page=json_query.per_page,
-        )
-        return jsonify(result), 200
+        result = db.session.execute(
+            stmt.order_by(desc(Persons.id)).slice(
+                (json_query.page - 1) * json_query.per_page,
+                json_query.per_page * json_query.page,
+            ),
+        ).all()
+        return jsonify(
+            {
+                "query": [row._asdict() for row in result],
+                "total": db.session.execute(
+                    select(func.count()).select_from(stmt),
+                ).scalar(),
+            },
+        ), 200
     except SQLAlchemyError:
         current_app.logger.exception("SQL Error")
         return jsonify([]), 500

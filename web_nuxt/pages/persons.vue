@@ -98,9 +98,9 @@ function submitResume(person_id: string, exists: boolean) {
 const columns: TableColumn<Candidate>[] = [
   { accessorKey: "id", header: "#" },
   { accessorKey: "region", header: "Регион" },
-  { accessorKey: "name", header: "Фамилия Имя Отчество" },
+  { accessorKey: "fullname", header: "Фамилия Имя Отчество" },
   {
-    accessorKey: "birth",
+    accessorKey: "birthday",
     header: "Дата рождения",
     cell: ({ row }) => {
       try {
@@ -111,7 +111,7 @@ const columns: TableColumn<Candidate>[] = [
     },
   },
   {
-    accessorKey: "edit",
+    accessorKey: "editable",
     header: "Статус",
     cell: ({ row }) => {
       return h(UIcon, {
@@ -141,7 +141,7 @@ const columns: TableColumn<Candidate>[] = [
     },
   },
   {
-    accessorKey: "data",
+    accessorKey: "created",
     header: "Обновлено",
     cell: ({ row }) => {
       try {
@@ -152,7 +152,7 @@ const columns: TableColumn<Candidate>[] = [
     },
   },
   {
-    accessorKey: "user",
+    accessorKey: "username",
     header: "Сотрудник",
     cell: ({ row }) => {
       try {

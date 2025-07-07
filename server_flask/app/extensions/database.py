@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Optional, TypedDict
+from typing import Optional
 
-from flask import Flask, current_app
-from sqlalchemy import MetaData, Select, Sequence, create_engine, func, select
-from sqlalchemy.exc import SQLAlchemyError
+from flask import Flask  # noqa: TC002
+from sqlalchemy import MetaData, create_engine
 from sqlalchemy.orm import DeclarativeBase, Session, scoped_session, sessionmaker
 
 
@@ -16,12 +15,6 @@ class Base(DeclarativeBase):
     def to_dict(self) -> dict:
         """Convert model to dict."""
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
-
-class Paging(TypedDict, total = False):
-    """Pagination class."""
-
-    total: int
-    query: Sequence
 
 
 class Database:
@@ -58,28 +51,3 @@ class Database:
     def metatables(self) -> MetaData:
         """The default metadata."""
         return self.metadata.tables
-
-    def paginate(self, stmt: Select, page: int = 1, per_page: int = 10) -> Paging:
-        """Paginate query."""
-        paging = Paging()
-        try:
-            # Получаем параметры пагинации из запроса
-            page = max(page, 1)
-            per_page = max(per_page, 1)
-
-            # Получаем общее количество записей
-            paging["total"] = self.session.execute(
-                select(func.count()).select_from(stmt),
-            ).scalar()
-            # Получаем данные для текущей страницы
-            query = self.session.execute(
-                stmt.offset(
-                    (page - 1) * per_page,
-                ).limit(per_page),
-            ).all()
-            # Преобразуем данные в список словарей
-            paging["query"] = [row._asdict() for row in query]
-        except (SQLAlchemyError, TypeError):
-            current_app.logger.exception("Pagination Error")
-        # Возвращаем словарь с данными пагинации и данными для текущей страницы
-        return paging
