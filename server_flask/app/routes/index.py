@@ -171,7 +171,6 @@ def upload_items(anketa: AnketaJson, person_id: int) -> None:
         for item in items:
             if item:
                 item.person_id = person_id
-                item.user_id = current_user.id
 
         db.session.bulk_save_objects(items)
         db.session.commit()

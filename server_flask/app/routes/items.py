@@ -5,7 +5,7 @@ from flask.views import MethodView
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
-from app.decorators.depend import auth_required, current_user
+from app.decorators.depend import auth_required
 from app.decorators.validate import validate
 from app.structures.classes import Roles
 from app.structures.models import Items, Model, Person
@@ -129,8 +129,6 @@ class ItemsView(MethodView):
         json_dict = json_data.dict(exclude_none=True)
         # Добавляем ключ "person_id" в словарь json_dict с значением item_id
         json_dict["person_id"] = item_id
-        # Добавляем ключ "user_id" в словарь json_dict с значением текущего пользователя
-        json_dict["user_id"] = current_user.id
         try:
             # Проверяем, есть ли ключ "id" в словаре json_dict
             if table_id := json_dict.pop("id", None):
