@@ -9,9 +9,9 @@ from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
-from app.structures.classes import Regions, Roles
-from app.structures.models import User
-from app.structures.tables import Users
+from app.models.models import InputUser
+from app.tables.tables import Users
+from app.utils.utilities import Regions, Roles
 
 bp = Blueprint("command", __name__)
 
@@ -56,7 +56,7 @@ def create_user(
 
     """
     try:
-        user = User(
+        user = InputUser(
             fullname=fullname,
             username=username,
             email=email,

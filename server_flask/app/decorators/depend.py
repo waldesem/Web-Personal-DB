@@ -10,7 +10,7 @@ from flask import Response, abort, g
 from werkzeug.local import LocalProxy
 
 from app import db
-from app.structures.tables import Users
+from app.tables.tables import Users
 
 current_user: Users = LocalProxy(lambda: get_current_user(g.user_id))
 

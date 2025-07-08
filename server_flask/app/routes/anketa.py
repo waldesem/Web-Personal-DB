@@ -9,10 +9,9 @@ from sqlalchemy.exc import SQLAlchemyError
 from app import db
 from app.decorators.depend import auth_required, current_user
 from app.decorators.validate import validate
-from app.structures.classes import Roles
-from app.structures.models import Region
-from app.structures.tables import Persons
-from app.utils.utilities import check_filename, create_destination
+from app.models.models import Model, OutputPerson, Region
+from app.tables.tables import Persons
+from app.utils.utilities import Roles, check_filename, create_destination
 
 bp = Blueprint("anketa", __name__, url_prefix="/anketa")
 
@@ -34,12 +33,20 @@ def get_profile(person_id: int) -> Response:
     if not person.destination or not Path(person.destination).is_dir():
         person.destination = create_destination(person)
         db.session.commit()
-    profile = {"person": person.to_dict()}
+    profile = {"person": OutputPerson.from_orm(person).dict()}
     # Сбор ключей, которые нужно обработать
     keys = [key for key in person.__annotations__ if key in db.metatables]
+    models = {
+        cls.__modelname__: cls
+        for cls in Model.__subclasses__()
+        if hasattr(cls, "__modelname__")
+    }
     # oбработка ключей
     for key in keys:
-        profile[key] = [item.to_dict() for item in getattr(person, key)][::-1]
+        profile[key] = [
+            models[f"output_{key}"].from_orm(item).dict(exclude_none=True)
+            for item in getattr(person, key)
+        ]
     # Вернуть ответ
     return jsonify(profile), 200
 
@@ -96,7 +103,7 @@ def change_self_id(person_id: int) -> Response:
         else:
             person.editable = not person.editable
         db.session.commit()
-        return jsonify(person.to_dict()), 201
+        return jsonify(OutputPerson.from_orm(person).dict()), 201
     except SQLAlchemyError:
         current_app.logger.exception("Exception in change_self_id")
         return jsonify({"message": "error"}), 500

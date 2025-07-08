@@ -13,8 +13,8 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from app import auth, db
 from app.decorators.depend import auth_required
 from app.decorators.validate import validate
-from app.structures.models import Login
-from app.structures.tables import Users
+from app.models.models import Login
+from app.tables.tables import Users
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 

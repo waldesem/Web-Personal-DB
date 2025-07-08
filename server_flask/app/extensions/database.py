@@ -12,10 +12,6 @@ from sqlalchemy.orm import DeclarativeBase, Session, scoped_session, sessionmake
 class Base(DeclarativeBase):
     """Base class for models."""
 
-    def to_dict(self) -> dict:
-        """Convert model to dict."""
-        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
-
 
 class Database:
     """The Database object allows your application."""

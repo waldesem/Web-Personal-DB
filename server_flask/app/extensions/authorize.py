@@ -7,7 +7,7 @@ from flask import Flask, current_app, g, request
 from pydantic import ValidationError
 
 from app.extensions.simpedb import SimpleDB
-from app.structures.models import Token
+from app.models.models import Token
 
 
 class JwtAuth:

@@ -8,9 +8,9 @@ from werkzeug.security import generate_password_hash
 from app import db
 from app.decorators.depend import auth_required, current_user, get_current_user
 from app.decorators.validate import validate
-from app.structures.classes import Regions, Roles
-from app.structures.models import User, UserActions
-from app.structures.tables import Users
+from app.models.models import InputUser, OutputUser, UserActions
+from app.tables.tables import Users
+from app.utils.utilities import Regions, Roles
 
 bp = Blueprint("users", __name__)
 
@@ -33,7 +33,7 @@ def get_users() -> Response:
     stmt = select(*[getattr(Users, column) for column in columns])
     users = db.session.execute(stmt).all()
     # Преобразовать результат в список словарей и вернуть в качестве ответа
-    return jsonify([user._asdict() for user in users]), 200
+    return jsonify([OutputUser.from_orm(user).dict() for user in users]), 200
 
 
 @bp.post("/user")
@@ -87,7 +87,7 @@ def post_user_actions(user_id: int, json_data: UserActions) -> Response:
 @bp.post("/user/<int:user_id>")
 @validate
 @auth_required(Roles.admin.value)
-def post_user(json_data: User) -> Response:
+def post_user(json_data: InputUser) -> Response:
     """Handle the POST request to create a user in the database.
 
     Arguments:

@@ -23,11 +23,6 @@ const items = ref<NavigationMenuItem[]>([
     to: "/persons",
   },
   {
-    label: "Справочник",
-    icon: "i-lucide-notebook",
-    to: "/phones",
-  },
-  {
     label: "Исходный код",
     icon: "i-lucide-code",
     to: "https://github.com/waldesem/Web-Personal-DB",

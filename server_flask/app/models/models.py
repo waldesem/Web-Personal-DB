@@ -7,7 +7,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, validator
 
-from .classes import Conclusions, Decisions, Regions, Roles
+from app.utils.utilities import Conclusions, Decisions, Regions, Roles
 
 
 class Index(BaseModel):
@@ -36,6 +36,42 @@ class Token(BaseModel):
         use_enum_values = True
 
 
+class Region(BaseModel):
+    """Pydantic model for region select form."""
+
+    region: Regions
+
+    class Config:
+        """Pydantic config."""
+
+        use_enum_values = True
+
+
+class UserActions(BaseModel):
+    """Pydantic model for user actions form."""
+
+    item: Literal["reset", "block", "delete"] | Roles | Regions | None
+
+
+class Items(BaseModel):
+    """Base Pydantic model for items."""
+
+    items: Literal[
+        "previous",
+        "educations",
+        "addresses",
+        "affilations",
+        "staffs",
+        "workplaces",
+        "contacts",
+        "documents",
+        "checks",
+        "poligrafs",
+        "inquiries",
+        "investigations",
+    ]
+
+
 class Login(BaseModel):
     """Pydantic model for login form."""
 
@@ -58,35 +94,10 @@ class Model(BaseModel):
 
         use_enum_values = True
         allow_population_by_field_name = True
+        orm_mode = True
 
 
-class Phone(Model):
-    """Pydantic model for phone form."""
-
-    __modelname__ = "phones"
-
-    id: int | str | None = None
-    organization: str
-    fullname: str | None = ""
-    phone: str | None = ""
-    mobile: str | None = ""
-    email: str | None = ""
-    comments: str | None = ""
-
-    @validator("organization", "fullname")
-    @classmethod
-    def name_check(cls, v: str) -> str:
-        """Check name."""
-        return v.strip().upper()
-
-
-class Region(Model):
-    """Pydantic model for region select form."""
-
-    region: Regions
-
-
-class User(Model):
+class InputUser(Model):
     """Pydantic model for user form."""
 
     id: int | str | None = None
@@ -109,16 +120,21 @@ class User(Model):
         return v.strip().upper()
 
 
-class UserActions(Model):
-    """Pydantic model for user actions form."""
+class OutputUser(InputUser):
+    """Pydantic model for user form."""
 
-    item: Literal["reset", "block", "delete"] | Roles | Regions | None
+    pswd_create: datetime
+    change_pswd: bool
+    blocked: bool
+    deleted: bool
+    attempt: int
+    created: datetime
 
 
-class Person(Model):
+class InputPerson(Model):
     """Pydantic model for person form."""
 
-    __modelname__ = "persons"
+    __modelname__ = "input_persons"
 
     __PATTERN = r"^[А-яЁёIV\-\s\.\,\'\(\)]*$"
 
@@ -145,29 +161,25 @@ class Person(Model):
         return v.upper().strip() if v else ""
 
 
-class Items(BaseModel):
-    """Base Pydantic model for items."""
+class OutputPerson(InputPerson):
+    """Pydantic model for person form."""
 
-    items: Literal[
-        "previous",
-        "educations",
-        "addresses",
-        "affilations",
-        "staffs",
-        "workplaces",
-        "contacts",
-        "documents",
-        "checks",
-        "poligrafs",
-        "inquiries",
-        "investigations",
-    ]
+    __modelname__ = "output_persons"
+
+    created: datetime
+    user_id: int
 
 
-class Prev(Model):
+class OutputCandidate(OutputPerson):
+    """Pydantic model for candidate."""
+
+    username: str
+
+
+class InputPrev(Model):
     """Pydantic model for previous form."""
 
-    __modelname__ = "previous"
+    __modelname__ = "Input_previous"
 
     id: int | str | None = None
     surname: str = Field(default="", alias="lastNameBeforeChange")
@@ -183,10 +195,18 @@ class Prev(Model):
         return v.upper().strip() if v else ""
 
 
-class Education(Model):
+class OutputPrev(InputPrev):
+    """Pydantic model for previous form."""
+
+    __modelname__ = "output_previous"
+
+    created: datetime
+
+
+class InputEducation(Model):
     """Pydantic model for education form."""
 
-    __modelname__ = "educations"
+    __modelname__ = "input_educations"
 
     id: int | str | None = None
     view: str = Field(default="", alias="educationType")
@@ -195,20 +215,36 @@ class Education(Model):
     specialty: str | None = ""
 
 
-class Staff(Model):
+class OutputEducation(InputEducation):
+    """Pydantic model for previous form."""
+
+    __modelname__ = "output_educations"
+
+    created: datetime
+
+
+class InputStaff(Model):
     """Pydantic model for staff form."""
 
-    __modelname__ = "staffs"
+    __modelname__ = "input_staffs"
 
     id: int | str | None = None
     position: str
     department: str | None = ""
 
 
-class Document(Model):
+class OutputStaff(InputStaff):
+    """Pydantic model for staff form."""
+
+    __modelname__ = "output_staffs"
+
+    created: datetime
+
+
+class InputDocument(Model):
     """Pydantic model for document form."""
 
-    __modelname__ = "documents"
+    __modelname__ = "input_documents"
 
     id: int | str | None = None
     view: str
@@ -218,30 +254,54 @@ class Document(Model):
     issue: date
 
 
-class Address(Model):
+class OutputDocument(InputDocument):
+    """Pydantic model for document form."""
+
+    __modelname__ = "output_documents"
+
+    created: datetime
+
+
+class InputAddress(Model):
     """Pydantic model for address form."""
 
-    __modelname__ = "addresses"
+    __modelname__ = "input_addresses"
 
     id: int | str | None = None
     view: str
     addresses: str
 
 
-class Contact(Model):
+class OutputOutputAddressPrev(InputAddress):
+    """Pydantic model for address form."""
+
+    __modelname__ = "output_addresses"
+
+    created: datetime
+
+
+class InputContact(Model):
     """Pydantic model for contact form."""
 
-    __modelname__ = "contacts"
+    __modelname__ = "input_contacts"
 
     id: int | str | None = None
     view: str
     contact: str
 
 
-class Workplace(Model):
+class OutputContact(InputContact):
+    """Pydantic model for contact form."""
+
+    __modelname__ = "output_contacts"
+
+    created: datetime
+
+
+class InputWorkplace(Model):
     """Pydantic model for workplace form."""
 
-    __modelname__ = "workplaces"
+    __modelname__ = "input_workplaces"
 
     id: int | str | None = None
     now_work: bool = Field(default=False, alias="currentJob")
@@ -253,10 +313,18 @@ class Workplace(Model):
     reason: str = Field(default="", alias="fireReason")
 
 
-class Affilation(Model):
+class OutputWorkplace(InputWorkplace):
+    """Pydantic model for workplace form."""
+
+    __modelname__ = "output_workplaces"
+
+    created: datetime
+
+
+class InputAffilation(Model):
     """Pydantic model for affilation form."""
 
-    __modelname__ = "affilations"
+    __modelname__ = "input_affilations"
 
     id: int | str | None = None
     view: str | None = ""
@@ -264,10 +332,18 @@ class Affilation(Model):
     inn: str | None = ""
 
 
-class Check(Model):
+class OutputAffilation(InputAffilation):
+    """Pydantic model for affilation form."""
+
+    __modelname__ = "output_affilations"
+
+    created: datetime
+
+
+class InputCheck(Model):
     """Pydantic model for check form."""
 
-    __modelname__ = "checks"
+    __modelname__ = "input_checks"
 
     id: int | str | None = None
     workplace: str | None = ""
@@ -288,10 +364,18 @@ class Check(Model):
     conclusion: Conclusions
 
 
-class Poligraf(Model):
+class OutOutputCheckputPrev(InputCheck):
+    """Pydantic model for check form."""
+
+    __modelname__ = "output_checks"
+
+    created: datetime
+
+
+class InputPoligraf(Model):
     """Pydantic model for poligraf form."""
 
-    __modelname__ = "poligrafs"
+    __modelname__ = "input_poligrafs"
 
     id: int | str | None = None
     theme: str
@@ -299,20 +383,36 @@ class Poligraf(Model):
     conclusion: Decisions
 
 
-class Investigation(Model):
+class OutputPoligraf(InputPoligraf):
+    """Pydantic model for poligraf form."""
+
+    __modelname__ = "output_poligrafs"
+
+    created: datetime
+
+
+class InputInvestigation(Model):
     """Pydantic model for investigation form."""
 
-    __modelname__ = "investigations"
+    __modelname__ = "input_investigations"
 
     id: int | str | None = None
     theme: str
     info: str
 
 
-class Inquiry(Model):
+class OutputInvestigation(InputInvestigation):
+    """Pydantic model for investigation form."""
+
+    __modelname__ = "output_investigations"
+
+    created: datetime
+
+
+class InputInquiry(Model):
     """Pydantic model for inquiry form."""
 
-    __modelname__ = "inquiries"
+    __modelname__ = "input_inquiries"
 
     id: int | str | None = None
     info: str
@@ -320,7 +420,15 @@ class Inquiry(Model):
     origins: str | None = ""
 
 
-class AnketaJson(Person):
+class OutputInquiry(InputInquiry):
+    """Pydantic model for inquiries form."""
+
+    __modelname__ = "output_inquiries"
+
+    created: datetime
+
+
+class AnketaJson(InputPerson):
     """Pydantic model for anketa schema."""
 
     position: str = Field(default="", alias="positionName")
@@ -333,22 +441,22 @@ class AnketaJson(Person):
     reg_address: str = Field(default="", alias="regAddress")
     email: str | None = ""
     contact_phone: str = Field(default="", alias="contactPhone")
-    education: list[Education] = []
-    experience: list[Workplace] = []
-    name_was_changed: list[Prev] = Field(
+    education: list[InputEducation] = []
+    experience: list[InputWorkplace] = []
+    name_was_changed: list[InputPrev] = Field(
         default=[],
         alias="nameWasChanged",
     )
-    organizations: list[Affilation] = []
-    related_organizations: list[Affilation] = Field(
+    organizations: list[InputAffilation] = []
+    related_organizations: list[InputAffilation] = Field(
         default=[],
         alias="relatedPersonsOrganizations",
     )
-    state_organizations: list[Affilation] = Field(
+    state_organizations: list[InputAffilation] = Field(
         default=[],
         alias="stateOrganizations",
     )
-    public_organizations: list[Affilation] = Field(
+    public_organizations: list[InputAffilation] = Field(
         default=[],
         alias="publicOfficeOrganizations",
     )

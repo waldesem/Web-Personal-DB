@@ -10,9 +10,8 @@ from sqlalchemy.exc import SQLAlchemyError
 from app import db
 from app.decorators.depend import auth_required, current_user
 from app.decorators.validate import validate
-from app.structures.classes import Regions, Roles
-from app.structures.models import AnketaJson, Index, Person
-from app.structures.tables import (
+from app.models.models import AnketaJson, Index, InputPerson, OutputCandidate
+from app.tables.tables import (
     Addresses,
     Affilations,
     Contacts,
@@ -24,7 +23,7 @@ from app.structures.tables import (
     Users,
     Workplaces,
 )
-from app.utils.utilities import upload_resume
+from app.utils.utilities import Regions, Roles, upload_resume
 
 bp = Blueprint("route", __name__)
 
@@ -82,7 +81,7 @@ def get_index(json_query: Index) -> Response:
         ).all()
         return jsonify(
             {
-                "query": [row._asdict() for row in result],
+                "query": [OutputCandidate.from_orm(row).dict() for row in result],
                 "total": db.session.execute(
                     select(func.count()).select_from(stmt),
                 ).scalar(),
@@ -115,7 +114,7 @@ def post_json() -> Response:
         anketa = AnketaJson(**json_data)
 
         # Валидация данных и создание объекта класса Person
-        resume = Person(**anketa.dict(exclude_none=True))
+        resume = InputPerson(**anketa.dict(exclude_none=True))
         # Загрузка резюме в БД
         person_id, existed = upload_resume(resume)
 

@@ -7,10 +7,9 @@ from sqlalchemy.exc import SQLAlchemyError
 from app import db
 from app.decorators.depend import auth_required
 from app.decorators.validate import validate
-from app.structures.classes import Roles
-from app.structures.models import Items, Model, Person
-from app.structures.tables import Persons
-from app.utils.utilities import upload_resume
+from app.models.models import InputPerson, Items, Model, OutputPerson
+from app.tables.tables import Persons
+from app.utils.utilities import Roles, upload_resume
 
 bp = Blueprint("items", __name__, url_prefix="/items")
 
@@ -32,15 +31,15 @@ class PersonView(MethodView):
         """
         # Получаем данные кандидата и создаем папку для него, если ее нет
         person = db.session.get(Persons, person_id)
-        return jsonify(person.to_dict()), 200
+        return jsonify(OutputPerson.from_orm(person).dict()), 200
 
     @validate
     @auth_required(Roles.user.value)
-    def post(self, json_data: Person) -> Response:
+    def post(self, json_data: InputPerson) -> Response:
         """Replace a record in persons table.
 
         Args:
-            json_data (Person): The data to replace in the table.
+            json_data (InputPerson): The data to replace in the table.
 
         Returns:
             Tuple[str, int]: A tuple containing an empty string and an HTTP status
@@ -105,10 +104,20 @@ class ItemsView(MethodView):
             .select()
             .filter(db.metatables[item].c.person_id == item_id)
         )
+        models = {
+            cls.__modelname__: cls
+            for cls in Model.__subclasses__()
+            if hasattr(cls, "__modelname__")
+        }
         # Выполняем запрос и получаем результаты
         query = db.session.execute(stmt)
         # Преобразуем результаты в словарь и возвращаем их в формате JSON
-        return jsonify([row._asdict() for row in query][::-1]), 200
+        return jsonify(
+            [
+                models[f"output_{item}"].from_orm(row).dict(exclude_none=True)
+                for row in query
+            ],
+        ), 200
 
     @validate
     @auth_required(Roles.user.value)
