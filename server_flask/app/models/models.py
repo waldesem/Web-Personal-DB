@@ -93,8 +93,14 @@ class Model(BaseModel):
         """Pydantic config."""
 
         use_enum_values = True
-        allow_population_by_field_name = True
         orm_mode = True
+        allow_population_by_field_name = True
+
+
+class OutputModel(BaseModel):
+    """Pydantic model for outputs."""
+
+    created: datetime
 
 
 class InputUser(Model):
@@ -120,7 +126,7 @@ class InputUser(Model):
         return v.strip().upper()
 
 
-class OutputUser(InputUser):
+class OutputUser(InputUser, OutputModel):
     """Pydantic model for user form."""
 
     pswd_create: datetime
@@ -128,7 +134,6 @@ class OutputUser(InputUser):
     blocked: bool
     deleted: bool
     attempt: int
-    created: datetime
 
 
 class InputPerson(Model):
@@ -161,12 +166,11 @@ class InputPerson(Model):
         return v.upper().strip() if v else ""
 
 
-class OutputPerson(InputPerson):
+class OutputPerson(InputPerson, OutputModel):
     """Pydantic model for person form."""
 
     __modelname__ = "output_persons"
 
-    created: datetime
     user_id: int
 
 
@@ -195,12 +199,10 @@ class InputPrev(Model):
         return v.upper().strip() if v else ""
 
 
-class OutputPrev(InputPrev):
+class OutputPrev(InputPrev, OutputModel):
     """Pydantic model for previous form."""
 
     __modelname__ = "output_previous"
-
-    created: datetime
 
 
 class InputEducation(Model):
@@ -215,12 +217,10 @@ class InputEducation(Model):
     specialty: str | None = ""
 
 
-class OutputEducation(InputEducation):
+class OutputEducation(InputEducation, OutputModel):
     """Pydantic model for previous form."""
 
     __modelname__ = "output_educations"
-
-    created: datetime
 
 
 class InputStaff(Model):
@@ -233,12 +233,10 @@ class InputStaff(Model):
     department: str | None = ""
 
 
-class OutputStaff(InputStaff):
+class OutputStaff(InputStaff, OutputModel):
     """Pydantic model for staff form."""
 
     __modelname__ = "output_staffs"
-
-    created: datetime
 
 
 class InputDocument(Model):
@@ -254,12 +252,10 @@ class InputDocument(Model):
     issue: date
 
 
-class OutputDocument(InputDocument):
+class OutputDocument(InputDocument, OutputModel):
     """Pydantic model for document form."""
 
     __modelname__ = "output_documents"
-
-    created: datetime
 
 
 class InputAddress(Model):
@@ -272,12 +268,10 @@ class InputAddress(Model):
     addresses: str
 
 
-class OutputOutputAddressPrev(InputAddress):
+class OutputOutputAddressPrev(InputAddress, OutputModel):
     """Pydantic model for address form."""
 
     __modelname__ = "output_addresses"
-
-    created: datetime
 
 
 class InputContact(Model):
@@ -290,12 +284,10 @@ class InputContact(Model):
     contact: str
 
 
-class OutputContact(InputContact):
+class OutputContact(InputContact, OutputModel):
     """Pydantic model for contact form."""
 
     __modelname__ = "output_contacts"
-
-    created: datetime
 
 
 class InputWorkplace(Model):
@@ -313,12 +305,10 @@ class InputWorkplace(Model):
     reason: str = Field(default="", alias="fireReason")
 
 
-class OutputWorkplace(InputWorkplace):
+class OutputWorkplace(InputWorkplace, OutputModel):
     """Pydantic model for workplace form."""
 
     __modelname__ = "output_workplaces"
-
-    created: datetime
 
 
 class InputAffilation(Model):
@@ -332,12 +322,10 @@ class InputAffilation(Model):
     inn: str | None = ""
 
 
-class OutputAffilation(InputAffilation):
+class OutputAffilation(InputAffilation, OutputModel):
     """Pydantic model for affilation form."""
 
     __modelname__ = "output_affilations"
-
-    created: datetime
 
 
 class InputCheck(Model):
@@ -364,12 +352,10 @@ class InputCheck(Model):
     conclusion: Conclusions
 
 
-class OutOutputCheckputPrev(InputCheck):
+class OutOutputCheckputPrev(InputCheck, OutputModel):
     """Pydantic model for check form."""
 
     __modelname__ = "output_checks"
-
-    created: datetime
 
 
 class InputPoligraf(Model):
@@ -383,12 +369,10 @@ class InputPoligraf(Model):
     conclusion: Decisions
 
 
-class OutputPoligraf(InputPoligraf):
+class OutputPoligraf(InputPoligraf, OutputModel):
     """Pydantic model for poligraf form."""
 
     __modelname__ = "output_poligrafs"
-
-    created: datetime
 
 
 class InputInvestigation(Model):
@@ -401,12 +385,10 @@ class InputInvestigation(Model):
     info: str
 
 
-class OutputInvestigation(InputInvestigation):
+class OutputInvestigation(InputInvestigation, OutputModel):
     """Pydantic model for investigation form."""
 
     __modelname__ = "output_investigations"
-
-    created: datetime
 
 
 class InputInquiry(Model):
@@ -420,12 +402,10 @@ class InputInquiry(Model):
     origins: str | None = ""
 
 
-class OutputInquiry(InputInquiry):
+class OutputInquiry(InputInquiry, OutputModel):
     """Pydantic model for inquiries form."""
 
     __modelname__ = "output_inquiries"
-
-    created: datetime
 
 
 class AnketaJson(InputPerson):
