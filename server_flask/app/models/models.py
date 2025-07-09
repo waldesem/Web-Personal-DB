@@ -161,6 +161,30 @@ class UserOutLIst(BaseModel):
     users = list[UserOut]
 
 
+class Candidate(ModelOut):
+    """Pydantic model for candidate."""
+
+    id: int
+    fullname: str
+    birthday: date
+    region: Regions
+    editable: bool
+    username: str
+
+
+class CandidateList(BaseModel):
+    """Pydantic model for candidates."""
+
+    total: int
+    candidates: list[Candidate]
+
+
+class Profile(BaseModel):
+    """Pydantic model for profile."""
+
+    person: PersonOut
+
+
 class PersonIn(ModelIn):
     """Pydantic model for person form."""
 
@@ -181,7 +205,6 @@ class PersonIn(ModelIn):
     destination: str | None = ""
     region: None | Regions
     editable: bool = False
-    user_id: int | None
 
     @validator("surname", "firstname", "patronymic")
     @classmethod
@@ -190,15 +213,10 @@ class PersonIn(ModelIn):
         return v.upper().strip() if v else ""
 
 
-class CandidateOut(ModelOut):
-    """Pydantic model for candidate."""
+class PersonOut(PersonIn, ModelOut):
+    """Pydantic model for person."""
 
-    id: int
-    fullname: str
-    birthday: date
-    region: Regions
-    editable: bool
-    username: str
+    user_id: int | None
 
 
 class PrevIn(ModelIn):
