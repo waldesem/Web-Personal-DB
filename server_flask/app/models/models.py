@@ -97,13 +97,13 @@ class Model(BaseModel):
         allow_population_by_field_name = True
 
 
-class OutputModel(BaseModel):
+class ModelOut(BaseModel):
     """Pydantic model for outputs."""
 
     created: datetime
 
 
-class InputUser(Model):
+class UserIn(Model):
     """Pydantic model for user form."""
 
     id: int | str | None = None
@@ -126,7 +126,7 @@ class InputUser(Model):
         return v.strip().upper()
 
 
-class OutputUser(InputUser, OutputModel):
+class UserOut(InputUser, ModelOut):
     """Pydantic model for user form."""
 
     pswd_create: datetime
