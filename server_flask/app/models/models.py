@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 from datetime import date, datetime  # noqa: TC003
-from typing import Literal
+from typing import Generic, Literal, TypeVar
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, GenericModel, validator
 
 from app.utils.utilities import Conclusions, Decisions, Regions, Roles
+
+T = TypeVar("T")
 
 
 class BaseResponse(BaseModel):
@@ -114,7 +116,7 @@ class ModelOut(BaseModel):
         orm_mode = True
 
 
-class ModelOutList[T](BaseModel):
+class ModelOutList(GenericModel, Generic[T]):
     """Pydantic model for candidates."""
 
     data: list[T]
