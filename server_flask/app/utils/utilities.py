@@ -11,7 +11,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import auth, db
-from app.models.models import InputPerson
+from app.models.models import PersonIn
 from app.tables.tables import Persons
 
 
@@ -64,7 +64,7 @@ def create_destination(person: Persons) -> str:
     return str(destination)
 
 
-def upload_resume(cand: InputPerson) -> tuple[int, bool]:
+def upload_resume(cand: PersonIn) -> tuple[int, bool]:
     """Upload a resume to the database.
 
     Args:

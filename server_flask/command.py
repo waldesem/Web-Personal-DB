@@ -9,7 +9,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
-from app.models.models import InputUser
+from app.models.models import UserIn
 from app.tables.tables import Users
 from app.utils.utilities import Regions, Roles
 
@@ -56,7 +56,7 @@ def create_user(
 
     """
     try:
-        user = InputUser(
+        user = UserIn(
             fullname=fullname,
             username=username,
             email=email,

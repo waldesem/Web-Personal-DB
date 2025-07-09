@@ -10,7 +10,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from app import db
 from app.decorators.depend import auth_required, current_user
 from app.decorators.validate import validate
-from app.models.models import AnketaJson, Index, InputPerson, OutputCandidate
+from app.models.models import AnketaJson, CandidateOut, Index, PersonIn
 from app.tables.tables import (
     Addresses,
     Affilations,
@@ -81,7 +81,7 @@ def get_index(json_query: Index) -> Response:
         ).all()
         return jsonify(
             {
-                "query": [OutputCandidate.from_orm(row).dict() for row in result],
+                "query": [CandidateOut.from_orm(row).dict() for row in result],
                 "total": db.session.execute(
                     select(func.count()).select_from(stmt),
                 ).scalar(),
@@ -114,7 +114,7 @@ def post_json() -> Response:
         anketa = AnketaJson(**json_data)
 
         # Валидация данных и создание объекта класса Person
-        resume = InputPerson(**anketa.dict(exclude_none=True))
+        resume = PersonIn(**anketa.dict(exclude_none=True))
         # Загрузка резюме в БД
         person_id, existed = upload_resume(resume)
 

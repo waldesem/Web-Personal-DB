@@ -10,6 +10,12 @@ from pydantic import BaseModel, Field, validator
 from app.utils.utilities import Conclusions, Decisions, Regions, Roles
 
 
+class BaseResponse(BaseModel):
+    """Pydantic model for Base Response."""
+
+    message: str
+
+
 class Index(BaseModel):
     """Pydantic model for pagination."""
 
@@ -86,14 +92,13 @@ class Login(BaseModel):
         return v.strip().lower()
 
 
-class Model(BaseModel):
+class ModelIn(BaseModel):
     """Base Pydantic model."""
 
     class Config:
         """Pydantic config."""
 
         use_enum_values = True
-        orm_mode = True
         allow_population_by_field_name = True
 
 
@@ -102,8 +107,14 @@ class ModelOut(BaseModel):
 
     created: datetime
 
+    class Config:
+        """Pydantic config."""
 
-class UserIn(Model):
+        use_enum_values = True
+        orm_mode = True
+
+
+class UserIn(ModelIn):
     """Pydantic model for user form."""
 
     id: int | str | None = None
@@ -126,7 +137,7 @@ class UserIn(Model):
         return v.strip().upper()
 
 
-class UserOut(InputUser, ModelOut):
+class UserOut(UserIn, ModelOut):
     """Pydantic model for user form."""
 
     pswd_create: datetime
@@ -136,7 +147,7 @@ class UserOut(InputUser, ModelOut):
     attempt: int
 
 
-class InputPerson(Model):
+class PersonIn(ModelIn):
     """Pydantic model for person form."""
 
     __modelname__ = "input_persons"
@@ -166,7 +177,7 @@ class InputPerson(Model):
         return v.upper().strip() if v else ""
 
 
-class OutputPerson(InputPerson, OutputModel):
+class PersonOut(PersonIn, ModelOut):
     """Pydantic model for person form."""
 
     __modelname__ = "output_persons"
@@ -174,13 +185,13 @@ class OutputPerson(InputPerson, OutputModel):
     user_id: int
 
 
-class OutputCandidate(OutputPerson):
+class CandidateOut(PersonOut):
     """Pydantic model for candidate."""
 
     username: str
 
 
-class InputPrev(Model):
+class PrevIn(ModelIn):
     """Pydantic model for previous form."""
 
     __modelname__ = "Input_previous"
@@ -199,13 +210,13 @@ class InputPrev(Model):
         return v.upper().strip() if v else ""
 
 
-class OutputPrev(InputPrev, OutputModel):
+class PrevOut(PrevIn, ModelOut):
     """Pydantic model for previous form."""
 
     __modelname__ = "output_previous"
 
 
-class InputEducation(Model):
+class EducationIn(ModelIn):
     """Pydantic model for education form."""
 
     __modelname__ = "input_educations"
@@ -217,13 +228,13 @@ class InputEducation(Model):
     specialty: str | None = ""
 
 
-class OutputEducation(InputEducation, OutputModel):
+class EducationOut(EducationIn, ModelOut):
     """Pydantic model for previous form."""
 
     __modelname__ = "output_educations"
 
 
-class InputStaff(Model):
+class StaffIn(ModelIn):
     """Pydantic model for staff form."""
 
     __modelname__ = "input_staffs"
@@ -233,13 +244,13 @@ class InputStaff(Model):
     department: str | None = ""
 
 
-class OutputStaff(InputStaff, OutputModel):
+class StaffOut(StaffIn, ModelOut):
     """Pydantic model for staff form."""
 
     __modelname__ = "output_staffs"
 
 
-class InputDocument(Model):
+class DocumentIn(ModelIn):
     """Pydantic model for document form."""
 
     __modelname__ = "input_documents"
@@ -252,13 +263,13 @@ class InputDocument(Model):
     issue: date
 
 
-class OutputDocument(InputDocument, OutputModel):
+class DocumentOut(DocumentIn, ModelOut):
     """Pydantic model for document form."""
 
     __modelname__ = "output_documents"
 
 
-class InputAddress(Model):
+class AddressIn(ModelIn):
     """Pydantic model for address form."""
 
     __modelname__ = "input_addresses"
@@ -268,13 +279,13 @@ class InputAddress(Model):
     addresses: str
 
 
-class OutputOutputAddressPrev(InputAddress, OutputModel):
+class AddressOut(AddressIn, ModelOut):
     """Pydantic model for address form."""
 
     __modelname__ = "output_addresses"
 
 
-class InputContact(Model):
+class ContactIn(ModelIn):
     """Pydantic model for contact form."""
 
     __modelname__ = "input_contacts"
@@ -284,13 +295,13 @@ class InputContact(Model):
     contact: str
 
 
-class OutputContact(InputContact, OutputModel):
+class ContactOut(ContactIn, ModelOut):
     """Pydantic model for contact form."""
 
     __modelname__ = "output_contacts"
 
 
-class InputWorkplace(Model):
+class WorkplaceIn(ModelIn):
     """Pydantic model for workplace form."""
 
     __modelname__ = "input_workplaces"
@@ -305,13 +316,13 @@ class InputWorkplace(Model):
     reason: str = Field(default="", alias="fireReason")
 
 
-class OutputWorkplace(InputWorkplace, OutputModel):
+class WorkplaceOut(WorkplaceIn, ModelOut):
     """Pydantic model for workplace form."""
 
     __modelname__ = "output_workplaces"
 
 
-class InputAffilation(Model):
+class AffilationIn(ModelIn):
     """Pydantic model for affilation form."""
 
     __modelname__ = "input_affilations"
@@ -322,13 +333,13 @@ class InputAffilation(Model):
     inn: str | None = ""
 
 
-class OutputAffilation(InputAffilation, OutputModel):
+class AffilationOut(AffilationIn, ModelOut):
     """Pydantic model for affilation form."""
 
     __modelname__ = "output_affilations"
 
 
-class InputCheck(Model):
+class CheckIn(ModelIn):
     """Pydantic model for check form."""
 
     __modelname__ = "input_checks"
@@ -352,13 +363,13 @@ class InputCheck(Model):
     conclusion: Conclusions
 
 
-class OutOutputCheckputPrev(InputCheck, OutputModel):
+class CheckOut(CheckIn, ModelOut):
     """Pydantic model for check form."""
 
     __modelname__ = "output_checks"
 
 
-class InputPoligraf(Model):
+class PoligrafIn(ModelIn):
     """Pydantic model for poligraf form."""
 
     __modelname__ = "input_poligrafs"
@@ -369,13 +380,13 @@ class InputPoligraf(Model):
     conclusion: Decisions
 
 
-class OutputPoligraf(InputPoligraf, OutputModel):
+class PoligrafOut(PoligrafIn, ModelOut):
     """Pydantic model for poligraf form."""
 
     __modelname__ = "output_poligrafs"
 
 
-class InputInvestigation(Model):
+class InvestigationIn(ModelIn):
     """Pydantic model for investigation form."""
 
     __modelname__ = "input_investigations"
@@ -385,13 +396,13 @@ class InputInvestigation(Model):
     info: str
 
 
-class OutputInvestigation(InputInvestigation, OutputModel):
+class InvestigationOut(InvestigationIn, ModelOut):
     """Pydantic model for investigation form."""
 
     __modelname__ = "output_investigations"
 
 
-class InputInquiry(Model):
+class InquiryIn(ModelIn):
     """Pydantic model for inquiry form."""
 
     __modelname__ = "input_inquiries"
@@ -402,13 +413,13 @@ class InputInquiry(Model):
     origins: str | None = ""
 
 
-class OutputInquiry(InputInquiry, OutputModel):
+class InquiryOut(InquiryIn, ModelOut):
     """Pydantic model for inquiries form."""
 
     __modelname__ = "output_inquiries"
 
 
-class AnketaJson(InputPerson):
+class AnketaJson(PersonIn):
     """Pydantic model for anketa schema."""
 
     position: str = Field(default="", alias="positionName")
@@ -421,22 +432,22 @@ class AnketaJson(InputPerson):
     reg_address: str = Field(default="", alias="regAddress")
     email: str | None = ""
     contact_phone: str = Field(default="", alias="contactPhone")
-    education: list[InputEducation] = []
-    experience: list[InputWorkplace] = []
-    name_was_changed: list[InputPrev] = Field(
+    education: list[EducationIn] = []
+    experience: list[WorkplaceIn] = []
+    name_was_changed: list[PrevIn] = Field(
         default=[],
         alias="nameWasChanged",
     )
-    organizations: list[InputAffilation] = []
-    related_organizations: list[InputAffilation] = Field(
+    organizations: list[AffilationIn] = []
+    related_organizations: list[AffilationIn] = Field(
         default=[],
         alias="relatedPersonsOrganizations",
     )
-    state_organizations: list[InputAffilation] = Field(
+    state_organizations: list[AffilationIn] = Field(
         default=[],
         alias="stateOrganizations",
     )
-    public_organizations: list[InputAffilation] = Field(
+    public_organizations: list[AffilationIn] = Field(
         default=[],
         alias="publicOfficeOrganizations",
     )

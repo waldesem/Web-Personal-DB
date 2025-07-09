@@ -7,7 +7,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from app import db
 from app.decorators.depend import auth_required
 from app.decorators.validate import validate
-from app.models.models import InputPerson, Items, Model, OutputPerson
+from app.models.models import Items, ModelIn, ModelOut, PersonIn, PersonOut
 from app.tables.tables import Persons
 from app.utils.utilities import Roles, upload_resume
 
@@ -31,11 +31,11 @@ class PersonView(MethodView):
         """
         # Получаем данные кандидата и создаем папку для него, если ее нет
         person = db.session.get(Persons, person_id)
-        return jsonify(OutputPerson.from_orm(person).dict()), 200
+        return jsonify(PersonOut.from_orm(person).dict()), 200
 
     @validate
     @auth_required(Roles.user.value)
-    def post(self, json_data: InputPerson) -> Response:
+    def post(self, json_data: PersonIn) -> Response:
         """Replace a record in persons table.
 
         Args:
@@ -106,7 +106,7 @@ class ItemsView(MethodView):
         )
         models = {
             cls.__modelname__: cls
-            for cls in Model.__subclasses__()
+            for cls in ModelOut.__subclasses__()
             if hasattr(cls, "__modelname__")
         }
         # Выполняем запрос и получаем результаты
@@ -121,7 +121,7 @@ class ItemsView(MethodView):
 
     @validate
     @auth_required(Roles.user.value)
-    def post(self, item: Items, item_id: int, json_data: Model) -> Response:
+    def post(self, item: Items, item_id: int, json_data: ModelIn) -> Response:
         """Insert or replaces a record in the specified table with the given item ID.
 
         Args:

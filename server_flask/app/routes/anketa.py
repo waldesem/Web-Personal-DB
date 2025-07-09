@@ -9,7 +9,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from app import db
 from app.decorators.depend import auth_required, current_user
 from app.decorators.validate import validate
-from app.models.models import Model, OutputPerson, Region
+from app.models.models import Model, PersonOut, Region
 from app.tables.tables import Persons
 from app.utils.utilities import Roles, check_filename, create_destination
 
@@ -33,7 +33,7 @@ def get_profile(person_id: int) -> Response:
     if not person.destination or not Path(person.destination).is_dir():
         person.destination = create_destination(person)
         db.session.commit()
-    profile = {"person": OutputPerson.from_orm(person).dict()}
+    profile = {"person": PersonOut.from_orm(person).dict()}
     # Сбор ключей, которые нужно обработать
     keys = [key for key in person.__annotations__ if key in db.metatables]
     models = {
@@ -103,7 +103,7 @@ def change_self_id(person_id: int) -> Response:
         else:
             person.editable = not person.editable
         db.session.commit()
-        return jsonify(OutputPerson.from_orm(person).dict()), 201
+        return jsonify(PersonOut.from_orm(person).dict()), 201
     except SQLAlchemyError:
         current_app.logger.exception("Exception in change_self_id")
         return jsonify({"message": "error"}), 500
