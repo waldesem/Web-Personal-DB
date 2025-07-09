@@ -114,6 +114,12 @@ class ModelOut(BaseModel):
         orm_mode = True
 
 
+class ModelOutList[T](BaseModel):
+    """Pydantic model for candidates."""
+
+    data: list[T]
+
+
 class UserIn(ModelIn):
     """Pydantic model for user form."""
 
@@ -147,10 +153,14 @@ class UserOut(UserIn, ModelOut):
     attempt: int
 
 
+class UserOutLIst(BaseModel):
+    """Pydantic model for user list."""
+
+    users = list[UserOut]
+
+
 class PersonIn(ModelIn):
     """Pydantic model for person form."""
-
-    __modelname__ = "input_persons"
 
     __PATTERN = r"^[А-яЁёIV\-\s\.\,\'\(\)]*$"
 
@@ -169,6 +179,7 @@ class PersonIn(ModelIn):
     destination: str | None = ""
     region: None | Regions
     editable: bool = False
+    user_id: int | None
 
     @validator("surname", "firstname", "patronymic")
     @classmethod
@@ -177,17 +188,14 @@ class PersonIn(ModelIn):
         return v.upper().strip() if v else ""
 
 
-class PersonOut(PersonIn, ModelOut):
-    """Pydantic model for person form."""
-
-    __modelname__ = "output_persons"
-
-    user_id: int
-
-
-class CandidateOut(PersonOut):
+class CandidateOut(ModelOut):
     """Pydantic model for candidate."""
 
+    id: int
+    fullname: str
+    birthday: date
+    region: Regions
+    editable: bool
     username: str
 
 

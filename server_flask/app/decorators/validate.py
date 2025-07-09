@@ -80,13 +80,6 @@ def serialize(model: BaseModel = BaseResponse) -> Callable:
         @wraps(func)
         def wrapper(*args: tuple, **kwargs: dict) -> Response:
             result = func(*args, **kwargs)
-            if model.__name__ == "ModelOut":
-                models = {
-                    cls.__modelname__: cls
-                    for cls in ModelOut.__subclasses__()
-                    if hasattr(cls, "__modelname__")
-                }
-                model = models[f"output_{kwargs['item']}"]
             try:
                 if (
                     isinstance(result, tuple)
@@ -94,12 +87,22 @@ def serialize(model: BaseModel = BaseResponse) -> Callable:
                     and isinstance(result[1], int)
                     and 199 < result[1] < 300
                 ):
+                    if model.__name__ == "ModelOut":
+                        models = {
+                            cls.__modelname__: cls
+                            for cls in ModelOut.__subclasses__()
+                            if hasattr(cls, "__modelname__")
+                        }
+                        serial = models[f"output_{kwargs['item']}"]
+                    else:
+                        serial = model
+
                     if isinstance(result[0], dict):
-                        serialized = model.parse_obj(result[0]).json()
+                        serialized = serial.parse_obj(result[0]).json()
                     elif isinstance(result, (str, int)):
                         serialized = BaseResponse(message=str(result[0])).json()
                     else:
-                        serialized = model.from_orm(result[0]).json()
+                        serialized = serial.from_orm(result[0]).json()
             except ValidationError:
                 current_app.logger.exception("Error serialize data")
             else:
