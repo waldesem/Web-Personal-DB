@@ -72,7 +72,17 @@ def get_index(json_query: Index) -> tuple[list[Persons], int]:
                 Persons.firstname == search[1] if len(search) > 1 else True,
                 Persons.patronymic == search[2] if len(search) > 2 else True,
             )
-
+        query = (
+            db.session.execute(
+                stmt.order_by(desc(Persons.id)).slice(
+                    (json_query.page - 1) * json_query.per_page,
+                    json_query.per_page * json_query.page,
+                ),
+            ).all(),
+        )
+        total = db.session.execute(
+            select(func.count()).select_from(stmt),
+        ).scalar()
         # Пагинация списка кандидатов
         return {
             "query": db.session.execute(
