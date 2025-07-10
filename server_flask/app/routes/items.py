@@ -8,7 +8,14 @@ from sqlalchemy.orm import DeclarativeBase
 from app import db
 from app.decorators.depend import auth_required
 from app.decorators.validate import serialize, validate
-from app.models.models import Items, ModelIn, ModelOut, PersonIn, PersonOut
+from app.models.models import (
+    Items,
+    ModelIn,
+    ModelOut,
+    PersonExists,
+    PersonIn,
+    PersonOut,
+)
 from app.tables.tables import Persons
 from app.utils.utilities import Roles, upload_resume
 
@@ -35,7 +42,7 @@ class PersonView(MethodView):
         person = db.session.get(Persons, person_id)
         return person, 200
 
-    @serialize()
+    @serialize(PersonExists)
     @validate
     @auth_required(Roles.user.value)
     def post(self, json_data: PersonIn) -> tuple[dict, int]:
@@ -114,6 +121,7 @@ class ItemsView(MethodView):
         query = db.session.execute(stmt)
         return query, 200
 
+    @serialize()
     @validate
     @auth_required(Roles.user.value)
     def post(self, item: Items, item_id: int, json_data: ModelIn) -> tuple[str, int]:
@@ -155,6 +163,7 @@ class ItemsView(MethodView):
         else:
             return "success", 201
 
+    @serialize()
     @auth_required(Roles.user.value)
     def delete(self, item: Items, item_id: int) -> tuple[str, int]:
         """Delete an item from the database based on the provided item name and item ID.

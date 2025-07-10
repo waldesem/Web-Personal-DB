@@ -3,7 +3,6 @@
 from flask import Blueprint, current_app
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import DeclarativeBase
 from werkzeug.security import generate_password_hash
 
 from app import db
@@ -19,7 +18,7 @@ bp = Blueprint("users", __name__)
 @bp.get("/users")
 @serialize(ModelOut)
 @auth_required(Roles.admin.value)
-def get_users() -> tuple[DeclarativeBase, int]:
+def get_users() -> tuple[list[Users], int]:
     """Retrieve a list of users from the database.
 
     Arguments:

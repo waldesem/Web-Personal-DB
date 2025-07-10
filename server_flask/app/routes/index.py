@@ -2,7 +2,7 @@
 
 import json
 
-from flask import Blueprint, current_app, jsonify, request
+from flask import Blueprint, current_app, request
 from pydantic import ValidationError
 from sqlalchemy import desc, func, select
 from sqlalchemy.exc import SQLAlchemyError
@@ -10,7 +10,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from app import db
 from app.decorators.depend import auth_required, current_user
 from app.decorators.validate import serialize, validate
-from app.models.models import AnketaJson, CandidatePages, Index, PersonIn
+from app.models.models import AnketaJson, Candidates, Index, PersonExists, PersonIn
 from app.tables.tables import (
     Addresses,
     Affilations,
@@ -29,7 +29,7 @@ bp = Blueprint("route", __name__)
 
 
 @bp.get("/index")
-@serialize(CandidatePages)
+@serialize(Candidates)
 @validate
 @auth_required()
 def get_index(json_query: Index) -> tuple[list[Persons], int]:
@@ -59,6 +59,7 @@ def get_index(json_query: Index) -> tuple[list[Persons], int]:
             Persons.created,
             Persons.region,
             Users.fullname.label("username"),
+            func.count().over().label("total"),
         ).filter(
             Users.id == Persons.user_id,
             Persons.region == current_user.region
@@ -72,7 +73,8 @@ def get_index(json_query: Index) -> tuple[list[Persons], int]:
                 Persons.firstname == search[1] if len(search) > 1 else True,
                 Persons.patronymic == search[2] if len(search) > 2 else True,
             )
-        query = (
+        # Пагинация списка кандидатов
+        result = (
             db.session.execute(
                 stmt.order_by(desc(Persons.id)).slice(
                     (json_query.page - 1) * json_query.per_page,
@@ -80,28 +82,14 @@ def get_index(json_query: Index) -> tuple[list[Persons], int]:
                 ),
             ).all(),
         )
-        total = db.session.execute(
-            select(func.count()).select_from(stmt),
-        ).scalar()
-        # Пагинация списка кандидатов
-        return {
-            "query": db.session.execute(
-                stmt.order_by(desc(Persons.id)).slice(
-                    (json_query.page - 1) * json_query.per_page,
-                    json_query.per_page * json_query.page,
-                ),
-            ).all(),
-            "total": db.session.execute(
-                select(func.count()).select_from(stmt),
-            ).scalar(),
-        }, 200
     except SQLAlchemyError:
         current_app.logger.exception("SQL Error")
-        return jsonify([]), 500
-
+        return "", 500
+    else:
+        return result, 200
 
 @bp.post("/json")
-@serialize()
+@serialize(PersonExists)
 @auth_required(roles=[Roles.user.value, Roles.api.value])
 def post_json() -> tuple[dict, int]:
     """Create a new person or updates an existing person based on the provided data.

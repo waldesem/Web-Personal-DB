@@ -1,11 +1,14 @@
 """Login routes."""
 
+from __future__ import annotations
+
 import secrets
 from datetime import datetime, timedelta, timezone
 from threading import Thread
 
 import jwt
-from flask import Blueprint, current_app, jsonify
+from flask import Blueprint, current_app
+from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -13,7 +16,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from app import auth, db
 from app.decorators.depend import auth_required
 from app.decorators.validate import serialize, validate
-from app.models.models import Login
+from app.models.models import Login, Token
 from app.tables.tables import Users
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
@@ -22,7 +25,7 @@ bp = Blueprint("auth", __name__, url_prefix="/auth")
 @bp.post("/<action>")
 @serialize()
 @validate
-def post_login(action: str, json_data: Login) -> tuple[str, int]:
+def post_login(action: str, json_data: Login) -> tuple[str | dict, int]:
     """Handle the login process.
 
     Args:
@@ -64,29 +67,28 @@ def post_login(action: str, json_data: Login) -> tuple[str, int]:
         ):
             user.attempt = 0
             db.session.commit()
-            return jsonify(
-                {
-                    "message": "Success",
-                    "access_token": "Bearer "
-                    + jwt.encode(
-                        {
-                            "id": user.id,
-                            "fullname": user.fullname,
-                            "username": user.username,
-                            "email": user.email,
-                            "region": user.region,
-                            "role": user.role,
-                            "exp": datetime.now() + timedelta(hours=12),
-                            "jti": secrets.token_hex(16),
-                        },
-                        current_app.config["JWT_SECRET_KEY"],
-                        algorithm="HS256",
-                    ),
-                },
+            token = Token(
+                id=user.id,
+                fullname=user.fullname,
+                username=user.username,
+                email=user.email,
+                region=user.region,
+                role=user.role,
+                exp=datetime.now() + timedelta(hours=12),
+                jti=secrets.token_hex(16),
             )
+            return {
+                "message": "Success",
+                "access_token": "Bearer "
+                + jwt.encode(
+                    token.dict(),
+                    current_app.config["JWT_SECRET_KEY"],
+                    algorithm="HS256",
+                ),
+            }
         return "Denied", 200  # noqa: TRY300
 
-    except (SQLAlchemyError, ValueError):
+    except (SQLAlchemyError, ValueError, ValidationError):
         current_app.logger.exception("Error occurred in login route")
         db.session.rollback()
         return "Invalid", 200

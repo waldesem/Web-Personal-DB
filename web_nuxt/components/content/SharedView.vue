@@ -116,9 +116,10 @@ const status = ref("success");
 
 async function getItem() {
   status.value = "pending";
-  items.value = (await fetchAuth(
+  const { data } = (await fetchAuth(
     `/route/items/${props.view}/${candId.value}`
-  )) as object[];
+  )) as { data: object[] };
+  items.value = data;
   status.value = "success";
 }
 

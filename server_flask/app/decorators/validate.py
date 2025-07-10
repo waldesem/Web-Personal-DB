@@ -5,10 +5,10 @@ from __future__ import annotations
 from functools import wraps
 from typing import Callable
 
-from flask import Response, current_app, jsonify, make_response, request
+from flask import Response, abort, current_app, make_response, request
 from pydantic import BaseModel, ValidationError
 
-from app.models.models import BaseResponse, ModelIn, ModelOutList
+from app.models.models import BaseResponse, ModelOutList
 
 
 def validate(func: Callable) -> Callable:
@@ -33,26 +33,26 @@ def validate(func: Callable) -> Callable:
         """Validate request data using Pydantic models."""
         try:
             # if funcion has json_query argument with Pydantic model
-            if json_model := func.__annotations__.get("json_query"):
+            if model := func.__annotations__.get("json_query"):
                 json_query = request.args
-                kwargs["json_query"] = json_model(**json_query)
+                kwargs["json_query"] = model(**json_query)
 
             # if funcion has json_data argument with Pydantic model
-            if json_model := func.__annotations__.get("json_data"):
+            if model := func.__annotations__.get("json_data"):
                 # if json model annotation is InputModel
-                if json_model.__name__ == "ModelIn":
+                if model.__name__ == "ModelIn":
                     models = {
                         cls.__modelname__: cls
-                        for cls in ModelIn.__subclasses__()
+                        for cls in model.__subclasses__()
                         if hasattr(cls, "__modelname__")
                     }
-                    json_model = models[f"input_{kwargs['item']}"]
+                    model = models[kwargs["item"]]
                 json_data = request.get_json()
-                kwargs["json_data"] = json_model(**json_data)
+                kwargs["json_data"] = model(**json_data)
 
         except ValidationError:
             current_app.logger.exception("Error validating data")
-            return make_response(jsonify({"message": "error"}))
+            return abort(400)
         else:
             return func(*args, **kwargs)
 
@@ -94,27 +94,27 @@ def serialize(model: BaseModel = BaseResponse) -> Callable:
                             for cls in model.__subclasses__()
                             if hasattr(cls, "__modelname__")
                         }
-                        serial = ModelOutList[models[f"{kwargs['item']}"]]
+                        serial = ModelOutList[models[kwargs["item"]]]
                     else:
                         serial = model
 
                     if isinstance(result[0], dict):
-                        serialized = serial.construct(**result[0])
+                        serialized = serial.construct(**result[0]).json()
                     elif isinstance(result, str):
                         serialized = BaseResponse.construct(
                             message=result[0],
-                        )
+                        ).json()
                     else:
-                        serialized = serial.from_orm(result[0])
+                        serialized = serial.from_orm(result[0]).json()
             except ValidationError:
                 current_app.logger.exception("Error serialize data")
             else:
-                response = make_response(serialized.json())
+                response = make_response(serialized)
                 response.mimetype = "application/json"
                 response.status_code = result[1]
                 return response
 
-            return make_response(jsonify({"message": "error"}))
+            return abort(400)
 
         return wrapper
 

@@ -56,6 +56,13 @@ class Index(BaseModel):
     search: str | None = None
 
 
+class PersonExists(BaseModel):
+    """Person Exists."""
+
+    person_id: int | None
+    exists: bool
+
+
 class Token(ModelIn):
     """Pydantic model for JWT."""
 
@@ -196,7 +203,7 @@ class PersonOut(PersonIn, ModelOut):
     user_id: int | None
 
 
-class Candidate(ModelOut):
+class Candidates(ModelOut):
     """Pydantic model for candidate."""
 
     fullname: str
@@ -204,13 +211,7 @@ class Candidate(ModelOut):
     region: Regions
     editable: bool
     username: str
-
-
-class CandidatePages(BaseModel):
-    """Pydantic model for candidates."""
-
     total: int
-    candidates: list[Candidate]
 
 
 class PrevIn(ModelIn):

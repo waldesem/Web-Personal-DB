@@ -17,6 +17,7 @@ export interface Candidate {
   edit: boolean;
   data: string;
   user: string;
+  total: number;
 }
 
 const page = ref(1);
@@ -25,7 +26,7 @@ const search = ref("");
 const modal = ref(false);
 const updated = ref("Данные обновляются...");
 const candidates = shallowRef([] as Candidate[]);
-const per_page = 10
+const per_page = 10;
 
 const { refresh, status } = await useLazyAsyncData(
   "candidates",
@@ -36,12 +37,9 @@ const { refresh, status } = await useLazyAsyncData(
         per_page: per_page,
         page: page.value,
       },
-    })) as {
-      query: Candidate[];
-      total: number;
-    };
-    candidates.value = data.query;
-    total.value = data.total;
+    })) as Candidate[];
+    candidates.value = data;
+    total.value = data ? data[0].total : 1;
     updated.value = new Date().toLocaleTimeString("ru-RU");
   },
   { watch: [page] }

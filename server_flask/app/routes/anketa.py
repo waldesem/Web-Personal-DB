@@ -1,11 +1,12 @@
 """Anketa routes."""
+from __future__ import annotations
 
 from datetime import datetime
 from pathlib import Path
 
 from flask import Blueprint, current_app, request
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import DeclarativeBase  # noqa: TC002
 
 from app import db
 from app.decorators.depend import auth_required, current_user
@@ -77,7 +78,7 @@ def change_region(person_id: int, json_data: Region) -> tuple[str, int]:
 @bp.get("/self/<int:person_id>")
 @serialize(PersonOut)
 @auth_required(Roles.user.value)
-def change_self_id(person_id: int) -> tuple[DeclarativeBase, int]:
+def change_self_id(person_id: int) -> tuple[str | Persons, int]:
     """Toggle the editable status of a person with the given item ID.
 
     The person ID is the ID of the person to toggle the editable status.
