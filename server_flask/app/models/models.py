@@ -12,6 +12,35 @@ from app.utils.utilities import Conclusions, Decisions, Regions, Roles
 T = TypeVar("T")
 
 
+class ModelIn(BaseModel):
+    """Base Pydantic model."""
+
+    class Config:
+        """Pydantic config."""
+
+        use_enum_values = True
+        anystr_strip_whitespace = True 
+        allow_population_by_field_name = True
+
+
+class ModelOut(BaseModel):
+    """Pydantic model for outputs."""
+
+    created: datetime
+
+    class Config:
+        """Pydantic config."""
+
+        use_enum_values = True
+        orm_mode = True
+
+
+class ModelOutList(GenericModel, Generic[T]):
+    """Pydantic model for candidates."""
+
+    data: list[T]
+
+
 class BaseResponse(BaseModel):
     """Pydantic model for Base Response."""
 
@@ -94,34 +123,6 @@ class Login(BaseModel):
         return v.strip().lower()
 
 
-class ModelIn(BaseModel):
-    """Base Pydantic model."""
-
-    class Config:
-        """Pydantic config."""
-
-        use_enum_values = True
-        allow_population_by_field_name = True
-
-
-class ModelOut(BaseModel):
-    """Pydantic model for outputs."""
-
-    created: datetime
-
-    class Config:
-        """Pydantic config."""
-
-        use_enum_values = True
-        orm_mode = True
-
-
-class ModelOutList(GenericModel, Generic[T]):
-    """Pydantic model for candidates."""
-
-    data: list[T]
-
-
 class UserIn(ModelIn):
     """Pydantic model for user form."""
 
@@ -142,7 +143,7 @@ class UserIn(ModelIn):
     @classmethod
     def fullname_check(cls, v: str) -> str:
         """Check fullname."""
-        return v.strip().upper()
+        return v.upper()
 
 
 class UserOut(UserIn, ModelOut):
@@ -153,12 +154,6 @@ class UserOut(UserIn, ModelOut):
     blocked: bool
     deleted: bool
     attempt: int
-
-
-class UserOutLIst(BaseModel):
-    """Pydantic model for user list."""
-
-    users = list[UserOut]
 
 
 class Candidate(ModelOut):
@@ -185,7 +180,7 @@ class Profile(BaseModel):
     person: PersonOut
 
 
-class PersonIn(ModelIn):
+class FioModel(ModelIn):
     """Pydantic model for person form."""
 
     __PATTERN = r"^[А-яЁёIV\-\s\.\,\'\(\)]*$"
@@ -194,6 +189,14 @@ class PersonIn(ModelIn):
     surname: str = Field(alias="lastName", regex=__PATTERN)
     firstname: str = Field(alias="firstName", regex=__PATTERN)
     patronymic: str = Field(default="", alias="midName")
+
+    class Config:
+        str_to_upper = True
+
+
+class PersonIn(FioModel):
+    """Pydantic model for person form."""
+
     birthday: date
     birthplace: str | None = ""
     citizenship: str = Field(default="", alias="citizen")
@@ -205,12 +208,6 @@ class PersonIn(ModelIn):
     destination: str | None = ""
     region: None | Regions
     editable: bool = False
-
-    @validator("surname", "firstname", "patronymic")
-    @classmethod
-    def check_names(cls, v: str) -> str:
-        """Check names."""
-        return v.upper().strip() if v else ""
 
 
 class PersonOut(PersonIn, ModelOut):
@@ -225,7 +222,7 @@ class PrevIn(ModelIn):
     __modelname__ = "Input_previous"
 
     id: int | str | None = None
-    surname: str = Field(default="", alias="lastNameBeforeChange")
+    surname: str = Field(alias="lastNameBeforeChange")
     firstname: str = Field(alias="firstNameBeforeChange")
     patronymic: str = Field(default="", alias="midNameBeforeChange")
     changed: str | int = Field(default="", alias="yearOfChange")
@@ -235,7 +232,7 @@ class PrevIn(ModelIn):
     @classmethod
     def check_names(cls, v: str) -> str:
         """Check names."""
-        return v.upper().strip() if v else ""
+        return v.upper() if v else ""
 
 
 class PrevOut(PrevIn, ModelOut):
