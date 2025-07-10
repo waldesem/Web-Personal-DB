@@ -14,6 +14,8 @@ T = TypeVar("T")
 
 class ModelIn(BaseModel):
     """Base Pydantic model."""
+ 
+    id: int | str | None = None
 
     class Config:
         """Pydantic config."""
@@ -99,7 +101,7 @@ class Items(BaseModel):
     ]
 
 
-class Login(ModelIn):
+class Login(BaseModel):
     """Pydantic model for login form."""
 
     username: str
@@ -116,7 +118,6 @@ class Login(ModelIn):
 class UserIn(ModelIn):
     """Pydantic model for user form."""
 
-    id: int | str | None = None
     fullname: str
     username: str
     email: str | None = ""
