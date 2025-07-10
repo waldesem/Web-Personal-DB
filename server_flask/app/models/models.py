@@ -12,16 +12,6 @@ from app.utils.utilities import Conclusions, Decisions, Regions, Roles
 T = TypeVar("T")
 
 
-class ResultTupleModel(BaseModel):
-    value: Tuple[Any, int]
-    
-    @validator('value')
-    def check_tuple(cls, v):
-        if len(v) != 2 or not (199 < v[1] < 300):
-            raise ValueError("Кортеж должен содержать ровно два элемента, причем второй элемент должен быть числом между 199 и 300")
-        return v
-
-
 class ModelIn(BaseModel):
     """Base Pydantic model."""
 
