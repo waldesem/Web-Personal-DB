@@ -55,7 +55,7 @@ class Index(BaseModel):
     search: str | None = None
 
 
-class Token(BaseModel):
+class Token(ModelIn):
     """Pydantic model for JWT."""
 
     id: str | int
@@ -67,21 +67,11 @@ class Token(BaseModel):
     exp: datetime
     jti: str
 
-    class Config:
-        """Pydantic config."""
 
-        use_enum_values = True
-
-
-class Region(BaseModel):
+class Region(ModelIn):
     """Pydantic model for region select form."""
 
     region: Regions
-
-    class Config:
-        """Pydantic config."""
-
-        use_enum_values = True
 
 
 class UserActions(BaseModel):
@@ -109,7 +99,7 @@ class Items(BaseModel):
     ]
 
 
-class Login(BaseModel):
+class Login(ModelIn):
     """Pydantic model for login form."""
 
     username: str
@@ -120,7 +110,7 @@ class Login(BaseModel):
     @classmethod
     def username_check(cls, v: str) -> str:
         """Check username."""
-        return v.strip().lower()
+        return v.lower()
 
 
 class UserIn(ModelIn):
@@ -137,7 +127,7 @@ class UserIn(ModelIn):
     @classmethod
     def username_check(cls, v: str) -> str:
         """Check username."""
-        return v.strip().lower()
+        return v.lower()
 
     @validator("fullname")
     @classmethod
@@ -197,6 +187,7 @@ class FioModel(ModelIn):
 class PersonIn(FioModel):
     """Pydantic model for person form."""
 
+    id: int | str | None = None
     birthday: date
     birthplace: str | None = ""
     citizenship: str = Field(default="", alias="citizen")
