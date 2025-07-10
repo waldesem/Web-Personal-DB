@@ -81,36 +81,36 @@ def serialize(model: BaseModel = BaseResponse) -> Callable:
         @wraps(func)
         def wrapper(*args: tuple, **kwargs: dict) -> Response:
             result = func(*args, **kwargs)
-            try:
-                if (
-                    isinstance(result, tuple)
-                    and len(result) == 2
-                    and isinstance(result[1], int)
-                    and 199 < result[1] < 300
-                ):
+            if (
+                isinstance(result, tuple)
+                and len(result) == 2
+                and isinstance(result[1], int)
+                and 199 < result[1] < 300
+            ):
 
-                    if isinstance(result[0], dict):
-                        return jsonify(result[0])
-                    elif isinstance(result, str):
-                        return jsonify({"message": result[0]})
-                    else:
-                        if model.__name__ == "ModelOut":
-                        models = {
-                            cls.__modelname__: cls
-                            for cls in model.__subclasses__()
-                            if hasattr(cls, "__modelname__")
-                        }
-                        serial = ModelOutList[models[kwargs["item"]]]
-                    else:
-                        serial = model
+                if isinstance(result[0], dict):
+                    return jsonify(result[0])
+                elif isinstance(result, str):
+                    return jsonify({"message": result[0]})
+                else:
+                    if model.__name__ == "ModelOut":
+	                    models = {
+	                        cls.__modelname__: cls
+	                        for cls in model.__subclasses__()
+	                        if hasattr(cls, "__modelname__")
+	                    }
+	                    serial = ModelOutList[models[kwargs["item"]]]
+	                else:
+		                serial = model
+	                try:
                         serialized = serial.from_orm(result[0]).json()
-            except ValidationError:
-                current_app.logger.exception("Error serialize data")
-            else:
-                response = make_response(serialized)
-                response.mimetype = "application/json"
-                response.status_code = result[1]
-                return response
+		            except ValidationError:
+		                current_app.logger.exception("Error serialize data")
+		            else:
+		                response = make_response(serialized)
+		                response.mimetype = "application/json"
+		                response.status_code = result[1]
+		                return response
 
             return abort(400)
 
