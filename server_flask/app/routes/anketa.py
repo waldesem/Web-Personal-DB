@@ -3,13 +3,14 @@
 from datetime import datetime
 from pathlib import Path
 
-from flask import Blueprint, Response, current_app, jsonify, request
+from flask import Blueprint, current_app, request
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import DeclarativeBase
 
 from app import db
 from app.decorators.depend import auth_required, current_user
-from app.decorators.validate import validate
-from app.models.models import Model, PersonOut, Region
+from app.decorators.validate import serialize, validate
+from app.models.models import PersonOut, Profile, Region
 from app.tables.tables import Persons
 from app.utils.utilities import Roles, check_filename, create_destination
 
@@ -17,8 +18,9 @@ bp = Blueprint("anketa", __name__, url_prefix="/anketa")
 
 
 @bp.get("/profile/<int:person_id>")
+@serialize(Profile)
 @auth_required()
-def get_profile(person_id: int) -> Response:
+def get_profile(person_id: int) -> tuple[DeclarativeBase, int]:
     """Get candidate profile.
 
     Args:
@@ -35,26 +37,17 @@ def get_profile(person_id: int) -> Response:
         db.session.commit()
     profile = {"person": PersonOut.from_orm(person).dict()}
     # Сбор ключей, которые нужно обработать
-    keys = [key for key in person.__annotations__ if key in db.metatables]
-    models = {
-        cls.__modelname__: cls
-        for cls in Model.__subclasses__()
-        if hasattr(cls, "__modelname__")
-    }
-    # oбработка ключей
-    for key in keys:
-        profile[key] = [
-            models[f"output_{key}"].from_orm(item).dict(exclude_none=True)
-            for item in getattr(person, key)
-        ]
+    for key in [key for key in person.__annotations__ if key in db.metatables]:
+        profile[key] = getattr(person, key)
     # Вернуть ответ
-    return jsonify(profile), 200
+    return profile, 200
 
 
 @bp.post("/region/<int:person_id>")
+@serialize()
 @validate
 @auth_required(Roles.user.value)
-def change_region(person_id: int, json_data: Region) -> Response:
+def change_region(person_id: int, json_data: Region) -> tuple[str, int]:
     """Change a person's region in the database based on their person ID.
 
     Args:
@@ -74,15 +67,17 @@ def change_region(person_id: int, json_data: Region) -> Response:
         person.destination = destination
         person.editable = False
         db.session.commit()
-        return jsonify({"message": "success"}), 201
     except SQLAlchemyError:
         current_app.logger.exception("Exception in change_region")
-        return jsonify({"message": "error"}), 500
+        return "error", 500
+    else:
+        return "success", 201
 
 
 @bp.get("/self/<int:person_id>")
+@serialize(PersonOut)
 @auth_required(Roles.user.value)
-def change_self_id(person_id: int) -> Response:
+def change_self_id(person_id: int) -> tuple[DeclarativeBase, int]:
     """Toggle the editable status of a person with the given item ID.
 
     The person ID is the ID of the person to toggle the editable status.
@@ -103,15 +98,17 @@ def change_self_id(person_id: int) -> Response:
         else:
             person.editable = not person.editable
         db.session.commit()
-        return jsonify(PersonOut.from_orm(person).dict()), 201
     except SQLAlchemyError:
         current_app.logger.exception("Exception in change_self_id")
-        return jsonify({"message": "error"}), 500
+        return "error", 500
+    else:
+        return person, 201
 
 
 @bp.post("/files/<int:person_id>")
+@serialize()
 @auth_required(Roles.user.value)
-def post_files(person_id: int) -> Response:
+def post_files(person_id: int) -> tuple[str, int]:
     """Upload a file to the server.
 
     Args:
@@ -141,7 +138,8 @@ def post_files(person_id: int) -> Response:
                 file_path = Path(subfolder, secure_filename)
                 if not file_path.is_file():
                     data.save(file_path)
-        return jsonify({"message": "success"}), 201
     except (TypeError, ValueError, AttributeError):
         current_app.logger.exception("Exception in post_files")
-        return jsonify({"message": "error"}), 500
+        return "error", 500
+    else:
+        return "success", 201

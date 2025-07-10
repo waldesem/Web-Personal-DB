@@ -1,14 +1,15 @@
 """User routes."""
 
-from flask import Blueprint, Response, current_app, jsonify
+from flask import Blueprint, current_app
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import DeclarativeBase
 from werkzeug.security import generate_password_hash
 
 from app import db
 from app.decorators.depend import auth_required, current_user, get_current_user
-from app.decorators.validate import validate
-from app.models.models import UserActions, UserIn, UserOut
+from app.decorators.validate import serialize, validate
+from app.models.models import ModelOut, UserActions, UserIn
 from app.tables.tables import Users
 from app.utils.utilities import Regions, Roles
 
@@ -16,8 +17,9 @@ bp = Blueprint("users", __name__)
 
 
 @bp.get("/users")
+@serialize(ModelOut)
 @auth_required(Roles.admin.value)
-def get_users() -> Response:
+def get_users() -> tuple[DeclarativeBase, int]:
     """Retrieve a list of users from the database.
 
     Arguments:
@@ -33,13 +35,14 @@ def get_users() -> Response:
     stmt = select(*[getattr(Users, column) for column in columns])
     users = db.session.execute(stmt).all()
     # Преобразовать результат в список словарей и вернуть в качестве ответа
-    return jsonify([UserOut.from_orm(user).dict() for user in users]), 200
+    return users, 200
 
 
 @bp.post("/user")
+@serialize()
 @validate
 @auth_required(Roles.admin.value)
-def post_user_actions(user_id: int, json_data: UserActions) -> Response:
+def post_user_actions(user_id: int, json_data: UserActions) -> tuple[str, int]:
     """Change a user's information in the database based on their user ID.
 
     Args:
@@ -54,7 +57,7 @@ def post_user_actions(user_id: int, json_data: UserActions) -> Response:
     user = db.session.get(Users, user_id)
     # Если пользователь не найден или пытается изменить собственный профиль
     if not user or current_user.id == user.id:
-        return jsonify({"message": "error"}), 200
+        return "error", 200
 
     if json_data.item == "reset":
         # Сбросить пароль пользователя и обнулить попытки входа
@@ -77,17 +80,18 @@ def post_user_actions(user_id: int, json_data: UserActions) -> Response:
         # Изменить регион пользователя
         user.region = json_data.item
     else:
-        return jsonify({"message": "error"}), 200
+        return "error", 200
     db.session.commit()
     # Очистить кэш для id пользователей
     get_current_user.cache_clear()
-    return jsonify({"message": "success"}), 201
+    return "success", 201
 
 
 @bp.post("/user/<int:user_id>")
+@serialize()
 @validate
 @auth_required(Roles.admin.value)
-def post_user(json_data: UserIn) -> Response:
+def post_user(json_data: UserIn) -> tuple[str, int]:
     """Handle the POST request to create a user in the database.
 
     Arguments:
@@ -103,13 +107,14 @@ def post_user(json_data: UserIn) -> Response:
         select(Users).filter(Users.username == json_data.username),
     ).all()
     if user:
-        return jsonify({"message": "error"}), 200
+        return "error", 200
     try:
         # Создать нового пользователя
         db.session.add(Users(**json_data.dict()))
         db.session.commit()
-        return jsonify({"message": "success"}), 201
     except SQLAlchemyError:
         current_app.logger.exception("Database error")
         db.session.rollback()
-        return jsonify({"message": "error"}), 200
+        return "error", 200
+    else:
+        return "success", 201

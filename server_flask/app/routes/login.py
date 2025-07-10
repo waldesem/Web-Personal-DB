@@ -5,14 +5,14 @@ from datetime import datetime, timedelta, timezone
 from threading import Thread
 
 import jwt
-from flask import Blueprint, Response, current_app, jsonify
+from flask import Blueprint, current_app, jsonify
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app import auth, db
 from app.decorators.depend import auth_required
-from app.decorators.validate import validate
+from app.decorators.validate import serialize, validate
 from app.models.models import Login
 from app.tables.tables import Users
 
@@ -20,8 +20,9 @@ bp = Blueprint("auth", __name__, url_prefix="/auth")
 
 
 @bp.post("/<action>")
+@serialize()
 @validate
-def post_login(action: str, json_data: Login) -> Response:
+def post_login(action: str, json_data: Login) -> tuple[str, int]:
     """Handle the login process.
 
     Args:
@@ -38,7 +39,7 @@ def post_login(action: str, json_data: Login) -> Response:
         ).scalar_one_or_none()
 
         if not user or user.blocked or user.deleted:
-            return jsonify({"message": "Invalid"})
+            return "Invalid", 200
 
         if not check_password_hash(user.passhash, json_data.password):
             if user.attempt < 5:
@@ -46,7 +47,7 @@ def post_login(action: str, json_data: Login) -> Response:
             else:
                 user.blocked = True
             db.session.commit()
-            return jsonify({"message": "Invalid"})
+            return "Invalid", 200
 
         if action == "update":
             user.passhash = generate_password_hash(json_data.new_pswd)
@@ -54,7 +55,7 @@ def post_login(action: str, json_data: Login) -> Response:
             user.change_pswd = False
             user.attempt = 0
             db.session.commit()
-            return jsonify({"message": "Updated"})
+            return "Updated", 201
 
         delta_change = datetime.now() - user.pswd_create
         if (
@@ -83,16 +84,18 @@ def post_login(action: str, json_data: Login) -> Response:
                     ),
                 },
             )
-        return jsonify({"message": "Denied"})
+        return "Denied", 200  # noqa: TRY300
+
     except (SQLAlchemyError, ValueError):
         current_app.logger.exception("Error occurred in login route")
         db.session.rollback()
-        return jsonify({"message": "Invalid"}), 200
+        return "Invalid", 200
 
 
 @bp.get("/logout")
+@serialize()
 @auth_required()
-def get_logout() -> Response:
+def get_logout() -> tuple[str, int]:
     """Logout the user.
 
     Returns:

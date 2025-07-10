@@ -8,7 +8,7 @@ from typing import Callable
 from flask import Response, current_app, jsonify, make_response, request
 from pydantic import BaseModel, ValidationError
 
-from app.models.models import BaseResponse, ModelIn, ModelOut
+from app.models.models import BaseResponse, ModelIn, ModelOutList
 
 
 def validate(func: Callable) -> Callable:
@@ -76,6 +76,7 @@ def serialize(model: BaseModel = BaseResponse) -> Callable:
         # Function body
 
     """
+
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args: tuple, **kwargs: dict) -> Response:
@@ -90,23 +91,25 @@ def serialize(model: BaseModel = BaseResponse) -> Callable:
                     if model.__name__ == "ModelOut":
                         models = {
                             cls.__modelname__: cls
-                            for cls in ModelOut.__subclasses__()
+                            for cls in model.__subclasses__()
                             if hasattr(cls, "__modelname__")
                         }
-                        serial = models[f"output_{kwargs['item']}"]
+                        serial = ModelOutList[models[f"{kwargs['item']}"]]
                     else:
                         serial = model
 
                     if isinstance(result[0], dict):
-                        serialized = serial.parse_obj(result[0]).json()
-                    elif isinstance(result, (str, int)):
-                        serialized = BaseResponse(message=str(result[0])).json()
+                        serialized = serial.construct(**result[0])
+                    elif isinstance(result, str):
+                        serialized = BaseResponse.construct(
+                            message=result[0],
+                        )
                     else:
-                        serialized = serial.from_orm(result[0]).json()
+                        serialized = serial.from_orm(result[0])
             except ValidationError:
                 current_app.logger.exception("Error serialize data")
             else:
-                response = make_response(serialized)
+                response = make_response(serialized.json())
                 response.mimetype = "application/json"
                 response.status_code = result[1]
                 return response

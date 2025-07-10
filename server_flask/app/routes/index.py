@@ -2,15 +2,15 @@
 
 import json
 
-from flask import Blueprint, Response, current_app, jsonify, request
+from flask import Blueprint, current_app, jsonify, request
 from pydantic import ValidationError
 from sqlalchemy import desc, func, select
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
 from app.decorators.depend import auth_required, current_user
-from app.decorators.validate import validate
-from app.models.models import AnketaJson, CandidateOut, Index, PersonIn
+from app.decorators.validate import serialize, validate
+from app.models.models import AnketaJson, CandidatePages, Index, PersonIn
 from app.tables.tables import (
     Addresses,
     Affilations,
@@ -29,9 +29,10 @@ bp = Blueprint("route", __name__)
 
 
 @bp.get("/index")
+@serialize(CandidatePages)
 @validate
 @auth_required()
-def get_index(json_query: Index) -> Response:
+def get_index(json_query: Index) -> tuple[list[Persons], int]:
     """Retrieve a paginated list of persons from the database.
 
     Arguments:
@@ -73,28 +74,26 @@ def get_index(json_query: Index) -> Response:
             )
 
         # Пагинация списка кандидатов
-        result = db.session.execute(
-            stmt.order_by(desc(Persons.id)).slice(
-                (json_query.page - 1) * json_query.per_page,
-                json_query.per_page * json_query.page,
-            ),
-        ).all()
-        return jsonify(
-            {
-                "query": [CandidateOut.from_orm(row).dict() for row in result],
-                "total": db.session.execute(
-                    select(func.count()).select_from(stmt),
-                ).scalar(),
-            },
-        ), 200
+        return {
+            "query": db.session.execute(
+                stmt.order_by(desc(Persons.id)).slice(
+                    (json_query.page - 1) * json_query.per_page,
+                    json_query.per_page * json_query.page,
+                ),
+            ).all(),
+            "total": db.session.execute(
+                select(func.count()).select_from(stmt),
+            ).scalar(),
+        }, 200
     except SQLAlchemyError:
         current_app.logger.exception("SQL Error")
         return jsonify([]), 500
 
 
 @bp.post("/json")
+@serialize()
 @auth_required(roles=[Roles.user.value, Roles.api.value])
-def post_json() -> Response:
+def post_json() -> tuple[dict, int]:
     """Create a new person or updates an existing person based on the provided data.
 
     Args:
@@ -108,7 +107,7 @@ def post_json() -> Response:
         # Чтение файла JSON и создание объектов классов для сохранения в БД
         file = request.files.get("file")
         if not file:
-            return jsonify({"person_id": None, "exists": False}), 500
+            return {"person_id": None, "exists": False}, 500
 
         json_data = json.load(file)
         anketa = AnketaJson(**json_data)
@@ -121,10 +120,11 @@ def post_json() -> Response:
         # Сохранение дополнительной информации о кандидате в БД
         if person_id:
             upload_items(anketa, person_id)
-        return jsonify({"person_id": person_id, "exists": existed}), 201
     except (ValidationError, json.JSONDecodeError, TypeError):
         current_app.logger.exception("JSON Error")
-        return jsonify({"person_id": None, "exists": False}), 500
+        return {"person_id": None, "exists": False}, 500
+    else:
+        return {"person_id": person_id, "exists": existed}, 201
 
 
 def upload_items(anketa: AnketaJson, person_id: int) -> None:

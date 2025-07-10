@@ -1,12 +1,13 @@
 """Items routes."""
 
-from flask import Blueprint, Response, current_app, jsonify
+from flask import Blueprint, current_app
 from flask.views import MethodView
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import DeclarativeBase
 
 from app import db
 from app.decorators.depend import auth_required
-from app.decorators.validate import validate
+from app.decorators.validate import serialize, validate
 from app.models.models import Items, ModelIn, ModelOut, PersonIn, PersonOut
 from app.tables.tables import Persons
 from app.utils.utilities import Roles, upload_resume
@@ -17,8 +18,9 @@ bp = Blueprint("items", __name__, url_prefix="/items")
 class PersonView(MethodView):
     """Person routes."""
 
+    @serialize(PersonOut)
     @auth_required()
-    def get(self, person_id: int) -> Response:
+    def get(self, person_id: int) -> tuple[Persons, int]:
         """Retrieve an item from the database based on the provided item ID.
 
         Args:
@@ -31,11 +33,12 @@ class PersonView(MethodView):
         """
         # Получаем данные кандидата и создаем папку для него, если ее нет
         person = db.session.get(Persons, person_id)
-        return jsonify(PersonOut.from_orm(person).dict()), 200
+        return person, 200
 
+    @serialize()
     @validate
     @auth_required(Roles.user.value)
-    def post(self, json_data: PersonIn) -> Response:
+    def post(self, json_data: PersonIn) -> tuple[dict, int]:
         """Replace a record in persons table.
 
         Args:
@@ -48,10 +51,11 @@ class PersonView(MethodView):
         """
         # Загружаем отредактированное резюме и получаем id кандидата
         cand_id, existed = upload_resume(json_data)
-        return jsonify({"person_id": cand_id, "exists": existed}), 201
+        return {"person_id": cand_id, "exists": existed}, 201
 
+    @serialize()
     @auth_required(Roles.user.value)
-    def delete(self, person_id: int) -> Response:
+    def delete(self, person_id: int) -> tuple[str, int]:
         """Delete an item from the database based on the provided item name and item ID.
 
         Args:
@@ -66,11 +70,12 @@ class PersonView(MethodView):
             person = db.session.get(Persons, person_id)
             db.session.delete(person)
             db.session.commit()
-            return jsonify({"message": "success"}), 201
         except SQLAlchemyError:
             current_app.logger.exception("Database error")
             db.session.rollback()
-            return jsonify({"message": "error"}), 500
+            return "error", 500
+        else:
+            return "success", 201
 
 
 view_func = PersonView.as_view("person")
@@ -85,8 +90,9 @@ bp.add_url_rule(
 class ItemsView(MethodView):
     """Items view."""
 
+    @serialize(ModelOut)
     @auth_required()
-    def get(self, item: Items, item_id: int) -> Response:
+    def get(self, item: Items, item_id: int) -> tuple[DeclarativeBase, int]:
         """Retrieve an item from the database based on the provided item.
 
         Args:
@@ -104,24 +110,13 @@ class ItemsView(MethodView):
             .select()
             .filter(db.metatables[item].c.person_id == item_id)
         )
-        models = {
-            cls.__modelname__: cls
-            for cls in ModelOut.__subclasses__()
-            if hasattr(cls, "__modelname__")
-        }
         # Выполняем запрос и получаем результаты
         query = db.session.execute(stmt)
-        # Преобразуем результаты в словарь и возвращаем их в формате JSON
-        return jsonify(
-            [
-                models[f"output_{item}"].from_orm(row).dict(exclude_none=True)
-                for row in query
-            ],
-        ), 200
+        return query, 200
 
     @validate
     @auth_required(Roles.user.value)
-    def post(self, item: Items, item_id: int, json_data: ModelIn) -> Response:
+    def post(self, item: Items, item_id: int, json_data: ModelIn) -> tuple[str, int]:
         """Insert or replaces a record in the specified table with the given item ID.
 
         Args:
@@ -153,14 +148,15 @@ class ItemsView(MethodView):
                 stmt = db.metatables[item].insert().values(json_dict)
             db.session.execute(stmt)
             db.session.commit()
-            return jsonify({"message": "success"}), 201
         except SQLAlchemyError:
             current_app.logger.exception("Database error")
             db.session.rollback()
-            return jsonify({"message": "error"}), 500
+            return "error", 500
+        else:
+            return "success", 201
 
     @auth_required(Roles.user.value)
-    def delete(self, item: Items, item_id: int) -> Response:
+    def delete(self, item: Items, item_id: int) -> tuple[str, int]:
         """Delete an item from the database based on the provided item name and item ID.
 
         Args:
@@ -178,11 +174,12 @@ class ItemsView(MethodView):
                 db.metatables[item].delete().where(db.metatables[item].c.id == item_id),
             )
             db.session.commit()
-            return jsonify({"message": "success"}), 201
         except SQLAlchemyError:
             current_app.logger.exception("Database error")
             db.session.rollback()
-            return jsonify({"message": "error"}), 500
+            return "error", 500
+        else:
+            return "success", 201
 
 
 bp.add_url_rule("/<item>/<int:item_id>", view_func=ItemsView.as_view("item"))
