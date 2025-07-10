@@ -5,7 +5,7 @@ from __future__ import annotations
 from functools import wraps
 from typing import Callable
 
-from flask import Response, abort, current_app, make_response, request
+from flask import Response, jsonify, abort, current_app, make_response, request
 from pydantic import BaseModel, ValidationError
 
 from app.models.models import BaseResponse, ModelOutList
@@ -88,7 +88,13 @@ def serialize(model: BaseModel = BaseResponse) -> Callable:
                     and isinstance(result[1], int)
                     and 199 < result[1] < 300
                 ):
-                    if model.__name__ == "ModelOut":
+
+                    if isinstance(result[0], dict):
+                        return jsonify(result[0])
+                    elif isinstance(result, str):
+                        return jsonify({"message": result[0]})
+                    else:
+                        if model.__name__ == "ModelOut":
                         models = {
                             cls.__modelname__: cls
                             for cls in model.__subclasses__()
@@ -97,14 +103,6 @@ def serialize(model: BaseModel = BaseResponse) -> Callable:
                         serial = ModelOutList[models[kwargs["item"]]]
                     else:
                         serial = model
-
-                    if isinstance(result[0], dict):
-                        serialized = serial.construct(**result[0]).json()
-                    elif isinstance(result, str):
-                        serialized = BaseResponse.construct(
-                            message=result[0],
-                        ).json()
-                    else:
                         serialized = serial.from_orm(result[0]).json()
             except ValidationError:
                 current_app.logger.exception("Error serialize data")
