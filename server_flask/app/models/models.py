@@ -3,13 +3,23 @@
 from __future__ import annotations
 
 from datetime import date, datetime  # noqa: TC003
-from typing import Generic, Literal, TypeVar
+from typing import Any, Generic, Literal, Tuple, TypeVar
 
 from pydantic import BaseModel, Field, GenericModel, validator
 
 from app.utils.utilities import Conclusions, Decisions, Regions, Roles
 
 T = TypeVar("T")
+
+
+class ResultTupleModel(BaseModel):
+    value: Tuple[Any, int]
+    
+    @validator('value')
+    def check_tuple(cls, v):
+        if len(v) != 2 or not (199 < v[1] < 300):
+            raise ValueError("Кортеж должен содержать ровно два элемента, причем второй элемент должен быть числом между 199 и 300")
+        return v
 
 
 class ModelIn(BaseModel):
