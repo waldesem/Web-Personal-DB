@@ -82,16 +82,16 @@ def serialize(model: BaseModel = BaseResponse) -> Callable:
         def wrapper(*args: tuple, **kwargs: dict) -> Response:
             result = func(*args, **kwargs)
             if (
-                isinstance(result, tuple)
+                isinstance(result, (tuple, list))
                 and len(result) == 2
                 and isinstance(result[1], int)
-                and 199 < result[1] < 300
+                and result[1] in [200, 201, 204, 500]
             ):
 
                 if isinstance(result[0], dict):
-                    return jsonify(result[0])
+                    return jsonify(result[0]), result[1]
                 elif isinstance(result, str):
-                    return jsonify({"message": result[0]})
+                    return jsonify({"message": result[0]}), result[1]
                 else:
                     if model.__name__ == "ModelOut":
 	                    models = {
