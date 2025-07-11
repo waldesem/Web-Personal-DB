@@ -2,80 +2,6 @@
 import type { Component } from "vue";
 import type { DivsItems, PillsItems } from "@/types";
 
-// const AddressItem = defineAsyncComponent(
-//   () => import("@/components/items/AddressItem.vue")
-// );
-// const AffilationItem = defineAsyncComponent(
-//   () => import("@/components/items/AffilationItem.vue")
-// );
-// const ContactItem = defineAsyncComponent(
-//   () => import("@/components/items/ContactItem.vue")
-// );
-// const DocumentItem = defineAsyncComponent(
-//   () => import("@/components/items/DocumentItem.vue")
-// );
-// const EducationItem = defineAsyncComponent(
-//   () => import("@/components/items/EducationItem.vue")
-// );
-// const PreviousItem = defineAsyncComponent(
-//   () => import("@/components/items/PreviousItem.vue")
-// );
-// const StaffItem = defineAsyncComponent(
-//   () => import("@/components/items/StaffItem.vue")
-// );
-// const WorkplaceItem = defineAsyncComponent(
-//   () => import("@/components/items/WorkplaceItem.vue")
-// );
-// const CheckItem = defineAsyncComponent(
-//   () => import("@/components/items/CheckItem.vue")
-// );
-// const InquiryItem = defineAsyncComponent(
-//   () => import("@/components/items/InquiryItem.vue")
-// );
-// const InvestigateItem = defineAsyncComponent(
-//   () => import("@/components/items/InvestigationItem.vue")
-// );
-// const PoligrafItem = defineAsyncComponent(
-//   () => import("@/components/items/PoligrafItem.vue")
-// );
-
-// const AddressForm = defineAsyncComponent(
-//   () => import("@/components/forms/AddressForm.vue")
-// );
-// const AffilationForm = defineAsyncComponent(
-//   () => import("@/components/forms/AffilationForm.vue")
-// );
-// const ContactForm = defineAsyncComponent(
-//   () => import("@/components/forms/ContactForm.vue")
-// );
-// const DocumentForm = defineAsyncComponent(
-//   () => import("@/components/forms/DocumentForm.vue")
-// );
-// const EducationForm = defineAsyncComponent(
-//   () => import("@/components/forms/EducationForm.vue")
-// );
-// const PreviousForm = defineAsyncComponent(
-//   () => import("@/components/forms/PreviousForm.vue")
-// );
-// const StaffForm = defineAsyncComponent(
-//   () => import("@/components/forms/StaffForm.vue")
-// );
-// const WorkplaceForm = defineAsyncComponent(
-//   () => import("@/components/forms/WorkplaceForm.vue")
-// );
-// const CheckForm = defineAsyncComponent(
-//   () => import("@/components/forms/CheckForm.vue")
-// );
-// const InquiryForm = defineAsyncComponent(
-//   () => import("@/components/forms/InquiryForm.vue")
-// );
-// const InvestigateForm = defineAsyncComponent(
-//   () => import("@/components/forms/InvestigateForm.vue")
-// );
-// const PoligrafForm = defineAsyncComponent(
-//   () => import("@/components/forms/PoligrafForm.vue")
-// );
-
 const props = defineProps({
   view: {
     type: String as PropType<PillsItems | DivsItems>,
@@ -138,21 +64,6 @@ const mappedContent = {
   ],
 } as { [props.view]: [Component, Component] };
 
-// const mappedContent = {
-//   addresses: [AddressForm, AddressItem],
-//   affilations: [AffilationForm, AffilationItem],
-//   contacts: [ContactForm, ContactItem],
-//   documents: [DocumentForm, DocumentItem],
-//   educations: [EducationForm, EducationItem],
-//   previous: [PreviousForm, PreviousItem],
-//   staffs: [StaffForm, StaffItem],
-//   workplaces: [WorkplaceForm, WorkplaceItem],
-//   checks: [CheckForm, CheckItem],
-//   inquiries: [InquiryForm, InquiryItem],
-//   investigations: [InquestForm, InquestItem],
-//   poligrafs: [PoligrafForm, PoligrafItem],
-// } as { [props.view]: [Component, Component] };
-
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
@@ -205,7 +116,7 @@ async function deleteItem(id: string, idx: number) {
 <template>
   <div v-if="status === 'pending'">
     <div v-for="i in items.length + 1" :key="i">
-      <ElementsSkeletonDiv :rows="props.rows" />
+      <LazyElementsSkeletonDiv :rows="props.rows" />
       <USeparator v-if="i < items.length" />
     </div>
   </div>
@@ -219,7 +130,9 @@ async function deleteItem(id: string, idx: number) {
         "
         @delete="deleteItem(content['id' as keyof typeof content], index)"
       />
-      <component :is="mappedContent[props.view][1]" :item="content" />
+      <LazyElementsWrapperDiv>
+        <component :is="mappedContent[props.view][1]" :item="content" />
+      </LazyElementsWrapperDiv>
       <USeparator v-if="index < items.length - 1" />
     </div>
     <div v-if="!items.length" class="p-2 text-red-800">Данные отсутствуют</div>
@@ -243,15 +156,17 @@ async function deleteItem(id: string, idx: number) {
   <UModal
     v-if="editable"
     v-model:open="modal"
-    title="Данные проверки"
+    title="Данные профиля"
     description="Введите или отредактируйте данные"
   >
     <template #body>
-      <component
-        :is="mappedContent[props.view][0]"
-        :item="item"
-        @update="submitItem"
-      />
+      <LazyElementsWrapperDiv>
+        <component
+          :is="mappedContent[props.view][0]"
+          :item="item"
+          @update="submitItem"
+        />
+      </LazyElementsWrapperDiv>
     </template>
   </UModal>
 </template>

@@ -100,10 +100,10 @@ const items: Accordion[] = [
       @delete="deletePerson()"
     />
     <div v-if="status == 'pending'" class="ps-2">
-      <ElementsSkeletonDiv :rows="props.rows" />
+      <LazyElementsSkeletonDiv :rows="props.rows" />
     </div>
     <div v-else class="ps-2">
-      <ItemsPersonItem :item="person" />
+      <LazyItemsPersonItem :item="person" />
     </div>
     <UModal
       v-if="editable"
