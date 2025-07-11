@@ -48,10 +48,16 @@ async function switchSelf(): Promise<void> {
     return;
   }
   status.value = "pending";
-  person.value = (await fetchAuth(
+  const { message } = (await fetchAuth(
     "/route/anketa/self/" + person.value.id
-  )) as Persons;
-  status.value = "success";
+  )) as Record<string, string>;
+  status.value = message as "success" | "error";
+  if (message == "success") {
+    person.value.editable = !person.value.editable;
+    makeToast(message, "Статус успешно обновлен");
+  } else {
+    makeToast();
+  }
 }
 
 async function changeRegion() {
@@ -72,13 +78,13 @@ async function changeRegion() {
       },
     }
   )) as Record<string, string>;
+  status.value = message as "success" | "error";
   if (message == "success") {
     makeToast(message, "Регион успешно обновлен");
     return navigateTo("/persons");
   } else {
     makeToast();
     region.value = person.value.region;
-    status.value = "error";
   }
 }
 
@@ -99,8 +105,9 @@ onChange(async (files) => {
     method: "POST",
     body: formData,
   })) as Record<string, string>;
+  status.value = message as "success" | "error";
   if (message == "success") {
-    makeToast("success", "Файлы успешно загружены");
+    makeToast(message, "Файлы успешно загружены");
   } else {
     makeToast();
   }
@@ -151,9 +158,7 @@ const items: Pills[] = [
       <div v-else class="py-1">
         <h3 class="text-2xl text-red-800 font-bold">
           {{
-            `${person.surname} ${person.firstname} ${
-              person.patronymic ?? ""
-            }`
+            `${person.surname} ${person.firstname} ${person.patronymic ?? ""}`
           }}
         </h3>
       </div>
@@ -215,35 +220,19 @@ const items: Pills[] = [
       :ui="{ trigger: 'flex-1' }"
     >
       <template #person>
-        <ContentAnketaTab 
-          :person="person" 
-          :rows="12" 
-          @refresh="refresh()" 
-        />
+        <ContentAnketaTab :person="person" :rows="12" @refresh="refresh()" />
       </template>
       <template #checks="{ item }">
-        <ContentSharedView
-          :view="item.slot"
-          :rows="16"
-        />
+        <ContentSharedView :view="item.slot" :rows="16" />
       </template>
       <template #poligrafs="{ item }">
-        <ContentSharedView
-          :view="item.slot"
-          :rows="4"
-        />
+        <ContentSharedView :view="item.slot" :rows="4" />
       </template>
       <template #investigations="{ item }">
-        <ContentSharedView
-          :view="item.slot"
-          :rows="3"
-        />
+        <ContentSharedView :view="item.slot" :rows="3" />
       </template>
       <template #inquiries="{ item }">
-        <ContentSharedView
-          :view="item.slot"
-          :rows="3"
-        />
+        <ContentSharedView :view="item.slot" :rows="3" />
       </template>
     </UTabs>
   </div>

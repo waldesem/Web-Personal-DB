@@ -10,7 +10,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from app import db
 from app.decorators.depend import auth_required, current_user
 from app.decorators.validate import serialize, validate
-from app.models.models import PersonOut, Region
+from app.models.models import Region  # noqa: TC001
 from app.tables.tables import Persons
 from app.utils.utilities import Roles, check_filename, create_destination
 
@@ -49,9 +49,9 @@ def change_region(person_id: int, json_data: Region) -> tuple[str, int]:
 
 
 @bp.get("/self/<int:person_id>")
-@serialize(PersonOut)
+@serialize()
 @auth_required(Roles.user.value)
-def change_self_id(person_id: int) -> tuple[str | Persons, int]:
+def change_self_id(person_id: int) -> tuple[str, int]:
     """Toggle the editable status of a person with the given item ID.
 
     The person ID is the ID of the person to toggle the editable status.
@@ -65,7 +65,6 @@ def change_self_id(person_id: int) -> tuple[str | Persons, int]:
         person = db.session.get(Persons, person_id)
         if not person.destination or not Path(person.destination).is_dir():
             person.destination = create_destination(person)
-            db.session.commit()
         if person.user_id != current_user.id:
             if person.editable:
                 person.editable = False
@@ -79,7 +78,7 @@ def change_self_id(person_id: int) -> tuple[str | Persons, int]:
         current_app.logger.exception("Exception in change_self_id")
         return "error", 500
     else:
-        return person, 201
+        return "success", 201
 
 
 @bp.post("/files/<int:person_id>")

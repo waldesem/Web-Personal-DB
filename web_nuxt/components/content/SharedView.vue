@@ -2,79 +2,79 @@
 import type { Component } from "vue";
 import type { DivsItems, PillsItems } from "@/types";
 
-const AddressItem = defineAsyncComponent(
-  () => import("@/components/items/AddressItem.vue")
-);
-const AffilationItem = defineAsyncComponent(
-  () => import("@/components/items/AffilationItem.vue")
-);
-const ContactItem = defineAsyncComponent(
-  () => import("@/components/items/ContactItem.vue")
-);
-const DocumentItem = defineAsyncComponent(
-  () => import("@/components/items/DocumentItem.vue")
-);
-const EducationItem = defineAsyncComponent(
-  () => import("@/components/items/EducationItem.vue")
-);
-const PreviousItem = defineAsyncComponent(
-  () => import("@/components/items/PreviousItem.vue")
-);
-const StaffItem = defineAsyncComponent(
-  () => import("@/components/items/StaffItem.vue")
-);
-const WorkplaceItem = defineAsyncComponent(
-  () => import("@/components/items/WorkplaceItem.vue")
-);
-const CheckItem = defineAsyncComponent(
-  () => import("@/components/items/CheckItem.vue")
-);
-const InquiryItem = defineAsyncComponent(
-  () => import("@/components/items/InquiryItem.vue")
-);
-const InvestigateItem = defineAsyncComponent(
-  () => import("@/components/items/InvestigationItem.vue")
-);
-const PoligrafItem = defineAsyncComponent(
-  () => import("@/components/items/PoligrafItem.vue")
-);
+// const AddressItem = defineAsyncComponent(
+//   () => import("@/components/items/AddressItem.vue")
+// );
+// const AffilationItem = defineAsyncComponent(
+//   () => import("@/components/items/AffilationItem.vue")
+// );
+// const ContactItem = defineAsyncComponent(
+//   () => import("@/components/items/ContactItem.vue")
+// );
+// const DocumentItem = defineAsyncComponent(
+//   () => import("@/components/items/DocumentItem.vue")
+// );
+// const EducationItem = defineAsyncComponent(
+//   () => import("@/components/items/EducationItem.vue")
+// );
+// const PreviousItem = defineAsyncComponent(
+//   () => import("@/components/items/PreviousItem.vue")
+// );
+// const StaffItem = defineAsyncComponent(
+//   () => import("@/components/items/StaffItem.vue")
+// );
+// const WorkplaceItem = defineAsyncComponent(
+//   () => import("@/components/items/WorkplaceItem.vue")
+// );
+// const CheckItem = defineAsyncComponent(
+//   () => import("@/components/items/CheckItem.vue")
+// );
+// const InquiryItem = defineAsyncComponent(
+//   () => import("@/components/items/InquiryItem.vue")
+// );
+// const InvestigateItem = defineAsyncComponent(
+//   () => import("@/components/items/InvestigationItem.vue")
+// );
+// const PoligrafItem = defineAsyncComponent(
+//   () => import("@/components/items/PoligrafItem.vue")
+// );
 
-const AddressForm = defineAsyncComponent(
-  () => import("@/components/forms/AddressForm.vue")
-);
-const AffilationForm = defineAsyncComponent(
-  () => import("@/components/forms/AffilationForm.vue")
-);
-const ContactForm = defineAsyncComponent(
-  () => import("@/components/forms/ContactForm.vue")
-);
-const DocumentForm = defineAsyncComponent(
-  () => import("@/components/forms/DocumentForm.vue")
-);
-const EducationForm = defineAsyncComponent(
-  () => import("@/components/forms/EducationForm.vue")
-);
-const PreviousForm = defineAsyncComponent(
-  () => import("@/components/forms/PreviousForm.vue")
-);
-const StaffForm = defineAsyncComponent(
-  () => import("@/components/forms/StaffForm.vue")
-);
-const WorkplaceForm = defineAsyncComponent(
-  () => import("@/components/forms/WorkplaceForm.vue")
-);
-const CheckForm = defineAsyncComponent(
-  () => import("@/components/forms/CheckForm.vue")
-);
-const InquiryForm = defineAsyncComponent(
-  () => import("@/components/forms/InquiryForm.vue")
-);
-const InvestigateForm = defineAsyncComponent(
-  () => import("@/components/forms/InvestigateForm.vue")
-);
-const PoligrafForm = defineAsyncComponent(
-  () => import("@/components/forms/PoligrafForm.vue")
-);
+// const AddressForm = defineAsyncComponent(
+//   () => import("@/components/forms/AddressForm.vue")
+// );
+// const AffilationForm = defineAsyncComponent(
+//   () => import("@/components/forms/AffilationForm.vue")
+// );
+// const ContactForm = defineAsyncComponent(
+//   () => import("@/components/forms/ContactForm.vue")
+// );
+// const DocumentForm = defineAsyncComponent(
+//   () => import("@/components/forms/DocumentForm.vue")
+// );
+// const EducationForm = defineAsyncComponent(
+//   () => import("@/components/forms/EducationForm.vue")
+// );
+// const PreviousForm = defineAsyncComponent(
+//   () => import("@/components/forms/PreviousForm.vue")
+// );
+// const StaffForm = defineAsyncComponent(
+//   () => import("@/components/forms/StaffForm.vue")
+// );
+// const WorkplaceForm = defineAsyncComponent(
+//   () => import("@/components/forms/WorkplaceForm.vue")
+// );
+// const CheckForm = defineAsyncComponent(
+//   () => import("@/components/forms/CheckForm.vue")
+// );
+// const InquiryForm = defineAsyncComponent(
+//   () => import("@/components/forms/InquiryForm.vue")
+// );
+// const InvestigateForm = defineAsyncComponent(
+//   () => import("@/components/forms/InvestigateForm.vue")
+// );
+// const PoligrafForm = defineAsyncComponent(
+//   () => import("@/components/forms/PoligrafForm.vue")
+// );
 
 const props = defineProps({
   view: {
@@ -88,19 +88,70 @@ const props = defineProps({
 });
 
 const mappedContent = {
-  addresses: [AddressForm, AddressItem],
-  affilations: [AffilationForm, AffilationItem],
-  contacts: [ContactForm, ContactItem],
-  documents: [DocumentForm, DocumentItem],
-  educations: [EducationForm, EducationItem],
-  previous: [PreviousForm, PreviousItem],
-  staffs: [StaffForm, StaffItem],
-  workplaces: [WorkplaceForm, WorkplaceItem],
-  checks: [CheckForm, CheckItem],
-  inquiries: [InquiryForm, InquiryItem],
-  investigations: [InvestigateForm, InvestigateItem],
-  poligrafs: [PoligrafForm, PoligrafItem],
+  addresses: [
+    () => import("@/components/forms/AddressForm.vue"),
+    () => import("@/components/items/AddressItem.vue"),
+  ],
+  affilations: [
+    () => import("@/components/forms/AffilationForm.vue"),
+    () => import("@/components/items/AffilationItem.vue"),
+  ],
+  contacts: [
+    () => import("@/components/forms/ContactForm.vue"),
+    () => import("@/components/items/ContactItem.vue"),
+  ],
+  documents: [
+    () => import("@/components/forms/DocumentForm.vue"),
+    () => import("@/components/items/DocumentItem.vue"),
+  ],
+  educations: [
+    () => import("@/components/forms/EducationForm.vue"),
+    () => import("@/components/items/EducationItem.vue"),
+  ],
+  previous: [
+    () => import("@/components/forms/PreviousForm.vue"),
+    () => import("@/components/items/PreviousItem.vue"),
+  ],
+  staffs: [
+    () => import("@/components/forms/StaffForm.vue"),
+    () => import("@/components/items/StaffItem.vue"),
+  ],
+  workplaces: [
+    () => import("@/components/forms/WorkplaceForm.vue"),
+    () => import("@/components/items/WorkplaceItem.vue"),
+  ],
+  checks: [
+    () => import("@/components/forms/CheckForm.vue"),
+    () => import("@/components/items/CheckItem.vue"),
+  ],
+  inquiries: [
+    () => import("@/components/forms/InquiryForm.vue"),
+    () => import("@/components/items/InquiryItem.vue"),
+  ],
+  investigations: [
+    () => import("@/components/forms/InquestForm.vue"),
+    () => import("@/components/items/InquestItem.vue"),
+  ],
+  poligrafs: [
+    () => import("@/components/forms/PoligrafForm.vue"),
+    () => import("@/components/items/PoligrafItem.vue"),
+  ],
 } as { [props.view]: [Component, Component] };
+
+// const mappedContent = {
+//   addresses: [AddressForm, AddressItem],
+//   affilations: [AffilationForm, AffilationItem],
+//   contacts: [ContactForm, ContactItem],
+//   documents: [DocumentForm, DocumentItem],
+//   educations: [EducationForm, EducationItem],
+//   previous: [PreviousForm, PreviousItem],
+//   staffs: [StaffForm, StaffItem],
+//   workplaces: [WorkplaceForm, WorkplaceItem],
+//   checks: [CheckForm, CheckItem],
+//   inquiries: [InquiryForm, InquiryItem],
+//   investigations: [InquestForm, InquestItem],
+//   poligrafs: [PoligrafForm, PoligrafItem],
+// } as { [props.view]: [Component, Component] };
 
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
@@ -109,7 +160,7 @@ const item = ref({} as object);
 const items = ref([] as object[]);
 const modal = ref(false);
 
-const { status, refresh } = await useAsyncData("persons", async () => {
+const { status, refresh } = await useLazyAsyncData(props.view, async () => {
   items.value = (await fetchAuth(
     `/route/items/${props.view}/${candId.value}`
   )) as object[];
@@ -126,13 +177,12 @@ async function submitItem(form: object) {
     }
   )) as Record<string, string>;
   await refresh();
+  status.value = message as "success" | "error";
   if (message == "success") {
     item.value = {} as object;
-    status.value = "success";
     makeToast(message, "Информация успешно обновлена");
   } else {
     makeToast();
-    status.value = "error";
   }
 }
 
@@ -142,13 +192,12 @@ async function deleteItem(id: string, idx: number) {
   const { message } = (await fetchAuth(`/route/items/${props.view}/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
+  status.value = message as "success" | "error";
   if (message == "success") {
     makeToast(message, "Информация успешно обновлена");
     items.value.splice(idx, 1);
-    status.value = "success";
   } else {
     makeToast();
-    status.value = "error";
   }
 }
 </script>
