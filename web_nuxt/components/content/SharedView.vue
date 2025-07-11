@@ -85,10 +85,6 @@ const props = defineProps({
     type: Number,
     default: 3,
   },
-  contents: {
-    type: Array as PropType<object[]>,
-    required: true,
-  },
 });
 
 const mappedContent = {
@@ -110,18 +106,14 @@ const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
 const item = ref({} as object);
-const items = ref(props.contents);
+const items = ref([] as object[]);
 const modal = ref(false);
-const status = ref("success");
 
-async function getItem() {
-  status.value = "pending";
-  const { data } = (await fetchAuth(
+const { status, refresh } = await useAsyncData("persons", async () => {
+  items.value = (await fetchAuth(
     `/route/items/${props.view}/${candId.value}`
-  )) as { data: object[] };
-  items.value = data;
-  status.value = "success";
-}
+  )) as object[];
+});
 
 async function submitItem(form: object) {
   modal.value = false;
@@ -133,7 +125,7 @@ async function submitItem(form: object) {
       body: form,
     }
   )) as Record<string, string>;
-  await getItem();
+  await refresh();
   if (message == "success") {
     item.value = {} as object;
     status.value = "success";

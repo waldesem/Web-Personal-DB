@@ -1,35 +1,29 @@
 <script setup lang="ts">
 import type { AccordionItem } from "@nuxt/ui";
-import type { DivsItems, Persons, Profile } from "@/types";
+import type { DivsItems, Persons } from "@/types";
+
+const emits = defineEmits(["refresh"]);
 
 const props = defineProps({
   rows: {
     type: Number,
     required: true,
   },
-  profile: {
-    type: Object as PropType<Profile>,
+  person: {
+    type: Object as PropType<Persons>,
     required: true,
   },
 });
 const editable = inject("editable") as Ref<boolean>;
+const status = inject("status") as Ref<string>;
 
-const person = toRef(props.profile.person as Persons);
+const person = toRef(props.person as Persons);
 const modal = ref(false);
-const status = ref("success");
-
-async function getPerson() {
-  status.value = "pending";
-  person.value = (await fetchAuth(
-    "/route/items/persons/" + person.value.id
-  )) as Persons;
-  status.value = "success";
-}
 
 async function submitPerson(person_id: string) {
   modal.value = false;
   status.value = "pending";
-  await getPerson();
+  emits("refresh");
   if (person_id == person.value.id) {
     makeToast("success", "Информация успешно обновлена");
     status.value = "success";
@@ -124,10 +118,7 @@ const items: Accordion[] = [
     <USeparator />
     <UAccordion :items="items" :unmount-on-hide="false">
       <template #content="{ item }">
-        <ContentSharedView
-          :view="item.content"
-          :contents="profile[item.content]"
-        />
+        <ContentSharedView :view="item.content" />
       </template>
     </UAccordion>
   </div>

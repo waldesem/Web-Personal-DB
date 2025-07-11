@@ -3,13 +3,11 @@
 from __future__ import annotations
 
 from datetime import date, datetime  # noqa: TC003
-from typing import Any, Generic, Literal, Tuple, TypeVar
+from typing import Literal
 
-from pydantic import BaseModel, Field, GenericModel, validator
+from pydantic import BaseModel, Field, validator
 
 from app.utils.utilities import Conclusions, Decisions, Regions, Roles
-
-T = TypeVar("T")
 
 
 class ModelIn(BaseModel):
@@ -34,12 +32,6 @@ class ModelOut(ModelIn):
         """Pydantic config."""
 
         orm_mode = True
-
-
-class ModelOutList(GenericModel, Generic[T]):
-    """Pydantic model for candidates."""
-
-    data: list[T]
 
 
 class BaseResponse(BaseModel):
@@ -150,24 +142,6 @@ class UserOut(UserIn, ModelOut):
     blocked: bool
     deleted: bool
     attempt: int
-
-
-class Profile(BaseModel):
-    """Pydantic model for profile."""
-
-    person: PersonOut
-    previous: list[PrevOut]
-    staffs: list[StaffOut]
-    documents: list[DocumentOut]
-    contacts: list[ContactOut]
-    addresses: list[AddressOut]
-    workplaces: list[WorkplaceOut]
-    educations: list[EducationOut]
-    affilations: list[AffilationOut]
-    checks: list[CheckOut]
-    poligrafs: list[PoligrafOut]
-    inquiries: list[InquiryOut]
-    investigations: list[InvestigationOut]
 
 
 class PersonIn(ModelIn):

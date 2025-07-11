@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useFileDialog } from "@vueuse/core";
 import type { TabsItem } from "@nuxt/ui";
-import type { Profile, Persons, PillsItems, Regions } from "@/types";
+import type { Persons, PillsItems, Regions } from "@/types";
 
 await preloadComponents(["ContentAnketaTab", "ContentSharedView"]);
 
@@ -11,27 +11,28 @@ const userState = useUserState();
 const candId = computed(() => route.params.id as string);
 provide("candId", candId);
 
-const profile = ref({} as Profile);
+const person = ref({} as Persons);
 const region = ref("" as Regions);
 
-const { status } = await useAsyncData("profile", async () => {
-  profile.value = (await fetchAuth(
-    "/route/anketa/profile/" + candId.value
-  )) as Profile;
+const { status, refresh } = await useAsyncData("persons", async () => {
+  person.value = (await fetchAuth(
+    "/route/item/persons/" + candId.value
+  )) as Persons;
 });
+provide("status", status);
 
 const editable = computed(() => {
   return (
-    profile.value.person.editable &&
+    person.value.editable &&
     userState.value.role == "user" &&
-    userState.value.id == profile.value.person.user_id
+    userState.value.id == person.value.user_id
   );
 });
 provide("editable", editable);
 
 async function switchSelf(): Promise<void> {
-  if (profile.value.person.user_id != userState.value.id) {
-    if (profile.value.person.editable) {
+  if (person.value.user_id != userState.value.id) {
+    if (person.value.editable) {
       if (
         !confirm(
           "Анкета редактируется другим пользователем. Переключить режим?"
@@ -47,23 +48,23 @@ async function switchSelf(): Promise<void> {
     return;
   }
   status.value = "pending";
-  profile.value.person = (await fetchAuth(
-    "/route/anketa/self/" + profile.value.person.id
+  person.value = (await fetchAuth(
+    "/route/anketa/self/" + person.value.id
   )) as Persons;
   status.value = "success";
 }
 
 async function changeRegion() {
-  if (region.value == profile.value.person.region) {
+  if (region.value == person.value.region) {
     return;
   }
   if (!confirm("Вы действительно хотите изменить регион?")) {
-    region.value = profile.value.person.region;
+    region.value = person.value.region;
     return;
   }
   status.value = "pending";
   const { message } = (await fetchAuth(
-    `/route/anketa/region/${profile.value.person.id}`,
+    `/route/anketa/region/${person.value.id}`,
     {
       method: "POST",
       body: {
@@ -76,7 +77,7 @@ async function changeRegion() {
     return navigateTo("/persons");
   } else {
     makeToast();
-    region.value = profile.value.person.region;
+    region.value = person.value.region;
     status.value = "error";
   }
 }
@@ -150,8 +151,8 @@ const items: Pills[] = [
       <div v-else class="py-1">
         <h3 class="text-2xl text-red-800 font-bold">
           {{
-            `${profile.person.surname} ${profile.person.firstname} ${
-              profile.person.patronymic ?? ""
+            `${person.surname} ${person.firstname} ${
+              person.patronymic ?? ""
             }`
           }}
         </h3>
@@ -175,9 +176,9 @@ const items: Pills[] = [
               'РЦ Урал',
               'РЦ Восток',
             ]"
-            :placeholder="profile.person.region"
+            :placeholder="person.region"
             :disabled="
-              (profile.person.region != userState.region &&
+              (person.region != userState.region &&
                 userState.region != 'Главный офис') ||
               !editable
             "
@@ -186,18 +187,18 @@ const items: Pills[] = [
         </UTooltip>
         <UButton
           :loading="status === 'pending'"
-          :disabled="profile.person.region != userState.region"
+          :disabled="person.region != userState.region"
           :color="
-            !profile.person.editable
+            !person.editable
               ? 'secondary'
-              : profile.person.user_id == userState.id
+              : person.user_id == userState.id
               ? 'success'
               : 'error'
           "
           :label="
-            !profile.person.editable
+            !person.editable
               ? 'Доступно  для редактирования'
-              : profile.person.user_id == userState.id
+              : person.user_id == userState.id
               ? 'Назначено текущему пользователю'
               : 'Редактируется другим пользователем'
           "
@@ -214,33 +215,33 @@ const items: Pills[] = [
       :ui="{ trigger: 'flex-1' }"
     >
       <template #person>
-        <ContentAnketaTab :profile="profile" :rows="12" />
+        <ContentAnketaTab 
+          :person="person" 
+          :rows="12" 
+          @refresh="refresh()" 
+        />
       </template>
       <template #checks="{ item }">
         <ContentSharedView
           :view="item.slot"
-          :contents="profile.checks"
           :rows="16"
         />
       </template>
       <template #poligrafs="{ item }">
         <ContentSharedView
           :view="item.slot"
-          :contents="profile.poligrafs"
           :rows="4"
         />
       </template>
       <template #investigations="{ item }">
         <ContentSharedView
           :view="item.slot"
-          :contents="profile.investigations"
           :rows="3"
         />
       </template>
       <template #inquiries="{ item }">
         <ContentSharedView
           :view="item.slot"
-          :contents="profile.inquiries"
           :rows="3"
         />
       </template>

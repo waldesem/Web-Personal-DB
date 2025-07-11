@@ -6,42 +6,15 @@ from pathlib import Path
 
 from flask import Blueprint, current_app, request
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import DeclarativeBase  # noqa: TC002
 
 from app import db
 from app.decorators.depend import auth_required, current_user
 from app.decorators.validate import serialize, validate
-from app.models.models import PersonOut, Profile, Region
+from app.models.models import PersonOut, Region
 from app.tables.tables import Persons
 from app.utils.utilities import Roles, check_filename, create_destination
 
 bp = Blueprint("anketa", __name__, url_prefix="/anketa")
-
-
-@bp.get("/profile/<int:person_id>")
-@serialize(Profile)
-@auth_required()
-def get_profile(person_id: int) -> tuple[DeclarativeBase, int]:
-    """Get candidate profile.
-
-    Args:
-        person_id (int): The ID of the person.
-
-    Returns:
-        Tuple[Response, int]: A tuple containing the JSON response containing
-            the retrieved item(s) and an HTTP status code of 200.
-
-    """
-    person = db.session.get(Persons, person_id)
-    if not person.destination or not Path(person.destination).is_dir():
-        person.destination = create_destination(person)
-        db.session.commit()
-    profile = {"person": PersonOut.from_orm(person).dict()}
-    # Сбор ключей, которые нужно обработать
-    for key in [key for key in person.__annotations__ if key in db.metatables]:
-        profile[key] = getattr(person, key)
-    # Вернуть ответ
-    return profile, 200
 
 
 @bp.post("/region/<int:person_id>")
@@ -90,6 +63,9 @@ def change_self_id(person_id: int) -> tuple[str | Persons, int]:
     """
     try:
         person = db.session.get(Persons, person_id)
+        if not person.destination or not Path(person.destination).is_dir():
+            person.destination = create_destination(person)
+            db.session.commit()
         if person.user_id != current_user.id:
             if person.editable:
                 person.editable = False
@@ -123,9 +99,6 @@ def post_files(person_id: int) -> tuple[str, int]:
     """
     file_data = request.files.getlist("file")
     person = db.session.get(Persons, person_id)
-    if not person.destination:
-        person.destination = create_destination(person)
-        db.session.commit()
     try:
         subfolder = Path(
             person.destination,

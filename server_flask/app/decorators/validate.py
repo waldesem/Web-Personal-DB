@@ -5,10 +5,10 @@ from __future__ import annotations
 from functools import wraps
 from typing import Callable
 
-from flask import Response, jsonify, abort, current_app, make_response, request
+from flask import Response, abort, current_app, jsonify, request
 from pydantic import BaseModel, ValidationError
 
-from app.models.models import BaseResponse, ModelOutList
+from app.models.models import BaseResponse, ModelOut
 
 
 def validate(func: Callable) -> Callable:
@@ -87,30 +87,29 @@ def serialize(model: BaseModel = BaseResponse) -> Callable:
                 and isinstance(result[1], int)
                 and result[1] in [200, 201, 204, 500]
             ):
-
                 if isinstance(result[0], dict):
                     return jsonify(result[0]), result[1]
-                elif isinstance(result, str):
+                if isinstance(result, str):
                     return jsonify({"message": result[0]}), result[1]
+
+                if model.__name__ == "ModelOut":
+                    models = {
+                        cls.__modelname__: cls
+                        for cls in model.__subclasses__()
+                        if hasattr(cls, "__modelname__")
+                    }
+                    serial = ModelOut[models[kwargs["item"]]]
                 else:
-                    if model.__name__ == "ModelOut":
-	                    models = {
-	                        cls.__modelname__: cls
-	                        for cls in model.__subclasses__()
-	                        if hasattr(cls, "__modelname__")
-	                    }
-	                    serial = ModelOutList[models[kwargs["item"]]]
-	                else:
-		                serial = model
-	                try:
-                        serialized = serial.from_orm(result[0]).json()
-		            except ValidationError:
-		                current_app.logger.exception("Error serialize data")
-		            else:
-		                response = make_response(serialized)
-		                response.mimetype = "application/json"
-		                response.status_code = result[1]
-		                return response
+                    serial = model
+
+                try:
+                    if isinstance(result[0], list):
+                        return jsonify(
+                            [serial.from_orm(r).dict() for r in result[0]],
+                        ), result[1]
+                    return jsonify(serial.from_orm(result[0]).dict()), result[1]
+                except ValidationError:
+                    current_app.logger.exception("Error serialize data")
 
             return abort(400)
 
