@@ -7,7 +7,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, validator
 
-from app.utils.utilities import Conclusions, Decisions, Regions, Roles
+from app.classes.classes import Conclusions, Decisions, Regions, Roles
 
 
 class ModelIn(BaseModel):
@@ -32,12 +32,6 @@ class ModelOut(ModelIn):
         """Pydantic config."""
 
         orm_mode = True
-
-
-class BaseResponse(BaseModel):
-    """Pydantic model for Base Response."""
-
-    message: str
 
 
 class Index(BaseModel):

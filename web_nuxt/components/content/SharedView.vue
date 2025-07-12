@@ -2,6 +2,31 @@
 import type { Component } from "vue";
 import type { DivsItems, PillsItems } from "@/types";
 
+import AddressForm from "@/components/forms/AddressForm.vue";
+import AddressItem from "@/components/items/AddressItem.vue";
+import AffilationForm from "@/components/forms/AffilationForm.vue";
+import AffilationItem from "@/components/items/AffilationItem.vue";
+import ContactForm from "@/components/forms/ContactForm.vue";
+import ContactItem from "@/components/items/ContactItem.vue";
+import DocumentForm from "@/components/forms/DocumentForm.vue";
+import DocumentItem from "@/components/items/DocumentItem.vue";
+import EducationForm from "@/components/forms/EducationForm.vue";
+import EducationItem from "@/components/items/EducationItem.vue";
+import PreviousForm from "@/components/forms/PreviousForm.vue";
+import PreviousItem from "@/components/items/PreviousItem.vue";
+import StaffForm from "@/components/forms/StaffForm.vue";
+import StaffItem from "@/components/items/StaffItem.vue";
+import WorkplaceForm from "@/components/forms/WorkplaceForm.vue";
+import WorkplaceItem from "@/components/items/WorkplaceItem.vue";
+import CheckForm from "@/components/forms/CheckForm.vue";
+import CheckItem from "@/components/items/CheckItem.vue";
+import InquiryForm from "@/components/forms/InquiryForm.vue";
+import InquiryItem from "@/components/items/InquiryItem.vue";
+import InquestForm from "@/components/forms/InquestForm.vue";
+import InquestItem from "@/components/items/InquestItem.vue";
+import PoligrafForm from "@/components/forms/PoligrafForm.vue";
+import PoligrafItem from "@/components/items/PoligrafItem.vue";
+
 const props = defineProps({
   view: {
     type: String as PropType<PillsItems | DivsItems>,
@@ -14,54 +39,18 @@ const props = defineProps({
 });
 
 const mappedContent = {
-  addresses: [
-    () => import("@/components/forms/AddressForm.vue"),
-    () => import("@/components/items/AddressItem.vue"),
-  ],
-  affilations: [
-    () => import("@/components/forms/AffilationForm.vue"),
-    () => import("@/components/items/AffilationItem.vue"),
-  ],
-  contacts: [
-    () => import("@/components/forms/ContactForm.vue"),
-    () => import("@/components/items/ContactItem.vue"),
-  ],
-  documents: [
-    () => import("@/components/forms/DocumentForm.vue"),
-    () => import("@/components/items/DocumentItem.vue"),
-  ],
-  educations: [
-    () => import("@/components/forms/EducationForm.vue"),
-    () => import("@/components/items/EducationItem.vue"),
-  ],
-  previous: [
-    () => import("@/components/forms/PreviousForm.vue"),
-    () => import("@/components/items/PreviousItem.vue"),
-  ],
-  staffs: [
-    () => import("@/components/forms/StaffForm.vue"),
-    () => import("@/components/items/StaffItem.vue"),
-  ],
-  workplaces: [
-    () => import("@/components/forms/WorkplaceForm.vue"),
-    () => import("@/components/items/WorkplaceItem.vue"),
-  ],
-  checks: [
-    () => import("@/components/forms/CheckForm.vue"),
-    () => import("@/components/items/CheckItem.vue"),
-  ],
-  inquiries: [
-    () => import("@/components/forms/InquiryForm.vue"),
-    () => import("@/components/items/InquiryItem.vue"),
-  ],
-  investigations: [
-    () => import("@/components/forms/InquestForm.vue"),
-    () => import("@/components/items/InquestItem.vue"),
-  ],
-  poligrafs: [
-    () => import("@/components/forms/PoligrafForm.vue"),
-    () => import("@/components/items/PoligrafItem.vue"),
-  ],
+  addresses: [AddressForm, AddressItem],
+  affilations: [AffilationForm, AffilationItem],
+  contacts: [ContactForm, ContactItem],
+  documents: [DocumentForm, DocumentItem],
+  educations: [EducationForm, EducationItem],
+  previous: [PreviousForm, PreviousItem],
+  staffs: [StaffForm, StaffItem],
+  workplaces: [WorkplaceForm, WorkplaceItem],
+  checks: [CheckForm, CheckItem],
+  inquiries: [InquiryForm, InquiryItem],
+  investigations: [InquestForm, InquestItem],
+  poligrafs: [PoligrafForm, PoligrafItem],
 } as { [props.view]: [Component, Component] };
 
 const candId = inject("candId") as Ref<string>;

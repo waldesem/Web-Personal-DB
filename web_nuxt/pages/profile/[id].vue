@@ -16,7 +16,7 @@ const region = ref("" as Regions);
 
 const { status, refresh } = await useAsyncData("persons", async () => {
   person.value = (await fetchAuth(
-    "/route/item/persons/" + candId.value
+    "/route/items/persons/" + candId.value
   )) as Persons;
 });
 provide("status", status);

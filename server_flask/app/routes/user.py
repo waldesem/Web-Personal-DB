@@ -6,17 +6,17 @@ from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import generate_password_hash
 
 from app import db
+from app.classes.classes import Regions, Roles
 from app.decorators.depend import auth_required, current_user, get_current_user
 from app.decorators.validate import serialize, validate
-from app.models.models import ModelOut, UserActions, UserIn
+from app.models.models import UserActions, UserIn, UserOut
 from app.tables.tables import Users
-from app.utils.utilities import Regions, Roles
 
 bp = Blueprint("users", __name__)
 
 
 @bp.get("/users")
-@serialize(ModelOut)
+@serialize(UserOut)
 @auth_required(Roles.admin.value)
 def get_users() -> tuple[list[Users], int]:
     """Retrieve a list of users from the database.
@@ -32,13 +32,12 @@ def get_users() -> tuple[list[Users], int]:
     columns = filter(lambda x: x != "passhash", Users.__table__.columns.keys())
     # Создать запрос для выборки пользователей
     stmt = select(*[getattr(Users, column) for column in columns])
-    users = db.session.execute(stmt).all()
     # Преобразовать результат в список словарей и вернуть в качестве ответа
-    return users, 200
+    return db.session.execute(stmt).all(), 200
 
 
 @bp.post("/user")
-@serialize()
+#@serialize()
 @validate
 @auth_required(Roles.admin.value)
 def post_user_actions(user_id: int, json_data: UserActions) -> tuple[str, int]:
@@ -87,7 +86,7 @@ def post_user_actions(user_id: int, json_data: UserActions) -> tuple[str, int]:
 
 
 @bp.post("/user/<int:user_id>")
-@serialize()
+#@serialize()
 @validate
 @auth_required(Roles.admin.value)
 def post_user(json_data: UserIn) -> tuple[str, int]:

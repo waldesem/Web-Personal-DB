@@ -8,6 +8,7 @@ from sqlalchemy import desc, func, select
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
+from app.classes.classes import Regions, Roles
 from app.decorators.depend import auth_required, current_user
 from app.decorators.validate import serialize, validate
 from app.models.models import AnketaJson, Candidates, Index, PersonExists, PersonIn
@@ -23,7 +24,7 @@ from app.tables.tables import (
     Users,
     Workplaces,
 )
-from app.utils.utilities import Regions, Roles, upload_resume
+from app.utils.utilities import upload_resume
 
 bp = Blueprint("route", __name__)
 

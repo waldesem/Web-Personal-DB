@@ -9,9 +9,9 @@ from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
+from app.classes.classes import Regions, Roles
 from app.models.models import UserIn
 from app.tables.tables import Users
-from app.utils.utilities import Regions, Roles
 
 bp = Blueprint("command", __name__)
 

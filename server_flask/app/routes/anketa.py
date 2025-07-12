@@ -8,11 +8,12 @@ from flask import Blueprint, current_app, request
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
+from app.classes.classes import Roles
 from app.decorators.depend import auth_required, current_user
 from app.decorators.validate import serialize, validate
 from app.models.models import Region  # noqa: TC001
 from app.tables.tables import Persons
-from app.utils.utilities import Roles, check_filename, create_destination
+from app.utils.utilities import check_filename, create_destination
 
 bp = Blueprint("anketa", __name__, url_prefix="/anketa")
 

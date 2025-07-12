@@ -3,7 +3,6 @@
 import os
 import re
 import unicodedata
-from enum import Enum
 from pathlib import Path
 
 from flask import current_app
@@ -13,43 +12,6 @@ from sqlalchemy.exc import SQLAlchemyError
 from app import auth, db
 from app.models.models import PersonIn
 from app.tables.tables import Persons
-
-
-class Roles(Enum):
-    """Enum class for user roles."""
-
-    admin = "admin"
-    api = "api"
-    user = "user"
-    guest = "guest"
-
-
-class Regions(Enum):
-    """Enum class for regions."""
-
-    main = "Главный офис"
-    south = "РЦ Юг"
-    west = "РЦ Запад"
-    ural = "РЦ Урал"
-    east = "РЦ Восток"
-
-
-class Conclusions(Enum):
-    """Enum class for conclusions."""
-
-    agreed = "СОГЛАСОВАНО"
-    comments = "СОГЛАСОВАНО С КОММЕНТАРИЕМ"
-    denied = "ОТКАЗАНО В СОГЛАСОВАНИИ"
-    cancel = "СНЯТ С ПРОВЕРКИ"
-
-
-class Decisions(Enum):
-    """Enum class for decisions."""
-
-    agreed = "БЕЗ ЗАМЕЧАНИЙ"
-    comments = "С КОММЕНТАРИЯМИ"
-    cancel = "ОТКАЗ ОТ ПРОВЕРКИ"
-    denied = "НЕГАТИВ"
 
 
 def create_destination(person: Persons) -> str:

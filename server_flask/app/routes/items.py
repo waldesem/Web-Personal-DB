@@ -6,6 +6,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import DeclarativeBase
 
 from app import db
+from app.classes.classes import Roles
 from app.decorators.depend import auth_required
 from app.decorators.validate import serialize, validate
 from app.models.models import (
@@ -17,7 +18,7 @@ from app.models.models import (
     PersonOut,
 )
 from app.tables.tables import Persons
-from app.utils.utilities import Roles, upload_resume
+from app.utils.utilities import upload_resume
 
 bp = Blueprint("items", __name__, url_prefix="/items")
 
@@ -38,9 +39,8 @@ class PersonView(MethodView):
             the retrieved item(s) and an HTTP status code of 200.
 
         """
-        # Получаем данные кандидата и создаем папку для него, если ее нет
-        person = db.session.get(Persons, person_id)
-        return person, 200
+        # Получаем данные кандидата
+        return db.session.get(Persons, person_id), 200
 
     @serialize(PersonExists)
     @validate
@@ -60,7 +60,7 @@ class PersonView(MethodView):
         cand_id, existed = upload_resume(json_data)
         return {"person_id": cand_id, "exists": existed}, 201
 
-    @serialize()
+    #@serialize()
     @auth_required(Roles.user.value)
     def delete(self, person_id: int) -> tuple[str, int]:
         """Delete an item from the database based on the provided item name and item ID.
@@ -118,10 +118,9 @@ class ItemsView(MethodView):
             .filter(db.metatables[item].c.person_id == item_id)
         )
         # Выполняем запрос и получаем результаты
-        query = db.session.execute(stmt)
-        return query, 200
+        return db.session.execute(stmt).all(), 200
 
-    @serialize()
+    #@serialize()
     @validate
     @auth_required(Roles.user.value)
     def post(self, item: Items, item_id: int, json_data: ModelIn) -> tuple[str, int]:
@@ -163,7 +162,7 @@ class ItemsView(MethodView):
         else:
             return "success", 201
 
-    @serialize()
+    #@serialize()
     @auth_required(Roles.user.value)
     def delete(self, item: Items, item_id: int) -> tuple[str, int]:
         """Delete an item from the database based on the provided item name and item ID.

@@ -40,7 +40,6 @@ def post_login(action: str, json_data: Login) -> tuple[str | dict, int]:
         user = db.session.execute(
             select(Users).filter_by(username=json_data.username),
         ).scalar_one_or_none()
-
         if not user or user.blocked or user.deleted:
             return "Invalid", 200
 
@@ -85,7 +84,7 @@ def post_login(action: str, json_data: Login) -> tuple[str | dict, int]:
                     current_app.config["JWT_SECRET_KEY"],
                     algorithm="HS256",
                 ),
-            }
+            }, 200
         return "Denied", 200  # noqa: TRY300
 
     except (SQLAlchemyError, ValueError, ValidationError):
@@ -95,7 +94,7 @@ def post_login(action: str, json_data: Login) -> tuple[str | dict, int]:
 
 
 @bp.get("/logout")
-@serialize()
+##@serialize()
 @auth_required()
 def get_logout() -> tuple[str, int]:
     """Logout the user.

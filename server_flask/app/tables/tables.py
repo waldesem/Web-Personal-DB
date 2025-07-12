@@ -18,7 +18,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from werkzeug.security import generate_password_hash
 
 from app import db
-from app.utils.utilities import Regions, Roles
+from app.classes.classes import Regions, Roles
 from config import Config
 
 

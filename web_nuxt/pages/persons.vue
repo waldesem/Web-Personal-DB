@@ -12,11 +12,12 @@ const userState = useUserState();
 
 export interface Candidate {
   id: string;
-  name: string;
-  birth: string;
-  edit: boolean;
-  data: string;
-  user: string;
+  fullname: string;
+  birthday: string;
+  editable: boolean;
+  created: string;
+  region: string;
+  username: string;
   total: number;
 }
 
@@ -102,7 +103,7 @@ const columns: TableColumn<Candidate>[] = [
     header: "Дата рождения",
     cell: ({ row }) => {
       try {
-        return new Date(row.original.birth).toLocaleDateString("ru-RU");
+        return new Date(row.original.birthday).toLocaleDateString("ru-RU");
       } catch {
         return "";
       }
@@ -113,26 +114,26 @@ const columns: TableColumn<Candidate>[] = [
     header: "Статус",
     cell: ({ row }) => {
       return h(UIcon, {
-        name: !row.original.edit
+        name: !row.original.editable
           ? "i-lucide-circle-check"
           : userState.value.fullname
               .toLowerCase()
-              .includes(row.original.user.toLowerCase())
+              .includes(row.original.username.toLowerCase())
           ? "i-lucide-octagon-alert"
           : "i-lucide-triangle-alert",
 
-        class: !row.original.edit
+        class: !row.original.editable
           ? "text-start w-5 h-5 text-blue-600"
           : userState.value.fullname
               .toLowerCase()
-              .includes(row.original.user.toLowerCase())
+              .includes(row.original.username.toLowerCase())
           ? "text-start w-5 h-5 text-green-600"
           : "text-start w-5 h-5 text-red-600",
-        title: !row.original.edit
+        title: !row.original.editable
           ? "Анкета доступна для редактирования"
           : userState.value.fullname
               .toLowerCase()
-              .includes(row.original.user.toLowerCase())
+              .includes(row.original.username.toLowerCase())
           ? "Анкета назначена текущему пользователю"
           : "Анкета редактируется другим пользователем",
       });
@@ -143,7 +144,7 @@ const columns: TableColumn<Candidate>[] = [
     header: "Обновлено",
     cell: ({ row }) => {
       try {
-        return new Date(row.original.data).toLocaleDateString("ru-RU");
+        return new Date(row.original.created).toLocaleDateString("ru-RU");
       } catch {
         return "";
       }
@@ -154,7 +155,7 @@ const columns: TableColumn<Candidate>[] = [
     header: "Сотрудник",
     cell: ({ row }) => {
       try {
-        return row.original.user.split(" ")[0];
+        return row.original.username.split(" ")[0];
       } catch {
         return "";
       }
