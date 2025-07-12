@@ -41,7 +41,7 @@ async function switchSelf(): Promise<void> {
         return;
       }
     }
-    if (!confirm("Вы хотите назначить анкету на себя?")) {
+    else if (!confirm("Вы хотите назначить анкету на себя?")) {
       return;
     }
   } else if (!confirm("Переключить режим редактирования?")) {
@@ -53,7 +53,7 @@ async function switchSelf(): Promise<void> {
   )) as Record<string, string>;
   status.value = message as "success" | "error";
   if (message == "success") {
-    person.value.editable = !person.value.editable;
+    await refresh();
     makeToast(message, "Статус успешно обновлен");
   } else {
     makeToast();

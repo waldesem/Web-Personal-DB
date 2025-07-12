@@ -6,7 +6,21 @@ from typing import Callable, get_type_hints
 from flask import Response, abort, current_app, jsonify, request
 from pydantic import BaseModel, ValidationError
 
-from app.models.models import ModelIn, ModelOut
+from app.models.models import Items, ModelIn, ModelOut
+
+# Dict of models for validation
+MODELS_IN = {
+    cls.__modelname__: cls
+    for cls in ModelIn.__subclasses__()
+    if hasattr(cls, "__modelname__")
+}
+
+# Dict of models for serialization
+MODELS_OUT = {
+    cls.__modelname__: cls
+    for cls in ModelOut.__subclasses__()
+    if hasattr(cls, "__modelname__")
+}
 
 
 def validate(func: Callable) -> Callable:
@@ -39,12 +53,8 @@ def validate(func: Callable) -> Callable:
             if model_class := get_type_hints(func).get("json_data"):
                 # if json model annotation is InputModel
                 if model_class.__name__ == "ModelIn":
-                    models = {
-                        cls.__modelname__: cls
-                        for cls in ModelIn.__subclasses__()
-                        if hasattr(cls, "__modelname__")
-                    }
-                    model_class = models[kwargs["item"]]
+                    item = Items(item=kwargs.get("item"))
+                    model_class = MODELS_IN[item.item]
                 json_data = request.get_json()
                 kwargs["json_data"] = model_class(**json_data)
 
@@ -70,7 +80,7 @@ def serialize(model: BaseModel = None) -> Callable:
 
     @app.route("/endpoint", methods=["GET"])
     @serialize(ModelOut)
-    def endpoint() -> Base  # SqlAlchemy Model, dict, str:
+    def endpoint():
         # Function body
 
     """
@@ -78,39 +88,33 @@ def serialize(model: BaseModel = None) -> Callable:
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args: tuple, **kwargs: dict) -> Response:
-            result = func(*args, **kwargs)
-            result = result if isinstance(result, tuple) else (result, 200)
+            result: tuple[str | dict | BaseModel, int] = func(*args, **kwargs)
             if (
                 result
-                and isinstance(result, (tuple, list))
+                and isinstance(result, tuple)
                 and len(result) == 2
                 and isinstance(result[1], int)
-                and result[1] in [200, 201, 204, 500]
             ):
-                if isinstance(result[0], dict):
-                    return jsonify(result[0]), result[1]
-                if isinstance(result[0], str):
-                    return jsonify({"message": result[0]}), result[1]
-
-                if model.__name__ == "ModelOut":
-                    models = {
-                        cls.__modelname__: cls
-                        for cls in ModelOut.__subclasses__()
-                        if hasattr(cls, "__modelname__")
-                    }
-                    model_class = models[kwargs["item"]]
-                else:
-                    model_class = model
+                response, status = result
+                if isinstance(response, str):
+                    response = {"message": response}
+                if isinstance(response, dict):
+                    return jsonify(response), status
 
                 try:
-                    if isinstance(result[0], tuple):
-                        result = [result[0][0], result[1]]
-                    if isinstance(result[0], list):
-                        return jsonify(
-                            [model_class.from_orm(r).dict() for r in result[0]],
-                        ), result[1]
-                    return jsonify(model_class.from_orm(result[0]).dict()), result[1]
-                except (ValidationError, IndexError, AttributeError, TypeError):
+                    if model.__name__ == "ModelOut":
+                        item = Items(item=kwargs.get("item"))
+                        model_class = MODELS_OUT[item.item]
+                    else:
+                        model_class = model
+
+                    if isinstance(response, tuple):
+                        response = response[0]
+                    if isinstance(response, list):
+                        resp = [model_class.from_orm(r).dict() for r in response]
+                        return jsonify(resp), status
+                    return jsonify(model_class.from_orm(response).dict()), status
+                except ValidationError:
                     current_app.logger.exception("Error serialize data")
 
             return abort(400)

@@ -37,7 +37,7 @@ def get_users() -> tuple[list[Users], int]:
 
 
 @bp.post("/user")
-#@serialize()
+@serialize()
 @validate
 @auth_required(Roles.admin.value)
 def post_user_actions(user_id: int, json_data: UserActions) -> tuple[str, int]:
@@ -77,8 +77,6 @@ def post_user_actions(user_id: int, json_data: UserActions) -> tuple[str, int]:
     elif json_data.item in [reg.value for reg in Regions]:
         # Изменить регион пользователя
         user.region = json_data.item
-    else:
-        return "error", 200
     db.session.commit()
     # Очистить кэш для id пользователей
     get_current_user.cache_clear()
@@ -86,7 +84,7 @@ def post_user_actions(user_id: int, json_data: UserActions) -> tuple[str, int]:
 
 
 @bp.post("/user/<int:user_id>")
-#@serialize()
+@serialize()
 @validate
 @auth_required(Roles.admin.value)
 def post_user(json_data: UserIn) -> tuple[str, int]:

@@ -17,9 +17,9 @@ handler.setLevel(logging.ERROR)
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 handler.setFormatter(formatter)
 
-auth = JwtAuth()
-compress = Compress()
-db = Database()
+auth = JwtAuth()  # Create the JWT authentication instance
+compress = Compress()  # Create the compression instance
+db = Database()  # Create the database instance
 
 
 def create_app(config_class: Config = Config) -> Flask:
@@ -36,32 +36,30 @@ def create_app(config_class: Config = Config) -> Flask:
     app.config.from_object(config_class)
     app.logger.addHandler(handler)
 
-    auth.init_app(app)
-    compress.init_app(app)
-    db.init_app(app)
+    auth.init_app(app)  # Initialize the JWT authentication
+    compress.init_app(app)  # Initialize the compression
+    db.init_app(app)  # Initialize the database
 
     from app.routes import bp as route_bp  # noqa: PLC0415
     from command import bp as command_bp  # noqa: PLC0415
 
-    app.register_blueprint(route_bp)
-    app.register_blueprint(command_bp)
+    app.register_blueprint(route_bp)  # Register the routes
+    app.register_blueprint(command_bp)  # Register the commands
 
-    @app.get("/", defaults={"path": ""})
-    def main(path: str = "") -> str:  # noqa: ARG001
+    @app.get("/")
+    def main() -> Response:
+        """Return the main page."""
         return app.send_static_file("index.html")
 
     @app.get("/<path:path>")
-    def static_file(path: str = "") -> str:
+    def static_file(path: str) -> Response:
+        """Return a static file."""
         return app.send_static_file(path)
-
-    @app.errorhandler(404)
-    def handle_404(error: HTTPException) -> Response:
-        app.logger.exception(error)
-        return app.redirect("/")
 
     @app.errorhandler(HTTPException)
     def handle_exception(error: HTTPException) -> Response:
+        """Handle exceptions."""
         app.logger.exception(error)
-        return error
+        return app.redirect("/"), error.code
 
     return app

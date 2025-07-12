@@ -21,7 +21,6 @@ export default defineAppConfig({
     },
     modal: {
       slots: {
-        // content: "overflow-y-auto sm:max-w-4xl",
         header: "p-3",
       },
     },

@@ -9,7 +9,8 @@ from flask import current_app
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 
-from app import auth, db
+from app import db
+from app.decorators.depend import current_user
 from app.models.models import PersonIn
 from app.tables.tables import Persons
 
@@ -52,8 +53,8 @@ def upload_resume(cand: PersonIn) -> tuple[int, bool]:
 
     resume = cand.dict()
     resume["editable"] = True
-    resume["user_id"] = auth.current_user.id
-    resume["region"] = auth.current_user.region
+    resume["user_id"] = current_user.id
+    resume["region"] = current_user.region
 
     try:
         if not person:

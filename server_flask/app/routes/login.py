@@ -94,7 +94,7 @@ def post_login(action: str, json_data: Login) -> tuple[str | dict, int]:
 
 
 @bp.get("/logout")
-##@serialize()
+#@serialize()
 @auth_required()
 def get_logout() -> tuple[str, int]:
     """Logout the user.

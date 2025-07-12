@@ -76,7 +76,7 @@ class UserActions(ModelIn):
 class Items(BaseModel):
     """Base Pydantic model for items."""
 
-    items: Literal[
+    item: Literal[
         "previous",
         "educations",
         "addresses",

@@ -54,26 +54,6 @@ class Users(db.Model):
     region: Mapped[str] = mapped_column(String(255), default=Regions.main.value)
 
 
-class Phones(db.Model):
-    """Phone model."""
-
-    __tablename__ = "phones"
-
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    organization: Mapped[str] = mapped_column(String(255), nullable=False)
-    fullname: Mapped[str] = mapped_column(String(255), nullable=False)
-    phone: Mapped[str] = mapped_column(String(255), nullable=True)
-    mobile: Mapped[str] = mapped_column(String(255), nullable=True)
-    email: Mapped[str] = mapped_column(String(255), nullable=True)
-    comments: Mapped[str] = mapped_column(Text, nullable=True)
-    created: Mapped[datetime] = mapped_column(
-        DateTime,
-        default=func.now(),
-        onupdate=func.now(),
-        nullable=True,
-    )
-
-
 class Persons(db.Model):
     """Person model."""
 

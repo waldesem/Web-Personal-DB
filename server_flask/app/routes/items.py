@@ -60,7 +60,7 @@ class PersonView(MethodView):
         cand_id, existed = upload_resume(json_data)
         return {"person_id": cand_id, "exists": existed}, 201
 
-    #@serialize()
+    @serialize()
     @auth_required(Roles.user.value)
     def delete(self, person_id: int) -> tuple[str, int]:
         """Delete an item from the database based on the provided item name and item ID.
@@ -116,11 +116,12 @@ class ItemsView(MethodView):
             db.metatables[item]
             .select()
             .filter(db.metatables[item].c.person_id == item_id)
+            .order_by(db.metatables[item].c.id.desc())
         )
         # Выполняем запрос и получаем результаты
         return db.session.execute(stmt).all(), 200
 
-    #@serialize()
+    @serialize()
     @validate
     @auth_required(Roles.user.value)
     def post(self, item: Items, item_id: int, json_data: ModelIn) -> tuple[str, int]:
@@ -162,7 +163,7 @@ class ItemsView(MethodView):
         else:
             return "success", 201
 
-    #@serialize()
+    @serialize()
     @auth_required(Roles.user.value)
     def delete(self, item: Items, item_id: int) -> tuple[str, int]:
         """Delete an item from the database based on the provided item name and item ID.
