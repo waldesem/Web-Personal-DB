@@ -21,6 +21,17 @@ from app import db
 from app.classes.classes import Regions, Roles
 from config import Config
 
+"""
+BEGIN TRANSACTION;
+UPDATE persons
+SET region = 'Главный офис'
+WHERE region = 'Главный офис';
+
+UPDATE users
+SET region = 'Главный офис'
+WHERE region = 'Главный офис';
+COMMIT;
+"""
 
 class Users(db.Model):
     """User model."""

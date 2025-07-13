@@ -178,7 +178,7 @@ enum Roles {
 }
 
 export enum Regions {
-  main = "Главный офис",
+  main = "Главный офис",
   south = "РЦ Юг",
   west = "РЦ Запад",
   ural = "РЦ Урал",

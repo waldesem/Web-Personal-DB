@@ -15,7 +15,7 @@ class Roles(Enum):
 class Regions(Enum):
     """Enum class for regions."""
 
-    main = "Главный офис"
+    main = "Главный офис"
     south = "РЦ Юг"
     west = "РЦ Запад"
     ural = "РЦ Урал"

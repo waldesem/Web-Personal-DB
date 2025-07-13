@@ -1,0 +1,1 @@
+import{c as s,o as n,r as a}from"./qk1iIhnX.js";const _=(e,t)=>{const r=e.__vccOpts||e;for(const[o,c]of t)r[o]=c;return r},l={},f={class:"wrap"};function p(e,t){return n(),s("div",f,[a(e.$slots,"default")])}const i=_(l,[["render",p]]);export{i as default};

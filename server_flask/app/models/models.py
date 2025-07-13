@@ -158,10 +158,29 @@ class PersonIn(ModelIn):
         return v.upper() if v else ""
 
 
-class PersonOut(PersonIn, ModelOut):
-    """Pydantic model for person."""
+class PersonOut(ModelOut):
+    """Pydantic model for person.
 
-    user_id: int | None
+    Для сериализации в JSON не нужно данные полноценно валидировать, т.к. валидация
+    происходит при сохранении в БД. Поэтому модель не наследуется от PersonIn.
+
+    """
+
+    surname: str
+    firstname: str
+    patronymic: str | None
+    birthday: date
+    birthplace: str | None
+    citizenship: str | None
+    dual: str | None
+    snils: str | None
+    inn: str | None
+    marital: str | None
+    addition: str | None
+    destination: str | None
+    region: None | Regions
+    editable: bool
+    user_id: int
 
 
 class Candidates(ModelOut):
@@ -197,6 +216,12 @@ class PrevOut(PrevIn, ModelOut):
     """Pydantic model for previous form."""
 
     __modelname__ = "previous"
+
+    surname: str | None
+    firstname: str | None
+    patronymic: str | None
+    changed: str | int | None
+    reason: str | None
 
 
 class EducationIn(ModelIn):

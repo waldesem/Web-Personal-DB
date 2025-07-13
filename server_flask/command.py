@@ -5,7 +5,7 @@ from pathlib import Path
 import click
 from flask import Blueprint, cli, current_app
 from pydantic import ValidationError
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
@@ -27,8 +27,8 @@ bp = Blueprint("command", __name__)
 )
 @click.option(
     "--region",
-    type=click.Choice([region.name for region in Regions]),
-    default=Regions.main.name,
+    type=click.Choice([region.value for region in Regions]),
+    default=Regions.main.value,
 )
 @cli.with_appcontext
 def create_user(
@@ -52,7 +52,7 @@ def create_user(
     Example:
         export FLASK_APP=app
         flask command user 'Super Admin' superadmin superadmin@elocalhost \
-            --role=admin --region=main
+            --role=admin --region='Главный офис'
 
     """
     try:
@@ -63,16 +63,20 @@ def create_user(
             role=role,
             region=region,
         )
-        if not db.session.execute(
-            select(Users).where(Users.username == user.username),
-        ).all():
+        created = db.session.execute(
+            select(Users).where(
+                or_(Users.username == username or Users.email == email),
+            ),
+        ).scalar()
+        if created:
+            click.echo(f"User {username} already exists or email is taken")
+        else:
             db.session.add(Users(**user.dict()))
             db.session.commit()
-            click.echo(f"User {user.username} created")
-        else:
-            click.echo(f"User {user.username} already exists")
+            click.echo(f"User {username} created")
     except (ValidationError, SQLAlchemyError) as error:
         click.echo(error)
+        db.session.rollback()
 
 
 @bp.cli.command("folders")

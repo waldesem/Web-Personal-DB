@@ -5,11 +5,12 @@ Original code - https://github.com/ClimenteA/flaskwebgui
 
 from __future__ import annotations
 
-import shutil
+# import shutil
 import signal
 import subprocess
-import tempfile
-import uuid
+
+# import tempfile
+# import uuid
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
