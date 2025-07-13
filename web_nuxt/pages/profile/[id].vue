@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { useFileDialog } from "@vueuse/core";
 import type { TabsItem } from "@nuxt/ui";
-import type { Persons, PillsItems, Regions } from "@/types";
+import type { Persons, PillsItems } from "@/types";
+import { Regions } from "@/types";
 
 await preloadComponents(["ContentAnketaTab", "ContentSharedView"]);
 
@@ -12,7 +13,7 @@ const candId = computed(() => route.params.id as string);
 provide("candId", candId);
 
 const person = ref({} as Persons);
-const region = ref("" as Regions);
+const region = ref(Regions.main);
 
 const { status, refresh } = await useAsyncData("persons", async () => {
   person.value = (await fetchAuth(
@@ -174,17 +175,11 @@ const items: Pills[] = [
           <USelect
             id="region"
             v-model="region"
-            :items="[
-              'Главный офис',
-              'РЦ Юг',
-              'РЦ Запад',
-              'РЦ Урал',
-              'РЦ Восток',
-            ]"
+            :items="Object.values(Regions)"
             :placeholder="person.region"
             :disabled="
               (person.region != userState.region &&
-                userState.region != 'Главный офис') ||
+                userState.region != Regions.main) ||
               !editable
             "
             @change="changeRegion"

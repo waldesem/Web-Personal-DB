@@ -14,20 +14,13 @@ export type PillsItems =
   | "investigations"
   | "inquiries";
 
-export type Regions =
-  | "Главный офис"
-  | "РЦ Юг"
-  | "РЦ Запад"
-  | "РЦ Урал"
-  | "РЦ Восток";
-
 export interface Token {
   id: string;
   fullname: string;
   username: string;
   email: string;
   region: Regions;
-  role: "admin" | "api" | "user" | "guest";
+  role: Roles;
   exp: number;
 }
 
@@ -138,11 +131,7 @@ export interface Verification {
   cronos: string;
   cros: string;
   addition: string;
-  conclusion:
-    | "СОГЛАСОВАНО"
-    | "СОГЛАСОВАНО С КОММЕНТАРИЕМ"
-    | "ОТКАЗАНО В СОГЛАСОВАНИИ"
-    | "СНЯТ С ПРОВЕРКИ";
+  conclusion: Conclusions;
   comment: string;
   created: string;
 }
@@ -151,11 +140,7 @@ export interface Pfo {
   id: string;
   theme: string;
   results: string;
-  conclusion:
-    | "БЕЗ ЗАМЕЧАНИЙ"
-    | "С КОММЕНТАРИЯМИ"
-    | "ОТКАЗ ОТ ПРОВЕРКИ"
-    | "НЕГАТИВ";
+  conclusion: Decisions;
   created: string;
 }
 
@@ -183,4 +168,33 @@ export interface Phone {
   email: string;
   created: string;
   comments?: string;
+}
+
+enum Roles {
+  admin = "admin",
+  api = "api",
+  user = "user",
+  guest = "guest",
+}
+
+export enum Regions {
+  main = "Главный офис",
+  south = "РЦ Юг",
+  west = "РЦ Запад",
+  ural = "РЦ Урал",
+  east = "РЦ Восток",
+}
+
+export enum Conclusions {
+  agreed = "СОГЛАСОВАНО",
+  comments = "СОГЛАСОВАНО С КОММЕНТАРИЕМ",
+  denied = "ОТКАЗАНО В СОГЛАСОВАНИИ",
+  cancel = "СНЯТ С ПРОВЕРКИ",
+}
+
+export enum Decisions {
+  agreed = "БЕЗ ЗАМЕЧАНИЙ",
+  comments = "С КОММЕНТАРИЯМИ",
+  cancel = "ОТКАЗ ОТ ПРОВЕРКИ",
+  denied = "НЕГАТИВ",
 }

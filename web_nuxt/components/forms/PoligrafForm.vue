@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Pfo } from '@/types';
+import { Decisions } from '@/types';
 
 const emit = defineEmits(["update"]);
 
@@ -39,12 +40,7 @@ const poligrafForm = toRef(props.item as Pfo);
     <UFormField label="Результат" name="conclusion" required>
       <USelect
         v-model="poligrafForm.conclusion"
-        :items="[
-          'БЕЗ ЗАМЕЧАНИЙ',
-          'С КОММЕНТАРИЯМИ',
-          'ОТКАЗ ОТ ПРОВЕРКИ',
-          'НЕГАТИВ',
-        ]"
+        :items="Object.values(Decisions)"
         placeholder="Выберите результат"
         required
       />

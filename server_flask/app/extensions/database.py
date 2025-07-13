@@ -19,7 +19,7 @@ class Database:
     def __init__(self, app: Flask | None = None) -> None:
         """Init class."""
         self.Model = Base
-        self.metadata = None
+        self.metadata = Base.metadata
         self.session = Optional[Session]
         if app is not None:
             self.init_app(app)
@@ -31,7 +31,6 @@ class Database:
             raise RuntimeError(msg)
 
         engine = create_engine(app.config["DATABASE_URI"])
-        self.metadata = Base.metadata
         self.metadata.create_all(bind=engine)
         self.session = scoped_session(
             sessionmaker(bind=engine, autoflush=False, autocommit=False),

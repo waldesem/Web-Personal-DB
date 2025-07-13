@@ -89,6 +89,7 @@ def get_index(json_query: Index) -> tuple[list[Persons], int]:
     else:
         return result, 200
 
+
 @bp.post("/json")
 @serialize()
 @auth_required(roles=[Roles.user.value, Roles.api.value])

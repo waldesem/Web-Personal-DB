@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Verification } from '@/types';
+import { Conclusions } from "@/types";
 
 const emit = defineEmits(["update"]);
 
@@ -63,12 +64,7 @@ watch(noNegative, () => {
     <UFormField label="Результат" name="conclusion" required>
       <USelect
         v-model="checkForm.conclusion"
-        :items="[
-          'СОГЛАСОВАНО',
-          'СОГЛАСОВАНО С КОММЕНТАРИЕМ',
-          'ОТКАЗАНО В СОГЛАСОВАНИИ',
-          'СНЯТ С ПРОВЕРКИ',
-        ]"
+        :items="Object.values(Conclusions)"
         placeholder="Выберите нужное решение из списка"
         required
       />

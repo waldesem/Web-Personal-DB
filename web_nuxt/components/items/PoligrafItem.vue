@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Pfo } from "@/types";
+import { Decisions } from "@/types";
 
 const UBadge = resolveComponent("UBadge");
 
@@ -15,11 +16,11 @@ const poligraf = {
   Результаты: props.item.results,
   Заключение: h(UBadge, {
     color:
-      props.item.conclusion === "БЕЗ ЗАМЕЧАНИЙ"
+      props.item.conclusion === Decisions.agreed
         ? "success"
-        : props.item.conclusion === "С КОММЕНТАРИЯМИ"
+        : props.item.conclusion === Decisions.comments
         ? "warning"
-        : props.item.conclusion === "ОТКАЗ ОТ ПРОВЕРКИ"
+        : props.item.conclusion === Decisions.cancel
         ? "neutral"
         : "error",
     label: props.item.conclusion,

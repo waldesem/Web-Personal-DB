@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Verification } from '@/types';
+import { Conclusions } from "@/types";
 
 const UBadge = resolveComponent("UBadge");
 
@@ -25,11 +26,11 @@ const check = {
   Комментарии: props.item.comment,
   Результат: h(UBadge, {
     color:
-      props.item.conclusion === "СОГЛАСОВАНО"
+      props.item.conclusion === Conclusions.agreed
         ? "success"
-        : props.item.conclusion === "СОГЛАСОВАНО С КОММЕНТАРИЕМ"
+        : props.item.conclusion === Conclusions.comments
         ? "warning"
-        : props.item.conclusion === "СНЯТ С ПРОВЕРКИ"
+        : props.item.conclusion === Conclusions.cancel
         ? "neutral"
         : "error",
 

@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 import secrets
-from datetime import datetime, timedelta, timezone
-from threading import Thread
+from datetime import datetime, timedelta
 
 import jwt
 from flask import Blueprint, current_app
@@ -94,7 +93,7 @@ def post_login(action: str, json_data: Login) -> tuple[str | dict, int]:
 
 
 @bp.get("/logout")
-#@serialize()
+@serialize()
 @auth_required()
 def get_logout() -> tuple[str, int]:
     """Logout the user.
@@ -103,14 +102,5 @@ def get_logout() -> tuple[str, int]:
         The function returns a tuple containing an empty string and a status code.
 
     """
-    auth.jwt_revoked_db.set(auth.token.jti, auth.token.exp)
-
-    def revoke_token() -> None:
-        for key, value in auth.jwt_revoked_db.data.items():
-            if value < datetime.now(tz=timezone.utc):
-                auth.jwt_revoked_db.delete(key)
-
-    thread = Thread(target=revoke_token)
-    thread.start()
-
+    auth.revoke_token()
     return "", 200

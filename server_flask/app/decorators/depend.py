@@ -12,12 +12,12 @@ from werkzeug.local import LocalProxy
 from app import db
 from app.tables.tables import Users
 
-current_user: Users = LocalProxy(lambda: get_current_user(g.user_id))
+current_user: Users = LocalProxy(lambda: get_current_user(g.token["id"]))
 
 
 @lru_cache(maxsize=2)
 def get_current_user(user_id: int) -> Users | Response:
-    """Retrieve the current user stored in the global variable 'g.user_id'.
+    """Retrieve the current user stored in the global variable.
 
     Args:
         user_id (int): The ID of the user.
@@ -54,7 +54,7 @@ def auth_required(roles: tuple | None = None) -> Callable:
         @wraps(func)
         def wrapper(*args: tuple, **kwargs: dict) -> Response | Callable:
             # User validation
-            if g.user_id is None or not current_user:
+            if not g.token or not current_user:
                 return abort(401)
 
             # Role validation

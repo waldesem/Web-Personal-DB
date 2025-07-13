@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
+
 import jwt
 from flask import Flask, current_app, g, request
 from pydantic import ValidationError
@@ -17,7 +19,6 @@ class JwtAuth:
         """Initialize the database."""
         if app is not None:
             self.init_app(app)
-        self.token = None
         self.jwt_revoked_db = SimpleDB()
 
     def init_app(self, app: Flask) -> None:
@@ -25,15 +26,20 @@ class JwtAuth:
         app.before_request(self._before_request)
 
     def _before_request(self) -> None:
-        """Authenticate user via JWT and populate g.user_id."""
-        g.user_id = None
+        """Authenticate user via JWT and populate g.token."""
         if (
             (header := request.headers.get("Authorization"))
             and (token := self._decode_token(header[7:]))
             and token.jti not in self.jwt_revoked_db.data
         ):
-            self.token = token
-            g.user_id = token.id
+            g.token = token.dict()
+
+    def revoke_token(self) -> None:
+        """Revoke the current token and delete expired tokens from db."""
+        self.jwt_revoked_db.set(g.token["jti"], g.token["exp"])
+        for key, value in self.jwt_revoked_db.data.items():
+            if value < datetime.now(tz=timezone.utc):
+                self.jwt_revoked_db.delete(key)
 
     @staticmethod
     def _decode_token(payload: str) -> Token | None:

@@ -29,8 +29,4 @@ class SimpleDB:
 
     def clear(self) -> None:
         """Clear the database."""
-        if self.data:
-            self.data.clear()
-        else:
-            msg = "Database is already empty."
-            raise ValueError(msg)
+        self.data.clear()
