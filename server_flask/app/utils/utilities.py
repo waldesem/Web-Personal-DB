@@ -51,7 +51,7 @@ def upload_resume(cand: PersonIn) -> tuple[int, bool]:
         else db.session.get(Persons, cand.id)
     )
 
-    resume = cand.dict()
+    resume = cand.dict(exclude_none=True)
     resume["editable"] = True
     resume["user_id"] = current_user.id
     resume["region"] = current_user.region

@@ -9,14 +9,7 @@ from app import db
 from app.classes.classes import Roles
 from app.decorators.depend import auth_required
 from app.decorators.validate import serialize, validate
-from app.models.models import (
-    Items,
-    ModelIn,
-    ModelOut,
-    PersonExists,
-    PersonIn,
-    PersonOut,
-)
+from app.models.models import Items, ModelIn, ModelOut, PersonIn, PersonOut
 from app.tables.tables import Persons
 from app.utils.utilities import upload_resume
 
@@ -35,14 +28,14 @@ class PersonView(MethodView):
             person_id (int): The ID of the item to retrieve.
 
         Returns:
-            Tuple[Response, int]: A tuple containing the JSON response containing
-            the retrieved item(s) and an HTTP status code of 200.
+            Tuple[Response, int]: A tuple containing the Persons
+            and an HTTP status code of 200.
 
         """
         # Получаем данные кандидата
         return db.session.get(Persons, person_id), 200
 
-    @serialize(PersonExists)
+    @serialize()
     @validate
     @auth_required(Roles.user.value)
     def post(self, json_data: PersonIn) -> tuple[dict, int]:
@@ -104,11 +97,11 @@ class ItemsView(MethodView):
 
         Args:
             item (str): The type of item to retrieve.
-            item_id (int): The ID of the item to retrieve.
+            item_id (int): The ID of the item to retrieve or person.id.
 
         Returns:
-            Tuple[Response, int]: A tuple containing the JSON response containing
-            the retrieved item(s) and an HTTP status code of 200.
+            Tuple[, int]: A Sequence[Row] containing the retrieved item(s)
+            and an HTTP status code of 200.
 
         """
         # Создаем запрос к таблице и сортируем результаты по id в обратном порядке
@@ -143,12 +136,12 @@ class ItemsView(MethodView):
         json_dict["person_id"] = item_id
         try:
             # Проверяем, есть ли ключ "id" в словаре json_dict
-            if table_id := json_dict.pop("id", None):
+            if item_id := json_dict.pop("id", None):
                 # Если есть, создаем запрос на обновление записи с указанным id
                 stmt = (
                     db.metatables[item]
                     .update()
-                    .where(db.metatables[item].c.id == table_id)
+                    .where(db.metatables[item].c.id == item_id)
                     .values(json_dict)
                 )
             else:

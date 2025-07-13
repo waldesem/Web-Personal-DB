@@ -51,7 +51,7 @@ def validate(func: Callable) -> Callable:
 
             # if funcion has json_data argument with Pydantic model
             if model_class := get_type_hints(func).get("json_data"):
-                # if json model annotation is InputModel
+                # if json model annotation is ModelIn
                 if model_class.__name__ == "ModelIn":
                     item = Items(item=kwargs.get("item"))
                     model_class = MODELS_IN[item.item]

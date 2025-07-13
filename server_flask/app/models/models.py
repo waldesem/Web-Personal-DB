@@ -42,13 +42,6 @@ class Index(BaseModel):
     search: str | None = None
 
 
-class PersonExists(BaseModel):
-    """Person Exists."""
-
-    person_id: int | None
-    exists: bool
-
-
 class Token(ModelIn):
     """Pydantic model for JWT."""
 

@@ -10,7 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@iconify-json/lucide": "^1.2.55",
+    "@iconify-json/lucide": "^1.2.57",
     "@nuxt/icon": "^1.15.0",
     "@nuxt/ui": "^3.2.0",
     "jwt-decode": "^4.0.0",

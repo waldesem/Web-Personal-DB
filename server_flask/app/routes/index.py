@@ -11,7 +11,7 @@ from app import db
 from app.classes.classes import Regions, Roles
 from app.decorators.depend import auth_required, current_user
 from app.decorators.validate import serialize, validate
-from app.models.models import AnketaJson, Candidates, Index, PersonExists, PersonIn
+from app.models.models import AnketaJson, Candidates, Index, PersonIn
 from app.tables.tables import (
     Addresses,
     Affilations,
@@ -90,7 +90,7 @@ def get_index(json_query: Index) -> tuple[list[Persons], int]:
         return result, 200
 
 @bp.post("/json")
-@serialize(PersonExists)
+@serialize()
 @auth_required(roles=[Roles.user.value, Roles.api.value])
 def post_json() -> tuple[dict, int]:
     """Create a new person or updates an existing person based on the provided data.

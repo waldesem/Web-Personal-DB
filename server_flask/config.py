@@ -20,5 +20,5 @@ class Config:
     JWT_SECRET_KEY_LIVE = 365
     MAX_CONTENT_LENGTH = 100 * 1024 * 1024
     BASE_PATH = setting["Destination"].get("path")
-    DATABASE_URI = "sqlite:///" + str(Path(BASE_PATH, "database.db"))
     DEFAULT_PASSWORD = setting["Password"].get("password")
+    DATABASE_URI = "sqlite:///" + str(Path(BASE_PATH, "database.db"))
