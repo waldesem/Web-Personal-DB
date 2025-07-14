@@ -111,9 +111,9 @@ def serialize(model: BaseModel = None) -> Callable:
                     if isinstance(response, tuple):
                         response = response[0]
                     if isinstance(response, list):
-                        resp = [model_class.from_orm(r).json() for r in response]
+                        resp = [model_class.from_orm(r).dict() for r in response]
                         return jsonify(resp), status
-                    return jsonify(model_class.from_orm(response).json()), status
+                    return jsonify(model_class.from_orm(response).dict()), status
                 except ValidationError:
                     current_app.logger.exception("Error serialize data")
 
