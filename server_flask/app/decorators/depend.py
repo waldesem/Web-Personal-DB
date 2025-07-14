@@ -54,7 +54,7 @@ def auth_required(roles: tuple | None = None) -> Callable:
         @wraps(func)
         def wrapper(*args: tuple, **kwargs: dict) -> Response | Callable:
             # User validation
-            if not g.token or not current_user:
+            if ("token" not in g) or not current_user:
                 return abort(401)
 
             # Role validation
