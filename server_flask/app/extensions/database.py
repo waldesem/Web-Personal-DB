@@ -19,7 +19,8 @@ class Database:
     def __init__(self, app: Flask | None = None) -> None:
         """Init class."""
         self.Model = Base
-        self.metadata = Base.metadata
+        self.metadata = self.Model.metadata
+        self.metatables = self.metadata.tables
         self.session = Optional[Session]
         if app is not None:
             self.init_app(app)
@@ -41,8 +42,3 @@ class Database:
     def _teardown_session(self, exc: BaseException | None = None) -> None:  # noqa: ARG002
         """Close the database session after each request."""
         self.session.remove()
-
-    @property
-    def metatables(self) -> MetaData:
-        """The default metadata."""
-        return self.metadata.tables
