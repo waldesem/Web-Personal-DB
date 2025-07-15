@@ -3,11 +3,25 @@
 from __future__ import annotations
 
 from datetime import date, datetime  # noqa: TC003
-from typing import Literal
+from typing import Generic, Literal
 
 from pydantic import BaseModel, Field, validator
+from pydantic generics import GenericModel
 
 from app.classes.classes import Conclusions, Decisions, Regions, Roles
+
+T = TypeVar("T")
+
+
+class ListModels(GenericModel,  Generic[T]):
+    data: list[T]
+
+    class Config:
+        orm_mode = True
+
+    @validator('data', pre=True)
+    def iter_to_list(cls, v):
+        return list(v)
 
 
 class ModelIn(BaseModel):
