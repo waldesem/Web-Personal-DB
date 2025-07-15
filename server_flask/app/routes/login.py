@@ -40,7 +40,7 @@ def post_login(action: str, json_data: Login) -> tuple[str | dict, int]:
             select(Users).filter_by(username=json_data.username),
         ).scalar_one_or_none()
         if not user or user.blocked or user.deleted:
-            return "Invalid", 200
+            return "invalid", 200
 
         if not check_password_hash(user.passhash, json_data.password):
             if user.attempt < 5:
@@ -48,7 +48,7 @@ def post_login(action: str, json_data: Login) -> tuple[str | dict, int]:
             else:
                 user.blocked = True
             db.session.commit()
-            return "Invalid", 200
+            return "invalid", 200
 
         if action == "update":
             user.passhash = generate_password_hash(json_data.new_pswd)
@@ -56,7 +56,7 @@ def post_login(action: str, json_data: Login) -> tuple[str | dict, int]:
             user.change_pswd = False
             user.attempt = 0
             db.session.commit()
-            return "Updated", 201
+            return "updated", 201
 
         delta_change = datetime.now() - user.pswd_create
         if (
@@ -76,7 +76,7 @@ def post_login(action: str, json_data: Login) -> tuple[str | dict, int]:
                 jti=secrets.token_hex(16),
             )
             return {
-                "message": "Success",
+                "message": "success",
                 "access_token": "Bearer "
                 + jwt.encode(
                     token.dict(),
@@ -84,12 +84,12 @@ def post_login(action: str, json_data: Login) -> tuple[str | dict, int]:
                     algorithm="HS256",
                 ),
             }, 200
-        return "Denied", 200  # noqa: TRY300
+        return "denied", 200  # noqa: TRY300
 
     except (SQLAlchemyError, ValueError, ValidationError):
         current_app.logger.exception("Error occurred in login route")
         db.session.rollback()
-        return "Invalid", 200
+        return "invalid", 200
 
 
 @bp.get("/logout")

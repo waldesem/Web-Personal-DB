@@ -56,10 +56,10 @@ async function submitLogin() {
       body: loginForm.value,
     }
   )) as { message: string; access_token: string };
-  if (message === "Success") {
+  if (message === "success") {
     accessToken.value = access_token;
     return navigateTo("/persons");
-  } else if (message === "Updated") {
+  } else if (message === "updated") {
     action.value = "login";
     Object.assign(alert.value, {
       color: "success",
@@ -67,7 +67,7 @@ async function submitLogin() {
       description: "Войдите с новым паролем.",
       icon: "i-lucide-circle-alert",
     });
-  } else if (message === "Denied") {
+  } else if (message === "denied") {
     action.value = "update";
     Object.assign(alert.value, {
       color: "warning",

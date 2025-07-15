@@ -169,7 +169,7 @@ class Previous(db.Model):
         default=func.now(),
         onupdate=func.now(),
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
+    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"), index=True)
     person: Mapped[Persons] = relationship(back_populates="previous")
 
 
@@ -188,7 +188,7 @@ class Educations(db.Model):
         default=func.now(),
         onupdate=func.now(),
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
+    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"), index=True)
     person: Mapped[Persons] = relationship(back_populates="educations")
 
 
@@ -205,7 +205,7 @@ class Staffs(db.Model):
         default=func.now(),
         onupdate=func.now(),
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
+    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"), index=True)
     person: Mapped[Persons] = relationship(back_populates="staffs")
 
 
@@ -225,7 +225,7 @@ class Documents(db.Model):
         default=func.now(),
         onupdate=func.now(),
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
+    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"), index=True)
     person: Mapped[Persons] = relationship(back_populates="documents")
 
 
@@ -242,7 +242,7 @@ class Addresses(db.Model):
         default=func.now(),
         onupdate=func.now(),
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
+    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"), index=True)
     person: Mapped[Persons] = relationship(back_populates="addresses")
 
 
@@ -259,7 +259,7 @@ class Contacts(db.Model):
         default=func.now(),
         onupdate=func.now(),
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
+    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"), index=True)
     person: Mapped[Persons] = relationship(back_populates="contacts")
 
 
@@ -281,7 +281,7 @@ class Workplaces(db.Model):
         default=func.now(),
         onupdate=func.now(),
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
+    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"), index=True)
     person: Mapped[Persons] = relationship(back_populates="workplaces")
 
 
@@ -299,7 +299,7 @@ class Affilations(db.Model):
         default=func.now(),
         onupdate=func.now(),
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
+    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"), index=True)
     person: Mapped[Persons] = relationship(back_populates="affilations")
 
 
@@ -330,7 +330,7 @@ class Checks(db.Model):
         default=func.now(),
         onupdate=func.now(),
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
+    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"), index=True)
     person: Mapped[Persons] = relationship(back_populates="checks")
 
 
@@ -348,7 +348,7 @@ class Poligrafs(db.Model):
         default=func.now(),
         onupdate=func.now(),
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
+    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"), index=True)
     person: Mapped[Persons] = relationship(back_populates="poligrafs")
 
 
@@ -365,7 +365,7 @@ class Investigations(db.Model):
         default=func.now(),
         onupdate=func.now(),
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
+    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"), index=True)
     person: Mapped[Persons] = relationship(back_populates="investigations")
 
 
@@ -383,5 +383,5 @@ class Inquiries(db.Model):
         default=func.now(),
         onupdate=func.now(),
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
+    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"), index=True)
     person: Mapped[Persons] = relationship(back_populates="inquiries")
