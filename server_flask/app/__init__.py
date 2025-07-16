@@ -56,10 +56,14 @@ def create_app(config_class: Config = Config) -> Flask:
         """Return a static file."""
         return app.send_static_file(path)
 
+    @app.errorhandler(404)
+    def handle_404(error: HTTPException) -> Response:
+        app.logger.exception(error)
+        return app.redirect("/")
+
     @app.errorhandler(HTTPException)
     def handle_exception(error: HTTPException) -> Response:
-        """Handle exceptions."""
         app.logger.exception(error)
-        return app.redirect("/"), error.code
+        return error
 
     return app

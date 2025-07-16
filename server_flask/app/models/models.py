@@ -3,25 +3,56 @@
 from __future__ import annotations
 
 from datetime import date, datetime  # noqa: TC003
-from typing import Generic, Literal
+from typing import Any, Generic, Literal, TypeVar
 
 from pydantic import BaseModel, Field, validator
-from pydantic generics import GenericModel
+from pydantic.generics import GenericModel
 
 from app.classes.classes import Conclusions, Decisions, Regions, Roles
 
-T = TypeVar("T")
+TypeX = TypeVar("TypeX")
 
 
-class ListModels(GenericModel,  Generic[T]):
-    data: list[T]
+class BaseClass(GenericModel, Generic[TypeX]):
+    """BaseClass."""
+
+    created: datetime
 
     class Config:
+        """Pydantic config."""
+
         orm_mode = True
 
-    @validator('data', pre=True)
-    def iter_to_list(cls, v):
-        return list(v)
+
+class Result(BaseModel):
+    """Result Model."""
+
+    data: tuple[Any, int] = Field(ge=100, le=999)
+
+
+class Region(BaseModel):
+    """Pydantic model for region select form."""
+
+    region: Regions
+
+    class Config:
+        """Pydantic config."""
+
+        use_enum_values = True
+
+
+class Login(BaseModel):
+    """Pydantic model for login form."""
+
+    username: str
+    password: str
+    new_pswd: str | None
+
+    @validator("username")
+    @classmethod
+    def username_check(cls, v: str) -> str:
+        """Check username."""
+        return v.lower()
 
 
 class ModelIn(BaseModel):
@@ -46,14 +77,7 @@ class ModelOut(ModelIn):
         """Pydantic config."""
 
         orm_mode = True
-
-
-class Index(BaseModel):
-    """Pydantic model for pagination."""
-
-    page: int
-    per_page: int
-    search: str | None = None
+        use_enum_values = True
 
 
 class Token(ModelIn):
@@ -66,51 +90,6 @@ class Token(ModelIn):
     role: Roles
     exp: datetime
     jti: str
-
-
-class Region(ModelIn):
-    """Pydantic model for region select form."""
-
-    region: Regions
-
-
-class UserActions(ModelIn):
-    """Pydantic model for user actions form."""
-
-    item: Literal["reset", "block", "delete"] | Roles | Regions | None
-
-
-class Items(BaseModel):
-    """Base Pydantic model for items."""
-
-    item: Literal[
-        "previous",
-        "educations",
-        "addresses",
-        "affilations",
-        "staffs",
-        "workplaces",
-        "contacts",
-        "documents",
-        "checks",
-        "poligrafs",
-        "inquiries",
-        "investigations",
-    ]
-
-
-class Login(BaseModel):
-    """Pydantic model for login form."""
-
-    username: str
-    password: str
-    new_pswd: str | None
-
-    @validator("username")
-    @classmethod
-    def username_check(cls, v: str) -> str:
-        """Check username."""
-        return v.lower()
 
 
 class UserIn(ModelIn):
@@ -143,6 +122,25 @@ class UserOut(UserIn, ModelOut):
     blocked: bool
     deleted: bool
     attempt: int
+
+
+class UserActions(BaseModel):
+    """Pydantic model for user actions form."""
+
+    item: Literal["reset", "block", "delete"] | Roles | Regions | None
+
+    class Config:
+        """Pydantic config."""
+
+        use_enum_values = True
+
+
+class Index(BaseModel):
+    """Pydantic model for pagination."""
+
+    page: int
+    per_page: int
+    search: str | None = None
 
 
 class PersonIn(ModelIn):
@@ -206,6 +204,25 @@ class Candidates(ModelOut):
     editable: bool
     username: str
     total: int
+
+
+class Items(BaseModel):
+    """Base Pydantic model for items."""
+
+    item: Literal[
+        "previous",
+        "educations",
+        "addresses",
+        "affilations",
+        "staffs",
+        "workplaces",
+        "contacts",
+        "documents",
+        "checks",
+        "poligrafs",
+        "inquiries",
+        "investigations",
+    ]
 
 
 class PrevIn(ModelIn):

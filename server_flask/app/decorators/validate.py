@@ -6,7 +6,7 @@ from typing import Callable, get_type_hints
 from flask import Response, abort, current_app, jsonify, request
 from pydantic import BaseModel, ValidationError
 
-from app.models.models import Items, ModelIn, ModelOut
+from app.models.models import Items, ModelIn, ModelOut, Result
 
 # Dict of models for validation
 MODELS_IN = {
@@ -88,34 +88,28 @@ def serialize(model: BaseModel = None) -> Callable:
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args: tuple, **kwargs: dict) -> Response:
-            result: tuple[str | dict | BaseModel, int] = func(*args, **kwargs)
-            if (
-                result
-                and isinstance(result, tuple)
-                and len(result) == 2
-                and isinstance(result[1], int)
-            ):
-                response, status = result
-                if isinstance(response, str):
-                    response = {"message": response}
-                if isinstance(response, dict):
-                    return jsonify(response), status
+            result = func(*args, **kwargs)
+            try:
+                data, status = Result(data=result).data
+                if isinstance(data, str):
+                    return jsonify({"message": data}), status
+                if isinstance(data, dict):
+                    return jsonify(data), status
 
-                try:
-                    if model.__name__ == "ModelOut":
-                        item = Items(item=kwargs.get("item"))
-                        model_class = MODELS_OUT[item.item]
-                    else:
-                        model_class = model
+                if model.__name__ == "ModelOut":
+                    item = Items(item=kwargs.get("item"))
+                    model_class = MODELS_OUT[item.item]
+                else:
+                    model_class = model
 
-                    if isinstance(response, tuple):
-                        response = response[0]
-                    if isinstance(response, list):
-                        resp = [model_class.from_orm(r).dict() for r in response]
-                        return jsonify(resp), status
-                    return jsonify(model_class.from_orm(response).dict()), status
-                except ValidationError:
-                    current_app.logger.exception("Error serialize data")
+                if isinstance(data, tuple):
+                    data = data[0]
+                if isinstance(data, list):
+                    resp = [model_class.from_orm(r).dict() for r in data]
+                    return jsonify(resp), status
+                return jsonify(model_class.from_orm(data).dict()), status
+            except ValidationError:
+                current_app.logger.exception("Error serialize data")
 
             return abort(400)
 
