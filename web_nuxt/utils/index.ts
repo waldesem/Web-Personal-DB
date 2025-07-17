@@ -50,22 +50,3 @@ export const makeToast = (
     color: color,
   });
 };
-
-export async function decompressGzip(compressedBuffer: Buffer) {
-  const cs = new DecompressionStream("gzip");
-  const writer = cs.writable.getWriter();
-  writer.write(compressedBuffer);
-  writer.close();
-
-  const reader = cs.readable.getReader();
-  let result = new Uint8Array();
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    const newResult = new Uint8Array(result.length + value.length);
-    newResult.set(result, 0);
-    newResult.set(value, result.length);
-    result = newResult;
-  }
-  return result;
-}

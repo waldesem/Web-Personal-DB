@@ -21,10 +21,9 @@ export interface Token {
   email: string;
   region: Regions;
   role: Roles;
-  exp: number;
 }
 
-export interface User extends Omit<Token, "exp"> {
+export interface User extends Token {
   pswd_create: string;
   change_pswd: boolean;
   blocked: boolean;
@@ -157,17 +156,6 @@ export interface Needs {
   initiator: string;
   origins: string;
   created: string;
-}
-
-export interface Phone {
-  id: string;
-  organization: string;
-  fullname: string;
-  phone: string;
-  mobile: string;
-  email: string;
-  created: string;
-  comments?: string;
 }
 
 enum Roles {
