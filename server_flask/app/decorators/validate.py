@@ -6,19 +6,12 @@ from typing import Callable, get_type_hints
 from flask import Response, abort, current_app, jsonify, request
 from pydantic import BaseModel, ValidationError
 
-from app.models.models import Items, ModelIn, ModelOut, Result
+from app.models.models import Items, Model, Result
 
 # Dict of models for validation
-MODELS_IN = {
+MODELS = {
     cls.__modelname__: cls
-    for cls in ModelIn.__subclasses__()
-    if hasattr(cls, "__modelname__")
-}
-
-# Dict of models for serialization
-MODELS_OUT = {
-    cls.__modelname__: cls
-    for cls in ModelOut.__subclasses__()
+    for cls in Model.__subclasses__()
     if hasattr(cls, "__modelname__")
 }
 
@@ -36,7 +29,7 @@ def validate(func: Callable) -> Callable:
 
     @app.route("/endpoint", methods=["GET", "POST","PATCH"])
     @validate
-    def endpoint(json_data: ModelIn, json_query: ModelIn):
+    def endpoint(json_data: Model, json_query: Model):
         # The json_data or/and json_query are validated and available here
     """
 
@@ -46,15 +39,13 @@ def validate(func: Callable) -> Callable:
         try:
             # if funcion has json_query argument with Pydantic model
             if model_class := get_type_hints(func).get("json_query"):
-                json_query = request.args
-                kwargs["json_query"] = model_class(**json_query)
+                kwargs["json_query"] = model_class(**request.args)
 
             # if funcion has json_data argument with Pydantic model
             if model_class := get_type_hints(func).get("json_data"):
-                # if json model annotation is ModelIn
-                if model_class.__name__ == "ModelIn":
+                if model_class.__name__ == "Model":
                     item = Items(item=kwargs.get("item"))
-                    model_class = MODELS_IN[item.item]
+                    model_class = MODELS[item.item]
                 json_data = request.get_json()
                 kwargs["json_data"] = model_class(**json_data)
 
@@ -96,18 +87,21 @@ def serialize(model: BaseModel = None) -> Callable:
                 if isinstance(data, dict):
                     return jsonify(data), status
 
-                if model.__name__ == "ModelOut":
+                if model.__name__ == "Model":
                     item = Items(item=kwargs.get("item"))
-                    model_class = MODELS_OUT[item.item]
+                    model_class = MODELS[item.item]
                 else:
                     model_class = model
 
                 if isinstance(data, tuple):
                     data = data[0]
                 if isinstance(data, list):
-                    resp = [model_class.from_orm(r).dict() for r in data]
-                    return jsonify(resp), status
-                return jsonify(model_class.from_orm(data).dict()), status
+                    return jsonify(
+                        [model_class.from_orm(r).dict(exclude_none=True) for r in data],
+                    ), status
+                return jsonify(
+                    model_class.from_orm(data).dict(exclude_none=True),
+                ), status
             except ValidationError:
                 current_app.logger.exception("Error serialize data")
 

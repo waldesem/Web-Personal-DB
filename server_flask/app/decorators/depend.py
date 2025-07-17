@@ -12,7 +12,7 @@ from werkzeug.local import LocalProxy
 from app import db
 from app.tables.tables import Users
 
-current_user: Users = LocalProxy(lambda: get_current_user(g.token["id"]))
+current_user: Users = LocalProxy(lambda: get_current_user(g.token.get("id")))
 
 
 @lru_cache(maxsize=2)

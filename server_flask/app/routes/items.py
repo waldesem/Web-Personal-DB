@@ -9,7 +9,7 @@ from app import db
 from app.classes.classes import Roles
 from app.decorators.depend import auth_required
 from app.decorators.validate import serialize, validate
-from app.models.models import Items, ModelIn, ModelOut, PersonIn, PersonOut
+from app.models.models import Items, Model, PersonIn, PersonOut
 from app.tables.tables import Persons
 from app.utils.utilities import upload_resume
 
@@ -78,11 +78,11 @@ class PersonView(MethodView):
             return "success", 201
 
 
-view_func = PersonView.as_view("person")
-bp.add_url_rule("/persons", view_func=view_func, methods=["POST"])
+person_view = PersonView.as_view("person")
+bp.add_url_rule("/persons", view_func=person_view, methods=["POST"])
 bp.add_url_rule(
     "/persons/<int:person_id>",
-    view_func=view_func,
+    view_func=person_view,
     methods=["GET", "DELETE"],
 )
 
@@ -90,9 +90,9 @@ bp.add_url_rule(
 class ItemsView(MethodView):
     """Items view."""
 
-    @serialize(ModelOut)
+    @serialize(Model)
     @auth_required()
-    def get(self, item: Items, item_id: int) -> tuple[DeclarativeBase, int]:
+    def get(self, item: Items, item_id: int) -> tuple[list[DeclarativeBase], int]:
         """Retrieve an item from the database based on the provided item.
 
         Args:
@@ -100,7 +100,7 @@ class ItemsView(MethodView):
             item_id (int): The ID of the item to retrieve or person.id.
 
         Returns:
-            Tuple[, int]: A Sequence[Row] containing the retrieved item(s)
+            Tuple[Sequence, int]: A Sequence[Row] containing the retrieved item(s)
             and an HTTP status code of 200.
 
         """
@@ -117,7 +117,7 @@ class ItemsView(MethodView):
     @serialize()
     @validate
     @auth_required(Roles.user.value)
-    def post(self, item: Items, item_id: int, json_data: ModelIn) -> tuple[str, int]:
+    def post(self, item: Items, item_id: int, json_data: Model) -> tuple[str, int]:
         """Insert or replaces a record in the specified table with the given item ID.
 
         Args:
@@ -131,7 +131,7 @@ class ItemsView(MethodView):
 
         """
         # Получаем таблицу из словаря таблиц по имени item
-        json_dict = json_data.dict(exclude_none=True)
+        json_dict = json_data.dict(exclude_none=True, exclude={"created"})
         # Добавляем ключ "person_id" в словарь json_dict с значением item_id
         json_dict["person_id"] = item_id
         try:

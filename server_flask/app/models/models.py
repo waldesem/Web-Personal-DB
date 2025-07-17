@@ -3,25 +3,26 @@
 from __future__ import annotations
 
 from datetime import date, datetime  # noqa: TC003
-from typing import Any, Generic, Literal, TypeVar
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field, validator
-from pydantic.generics import GenericModel
 
 from app.classes.classes import Conclusions, Decisions, Regions, Roles
 
-TypeX = TypeVar("TypeX")
 
+class Model(BaseModel):
+    """Base Pydantic model."""
 
-class BaseClass(GenericModel, Generic[TypeX]):
-    """BaseClass."""
-
-    created: datetime
+    id: int | None
+    created: datetime | str | None
 
     class Config:
         """Pydantic config."""
 
+        allow_population_by_field_name = True
+        anystr_strip_whitespace = True
         orm_mode = True
+        use_enum_values = True
 
 
 class Result(BaseModel):
@@ -55,34 +56,10 @@ class Login(BaseModel):
         return v.lower()
 
 
-class ModelIn(BaseModel):
-    """Base Pydantic model."""
-
-    id: int | str | None = None
-
-    class Config:
-        """Pydantic config."""
-
-        use_enum_values = True
-        anystr_strip_whitespace = True
-        allow_population_by_field_name = True
-
-
-class ModelOut(ModelIn):
-    """Pydantic model for outs."""
-
-    created: datetime
-
-    class Config:
-        """Pydantic config."""
-
-        orm_mode = True
-        use_enum_values = True
-
-
-class Token(ModelIn):
+class Token(BaseModel):
     """Pydantic model for JWT."""
 
+    id: int
     fullname: str
     username: str
     email: str
@@ -91,13 +68,18 @@ class Token(ModelIn):
     exp: datetime
     jti: str
 
+    class Config:
+        """Pydantic config."""
 
-class UserIn(ModelIn):
+        use_enum_values = True
+
+
+class UserForm(BaseModel):
     """Pydantic model for user form."""
 
     fullname: str
     username: str
-    email: str | None = ""
+    email: str
     region: Regions = Regions.main.name
     role: Roles = Roles.guest.value
 
@@ -113,8 +95,13 @@ class UserIn(ModelIn):
         """Check fullname."""
         return v.upper()
 
+    class Config:
+        """Pydantic config."""
 
-class UserOut(UserIn, ModelOut):
+        use_enum_values = True
+
+
+class User(UserForm, Model):
     """Pydantic model for user form."""
 
     pswd_create: datetime
@@ -143,7 +130,7 @@ class Index(BaseModel):
     search: str | None = None
 
 
-class PersonIn(ModelIn):
+class PersonIn(Model):
     """Pydantic model for person form."""
 
     __PATTERN = r"^[А-яЁёIV\-\s\.\,\'\(\)]*$"
@@ -170,13 +157,8 @@ class PersonIn(ModelIn):
         return v.upper() if v else ""
 
 
-class PersonOut(ModelOut):
-    """Pydantic model for person.
-
-    Для сериализации в JSON не нужно данные полноценно валидировать, т.к. валидация
-    происходит при сохранении в БД. Поэтому модель не наследуется от PersonIn.
-
-    """
+class PersonOut(Model):
+    """Pydantic model for person."""
 
     surname: str
     firstname: str
@@ -190,12 +172,12 @@ class PersonOut(ModelOut):
     marital: str | None
     addition: str | None
     destination: str | None
-    region: None | Regions
+    region: Regions
     editable: bool
     user_id: int
 
 
-class Candidates(ModelOut):
+class Candidates(Model):
     """Pydantic model for candidate."""
 
     fullname: str
@@ -225,7 +207,7 @@ class Items(BaseModel):
     ]
 
 
-class PrevIn(ModelIn):
+class Prev(Model):
     """Pydantic model for previous form."""
 
     __modelname__ = "previous"
@@ -236,26 +218,8 @@ class PrevIn(ModelIn):
     changed: str | int = Field(default="", alias="yearOfChange")
     reason: str | None = ""
 
-    @validator("surname", "firstname", "patronymic")
-    @classmethod
-    def check_names(cls, v: str) -> str:
-        """Check names."""
-        return v.upper() if v else ""
 
-
-class PrevOut(PrevIn, ModelOut):
-    """Pydantic model for previous form."""
-
-    __modelname__ = "previous"
-
-    surname: str | None
-    firstname: str | None
-    patronymic: str | None
-    changed: str | int | None
-    reason: str | None
-
-
-class EducationIn(ModelIn):
+class Education(Model):
     """Pydantic model for education form."""
 
     __modelname__ = "educations"
@@ -266,13 +230,7 @@ class EducationIn(ModelIn):
     specialty: str | None = ""
 
 
-class EducationOut(EducationIn, ModelOut):
-    """Pydantic model for previous form."""
-
-    __modelname__ = "educations"
-
-
-class StaffIn(ModelIn):
+class Staff(Model):
     """Pydantic model for staff form."""
 
     __modelname__ = "staffs"
@@ -281,13 +239,7 @@ class StaffIn(ModelIn):
     department: str | None = ""
 
 
-class StaffOut(StaffIn, ModelOut):
-    """Pydantic model for staff form."""
-
-    __modelname__ = "staffs"
-
-
-class DocumentIn(ModelIn):
+class Document(Model):
     """Pydantic model for document form."""
 
     __modelname__ = "documents"
@@ -299,13 +251,7 @@ class DocumentIn(ModelIn):
     issue: date
 
 
-class DocumentOut(DocumentIn, ModelOut):
-    """Pydantic model for document form."""
-
-    __modelname__ = "documents"
-
-
-class AddressIn(ModelIn):
+class Address(Model):
     """Pydantic model for address form."""
 
     __modelname__ = "addresses"
@@ -314,13 +260,7 @@ class AddressIn(ModelIn):
     addresses: str
 
 
-class AddressOut(AddressIn, ModelOut):
-    """Pydantic model for address form."""
-
-    __modelname__ = "addresses"
-
-
-class ContactIn(ModelIn):
+class Contact(Model):
     """Pydantic model for contact form."""
 
     __modelname__ = "contacts"
@@ -329,13 +269,7 @@ class ContactIn(ModelIn):
     contact: str
 
 
-class ContactOut(ContactIn, ModelOut):
-    """Pydantic model for contact form."""
-
-    __modelname__ = "contacts"
-
-
-class WorkplaceIn(ModelIn):
+class Workplace(Model):
     """Pydantic model for workplace form."""
 
     __modelname__ = "workplaces"
@@ -349,13 +283,7 @@ class WorkplaceIn(ModelIn):
     reason: str = Field(default="", alias="fireReason")
 
 
-class WorkplaceOut(WorkplaceIn, ModelOut):
-    """Pydantic model for workplace form."""
-
-    __modelname__ = "workplaces"
-
-
-class AffilationIn(ModelIn):
+class Affilation(Model):
     """Pydantic model for affilation form."""
 
     __modelname__ = "affilations"
@@ -365,13 +293,7 @@ class AffilationIn(ModelIn):
     inn: str | None = ""
 
 
-class AffilationOut(AffilationIn, ModelOut):
-    """Pydantic model for affilation form."""
-
-    __modelname__ = "affilations"
-
-
-class CheckIn(ModelIn):
+class Check(Model):
     """Pydantic model for check form."""
 
     __modelname__ = "checks"
@@ -394,13 +316,7 @@ class CheckIn(ModelIn):
     conclusion: Conclusions
 
 
-class CheckOut(CheckIn, ModelOut):
-    """Pydantic model for check form."""
-
-    __modelname__ = "checks"
-
-
-class PoligrafIn(ModelIn):
+class Poligraf(Model):
     """Pydantic model for poligraf form."""
 
     __modelname__ = "poligrafs"
@@ -410,13 +326,7 @@ class PoligrafIn(ModelIn):
     conclusion: Decisions
 
 
-class PoligrafOut(PoligrafIn, ModelOut):
-    """Pydantic model for poligraf form."""
-
-    __modelname__ = "poligrafs"
-
-
-class InvestigationIn(ModelIn):
+class Investigation(Model):
     """Pydantic model for investigation form."""
 
     __modelname__ = "investigations"
@@ -425,13 +335,7 @@ class InvestigationIn(ModelIn):
     info: str
 
 
-class InvestigationOut(InvestigationIn, ModelOut):
-    """Pydantic model for investigation form."""
-
-    __modelname__ = "investigations"
-
-
-class InquiryIn(ModelIn):
+class Inquiry(Model):
     """Pydantic model for inquiry form."""
 
     __modelname__ = "inquiries"
@@ -439,12 +343,6 @@ class InquiryIn(ModelIn):
     info: str
     initiator: str
     origins: str | None = ""
-
-
-class InquiryOut(InquiryIn, ModelOut):
-    """Pydantic model for inquiries form."""
-
-    __modelname__ = "inquiries"
 
 
 class AnketaJson(PersonIn):
@@ -460,22 +358,22 @@ class AnketaJson(PersonIn):
     reg_address: str = Field(default="", alias="regAddress")
     email: str | None = ""
     contact_phone: str = Field(default="", alias="contactPhone")
-    education: list[EducationIn] = []
-    experience: list[WorkplaceIn] = []
-    name_was_changed: list[PrevIn] = Field(
+    education: list[Education] = []
+    experience: list[Workplace] = []
+    name_was_changed: list[Prev] = Field(
         default=[],
         alias="nameWasChanged",
     )
-    organizations: list[AffilationIn] = []
-    related_organizations: list[AffilationIn] = Field(
+    organizations: list[Affilation] = []
+    related_organizations: list[Affilation] = Field(
         default=[],
         alias="relatedPersonsOrganizations",
     )
-    state_organizations: list[AffilationIn] = Field(
+    state_organizations: list[Affilation] = Field(
         default=[],
         alias="stateOrganizations",
     )
-    public_organizations: list[AffilationIn] = Field(
+    public_organizations: list[Affilation] = Field(
         default=[],
         alias="publicOfficeOrganizations",
     )

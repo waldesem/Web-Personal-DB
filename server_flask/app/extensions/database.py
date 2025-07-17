@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Optional
 
 from flask import Flask  # noqa: TC002
-from sqlalchemy import MetaData, create_engine
+from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, Session, scoped_session, sessionmaker
 
 

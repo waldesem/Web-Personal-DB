@@ -21,47 +21,27 @@ from app import db
 from app.classes.classes import Regions, Roles
 from config import Config
 
-"""
-BEGIN TRANSACTION;
-UPDATE persons
-SET region = 'Главный офис'
-WHERE region = 'Главный офис';
-
-UPDATE users
-SET region = 'Главный офис'
-WHERE region = 'Главный офис';
-COMMIT;
-"""
 
 class Users(db.Model):
     """User model."""
 
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
     fullname: Mapped[str] = mapped_column(String(255), nullable=False)
     username: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     email: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
+    created: Mapped[datetime] = mapped_column(DateTime, default=func.now())
     passhash: Mapped[str] = mapped_column(
         String(255),
-        default=generate_password_hash(Config.DEFAULT_PASSWORD),
-        nullable=True,
+        default_factory=generate_password_hash(Config.DEFAULT_PASSWORD),
     )
-    pswd_create: Mapped[datetime] = mapped_column(
-        DateTime,
-        default=func.now(),
-        nullable=True,
-    )
+    pswd_create: Mapped[datetime] = mapped_column(DateTime, default=func.now())
     change_pswd: Mapped[bool] = mapped_column(Boolean(), default=True)
     blocked: Mapped[bool] = mapped_column(Boolean(), default=False)
     deleted: Mapped[bool] = mapped_column(Boolean(), default=False)
     attempt: Mapped[int] = mapped_column(Integer(), default=0)
     role: Mapped[str] = mapped_column(String(), default=Roles.guest.value)
-    created: Mapped[datetime] = mapped_column(
-        DateTime,
-        default=func.now(),
-        nullable=True,
-    )
     region: Mapped[str] = mapped_column(String(255), default=Regions.main.value)
 
 
@@ -70,19 +50,19 @@ class Persons(db.Model):
 
     __tablename__ = "persons"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
     surname: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     firstname: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
-    patronymic: Mapped[str] = mapped_column(String(255), nullable=True, index=True)
+    patronymic: Mapped[str] = mapped_column(String(255), index=True)
     birthday: Mapped[date] = mapped_column(Date, nullable=False)
-    birthplace: Mapped[str] = mapped_column(Text, nullable=True)
-    citizenship: Mapped[str] = mapped_column(String(255), nullable=True)
-    dual: Mapped[str] = mapped_column(String(255), nullable=True)
-    snils: Mapped[str] = mapped_column(String(11), nullable=True)
-    inn: Mapped[str] = mapped_column(String(12), nullable=True)
-    marital: Mapped[str] = mapped_column(String(255), nullable=True)
-    addition: Mapped[str] = mapped_column(Text, nullable=True)
-    destination: Mapped[str] = mapped_column(Text, nullable=True)
+    birthplace: Mapped[str] = mapped_column(Text)
+    citizenship: Mapped[str] = mapped_column(String(255))
+    dual: Mapped[str] = mapped_column(String(255))
+    snils: Mapped[str] = mapped_column(String(11))
+    inn: Mapped[str] = mapped_column(String(12))
+    marital: Mapped[str] = mapped_column(String(255))
+    addition: Mapped[str] = mapped_column(Text)
+    destination: Mapped[str] = mapped_column(Text)
     created: Mapped[datetime] = mapped_column(
         DateTime,
         default=func.now(),
@@ -158,12 +138,12 @@ class Previous(db.Model):
 
     __tablename__ = "previous"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    surname: Mapped[str] = mapped_column(String(255), nullable=True)
-    firstname: Mapped[str] = mapped_column(String(255), nullable=True)
-    patronymic: Mapped[str] = mapped_column(String(255), nullable=True)
-    changed: Mapped[str] = mapped_column(String(255), nullable=True)
-    reason: Mapped[str] = mapped_column(Text, nullable=True)
+    id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
+    surname: Mapped[str] = mapped_column(String(255))
+    firstname: Mapped[str] = mapped_column(String(255))
+    patronymic: Mapped[str] = mapped_column(String(255))
+    changed: Mapped[str] = mapped_column(String(255))
+    reason: Mapped[str] = mapped_column(Text)
     created: Mapped[datetime] = mapped_column(
         DateTime,
         default=func.now(),
@@ -178,11 +158,11 @@ class Educations(db.Model):
 
     __tablename__ = "educations"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    view: Mapped[str] = mapped_column(String(255), nullable=True)
-    institution: Mapped[str] = mapped_column(Text, nullable=True)
-    finished: Mapped[int] = mapped_column(Integer, nullable=True)
-    specialty: Mapped[str] = mapped_column(Text, nullable=True)
+    id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
+    view: Mapped[str] = mapped_column(String(255))
+    institution: Mapped[str] = mapped_column(Text)
+    finished: Mapped[int] = mapped_column(Integer)
+    specialty: Mapped[str] = mapped_column(Text)
     created: Mapped[datetime] = mapped_column(
         DateTime,
         default=func.now(),
@@ -197,9 +177,9 @@ class Staffs(db.Model):
 
     __tablename__ = "staffs"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    position: Mapped[str] = mapped_column(Text, nullable=True)
-    department: Mapped[str] = mapped_column(Text, nullable=True)
+    id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
+    position: Mapped[str] = mapped_column(Text)
+    department: Mapped[str] = mapped_column(Text)
     created: Mapped[datetime] = mapped_column(
         DateTime,
         default=func.now(),
@@ -214,12 +194,12 @@ class Documents(db.Model):
 
     __tablename__ = "documents"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    view: Mapped[str] = mapped_column(String(255), nullable=True, default="Паспорт")
-    series: Mapped[str] = mapped_column(String(255), nullable=True)
-    digits: Mapped[str] = mapped_column(String(255), nullable=True)
-    agency: Mapped[str] = mapped_column(Text, nullable=True)
-    issue: Mapped[datetime] = mapped_column(Date, nullable=True)
+    id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
+    view: Mapped[str] = mapped_column(String(255), default="Паспорт")
+    series: Mapped[str] = mapped_column(String(255))
+    digits: Mapped[str] = mapped_column(String(255))
+    agency: Mapped[str] = mapped_column(Text)
+    issue: Mapped[datetime] = mapped_column(Date)
     created: Mapped[datetime] = mapped_column(
         DateTime,
         default=func.now(),
@@ -234,9 +214,9 @@ class Addresses(db.Model):
 
     __tablename__ = "addresses"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    view: Mapped[str] = mapped_column(String(255), nullable=True)
-    addresses: Mapped[str] = mapped_column(Text, nullable=True)
+    id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
+    view: Mapped[str] = mapped_column(String(255))
+    addresses: Mapped[str] = mapped_column(Text)
     created: Mapped[datetime] = mapped_column(
         DateTime,
         default=func.now(),
@@ -251,9 +231,9 @@ class Contacts(db.Model):
 
     __tablename__ = "contacts"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    view: Mapped[str] = mapped_column(String(255), nullable=True)
-    contact: Mapped[str] = mapped_column(String(255), nullable=True)
+    id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
+    view: Mapped[str] = mapped_column(String(255))
+    contact: Mapped[str] = mapped_column(String(255))
     created: Mapped[datetime] = mapped_column(
         DateTime,
         default=func.now(),
@@ -268,14 +248,14 @@ class Workplaces(db.Model):
 
     __tablename__ = "workplaces"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    now_work: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    starts: Mapped[datetime | None] = mapped_column(Date, nullable=True)
-    finished: Mapped[datetime | None] = mapped_column(Date, nullable=True)
-    workplace: Mapped[str] = mapped_column(String(255), nullable=True)
-    addresses: Mapped[str] = mapped_column(Text, nullable=True)
-    position: Mapped[str] = mapped_column(Text, nullable=True)
-    reason: Mapped[str] = mapped_column(Text, nullable=True)
+    id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
+    now_work: Mapped[bool] = mapped_column(Boolean, default=False)
+    starts: Mapped[datetime | None] = mapped_column(Date)
+    finished: Mapped[datetime | None] = mapped_column(Date)
+    workplace: Mapped[str] = mapped_column(String(255))
+    addresses: Mapped[str] = mapped_column(Text)
+    position: Mapped[str] = mapped_column(Text)
+    reason: Mapped[str] = mapped_column(Text)
     created: Mapped[datetime] = mapped_column(
         DateTime,
         default=func.now(),
@@ -290,10 +270,10 @@ class Affilations(db.Model):
 
     __tablename__ = "affilations"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    view: Mapped[str] = mapped_column(String(255), nullable=True)
-    organization: Mapped[str] = mapped_column(Text, nullable=True)
-    inn: Mapped[str] = mapped_column(String(255), nullable=True)
+    id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
+    view: Mapped[str] = mapped_column(String(255))
+    organization: Mapped[str] = mapped_column(Text)
+    inn: Mapped[str] = mapped_column(String(255))
     created: Mapped[datetime] = mapped_column(
         DateTime,
         default=func.now(),
@@ -308,23 +288,23 @@ class Checks(db.Model):
 
     __tablename__ = "checks"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    workplace: Mapped[str] = mapped_column(Text, nullable=True)
-    document: Mapped[str] = mapped_column(Text, nullable=True)
-    inn: Mapped[str] = mapped_column(Text, nullable=True)
-    debt: Mapped[str] = mapped_column(Text, nullable=True)
-    bankruptcy: Mapped[str] = mapped_column(Text, nullable=True)
-    bki: Mapped[str] = mapped_column(Text, nullable=True)
-    courts: Mapped[str] = mapped_column(Text, nullable=True)
-    affilation: Mapped[str] = mapped_column(Text, nullable=True)
-    terrorist: Mapped[str] = mapped_column(Text, nullable=True)
-    mvd: Mapped[str] = mapped_column(Text, nullable=True)
-    internet: Mapped[str] = mapped_column(Text, nullable=True)
-    cronos: Mapped[str] = mapped_column(Text, nullable=True)
-    cros: Mapped[str] = mapped_column(Text, nullable=True)
-    addition: Mapped[str] = mapped_column(Text, nullable=True)
-    comment: Mapped[str] = mapped_column(Text, nullable=True)
-    conclusion: Mapped[str] = mapped_column(Text, nullable=True)
+    id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
+    workplace: Mapped[str] = mapped_column(Text)
+    document: Mapped[str] = mapped_column(Text)
+    inn: Mapped[str] = mapped_column(Text)
+    debt: Mapped[str] = mapped_column(Text)
+    bankruptcy: Mapped[str] = mapped_column(Text)
+    bki: Mapped[str] = mapped_column(Text)
+    courts: Mapped[str] = mapped_column(Text)
+    affilation: Mapped[str] = mapped_column(Text)
+    terrorist: Mapped[str] = mapped_column(Text)
+    mvd: Mapped[str] = mapped_column(Text)
+    internet: Mapped[str] = mapped_column(Text)
+    cronos: Mapped[str] = mapped_column(Text)
+    cros: Mapped[str] = mapped_column(Text)
+    addition: Mapped[str] = mapped_column(Text)
+    comment: Mapped[str] = mapped_column(Text)
+    conclusion: Mapped[str] = mapped_column(Text)
     created: Mapped[datetime] = mapped_column(
         DateTime,
         default=func.now(),
@@ -339,10 +319,10 @@ class Poligrafs(db.Model):
 
     __tablename__ = "poligrafs"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    theme: Mapped[str] = mapped_column(String(255), nullable=True)
-    results: Mapped[str] = mapped_column(Text, nullable=True)
-    conclusion: Mapped[str] = mapped_column(String(255), nullable=True)
+    id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
+    theme: Mapped[str] = mapped_column(String(255))
+    results: Mapped[str] = mapped_column(Text)
+    conclusion: Mapped[str] = mapped_column(String(255))
     created: Mapped[datetime] = mapped_column(
         DateTime,
         default=func.now(),
@@ -357,9 +337,9 @@ class Investigations(db.Model):
 
     __tablename__ = "investigations"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    theme: Mapped[str] = mapped_column(String(255), nullable=True)
-    info: Mapped[str] = mapped_column(Text, nullable=True)
+    id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
+    theme: Mapped[str] = mapped_column(String(255))
+    info: Mapped[str] = mapped_column(Text)
     created: Mapped[datetime] = mapped_column(
         DateTime,
         default=func.now(),
@@ -374,10 +354,10 @@ class Inquiries(db.Model):
 
     __tablename__ = "inquiries"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    info: Mapped[str] = mapped_column(Text, nullable=True)
-    initiator: Mapped[str] = mapped_column(String(255), nullable=True)
-    origins: Mapped[str] = mapped_column(String(255), nullable=True)
+    id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
+    info: Mapped[str] = mapped_column(Text)
+    initiator: Mapped[str] = mapped_column(String(255))
+    origins: Mapped[str] = mapped_column(String(255))
     created: Mapped[datetime] = mapped_column(
         DateTime,
         default=func.now(),
