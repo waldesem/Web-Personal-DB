@@ -11,7 +11,7 @@ from app import db
 from app.classes.classes import Regions, Roles
 from app.decorators.depend import auth_required, current_user
 from app.decorators.validate import serialize, validate
-from app.models.models import AnketaJson, Candidates, Index, Person
+from app.models.models import AnketaJson, Candidates, Index, PersonIn
 from app.tables.tables import (
     Addresses,
     Affilations,
@@ -113,7 +113,7 @@ def post_json() -> tuple[dict, int]:
         anketa = AnketaJson(**json_data)
 
         # Валидация данных и создание объекта класса Person
-        resume = Person(**anketa.dict(exclude_none=True))
+        resume = PersonIn(**anketa.dict(exclude_none=True))
         # Загрузка резюме в БД
         person_id, existed = upload_resume(resume)
 

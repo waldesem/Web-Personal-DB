@@ -10,7 +10,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
 from app.classes.classes import Regions, Roles
-from app.models.models import UserIn
+from app.models.models import UserForm
 from app.tables.tables import Users
 
 bp = Blueprint("command", __name__)
@@ -56,7 +56,7 @@ def create_user(
 
     """
     try:
-        user = UserIn(
+        user = UserForm(
             fullname=fullname,
             username=username,
             email=email,

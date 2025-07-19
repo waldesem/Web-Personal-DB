@@ -2,6 +2,8 @@
 import { useFileDialog, watchDebounced } from "@vueuse/core";
 import type { DropdownMenuItem, TableColumn } from "@nuxt/ui";
 
+const { $api } = useNuxtApp();
+
 await preloadRouteComponents("/profile/[id]");
 
 const UIcon = resolveComponent("UIcon");
@@ -22,29 +24,20 @@ export interface Candidate {
 }
 
 const page = ref(1);
-const total = ref(1);
 const search = ref("");
 const modal = ref(false);
 const updated = ref("Данные обновляются...");
-const candidates = shallowRef([] as Candidate[]);
 const per_page = 10;
 
-const { refresh, status } = await useLazyAsyncData(
-  "candidates",
-  async () => {
-    const data = (await fetchAuth("/route/index", {
-      params: {
-        search: search.value,
-        per_page: per_page,
-        page: page.value,
-      },
-    })) as Candidate[];
-    candidates.value = data;
-    total.value = data ? data[0].total : 1;
-    updated.value = new Date().toLocaleTimeString("ru-RU");
+const { data, refresh, status } = await useAPI<Candidate[]>("/route/index", {
+  params: {
+    search: search.value,
+    per_page: per_page,
+    page: page.value,
   },
-  { watch: [page] }
-);
+  watch: [page],
+  lazy: true,
+});
 
 watchDebounced(search, () => refresh(), { debounce: 1000, maxWait: 2000 });
 
@@ -79,7 +72,7 @@ onChange(async (files) => {
   status.value = "pending";
   const formData = new FormData();
   formData.append("file", files[0]);
-  const { person_id, exists } = (await fetchAuth("/route/json", {
+  const { person_id, exists } = (await $api("/route/json", {
     method: "POST",
     body: formData,
   })) as {
@@ -222,7 +215,7 @@ const items: DropdownMenuItem[] = [
       loading-animation="carousel"
       empty="Данные не найдены"
       :columns="columns"
-      :data="candidates"
+      :data="data || []"
       :meta="{ class: { tr: 'cursor-pointer' } }"
       @select="navigateTo(`/profile/${$event.original.id}`)"
     />
@@ -242,7 +235,7 @@ const items: DropdownMenuItem[] = [
       <UPagination
         v-model:page="page"
         :items-per-page="per_page"
-        :total="total"
+        :total="data ? data[0].total : 1"
         :sibling-count="1"
         @update:page="(p) => (page = p)"
       />

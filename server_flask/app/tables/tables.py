@@ -34,7 +34,7 @@ class Users(db.Model):
     created: Mapped[datetime] = mapped_column(DateTime, default=func.now())
     passhash: Mapped[str] = mapped_column(
         String(255),
-        default_factory=generate_password_hash(Config.DEFAULT_PASSWORD),
+        default=generate_password_hash(Config.DEFAULT_PASSWORD),
     )
     pswd_create: Mapped[datetime] = mapped_column(DateTime, default=func.now())
     change_pswd: Mapped[bool] = mapped_column(Boolean(), default=True)
