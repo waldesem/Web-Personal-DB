@@ -27,6 +27,8 @@ import InquestItem from "@/components/items/InquestItem.vue";
 import PoligrafForm from "@/components/forms/PoligrafForm.vue";
 import PoligrafItem from "@/components/items/PoligrafItem.vue";
 
+const { $customFetch } = useNuxtApp();
+
 const props = defineProps({
   view: {
     type: String as PropType<PillsItems | DivsItems>,
@@ -61,7 +63,7 @@ const items = ref([] as object[]);
 const modal = ref(false);
 
 const { status, refresh } = await useLazyAsyncData(props.view, async () => {
-  items.value = (await fetchAuth(
+  items.value = (await $customFetch(
     `/route/items/${props.view}/${candId.value}`
   )) as object[];
 });
@@ -69,13 +71,13 @@ const { status, refresh } = await useLazyAsyncData(props.view, async () => {
 async function submitItem(form: object) {
   modal.value = false;
   status.value = "pending";
-  const { message } = (await fetchAuth(
+  const { message } = $customFetch(
     `/route/items/${props.view}/${candId.value}`,
     {
       method: "POST",
       body: form,
     }
-  )) as Record<string, string>;
+  ) as Record<string, string>;
   await refresh();
   status.value = message as "success" | "error";
   if (message == "success") {
@@ -86,12 +88,12 @@ async function submitItem(form: object) {
   }
 }
 
-async function deleteItem(id: string, idx: number) {
+function deleteItem(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   status.value = "pending";
-  const { message } = (await fetchAuth(`/route/items/${props.view}/${id}`, {
+  const { message } = $customFetch(`/route/items/${props.view}/${id}`, {
     method: "DELETE",
-  })) as Record<string, string>;
+  }) as Record<string, string>;
   status.value = message as "success" | "error";
   if (message == "success") {
     makeToast(message, "Информация успешно обновлена");

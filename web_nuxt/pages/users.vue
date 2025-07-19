@@ -7,27 +7,25 @@ const UBadge = resolveComponent("UBadge");
 const UButton = resolveComponent("UButton");
 const UDropdownMenu = resolveComponent("UDropdownMenu");
 
+const { $customFetch } = useNuxtApp();
 const userState = useUserState();
 
-const users = ref([] as User[]);
 const modal = ref(false);
 const expanded = ref({ 1: false });
 const globalFilter = ref("");
 
-const { refresh, status } = await useLazyAsyncData("users", async () => {
-  users.value = (await fetchAuth("/route/users")) as User[];
-});
+const { data, refresh, status } = await useCustomFetch("/route/users");
 
-async function userAction(item: string, user_id: string): Promise<void> {
+function userAction(item: string, user_id: string): void {
   if (user_id == userState.value.id) {
     makeToast();
     return;
   }
   if (!confirm("Подтвердите выполнение действия")) return;
-  const { message } = (await fetchAuth("/route/user/" + user_id, {
+  const { message } = $customFetch("/route/user/" + user_id, {
     method: "POST",
     body: { item: item },
-  })) as Record<string, string>;
+  }) as Record<string, string>;
   if (message == "success") {
     makeToast("success", "Действие успешно выполнено");
   } else {
@@ -266,7 +264,7 @@ const columns: TableColumn<User>[] = [
       v-model:global-filter="globalFilter"
       sticky
       class="flex-1 max-h-[800px]"
-      :data="users"
+      :data="(data as User[])"
       :columns="columns"
       :meta="{ class: { tr: 'cursor-pointer' } }"
       :loading="status === 'pending'"

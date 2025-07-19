@@ -2,6 +2,8 @@
 import type { AccordionItem } from "@nuxt/ui";
 import type { DivsItems, Persons } from "@/types";
 
+const { $customFetch } = useNuxtApp();
+
 const emits = defineEmits(["refresh"]);
 
 const props = defineProps({
@@ -32,17 +34,14 @@ async function submitPerson(person_id: string) {
   }
 }
 
-async function deletePerson() {
+function deletePerson() {
   if (!confirm("Вы действительно хотите удалить профиль и связанные записи?"))
     return;
   if (!confirm("Данные будут удалены безвозвратно!?")) return;
   status.value = "pending";
-  const { message } = (await fetchAuth(
-    `/route/items/persons/${person.value.id}`,
-    {
-      method: "DELETE",
-    }
-  )) as Record<string, string>;
+  const { message } = $customFetch(`/route/items/persons/${person.value.id}`, {
+    method: "DELETE",
+  }) as Record<string, string>;
   if (message == "success") {
     makeToast(message, "Информация успешно обновлена");
     return navigateTo("/persons");

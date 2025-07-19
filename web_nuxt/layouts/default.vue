@@ -3,9 +3,11 @@ import type { NavigationMenuItem } from "@nuxt/ui";
 
 const userState = useUserState();
 
-async function logout() {
+const { $customFetch } = useNuxtApp();
+
+function logout() {
   if (!confirm("Вы действительно хотите выйти?")) return;
-  await fetchAuth("/route/auth/logout") as Record<string, string>;
+  $customFetch("/route/auth/logout") as Record<string, string>;
   accessToken.value = null;
   clearNuxtData();
   return navigateTo("/login");

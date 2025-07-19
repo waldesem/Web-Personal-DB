@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import type { Persons } from '@/types';
+import type { Persons } from "@/types";
+
+const { $customFetch } = useNuxtApp();
 
 const emit = defineEmits(["update"]);
 
@@ -16,13 +18,13 @@ resumeForm.value.birthday = resumeForm.value.birthday
   ? new Date(resumeForm.value.birthday).toISOString().split("T", 1)[0]
   : "";
 
-async function submitPerson() {
-  const { person_id, exists } = (await fetchAuth("/route/items/persons", {
+function submitPerson() {
+  const { person_id, exists } = $customFetch("/route/items/persons", {
     method: "POST",
     body: resumeForm.value,
-  })) as Record<string, string>;
-  emit("update", person_id, exists)
-} 
+  }) as Record<string, string>;
+  emit("update", person_id, exists);
+}
 
 const validate = (state: Partial<Persons>) => {
   const errors = [];

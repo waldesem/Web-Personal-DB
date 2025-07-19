@@ -6,6 +6,8 @@ import { Regions } from "@/types";
 
 await preloadComponents(["ContentAnketaTab", "ContentSharedView"]);
 
+const { $customFetch } = useNuxtApp();
+
 const route = useRoute();
 const userState = useUserState();
 
@@ -16,7 +18,7 @@ const person = ref({} as Persons);
 const region = ref(Regions.main);
 
 const { status, refresh } = await useAsyncData("persons", async () => {
-  person.value = (await fetchAuth(
+  person.value = (await $customFetch(
     "/route/items/persons/" + candId.value
   )) as Persons;
 });
@@ -41,17 +43,16 @@ async function switchSelf(): Promise<void> {
       ) {
         return;
       }
-    }
-    else if (!confirm("Вы хотите назначить анкету на себя?")) {
+    } else if (!confirm("Вы хотите назначить анкету на себя?")) {
       return;
     }
   } else if (!confirm("Переключить режим редактирования?")) {
     return;
   }
   status.value = "pending";
-  const { message } = (await fetchAuth(
+  const { message } = $customFetch(
     "/route/anketa/self/" + person.value.id
-  )) as Record<string, string>;
+  ) as Record<string, string>;
   status.value = message as "success" | "error";
   if (message == "success") {
     await refresh();
@@ -60,7 +61,7 @@ async function switchSelf(): Promise<void> {
   }
 }
 
-async function changeRegion() {
+function changeRegion() {
   if (region.value == person.value.region) {
     return;
   }
@@ -69,15 +70,12 @@ async function changeRegion() {
     return;
   }
   status.value = "pending";
-  const { message } = (await fetchAuth(
-    `/route/anketa/region/${person.value.id}`,
-    {
-      method: "POST",
-      body: {
-        region: region.value,
-      },
-    }
-  )) as Record<string, string>;
+  const { message } = $customFetch(`/route/anketa/region/${person.value.id}`, {
+    method: "POST",
+    body: {
+      region: region.value,
+    },
+  }) as Record<string, string>;
   status.value = message as "success" | "error";
   if (message == "success") {
     makeToast(message, "Регион успешно обновлен");
@@ -90,7 +88,7 @@ async function changeRegion() {
 
 const { open, reset, onCancel, onChange } = useFileDialog();
 
-onChange(async (files) => {
+onChange((files) => {
   if (!files) return;
   const formData = new FormData();
   for (const file of files) {
@@ -101,10 +99,10 @@ onChange(async (files) => {
     }
     formData.append("file", file);
   }
-  const { message } = (await fetchAuth(`/route/anketa/files/${candId.value}`, {
+  const { message } = $customFetch(`/route/anketa/files/${candId.value}`, {
     method: "POST",
     body: formData,
-  })) as Record<string, string>;
+  }) as Record<string, string>;
   status.value = message as "success" | "error";
   if (message == "success") {
     makeToast(message, "Файлы успешно загружены");

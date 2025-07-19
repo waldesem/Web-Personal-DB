@@ -2,7 +2,7 @@
 import { useFileDialog, watchDebounced } from "@vueuse/core";
 import type { DropdownMenuItem, TableColumn } from "@nuxt/ui";
 
-const { $api } = useNuxtApp();
+const { $customFetch } = useNuxtApp();
 
 await preloadRouteComponents("/profile/[id]");
 
@@ -26,20 +26,32 @@ export interface Candidate {
 const page = ref(1);
 const search = ref("");
 const modal = ref(false);
+const total = ref(1);
 const updated = ref("Данные обновляются...");
+const candidates = ref([] as Candidate[]);
 const per_page = 10;
 
-const { data, refresh, status } = await useAPI<Candidate[]>("/route/index", {
-  params: {
-    search: search.value,
-    per_page: per_page,
-    page: page.value,
+const { refresh, status } = await useLazyAsyncData(
+  "candidates",
+  async () => {
+    const data = (await customFetch("/route/index", {
+      params: {
+        search: search.value,
+        per_page: per_page,
+        page: page.value,
+      },
+    })) as Candidate[];
+    candidates.value = data;
+    total.value = data ? data[0].total : 1;
+    updated.value = new Date().toLocaleTimeString("ru-RU");
   },
-  watch: [page],
-  lazy: true,
-});
+  { watch: [page] }
+);
 
-watchDebounced(search, () => refresh(), { debounce: 1000, maxWait: 2000 });
+watchDebounced(search, async () => await refresh(), {
+  debounce: 1000,
+  maxWait: 2000,
+});
 
 const { open, onChange } = useFileDialog({
   accept: ".json",
@@ -72,7 +84,7 @@ onChange(async (files) => {
   status.value = "pending";
   const formData = new FormData();
   formData.append("file", files[0]);
-  const { person_id, exists } = (await $api("/route/json", {
+  const { person_id, exists } = (await $customFetch("/route/json", {
     method: "POST",
     body: formData,
   })) as {
@@ -215,12 +227,12 @@ const items: DropdownMenuItem[] = [
       loading-animation="carousel"
       empty="Данные не найдены"
       :columns="columns"
-      :data="data || []"
+      :data="candidates"
       :meta="{ class: { tr: 'cursor-pointer' } }"
       @select="navigateTo(`/profile/${$event.original.id}`)"
     />
 
-    <div class="my-2">
+    <!--div class="my-2">
       <UButton
         variant="ghost"
         icon="i-lucide-refresh-ccw"
@@ -229,13 +241,13 @@ const items: DropdownMenuItem[] = [
         title="Обновить данные"
         @click="refresh()"
       />
-    </div>
+    </div-->
 
     <div class="flex justify-center border-t border-default py-4">
       <UPagination
         v-model:page="page"
         :items-per-page="per_page"
-        :total="data ? data[0].total : 1"
+        :total="total"
         :sibling-count="1"
         @update:page="(p) => (page = p)"
       />

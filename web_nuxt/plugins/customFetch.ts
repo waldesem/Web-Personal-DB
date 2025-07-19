@@ -1,8 +1,7 @@
 export default defineNuxtPlugin((nuxtApp) => {
-  const $customFetch = $fetch.create({
+  const customFetch = $fetch.create({
     onRequest({ options }) {
       if (accessToken.value) {
-        // Add Authorization header
         options.headers.set("Authorization", `${accessToken.value}`);
       }
     },
@@ -13,9 +12,5 @@ export default defineNuxtPlugin((nuxtApp) => {
     },
   });
   // Expose to useNuxtApp().$customFetch
-  return {
-    provide: {
-      customFetch: $customFetch,
-    },
-  };
+  return { provide: { customFetch }};
 });
