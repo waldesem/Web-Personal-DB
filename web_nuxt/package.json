@@ -7,12 +7,15 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "redoc": "bunx @redocly/cli build-docs openapi.yaml -o=../server_flask/app/static/redoc.html"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.57",
     "@nuxt/icon": "^1.15.0",
     "@nuxt/ui": "^3.2.0",
+    "@vueuse/core": "^13.5.0",
+    "@vueuse/nuxt": "^13.5.0",
     "jwt-decode": "^4.0.0",
     "nuxt": "3.17.7",
     "nuxt-security": "^2.2.0",
@@ -20,8 +23,7 @@
   },
   "devDependencies": {
     "@nuxt/eslint": "1.5.2",
-    "@vueuse/core": "^13.5.0",
-    "@vueuse/nuxt": "^13.5.0",
+    "redoc": "^2.5.0",
     "tsx": "^4.20.3",
     "vue-tsc": "^3.0.3"
   }

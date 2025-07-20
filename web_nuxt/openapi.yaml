@@ -124,7 +124,7 @@ paths:
           application/json:
             schema:
               type: object
-              $ref: '#./schemas/AnketaJson.json'
+              $ref: '../schemas/AnketaJson.json'
       responses:
         "201":
           description: Data submitted successfully
@@ -150,7 +150,7 @@ paths:
             application/json:
               schema:
                 type: object
-                $ref: '#./schemas/PersonOut.json'
+                $ref: '../schemas/PersonOut.json'
     delete:
       summary: Удаление кандидата
       parameters:
@@ -181,7 +181,7 @@ paths:
           application/json:
             schema:
               type: object
-              $ref: '#./schemas/PersonIn.json'
+              $ref: '../schemas/PersonIn.json'
       responses:
         "201":
           description: Кандидата создан
@@ -209,7 +209,7 @@ paths:
           description: Тип объекта
           schema:
             type: string
-            $ref: '#./schemas/Items.json'
+            $ref: '../schemas/Items.json'
         - name: item_id
           in: path
           required: true
@@ -222,18 +222,18 @@ paths:
               schema:
                 type: array
                 oneOf:
-                - $ref: '#./schemas/Address.json'
-                - $ref: '#./schemas/Contact.json'
-                - $ref: '#./schemas/Education.json'
-                - $ref: '#./schemas/Staff.json'
-                - $ref: '#./schemas/Workplace.json'
-                - $ref: '#./schemas/Document.json'
-                - $ref: '#./schemas/Affilation.json'
-                - $ref: '#./schemas/Check.json'
-                - $ref: '#./schemas/Poligraf.json'
-                - $ref: '#./schemas/Inquiry.json'
-                - $ref: '#./schemas/Investigation.json'
-                - $ref: '#./schemas/Previous.json'
+                - $ref: '../schemas/Address.json'
+                - $ref: '../schemas/Contact.json'
+                - $ref: '../schemas/Education.json'
+                - $ref: '../schemas/Staff.json'
+                - $ref: '../schemas/Workplace.json'
+                - $ref: '../schemas/Document.json'
+                - $ref: '../schemas/Affilation.json'
+                - $ref: '../schemas/Check.json'
+                - $ref: '../schemas/Poligraf.json'
+                - $ref: '../schemas/Inquiry.json'
+                - $ref: '../schemas/Investigation.json'
+                - $ref: '../schemas/Previous.json'
 
     post:
       summary: Загрузка данных об объекте
@@ -243,7 +243,7 @@ paths:
           required: true
           schema:
             type: string
-            $ref: '#./schemas/Items.json'
+            $ref: '../schemas/Items.json'
         - name: item_id
           in: path
           required: true
@@ -274,7 +274,7 @@ paths:
           required: true
           schema:
             type: string
-            $ref: '#./schemas/Items.json'
+            $ref: '../schemas/Items.json'
         - name: item_id
           in: path
           required: true
@@ -321,17 +321,9 @@ paths:
                 properties:
                   message: {
                     type: string
-                    enum:
-                      - success
-                      - error
-                      - denied
-                      - updated
-                      - invalid
                   }
                   token: {
-                    type: string
-                    format: JWT
-                    $ref: '#./schemas/Token.json'
+                    $ref: '../schemas/Token.json'
                   }
         "500":
           description: Unauthorized
@@ -371,7 +363,7 @@ paths:
             application/json:
               schema:
                 type: object
-                $ref: '#./schemas/Candidates.json'
+                $ref: '../schemas/Candidates.json'
 
   /route/users:
     get:
@@ -387,7 +379,7 @@ paths:
                 type: array
                 items:
                   type: object
-                  $ref: '#./schemas/User.json'
+                  $ref: '../schemas/User.json'
 
   /route/user/{user_id}:
     post:
