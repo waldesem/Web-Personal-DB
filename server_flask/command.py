@@ -9,7 +9,7 @@ from sqlalchemy import or_, select
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
-from app.classes.classes import Regions, Roles
+from app.classes.classes import Roles
 from app.models.models import UserForm
 from app.tables.tables import Users
 
@@ -25,17 +25,11 @@ bp = Blueprint("command", __name__)
     type=click.Choice([role.value for role in Roles]),
     default=Roles.user.value,
 )
-@click.option(
-    "--region",
-    type=click.Choice([region.value for region in Regions]),
-    default=Regions.main.value,
-)
 @cli.with_appcontext
 def create_user(
     fullname: str,
     username: str,
     email: str,
-    region: str,
     role: str,
 ) -> None:
     """Create a new user.
@@ -46,13 +40,12 @@ def create_user(
     :param fullname: The full name of the user.
     :param username: The username of the user.
     :param email: The email of the user.
-    :param region: The region of the user.
     :param role: The role of the user.
 
     Example:
         export FLASK_APP=app
         flask command user 'Super Admin' superadmin superadmin@elocalhost \
-            --role=admin --region='Главный офис'
+            --role=admin
 
     """
     try:
@@ -61,7 +54,6 @@ def create_user(
             username=username,
             email=email,
             role=role,
-            region=region,
         )
         created = db.session.execute(
             select(Users).where(
@@ -88,13 +80,12 @@ def create_folders() -> None:
         current BASE_PATH is used.
     """
     if Path(current_app.config["BASE_PATH"]).is_dir():
-        for region in Regions:
-            for letter in "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЫЭЮЯ":
-                Path(
-                    current_app.config["BASE_PATH"],
-                    region.value,
-                    letter,
-                ).mkdir(exist_ok=True, parents=True)
+        for letter in "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЫЭЮЯ":
+            Path(
+                current_app.config["BASE_PATH"],
+                "Главный офис",
+                letter,
+            ).mkdir(exist_ok=True, parents=True)
         click.echo("Folders created")
     else:
         click.echo("BASE_PATH is not a directory")

@@ -2,7 +2,6 @@
 import { useFileDialog } from "@vueuse/core";
 import type { TabsItem } from "@nuxt/ui";
 import type { Persons, PillsItems } from "@/types";
-import { Regions } from "@/types";
 
 await preloadComponents(["ContentAnketaTab", "ContentSharedView"]);
 
@@ -14,13 +13,13 @@ const userState = useUserState();
 const candId = computed(() => route.params.id as string);
 provide("candId", candId);
 
-const region = ref(Regions.main) as Ref<Regions | undefined>;
-
 const {
   data: person,
   status,
   refresh,
-} = await useCustomFetch<Persons>("/route/items/persons/" + candId.value);
+} = await useCustomFetch<Persons>("/route/items/persons/" + candId.value, {
+  server: false,
+});
 provide("status", status);
 
 const editable = computed(() => {
@@ -58,34 +57,6 @@ async function switchSelf(): Promise<void> {
     await refresh();
   } else {
     makeToast();
-  }
-}
-
-async function changeRegion() {
-  if (region.value == person.value?.region) {
-    return;
-  }
-  if (!confirm("Вы действительно хотите изменить регион?")) {
-    region.value = person.value?.region;
-    return;
-  }
-  status.value = "pending";
-  const { message } = (await $customFetch(
-    `/route/anketa/region/${person.value?.id}`,
-    {
-      method: "POST",
-      body: {
-        region: region.value,
-      },
-    }
-  )) as Record<string, string>;
-  status.value = message as "success" | "error";
-  if (message == "success") {
-    makeToast(message, "Регион успешно обновлен");
-    return navigateTo("/persons");
-  } else {
-    makeToast();
-    region.value = person.value?.region;
   }
 }
 
@@ -176,23 +147,8 @@ const items: Pills[] = [
           label="Загрузить файлы"
           @click="open()"
         />
-        <UTooltip text="Изменить регион">
-          <USelect
-            id="region"
-            v-model="region"
-            :items="Object.values(Regions)"
-            :placeholder="person?.region"
-            :disabled="
-              (person?.region != userState.region &&
-                userState.region != Regions.main) ||
-              !editable
-            "
-            @change="changeRegion"
-          />
-        </UTooltip>
         <UButton
           :loading="status === 'pending'"
-          :disabled="person?.region != userState.region"
           :color="
             !person?.editable
               ? 'secondary'

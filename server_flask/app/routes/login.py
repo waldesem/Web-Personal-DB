@@ -70,7 +70,6 @@ def post_login(action: str, json_data: Login) -> tuple[str | dict, int]:
                 fullname=user.fullname,
                 username=user.username,
                 email=user.email,
-                region=user.region,
                 role=user.role,
                 exp=datetime.now() + timedelta(hours=12),
                 jti=secrets.token_hex(16),

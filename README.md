@@ -27,7 +27,7 @@ SQLite3 Database will be used by default and crated automatically in the first r
 
 ### Settings
 
-For creating regions and alphabeth folders in destination directory add path in settings.ini.
+For creating alphabeth folders in destination directory add path in settings.ini.
 Then run the command:
 ```
 export FLASK_APP=app # for Windows - $env:FLASK_APP = "app"
@@ -36,9 +36,9 @@ flask command folders
 For creating new user run the command in terminal:
 ```
 export FLASK_APP=app
-flask command user 'Super Admin' superadmin superadmin@elocalhost --role=admin --region=main
+flask command user 'Super Admin' superadmin superadmin@elocalhost --role=admin
 ```
-Recomend to create user with role `admin` and region `main` for first login.
+Recomend to create user with role `admin` for first login.
 DEFAULT_PASSWORD for created user - `88888888`.
 
 ### Build frontend

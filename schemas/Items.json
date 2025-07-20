@@ -1,0 +1,1 @@
+{"title": "Items", "description": "Base Pydantic model for items.", "type": "object", "properties": {"item": {"title": "Item", "enum": ["previous", "educations", "addresses", "affilations", "staffs", "workplaces", "contacts", "documents", "checks", "poligrafs", "inquiries", "investigations"], "type": "string"}}, "required": ["item"]}

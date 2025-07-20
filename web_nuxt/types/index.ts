@@ -19,7 +19,6 @@ export interface Token {
   fullname: string;
   username: string;
   email: string;
-  region: Regions;
   role: Roles;
 }
 
@@ -47,7 +46,6 @@ export interface Persons {
   addition?: string;
   destination?: string;
   editable: boolean;
-  region: Regions;
   created: string;
   username: string;
   user_id: string;
@@ -163,14 +161,6 @@ enum Roles {
   api = "api",
   user = "user",
   guest = "guest",
-}
-
-export enum Regions {
-  main = "Главный офис",
-  south = "РЦ Юг",
-  west = "РЦ Запад",
-  ural = "РЦ Урал",
-  east = "РЦ Восток",
 }
 
 export enum Conclusions {

@@ -19,7 +19,7 @@ def create_destination(person: Persons) -> str:
     """Create destination."""
     destination = Path(
         current_app.config["BASE_PATH"],
-        person.region,
+        "Главный офис",
         person.surname[0],
         f"{person.id}-{person.surname} {person.firstname} {person.patronymic}".rstrip(),
     )
@@ -54,7 +54,6 @@ def upload_resume(cand: PersonIn) -> tuple[int, bool]:
     resume = cand.dict(exclude_none=True, exclude={"created"})
     resume["editable"] = True
     resume["user_id"] = current_user.id
-    resume["region"] = current_user.region
 
     try:
         if not person:

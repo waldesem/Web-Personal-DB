@@ -18,7 +18,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from werkzeug.security import generate_password_hash
 
 from app import db
-from app.classes.classes import Regions, Roles
+from app.classes.classes import Roles
 from config import Config
 
 
@@ -42,7 +42,6 @@ class Users(db.Model):
     deleted: Mapped[bool] = mapped_column(Boolean(), default=False)
     attempt: Mapped[int] = mapped_column(Integer(), default=0)
     role: Mapped[str] = mapped_column(String(), default=Roles.guest.value)
-    region: Mapped[str] = mapped_column(String(255), default=Regions.main.value)
 
 
 class Persons(db.Model):
@@ -68,7 +67,6 @@ class Persons(db.Model):
         default=func.now(),
         onupdate=func.now(),
     )
-    region: Mapped[str] = mapped_column(String(255), default=Regions.main.value)
     editable: Mapped[bool] = mapped_column(Boolean(), default=False)
     user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"))
     previous: Mapped[list[Previous]] = relationship(

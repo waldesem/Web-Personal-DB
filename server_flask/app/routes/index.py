@@ -1,30 +1,14 @@
 """Route routes."""
 
-import json
-
-from flask import Blueprint, current_app, request
-from pydantic import ValidationError
+from flask import Blueprint, current_app
 from sqlalchemy import desc, func, select
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
-from app.classes.classes import Regions, Roles
-from app.decorators.depend import auth_required, current_user
+from app.decorators.depend import auth_required
 from app.decorators.validate import serialize, validate
-from app.models.models import AnketaJson, Candidates, Index, PersonIn
-from app.tables.tables import (
-    Addresses,
-    Affilations,
-    Contacts,
-    Documents,
-    Educations,
-    Persons,
-    Previous,
-    Staffs,
-    Users,
-    Workplaces,
-)
-from app.utils.utilities import upload_resume
+from app.models.models import Candidates, Index
+from app.tables.tables import Persons, Users
 
 bp = Blueprint("route", __name__)
 
@@ -58,14 +42,10 @@ def get_index(json_query: Index) -> tuple[list[Persons], int]:
             Persons.birthday,
             Persons.editable,
             Persons.created,
-            Persons.region,
             Users.fullname.label("username"),
             func.count().over().label("total"),
         ).filter(
             Users.id == Persons.user_id,
-            Persons.region == current_user.region
-            if current_user.region != Regions.main.value
-            else True,
         )
         if json_query.search:
             search = json_query.search.upper().split(maxsplit=3)[:3]
@@ -88,99 +68,3 @@ def get_index(json_query: Index) -> tuple[list[Persons], int]:
         return "", 500
     else:
         return result, 200
-
-
-@bp.post("/json")
-@serialize()
-@auth_required(roles=[Roles.user.value, Roles.api.value])
-def post_json() -> tuple[dict, int]:
-    """Create a new person or updates an existing person based on the provided data.
-
-    Args:
-        file (file): A JSON file containing the person data.
-
-    Returns:
-        A JSON response containing the person ID and an HTTP status code of 201.
-
-    """
-    try:
-        # Чтение файла JSON и создание объектов классов для сохранения в БД
-        file = request.files.get("file")
-        if not file:
-            return {"person_id": None, "exists": False}, 500
-
-        json_data = json.load(file)
-        anketa = AnketaJson(**json_data)
-
-        # Валидация данных и создание объекта класса Person
-        resume = PersonIn(**anketa.dict(exclude_none=True))
-        # Загрузка резюме в БД
-        person_id, existed = upload_resume(resume)
-
-        # Сохранение дополнительной информации о кандидате в БД
-        if person_id:
-            upload_items(anketa, person_id)
-    except (ValidationError, json.JSONDecodeError, TypeError):
-        current_app.logger.exception("JSON Error")
-        return {"person_id": None, "exists": False}, 500
-    else:
-        return {"person_id": person_id, "exists": existed}, 201
-
-
-def upload_items(anketa: AnketaJson, person_id: int) -> None:
-    """Save additional information about a person in the database."""
-    try:
-        items = [
-            Documents(
-                digits=anketa.digits,
-                series=anketa.series,
-                issue=anketa.issue,
-                agency=anketa.agency,
-            ),
-            Staffs(position=anketa.position, department=anketa.department),
-            Addresses(view="Адрес проживания", addresses=anketa.valid_address),
-            Addresses(view="Адрес регистрации", addresses=anketa.reg_address),
-            Contacts(view="Телефон", contact=anketa.contact_phone),
-            Contacts(view="Электронная почта", contact=anketa.email),
-            *[Educations(**edu.dict()) for edu in anketa.education],
-            *[Workplaces(**work.dict()) for work in anketa.experience],
-            *[Previous(**prev.dict()) for prev in anketa.name_was_changed],
-            *[
-                Affilations(
-                    view="Участвует в деятельности коммерческих организаций",
-                    organization=aff.organization,
-                    inn=aff.inn,
-                )
-                for aff in anketa.organizations
-            ],
-            *[
-                Affilations(
-                    view="Являлся государственным должностным лицом",
-                    organization=aff.organization,
-                )
-                for aff in anketa.state_organizations
-            ],
-            *[
-                Affilations(
-                    view="Связанные лица работают в государственных организациях",
-                    organization=aff.organization,
-                )
-                for aff in anketa.related_organizations
-            ],
-            *[
-                Affilations(
-                    view="Являлся государственным или муниципальным служащим",
-                    organization=aff.organization,
-                )
-                for aff in anketa.public_organizations
-            ],
-        ]
-        # Добавляем аттибуты person_id и user_id к объектам
-        for item in items:
-            if item:
-                item.person_id = person_id
-
-        db.session.bulk_save_objects(items)
-        db.session.commit()
-    except SQLAlchemyError:
-        current_app.logger.exception("Add items Error")

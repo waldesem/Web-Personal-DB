@@ -145,7 +145,6 @@ const columns: TableColumn<User>[] = [
   { accessorKey: "id", header: "#" },
   { accessorKey: "fullname", header: "Пользователь" },
   { accessorKey: "username", header: "Логин" },
-  { accessorKey: "region", header: "Регион" },
   {
     accessorKey: "role",
     header: "Роль",

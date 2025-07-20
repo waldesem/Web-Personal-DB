@@ -6,7 +6,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import generate_password_hash
 
 from app import db
-from app.classes.classes import Regions, Roles
+from app.classes.classes import Roles
 from app.decorators.depend import auth_required, current_user, get_current_user
 from app.decorators.validate import serialize, validate
 from app.models.models import User, UserActions, UserForm
@@ -74,9 +74,6 @@ def post_user_actions(user_id: int, json_data: UserActions) -> tuple[str, int]:
     elif json_data.item in [reg.value for reg in Roles]:
         # Изменить роль пользователя
         user.role = json_data.item
-    elif json_data.item in [reg.value for reg in Regions]:
-        # Изменить регион пользователя
-        user.region = json_data.item
     db.session.commit()
     # Очистить кэш для id пользователей
     get_current_user.cache_clear()

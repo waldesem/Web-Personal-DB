@@ -12,16 +12,6 @@ class Roles(Enum):
     guest = "guest"
 
 
-class Regions(Enum):
-    """Enum class for regions."""
-
-    main = "Главный офис"
-    south = "РЦ Юг"
-    west = "РЦ Запад"
-    ural = "РЦ Урал"
-    east = "РЦ Восток"
-
-
 class Conclusions(Enum):
     """Enum class for conclusions."""
 

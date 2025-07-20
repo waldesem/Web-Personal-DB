@@ -18,7 +18,6 @@ export interface Candidate {
   birthday: string;
   editable: boolean;
   created: string;
-  region: string;
   username: string;
   total: number;
 }
@@ -86,7 +85,7 @@ onChange(async (files) => {
   const { person_id, exists } = await $customFetch<{
     person_id: string;
     exists: boolean;
-  }>("/route/json", {
+  }>("/route/anketa/json", {
     method: "POST",
     body: formData,
   });
@@ -100,7 +99,6 @@ function submitResume(person_id: string, exists: boolean) {
 
 const columns: TableColumn<Candidate>[] = [
   { accessorKey: "id", header: "#" },
-  { accessorKey: "region", header: "Регион" },
   { accessorKey: "fullname", header: "Фамилия Имя Отчество" },
   {
     accessorKey: "birthday",

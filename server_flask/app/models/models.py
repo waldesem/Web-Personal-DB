@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 from datetime import date, datetime  # noqa: TC003
+from pathlib import Path
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field, validator
 
-from app.classes.classes import Conclusions, Decisions, Regions, Roles
+from app.classes.classes import Conclusions, Decisions, Roles
 
 
 class Model(BaseModel):
@@ -31,17 +32,6 @@ class Result(BaseModel):
     data: tuple[Any, int] = Field(ge=100, le=999)
 
 
-class Region(BaseModel):
-    """Pydantic model for region select form."""
-
-    region: Regions
-
-    class Config:
-        """Pydantic config."""
-
-        use_enum_values = True
-
-
 class Login(BaseModel):
     """Pydantic model for login form."""
 
@@ -63,7 +53,6 @@ class Token(BaseModel):
     fullname: str
     username: str
     email: str
-    region: Regions
     role: Roles
     exp: datetime
     jti: str
@@ -80,7 +69,6 @@ class UserForm(BaseModel):
     fullname: str
     username: str
     email: str
-    region: Regions = Regions.main.name
     role: Roles = Roles.guest.value
 
     @validator("username")
@@ -114,7 +102,7 @@ class User(UserForm, Model):
 class UserActions(BaseModel):
     """Pydantic model for user actions form."""
 
-    item: Literal["reset", "block", "delete"] | Roles | Regions | None
+    item: Literal["reset", "block", "delete"] | Roles | None
 
     class Config:
         """Pydantic config."""
@@ -147,7 +135,6 @@ class PersonIn(Model):
     marital: str = Field(default="", alias="maritalStatus")
     addition: str | None = ""
     destination: str | None = ""
-    region: None | Regions
     editable: bool = False
 
     @validator("surname", "firstname", "patronymic")
@@ -172,7 +159,6 @@ class PersonOut(Model):
     marital: str | None
     addition: str | None
     destination: str | None
-    region: Regions
     editable: bool
     user_id: int
 
@@ -182,7 +168,6 @@ class Candidates(Model):
 
     fullname: str
     birthday: date
-    region: Regions
     editable: bool
     username: str
     total: int
@@ -377,3 +362,31 @@ class AnketaJson(PersonIn):
         default=[],
         alias="publicOfficeOrganizations",
     )
+
+tests = Path("schemas")
+tests.mkdir(exist_ok=True)
+for model in [
+    Candidates,
+    Prev,
+    Education,
+    Document,
+    Address,
+    Contact,
+    Items,
+    Workplace,
+    Affilation,
+    Check,
+    Poligraf,
+    Investigation,
+    Inquiry,
+    AnketaJson,
+    PersonIn,
+    PersonOut,
+    Token,
+    User,
+]:
+    file_path = Path(tests, f"{model.__name__}.json")
+    if not file_path.exists():
+        with Path.open(file_path, "w") as f:
+            schema = model.schema_json(by_alias=True)
+            f.write(schema)
