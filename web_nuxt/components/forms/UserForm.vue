@@ -28,8 +28,8 @@ const validate = (state: Partial<UserForm>) => {
   return errors;
 };
 
-function submitUser() {
-  const { message } = $customFetch("/route/user", {
+async function submitUser() {
+  const { message } = await $customFetch("/route/user", {
     method: "POST",
     body: form.value,
   }) as Record<string, string>;

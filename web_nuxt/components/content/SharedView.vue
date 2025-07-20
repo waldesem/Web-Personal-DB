@@ -59,25 +59,24 @@ const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
 const item = ref({} as object);
-const items = ref([] as object[]);
 const modal = ref(false);
 
-const { status, refresh } = await useLazyAsyncData(props.view, async () => {
-  items.value = (await $customFetch(
-    `/route/items/${props.view}/${candId.value}`
-  )) as object[];
+const { data, status, refresh } = await useCustomFetch<object[]>(
+  `/route/items/${props.view}/${candId.value}`, {
+  lazy: true,
+  server: false,
 });
 
 async function submitItem(form: object) {
   modal.value = false;
   status.value = "pending";
-  const { message } = $customFetch(
+  const { message } = (await $customFetch(
     `/route/items/${props.view}/${candId.value}`,
     {
       method: "POST",
       body: form,
     }
-  ) as Record<string, string>;
+  )) as Record<string, string>;
   await refresh();
   status.value = message as "success" | "error";
   if (message == "success") {
@@ -88,16 +87,16 @@ async function submitItem(form: object) {
   }
 }
 
-function deleteItem(id: string, idx: number) {
+async function deleteItem(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   status.value = "pending";
-  const { message } = $customFetch(`/route/items/${props.view}/${id}`, {
+  const { message } = (await $customFetch(`/route/items/${props.view}/${id}`, {
     method: "DELETE",
-  }) as Record<string, string>;
+  })) as Record<string, string>;
   status.value = message as "success" | "error";
   if (message == "success") {
     makeToast(message, "Информация успешно обновлена");
-    items.value.splice(idx, 1);
+    data.value?.splice(idx, 1);
   } else {
     makeToast();
   }
@@ -105,14 +104,14 @@ function deleteItem(id: string, idx: number) {
 </script>
 
 <template>
-  <div v-if="status === 'pending'">
-    <div v-for="i in items.length + 1" :key="i">
+  <div v-if="status === 'pending' && data">
+    <div v-for="i in data.length + 1" :key="i">
       <LazyElementsSkeletonDiv :rows="props.rows" />
-      <USeparator v-if="i < items.length" />
+      <USeparator v-if="i < data.length" />
     </div>
   </div>
   <div v-else>
-    <div v-for="(content, index) in items" :key="index" class="py-4 ms-2">
+    <div v-for="(content, index) in data" :key="index" class="py-4 ms-2">
       <LazyElementsDivMenu
         v-if="editable"
         @change="
@@ -124,14 +123,16 @@ function deleteItem(id: string, idx: number) {
       <LazyElementsWrapperDiv>
         <component :is="mappedContent[props.view][1]" :item="content" />
       </LazyElementsWrapperDiv>
-      <USeparator v-if="index < items.length - 1" />
+      <USeparator v-if="data && index < data.length - 1" />
     </div>
-    <div v-if="!items.length" class="p-2 text-red-800">Данные отсутствуют</div>
+    <div v-if="!data || !data.length" class="p-2 text-red-800">
+      Данные отсутствуют
+    </div>
   </div>
   <div
     v-if="editable"
     class="flex justify-start py-2"
-    :class="{ 'border-t border-gray-200': items.length > 0 }"
+    :class="{ 'border-t border-gray-200': data && data.length > 0 }"
   >
     <UButton
       :loading="status == 'pending'"

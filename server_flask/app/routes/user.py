@@ -36,7 +36,7 @@ def get_users() -> tuple[list[Users], int]:
     return db.session.execute(stmt).all(), 200
 
 
-@bp.post("/user")
+@bp.post("/user/<user_id>")
 @serialize()
 @validate
 @auth_required(Roles.admin.value)
@@ -83,7 +83,7 @@ def post_user_actions(user_id: int, json_data: UserActions) -> tuple[str, int]:
     return "success", 201
 
 
-@bp.post("/user/<int:user_id>")
+@bp.post("/user")
 @serialize()
 @validate
 @auth_required(Roles.admin.value)

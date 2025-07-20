@@ -14,18 +14,18 @@ const userState = useUserState();
 const candId = computed(() => route.params.id as string);
 provide("candId", candId);
 
-const person = ref({} as Persons);
-const region = ref(Regions.main);
+const region = ref(Regions.main) as Ref<Regions | undefined>;
 
-const { status, refresh } = await useAsyncData("persons", async () => {
-  person.value = (await $customFetch(
-    "/route/items/persons/" + candId.value
-  )) as Persons;
-});
+const {
+  data: person,
+  status,
+  refresh,
+} = await useCustomFetch<Persons>("/route/items/persons/" + candId.value);
 provide("status", status);
 
 const editable = computed(() => {
   return (
+    person.value &&
     person.value.editable &&
     userState.value.role == "user" &&
     userState.value.id == person.value.user_id
@@ -34,7 +34,7 @@ const editable = computed(() => {
 provide("editable", editable);
 
 async function switchSelf(): Promise<void> {
-  if (person.value.user_id != userState.value.id) {
+  if (person.value && person.value.user_id != userState.value.id) {
     if (person.value.editable) {
       if (
         !confirm(
@@ -50,9 +50,9 @@ async function switchSelf(): Promise<void> {
     return;
   }
   status.value = "pending";
-  const { message } = $customFetch(
-    "/route/anketa/self/" + person.value.id
-  ) as Record<string, string>;
+  const { message } = (await $customFetch(
+    "/route/anketa/self/" + person.value?.id
+  )) as Record<string, string>;
   status.value = message as "success" | "error";
   if (message == "success") {
     await refresh();
@@ -61,34 +61,37 @@ async function switchSelf(): Promise<void> {
   }
 }
 
-function changeRegion() {
-  if (region.value == person.value.region) {
+async function changeRegion() {
+  if (region.value == person.value?.region) {
     return;
   }
   if (!confirm("Вы действительно хотите изменить регион?")) {
-    region.value = person.value.region;
+    region.value = person.value?.region;
     return;
   }
   status.value = "pending";
-  const { message } = $customFetch(`/route/anketa/region/${person.value.id}`, {
-    method: "POST",
-    body: {
-      region: region.value,
-    },
-  }) as Record<string, string>;
+  const { message } = (await $customFetch(
+    `/route/anketa/region/${person.value?.id}`,
+    {
+      method: "POST",
+      body: {
+        region: region.value,
+      },
+    }
+  )) as Record<string, string>;
   status.value = message as "success" | "error";
   if (message == "success") {
     makeToast(message, "Регион успешно обновлен");
     return navigateTo("/persons");
   } else {
     makeToast();
-    region.value = person.value.region;
+    region.value = person.value?.region;
   }
 }
 
 const { open, reset, onCancel, onChange } = useFileDialog();
 
-onChange((files) => {
+onChange(async (files) => {
   if (!files) return;
   const formData = new FormData();
   for (const file of files) {
@@ -99,10 +102,13 @@ onChange((files) => {
     }
     formData.append("file", file);
   }
-  const { message } = $customFetch(`/route/anketa/files/${candId.value}`, {
-    method: "POST",
-    body: formData,
-  }) as Record<string, string>;
+  const { message } = (await $customFetch(
+    `/route/anketa/files/${candId.value}`,
+    {
+      method: "POST",
+      body: formData,
+    }
+  )) as Record<string, string>;
   status.value = message as "success" | "error";
   if (message == "success") {
     makeToast(message, "Файлы успешно загружены");
@@ -156,7 +162,9 @@ const items: Pills[] = [
       <div v-else class="py-1">
         <h3 class="text-2xl text-red-800 font-bold">
           {{
-            `${person.surname} ${person.firstname} ${person.patronymic ?? ""}`
+            `${person?.surname} ${person?.firstname} ${
+              person?.patronymic ?? ""
+            }`
           }}
         </h3>
       </div>
@@ -173,9 +181,9 @@ const items: Pills[] = [
             id="region"
             v-model="region"
             :items="Object.values(Regions)"
-            :placeholder="person.region"
+            :placeholder="person?.region"
             :disabled="
-              (person.region != userState.region &&
+              (person?.region != userState.region &&
                 userState.region != Regions.main) ||
               !editable
             "
@@ -184,16 +192,16 @@ const items: Pills[] = [
         </UTooltip>
         <UButton
           :loading="status === 'pending'"
-          :disabled="person.region != userState.region"
+          :disabled="person?.region != userState.region"
           :color="
-            !person.editable
+            !person?.editable
               ? 'secondary'
               : person.user_id == userState.id
               ? 'success'
               : 'error'
           "
           :label="
-            !person.editable
+            !person?.editable
               ? 'Доступно  для редактирования'
               : person.user_id == userState.id
               ? 'Назначено текущему пользователю'
@@ -212,7 +220,11 @@ const items: Pills[] = [
       :ui="{ trigger: 'flex-1' }"
     >
       <template #person>
-        <ContentAnketaTab :person="person" :rows="12" @refresh="refresh()" />
+        <ContentAnketaTab
+          :person="(person ? person : {} as Persons)"
+          :rows="12"
+          @refresh="refresh()"
+        />
       </template>
       <template #checks="{ item }">
         <ContentSharedView :view="item.slot" :rows="16" />

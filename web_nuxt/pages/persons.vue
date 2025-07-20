@@ -34,15 +34,14 @@ const per_page = 10;
 const { refresh, status } = await useLazyAsyncData(
   "candidates",
   async () => {
-    const data = (await customFetch("/route/index", {
+    candidates.value = (await $customFetch("/route/index", {
       params: {
         search: search.value,
         per_page: per_page,
         page: page.value,
       },
     })) as Candidate[];
-    candidates.value = data;
-    total.value = data ? data[0].total : 1;
+    total.value = candidates.value ? candidates.value[0].total : 1;
     updated.value = new Date().toLocaleTimeString("ru-RU");
   },
   { watch: [page] }
@@ -84,13 +83,13 @@ onChange(async (files) => {
   status.value = "pending";
   const formData = new FormData();
   formData.append("file", files[0]);
-  const { person_id, exists } = (await $customFetch("/route/json", {
-    method: "POST",
-    body: formData,
-  })) as {
+  const { person_id, exists } = await $customFetch<{
     person_id: string;
     exists: boolean;
-  };
+  }>("/route/json", {
+    method: "POST",
+    body: formData,
+  });
   createToast(person_id, exists);
 });
 
@@ -232,7 +231,7 @@ const items: DropdownMenuItem[] = [
       @select="navigateTo(`/profile/${$event.original.id}`)"
     />
 
-    <!--div class="my-2">
+    <div class="my-2">
       <UButton
         variant="ghost"
         icon="i-lucide-refresh-ccw"
@@ -241,7 +240,7 @@ const items: DropdownMenuItem[] = [
         title="Обновить данные"
         @click="refresh()"
       />
-    </div-->
+    </div>
 
     <div class="flex justify-center border-t border-default py-4">
       <UPagination

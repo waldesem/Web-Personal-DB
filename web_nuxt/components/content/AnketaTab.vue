@@ -22,7 +22,7 @@ const status = inject("status") as Ref<string>;
 const person = toRef(props.person as Persons);
 const modal = ref(false);
 
-async function submitPerson(person_id: string) {
+function submitPerson(person_id: string) {
   modal.value = false;
   status.value = "pending";
   emits("refresh");
@@ -34,12 +34,12 @@ async function submitPerson(person_id: string) {
   }
 }
 
-function deletePerson() {
+async function deletePerson() {
   if (!confirm("Вы действительно хотите удалить профиль и связанные записи?"))
     return;
   if (!confirm("Данные будут удалены безвозвратно!?")) return;
   status.value = "pending";
-  const { message } = $customFetch(`/route/items/persons/${person.value.id}`, {
+  const { message } = await $customFetch(`/route/items/persons/${person.value.id}`, {
     method: "DELETE",
   }) as Record<string, string>;
   if (message == "success") {

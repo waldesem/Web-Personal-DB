@@ -18,11 +18,14 @@ resumeForm.value.birthday = resumeForm.value.birthday
   ? new Date(resumeForm.value.birthday).toISOString().split("T", 1)[0]
   : "";
 
-function submitPerson() {
-  const { person_id, exists } = $customFetch("/route/items/persons", {
+async function submitPerson() {
+  const { person_id, exists } = (await $customFetch<{
+    person_id: number;
+    exists: boolean;
+  }>("/route/items/persons", {
     method: "POST",
     body: resumeForm.value,
-  }) as Record<string, string>;
+  }));
   emit("update", person_id, exists);
 }
 

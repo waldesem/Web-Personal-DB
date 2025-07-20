@@ -14,15 +14,18 @@ const modal = ref(false);
 const expanded = ref({ 1: false });
 const globalFilter = ref("");
 
-const { data, refresh, status } = await useCustomFetch("/route/users");
+const { data: users, refresh, status } = await useCustomFetch("/route/users", {
+  lazy: true,
+  server: false,
+});
 
-function userAction(item: string, user_id: string): void {
+async function userAction(item: string, user_id: string) {
   if (user_id == userState.value.id) {
     makeToast();
     return;
   }
   if (!confirm("Подтвердите выполнение действия")) return;
-  const { message } = $customFetch("/route/user/" + user_id, {
+  const { message } = await $customFetch("/route/user/" + user_id, {
     method: "POST",
     body: { item: item },
   }) as Record<string, string>;
@@ -128,7 +131,7 @@ const columns: TableColumn<User>[] = [
       h(UButton, {
         color: "neutral",
         variant: "ghost",
-        icon: "i-lucid-chevron-down",
+        icon: "i-lucide-chevron-down",
         square: true,
         ui: {
           leadingIcon: [
@@ -264,7 +267,7 @@ const columns: TableColumn<User>[] = [
       v-model:global-filter="globalFilter"
       sticky
       class="flex-1 max-h-[800px]"
-      :data="(data as User[])"
+      :data="(users as User[])"
       :columns="columns"
       :meta="{ class: { tr: 'cursor-pointer' } }"
       :loading="status === 'pending'"

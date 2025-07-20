@@ -1,8 +1,10 @@
 export default defineNuxtPlugin((nuxtApp) => {
   const customFetch = $fetch.create({
-    onRequest({ options }) {
+    async onRequest({ options }) {
       if (accessToken.value) {
         options.headers.set("Authorization", `${accessToken.value}`);
+      } else {
+        await nuxtApp.runWithContext(() => navigateTo("/login"))
       }
     },
     async onResponseError({ response }) {
