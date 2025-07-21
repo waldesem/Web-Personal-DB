@@ -41,6 +41,11 @@ flask command user 'Super Admin' superadmin superadmin@elocalhost --role=admin
 Recomend to create user with role `admin` for first login.
 DEFAULT_PASSWORD for created user - `88888888`.
 
+For creating API schemas run the command in terminal:
+```
+flask command schemas
+```
+
 ### Build frontend
 
 First you need install Bun - an all-in-one toolkit for JavaScript and TypeScript apps.

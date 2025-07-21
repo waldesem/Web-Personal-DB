@@ -88,7 +88,7 @@ def post_login(action: str, json_data: Login) -> tuple[str | dict, int]:
     except (SQLAlchemyError, ValueError, ValidationError):
         current_app.logger.exception("Error occurred in login route")
         db.session.rollback()
-        return "invalid", 200
+        return "invalid", 500
 
 
 @bp.get("/logout")

@@ -5,12 +5,11 @@ Original code - https://github.com/ClimenteA/flaskwebgui
 
 from __future__ import annotations
 
-# import shutil
+import shutil
 import signal
 import subprocess
-
-# import tempfile
-# import uuid
+import tempfile
+import uuid
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -22,7 +21,7 @@ from wsgi import wsgi_server
 
 def start_browser(address: str, port: int) -> None:
     """Start the browser."""
-    # profile_dir = tempfile.mkdtemp(prefix=f"webgui{uuid.uuid1().hex}")
+    profile_dir = tempfile.mkdtemp(prefix=f"webgui{uuid.uuid1().hex}")
     paths = [
         r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
         r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
@@ -35,7 +34,7 @@ def start_browser(address: str, port: int) -> None:
             [
                 browser_paths[0],
                 f"--app=http://{address}:{port}",
-                # f"--user-data-dir={profile_dir}",
+                f"--user-data-dir={profile_dir}",
                 "--new-window",
                 "--no-default-browser-check",
                 "--no-first-run",
@@ -43,7 +42,7 @@ def start_browser(address: str, port: int) -> None:
             ],
         ).wait()
 
-    # shutil.rmtree(profile_dir, ignore_errors=True)
+    shutil.rmtree(profile_dir, ignore_errors=True)
     for conn in psutil.net_connections():
         if conn.laddr.port == port:
             try:

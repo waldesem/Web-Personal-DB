@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 from datetime import date, datetime  # noqa: TC003
-from pathlib import Path
-from typing import Any, Literal
+from typing import Annotated, Any, Literal, Union
 
 from pydantic import BaseModel, Field, validator
 
@@ -173,23 +172,20 @@ class Candidates(Model):
     total: int
 
 
-class Items(BaseModel):
-    """Base Pydantic model for items."""
-
-    item: Literal[
-        "previous",
-        "educations",
-        "addresses",
-        "affilations",
-        "staffs",
-        "workplaces",
-        "contacts",
-        "documents",
-        "checks",
-        "poligrafs",
-        "inquiries",
-        "investigations",
-    ]
+Items = Literal[
+    "previous",
+    "educations",
+    "addresses",
+    "affilations",
+    "staffs",
+    "workplaces",
+    "contacts",
+    "documents",
+    "checks",
+    "poligrafs",
+    "inquiries",
+    "investigations",
+]
 
 
 class Prev(Model):
@@ -197,6 +193,7 @@ class Prev(Model):
 
     __modelname__ = "previous"
 
+    item_type: Items = "previous"
     surname: str = Field(alias="lastNameBeforeChange")
     firstname: str = Field(alias="firstNameBeforeChange")
     patronymic: str = Field(default="", alias="midNameBeforeChange")
@@ -209,6 +206,7 @@ class Education(Model):
 
     __modelname__ = "educations"
 
+    item_type: Items = "educations"
     view: str = Field(default="", alias="educationType")
     institution: str = Field(default="", alias="institutionName")
     finished: str | int = Field(default="", alias="endYear")
@@ -220,6 +218,7 @@ class Staff(Model):
 
     __modelname__ = "staffs"
 
+    item_type: Items = "staffs"
     position: str
     department: str | None = ""
 
@@ -229,6 +228,7 @@ class Document(Model):
 
     __modelname__ = "documents"
 
+    item_type: Items = "documents"
     view: str
     series: str | None = ""
     digits: str
@@ -241,6 +241,7 @@ class Address(Model):
 
     __modelname__ = "addresses"
 
+    item_type: Items = "addresses"
     view: str
     addresses: str
 
@@ -250,6 +251,7 @@ class Contact(Model):
 
     __modelname__ = "contacts"
 
+    item_type: Items = "contacts"
     view: str
     contact: str
 
@@ -259,6 +261,7 @@ class Workplace(Model):
 
     __modelname__ = "workplaces"
 
+    item_type: Items = "workplaces"
     now_work: bool = Field(default=False, alias="currentJob")
     starts: date = Field(alias="beginDate")
     finished: date = Field(default=None, alias="endDate")
@@ -273,6 +276,7 @@ class Affilation(Model):
 
     __modelname__ = "affilations"
 
+    item_type: Items = "affilations"
     view: str | None = ""
     organization: str = Field(default="", alias="name")
     inn: str | None = ""
@@ -283,6 +287,7 @@ class Check(Model):
 
     __modelname__ = "checks"
 
+    item_type: Items = "checks"
     workplace: str | None = ""
     document: str | None = ""
     inn: str | None = ""
@@ -306,6 +311,7 @@ class Poligraf(Model):
 
     __modelname__ = "poligrafs"
 
+    item_type: Items = "poligrafs"
     theme: str
     results: str
     conclusion: Decisions
@@ -316,6 +322,7 @@ class Investigation(Model):
 
     __modelname__ = "investigations"
 
+    item_type: Items = "previous"
     theme: str
     info: str
 
@@ -325,9 +332,28 @@ class Inquiry(Model):
 
     __modelname__ = "inquiries"
 
+    item_type: Items = "inquiries"
     info: str
     initiator: str
     origins: str | None = ""
+
+
+Content = Annotated[
+    Union[
+        Address,
+        Affilation,
+        Check,
+        Contact,
+        Document,
+        Education,
+        Investigation,
+        Inquiry,
+        Poligraf,
+        Prev,
+        Workplace,
+    ],
+    Field(discriminator="item_type"),
+]
 
 
 class AnketaJson(PersonIn):
@@ -362,31 +388,3 @@ class AnketaJson(PersonIn):
         default=[],
         alias="publicOfficeOrganizations",
     )
-
-tests = Path("schemas")
-tests.mkdir(exist_ok=True)
-for model in [
-    Candidates,
-    Prev,
-    Education,
-    Document,
-    Address,
-    Contact,
-    Items,
-    Workplace,
-    Affilation,
-    Check,
-    Poligraf,
-    Investigation,
-    Inquiry,
-    AnketaJson,
-    PersonIn,
-    PersonOut,
-    Token,
-    User,
-]:
-    file_path = Path(tests, f"{model.__name__}.json")
-    if not file_path.exists():
-        with Path.open(file_path, "w") as f:
-            schema = model.schema_json(by_alias=True)
-            f.write(schema)

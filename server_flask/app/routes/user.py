@@ -55,7 +55,7 @@ def post_user_actions(user_id: int, json_data: UserActions) -> tuple[str, int]:
     user = db.session.get(Users, user_id)
     # Если пользователь не найден или пытается изменить собственный профиль
     if not user or current_user.id == user.id:
-        return "error", 200
+        return "error", 500
 
     if json_data.item == "reset":
         # Сбросить пароль пользователя и обнулить попытки входа
@@ -91,7 +91,7 @@ def post_user(json_data: UserForm) -> tuple[str, int]:
         json_data (User): The user data to be added to the database.
 
     Returns:
-        - If the user already exists returns an empty response with status code 200.
+        - If the user already exists returns a response with status code 500.
         - Otherwise returns a response with status code 201.
 
     """
@@ -100,7 +100,7 @@ def post_user(json_data: UserForm) -> tuple[str, int]:
         select(Users).filter(Users.username == json_data.username),
     ).all()
     if user:
-        return "error", 200
+        return "error", 500
     try:
         # Создать нового пользователя
         db.session.add(Users(**json_data.dict()))
@@ -108,6 +108,6 @@ def post_user(json_data: UserForm) -> tuple[str, int]:
     except SQLAlchemyError:
         current_app.logger.exception("Database error")
         db.session.rollback()
-        return "error", 200
+        return "error", 500
     else:
         return "success", 201

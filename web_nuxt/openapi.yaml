@@ -19,42 +19,7 @@ components:
   schemas:
     JwtToken:
       type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          description: ID пользователя
-        fullname:
-          type: string
-          description: Полное имя пользователя
-        username:
-          type: string
-          description: Имя пользователя
-        email:
-          type: string
-          description: Email пользователя
-        role:
-          type: string
-          enum:
-            - guest
-            - user
-            - admin
-          description: Роль пользователя
-        exp:
-          type: integer
-          format: int64
-          description: Время истечения токена (timestamp)
-        jti:
-          type: string
-          description: Уникальный идентификатор токена
-      required:
-        - id
-        - fullname
-        - username
-        - email
-        - role
-        - exp
-        - jti
+      $ref: '../schemas/Token.json'
 
 paths:
   /route/anketa/self/{person_id}:
@@ -127,9 +92,18 @@ paths:
               $ref: '../schemas/AnketaJson.json'
       responses:
         "201":
-          description: Data submitted successfully
-        "400":
-          description: Invalid JSON
+          description: Кандидата создан
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  person_id: {
+                    type: integer
+                  }
+                  exists: {
+                    type: boolean
+                  }
 
   /route/items/persons/{person_id}:
     get:
@@ -221,19 +195,9 @@ paths:
             application/json:
               schema:
                 type: array
-                oneOf:
-                - $ref: '../schemas/Address.json'
-                - $ref: '../schemas/Contact.json'
-                - $ref: '../schemas/Education.json'
-                - $ref: '../schemas/Staff.json'
-                - $ref: '../schemas/Workplace.json'
-                - $ref: '../schemas/Document.json'
-                - $ref: '../schemas/Affilation.json'
-                - $ref: '../schemas/Check.json'
-                - $ref: '../schemas/Poligraf.json'
-                - $ref: '../schemas/Inquiry.json'
-                - $ref: '../schemas/Investigation.json'
-                - $ref: '../schemas/Previous.json'
+                items:
+                  type: object
+                  $ref: '../schemas/Content.json'
 
     post:
       summary: Загрузка данных об объекте
@@ -254,6 +218,7 @@ paths:
           application/json:
             schema:
               type: object
+              $ref: '../schemas/Content.json'
 
       responses:
         "201":
@@ -295,8 +260,6 @@ paths:
   /route/auth/{action}:
     post:
       summary: Вход в систему и получение токена или обновление пароля
-      security:
-        - bearerAuth: []
       parameters:
         - name: action
           in: path
@@ -310,7 +273,10 @@ paths:
       requestBody:
         content:
           application/json:
-            example: { "username": "user", "password": "pass" }
+            schema:
+              type: object
+              $ref: '../schemas/Login.json'
+
       responses:
         "201":
           description: Токен получен
@@ -322,7 +288,7 @@ paths:
                   message: {
                     type: string
                   }
-                  token: {
+                  access_token: {
                     $ref: '../schemas/Token.json'
                   }
         "500":
@@ -356,6 +322,24 @@ paths:
   /route/index:
     get:
       summary: Получение главной страницы со списком кандидатов
+      security:
+        - bearerAuth: []
+      parameters:
+        in: query
+        name: page
+        required: true
+        schema:
+          type: integer
+        in: query
+        name: per_page
+        required: true
+        schema:
+          type: integer
+        in: query
+        name: search
+        required: true
+        schema:
+          type: string
       responses:
         "200":
           description: Главная страница
@@ -364,6 +348,13 @@ paths:
               schema:
                 type: object
                 $ref: '../schemas/Candidates.json'
+        "500":
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                type: object
+                example: { "message": "error" }
 
   /route/users:
     get:
@@ -398,10 +389,7 @@ paths:
           application/json:
             schema:
               type: object
-              properties:
-                item: {
-                  type: string
-                }
+              $ref: '../schemas/UserAction.json'
       responses:
         "201":
           description: Пользователь изменен
@@ -411,7 +399,7 @@ paths:
                 type: object
                 example: { "message": "success" }
         "500":
-          description: Ошибка сервера
+          description: Невозможно изменить данные
           content:
             application/json:
               schema:
@@ -428,20 +416,7 @@ paths:
           application/json:
             schema:
               type: object
-              properties:
-                fullname: {
-                  type: string
-                }
-                username: {
-                  type: string
-                }
-                email: {
-                  type: string
-                }
-              required:
-                - fullname
-                - username
-                - email
+              $ref: '../schemas/UserForm.json'
                 
       responses:
         "201":

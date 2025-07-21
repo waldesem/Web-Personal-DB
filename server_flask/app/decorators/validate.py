@@ -6,7 +6,7 @@ from typing import Callable, get_type_hints
 from flask import Response, abort, current_app, jsonify, request
 from pydantic import BaseModel, ValidationError
 
-from app.models.models import Items, Model, Result
+from app.models.models import Model, Result
 
 # Dict of models for validation
 MODELS = {
@@ -44,12 +44,11 @@ def validate(func: Callable) -> Callable:
             # if funcion has json_data argument with Pydantic model
             if model_class := get_type_hints(func).get("json_data"):
                 if model_class.__name__ == "Model":
-                    item = Items(item=kwargs.get("item"))
-                    model_class = MODELS[item.item]
+                    model_class = MODELS[kwargs.get("item")]
                 json_data = request.get_json()
                 kwargs["json_data"] = model_class(**json_data)
 
-        except ValidationError:
+        except (ValidationError, KeyError):
             current_app.logger.exception("Error validating data")
             return abort(400)
         else:
@@ -88,8 +87,7 @@ def serialize(model: BaseModel = None) -> Callable:
                     return jsonify(data), status
 
                 if model.__name__ == "Model":
-                    item = Items(item=kwargs.get("item"))
-                    model_class = MODELS[item.item]
+                    model_class = MODELS[kwargs.get("item")]
                 else:
                     model_class = model
 
@@ -102,7 +100,7 @@ def serialize(model: BaseModel = None) -> Callable:
                 return jsonify(
                     model_class.from_orm(data).dict(exclude_none=True),
                 ), status
-            except ValidationError:
+            except (ValidationError, KeyError):
                 current_app.logger.exception("Error serialize data")
 
             return abort(400)

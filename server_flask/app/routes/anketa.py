@@ -132,7 +132,7 @@ def post_json() -> tuple[dict, int]:
             upload_items(anketa, person_id)
     except (ValidationError, json.JSONDecodeError, TypeError):
         current_app.logger.exception("JSON Error")
-        return {"person_id": None, "exists": False}, 500
+        return {"person_id": None, "exists": False}, 201
     else:
         return {"person_id": person_id, "exists": existed}, 201
 
