@@ -19,38 +19,36 @@ MODELS = {
 def validate(func: Callable) -> Callable:
     """Decorate a function for validating request data using Pydantic models.
 
-    The decorator accepts the following keyword arguments:
-        json_query: Optional[BaseModel]
-            The model to validate the query parameters with.
-        json_data: Optional[BaseModel]
-            The model to validate the body data with.
-
     The decorator can be used as follows:
 
-    @app.route("/endpoint", methods=["GET", "POST","PATCH"])
+    @app.route("/endpoint/<data>", methods=["GET", "POST","PATCH"])
     @validate
-    def endpoint(json_data: Model, json_query: Model):
-        # The json_data or/and json_query are validated and available here
+    def endpoint(data: str, json_data: Model, json_query: Model):
+        # The data, json_data or/and json_query are validated and available here
     """
 
     @wraps(func)
     def wrapper(*args: tuple, **kwargs: dict) -> Callable:
         """Validate request data using Pydantic models."""
         try:
-            argums = {k: v for k, v in get_type_hints(func). items() if k != "return"}
-            if model_class := argums.pop("json_query", None):
+            type_hints = get_type_hints(func)
+            if params := {
+                k: (v, ...)
+                for k, v in type_hints.items()
+                if k not in ["return", "json_query", "json_data"]
+            }:
+                model_class = create_model(func.__name__, **params)
+                data = dict(zip(params.keys(), args))
+                args = [d[1] for d in model_class(**data)]
+
+            if model_class := type_hints.get("json_query"):
                 kwargs["json_query"] = model_class(**request.args)
 
-            if model_class := argums.pop("json_data", None):
+            if model_class := type_hints.get("json_data"):
                 if model_class.__name__ == "Model":
-                    model_class = MODELS[kwargs.get("item")]
+                    model_class = MODELS[data["item"]]
                 json_data = request.get_json()
                 kwargs["json_data"] = model_class(**json_data)
-
-            if argums := {k: (v, ...) for k, v in argums.items()}:
-                model_class = create_model(func.__name__, **argums)
-                data = dict(zip(argums.keys(), args))
-                args = [d[1] for d in model_class(**data)]
 
         except (ValidationError, KeyError):
             current_app.logger.exception("Error validating data")
