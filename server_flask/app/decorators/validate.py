@@ -37,12 +37,13 @@ def validate(func: Callable) -> Callable:
     def wrapper(*args: tuple, **kwargs: dict) -> Callable:
         """Validate request data using Pydantic models."""
         try:
+            arguments = get_type_hints(func)
             # if funcion has json_query argument with Pydantic model
-            if model_class := get_type_hints(func).get("json_query"):
+            if model_class := arguments.get("json_query"):
                 kwargs["json_query"] = model_class(**request.args)
 
             # if funcion has json_data argument with Pydantic model
-            if model_class := get_type_hints(func).get("json_data"):
+            if model_class := arguments.get("json_data"):
                 if model_class.__name__ == "Model":
                     model_class = MODELS[kwargs.get("item")]
                 json_data = request.get_json()

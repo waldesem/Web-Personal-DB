@@ -101,7 +101,7 @@ class User(UserForm, Model):
 class UserActions(BaseModel):
     """Pydantic model for user actions form."""
 
-    item: Literal["reset", "block", "delete"] | Roles | None
+    item: Literal["reset", "block", "delete"] | Roles
 
     class Config:
         """Pydantic config."""
