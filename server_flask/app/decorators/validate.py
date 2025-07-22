@@ -4,7 +4,7 @@ from functools import wraps
 from typing import Callable, get_type_hints
 
 from flask import Response, abort, current_app, jsonify, request
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, ValidationError, create_model
 
 from app.models.models import Model, Result
 
@@ -37,17 +37,20 @@ def validate(func: Callable) -> Callable:
     def wrapper(*args: tuple, **kwargs: dict) -> Callable:
         """Validate request data using Pydantic models."""
         try:
-            arguments = get_type_hints(func)
-            # if funcion has json_query argument with Pydantic model
-            if model_class := arguments.get("json_query"):
+            argums = {k: v for k, v in get_type_hints(func). items() if k != "return"}
+            if model_class := argums.pop("json_query", None):
                 kwargs["json_query"] = model_class(**request.args)
 
-            # if funcion has json_data argument with Pydantic model
-            if model_class := arguments.get("json_data"):
+            if model_class := argums.pop("json_data", None):
                 if model_class.__name__ == "Model":
                     model_class = MODELS[kwargs.get("item")]
                 json_data = request.get_json()
                 kwargs["json_data"] = model_class(**json_data)
+
+            if argums := {k: (v, ...) for k, v in argums.items()}:
+                model_class = create_model(func.__name__, **argums)
+                data = dict(zip(argums.keys(), args))
+                args = [d[1] for d in model_class(**data)]
 
         except (ValidationError, KeyError):
             current_app.logger.exception("Error validating data")

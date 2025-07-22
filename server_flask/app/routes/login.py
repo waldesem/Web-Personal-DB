@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import secrets
 from datetime import datetime, timedelta
+from typing import Literal
 
 import jwt
 from flask import Blueprint, current_app
@@ -20,11 +21,13 @@ from app.tables.tables import Users
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
+type Actions = Literal["login" | "update"] # type: ignore  # noqa: PGH003
+
 
 @bp.post("/<action>")
 @serialize()
 @validate
-def post_login(action: str, json_data: Login) -> tuple[str | dict, int]:
+def post_login(action: Actions, json_data: Login) -> tuple[str | dict, int]:
     """Handle the login process.
 
     Args:
