@@ -18,17 +18,7 @@ bp = Blueprint("items", __name__)
 @serialize(PersonOut)
 @auth_required()
 def get_person(person_id: int) -> tuple[Persons, int]:
-    """Retrieve an item from the database based on the provided item ID.
-
-    Args:
-        person_id (int): The ID of the item to retrieve.
-
-    Returns:
-        Tuple[Response, int]: A tuple containing the Persons
-        and an HTTP status code of 200.
-
-    """
-    # Получаем данные кандидата
+    """Retrieve an item from the database based on the provided item ID."""
     return db.session.get(Persons, person_id), 200
 
 

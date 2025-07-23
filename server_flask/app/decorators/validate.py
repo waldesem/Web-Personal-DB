@@ -19,7 +19,6 @@ def validate(func: Callable) -> Callable:
     def endpoint(data: str, json_data: Model, json_query: Model):
         # The data, json_data or/and json_query are validated and available here
     """
-
     @wraps(func)
     def wrapper(*args: tuple, **kwargs: dict) -> Callable:
         """Validate request data using Pydantic models."""
@@ -53,21 +52,13 @@ def validate(func: Callable) -> Callable:
 def serialize(model: BaseModel = None) -> Callable:
     """Decorate a function for serialize data using Pydantic models.
 
-    Args:
-        model (BaseModel): The model for validation.
-
-    Returns:
-        function: The decorated function.
-
     The decorator can be used as follows:
 
     @app.route("/endpoint", methods=["GET"])
     @serialize(ModelOut)
     def endpoint():
         # Function body
-
     """
-
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args: tuple, **kwargs: dict) -> Response:

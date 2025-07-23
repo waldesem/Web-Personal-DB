@@ -34,14 +34,6 @@ def create_user(
 ) -> None:
     """Create a new user.
 
-    The user is created with a default password given in DEFAULT_PASSWORD config
-    variable. The user is created only if it does not exist in the database.
-
-    :param fullname: The full name of the user.
-    :param username: The username of the user.
-    :param email: The email of the user.
-    :param role: The role of the user.
-
     Example:
         export FLASK_APP=app
         flask command user 'Super Admin' superadmin superadmin@elocalhost \
@@ -74,11 +66,7 @@ def create_user(
 @bp.cli.command("folders")
 @cli.with_appcontext
 def create_folders() -> None:
-    """Create the folders structure according to the current configuration.
-
-    :param folder: The folder to create the structure in. If not provided, the
-        current BASE_PATH is used.
-    """
+    """Create the folders structure according to the current configuration."""
     if Path(current_app.config["BASE_PATH"]).is_dir():
         for letter in "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЫЭЮЯ":
             Path(

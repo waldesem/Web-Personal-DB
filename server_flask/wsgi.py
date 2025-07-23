@@ -7,13 +7,7 @@ from tornado import httpserver, ioloop, wsgi
 
 
 def wsgi_server(app: Flask, address: str, port: int, workers: int) -> None:
-    """Start a WSGI server using Tornado.
-
-    :param app: A WSGI application object
-    :param address: The address to listen on
-    :param port: The port to listen on
-    :param workers: The number of worker threads to use
-    """
+    """Start a WSGI server using Tornado."""
     container = wsgi.WSGIContainer(app)
     http_server = httpserver.HTTPServer(container)
     http_server.listen(port, address)

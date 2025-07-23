@@ -1,7 +1,4 @@
-"""Compression module.
-
-Original code - https://github.com/colour-science/flask-compress
-"""
+"""Compression module."""
 
 from __future__ import annotations
 

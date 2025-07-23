@@ -17,15 +17,7 @@ current_user: Users = LocalProxy(lambda: get_current_user(g.token.get("id")))
 
 @lru_cache(maxsize=2)
 def get_current_user(user_id: int) -> Users | Response:
-    """Retrieve the current user stored in the global variable.
-
-    Args:
-        user_id (int): The ID of the user.
-
-    Returns:
-        Returns the user object or a 401 HTTP status code.
-
-    """
+    """Retrieve the current user stored in the global variable."""
     if user_id:
         user = db.session.get(Users, user_id)
         if (
@@ -40,15 +32,7 @@ def get_current_user(user_id: int) -> Users | Response:
 
 
 def auth_required(roles: tuple | None = None) -> Callable:
-    """Decorate a function that checks a valid JWT token and the user has roles.
-
-    Args:
-        roles (str): The roles to check for (optional).
-
-    Returns:
-        function: The decorated function.
-
-    """
+    """Decorate a function that checks a valid JWT token and the user has roles."""
 
     def decorator(func: Callable) -> Callable:
         @wraps(func)

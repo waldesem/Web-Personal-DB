@@ -18,16 +18,7 @@ bp = Blueprint("route", __name__)
 @validate
 @auth_required()
 def get_index(json_query: Index) -> tuple[list[Persons], int]:
-    """Retrieve a paginated list of persons from the database.
-
-    Arguments:
-        json_query (Page): An object containing query info.
-
-    Returns:
-        A JSON response containing a list of persons and an HTTP status code of 200.
-
-    """
-    # Создание SQL-запроса для получения списка кандидатов с учетом региона пользователя
+    """Retrieve a paginated list of persons from the database."""
     try:
         stmt = select(
             Persons.id,
@@ -65,6 +56,6 @@ def get_index(json_query: Index) -> tuple[list[Persons], int]:
         )
     except SQLAlchemyError:
         current_app.logger.exception("SQL Error")
-        return "error", 500
+        return [], 500
     else:
         return result, 200

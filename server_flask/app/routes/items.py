@@ -43,18 +43,18 @@ from app.tables.tables import (
 bp = Blueprint("items", __name__)
 
 Items = Literal[
-    "previous",
-    "educations",
     "addresses",
     "affilations",
-    "staffs",
-    "workplaces",
+    "checks",
     "contacts",
     "documents",
-    "checks",
-    "poligrafs",
+    "educations",
     "inquiries",
     "investigations",
+    "previous",
+    "poligrafs",
+    "staffs",
+    "workplaces",
 ]
 
 

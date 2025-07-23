@@ -28,16 +28,7 @@ type Actions = Literal["login" | "update"] # type: ignore  # noqa: PGH003
 @serialize()
 @validate
 def post_login(action: Actions, json_data: Login) -> tuple[str | dict, int]:
-    """Handle the login process.
-
-    Args:
-        action (str): The action to be performed during the login process.
-        json_data (Login): The login data.
-
-    Returns:
-        The function returns a tuple containing an empty string and a status code.
-
-    """
+    """Handle the login process."""
     try:
         user = db.session.execute(
             select(Users).filter_by(username=json_data.username),
@@ -98,11 +89,6 @@ def post_login(action: Actions, json_data: Login) -> tuple[str | dict, int]:
 @serialize()
 @auth_required()
 def get_logout() -> tuple[str, int]:
-    """Logout the user.
-
-    Returns:
-        The function returns a tuple containing an empty string and a status code.
-
-    """
+    """Logout the user."""
     auth.revoke_token()
     return "", 200

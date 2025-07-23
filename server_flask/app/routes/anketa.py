@@ -34,15 +34,7 @@ bp = Blueprint("anketa", __name__, url_prefix="/anketa")
 @serialize()
 @auth_required(Roles.user.value)
 def change_self_id(person_id: int) -> tuple[str, int]:
-    """Toggle the editable status of a person with the given item ID.
-
-    The person ID is the ID of the person to toggle the editable status.
-    The user ID is the ID of the user currently logged in.
-
-    Returns:
-        The HTTP status code is 200.
-
-    """
+    """Toggle the editable status of a person with the given item ID."""
     try:
         person = db.session.get(Persons, person_id)
         if not person.destination or not Path(person.destination).is_dir():
@@ -67,17 +59,7 @@ def change_self_id(person_id: int) -> tuple[str, int]:
 @serialize()
 @auth_required(Roles.user.value)
 def post_files(person_id: int) -> tuple[str, int]:
-    """Upload a file to the server.
-
-    Args:
-        item (str): The name of the item.
-        person_id (int): The ID of the person.
-        file_data (list[File]): The file data.
-
-    Returns:
-        The HTTP status code is 200.
-
-    """
+    """Upload a file to the server."""
     file_data = request.files.getlist("file")
     person = db.session.get(Persons, person_id)
     try:
@@ -104,15 +86,7 @@ def post_files(person_id: int) -> tuple[str, int]:
 @serialize()
 @auth_required(roles=[Roles.user.value, Roles.api.value])
 def post_json() -> tuple[dict, int]:
-    """Create a new person or updates an existing person based on the provided data.
-
-    Args:
-        file (file): A JSON file containing the person data.
-
-    Returns:
-        A JSON response containing the person ID and an HTTP status code of 201.
-
-    """
+    """Create a new person or updates an existing person based on the provided data."""
     try:
         # Чтение файла JSON и создание объектов классов для сохранения в БД
         file = request.files.get("file")
