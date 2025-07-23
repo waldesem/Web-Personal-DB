@@ -39,7 +39,7 @@ async function deletePerson() {
     return;
   if (!confirm("Данные будут удалены безвозвратно!?")) return;
   status.value = "pending";
-  const { message } = await $customFetch(`/route/items/persons/${person.value.id}`, {
+  const { message } = await $customFetch(`/route/persons/${person.value.id}`, {
     method: "DELETE",
   }) as Record<string, string>;
   if (message == "success") {

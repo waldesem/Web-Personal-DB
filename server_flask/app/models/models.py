@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import date, datetime  # noqa: TC003
-from typing import Annotated, Any, Literal, Union
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field, validator
 
@@ -172,28 +172,9 @@ class Candidates(Model):
     total: int
 
 
-Items = Literal[
-    "previous",
-    "educations",
-    "addresses",
-    "affilations",
-    "staffs",
-    "workplaces",
-    "contacts",
-    "documents",
-    "checks",
-    "poligrafs",
-    "inquiries",
-    "investigations",
-]
-
-
 class Prev(Model):
     """Pydantic model for previous form."""
 
-    __modelname__ = "previous"
-
-    item_type: Items = "previous"
     surname: str = Field(alias="lastNameBeforeChange")
     firstname: str = Field(alias="firstNameBeforeChange")
     patronymic: str = Field(default="", alias="midNameBeforeChange")
@@ -204,9 +185,6 @@ class Prev(Model):
 class Education(Model):
     """Pydantic model for education form."""
 
-    __modelname__ = "educations"
-
-    item_type: Items = "educations"
     view: str = Field(default="", alias="educationType")
     institution: str = Field(default="", alias="institutionName")
     finished: str | int = Field(default="", alias="endYear")
@@ -216,9 +194,6 @@ class Education(Model):
 class Staff(Model):
     """Pydantic model for staff form."""
 
-    __modelname__ = "staffs"
-
-    item_type: Items = "staffs"
     position: str
     department: str | None = ""
 
@@ -226,9 +201,6 @@ class Staff(Model):
 class Document(Model):
     """Pydantic model for document form."""
 
-    __modelname__ = "documents"
-
-    item_type: Items = "documents"
     view: str
     series: str | None = ""
     digits: str
@@ -239,9 +211,6 @@ class Document(Model):
 class Address(Model):
     """Pydantic model for address form."""
 
-    __modelname__ = "addresses"
-
-    item_type: Items = "addresses"
     view: str
     addresses: str
 
@@ -249,9 +218,6 @@ class Address(Model):
 class Contact(Model):
     """Pydantic model for contact form."""
 
-    __modelname__ = "contacts"
-
-    item_type: Items = "contacts"
     view: str
     contact: str
 
@@ -259,9 +225,6 @@ class Contact(Model):
 class Workplace(Model):
     """Pydantic model for workplace form."""
 
-    __modelname__ = "workplaces"
-
-    item_type: Items = "workplaces"
     now_work: bool = Field(default=False, alias="currentJob")
     starts: date = Field(alias="beginDate")
     finished: date = Field(default=None, alias="endDate")
@@ -274,9 +237,6 @@ class Workplace(Model):
 class Affilation(Model):
     """Pydantic model for affilation form."""
 
-    __modelname__ = "affilations"
-
-    item_type: Items = "affilations"
     view: str | None = ""
     organization: str = Field(default="", alias="name")
     inn: str | None = ""
@@ -285,9 +245,6 @@ class Affilation(Model):
 class Check(Model):
     """Pydantic model for check form."""
 
-    __modelname__ = "checks"
-
-    item_type: Items = "checks"
     workplace: str | None = ""
     document: str | None = ""
     inn: str | None = ""
@@ -309,9 +266,6 @@ class Check(Model):
 class Poligraf(Model):
     """Pydantic model for poligraf form."""
 
-    __modelname__ = "poligrafs"
-
-    item_type: Items = "poligrafs"
     theme: str
     results: str
     conclusion: Decisions
@@ -320,9 +274,6 @@ class Poligraf(Model):
 class Investigation(Model):
     """Pydantic model for investigation form."""
 
-    __modelname__ = "investigations"
-
-    item_type: Items = "previous"
     theme: str
     info: str
 
@@ -330,30 +281,9 @@ class Investigation(Model):
 class Inquiry(Model):
     """Pydantic model for inquiry form."""
 
-    __modelname__ = "inquiries"
-
-    item_type: Items = "inquiries"
     info: str
     initiator: str
     origins: str | None = ""
-
-
-Content = Annotated[
-    Union[
-        Address,
-        Affilation,
-        Check,
-        Contact,
-        Document,
-        Education,
-        Investigation,
-        Inquiry,
-        Poligraf,
-        Prev,
-        Workplace,
-    ],
-    Field(discriminator="item_type"),
-]
 
 
 class AnketaJson(PersonIn):

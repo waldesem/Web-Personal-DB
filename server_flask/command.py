@@ -4,26 +4,13 @@ from pathlib import Path
 
 import click
 from flask import Blueprint, cli, current_app
-from pydantic import ValidationError, schema_json_of
+from pydantic import ValidationError
 from sqlalchemy import or_, select
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
 from app.classes.classes import Roles
-from app.models.models import (
-    AnketaJson,
-    Candidates,
-    Content,
-    Index,
-    Items,
-    Login,
-    PersonIn,
-    PersonOut,
-    Token,
-    User,
-    UserActions,
-    UserForm,
-)
+from app.models.models import UserForm
 from app.tables.tables import Users
 
 bp = Blueprint("command", __name__)
@@ -102,39 +89,3 @@ def create_folders() -> None:
         click.echo("Folders created")
     else:
         click.echo("BASE_PATH is not a directory")
-
-
-@bp.cli.command("schemas")
-@cli.with_appcontext
-def create_schemas() -> None:
-    """Create schemas."""
-    tests = Path("schemas")
-    tests.mkdir(exist_ok=True)
-    for model in [
-        AnketaJson,
-        Candidates,
-        Content,
-        Index,
-        Items,
-        Login,
-        PersonIn,
-        PersonOut,
-        Token,
-        User,
-        UserActions,
-        UserForm,
-    ]:
-        file_path = Path(tests, f"{model.__name__}.json")
-        with Path.open(file_path, "w") as f:
-            schema = model.schema_json(by_alias=model.__name__ == "AnketaJson")
-            f.write(schema)
-
-    file_path = Path(tests, "Content.json")
-    with Path.open(file_path, "w") as f:
-        schema = schema_json_of(Content, title="Схема для валидации зависимых таблиц.")
-        f.write(schema)
-
-    file_path = Path(tests, "Items.json")
-    with Path.open(file_path, "w") as f:
-        schema = schema_json_of(Items, title="Схема валидации типа зависимых таблиц.")
-        f.write(schema)

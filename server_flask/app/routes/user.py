@@ -19,15 +19,7 @@ bp = Blueprint("users", __name__)
 @serialize(User)
 @auth_required(Roles.admin.value)
 def get_users() -> tuple[list[Users], int]:
-    """Retrieve a list of users from the database.
-
-    Arguments:
-       None.
-
-    Returns:
-        tuple: A tuple containing the JSON-encoded list of users.
-
-    """
+    """Retrieve a list of users from the database."""
     # Выбрать все столбцы, кроме passhash
     columns = filter(lambda x: x != "passhash", Users.__table__.columns.keys())
     # Создать запрос для выборки пользователей
@@ -40,24 +32,14 @@ def get_users() -> tuple[list[Users], int]:
 @serialize()
 @validate
 @auth_required(Roles.admin.value)
-def post_user_actions(user_id: int, json_data: UserActions) -> tuple[str, int]:
-    """Change a user's information in the database based on their user ID.
-
-    Args:
-        user_id (int): The ID of the user.
-        json_data (UserActions): The user data to be updated in the database.
-
-    Returns:
-        The HTTP status code is 201.
-
-    """
-    # Получить пользователя по ID
+def post_user_actions(user_id: int, json_query: UserActions) -> tuple[str, int]:
+    """Change a user's information in the database based on their user ID."""
     user = db.session.get(Users, user_id)
     # Если пользователь не найден или пытается изменить собственный профиль
     if not user or current_user.id == user.id:
         return "error", 500
 
-    if json_data.item == "reset":
+    if json_query.item == "reset":
         # Сбросить пароль пользователя и обнулить попытки входа
         user.passhash = generate_password_hash(
             current_app.config["DEFAULT_PASSWORD"],
@@ -65,15 +47,15 @@ def post_user_actions(user_id: int, json_data: UserActions) -> tuple[str, int]:
         user.attempt = 0
         user.blocked = False
         user.change_pswd = True
-    elif json_data.item == "block":
+    elif json_query.item == "block":
         # Заблокировать или разблокировать пользователя
         user.blocked = not user.blocked
-    elif json_data.item == "delete":
+    elif json_query.item == "delete":
         # Удалить или восстановить пользователя
         user.deleted = not user.deleted
-    elif json_data.item in [reg.value for reg in Roles]:
+    elif json_query.item in [reg.value for reg in Roles]:
         # Изменить роль пользователя
-        user.role = json_data.item
+        user.role = json_query.item
     db.session.commit()
     # Очистить кэш для id пользователей
     get_current_user.cache_clear()
@@ -85,16 +67,7 @@ def post_user_actions(user_id: int, json_data: UserActions) -> tuple[str, int]:
 @validate
 @auth_required(Roles.admin.value)
 def post_user(json_data: UserForm) -> tuple[str, int]:
-    """Handle the POST request to create a user in the database.
-
-    Arguments:
-        json_data (User): The user data to be added to the database.
-
-    Returns:
-        - If the user already exists returns a response with status code 500.
-        - Otherwise returns a response with status code 201.
-
-    """
+    """Handle the POST request to create a user in the database."""
     # Проверить, существует ли уже пользователь с таким именем
     user = db.session.execute(
         select(Users).filter(Users.username == json_data.username),

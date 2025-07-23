@@ -62,7 +62,7 @@ const item = ref({} as object);
 const modal = ref(false);
 
 const { data, status, refresh } = await useCustomFetch<object[]>(
-  `/route/items/${props.view}/${candId.value}`, {
+  `/route/${props.view}/${candId.value}`, {
   lazy: true,
   server: false,
 });
@@ -71,7 +71,7 @@ async function submitItem(form: object) {
   modal.value = false;
   status.value = "pending";
   const { message } = (await $customFetch(
-    `/route/items/${props.view}/${candId.value}`,
+    `/route/${props.view}/${candId.value}`,
     {
       method: "POST",
       body: form,
@@ -90,7 +90,7 @@ async function submitItem(form: object) {
 async function deleteItem(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   status.value = "pending";
-  const { message } = (await $customFetch(`/route/items/${props.view}/${id}`, {
+  const { message } = (await $customFetch(`/route/${props.view}/${id}`, {
     method: "DELETE",
   })) as Record<string, string>;
   status.value = message as "success" | "error";

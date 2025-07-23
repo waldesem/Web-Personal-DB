@@ -22,7 +22,7 @@ async function submitPerson() {
   const { person_id, exists } = (await $customFetch<{
     person_id: number;
     exists: boolean;
-  }>("/route/items/persons", {
+  }>("/route/persons", {
     method: "POST",
     body: resumeForm.value,
   }));

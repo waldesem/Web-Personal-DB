@@ -1,7 +1,9 @@
 """Items routes."""
 
+from typing import Literal
+
 from flask import Blueprint, current_app
-from flask.views import MethodView
+from pydantic import BaseModel
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import DeclarativeBase
 
@@ -9,212 +11,321 @@ from app import db
 from app.classes.classes import Roles
 from app.decorators.depend import auth_required
 from app.decorators.validate import serialize, validate
-from app.models.models import Items, Model, PersonIn, PersonOut
-from app.tables.tables import Persons
-from app.utils.utilities import upload_resume
-
-bp = Blueprint("items", __name__, url_prefix="/items")
-
-
-class PersonView(MethodView):
-    """Person routes."""
-
-    @serialize(PersonOut)
-    @auth_required()
-    def get(self, person_id: int) -> tuple[Persons, int]:
-        """Retrieve an item from the database based on the provided item ID.
-
-        Args:
-            person_id (int): The ID of the item to retrieve.
-
-        Returns:
-            Tuple[Response, int]: A tuple containing the Persons
-            and an HTTP status code of 200.
-
-        """
-        # Получаем данные кандидата
-        return db.session.get(Persons, person_id), 200
-
-    @serialize()
-    @validate
-    @auth_required(Roles.user.value)
-    def post(self, json_data: PersonIn) -> tuple[dict, int]:
-        """Replace a record in persons table.
-
-        Args:
-            json_data (InputPerson): The data to replace in the table.
-
-        Returns:
-            Tuple[str, int]: A tuple containing an empty string and an HTTP status
-            code of 201.
-
-        """
-        # Загружаем отредактированное резюме и получаем id кандидата
-        cand_id, existed = upload_resume(json_data)
-        return {"person_id": cand_id, "exists": existed}, 201
-
-    @serialize()
-    @auth_required(Roles.user.value)
-    def delete(self, person_id: int) -> tuple[str, int]:
-        """Delete an item from the database based on the provided item name and item ID.
-
-        Args:
-            person_id (int): The ID of the item to delete.
-
-        Returns:
-            Tuple[str, int]: A tuple containing an empty string and an HTTP status
-            code of 201.
-
-        """
-        try:
-            person = db.session.get(Persons, person_id)
-            db.session.delete(person)
-            db.session.commit()
-        except SQLAlchemyError:
-            current_app.logger.exception("Database error")
-            db.session.rollback()
-            return "error", 500
-        else:
-            return "success", 201
-
-
-person_view = PersonView.as_view("person")
-bp.add_url_rule("/persons", view_func=person_view, methods=["POST"])
-bp.add_url_rule(
-    "/persons/<int:person_id>",
-    view_func=person_view,
-    methods=["GET", "DELETE"],
+from app.models.models import (
+    Address,
+    Affilation,
+    Check,
+    Contact,
+    Document,
+    Education,
+    Inquiry,
+    Investigation,
+    Poligraf,
+    Prev,
+    Staff,
+    Workplace,
+)
+from app.tables.tables import (
+    Addresses,
+    Affilations,
+    Checks,
+    Contacts,
+    Documents,
+    Educations,
+    Inquiries,
+    Investigations,
+    Poligrafs,
+    Previous,
+    Staffs,
+    Workplaces,
 )
 
+bp = Blueprint("items", __name__)
 
-def operate_item(item: Item, item_id: int) -> None
-    if request.method == "GET":
-	    stmt = (
-	            db.metatables[item]
-	            .select()
-	            .filter(db.metatables[item].c.person_id == item_id)
-	            .order_by(db.metatables[item].c.id.desc())
-	        )
-	        # Выполняем запрос и получаем результаты
-	        return db.session.execute(stmt).all()
-	
-    elif request.method == "POST":
-        # Получаем таблицу из словаря таблиц по имени item
-        json_dict = json_data.dict(exclude_none=True, exclude={"created", "item_type"})
-        # Добавляем ключ "person_id" в словарь json_dict с значением item_id
+Items = Literal[
+    "previous",
+    "educations",
+    "addresses",
+    "affilations",
+    "staffs",
+    "workplaces",
+    "contacts",
+    "documents",
+    "checks",
+    "poligrafs",
+    "inquiries",
+    "investigations",
+]
+
+
+def get_item(item: Items, item_id: int) -> list[DeclarativeBase]:
+    """Retrieve an item from the database based on the provided item."""
+    stmt = (
+        db.metatables[item]
+        .select()
+        .filter(db.metatables[item].c.person_id == item_id)
+        .order_by(db.metatables[item].c.id.desc())
+    )
+    return db.session.execute(stmt).all()
+
+
+def post_item(item: Items, item_id: int, json_data: BaseModel) -> str:
+    """Insert or replaces a record in the specified table with the given item ID."""
+    try:
+        json_dict = json_data.dict(exclude_none=True, exclude={"created"})
         json_dict["person_id"] = item_id
-        try:
-            # Проверяем, есть ли ключ "id" в словаре json_dict
-            if item_id := json_dict.pop("id", None):
-                # Если есть, создаем запрос на обновление записи с указанным id
-                stmt = (
-                    db.metatables[item]
-                    .update()
-                    .where(db.metatables[item].c.id == item_id)
-                    .values(json_dict)
-                )
-            else:
-                # Если нет, создаем запрос на вставку новой записи
-                stmt = db.metatables[item].insert().values(json_dict)
-            db.session.execute(stmt)
-            db.session.commit()
-
-
-class ItemsView(MethodView):
-    """Items view."""
-
-    @serialize(Model)
-    @auth_required()
-    def get(self, item: Items, item_id: int) -> tuple[list[DeclarativeBase], int]:
-        """Retrieve an item from the database based on the provided item.
-
-        Args:
-            item (str): The type of item to retrieve.
-            item_id (int): The ID of the item to retrieve or person.id.
-
-        Returns:
-            Tuple[Sequence, int]: A Sequence[Row] containing the retrieved item(s)
-            and an HTTP status code of 200.
-
-        """
-        # Создаем запрос к таблице и сортируем результаты по id в обратном порядке
-        stmt = (
-            db.metatables[item]
-            .select()
-            .filter(db.metatables[item].c.person_id == item_id)
-            .order_by(db.metatables[item].c.id.desc())
-        )
-        # Выполняем запрос и получаем результаты
-        return db.session.execute(stmt).all(), 200
-
-    @serialize()
-    @validate
-    @auth_required(Roles.user.value)
-    def post(self, item: Items, item_id: int, json_data: Model) -> tuple[str, int]:
-        """Insert or replaces a record in the specified table with the given item ID.
-
-        Args:
-            item (str): The type of item to insert or replace.
-            item_id (int): The ID of the record to insert or replace.
-            json_data (Address): The data to insert or replace.
-
-        Returns:
-            Tuple[str, int]: A tuple containing an empty string and an HTTP status
-            code of 201.
-
-        """
-        # Получаем таблицу из словаря таблиц по имени item
-        json_dict = json_data.dict(exclude_none=True, exclude={"created", "item_type"})
-        # Добавляем ключ "person_id" в словарь json_dict с значением item_id
-        json_dict["person_id"] = item_id
-        try:
-            # Проверяем, есть ли ключ "id" в словаре json_dict
-            if item_id := json_dict.pop("id", None):
-                # Если есть, создаем запрос на обновление записи с указанным id
-                stmt = (
-                    db.metatables[item]
-                    .update()
-                    .where(db.metatables[item].c.id == item_id)
-                    .values(json_dict)
-                )
-            else:
-                # Если нет, создаем запрос на вставку новой записи
-                stmt = db.metatables[item].insert().values(json_dict)
-            db.session.execute(stmt)
-            db.session.commit()
-        except SQLAlchemyError:
-            current_app.logger.exception("Database error")
-            db.session.rollback()
-            return "error", 500
-        else:
-            return "success", 201
-
-    @serialize()
-    @auth_required(Roles.user.value)
-    def delete(self, item: Items, item_id: int) -> tuple[str, int]:
-        """Delete an item from the database based on the provided item name and item ID.
-
-        Args:
-            item (str): The type of item to delete.
-            item_id (int): The ID of the item to delete.
-
-        Returns:
-            Tuple[str, int]: A tuple containing an empty string and an HTTP status
-            code of 201.
-
-        """
-        try:
-            # Удаляем запись из таблицы items с указанным id
-            db.session.execute(
-                db.metatables[item].delete().where(db.metatables[item].c.id == item_id),
+        # Проверяем, есть ли ключ "id" в словаре json_dict
+        if item_id := json_dict.pop("id", None):
+            # Если есть, создаем запрос на обновление записи с указанным id
+            stmt = (
+                db.metatables[item]
+                .update()
+                .where(db.metatables[item].c.id == item_id)
+                .values(json_dict)
             )
-            db.session.commit()
-        except SQLAlchemyError:
-            current_app.logger.exception("Database error")
-            db.session.rollback()
-            return "error", 500
         else:
-            return "success", 201
+            # Если нет, создаем запрос на вставку новой записи
+            stmt = db.metatables[item].insert().values(json_dict)
+        db.session.execute(stmt)
+        db.session.commit()
+    except SQLAlchemyError:
+        current_app.logger.exception("Database error")
+        db.session.rollback()
+        return "error"
+    else:
+        return "success"
 
 
-bp.add_url_rule("/<item>/<int:item_id>", view_func=ItemsView.as_view("item"))
+@bp.get("/previous/<int:item_id>")
+@serialize(Prev)
+@validate
+@auth_required()
+def get_previous(item_id: int) -> tuple[list[Previous], int]:
+    """Retrieve a list of previous names from the database."""
+    return get_item("previous", item_id), 200
+
+
+@bp.get("/educations/<int:item_id>")
+@serialize(Education)
+@validate
+@auth_required()
+def get_educations(item_id: int) -> tuple[list[Educations], int]:
+    """Retrieve a list of educations from the database."""
+    return get_item("educations", item_id), 200
+
+
+@bp.get("/addresses/<int:item_id>")
+@serialize(Address)
+@validate
+@auth_required()
+def get_addresses(item_id: int) -> tuple[list[Addresses], int]:
+    """Retrieve a list of addresses from the database."""
+    return get_item("addresses", item_id), 200
+
+
+@bp.get("/affilations/<int:item_id>")
+@serialize(Affilation)
+@validate
+@auth_required()
+def get_affilations(item_id: int) -> tuple[list[Affilations], int]:
+    """Retrieve a list of affilations from the database."""
+    return get_item("affilations", item_id), 200
+
+
+@bp.get("/staffs/<int:item_id>")
+@serialize(Staff)
+@validate
+@auth_required()
+def get_staffs(item_id: int) -> tuple[list[Staffs], int]:
+    """Retrieve a list of staffs from the database."""
+    return get_item("staffs", item_id), 200
+
+
+@bp.get("/workplaces/<int:item_id>")
+@serialize(Workplace)
+@validate
+@auth_required()
+def get_workplaces(item_id: int) -> tuple[list[Workplaces], int]:
+    """Retrieve a list of workplaces from the database."""
+    return get_item("workplaces", item_id), 200
+
+
+@bp.get("/contacts/<int:item_id>")
+@serialize(Contact)
+@validate
+@auth_required()
+def get_contacts(item_id: int) -> tuple[list[Contacts], int]:
+    """Retrieve a list of contacts from the database."""
+    return get_item("contacts", item_id), 200
+
+
+@bp.get("/documents/<int:item_id>")
+@serialize(Document)
+@validate
+@auth_required()
+def get_documents(item_id: int) -> tuple[list[Documents], int]:
+    """Retrieve a list of documents from the database."""
+    return get_item("documents", item_id), 200
+
+
+@bp.get("/checks/<int:item_id>")
+@serialize(Check)
+@validate
+@auth_required()
+def get_checks(item_id: int) -> tuple[list[Checks], int]:
+    """Retrieve a list of checks from the database."""
+    return get_item("checks", item_id), 200
+
+
+@bp.get("/poligrafs/<int:item_id>")
+@serialize(Poligraf)
+@validate
+@auth_required()
+def get_poligrafs(item_id: int) -> tuple[list[Poligrafs], int]:
+    """Retrieve a list of poligrafs from the database."""
+    return get_item("poligrafs", item_id), 200
+
+
+@bp.get("/inquiries/<int:item_id>")
+@serialize(Inquiry)
+@validate
+@auth_required()
+def get_inquiries(item_id: int) -> tuple[list[Inquiries], int]:
+    """Retrieve a list of inquiries from the database."""
+    return get_item("inquiries", item_id), 200
+
+
+@bp.get("/investigations/<int:item_id>")
+@serialize(Investigation)
+@validate
+@auth_required()
+def get_investigations(item_id: int) -> tuple[list[Investigations], int]:
+    """Retrieve a list of investigations from the database."""
+    return get_item("investigations", item_id), 200
+
+
+@bp.post("/previous/<int:item_id>")
+@serialize()
+@validate
+@auth_required(Roles.user.value)
+def post_previous(item_id: int, json_data: Prev) -> tuple[str, int]:
+    """Insert or replaces a record in previous table with the given item ID."""
+    return post_item("previous", item_id, json_data)
+
+
+@bp.post("/educations/<int:item_id>")
+@serialize()
+@validate
+@auth_required(Roles.user.value)
+def post_educations(item_id: int, json_data: Education) -> tuple[str, int]:
+    """Insert or replaces a record in educations table with the given item ID."""
+    return post_item("educations", item_id, json_data)
+
+
+@bp.post("/addresses/<int:item_id>")
+@serialize()
+@validate
+@auth_required(Roles.user.value)
+def post_addresses(item_id: int, json_data: Address) -> tuple[str, int]:
+    """Insert or replaces a record in addresses table with the given item ID."""
+    return post_item("addresses", item_id, json_data)
+
+
+@bp.post("/affilations/<int:item_id>")
+@serialize()
+@validate
+@auth_required(Roles.user.value)
+def post_affilations(item_id: int, json_data: Affilation) -> tuple[str, int]:
+    """Insert or replaces a record in affilations table with the given item ID."""
+    return post_item("affilations", item_id, json_data)
+
+
+@bp.post("/staffs/<int:item_id>")
+@serialize()
+@validate
+@auth_required(Roles.user.value)
+def post_staffs(item_id: int, json_data: Staff) -> tuple[str, int]:
+    """Insert or replaces a record in staffs table with the given item ID."""
+    return post_item("staffs", item_id, json_data)
+
+
+@bp.post("/workplaces/<int:item_id>")
+@serialize()
+@validate
+@auth_required(Roles.user.value)
+def post_workplaces(item_id: int, json_data: Workplace) -> tuple[str, int]:
+    """Insert or replaces a record in workplaces table with the given item ID."""
+    return post_item("workplaces", item_id, json_data)
+
+
+@bp.post("/contacts/<int:item_id>")
+@serialize()
+@validate
+@auth_required(Roles.user.value)
+def post_contacts(item_id: int, json_data: Contact) -> tuple[str, int]:
+    """Insert or replaces a record in contacts table with the given item ID."""
+    return post_item("contacts", item_id, json_data)
+
+
+@bp.post("/documents/<int:item_id>")
+@serialize()
+@validate
+@auth_required(Roles.user.value)
+def post_documents(item_id: int, json_data: Document) -> tuple[str, int]:
+    """Insert or replaces a record in documents table with the given item ID."""
+    return post_item("documents", item_id, json_data)
+
+
+@bp.post("/checks/<int:item_id>")
+@serialize()
+@validate
+@auth_required(Roles.user.value)
+def post_checks(item_id: int, json_data: Check) -> tuple[str, int]:
+    """Insert or replaces a record in checks table with the given item ID."""
+    return post_item("checks", item_id, json_data)
+
+
+@bp.post("/poligrafs/<int:item_id>")
+@serialize()
+@validate
+@auth_required(Roles.user.value)
+def post_poligrafs(item_id: int, json_data: Poligraf) -> tuple[str, int]:
+    """Insert or replaces a record in poligrafs table with the given item ID."""
+    return post_item("poligrafs", item_id, json_data)
+
+
+@bp.post("/inquiries/<int:item_id>")
+@serialize()
+@validate
+@auth_required(Roles.user.value)
+def post_inquiries(item_id: int, json_data: Inquiry) -> tuple[str, int]:
+    """Insert or replaces a record in inquiries table with the given item ID."""
+    return post_item("inquiries", item_id, json_data)
+
+
+@bp.post("/investigations/<int:item_id>")
+@serialize()
+@validate
+@auth_required(Roles.user.value)
+def post_investigations(item_id: int, json_data: Investigation) -> tuple[str, int]:
+    """Insert or replaces a record in investigations table with the given item ID."""
+    return post_item("investigations", item_id, json_data)
+
+
+@bp.delete("/<item>/<int:item_id>")
+@serialize()
+@validate
+@auth_required(Roles.user.value)
+def delete(item: Items, item_id: int) -> tuple[str, int]:
+    """Delete an item from the database based on the provided item name and item ID."""
+    try:
+        db.session.execute(
+            db.metatables[item].delete().where(db.metatables[item].c.id == item_id),
+        )
+        db.session.commit()
+    except SQLAlchemyError:
+        current_app.logger.exception("Database error")
+        db.session.rollback()
+        return "error", 500
+    else:
+        return "success", 201

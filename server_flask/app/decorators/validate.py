@@ -6,14 +6,7 @@ from typing import Callable, get_type_hints
 from flask import Response, abort, current_app, jsonify, request
 from pydantic import BaseModel, ValidationError, create_model
 
-from app.models.models import Model, Result
-
-# Dict of models for validation
-MODELS = {
-    cls.__modelname__: cls
-    for cls in Model.__subclasses__()
-    if hasattr(cls, "__modelname__")
-}
+from app.models.models import Result
 
 
 def validate(func: Callable) -> Callable:
@@ -45,8 +38,6 @@ def validate(func: Callable) -> Callable:
                 kwargs["json_query"] = model_class(**request.args)
 
             if model_class := type_hints.get("json_data"):
-                if model_class.__name__ == "Model":
-                    model_class = MODELS[data["item"]]
                 json_data = request.get_json()
                 kwargs["json_data"] = model_class(**json_data)
 
@@ -88,19 +79,14 @@ def serialize(model: BaseModel = None) -> Callable:
                 if isinstance(data, dict):
                     return jsonify(data), status
 
-                if model.__name__ == "Model":
-                    model_class = MODELS[kwargs.get("item")]
-                else:
-                    model_class = model
-
                 if isinstance(data, tuple):
                     data = data[0]
                 if isinstance(data, list):
                     return jsonify(
-                        [model_class.from_orm(r).dict(exclude_none=True) for r in data],
+                        [model.from_orm(d).dict(exclude_none=True) for d in data],
                     ), status
                 return jsonify(
-                    model_class.from_orm(data).dict(exclude_none=True),
+                    model.from_orm(data).dict(exclude_none=True),
                 ), status
             except (ValidationError, KeyError):
                 current_app.logger.exception("Error serialize data")

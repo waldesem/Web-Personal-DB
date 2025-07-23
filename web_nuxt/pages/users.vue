@@ -14,7 +14,11 @@ const modal = ref(false);
 const expanded = ref({ 1: false });
 const globalFilter = ref("");
 
-const { data: users, refresh, status } = await useCustomFetch("/route/users", {
+const {
+  data: users,
+  refresh,
+  status,
+} = await useCustomFetch("/route/users", {
   lazy: true,
   server: false,
 });
@@ -25,10 +29,9 @@ async function userAction(item: string, user_id: string) {
     return;
   }
   if (!confirm("Подтвердите выполнение действия")) return;
-  const { message } = await $customFetch("/route/user/" + user_id, {
-    method: "POST",
-    body: { item: item },
-  }) as Record<string, string>;
+  const { message } = (await $customFetch("/route/user/" + user_id, {
+    params: { item: item },
+  })) as Record<string, string>;
   if (message == "success") {
     makeToast("success", "Действие успешно выполнено");
   } else {

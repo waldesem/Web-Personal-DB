@@ -17,7 +17,7 @@ const {
   data: person,
   status,
   refresh,
-} = await useCustomFetch<Persons>("/route/items/persons/" + candId.value, {
+} = await useCustomFetch<Persons>("/route/persons/" + candId.value, {
   server: false,
 });
 provide("status", status);

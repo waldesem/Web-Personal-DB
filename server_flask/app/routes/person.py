@@ -1,0 +1,60 @@
+"""Person routes."""
+
+from flask import Blueprint, current_app
+from sqlalchemy.exc import SQLAlchemyError
+
+from app import db
+from app.classes.classes import Roles
+from app.decorators.depend import auth_required
+from app.decorators.validate import serialize, validate
+from app.models.models import PersonIn, PersonOut
+from app.tables.tables import Persons
+from app.utils.utilities import upload_resume
+
+bp = Blueprint("items", __name__)
+
+
+@bp.get("/persons/<int:person_id>")
+@serialize(PersonOut)
+@auth_required()
+def get_person(person_id: int) -> tuple[Persons, int]:
+    """Retrieve an item from the database based on the provided item ID.
+
+    Args:
+        person_id (int): The ID of the item to retrieve.
+
+    Returns:
+        Tuple[Response, int]: A tuple containing the Persons
+        and an HTTP status code of 200.
+
+    """
+    # Получаем данные кандидата
+    return db.session.get(Persons, person_id), 200
+
+
+@bp.post("/persons")
+@serialize()
+@validate
+@auth_required(Roles.user.value)
+def post_person(json_data: PersonIn) -> tuple[dict, int]:
+    """Replace a record in persons table."""
+    # Загружаем резюме, получаем id кандидата, а также был ли он ранее загружен
+    cand_id, existed = upload_resume(json_data)
+    return {"person_id": cand_id, "exists": existed}, 201
+
+
+@bp.delete("/persons/<int:person_id>")
+@serialize()
+@auth_required(Roles.user.value)
+def delete_person(person_id: int) -> tuple[str, int]:
+    """Delete an item from the database based on the provided item name and item ID."""
+    try:
+        person = db.session.get(Persons, person_id)
+        db.session.delete(person)
+        db.session.commit()
+    except SQLAlchemyError:
+        current_app.logger.exception("Database error")
+        db.session.rollback()
+        return "error", 500
+    else:
+        return "success", 201

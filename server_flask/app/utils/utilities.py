@@ -6,7 +6,7 @@ import unicodedata
 from pathlib import Path
 
 from flask import current_app
-from sqlalchemy import select, update
+from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
@@ -28,16 +28,7 @@ def create_destination(person: Persons) -> str:
 
 
 def upload_resume(cand: PersonIn) -> tuple[int, bool]:
-    """Upload a resume to the database.
-
-    Args:
-        cand (Person): The resume to be uploaded.
-
-    Returns:
-        int: The ID of the uploaded resume.
-        bool: True if the resume existed earlier.
-
-    """
+    """Upload a resume to the database."""
     person = (
         db.session.execute(
             select(Persons).where(
@@ -66,8 +57,9 @@ def upload_resume(cand: PersonIn) -> tuple[int, bool]:
 
         if not person.destination or not Path(person.destination).is_dir():
             resume["destination"] = create_destination(person)
-        stmt = update(Persons).where(Persons.id == person.id).values(**resume)
-        db.session.execute(stmt)
+        for k, v in resume.items():
+            if v:
+                setattr(person, k, v)
         db.session.commit()
     except SQLAlchemyError:
         current_app.logger.exception("Database error")
