@@ -87,6 +87,39 @@ bp.add_url_rule(
 )
 
 
+def operate_item(item: Item, item_id: int) -> None
+    if request.method == "GET":
+	    stmt = (
+	            db.metatables[item]
+	            .select()
+	            .filter(db.metatables[item].c.person_id == item_id)
+	            .order_by(db.metatables[item].c.id.desc())
+	        )
+	        # Выполняем запрос и получаем результаты
+	        return db.session.execute(stmt).all()
+	
+    elif request.method == "POST":
+        # Получаем таблицу из словаря таблиц по имени item
+        json_dict = json_data.dict(exclude_none=True, exclude={"created", "item_type"})
+        # Добавляем ключ "person_id" в словарь json_dict с значением item_id
+        json_dict["person_id"] = item_id
+        try:
+            # Проверяем, есть ли ключ "id" в словаре json_dict
+            if item_id := json_dict.pop("id", None):
+                # Если есть, создаем запрос на обновление записи с указанным id
+                stmt = (
+                    db.metatables[item]
+                    .update()
+                    .where(db.metatables[item].c.id == item_id)
+                    .values(json_dict)
+                )
+            else:
+                # Если нет, создаем запрос на вставку новой записи
+                stmt = db.metatables[item].insert().values(json_dict)
+            db.session.execute(stmt)
+            db.session.commit()
+
+
 class ItemsView(MethodView):
     """Items view."""
 
