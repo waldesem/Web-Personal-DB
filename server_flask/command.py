@@ -10,7 +10,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
 from app.classes.classes import Roles
-from app.models.models import UserForm
+from app.models.models import AnketaJson, Token, UserForm
 from app.tables.tables import Users
 
 bp = Blueprint("command", __name__)
@@ -77,3 +77,16 @@ def create_folders() -> None:
         click.echo("Folders created")
     else:
         click.echo("BASE_PATH is not a directory")
+
+
+@bp.cli.command("schemas")
+@cli.with_appcontext
+def create_schemas() -> None:
+    """Create schemas."""
+    path = Path("schemas")
+    path.mkdir(exist_ok=True)
+    for model in [AnketaJson, Token]:
+        file_path = Path(path, f"{model.__name__}.json")
+        with Path.open(file_path, "w") as f:
+            schema = model.schema_json(by_alias=model.__name__ == "AnketaJson")
+            f.write(schema)

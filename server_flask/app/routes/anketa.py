@@ -1,4 +1,5 @@
 """Anketa routes."""
+
 from __future__ import annotations
 
 import json
@@ -13,7 +14,7 @@ from app import db
 from app.classes.classes import Roles
 from app.decorators.depend import auth_required, current_user
 from app.decorators.validate import serialize
-from app.models.models import AnketaJson, PersonIn
+from app.models.models import AnketaJson, BaseResponse, PersonIn, ResumeModel
 from app.tables.tables import (
     Addresses,
     Affilations,
@@ -50,9 +51,9 @@ def change_self_id(person_id: int) -> tuple[str, int]:
         db.session.commit()
     except SQLAlchemyError:
         current_app.logger.exception("Exception in change_self_id")
-        return "error", 500
+        return {"message": "error"}, 500
     else:
-        return "success", 201
+        return {"message": "success"}, 201
 
 
 @bp.post("/files/<int:person_id>")
@@ -77,14 +78,29 @@ def post_files(person_id: int) -> tuple[str, int]:
                     data.save(file_path)
     except (TypeError, ValueError, AttributeError):
         current_app.logger.exception("Exception in post_files")
-        return "error", 500
+        return {"message": "error"}, 500
     else:
-        return "success", 201
+        return {"message": "success"}, 201
+
+
+@bp.post("/api/json")
+@serialize(BaseResponse)
+def post_json_api() -> tuple[dict, int]:
+    """Create a new person or updates an existing person from api."""
+    result = post_json()
+    return {"message": "success" if result["person_id"] else "error"}, 201 if result[
+        "person_id"
+    ] else 400
 
 
 @bp.post("/json")
-@serialize()
+@serialize(ResumeModel)
 @auth_required(roles=[Roles.user.value, Roles.api.value])
+def post_json_file() -> tuple[dict, int]:
+    """Create a new person or updates an existing person from file."""
+    return post_json()
+
+
 def post_json() -> tuple[dict, int]:
     """Create a new person or updates an existing person based on the provided data."""
     try:

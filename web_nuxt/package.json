@@ -7,7 +7,8 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "redoc": "bunx @redocly/cli build-docs openapi.yaml -o=../server_flask/app/static/redoc.html --disableGoogleFont=true"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.57",

@@ -7,7 +7,7 @@ from app import db
 from app.classes.classes import Roles
 from app.decorators.depend import auth_required
 from app.decorators.validate import serialize, validate
-from app.models.models import PersonIn, PersonOut
+from app.models.models import PersonIn, PersonOut, ResumeModel
 from app.tables.tables import Persons
 from app.utils.utilities import upload_resume
 
@@ -15,7 +15,7 @@ bp = Blueprint("items", __name__)
 
 
 @bp.get("/persons/<int:person_id>")
-@serialize(PersonOut)
+@serialize(PersonOut, orm=True)
 @auth_required()
 def get_person(person_id: int) -> tuple[Persons, int]:
     """Retrieve an item from the database based on the provided item ID."""
@@ -23,7 +23,7 @@ def get_person(person_id: int) -> tuple[Persons, int]:
 
 
 @bp.post("/persons")
-@serialize()
+@serialize(ResumeModel)
 @validate
 @auth_required(Roles.user.value)
 def post_person(json_data: PersonIn) -> tuple[dict, int]:
@@ -34,7 +34,7 @@ def post_person(json_data: PersonIn) -> tuple[dict, int]:
 
 
 @bp.delete("/persons/<int:person_id>")
-@serialize()
+@serialize(ResumeModel)
 @auth_required(Roles.user.value)
 def delete_person(person_id: int) -> tuple[str, int]:
     """Delete an item from the database based on the provided item name and item ID."""
@@ -45,6 +45,6 @@ def delete_person(person_id: int) -> tuple[str, int]:
     except SQLAlchemyError:
         current_app.logger.exception("Database error")
         db.session.rollback()
-        return "error", 500
+        return {"message": "error"}, 500
     else:
-        return "success", 201
+        return {"message": "success"}, 201

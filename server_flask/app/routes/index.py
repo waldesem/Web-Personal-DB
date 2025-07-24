@@ -14,7 +14,7 @@ bp = Blueprint("route", __name__)
 
 
 @bp.get("/index")
-@serialize(Candidates)
+@serialize(Candidates, orm=True, many=True)
 @validate
 @auth_required()
 def get_index(json_query: Index) -> tuple[list[Persons], int]:

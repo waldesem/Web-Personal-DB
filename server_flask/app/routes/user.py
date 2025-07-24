@@ -16,7 +16,7 @@ bp = Blueprint("users", __name__)
 
 
 @bp.get("/users")
-@serialize(User)
+@serialize(User, orm=True, many=True)
 @auth_required(Roles.admin.value)
 def get_users() -> tuple[list[Users], int]:
     """Retrieve a list of users from the database."""
@@ -37,7 +37,7 @@ def post_user_actions(user_id: int, json_query: UserActions) -> tuple[str, int]:
     user = db.session.get(Users, user_id)
     # Если пользователь не найден или пытается изменить собственный профиль
     if not user or current_user.id == user.id:
-        return "error", 500
+        return {"message": "error"}, 500
 
     if json_query.item == "reset":
         # Сбросить пароль пользователя и обнулить попытки входа
@@ -59,7 +59,7 @@ def post_user_actions(user_id: int, json_query: UserActions) -> tuple[str, int]:
     db.session.commit()
     # Очистить кэш для id пользователей
     get_current_user.cache_clear()
-    return "success", 201
+    return {"message": "success"}, 201
 
 
 @bp.post("/user")
@@ -73,7 +73,7 @@ def post_user(json_data: UserForm) -> tuple[str, int]:
         select(Users).filter(Users.username == json_data.username),
     ).all()
     if user:
-        return "error", 500
+        return {"message": "error"}, 500
     try:
         # Создать нового пользователя
         db.session.add(Users(**json_data.dict()))
@@ -81,6 +81,6 @@ def post_user(json_data: UserForm) -> tuple[str, int]:
     except SQLAlchemyError:
         current_app.logger.exception("Database error")
         db.session.rollback()
-        return "error", 500
+        return {"message": "error"}, 500
     else:
-        return "success", 201
+        return {"message": "success"}, 201

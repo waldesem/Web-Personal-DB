@@ -91,13 +91,13 @@ def post_item(item: Items, item_id: int, json_data: BaseModel) -> str:
     except SQLAlchemyError:
         current_app.logger.exception("Database error")
         db.session.rollback()
-        return "error"
+        return {"message": "error"}, 500
     else:
-        return "success"
+        return {"message": "success"}, 200
 
 
 @bp.get("/previous/<int:item_id>")
-@serialize(Prev)
+@serialize(Prev, orm=True, many=True)
 @validate
 @auth_required()
 def get_previous(item_id: int) -> tuple[list[Previous], int]:
@@ -106,7 +106,7 @@ def get_previous(item_id: int) -> tuple[list[Previous], int]:
 
 
 @bp.get("/educations/<int:item_id>")
-@serialize(Education)
+@serialize(Education, orm=True, many=True)
 @validate
 @auth_required()
 def get_educations(item_id: int) -> tuple[list[Educations], int]:
@@ -115,7 +115,7 @@ def get_educations(item_id: int) -> tuple[list[Educations], int]:
 
 
 @bp.get("/addresses/<int:item_id>")
-@serialize(Address)
+@serialize(Address, orm=True, many=True)
 @validate
 @auth_required()
 def get_addresses(item_id: int) -> tuple[list[Addresses], int]:
@@ -124,7 +124,7 @@ def get_addresses(item_id: int) -> tuple[list[Addresses], int]:
 
 
 @bp.get("/affilations/<int:item_id>")
-@serialize(Affilation)
+@serialize(Affilation, orm=True, many=True)
 @validate
 @auth_required()
 def get_affilations(item_id: int) -> tuple[list[Affilations], int]:
@@ -133,7 +133,7 @@ def get_affilations(item_id: int) -> tuple[list[Affilations], int]:
 
 
 @bp.get("/staffs/<int:item_id>")
-@serialize(Staff)
+@serialize(Staff, orm=True, many=True)
 @validate
 @auth_required()
 def get_staffs(item_id: int) -> tuple[list[Staffs], int]:
@@ -142,7 +142,7 @@ def get_staffs(item_id: int) -> tuple[list[Staffs], int]:
 
 
 @bp.get("/workplaces/<int:item_id>")
-@serialize(Workplace)
+@serialize(Workplace, orm=True, many=True)
 @validate
 @auth_required()
 def get_workplaces(item_id: int) -> tuple[list[Workplaces], int]:
@@ -151,7 +151,7 @@ def get_workplaces(item_id: int) -> tuple[list[Workplaces], int]:
 
 
 @bp.get("/contacts/<int:item_id>")
-@serialize(Contact)
+@serialize(Contact, orm=True, many=True)
 @validate
 @auth_required()
 def get_contacts(item_id: int) -> tuple[list[Contacts], int]:
@@ -160,7 +160,7 @@ def get_contacts(item_id: int) -> tuple[list[Contacts], int]:
 
 
 @bp.get("/documents/<int:item_id>")
-@serialize(Document)
+@serialize(Document, orm=True, many=True)
 @validate
 @auth_required()
 def get_documents(item_id: int) -> tuple[list[Documents], int]:
@@ -169,7 +169,7 @@ def get_documents(item_id: int) -> tuple[list[Documents], int]:
 
 
 @bp.get("/checks/<int:item_id>")
-@serialize(Check)
+@serialize(Check, orm=True, many=True)
 @validate
 @auth_required()
 def get_checks(item_id: int) -> tuple[list[Checks], int]:
@@ -178,7 +178,7 @@ def get_checks(item_id: int) -> tuple[list[Checks], int]:
 
 
 @bp.get("/poligrafs/<int:item_id>")
-@serialize(Poligraf)
+@serialize(Poligraf, orm=True, many=True)
 @validate
 @auth_required()
 def get_poligrafs(item_id: int) -> tuple[list[Poligrafs], int]:
@@ -187,7 +187,7 @@ def get_poligrafs(item_id: int) -> tuple[list[Poligrafs], int]:
 
 
 @bp.get("/inquiries/<int:item_id>")
-@serialize(Inquiry)
+@serialize(Inquiry, orm=True, many=True)
 @validate
 @auth_required()
 def get_inquiries(item_id: int) -> tuple[list[Inquiries], int]:
@@ -196,7 +196,7 @@ def get_inquiries(item_id: int) -> tuple[list[Inquiries], int]:
 
 
 @bp.get("/investigations/<int:item_id>")
-@serialize(Investigation)
+@serialize(Investigation, orm=True, many=True)
 @validate
 @auth_required()
 def get_investigations(item_id: int) -> tuple[list[Investigations], int]:
@@ -326,6 +326,6 @@ def delete(item: Items, item_id: int) -> tuple[str, int]:
     except SQLAlchemyError:
         current_app.logger.exception("Database error")
         db.session.rollback()
-        return "error", 500
+        return {"message": "error"}, 500
     else:
-        return "success", 201
+        return {"message": "success"}, 201

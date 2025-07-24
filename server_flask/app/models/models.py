@@ -31,6 +31,19 @@ class Result(BaseModel):
     data: tuple[Any, int] = Field(ge=100, le=999)
 
 
+class BaseResponse(BaseModel):
+    """Base model for response."""
+
+    message: str
+
+
+class ResumeModel(BaseModel):
+    """MOdel for resume creation return."""
+
+    person_id: int
+    exists: bool
+
+
 class Login(BaseModel):
     """Pydantic model for login form."""
 
@@ -287,7 +300,7 @@ class Inquiry(Model):
 
 
 class AnketaJson(PersonIn):
-    """Pydantic model for anketa schema."""
+    """Schema for uploadig candidate anketa."""
 
     position: str = Field(default="", alias="positionName")
     department: str | None = ""

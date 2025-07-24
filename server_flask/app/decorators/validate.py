@@ -6,7 +6,7 @@ from typing import Callable, get_type_hints
 from flask import Response, abort, current_app, jsonify, request
 from pydantic import BaseModel, ValidationError, create_model
 
-from app.models.models import Result
+from app.models.models import BaseResponse, Result
 
 
 def validate(func: Callable) -> Callable:
@@ -19,6 +19,7 @@ def validate(func: Callable) -> Callable:
     def endpoint(data: str, json_data: Model, json_query: Model):
         # The data, json_data or/and json_query are validated and available here
     """
+
     @wraps(func)
     def wrapper(*args: tuple, **kwargs: dict) -> Callable:
         """Validate request data using Pydantic models."""
@@ -49,37 +50,37 @@ def validate(func: Callable) -> Callable:
     return wrapper
 
 
-def serialize(model: BaseModel = None) -> Callable:
+def serialize(
+    model: BaseModel = BaseResponse, *, orm: bool = False, many: bool = False,
+) -> Callable:
     """Decorate a function for serialize data using Pydantic models.
 
-    The decorator can be used as follows:
-
     @app.route("/endpoint", methods=["GET"])
-    @serialize(ModelOut)
+    @serialize(ModelOut, orm=True, many=True)
     def endpoint():
         # Function body
     """
+
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args: tuple, **kwargs: dict) -> Response:
             result = func(*args, **kwargs)
             try:
                 data, status = Result(data=result).data
-                if isinstance(data, str):
-                    return jsonify({"message": data}), status
-                if isinstance(data, dict):
-                    return jsonify(data), status
+                if orm:
+                    if isinstance(data, tuple):
+                        data = data[0]
+                    if many:
+                        return jsonify(
+                            [model.from_orm(d).dict() for d in data],
+                        ), status
+                    return jsonify(model.from_orm(data).dict()), status
 
-                if isinstance(data, tuple):
-                    data = data[0]
-                if isinstance(data, list):
-                    return jsonify(
-                        [model.from_orm(d).dict(exclude_none=True) for d in data],
-                    ), status
-                return jsonify(
-                    model.from_orm(data).dict(exclude_none=True),
-                ), status
-            except (ValidationError, KeyError):
+                if many:
+                    return jsonify([model(**d).dict() for d in data]), status
+                return jsonify(model(**data).dict()), status
+
+            except ValidationError:
                 current_app.logger.exception("Error serialize data")
 
             return abort(400)
