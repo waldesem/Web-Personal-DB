@@ -83,19 +83,29 @@ def post_files(person_id: int) -> tuple[str, int]:
         return {"message": "success"}, 201
 
 
+@bp.get("/api/json")
+@serialize(BaseResponse)
+@auth_required(Roles.api.value)
+def get_json_api() -> tuple[dict, int]:
+    """Send success response from api."""
+    return {"message": "success"}, 200
+
+
 @bp.post("/api/json")
 @serialize(BaseResponse)
+@auth_required(Roles.api.value)
 def post_json_api() -> tuple[dict, int]:
     """Create a new person or updates an existing person from api."""
     result = post_json()
-    return {"message": "success" if result["person_id"] else "error"}, 201 if result[
-        "person_id"
-    ] else 400
+    return (
+        {"message": "success" if result["person_id"] else "error"},
+        201 if result["person_id"] else 400,
+    )
 
 
 @bp.post("/json")
 @serialize(ResumeModel)
-@auth_required(roles=[Roles.user.value, Roles.api.value])
+@auth_required(Roles.user.value)
 def post_json_file() -> tuple[dict, int]:
     """Create a new person or updates an existing person from file."""
     return post_json()
