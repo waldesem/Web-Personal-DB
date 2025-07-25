@@ -56,6 +56,6 @@ def get_index(json_query: Index) -> tuple[list[Persons], int]:
         )
     except SQLAlchemyError:
         current_app.logger.exception("SQL Error")
-        return [], 500
+        return [], 400
     else:
         return result, 200

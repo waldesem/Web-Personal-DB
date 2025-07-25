@@ -39,17 +39,6 @@ paths:
                   }
               examples: { "message": "success" }
 
-  /route/anketa/api/json:
-    post:
-      summary: Получение анкеты из JSON
-      security:
-        - bearerAuth: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              $ref: '../schemas/AnketaJson.json'
       responses:
         "201":
           description: Анкета создана

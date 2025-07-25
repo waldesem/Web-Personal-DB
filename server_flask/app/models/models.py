@@ -137,14 +137,14 @@ class PersonIn(Model):
 
     surname: str = Field(alias="lastName", regex=__PATTERN)
     firstname: str = Field(alias="firstName", regex=__PATTERN)
-    patronymic: str = Field(default="", alias="midName")
+    patronymic: str | None = Field(default="", alias="midName")
     birthday: date
     birthplace: str | None = ""
-    citizenship: str = Field(default="", alias="citizen")
-    dual: str = Field(default="", alias="additionalCitizenship")
+    citizenship: str | None = Field(default="", alias="citizen")
+    dual: str | None = Field(default="", alias="additionalCitizenship")
     snils: str | None = ""
     inn: str | None = ""
-    marital: str = Field(default="", alias="maritalStatus")
+    marital: str | None = Field(default="", alias="maritalStatus")
     addition: str | None = ""
     destination: str | None = ""
     editable: bool = False
@@ -188,19 +188,19 @@ class Candidates(Model):
 class Prev(Model):
     """Pydantic model for previous form."""
 
-    surname: str = Field(alias="lastNameBeforeChange")
-    firstname: str = Field(alias="firstNameBeforeChange")
-    patronymic: str = Field(default="", alias="midNameBeforeChange")
-    changed: str | int = Field(default="", alias="yearOfChange")
+    surname: str | None = Field(alias="lastNameBeforeChange")
+    firstname: str | None = Field(alias="firstNameBeforeChange")
+    patronymic: str | None = Field(default="", alias="midNameBeforeChange")
+    changed: str | int | None = Field(default="", alias="yearOfChange")
     reason: str | None = ""
 
 
 class Education(Model):
     """Pydantic model for education form."""
 
-    view: str = Field(default="", alias="educationType")
+    view: str | None = Field(default="", alias="educationType")
     institution: str = Field(default="", alias="institutionName")
-    finished: str | int = Field(default="", alias="endYear")
+    finished: str | int | None = Field(default="", alias="endYear")
     specialty: str | None = ""
 
 
@@ -218,7 +218,7 @@ class Document(Model):
     series: str | None = ""
     digits: str
     agency: str | None = ""
-    issue: date
+    issue: date | None
 
 
 class Address(Model):
@@ -238,20 +238,20 @@ class Contact(Model):
 class Workplace(Model):
     """Pydantic model for workplace form."""
 
-    now_work: bool = Field(default=False, alias="currentJob")
-    starts: date = Field(alias="beginDate")
-    finished: date = Field(default=None, alias="endDate")
-    workplace: str | None = ""
+    now_work: bool | None = Field(default=False, alias="currentJob")
+    starts: date | None = Field(alias="beginDate")
+    finished: date | None = Field(default=None, alias="endDate")
+    workplace: str
     addresses: str | None = ""
-    position: str | None = ""
-    reason: str = Field(default="", alias="fireReason")
+    position: str
+    reason: str | None = Field(default="", alias="fireReason")
 
 
 class Affilation(Model):
     """Pydantic model for affilation form."""
 
     view: str | None = ""
-    organization: str = Field(default="", alias="name")
+    organization: str | None = Field(default="", alias="name")
     inn: str | None = ""
 
 
@@ -280,7 +280,7 @@ class Poligraf(Model):
     """Pydantic model for poligraf form."""
 
     theme: str
-    results: str
+    results: str | None
     conclusion: Decisions
 
 
@@ -304,10 +304,10 @@ class AnketaJson(PersonIn):
 
     position: str = Field(default="", alias="positionName")
     department: str | None = ""
-    series: str = Field(default="", alias="passportSerial")
+    series: str | None = Field(default="", alias="passportSerial")
     digits: str = Field(default="", alias="passportNumber")
-    issue: date = Field(default=None, alias="passportIssueDate")
-    agency: str = Field(default="", alias="passportIssuedBy")
+    issue: date | None = Field(default=None, alias="passportIssueDate")
+    agency: str | None = Field(default="", alias="passportIssuedBy")
     valid_address: str = Field(default="", alias="validAddress")
     reg_address: str = Field(default="", alias="regAddress")
     email: str | None = ""

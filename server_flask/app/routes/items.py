@@ -91,7 +91,7 @@ def post_item(item: Items, item_id: int, json_data: BaseModel) -> str:
     except SQLAlchemyError:
         current_app.logger.exception("Database error")
         db.session.rollback()
-        return {"message": "error"}, 500
+        return {"message": "error"}, 400
     else:
         return {"message": "success"}, 200
 
@@ -326,6 +326,6 @@ def delete(item: Items, item_id: int) -> tuple[str, int]:
     except SQLAlchemyError:
         current_app.logger.exception("Database error")
         db.session.rollback()
-        return {"message": "error"}, 500
+        return {"message": "error"}, 400
     else:
         return {"message": "success"}, 201

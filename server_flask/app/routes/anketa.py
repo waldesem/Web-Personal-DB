@@ -51,7 +51,7 @@ def change_self_id(person_id: int) -> tuple[str, int]:
         db.session.commit()
     except SQLAlchemyError:
         current_app.logger.exception("Exception in change_self_id")
-        return {"message": "error"}, 500
+        return {"message": "error"}, 400
     else:
         return {"message": "success"}, 201
 
@@ -78,17 +78,9 @@ def post_files(person_id: int) -> tuple[str, int]:
                     data.save(file_path)
     except (TypeError, ValueError, AttributeError):
         current_app.logger.exception("Exception in post_files")
-        return {"message": "error"}, 500
+        return {"message": "error"}, 400
     else:
         return {"message": "success"}, 201
-
-
-@bp.get("/api/json")
-@serialize(BaseResponse)
-@auth_required(Roles.api.value)
-def get_json_api() -> tuple[dict, int]:
-    """Send success response from api."""
-    return {"message": "success"}, 200
 
 
 @bp.post("/api/json")
@@ -98,8 +90,8 @@ def post_json_api() -> tuple[dict, int]:
     """Create a new person or updates an existing person from api."""
     result = post_json()
     return (
-        {"message": "success" if result["person_id"] else "error"},
-        201 if result["person_id"] else 400,
+        {"message": "success" if result.get("person_id") else "error"},
+        201 if result.get("person_id") else 400,
     )
 
 
@@ -108,16 +100,17 @@ def post_json_api() -> tuple[dict, int]:
 @auth_required(Roles.user.value)
 def post_json_file() -> tuple[dict, int]:
     """Create a new person or updates an existing person from file."""
-    return post_json()
+    result = post_json()
+    return result, 201 if result.get("person_id") else 400
 
 
-def post_json() -> tuple[dict, int]:
+def post_json() -> dict:
     """Create a new person or updates an existing person based on the provided data."""
     try:
         # Чтение файла JSON и создание объектов классов для сохранения в БД
         file = request.files.get("file")
         if not file:
-            return {"person_id": None, "exists": False}, 500
+            return {"person_id": None, "exists": False}, 400
 
         json_data = json.load(file)
         anketa = AnketaJson(**json_data)
@@ -132,9 +125,9 @@ def post_json() -> tuple[dict, int]:
             upload_items(anketa, person_id)
     except (ValidationError, json.JSONDecodeError, TypeError):
         current_app.logger.exception("JSON Error")
-        return {"person_id": None, "exists": False}, 201
+        return {"person_id": None, "exists": False}
     else:
-        return {"person_id": person_id, "exists": existed}, 201
+        return {"person_id": person_id, "exists": existed}
 
 
 def upload_items(anketa: AnketaJson, person_id: int) -> None:
