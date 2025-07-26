@@ -58,6 +58,13 @@ class Login(BaseModel):
         return v.lower()
 
 
+class Auth(BaseModel):
+    """Pydantic model for auth."""
+
+    message: str
+    access_token: str | None
+
+
 class Token(BaseModel):
     """Pydantic model for JWT."""
 

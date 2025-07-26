@@ -16,16 +16,16 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from app import auth, db
 from app.decorators.depend import auth_required
 from app.decorators.validate import serialize, validate
-from app.models.models import Login, Token
+from app.models.models import Auth, Login, Token
 from app.tables.tables import Users
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
-type Actions = Literal["login" | "update"] # type: ignore  # noqa: PGH003
+Actions = Literal["login", "update"]
 
 
 @bp.post("/<action>")
-@serialize()
+@serialize(Auth)
 @validate
 def post_login(action: Actions, json_data: Login) -> tuple[str | dict, int]:
     """Handle the login process."""

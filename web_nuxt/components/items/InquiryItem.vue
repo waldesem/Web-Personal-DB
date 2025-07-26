@@ -12,7 +12,7 @@ const inquiry = {
   Информация: props.item.info,
   Иннициатор: props.item.initiator,
   "Дата записи": props.item.created
-    ? new Date(props.item.created).toLocaleString("ru-RU").split(",")[0]
+    ? new Date(props.item.created).toLocaleDateString("ru-RU").split(",")[0]
     : "",
 };
 </script>

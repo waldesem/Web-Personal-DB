@@ -24,15 +24,15 @@ def validate(func: Callable) -> Callable:
     def wrapper(*args: tuple, **kwargs: dict) -> Callable:
         """Validate request data using Pydantic models."""
         try:
+            # Валидация данных параметров функции
             type_hints = get_type_hints(func)
             if params := {
                 k: (v, ...)
                 for k, v in type_hints.items()
                 if k not in ["return", "json_query", "json_data"]
             }:
-                model_class = create_model(func.__name__, **params)
-                data = dict(zip(params.keys(), args))
-                args = [d[1] for d in model_class(**data)]
+                model_class = create_model("Params", **params)
+                kwargs = model_class(**{key: kwargs[key] for key in params}).dict()
 
             if model_class := type_hints.get("json_query"):
                 kwargs["json_query"] = model_class(**request.args)
@@ -68,8 +68,6 @@ def serialize(
             try:
                 data, status = Result(data=result).data
                 if orm:
-                    if isinstance(data, tuple):
-                        data = data[0]
                     if many:
                         return jsonify(
                             [model.from_orm(d).dict() for d in data],

@@ -46,14 +46,13 @@ def get_index(json_query: Index) -> tuple[list[Persons], int]:
                 Persons.patronymic == search[2] if len(search) > 2 else True,
             )
         # Пагинация списка кандидатов
-        result = (
-            db.session.execute(
-                stmt.order_by(desc(Persons.id)).slice(
-                    (json_query.page - 1) * json_query.per_page,
-                    json_query.per_page * json_query.page,
-                ),
-            ).all(),
-        )
+        result = db.session.execute(
+            stmt.order_by(desc(Persons.id)).slice(
+                (json_query.page - 1) * json_query.per_page,
+                json_query.per_page * json_query.page,
+            ),
+        ).all()
+
     except SQLAlchemyError:
         current_app.logger.exception("SQL Error")
         return [], 400

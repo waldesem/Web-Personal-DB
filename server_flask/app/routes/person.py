@@ -11,7 +11,7 @@ from app.models.models import PersonIn, PersonOut, ResumeModel
 from app.tables.tables import Persons
 from app.utils.utilities import upload_resume
 
-bp = Blueprint("items", __name__)
+bp = Blueprint("persons", __name__)
 
 
 @bp.get("/persons/<int:person_id>")

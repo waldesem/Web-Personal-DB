@@ -37,7 +37,7 @@ const check = {
     label: props.item.conclusion,
   }),
   "Дата записи": props.item.created
-    ? new Date(props.item.created).toLocaleString("ru-RU")
+    ? new Date(props.item.created).toLocaleDateString("ru-RU")
     : "",
 };
 </script>
