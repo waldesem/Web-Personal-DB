@@ -40,7 +40,7 @@ class BaseResponse(BaseModel):
 class ResumeModel(BaseModel):
     """MOdel for resume creation return."""
 
-    person_id: int
+    person_id: int | None
     exists: bool
 
 
@@ -248,7 +248,7 @@ class Workplace(Model):
     now_work: bool | None = Field(default=False, alias="currentJob")
     starts: date | None = Field(alias="beginDate")
     finished: date | None = Field(default=None, alias="endDate")
-    workplace: str
+    workplace: str | None = Field(alias="name")
     addresses: str | None = ""
     position: str
     reason: str | None = Field(default="", alias="fireReason")
