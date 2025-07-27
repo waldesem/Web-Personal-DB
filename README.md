@@ -58,6 +58,10 @@ To build Nuxt3 with Client-side Only Rendering:
 ```
 bunx nuxi generate
 ```
+To generate OpenAPI run:
+```
+bun run redoc
+```
 Builded files can be found in `server_flask/app/static`.
 
 ### Start backend

@@ -15,7 +15,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from app import auth, db
 from app.decorators.depend import auth_required
-from app.decorators.validate import serialize, validate
+from app.decorators.validize import pydantify
 from app.models.models import Auth, Login, Token
 from app.tables.tables import Users
 
@@ -25,8 +25,7 @@ Actions = Literal["login", "update"]
 
 
 @bp.post("/<action>")
-@serialize(Auth)
-@validate
+@pydantify(Auth)
 def post_login(action: Actions, json_data: Login) -> tuple[str | dict, int]:
     """Handle the login process."""
     try:
@@ -86,7 +85,7 @@ def post_login(action: Actions, json_data: Login) -> tuple[str | dict, int]:
 
 
 @bp.get("/logout")
-@serialize()
+@pydantify()
 @auth_required()
 def get_logout() -> tuple[str, int]:
     """Logout the user."""

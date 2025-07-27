@@ -6,7 +6,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
 from app.decorators.depend import auth_required
-from app.decorators.validate import serialize, validate
+from app.decorators.validize import pydantify
 from app.models.models import Candidates, Index
 from app.tables.tables import Persons, Users
 
@@ -14,8 +14,7 @@ bp = Blueprint("route", __name__)
 
 
 @bp.get("/index")
-@serialize(Candidates, orm=True, many=True)
-@validate
+@pydantify(Candidates, orm=True, many=True)
 @auth_required()
 def get_index(json_query: Index) -> tuple[list[Persons], int]:
     """Retrieve a paginated list of persons from the database."""

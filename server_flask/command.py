@@ -83,7 +83,7 @@ def create_folders() -> None:
 @cli.with_appcontext
 def create_schemas() -> None:
     """Create schemas."""
-    path = Path("schemas")
+    path = Path("..", "schemas")
     path.mkdir(exist_ok=True)
     for model in [AnketaJson, Token]:
         file_path = Path(path, f"{model.__name__}.json")

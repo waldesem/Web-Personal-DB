@@ -13,7 +13,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from app import db
 from app.classes.classes import Roles
 from app.decorators.depend import auth_required, current_user
-from app.decorators.validate import serialize
+from app.decorators.validize import pydantify
 from app.models.models import AnketaJson, BaseResponse, PersonIn, ResumeModel
 from app.tables.tables import (
     Addresses,
@@ -32,7 +32,7 @@ bp = Blueprint("anketa", __name__, url_prefix="/anketa")
 
 
 @bp.get("/self/<int:person_id>")
-@serialize()
+@pydantify()
 @auth_required(Roles.user.value)
 def change_self_id(person_id: int) -> tuple[str, int]:
     """Toggle the editable status of a person with the given item ID."""
@@ -57,7 +57,7 @@ def change_self_id(person_id: int) -> tuple[str, int]:
 
 
 @bp.post("/files/<int:person_id>")
-@serialize()
+@pydantify()
 @auth_required(Roles.user.value)
 def post_files(person_id: int) -> tuple[str, int]:
     """Upload a file to the server."""
@@ -84,7 +84,7 @@ def post_files(person_id: int) -> tuple[str, int]:
 
 
 @bp.post("/api/json")
-@serialize(BaseResponse)
+@pydantify(BaseResponse)
 @auth_required(Roles.api.value)
 def post_json_api() -> tuple[dict, int]:
     """Create a new person or updates an existing person from api."""
@@ -96,7 +96,7 @@ def post_json_api() -> tuple[dict, int]:
 
 
 @bp.post("/json")
-@serialize(ResumeModel)
+@pydantify(ResumeModel)
 @auth_required(Roles.user.value)
 def post_json_file() -> tuple[dict, int]:
     """Create a new person or updates an existing person from file."""

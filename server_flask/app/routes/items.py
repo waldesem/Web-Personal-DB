@@ -10,7 +10,7 @@ from sqlalchemy.orm import DeclarativeBase
 from app import db
 from app.classes.classes import Roles
 from app.decorators.depend import auth_required
-from app.decorators.validate import serialize, validate
+from app.decorators.validize import pydantify
 from app.models.models import (
     Address,
     Affilation,
@@ -97,8 +97,7 @@ def post_item(item: Items, item_id: int, json_data: BaseModel) -> str:
 
 
 @bp.get("/previous/<int:item_id>")
-@serialize(Prev, orm=True, many=True)
-@validate
+@pydantify(Prev, orm=True, many=True)
 @auth_required()
 def get_previous(item_id: int) -> tuple[list[Previous], int]:
     """Retrieve a list of previous names from the database."""
@@ -106,8 +105,7 @@ def get_previous(item_id: int) -> tuple[list[Previous], int]:
 
 
 @bp.get("/educations/<int:item_id>")
-@serialize(Education, orm=True, many=True)
-@validate
+@pydantify(Education, orm=True, many=True)
 @auth_required()
 def get_educations(item_id: int) -> tuple[list[Educations], int]:
     """Retrieve a list of educations from the database."""
@@ -115,8 +113,7 @@ def get_educations(item_id: int) -> tuple[list[Educations], int]:
 
 
 @bp.get("/addresses/<int:item_id>")
-@serialize(Address, orm=True, many=True)
-@validate
+@pydantify(Address, orm=True, many=True)
 @auth_required()
 def get_addresses(item_id: int) -> tuple[list[Addresses], int]:
     """Retrieve a list of addresses from the database."""
@@ -124,8 +121,7 @@ def get_addresses(item_id: int) -> tuple[list[Addresses], int]:
 
 
 @bp.get("/affilations/<int:item_id>")
-@serialize(Affilation, orm=True, many=True)
-@validate
+@pydantify(Affilation, orm=True, many=True)
 @auth_required()
 def get_affilations(item_id: int) -> tuple[list[Affilations], int]:
     """Retrieve a list of affilations from the database."""
@@ -133,8 +129,7 @@ def get_affilations(item_id: int) -> tuple[list[Affilations], int]:
 
 
 @bp.get("/staffs/<int:item_id>")
-@serialize(Staff, orm=True, many=True)
-@validate
+@pydantify(Staff, orm=True, many=True)
 @auth_required()
 def get_staffs(item_id: int) -> tuple[list[Staffs], int]:
     """Retrieve a list of staffs from the database."""
@@ -142,8 +137,7 @@ def get_staffs(item_id: int) -> tuple[list[Staffs], int]:
 
 
 @bp.get("/workplaces/<int:item_id>")
-@serialize(Workplace, orm=True, many=True)
-@validate
+@pydantify(Workplace, orm=True, many=True)
 @auth_required()
 def get_workplaces(item_id: int) -> tuple[list[Workplaces], int]:
     """Retrieve a list of workplaces from the database."""
@@ -151,8 +145,7 @@ def get_workplaces(item_id: int) -> tuple[list[Workplaces], int]:
 
 
 @bp.get("/contacts/<int:item_id>")
-@serialize(Contact, orm=True, many=True)
-@validate
+@pydantify(Contact, orm=True, many=True)
 @auth_required()
 def get_contacts(item_id: int) -> tuple[list[Contacts], int]:
     """Retrieve a list of contacts from the database."""
@@ -160,8 +153,7 @@ def get_contacts(item_id: int) -> tuple[list[Contacts], int]:
 
 
 @bp.get("/documents/<int:item_id>")
-@serialize(Document, orm=True, many=True)
-@validate
+@pydantify(Document, orm=True, many=True)
 @auth_required()
 def get_documents(item_id: int) -> tuple[list[Documents], int]:
     """Retrieve a list of documents from the database."""
@@ -169,8 +161,7 @@ def get_documents(item_id: int) -> tuple[list[Documents], int]:
 
 
 @bp.get("/checks/<int:item_id>")
-@serialize(Check, orm=True, many=True)
-@validate
+@pydantify(Check, orm=True, many=True)
 @auth_required()
 def get_checks(item_id: int) -> tuple[list[Checks], int]:
     """Retrieve a list of checks from the database."""
@@ -178,8 +169,7 @@ def get_checks(item_id: int) -> tuple[list[Checks], int]:
 
 
 @bp.get("/poligrafs/<int:item_id>")
-@serialize(Poligraf, orm=True, many=True)
-@validate
+@pydantify(Poligraf, orm=True, many=True)
 @auth_required()
 def get_poligrafs(item_id: int) -> tuple[list[Poligrafs], int]:
     """Retrieve a list of poligrafs from the database."""
@@ -187,8 +177,7 @@ def get_poligrafs(item_id: int) -> tuple[list[Poligrafs], int]:
 
 
 @bp.get("/inquiries/<int:item_id>")
-@serialize(Inquiry, orm=True, many=True)
-@validate
+@pydantify(Inquiry, orm=True, many=True)
 @auth_required()
 def get_inquiries(item_id: int) -> tuple[list[Inquiries], int]:
     """Retrieve a list of inquiries from the database."""
@@ -196,8 +185,7 @@ def get_inquiries(item_id: int) -> tuple[list[Inquiries], int]:
 
 
 @bp.get("/investigations/<int:item_id>")
-@serialize(Investigation, orm=True, many=True)
-@validate
+@pydantify(Investigation, orm=True, many=True)
 @auth_required()
 def get_investigations(item_id: int) -> tuple[list[Investigations], int]:
     """Retrieve a list of investigations from the database."""
@@ -205,8 +193,7 @@ def get_investigations(item_id: int) -> tuple[list[Investigations], int]:
 
 
 @bp.post("/previous/<int:item_id>")
-@serialize()
-@validate
+@pydantify()
 @auth_required(Roles.user.value)
 def post_previous(item_id: int, json_data: Prev) -> tuple[str, int]:
     """Insert or replaces a record in previous table with the given item ID."""
@@ -214,8 +201,7 @@ def post_previous(item_id: int, json_data: Prev) -> tuple[str, int]:
 
 
 @bp.post("/educations/<int:item_id>")
-@serialize()
-@validate
+@pydantify()
 @auth_required(Roles.user.value)
 def post_educations(item_id: int, json_data: Education) -> tuple[str, int]:
     """Insert or replaces a record in educations table with the given item ID."""
@@ -223,8 +209,7 @@ def post_educations(item_id: int, json_data: Education) -> tuple[str, int]:
 
 
 @bp.post("/addresses/<int:item_id>")
-@serialize()
-@validate
+@pydantify()
 @auth_required(Roles.user.value)
 def post_addresses(item_id: int, json_data: Address) -> tuple[str, int]:
     """Insert or replaces a record in addresses table with the given item ID."""
@@ -232,8 +217,7 @@ def post_addresses(item_id: int, json_data: Address) -> tuple[str, int]:
 
 
 @bp.post("/affilations/<int:item_id>")
-@serialize()
-@validate
+@pydantify()
 @auth_required(Roles.user.value)
 def post_affilations(item_id: int, json_data: Affilation) -> tuple[str, int]:
     """Insert or replaces a record in affilations table with the given item ID."""
@@ -241,8 +225,7 @@ def post_affilations(item_id: int, json_data: Affilation) -> tuple[str, int]:
 
 
 @bp.post("/staffs/<int:item_id>")
-@serialize()
-@validate
+@pydantify()
 @auth_required(Roles.user.value)
 def post_staffs(item_id: int, json_data: Staff) -> tuple[str, int]:
     """Insert or replaces a record in staffs table with the given item ID."""
@@ -250,8 +233,7 @@ def post_staffs(item_id: int, json_data: Staff) -> tuple[str, int]:
 
 
 @bp.post("/workplaces/<int:item_id>")
-@serialize()
-@validate
+@pydantify()
 @auth_required(Roles.user.value)
 def post_workplaces(item_id: int, json_data: Workplace) -> tuple[str, int]:
     """Insert or replaces a record in workplaces table with the given item ID."""
@@ -259,8 +241,7 @@ def post_workplaces(item_id: int, json_data: Workplace) -> tuple[str, int]:
 
 
 @bp.post("/contacts/<int:item_id>")
-@serialize()
-@validate
+@pydantify()
 @auth_required(Roles.user.value)
 def post_contacts(item_id: int, json_data: Contact) -> tuple[str, int]:
     """Insert or replaces a record in contacts table with the given item ID."""
@@ -268,8 +249,7 @@ def post_contacts(item_id: int, json_data: Contact) -> tuple[str, int]:
 
 
 @bp.post("/documents/<int:item_id>")
-@serialize()
-@validate
+@pydantify()
 @auth_required(Roles.user.value)
 def post_documents(item_id: int, json_data: Document) -> tuple[str, int]:
     """Insert or replaces a record in documents table with the given item ID."""
@@ -277,8 +257,7 @@ def post_documents(item_id: int, json_data: Document) -> tuple[str, int]:
 
 
 @bp.post("/checks/<int:item_id>")
-@serialize()
-@validate
+@pydantify()
 @auth_required(Roles.user.value)
 def post_checks(item_id: int, json_data: Check) -> tuple[str, int]:
     """Insert or replaces a record in checks table with the given item ID."""
@@ -286,8 +265,7 @@ def post_checks(item_id: int, json_data: Check) -> tuple[str, int]:
 
 
 @bp.post("/poligrafs/<int:item_id>")
-@serialize()
-@validate
+@pydantify()
 @auth_required(Roles.user.value)
 def post_poligrafs(item_id: int, json_data: Poligraf) -> tuple[str, int]:
     """Insert or replaces a record in poligrafs table with the given item ID."""
@@ -295,8 +273,7 @@ def post_poligrafs(item_id: int, json_data: Poligraf) -> tuple[str, int]:
 
 
 @bp.post("/inquiries/<int:item_id>")
-@serialize()
-@validate
+@pydantify()
 @auth_required(Roles.user.value)
 def post_inquiries(item_id: int, json_data: Inquiry) -> tuple[str, int]:
     """Insert or replaces a record in inquiries table with the given item ID."""
@@ -304,8 +281,7 @@ def post_inquiries(item_id: int, json_data: Inquiry) -> tuple[str, int]:
 
 
 @bp.post("/investigations/<int:item_id>")
-@serialize()
-@validate
+@pydantify()
 @auth_required(Roles.user.value)
 def post_investigations(item_id: int, json_data: Investigation) -> tuple[str, int]:
     """Insert or replaces a record in investigations table with the given item ID."""
@@ -313,8 +289,7 @@ def post_investigations(item_id: int, json_data: Investigation) -> tuple[str, in
 
 
 @bp.delete("/<item>/<int:item_id>")
-@serialize()
-@validate
+@pydantify()
 @auth_required(Roles.user.value)
 def delete(item: Items, item_id: int) -> tuple[str, int]:
     """Delete an item from the database based on the provided item name and item ID."""

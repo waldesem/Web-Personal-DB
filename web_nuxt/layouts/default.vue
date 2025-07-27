@@ -25,8 +25,14 @@ const items = ref<NavigationMenuItem[]>([
     to: "/persons",
   },
   {
-    label: "Исходный код",
+    label: "OpenAPI",
     icon: "i-lucide-code",
+    to: "redoc.html",
+    target: "_blank",
+  },
+  {
+    label: "Исходный код",
+    icon: "i-lucide-file-code",
     to: "https://github.com/waldesem/Web-Personal-DB",
     target: "_blank",
   },

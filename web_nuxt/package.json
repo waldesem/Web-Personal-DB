@@ -11,20 +11,20 @@
     "redoc": "bunx @redocly/cli build-docs openapi.yaml -o=../server_flask/app/static/redoc.html --disableGoogleFont=true"
   },
   "dependencies": {
-    "@iconify-json/lucide": "^1.2.57",
+    "@iconify-json/lucide": "^1.2.58",
     "@nuxt/icon": "^1.15.0",
-    "@nuxt/ui": "^3.2.0",
+    "@nuxt/ui": "^3.3.0",
     "@vueuse/core": "^13.5.0",
     "@vueuse/nuxt": "^13.5.0",
     "jwt-decode": "^4.0.0",
     "nuxt": "3.17.7",
-    "nuxt-security": "^2.2.0",
-    "vue": "^3.5.17"
+    "nuxt-security": "^2.3.0",
+    "vue": "^3.5.18"
   },
   "devDependencies": {
-    "@nuxt/eslint": "1.5.2",
+    "@nuxt/eslint": "^1.7.1",
     "redoc": "^2.5.0",
     "tsx": "^4.20.3",
-    "vue-tsc": "^3.0.3"
+    "vue-tsc": "^3.0.4"
   }
 }
