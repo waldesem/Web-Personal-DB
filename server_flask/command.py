@@ -87,6 +87,6 @@ def create_schemas() -> None:
     path.mkdir(exist_ok=True)
     for model in [AnketaJson, Token]:
         file_path = Path(path, f"{model.__name__}.json")
-        with Path.open(file_path, "w") as f:
+        with file_path.open("w", encoding="utf-8") as f:
             schema = model.schema_json(by_alias=model.__name__ == "AnketaJson")
             f.write(schema)
