@@ -3,7 +3,7 @@
 from flask import Blueprint, current_app
 from sqlalchemy.exc import SQLAlchemyError
 
-from app import db
+from app import caching, db
 from app.classes.classes import Roles
 from app.decorators.depend import auth_required
 from app.decorators.validize import pydantify
@@ -19,7 +19,11 @@ bp = Blueprint("persons", __name__)
 @auth_required()
 def get_person(person_id: int) -> tuple[Persons, int]:
     """Retrieve an item from the database based on the provided item ID."""
-    return db.session.get(Persons, person_id), 200
+    if caching_data := caching.get_data(str(person_id), "persons"):
+        return caching_data
+    person = db.session.get(Persons, person_id), 200
+    caching.set_data(str(person_id), "persons", person)
+    return person
 
 
 @bp.post("/persons")
@@ -29,6 +33,7 @@ def post_person(json_data: PersonIn) -> tuple[dict, int]:
     """Replace a record in persons table."""
     # Загружаем резюме, получаем id кандидата, а также был ли он ранее загружен
     cand_id, existed = upload_resume(json_data)
+    caching.set_data(str(cand_id), "persons", "")
     return {"person_id": cand_id, "exists": existed}, 201
 
 
@@ -46,4 +51,5 @@ def delete_person(person_id: int) -> tuple[str, int]:
         db.session.rollback()
         return {"message": "error"}, 400
     else:
+        caching.delete_data(str(person_id))
         return {"message": "success"}, 201

@@ -8,8 +8,35 @@ import jwt
 from flask import Flask, current_app, g, request
 from pydantic import ValidationError
 
-from app.extensions.simpedb import SimpleDB
 from app.models.models import Token
+
+
+class RevokeDB:
+    """A simple database for JWT tokens."""
+
+    def __init__(self) -> None:
+        """Initialize the database."""
+        if not hasattr(self, "data"):
+            self.data = {}
+        else:
+            self.data = self.data
+
+    def get(self, key: str) -> str:
+        """Get the value of a key."""
+        return self.data.get(key)
+
+    def set(self, key: str, value: str) -> None:
+        """Set the value of a key."""
+        self.data[key] = value
+
+    def delete(self, key: str) -> None:
+        """Delete a key."""
+        if self.get(key):
+            del self.data[key]
+
+    def clear(self) -> None:
+        """Clear the database."""
+        self.data.clear()
 
 
 class JwtAuth:
@@ -19,7 +46,7 @@ class JwtAuth:
         """Initialize the database."""
         if app is not None:
             self.init_app(app)
-        self.jwt_revoked_db = SimpleDB()
+        self.jwt_revoked_db = RevokeDB()
 
     def init_app(self, app: Flask) -> None:
         """Register the before_request handler."""

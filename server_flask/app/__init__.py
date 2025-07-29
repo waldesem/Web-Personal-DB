@@ -10,6 +10,7 @@ from werkzeug.exceptions import HTTPException
 from app.extensions.authorize import JwtAuth
 from app.extensions.compress import Compress
 from app.extensions.database import Database
+from app.extensions.simpledb import CacheDB
 from config import Config
 
 handler = logging.FileHandler("error.log", mode="w", encoding="utf-8")
@@ -20,7 +21,7 @@ handler.setFormatter(formatter)
 auth = JwtAuth()  # Create the JWT authentication instance
 compress = Compress()  # Create the compression instance
 db = Database()  # Create the database instance
-
+caching = CacheDB()
 
 def create_app(config_class: Config = Config) -> Flask:
     """Create and configure the Flask application.

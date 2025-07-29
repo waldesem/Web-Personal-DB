@@ -90,7 +90,7 @@ async function submitItem(form: object) {
 async function deleteItem(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   status.value = "pending";
-  const { message } = (await $customFetch(`/route/${props.view}/${id}`, {
+  const { message } = (await $customFetch(`/route/${props.view}/${id}/${candId.value}`, {
     method: "DELETE",
   })) as Record<string, string>;
   status.value = message as "success" | "error";
