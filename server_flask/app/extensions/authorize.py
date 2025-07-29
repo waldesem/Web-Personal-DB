@@ -39,7 +39,7 @@ class RevokeDB:
         self.data.clear()
 
 
-class JwtAuth:
+class Auth:
     """A simple jwt authorization class."""
 
     def __init__(self, app: Flask | None = None) -> None:

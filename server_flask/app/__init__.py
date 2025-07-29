@@ -7,10 +7,10 @@ import logging
 from flask import Flask, Response
 from werkzeug.exceptions import HTTPException
 
-from app.extensions.authorize import JwtAuth
+from app.extensions.authorize import Auth
+from app.extensions.caching import Cache
 from app.extensions.compress import Compress
 from app.extensions.database import Database
-from app.extensions.simpledb import CacheDB
 from config import Config
 
 handler = logging.FileHandler("error.log", mode="w", encoding="utf-8")
@@ -18,21 +18,13 @@ handler.setLevel(logging.ERROR)
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 handler.setFormatter(formatter)
 
-auth = JwtAuth()  # Create the JWT authentication instance
+auth = Auth()  # Create the JWT authentication instance
+caching = Cache()  # Create the caching instance
 compress = Compress()  # Create the compression instance
 db = Database()  # Create the database instance
-caching = CacheDB()
 
 def create_app(config_class: Config = Config) -> Flask:
-    """Create and configure the Flask application.
-
-    Args:
-        config_class: The configuration class to use for the application.
-
-    Returns:
-        Flask: The configured Flask application instance.
-
-    """
+    """Create and configure the Flask application."""
     app = Flask(__name__)
     app.config.from_object(config_class)
     app.logger.addHandler(handler)
