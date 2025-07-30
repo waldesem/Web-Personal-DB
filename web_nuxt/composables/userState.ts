@@ -1,10 +1,7 @@
-// import { useStorage } from "@vueuse/core";
 import type { Token } from "@/types";
 
-// export const accessToken = useStorage("accessToken", "", localStorage, {
-//   mergeDefaults: true,
-// });
+export const stateUser = () => useState("user", () => ({} as Token));
 
-export const useUser = () => useState("user", () => ({} as Token));
-
-export const accessToken = useCookie("token");
+export const accessToken = useCookie("token", {
+  maxAge: 60 * 60 * 24, // 1 day
+});

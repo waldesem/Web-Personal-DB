@@ -8,7 +8,7 @@ await preloadComponents(["ContentAnketaTab", "ContentSharedView"]);
 const { $customFetch } = useNuxtApp();
 
 const route = useRoute();
-const userState = useUser();
+const userState = stateUser();
 
 const candId = computed(() => route.params.id as string);
 provide("candId", candId);

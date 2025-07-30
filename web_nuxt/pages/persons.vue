@@ -10,7 +10,7 @@ const UIcon = resolveComponent("UIcon");
 const UButton = resolveComponent("UButton");
 const UDropdownMenu = resolveComponent("UDropdownMenu");
 
-const userState = useUser();
+const userState = stateUser();
 
 export interface Candidate {
   id: string;

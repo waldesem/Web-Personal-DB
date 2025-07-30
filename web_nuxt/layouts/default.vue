@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from "@nuxt/ui";
 
-const userState = useUser();
+const userState = stateUser();
 
 const { $customFetch } = useNuxtApp();
 
