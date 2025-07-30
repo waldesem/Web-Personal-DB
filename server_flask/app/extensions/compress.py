@@ -27,9 +27,9 @@ class Compress:
         elif "accept-encoding" not in vary.lower():
             response.headers["Vary"] = f"{vary}, Accept-Encoding"
 
-        # Only compress text/* and application/json content types.
+        # Only compress application/json content type.
         if (
-            not response.mimetype.startswith(("text/", "application/json"))
+            not response.mimetype.startswith("application/json")
             or 200 > response.status_code >= 300
             or "Content-Encoding" in response.headers
             or (response.content_length is not None and response.content_length < 1000)

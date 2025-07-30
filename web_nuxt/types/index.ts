@@ -20,6 +20,7 @@ export interface Token {
   username: string;
   email: string;
   role: Roles;
+  exp: string;
 }
 
 export interface User extends Token {

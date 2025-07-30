@@ -8,7 +8,7 @@ const UButton = resolveComponent("UButton");
 const UDropdownMenu = resolveComponent("UDropdownMenu");
 
 const { $customFetch } = useNuxtApp();
-const userState = useUserState();
+const userState = useUser();
 
 const modal = ref(false);
 const expanded = ref({ 1: false });
