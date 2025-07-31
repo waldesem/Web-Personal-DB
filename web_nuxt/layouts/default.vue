@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from "@nuxt/ui";
 
-const userState = stateUser();
+const userState = useStateUser();
 
 const { $customFetch } = useNuxtApp();
 
 function logout() {
   if (!confirm("Вы действительно хотите выйти?")) return;
   $customFetch("/route/auth/logout") as Record<string, string>;
-  accessToken.value = null;
+  const token = useCookie("token");
+  token.value = null;
   clearNuxtData();
   return navigateTo("/login");
 }
@@ -28,12 +29,6 @@ const items = ref<NavigationMenuItem[]>([
     label: "OpenAPI",
     icon: "i-lucide-code",
     to: "redoc.html",
-    target: "_blank",
-  },
-  {
-    label: "Исходный код",
-    icon: "i-lucide-file-code",
-    to: "https://github.com/waldesem/Web-Personal-DB",
     target: "_blank",
   },
 ]);

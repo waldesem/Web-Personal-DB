@@ -57,7 +57,10 @@ async function submitLogin() {
     }
   )) as { message: string; access_token: string };
   if (message === "success") {
-    accessToken.value = access_token;
+    const token = useCookie("token", {
+      maxAge: 60 * 60 * 24, // 1 day
+    });
+    token.value = access_token;
     return navigateTo("/persons");
   } else if (message === "updated") {
     action.value = "login";

@@ -1,8 +1,9 @@
 export default defineNuxtPlugin((nuxtApp) => {
+  const token = useCookie("token");
   const customFetch = $fetch.create({
     async onRequest({ options }) {
-      if (accessToken.value) {
-        options.headers.set("Authorization", `${accessToken.value}`);
+      if (token.value) {
+        options.headers.set("Authorization", `${token.value}`);
       } else {
         await nuxtApp.runWithContext(() => navigateTo("/login"))
       }
@@ -13,6 +14,5 @@ export default defineNuxtPlugin((nuxtApp) => {
       }
     },
   });
-  // Expose to useNuxtApp().$customFetch
   return { provide: { customFetch }};
 });

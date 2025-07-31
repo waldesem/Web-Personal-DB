@@ -10,7 +10,7 @@ const UIcon = resolveComponent("UIcon");
 const UButton = resolveComponent("UButton");
 const UDropdownMenu = resolveComponent("UDropdownMenu");
 
-const userState = stateUser();
+const userState = useStateUser();
 
 export interface Candidate {
   id: string;
@@ -118,26 +118,14 @@ const columns: TableColumn<Candidate>[] = [
       return h(UIcon, {
         name: !row.original.editable
           ? "i-lucide-circle-check"
-          : userState.value.fullname
-              .toLowerCase()
-              .includes(row.original.username.toLowerCase())
-          ? "i-lucide-octagon-alert"
           : "i-lucide-triangle-alert",
 
         class: !row.original.editable
           ? "text-start w-5 h-5 text-blue-600"
-          : userState.value.fullname
-              .toLowerCase()
-              .includes(row.original.username.toLowerCase())
-          ? "text-start w-5 h-5 text-green-600"
           : "text-start w-5 h-5 text-red-600",
         title: !row.original.editable
           ? "Анкета доступна для редактирования"
-          : userState.value.fullname
-              .toLowerCase()
-              .includes(row.original.username.toLowerCase())
-          ? "Анкета назначена текущему пользователю"
-          : "Анкета редактируется другим пользователем",
+          : "Анкета находится в режиме редактирования",
       });
     },
   },

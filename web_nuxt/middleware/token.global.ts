@@ -2,10 +2,11 @@ import { jwtDecode } from "jwt-decode";
 import type { Token } from "@/types";
 
 export default defineNuxtRouteMiddleware(async (to) => {
-  if (to.path !== "/login" && to.path !== "/" && accessToken.value) {
+  const token = useCookie("token");
+  if (to.path === "/persons" && token.value) {
     try {
-      const userState = useUser();
-      userState.value = jwtDecode(accessToken.value.split(" ")[1]) as Token;
+      const userState = useStateUser();
+      userState.value = jwtDecode(token.value.split(" ")[1]) as Token;
     } catch (error) {
       console.error(error);
       await navigateTo("/login");

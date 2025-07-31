@@ -8,7 +8,6 @@ const UButton = resolveComponent("UButton");
 const UDropdownMenu = resolveComponent("UDropdownMenu");
 
 const { $customFetch } = useNuxtApp();
-const userState = stateUser();
 
 const modal = ref(false);
 const expanded = ref({ 1: false });
@@ -24,10 +23,6 @@ const {
 });
 
 async function userAction(item: string, user_id: string) {
-  if (user_id == userState.value.id) {
-    makeToast();
-    return;
-  }
   if (!confirm("Подтвердите выполнение действия")) return;
   const { message } = (await $customFetch("/route/user/" + user_id, {
     params: { item: item },
