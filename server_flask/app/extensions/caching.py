@@ -25,6 +25,7 @@ class Cache:
     def get_data(self, person_id: str, item: str) -> str | list:
         """Get the value of a keys."""
         if values := self.data.get(str(person_id)):
+            self.data.move_to_end(str(person_id))
             return values.get(item)
         return values
 
