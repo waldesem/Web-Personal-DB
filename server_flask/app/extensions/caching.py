@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections import OrderedDict
 from typing import Any
 
 
@@ -19,7 +20,7 @@ class Cache:
 
     def __init__(self) -> None:
         """Initialize the database."""
-        self.data: dict[str, dict[str, Any]] = {}
+        self.data: OrderedDict[str, dict[str, Any]] = OrderedDict()
 
     def get_data(self, person_id: str, item: str) -> str | list:
         """Get the value of a keys."""
@@ -42,4 +43,4 @@ class Cache:
     def clear_data(self) -> None:
         """Check old keys."""
         if len(self.data) > 10:
-            self.data = dict(list(self.data.items())[1:])
+            self.data.popitem(last=False)
