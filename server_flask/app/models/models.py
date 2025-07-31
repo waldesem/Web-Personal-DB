@@ -66,7 +66,7 @@ class Auth(BaseModel):
 
 
 class Token(BaseModel):
-    """Pydantic model for JWT."""
+    """JWT payloads."""
 
     id: int
     fullname: str
@@ -138,7 +138,7 @@ class Index(BaseModel):
 
 
 class PersonIn(Model):
-    """Pydantic model for person form."""
+    """Person schema."""
 
     __PATTERN = r"^[А-яЁёIV\-\s\.\,\'\(\)]*$"
 
@@ -193,7 +193,7 @@ class Candidates(Model):
 
 
 class Prev(Model):
-    """Pydantic model for previous form."""
+    """Previous schema."""
 
     surname: str | None = Field(alias="lastNameBeforeChange")
     firstname: str | None = Field(alias="firstNameBeforeChange")
@@ -203,7 +203,7 @@ class Prev(Model):
 
 
 class Education(Model):
-    """Pydantic model for education form."""
+    """Educations schema."""
 
     view: str | None = Field(default="", alias="educationType")
     institution: str = Field(default="", alias="institutionName")
@@ -212,14 +212,14 @@ class Education(Model):
 
 
 class Staff(Model):
-    """Pydantic model for staff form."""
+    """Staffs schema."""
 
     position: str
     department: str | None = ""
 
 
 class Document(Model):
-    """Pydantic model for document form."""
+    """Documents schema."""
 
     view: str
     series: str | None = ""
@@ -229,21 +229,21 @@ class Document(Model):
 
 
 class Address(Model):
-    """Pydantic model for address form."""
+    """Addresses schema."""
 
     view: str
     addresses: str
 
 
 class Contact(Model):
-    """Pydantic model for contact form."""
+    """Contacts schema."""
 
     view: str
     contact: str
 
 
 class Workplace(Model):
-    """Pydantic model for workplace form."""
+    """Workplaces schema."""
 
     now_work: bool | None = Field(default=False, alias="currentJob")
     starts: date | None = Field(alias="beginDate")
@@ -255,7 +255,7 @@ class Workplace(Model):
 
 
 class Affilation(Model):
-    """Pydantic model for affilation form."""
+    """Affilations schema."""
 
     view: str | None = ""
     organization: str | None = Field(default="", alias="name")
@@ -263,7 +263,7 @@ class Affilation(Model):
 
 
 class Check(Model):
-    """Pydantic model for check form."""
+    """Checks schema."""
 
     workplace: str | None = ""
     document: str | None = ""
@@ -284,7 +284,7 @@ class Check(Model):
 
 
 class Poligraf(Model):
-    """Pydantic model for poligraf form."""
+    """Poligraf schema."""
 
     theme: str
     results: str | None
@@ -292,14 +292,14 @@ class Poligraf(Model):
 
 
 class Investigation(Model):
-    """Pydantic model for investigation form."""
+    """Investigations schema."""
 
     theme: str
     info: str
 
 
 class Inquiry(Model):
-    """Pydantic model for inquiry form."""
+    """Inquiries schema."""
 
     info: str
     initiator: str
@@ -307,7 +307,7 @@ class Inquiry(Model):
 
 
 class AnketaJson(PersonIn):
-    """Schema for uploadig candidate anketa."""
+    """Candidate anketa schema."""
 
     position: str = Field(default="", alias="positionName")
     department: str | None = ""

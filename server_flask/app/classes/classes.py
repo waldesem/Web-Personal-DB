@@ -4,7 +4,7 @@ from enum import Enum
 
 
 class Roles(Enum):
-    """Enum class for user roles."""
+    """Users roles."""
 
     admin = "admin"
     api = "api"
@@ -13,7 +13,7 @@ class Roles(Enum):
 
 
 class Conclusions(Enum):
-    """Enum class for conclusions."""
+    """Checks conclusions."""
 
     agreed = "СОГЛАСОВАНО"
     comments = "СОГЛАСОВАНО С КОММЕНТАРИЕМ"
@@ -22,7 +22,7 @@ class Conclusions(Enum):
 
 
 class Decisions(Enum):
-    """Enum class for decisions."""
+    """Poligrafs decisions."""
 
     agreed = "БЕЗ ЗАМЕЧАНИЙ"
     comments = "С КОММЕНТАРИЯМИ"
