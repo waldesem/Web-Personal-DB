@@ -29,7 +29,7 @@ class Compress:
 
         # Only compress application/json content type.
         if (
-            not response.mimetype.startswith("application/json")
+            response.mimetype != "application/json"
             or 200 > response.status_code >= 300
             or "Content-Encoding" in response.headers
             or (response.content_length is not None and response.content_length < 1000)
