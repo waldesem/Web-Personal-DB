@@ -22,7 +22,7 @@ class Cache:
         """Initialize the database."""
         self.data: OrderedDict[str, dict[str, Any]] = OrderedDict()
 
-    def get_data(self, person_id: int, item: str) -> str | list:
+    def get_data(self, person_id: int, item: str = "persons") -> str | list:
         """Get the value of a keys."""
         try:
             values = self.data[f"{person_id}"]
@@ -31,7 +31,7 @@ class Cache:
         except KeyError:
             return None
 
-    def set_data(self, person_id: int, item: str, value: str | list) -> None:
+    def set_data(self, person_id: int, value: str | list, item: str = "persons") -> None:
         """Set the value of a key."""
         if f"{person_id}" not in self.data:
             self.pop_data()
