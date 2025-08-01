@@ -31,7 +31,7 @@ class Cache:
         except KeyError:
             return None
 
-    def set_data(self, person_id: int, value: str | list, item: str = "persons") -> None:
+    def set_data(self, person_id: int, value: None | list = None, item: str = "persons") -> None:
         """Set the value of a key."""
         if f"{person_id}" not in self.data:
             self.pop_data()
