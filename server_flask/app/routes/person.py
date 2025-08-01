@@ -19,10 +19,10 @@ bp = Blueprint("persons", __name__)
 @auth_required()
 def get_person(person_id: int) -> tuple[Persons, int]:
     """Retrieve an item from the database based on the provided item ID."""
-    if caching_data := caching.get_data(person_id, "persons"):
+    if caching_data := caching.get_data(person_id):
         return caching_data
     person = db.session.get(Persons, person_id), 200
-    caching.set_data(person_id, "persons", person)
+    caching.set_data(person_id, person)
     return person
 
 
@@ -33,7 +33,7 @@ def post_person(json_data: PersonIn) -> tuple[dict, int]:
     """Replace a record in persons table."""
     # Загружаем резюме, получаем id кандидата, а также был ли он ранее загружен
     cand_id, existed = upload_resume(json_data)
-    caching.set_data(cand_id, "persons", "")
+    caching.set_data(cand_id, "")
     return {"person_id": cand_id, "exists": existed}, 201
 
 
