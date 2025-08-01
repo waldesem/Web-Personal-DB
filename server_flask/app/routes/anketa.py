@@ -36,7 +36,7 @@ bp = Blueprint("anketa", __name__, url_prefix="/anketa")
 @auth_required(Roles.user.value)
 def change_self_id(person_id: int) -> tuple[str, int]:
     """Toggle the editable status of a person."""
-    if not (person := caching.get_data(person_id, "persons")):
+    if not (person := caching.get_data(person_id)):
         person = db.session.get(Persons, person_id)
     try:
         if not person.destination or not Path(person.destination).is_dir():
@@ -54,7 +54,7 @@ def change_self_id(person_id: int) -> tuple[str, int]:
         current_app.logger.exception("Exception in change_self_id")
         return {"message": "error"}, 400
     else:
-        caching.set_data(str(person_id), "persons", person)
+        caching.set_data(person_id, person)
         return {"message": "success"}, 201
 
 
