@@ -19,8 +19,8 @@ bp = Blueprint("persons", __name__)
 @auth_required()
 def get_person(person_id: int) -> tuple[Persons, int]:
     """Retrieve an item from the database based on the provided item ID."""
-    if caching_data := caching.get_data(person_id):
-        return caching_data
+    if cached_data := caching.get_data(person_id):
+        return cached_data
     person = db.session.get(Persons, person_id), 200
     caching.set_data(person_id, person)
     return person

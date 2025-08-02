@@ -14,10 +14,10 @@
     "@iconify-json/lucide": "^1.2.58",
     "@nuxt/icon": "^1.15.0",
     "@nuxt/ui": "^3.3.0",
-    "@vueuse/core": "^13.5.0",
-    "@vueuse/nuxt": "^13.5.0",
+    "@vueuse/core": "^13.6.0",
+    "@vueuse/nuxt": "^13.6.0",
     "jwt-decode": "^4.0.0",
-    "nuxt": "3.17.7",
+    "nuxt": "^4.0.2",
     "nuxt-security": "^2.3.0",
     "vue": "^3.5.18"
   },
@@ -25,6 +25,7 @@
     "@nuxt/eslint": "^1.7.1",
     "redoc": "^2.5.0",
     "tsx": "^4.20.3",
-    "vue-tsc": "^3.0.4"
+    "typescript": "^5.9.2",
+    "vue-tsc": "^3.0.5"
   }
 }
