@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Persons } from "@/types";
 
-const { $customFetch } = useNuxtApp();
+const { $api } = useNuxtApp();
 
 const emit = defineEmits(["update"]);
 
@@ -19,7 +19,7 @@ resumeForm.value.birthday = resumeForm.value.birthday
   : "";
 
 async function submitPerson() {
-  const { person_id, exists } = (await $customFetch<{
+  const { person_id, exists } = (await $api<{
     person_id: number;
     exists: boolean;
   }>("/route/persons", {

@@ -7,7 +7,7 @@ interface UserForm {
   email: string;
 }
 
-const { $customFetch } = useNuxtApp();
+const { $api } = useNuxtApp();
 
 const form = ref({} as UserForm);
 
@@ -29,10 +29,10 @@ const validate = (state: Partial<UserForm>) => {
 };
 
 async function submitUser() {
-  const { message } = await $customFetch("/route/user", {
+  const { message } = await $api<Record<string, string>>("/route/user", {
     method: "POST",
     body: form.value,
-  }) as Record<string, string>;
+  });
   if (message === "success") {
     emit("update");
     form.value = {} as UserForm;

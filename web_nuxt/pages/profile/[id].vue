@@ -5,7 +5,7 @@ import type { Persons, PillsItems } from "@/types";
 
 await preloadComponents(["ContentAnketaTab", "ContentSharedView"]);
 
-const { $customFetch } = useNuxtApp();
+const { $api } = useNuxtApp();
 
 const route = useRoute();
 const userState = useStateUser();
@@ -17,7 +17,7 @@ const {
   data: person,
   status,
   refresh,
-} = await useCustomFetch<Persons>("/route/persons/" + candId.value, {
+} = await useAPI<Persons>("/route/persons/" + candId.value, {
   server: false,
 });
 provide("status", status);
@@ -49,9 +49,9 @@ async function switchSelf(): Promise<void> {
     return;
   }
   status.value = "pending";
-  const { message } = (await $customFetch(
+  const { message } = (await $api<Record<string, string>>(
     "/route/anketa/self/" + person.value?.id
-  )) as Record<string, string>;
+  ));
   status.value = message as "success" | "error";
   if (message == "success") {
     await refresh();
@@ -73,13 +73,13 @@ onChange(async (files) => {
     }
     formData.append("file", file);
   }
-  const { message } = (await $customFetch(
+  const { message } = (await $api<Record<string, string>>(
     `/route/anketa/files/${candId.value}`,
     {
       method: "POST",
       body: formData,
     }
-  )) as Record<string, string>;
+  ));
   status.value = message as "success" | "error";
   if (message == "success") {
     makeToast(message, "Файлы успешно загружены");
@@ -97,33 +97,33 @@ interface Pills extends TabsItem {
   slot: PillsItems | "person";
 }
 
-const items: Pills[] = [
+const items = [
   {
-    slot: "person" as const,
     label: "Анкета",
     icon: "i-lucide-user",
+    slot: "person" as const,
   },
   {
-    slot: "checks" as const,
     label: "Проверки",
     icon: "i-lucide-circle-check-big",
+    slot: "checks" as const,
   },
   {
-    slot: "poligrafs" as const,
     label: "Полиграф",
     icon: "i-lucide-heart-pulse",
+    slot: "poligrafs" as const,
   },
   {
-    slot: "investigations" as const,
     label: "Расследования",
     icon: "i-lucide-briefcase-business",
+    slot: "investigations" as const,
   },
   {
-    slot: "inquiries" as const,
     label: "Запросы",
     icon: "i-lucide-book-text",
+    slot: "inquiries" as const,
   },
-];
+] satisfies Pills[];
 </script>
 
 <template>

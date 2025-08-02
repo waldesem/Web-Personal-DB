@@ -2,7 +2,7 @@
 import type { AccordionItem } from "@nuxt/ui";
 import type { DivsItems, Persons } from "@/types";
 
-const { $customFetch } = useNuxtApp();
+const { $api } = useNuxtApp();
 
 const emits = defineEmits(["refresh"]);
 
@@ -39,9 +39,9 @@ async function deletePerson() {
     return;
   if (!confirm("Данные будут удалены безвозвратно!?")) return;
   status.value = "pending";
-  const { message } = await $customFetch(`/route/persons/${person.value.id}`, {
+  const { message } = await $api<Record<string, string>>(`/route/persons/${person.value.id}`, {
     method: "DELETE",
-  }) as Record<string, string>;
+  });
   if (message == "success") {
     makeToast(message, "Информация успешно обновлена");
     return navigateTo("/persons");

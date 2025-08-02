@@ -60,7 +60,7 @@ async function submitLogin() {
     const token = useCookie("token", {
       maxAge: 60 * 60 * 24, // 1 day
     });
-    token.value = access_token;
+    token.value = access_token.split(" ")[1];
     return navigateTo("/persons");
   } else if (message === "updated") {
     action.value = "login";

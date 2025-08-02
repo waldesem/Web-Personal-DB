@@ -7,7 +7,7 @@ const UBadge = resolveComponent("UBadge");
 const UButton = resolveComponent("UButton");
 const UDropdownMenu = resolveComponent("UDropdownMenu");
 
-const { $customFetch } = useNuxtApp();
+const { $api } = useNuxtApp();
 
 const modal = ref(false);
 const expanded = ref({ 1: false });
@@ -17,16 +17,16 @@ const {
   data: users,
   refresh,
   status,
-} = await useCustomFetch("/route/users", {
+} = await useAPI("/route/users", {
   lazy: true,
   server: false,
 });
 
 async function userAction(item: string, user_id: string) {
   if (!confirm("Подтвердите выполнение действия")) return;
-  const { message } = (await $customFetch("/route/user/" + user_id, {
+  const { message } = (await $api<Record<string, string>>("/route/user/" + user_id, {
     params: { item: item },
-  })) as Record<string, string>;
+  }));
   if (message == "success") {
     makeToast("success", "Действие успешно выполнено");
   } else {

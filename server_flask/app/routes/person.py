@@ -20,10 +20,10 @@ bp = Blueprint("persons", __name__)
 def get_person(person_id: int) -> tuple[Persons, int]:
     """Retrieve an item from the database based on the provided item ID."""
     if cached_data := caching.get_data(person_id):
-        return cached_data
-    person = db.session.get(Persons, person_id), 200
+        return cached_data, 200
+    person = db.session.get(Persons, person_id)
     caching.set_data(person_id, person)
-    return person
+    return person, 200
 
 
 @bp.post("/persons")

@@ -2,7 +2,7 @@
 import { useFileDialog, watchDebounced } from "@vueuse/core";
 import type { DropdownMenuItem, TableColumn } from "@nuxt/ui";
 
-const { $customFetch } = useNuxtApp();
+const { $api } = useNuxtApp();
 
 await preloadRouteComponents("/profile/[id]");
 
@@ -27,20 +27,20 @@ const search = ref("");
 const modal = ref(false);
 const total = ref(1);
 const updated = ref("Данные обновляются...");
-const candidates = ref([] as Candidate[]);
+const candidates = shallowRef<Candidate[]>([]);
 const per_page = 10;
 
 const { refresh, status } = await useLazyAsyncData(
   "candidates",
   async () => {
-    candidates.value = (await $customFetch("/route/index", {
+    candidates.value = (await $api<Candidate[]>("/route/index", {
       params: {
         search: search.value,
         per_page: per_page,
         page: page.value,
       },
-    })) as Candidate[];
-    total.value = candidates.value ? candidates.value[0].total : 1;
+    }));
+    total.value = candidates.value ? candidates.value[0].total : 1
     updated.value = new Date().toLocaleTimeString("ru-RU");
   },
   { watch: [page] }
@@ -82,7 +82,7 @@ onChange(async (files) => {
   status.value = "pending";
   const formData = new FormData();
   formData.append("file", files[0]);
-  const { person_id, exists } = await $customFetch<{
+  const { person_id, exists } = await $api<{
     person_id: string;
     exists: boolean;
   }>("/route/anketa/json", {

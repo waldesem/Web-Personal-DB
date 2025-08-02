@@ -13,15 +13,19 @@ def main() -> None:
     Example usage:
         For debugging:
             python server.py --host 127.0.0.1 --port 5000 --mode debug.
+            uv run server.py --host 127.0.0.1 --port 5000 --mode debug
 
         For development:
             python server.py --host 127.0.0.1 --port 5000 --mode devel
+            uv run server.py --host 127.0.0.1 --port 5000 --mode devel
 
         For production:
             python server.py --host 127.0.0.1 --port 5000 --workers 8 --mode server
+            uv run server.py --host 127.0.0.1 --port 5000 --workers 8 --mode server
 
         For desktop:
             python server.py
+            uv run server.py
     """
     parser = argparse.ArgumentParser(description="Run the application server.")
     parser.add_argument(

@@ -1,0 +1,24 @@
+[project]
+name = "server-flask"
+version = "0.1.0"
+description = "StaffSec"
+requires-python = ">=3.12"
+dependencies = [
+    "blinker==1.8.2",
+    "click==8.1.7",
+    "flask==2.3.3",
+    "greenlet==3.1.1",
+    "itsdangerous==2.2.0",
+    "jinja2==3.1.4",
+    "markupsafe==3.0.1",
+    "psutil==5.9.0",
+    "pydantic==1.10.18",
+    "pyjwt==2.8.0",
+    "sqlalchemy==2.0.30",
+    "tornado==6.4.1",
+    "typing-extensions==4.12.2",
+    "werkzeug==3.0.4",
+]
+[tool.ruff]
+select = ["ALL"]
+ignore = ["DTZ005", "RUF003", "RUF001", "PLR2004"]

@@ -1,7 +1,8 @@
 """Manage dependencies."""
 
+from collections.abc import Callable
 from functools import wraps
-from typing import Callable, get_type_hints
+from typing import get_type_hints
 
 from flask import Response, abort, current_app, jsonify, request
 from pydantic import BaseModel, ValidationError, create_model

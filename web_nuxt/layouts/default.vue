@@ -3,11 +3,11 @@ import type { NavigationMenuItem } from "@nuxt/ui";
 
 const userState = useStateUser();
 
-const { $customFetch } = useNuxtApp();
+const { $api } = useNuxtApp();
 
-function logout() {
+async function logout() {
   if (!confirm("Вы действительно хотите выйти?")) return;
-  $customFetch("/route/auth/logout") as Record<string, string>;
+  await $api<Record<string, string>>("/route/auth/logout");
   const token = useCookie("token");
   token.value = null;
   clearNuxtData();
@@ -19,6 +19,7 @@ const items = ref<NavigationMenuItem[]>([
     label: "Пользователи",
     icon: "i-lucide-users",
     to: "/users",
+    disabled: userState.value.role !== 'admin'
   },
   {
     label: "Кандидаты",
@@ -48,7 +49,7 @@ const items = ref<NavigationMenuItem[]>([
       <div class="flex items-center space-x-4">
         <UNavigationMenu
           highlight
-          :items="userState.role === 'admin' ? items : items.slice(1)"
+          :items="items"
           class="w-full justify-center"
         />
       </div>

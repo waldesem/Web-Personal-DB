@@ -6,7 +6,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
   if (to.path === "/persons" && token.value) {
     try {
       const userState = useStateUser();
-      userState.value = jwtDecode(token.value.split(" ")[1]) as Token;
+      userState.value = jwtDecode(token.value) as Token;
     } catch (error) {
       console.error(error);
       await navigateTo("/login");
