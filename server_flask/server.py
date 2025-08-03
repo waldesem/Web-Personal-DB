@@ -3,6 +3,7 @@
 import argparse
 
 from app import create_app
+from simple import simple_wsgi
 from webgui import run_desktop
 from wsgi import wsgi_server
 
@@ -16,8 +17,8 @@ def main() -> None:
             uv run server.py --host 127.0.0.1 --port 5000 --mode debug
 
         For development:
-            python server.py --host 127.0.0.1 --port 5000 --mode devel
-            uv run server.py --host 127.0.0.1 --port 5000 --mode devel
+            python server.py --host 127.0.0.1 --port 5000 --mode simple
+            uv run server.py --host 127.0.0.1 --port 5000 --mode simple
 
         For production:
             python server.py --host 127.0.0.1 --port 5000 --workers 8 --mode server
@@ -39,9 +40,9 @@ def main() -> None:
     )
     parser.add_argument(
         "--mode",
-        choices=["debug", "devel", "server", "desktop"],
+        choices=["debug", "simple", "server", "desktop"],
         default="desktop",
-        help="The mode to run the server in (debug, devel, server, desktop).",
+        help="The mode to run the server in (debug, simple, server, desktop).",
     )
     args = parser.parse_args()
 
@@ -50,12 +51,12 @@ def main() -> None:
     match args.mode:
         case "debug":
             app.run(host=args.host, port=args.port, debug=True)
-        case "devel":
-            app.run(host=args.host, port=args.port, debug=False)
+        case "simple":
+            simple_wsgi(app, address=args.host, port=args.port)
         case "server":
             wsgi_server(app, address=args.host, port=args.port, workers=args.workers)
         case _:
-            run_desktop(app, address=args.host, port=args.port, workers=args.workers)
+            run_desktop(app, address=args.host, port=args.port)
 
 
 if __name__ == "__main__":

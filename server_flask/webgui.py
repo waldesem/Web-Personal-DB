@@ -16,7 +16,7 @@ from pathlib import Path
 import psutil
 from flask import Flask  # noqa: TC002
 
-from wsgi import wsgi_server
+from simple import simple_wsgi
 
 
 def start_browser(address: str, port: int) -> None:
@@ -52,10 +52,10 @@ def start_browser(address: str, port: int) -> None:
             break
 
 
-def run_desktop(app: Flask, address: str, port: int, workers: int) -> None:
+def run_desktop(app: Flask, address: str, port: int) -> None:
     """Run the application in a desktop environment."""
-    with ThreadPoolExecutor(max_workers=workers) as executor:
-        server_future = executor.submit(wsgi_server, app, address, port, workers)
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        server_future = executor.submit(simple_wsgi, app, address, port)
         browser_future = executor.submit(start_browser, address, port)
         try:
             server_future.result()

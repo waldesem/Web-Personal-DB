@@ -3,16 +3,18 @@
 from concurrent.futures import ThreadPoolExecutor
 
 from flask import Flask
-from tornado import httpserver, ioloop, wsgi
+from tornado.httpserver import HTTPServer
+from tornado.ioloop import IOLoop
+from tornado.wsgi import WSGIContainer
 
 
 def wsgi_server(app: Flask, address: str, port: int, workers: int) -> None:
     """Start a WSGI server using Tornado."""
-    container = wsgi.WSGIContainer(app)
-    http_server = httpserver.HTTPServer(container)
+    container = WSGIContainer(app)
+    http_server = HTTPServer(container)
     http_server.listen(port, address)
     executor = ThreadPoolExecutor(max_workers=workers)
-    loop = ioloop.IOLoop.current()
+    loop = IOLoop.current()
     loop.set_default_executor(executor)
     try:
         print(f"Listening on http://{address}:{port}")  # noqa: T201

@@ -53,7 +53,7 @@ def change_self_id(person_id: int) -> tuple[str, int]:
         current_app.logger.exception("Exception in change_self_id")
         return {"message": "error"}, 400
     else:
-        caching.set_data(person_id, person)
+        caching.set_data(person_id)
         return {"message": "success"}, 201
 
 

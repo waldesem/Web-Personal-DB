@@ -58,7 +58,7 @@ Items = Literal[
 ]
 
 
-def get_item(item: Items, person_id: int) -> list[DeclarativeBase]:
+def get_item(item: Items, person_id: int) -> tuple[list[DeclarativeBase], int]:
     """Retrieve an item from the database based on the provided item."""
     if cached_data := caching.get_data(person_id, item):
         return cached_data
@@ -73,7 +73,7 @@ def get_item(item: Items, person_id: int) -> list[DeclarativeBase]:
     return result, 200
 
 
-def post_item(item: Items, person_id: int, json_data: BaseModel) -> str:
+def post_item(item: Items, person_id: int, json_data: BaseModel) -> tuple[dict, int]:
     """Insert or replaces a record in the specified table with the given item ID."""
     try:
         json_dict = json_data.dict(exclude_none=True, exclude={"created"})
@@ -99,7 +99,7 @@ def post_item(item: Items, person_id: int, json_data: BaseModel) -> str:
         db.session.rollback()
         return {"message": "error"}, 400
     else:
-        return {"message": "success"}, 200
+        return {"message": "success"}, 201
 
 
 @bp.get("/previous/<int:person_id>")
@@ -155,7 +155,7 @@ def get_workplaces(person_id: int) -> tuple[list[Workplaces], int]:
 @auth_required()
 def get_contacts(person_id: int) -> tuple[list[Contacts], int]:
     """Retrieve a list of contacts from the database."""
-    return get_item("contacts", person_id), 200
+    return get_item("contacts", person_id)
 
 
 @bp.get("/documents/<int:person_id>")
@@ -309,5 +309,5 @@ def delete(item: Items, item_id: int, person_id: int) -> tuple[str, int]:
         db.session.rollback()
         return {"message": "error"}, 400
     else:
-        caching.set_data(str(person_id), item, [])
+        caching.set_data(person_id, item, [])
         return {"message": "success"}, 201
