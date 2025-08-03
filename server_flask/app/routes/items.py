@@ -70,7 +70,7 @@ def get_item(item: Items, person_id: int) -> list[DeclarativeBase]:
     )
     result = db.session.execute(stmt).all()
     caching.set_data(person_id, result, item)
-    return result
+    return result, 200
 
 
 def post_item(item: Items, person_id: int, json_data: BaseModel) -> str:
@@ -107,7 +107,7 @@ def post_item(item: Items, person_id: int, json_data: BaseModel) -> str:
 @auth_required()
 def get_previous(person_id: int) -> tuple[list[Previous], int]:
     """Retrieve a list of previous names from the database."""
-    return get_item("previous", person_id), 200
+    return get_item("previous", person_id)
 
 
 @bp.get("/educations/<int:person_id>")
@@ -115,7 +115,7 @@ def get_previous(person_id: int) -> tuple[list[Previous], int]:
 @auth_required()
 def get_educations(person_id: int) -> tuple[list[Educations], int]:
     """Retrieve a list of educations from the database."""
-    return get_item("educations", person_id), 200
+    return get_item("educations", person_id)
 
 
 @bp.get("/addresses/<int:person_id>")
@@ -123,7 +123,7 @@ def get_educations(person_id: int) -> tuple[list[Educations], int]:
 @auth_required()
 def get_addresses(person_id: int) -> tuple[list[Addresses], int]:
     """Retrieve a list of addresses from the database."""
-    return get_item("addresses", person_id), 200
+    return get_item("addresses", person_id)
 
 
 @bp.get("/affilations/<int:person_id>")
@@ -131,7 +131,7 @@ def get_addresses(person_id: int) -> tuple[list[Addresses], int]:
 @auth_required()
 def get_affilations(person_id: int) -> tuple[list[Affilations], int]:
     """Retrieve a list of affilations from the database."""
-    return get_item("affilations", person_id), 200
+    return get_item("affilations", person_id)
 
 
 @bp.get("/staffs/<int:person_id>")
@@ -139,7 +139,7 @@ def get_affilations(person_id: int) -> tuple[list[Affilations], int]:
 @auth_required()
 def get_staffs(person_id: int) -> tuple[list[Staffs], int]:
     """Retrieve a list of staffs from the database."""
-    return get_item("staffs", person_id), 200
+    return get_item("staffs", person_id)
 
 
 @bp.get("/workplaces/<int:person_id>")
@@ -147,7 +147,7 @@ def get_staffs(person_id: int) -> tuple[list[Staffs], int]:
 @auth_required()
 def get_workplaces(person_id: int) -> tuple[list[Workplaces], int]:
     """Retrieve a list of workplaces from the database."""
-    return get_item("workplaces", person_id), 200
+    return get_item("workplaces", person_id)
 
 
 @bp.get("/contacts/<int:person_id>")
@@ -163,7 +163,7 @@ def get_contacts(person_id: int) -> tuple[list[Contacts], int]:
 @auth_required()
 def get_documents(person_id: int) -> tuple[list[Documents], int]:
     """Retrieve a list of documents from the database."""
-    return get_item("documents", person_id), 200
+    return get_item("documents", person_id)
 
 
 @bp.get("/checks/<int:person_id>")
@@ -171,7 +171,7 @@ def get_documents(person_id: int) -> tuple[list[Documents], int]:
 @auth_required()
 def get_checks(person_id: int) -> tuple[list[Checks], int]:
     """Retrieve a list of checks from the database."""
-    return get_item("checks", person_id), 200
+    return get_item("checks", person_id)
 
 
 @bp.get("/poligrafs/<int:person_id>")
@@ -179,7 +179,7 @@ def get_checks(person_id: int) -> tuple[list[Checks], int]:
 @auth_required()
 def get_poligrafs(person_id: int) -> tuple[list[Poligrafs], int]:
     """Retrieve a list of poligrafs from the database."""
-    return get_item("poligrafs", person_id), 200
+    return get_item("poligrafs", person_id)
 
 
 @bp.get("/inquiries/<int:person_id>")
@@ -187,7 +187,7 @@ def get_poligrafs(person_id: int) -> tuple[list[Poligrafs], int]:
 @auth_required()
 def get_inquiries(person_id: int) -> tuple[list[Inquiries], int]:
     """Retrieve a list of inquiries from the database."""
-    return get_item("inquiries", person_id), 200
+    return get_item("inquiries", person_id)
 
 
 @bp.get("/investigations/<int:person_id>")
@@ -195,7 +195,7 @@ def get_inquiries(person_id: int) -> tuple[list[Inquiries], int]:
 @auth_required()
 def get_investigations(person_id: int) -> tuple[list[Investigations], int]:
     """Retrieve a list of investigations from the database."""
-    return get_item("investigations", person_id), 200
+    return get_item("investigations", person_id)
 
 
 @bp.post("/previous/<int:person_id>")

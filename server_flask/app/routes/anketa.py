@@ -10,7 +10,7 @@ from flask import Blueprint, current_app, request
 from pydantic import ValidationError
 from sqlalchemy.exc import SQLAlchemyError
 
-from app import db
+from app import caching, db
 from app.classes.classes import Roles
 from app.decorators.depend import auth_required, current_user
 from app.decorators.validize import pydantify
@@ -53,6 +53,7 @@ def change_self_id(person_id: int) -> tuple[str, int]:
         current_app.logger.exception("Exception in change_self_id")
         return {"message": "error"}, 400
     else:
+        caching.set_data(person_id, person)
         return {"message": "success"}, 201
 
 
@@ -86,9 +87,9 @@ def post_files(person_id: int) -> tuple[str, int]:
 @bp.post("/api/json")
 @pydantify(BaseResponse)
 @auth_required(Roles.api.value)
-def post_json_api() -> tuple[dict, int]:
+def post_json_api(json_data: AnketaJson) -> tuple[dict, int]:
     """Create a new person or updates an existing person from api."""
-    result = post_json()
+    result = post_json(json_data)
     return (
         {"message": "success" if result.get("person_id") else "error"},
         201 if result.get("person_id") else 400,
@@ -100,21 +101,19 @@ def post_json_api() -> tuple[dict, int]:
 @auth_required(Roles.user.value)
 def post_json_file() -> tuple[dict, int]:
     """Create a new person or updates an existing person from file."""
-    result = post_json()
+    # Чтение файла JSON и создание объектов классов для сохранения в БД
+    file = request.files.get("file")
+    if not file:
+        return {"person_id": None, "exists": False}, 400
+    json_data = json.load(file)
+    anketa = AnketaJson(**json_data)
+    result = post_json(anketa)
     return result, 201 if result.get("person_id") else 400
 
 
-def post_json() -> dict:
+def post_json(anketa: AnketaJson) -> dict:
     """Create a new person or updates an existing person based on the provided data."""
     try:
-        # Чтение файла JSON и создание объектов классов для сохранения в БД
-        file = request.files.get("file")
-        if not file:
-            return {"person_id": None, "exists": False}, 400
-
-        json_data = json.load(file)
-        anketa = AnketaJson(**json_data)
-
         # Валидация данных и создание объекта класса Person
         resume = PersonIn(**anketa.dict(exclude_none=True))
         # Загрузка резюме в БД
