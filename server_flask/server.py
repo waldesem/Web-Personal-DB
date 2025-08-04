@@ -1,10 +1,11 @@
 """A module that runs the application server."""
 
 import argparse
+import asyncio
 
 from app import create_app
 from webgui import run_desktop
-from wsgi import wsgi_server
+from wsgi import async_server
 
 
 def main() -> None:
@@ -15,10 +16,10 @@ def main() -> None:
             uv run server.py --host 127.0.0.1 --port 5000 --mode debug
 
         For development:
-            uv run server.py --host 127.0.0.1 --port 5000 --mode simple
+            uv run server.py --host 127.0.0.1 --port 5000 --mode devel
 
         For production:
-            uv run server.py --host 127.0.0.1 --port 5000 --workers 8 --mode server
+            uv run server.py --host 127.0.0.1 --port 5000 --mode server
 
         For desktop:
             uv run server.py
@@ -37,9 +38,9 @@ def main() -> None:
     )
     parser.add_argument(
         "--mode",
-        choices=["debug", "devel", "server", "desktop"],
+        choices=["debug", "devel", "async", "desktop"],
         default="desktop",
-        help="The mode to run the server in (debug, devel, server, desktop).",
+        help="The mode to run the server in (debug, devel, async, desktop).",
     )
     args = parser.parse_args()
 
@@ -50,8 +51,8 @@ def main() -> None:
             app.run(host=args.host, port=args.port, debug=True)
         case "devel":
             app.run(host=args.host, port=args.port, debug=False)
-        case "server":
-            wsgi_server(app, address=args.host, port=args.port)
+        case "async":
+            asyncio.run(async_server(app, address=args.host, port=args.port))
         case _:
             run_desktop(app, address=args.host, port=args.port)
 
