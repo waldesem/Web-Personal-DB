@@ -57,9 +57,9 @@ workForm.value.finished = workForm.value.finished
         required
       />
     </UFormField>
-    <UFormField label="Адрес организации" name="addresses">
+    <UFormField label="Адрес организации" name="address">
       <UTextarea
-        v-model.trim.lazy="workForm.addresses"
+        v-model.trim.lazy="workForm.address"
         placeholder="Адрес организации"
       />
     </UFormField>

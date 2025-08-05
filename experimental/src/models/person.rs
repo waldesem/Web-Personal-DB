@@ -1,18 +1,17 @@
-use crate::schema::persons;
-use crate::models::user::User;
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
+use crate::models::user::User;
 
-#[derive(Queryable, Identifiable, Associations, Serialize, Deserialize)]
-#[diesel(table_name = persons)]
-#[diesel(has_many(User, foreign_key = user_id))]
+#[derive(Queryable, Selectable, Serialize, Deserialize, Associations)]
+#[diesel(table_name = crate::schema::persons)]
+#[diesel(belongs_to(User, foreign_key = user_id))]
 pub struct Person {
     pub id: i32,
     pub surname: String,
     pub firstname: String,
     pub patronymic: Option<String>,
-    pub birthday: NaiveDate,
+    pub birthday: String,
     pub birthplace: String,
     pub citizenship: Option<String>,
     pub dual: Option<String>,

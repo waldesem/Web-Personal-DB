@@ -10,7 +10,7 @@ const props = defineProps({
 
 const address = {
   Тип: props.item.view,
-  Адрес: props.item.addresses,
+  Адрес: props.item.address,
 };
 </script>
 

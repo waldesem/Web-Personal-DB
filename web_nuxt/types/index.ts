@@ -86,7 +86,7 @@ export interface Passport {
 export interface Address {
   id: string;
   view: string;
-  addresses: string;
+  address: string;
 }
 
 export interface Contact {
@@ -101,7 +101,7 @@ export interface Work {
   starts: string;
   finished: string;
   workplace: string;
-  addresses: string;
+  address: string;
   reason: string;
   position: string;
 }

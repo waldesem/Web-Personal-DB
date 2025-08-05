@@ -214,7 +214,7 @@ class Addresses(db.Model):
 
     id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
     view: Mapped[str] = mapped_column(String(255))
-    addresses: Mapped[str] = mapped_column(Text)
+    address: Mapped[str] = mapped_column(Text)
     created: Mapped[datetime] = mapped_column(
         DateTime,
         default=func.now(),
@@ -251,7 +251,7 @@ class Workplaces(db.Model):
     starts: Mapped[datetime | None] = mapped_column(Date)
     finished: Mapped[datetime | None] = mapped_column(Date)
     workplace: Mapped[str] = mapped_column(String(255))
-    addresses: Mapped[str] = mapped_column(Text)
+    address: Mapped[str] = mapped_column(Text)
     position: Mapped[str] = mapped_column(Text)
     reason: Mapped[str] = mapped_column(Text)
     created: Mapped[datetime] = mapped_column(

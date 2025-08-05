@@ -17,7 +17,7 @@ const workplace = {
     ? new Date(props.item.finished).toLocaleDateString("ru-RU").split(",")[0]
     : "",
   Место: props.item.workplace,
-  Адрес: props.item.addresses,
+  Адрес: props.item.address,
   Должность: props.item.position,
   "Причина увольнения": props.item.reason,
 };

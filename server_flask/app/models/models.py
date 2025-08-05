@@ -232,7 +232,7 @@ class Address(Model):
     """Addresses schema."""
 
     view: str
-    addresses: str
+    address: str
 
 
 class Contact(Model):
@@ -249,7 +249,7 @@ class Workplace(Model):
     starts: date | None = Field(alias="beginDate")
     finished: date | None = Field(default=None, alias="endDate")
     workplace: str | None = Field(alias="name")
-    addresses: str | None = ""
+    address: str | None = ""
     position: str
     reason: str | None = Field(default="", alias="fireReason")
 

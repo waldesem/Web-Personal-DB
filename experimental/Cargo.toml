@@ -7,3 +7,6 @@ edition = "2024"
 actix-files = "0.6.6"
 actix-web = "4"
 serde = { version = "1.0.219", features = ["derive"] }
+diesel = { version = "2.2.0", features = ["sqlite", "returning_clauses_for_sqlite_3_35"] }
+dotenvy = "0.15"
+chrono = { version = "0.4", features = ["serde"] }
