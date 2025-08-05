@@ -176,15 +176,14 @@ diesel::table! {
         fullname -> Text,
         username -> Text,
         email -> Text,
+        created -> Timestamp,
         passhash -> Text,
         pswd_create -> Timestamp,
         change_pswd -> Bool,
         blocked -> Bool,
         deleted -> Bool,
-        attempt -> Nullable<Integer>,
+        attempt -> Integer,
         role -> Text,
-        created -> Timestamp,
-        region -> Text,
     }
 }
 
