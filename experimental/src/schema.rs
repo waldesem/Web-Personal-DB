@@ -119,7 +119,7 @@ diesel::table! {
         created -> Timestamp,
         region -> Nullable<Text>,
         editable -> Bool,
-        user_id -> Nullable<Integer>,
+        user_id -> Integer,
     }
 }
 

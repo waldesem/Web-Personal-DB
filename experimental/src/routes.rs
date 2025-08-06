@@ -1,7 +1,7 @@
 use actix_web::web;
 
 use crate::handlers::anketa::{files, json_api, self_id};
-use crate::handlers::candidates::candidates;
+use crate::handlers::candidates::get_index;
 use crate::handlers::items::{get_item, post_item, delete_item};
 use crate::handlers::login::login;
 use crate::handlers::person::{get_person, post_person, delete_person};
@@ -10,7 +10,7 @@ use crate::handlers::user::{get_users, post_user, edit_user};
 pub fn configure(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/route")
-            .route("/index", web::get().to(candidates))
+            .route("/index", web::get().to(get_index))
             .route("/users", web::get().to(get_users))
             .route("/user", web::post().to(post_user))
             .route("/user/{id}", web::get().to(edit_user))

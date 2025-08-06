@@ -65,7 +65,6 @@ pub async fn login(
                 }
             }
 
-            // Генерация JWT-токена
             let token = JwToken {
                 id: user.id,
                 username: user.username,
@@ -94,7 +93,6 @@ pub async fn login(
 }
 
 pub async fn logout() -> impl Responder {
-    // Здесь может быть логика отзыва токена (например, добавление в черный список)
     HttpResponse::Ok().json(Auth {
         message: "success".to_string(),
         access_token: None,
