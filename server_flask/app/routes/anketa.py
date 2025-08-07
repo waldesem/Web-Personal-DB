@@ -14,7 +14,7 @@ from app import caching, db
 from app.classes.classes import Roles
 from app.decorators.depend import auth_required, current_user
 from app.decorators.validize import pydantify
-from app.models.models import AnketaJson, BaseResponse, PersonIn, ResumeModel
+from app.models.models import AnketaJson, BaseResponse, PersonIn, ResumeResponse
 from app.tables.tables import (
     Addresses,
     Affilations,
@@ -97,7 +97,7 @@ def post_json_api(json_data: AnketaJson) -> tuple[dict, int]:
 
 
 @bp.post("/json")
-@pydantify(ResumeModel)
+@pydantify(ResumeResponse)
 @auth_required(Roles.user.value)
 def post_json_file() -> tuple[dict, int]:
     """Create a new person or updates an existing person from file."""

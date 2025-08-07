@@ -7,7 +7,7 @@ from app import caching, db
 from app.classes.classes import Roles
 from app.decorators.depend import auth_required
 from app.decorators.validize import pydantify
-from app.models.models import PersonIn, PersonOut, ResumeModel
+from app.models.models import PersonIn, PersonOut, ResumeResponse
 from app.tables.tables import Persons
 from app.utils.utilities import upload_resume
 
@@ -27,7 +27,7 @@ def get_person(person_id: int) -> tuple[Persons, int]:
 
 
 @bp.post("/persons")
-@pydantify(ResumeModel)
+@pydantify(ResumeResponse)
 @auth_required(Roles.user.value)
 def post_person(json_data: PersonIn) -> tuple[dict, int]:
     """Replace a record in persons table."""
@@ -38,7 +38,7 @@ def post_person(json_data: PersonIn) -> tuple[dict, int]:
 
 
 @bp.delete("/persons/<int:person_id>")
-@pydantify(ResumeModel)
+@pydantify(ResumeResponse)
 @auth_required(Roles.user.value)
 def delete_person(person_id: int) -> tuple[str, int]:
     """Delete an item from the database based on the provided item name and item ID."""

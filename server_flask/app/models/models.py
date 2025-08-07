@@ -2,19 +2,18 @@
 
 from __future__ import annotations
 
-from datetime import date, datetime  # noqa: TC003
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, Field, validator
 
 from app.classes.classes import Conclusions, Decisions, Roles
 
+if TYPE_CHECKING:
+    from datetime import date, datetime
+
 
 class Model(BaseModel):
     """Base Pydantic model."""
-
-    id: int | None
-    created: datetime | str | None
 
     class Config:
         """Pydantic config."""
@@ -37,7 +36,7 @@ class BaseResponse(BaseModel):
     message: str
 
 
-class ResumeModel(BaseModel):
+class ResumeResponse(BaseModel):
     """MOdel for resume creation return."""
 
     person_id: int | None
@@ -111,12 +110,13 @@ class UserForm(BaseModel):
 class User(UserForm, Model):
     """Pydantic model for user form."""
 
+    id: int | None
     pswd_create: datetime
     change_pswd: bool
     blocked: bool
     deleted: bool
     attempt: int
-
+    created: datetime | str | None
 
 class UserActions(BaseModel):
     """Pydantic model for user actions form."""
@@ -142,6 +142,7 @@ class PersonIn(Model):
 
     __PATTERN = r"^[А-яЁёIV\-\s\.\,\'\(\)]*$"
 
+    id: int | None
     surname: str = Field(alias="lastName", regex=__PATTERN)
     firstname: str = Field(alias="firstName", regex=__PATTERN)
     patronymic: str | None = Field(default="", alias="midName")
@@ -155,6 +156,7 @@ class PersonIn(Model):
     addition: str | None = ""
     destination: str | None = ""
     editable: bool = False
+    created: datetime | str | None
 
     @validator("surname", "firstname", "patronymic")
     @classmethod
@@ -166,6 +168,7 @@ class PersonIn(Model):
 class PersonOut(Model):
     """Pydantic model for person."""
 
+    id: int | None
     surname: str
     firstname: str
     patronymic: str | None
@@ -179,72 +182,81 @@ class PersonOut(Model):
     addition: str | None
     destination: str | None
     editable: bool
+    created: datetime | str | None
     user_id: int
 
 
 class Candidates(Model):
     """Pydantic model for candidate."""
 
+    id: int | None
     fullname: str
     birthday: date
     editable: bool
     username: str
     total: int
-
+    created: datetime | str | None
 
 class Prev(Model):
     """Previous schema."""
 
+    id: int | None
     surname: str | None = Field(alias="lastNameBeforeChange")
     firstname: str | None = Field(alias="firstNameBeforeChange")
     patronymic: str | None = Field(default="", alias="midNameBeforeChange")
     changed: str | int | None = Field(default="", alias="yearOfChange")
     reason: str | None = ""
-
+    created: datetime | str | None
 
 class Education(Model):
     """Educations schema."""
 
+    id: int | None
     view: str | None = Field(default="", alias="educationType")
     institution: str = Field(default="", alias="institutionName")
     finished: str | int | None = Field(default="", alias="endYear")
     specialty: str | None = ""
-
+    created: datetime | str | None
 
 class Staff(Model):
     """Staffs schema."""
 
+    id: int | None
     position: str
     department: str | None = ""
-
+    created: datetime | str | None
 
 class Document(Model):
     """Documents schema."""
 
-    view: str
+    id: int | None
+    view: str | None = Field(default="", alias="documentType")
     series: str | None = ""
     digits: str
     agency: str | None = ""
     issue: date | None
-
+    created: datetime | str | None
 
 class Address(Model):
     """Addresses schema."""
 
+    id: int | None
     view: str
     address: str
-
+    created: datetime | str | None
 
 class Contact(Model):
     """Contacts schema."""
 
+    id: int | None
     view: str
     contact: str
-
+    created: datetime | str | None
 
 class Workplace(Model):
     """Workplaces schema."""
 
+    id: int | None
     now_work: bool | None = Field(default=False, alias="currentJob")
     starts: date | None = Field(alias="beginDate")
     finished: date | None = Field(default=None, alias="endDate")
@@ -252,19 +264,21 @@ class Workplace(Model):
     address: str | None = ""
     position: str
     reason: str | None = Field(default="", alias="fireReason")
-
+    created: datetime | str | None
 
 class Affilation(Model):
     """Affilations schema."""
 
-    view: str | None = ""
+    id: int | None
+    view: str | None = Field(default="", alias="organizationType")
     organization: str | None = Field(default="", alias="name")
     inn: str | None = ""
-
+    created: datetime | str | None
 
 class Check(Model):
     """Checks schema."""
 
+    id: int | None
     workplace: str | None = ""
     document: str | None = ""
     inn: str | None = ""
@@ -281,30 +295,33 @@ class Check(Model):
     addition: str | None = ""
     comment: str | None = ""
     conclusion: Conclusions
-
+    created: datetime | str | None
 
 class Poligraf(Model):
     """Poligraf schema."""
 
+    id: int | None
     theme: str
     results: str | None
     conclusion: Decisions
-
+    created: datetime | str | None
 
 class Investigation(Model):
     """Investigations schema."""
 
+    id: int | None
     theme: str
     info: str
-
+    created: datetime | str | None
 
 class Inquiry(Model):
     """Inquiries schema."""
 
+    id: int | None
     info: str
     initiator: str
     origins: str | None = ""
-
+    created: datetime | str | None
 
 class AnketaJson(PersonIn):
     """Candidate anketa schema."""

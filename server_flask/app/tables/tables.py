@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from datetime import date, datetime  # noqa: TC003
-
 from sqlalchemy import (
     Boolean,
     Date,
@@ -31,12 +29,12 @@ class Users(db.Model):
     fullname: Mapped[str] = mapped_column(String(255), nullable=False)
     username: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     email: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
-    created: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+    created: Mapped[DateTime] = mapped_column(DateTime, default=func.now())
     passhash: Mapped[str] = mapped_column(
         String(255),
         default=generate_password_hash(Config.DEFAULT_PASSWORD),
     )
-    pswd_create: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+    pswd_create: Mapped[DateTime] = mapped_column(DateTime, default=func.now())
     change_pswd: Mapped[bool] = mapped_column(Boolean(), default=True)
     blocked: Mapped[bool] = mapped_column(Boolean(), default=False)
     deleted: Mapped[bool] = mapped_column(Boolean(), default=False)
@@ -53,22 +51,22 @@ class Persons(db.Model):
     surname: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     firstname: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     patronymic: Mapped[str] = mapped_column(String(255), index=True)
-    birthday: Mapped[date] = mapped_column(Date, nullable=False)
+    birthday: Mapped[Date] = mapped_column(Date, nullable=False)
     birthplace: Mapped[str] = mapped_column(Text)
     citizenship: Mapped[str] = mapped_column(String(255))
     dual: Mapped[str] = mapped_column(String(255))
-    snils: Mapped[str] = mapped_column(String(11))
-    inn: Mapped[str] = mapped_column(String(12))
+    snils: Mapped[str] = mapped_column(String(255))
+    inn: Mapped[str] = mapped_column(String(255))
     marital: Mapped[str] = mapped_column(String(255))
     addition: Mapped[str] = mapped_column(Text)
     destination: Mapped[str] = mapped_column(Text)
-    created: Mapped[datetime] = mapped_column(
+    created: Mapped[DateTime] = mapped_column(
         DateTime,
         default=func.now(),
         onupdate=func.now(),
     )
     editable: Mapped[bool] = mapped_column(Boolean(), default=False)
-    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"))
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     previous: Mapped[list[Previous]] = relationship(
         back_populates="person",
         cascade="all, delete",
@@ -142,12 +140,14 @@ class Previous(db.Model):
     patronymic: Mapped[str] = mapped_column(String(255))
     changed: Mapped[str] = mapped_column(String(255))
     reason: Mapped[str] = mapped_column(Text)
-    created: Mapped[datetime] = mapped_column(
+    created: Mapped[DateTime] = mapped_column(
         DateTime,
         default=func.now(),
         onupdate=func.now(),
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"), index=True)
+    person_id: Mapped[int] = mapped_column(
+        ForeignKey("persons.id"), index=True, nullable=False,
+    )
     person: Mapped[Persons] = relationship(back_populates="previous")
 
 
@@ -161,12 +161,14 @@ class Educations(db.Model):
     institution: Mapped[str] = mapped_column(Text)
     finished: Mapped[int] = mapped_column(Integer)
     specialty: Mapped[str] = mapped_column(Text)
-    created: Mapped[datetime] = mapped_column(
+    created: Mapped[DateTime] = mapped_column(
         DateTime,
         default=func.now(),
         onupdate=func.now(),
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"), index=True)
+    person_id: Mapped[int] = mapped_column(
+        ForeignKey("persons.id"), index=True, nullable=False,
+    )
     person: Mapped[Persons] = relationship(back_populates="educations")
 
 
@@ -178,12 +180,16 @@ class Staffs(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
     position: Mapped[str] = mapped_column(Text)
     department: Mapped[str] = mapped_column(Text)
-    created: Mapped[datetime] = mapped_column(
+    created: Mapped[DateTime] = mapped_column(
         DateTime,
         default=func.now(),
         onupdate=func.now(),
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"), index=True)
+    person_id: Mapped[int] = mapped_column(
+        ForeignKey("persons.id"),
+        index=True,
+        nullable=False,
+    )
     person: Mapped[Persons] = relationship(back_populates="staffs")
 
 
@@ -197,13 +203,17 @@ class Documents(db.Model):
     series: Mapped[str] = mapped_column(String(255))
     digits: Mapped[str] = mapped_column(String(255))
     agency: Mapped[str] = mapped_column(Text)
-    issue: Mapped[datetime] = mapped_column(Date)
-    created: Mapped[datetime] = mapped_column(
+    issue: Mapped[DateTime] = mapped_column(Date)
+    created: Mapped[DateTime] = mapped_column(
         DateTime,
         default=func.now(),
         onupdate=func.now(),
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"), index=True)
+    person_id: Mapped[int] = mapped_column(
+        ForeignKey("persons.id"),
+        index=True,
+        nullable=False,
+    )
     person: Mapped[Persons] = relationship(back_populates="documents")
 
 
@@ -215,12 +225,16 @@ class Addresses(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
     view: Mapped[str] = mapped_column(String(255))
     address: Mapped[str] = mapped_column(Text)
-    created: Mapped[datetime] = mapped_column(
+    created: Mapped[DateTime] = mapped_column(
         DateTime,
         default=func.now(),
         onupdate=func.now(),
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"), index=True)
+    person_id: Mapped[int] = mapped_column(
+        ForeignKey("persons.id"),
+        index=True,
+        nullable=False,
+    )
     person: Mapped[Persons] = relationship(back_populates="addresses")
 
 
@@ -232,12 +246,16 @@ class Contacts(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
     view: Mapped[str] = mapped_column(String(255))
     contact: Mapped[str] = mapped_column(String(255))
-    created: Mapped[datetime] = mapped_column(
+    created: Mapped[DateTime] = mapped_column(
         DateTime,
         default=func.now(),
         onupdate=func.now(),
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"), index=True)
+    person_id: Mapped[int] = mapped_column(
+        ForeignKey("persons.id"),
+        index=True,
+        nullable=False,
+    )
     person: Mapped[Persons] = relationship(back_populates="contacts")
 
 
@@ -248,18 +266,22 @@ class Workplaces(db.Model):
 
     id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
     now_work: Mapped[bool] = mapped_column(Boolean, default=False)
-    starts: Mapped[datetime | None] = mapped_column(Date)
-    finished: Mapped[datetime | None] = mapped_column(Date)
+    starts: Mapped[DateTime | None] = mapped_column(Date)
+    finished: Mapped[DateTime | None] = mapped_column(Date)
     workplace: Mapped[str] = mapped_column(String(255))
     address: Mapped[str] = mapped_column(Text)
     position: Mapped[str] = mapped_column(Text)
     reason: Mapped[str] = mapped_column(Text)
-    created: Mapped[datetime] = mapped_column(
+    created: Mapped[DateTime] = mapped_column(
         DateTime,
         default=func.now(),
         onupdate=func.now(),
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"), index=True)
+    person_id: Mapped[int] = mapped_column(
+        ForeignKey("persons.id"),
+        index=True,
+        nullable=False,
+    )
     person: Mapped[Persons] = relationship(back_populates="workplaces")
 
 
@@ -272,12 +294,16 @@ class Affilations(db.Model):
     view: Mapped[str] = mapped_column(String(255))
     organization: Mapped[str] = mapped_column(Text)
     inn: Mapped[str] = mapped_column(String(255))
-    created: Mapped[datetime] = mapped_column(
+    created: Mapped[DateTime] = mapped_column(
         DateTime,
         default=func.now(),
         onupdate=func.now(),
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"), index=True)
+    person_id: Mapped[int] = mapped_column(
+        ForeignKey("persons.id"),
+        index=True,
+        nullable=False,
+    )
     person: Mapped[Persons] = relationship(back_populates="affilations")
 
 
@@ -303,12 +329,16 @@ class Checks(db.Model):
     addition: Mapped[str] = mapped_column(Text)
     comment: Mapped[str] = mapped_column(Text)
     conclusion: Mapped[str] = mapped_column(Text)
-    created: Mapped[datetime] = mapped_column(
+    created: Mapped[DateTime] = mapped_column(
         DateTime,
         default=func.now(),
         onupdate=func.now(),
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"), index=True)
+    person_id: Mapped[int] = mapped_column(
+        ForeignKey("persons.id"),
+        index=True,
+        nullable=False,
+    )
     person: Mapped[Persons] = relationship(back_populates="checks")
 
 
@@ -321,12 +351,16 @@ class Poligrafs(db.Model):
     theme: Mapped[str] = mapped_column(String(255))
     results: Mapped[str] = mapped_column(Text)
     conclusion: Mapped[str] = mapped_column(String(255))
-    created: Mapped[datetime] = mapped_column(
+    created: Mapped[DateTime] = mapped_column(
         DateTime,
         default=func.now(),
         onupdate=func.now(),
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"), index=True)
+    person_id: Mapped[int] = mapped_column(
+        ForeignKey("persons.id"),
+        index=True,
+        nullable=False,
+    )
     person: Mapped[Persons] = relationship(back_populates="poligrafs")
 
 
@@ -338,12 +372,16 @@ class Investigations(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
     theme: Mapped[str] = mapped_column(String(255))
     info: Mapped[str] = mapped_column(Text)
-    created: Mapped[datetime] = mapped_column(
+    created: Mapped[DateTime] = mapped_column(
         DateTime,
         default=func.now(),
         onupdate=func.now(),
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"), index=True)
+    person_id: Mapped[int] = mapped_column(
+        ForeignKey("persons.id"),
+        index=True,
+        nullable=False,
+    )
     person: Mapped[Persons] = relationship(back_populates="investigations")
 
 
@@ -356,10 +394,14 @@ class Inquiries(db.Model):
     info: Mapped[str] = mapped_column(Text)
     initiator: Mapped[str] = mapped_column(String(255))
     origins: Mapped[str] = mapped_column(String(255))
-    created: Mapped[datetime] = mapped_column(
+    created: Mapped[DateTime] = mapped_column(
         DateTime,
         default=func.now(),
         onupdate=func.now(),
     )
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"), index=True)
+    person_id: Mapped[int] = mapped_column(
+        ForeignKey("persons.id"),
+        index=True,
+        nullable=False,
+    )
     person: Mapped[Persons] = relationship(back_populates="inquiries")
