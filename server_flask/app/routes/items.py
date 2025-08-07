@@ -93,7 +93,7 @@ def post_item(item: Items, person_id: int, json_data: BaseModel) -> tuple[dict, 
         db.session.execute(stmt)
         db.session.commit()
         # Удаление устаревших данных из кэша
-        caching.set_data(person_id, [], item)
+        caching.set_data(person_id, item=item)
     except SQLAlchemyError:
         current_app.logger.exception("Database error")
         db.session.rollback()

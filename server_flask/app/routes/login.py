@@ -16,17 +16,18 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from app import auth, db
 from app.decorators.depend import auth_required
 from app.decorators.validize import pydantify
-from app.models.models import Auth, Login, Token
+from app.models.models import AuthResponse, Login, Token
 from app.tables.tables import Users
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
-Actions = Literal["login", "update"]
-
 
 @bp.post("/<action>")
-@pydantify(Auth)
-def post_login(action: Actions, json_data: Login) -> tuple[str | dict, int]:
+@pydantify(AuthResponse)
+def post_login(
+    action: Literal["login", "update"],
+    json_data: Login,
+) -> tuple[str | dict, int]:
     """Handle the login process."""
     try:
         user = db.session.execute(

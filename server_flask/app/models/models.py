@@ -2,14 +2,12 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Literal
+from datetime import date, datetime  # noqa: TC003
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field, validator
 
 from app.classes.classes import Conclusions, Decisions, Roles
-
-if TYPE_CHECKING:
-    from datetime import date, datetime
 
 
 class Model(BaseModel):
@@ -43,6 +41,13 @@ class ResumeResponse(BaseModel):
     exists: bool
 
 
+class AuthResponse(BaseModel):
+    """Pydantic model for auth."""
+
+    message: str
+    access_token: str | None
+
+
 class Login(BaseModel):
     """Pydantic model for login form."""
 
@@ -55,13 +60,6 @@ class Login(BaseModel):
     def username_check(cls, v: str) -> str:
         """Check username."""
         return v.lower()
-
-
-class Auth(BaseModel):
-    """Pydantic model for auth."""
-
-    message: str
-    access_token: str | None
 
 
 class Token(BaseModel):
@@ -117,6 +115,7 @@ class User(UserForm, Model):
     deleted: bool
     attempt: int
     created: datetime | str | None
+
 
 class UserActions(BaseModel):
     """Pydantic model for user actions form."""
@@ -197,6 +196,7 @@ class Candidates(Model):
     total: int
     created: datetime | str | None
 
+
 class Prev(Model):
     """Previous schema."""
 
@@ -208,6 +208,7 @@ class Prev(Model):
     reason: str | None = ""
     created: datetime | str | None
 
+
 class Education(Model):
     """Educations schema."""
 
@@ -218,6 +219,7 @@ class Education(Model):
     specialty: str | None = ""
     created: datetime | str | None
 
+
 class Staff(Model):
     """Staffs schema."""
 
@@ -225,6 +227,7 @@ class Staff(Model):
     position: str
     department: str | None = ""
     created: datetime | str | None
+
 
 class Document(Model):
     """Documents schema."""
@@ -237,6 +240,7 @@ class Document(Model):
     issue: date | None
     created: datetime | str | None
 
+
 class Address(Model):
     """Addresses schema."""
 
@@ -245,6 +249,7 @@ class Address(Model):
     address: str
     created: datetime | str | None
 
+
 class Contact(Model):
     """Contacts schema."""
 
@@ -252,6 +257,7 @@ class Contact(Model):
     view: str
     contact: str
     created: datetime | str | None
+
 
 class Workplace(Model):
     """Workplaces schema."""
@@ -266,6 +272,7 @@ class Workplace(Model):
     reason: str | None = Field(default="", alias="fireReason")
     created: datetime | str | None
 
+
 class Affilation(Model):
     """Affilations schema."""
 
@@ -274,6 +281,7 @@ class Affilation(Model):
     organization: str | None = Field(default="", alias="name")
     inn: str | None = ""
     created: datetime | str | None
+
 
 class Check(Model):
     """Checks schema."""
@@ -297,6 +305,7 @@ class Check(Model):
     conclusion: Conclusions
     created: datetime | str | None
 
+
 class Poligraf(Model):
     """Poligraf schema."""
 
@@ -306,6 +315,7 @@ class Poligraf(Model):
     conclusion: Decisions
     created: datetime | str | None
 
+
 class Investigation(Model):
     """Investigations schema."""
 
@@ -313,6 +323,7 @@ class Investigation(Model):
     theme: str
     info: str
     created: datetime | str | None
+
 
 class Inquiry(Model):
     """Inquiries schema."""
@@ -322,6 +333,7 @@ class Inquiry(Model):
     initiator: str
     origins: str | None = ""
     created: datetime | str | None
+
 
 class AnketaJson(PersonIn):
     """Candidate anketa schema."""
