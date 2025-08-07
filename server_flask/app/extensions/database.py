@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 from flask import Flask  # noqa: TC002
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, Session, scoped_session, sessionmaker
@@ -21,7 +19,7 @@ class Database:
         self.Model = Base
         self.metadata = self.Model.metadata
         self.metatables = self.metadata.tables
-        self.session = Optional[Session]
+        self.session = Session | None
         if app is not None:
             self.init_app(app)
 

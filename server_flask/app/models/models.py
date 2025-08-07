@@ -46,6 +46,7 @@ class AuthResponse(BaseModel):
 
     message: str
     access_token: str | None
+    refresh_token: str | None
 
 
 class Login(BaseModel):
@@ -77,6 +78,14 @@ class Token(BaseModel):
         """Pydantic config."""
 
         use_enum_values = True
+
+
+class Refresh(BaseModel):
+    """Refresh token payload."""
+
+    id: int
+    exp: datetime
+    jti: str
 
 
 class UserForm(BaseModel):

@@ -7,16 +7,16 @@ from datetime import datetime, timedelta
 from typing import Literal
 
 import jwt
-from flask import Blueprint, current_app
+from flask import Blueprint, current_app, g
 from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from app import auth, db
-from app.decorators.depend import auth_required
+from app import db, revoked
+from app.decorators.depend import auth_required, current_user
 from app.decorators.validize import pydantify
-from app.models.models import AuthResponse, Login, Token
+from app.models.models import AuthResponse, Login, Refresh, Token
 from app.tables.tables import Users
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
@@ -68,12 +68,23 @@ def post_login(
                 exp=datetime.now() + timedelta(hours=12),
                 jti=secrets.token_hex(16),
             )
+            refresh = Refresh(
+                id=user.id,
+                exp=datetime.now() + timedelta(days=30),
+                jti=secrets.token_hex(16),
+            )
             return {
                 "message": "success",
                 "access_token": "Bearer "
                 + jwt.encode(
                     token.dict(),
                     current_app.config["JWT_SECRET_KEY"],
+                    algorithm="HS256",
+                ),
+                "refresh_token": "Bearer "
+                + jwt.encode(
+                    refresh.dict(),
+                    current_app.config["REFRESH_SECRET_KEY"],
                     algorithm="HS256",
                 ),
             }, 200
@@ -90,5 +101,34 @@ def post_login(
 @auth_required()
 def get_logout() -> tuple[str, int]:
     """Logout the user."""
-    auth.revoke_token()
+    revoked.revoke()
     return {"message": "success"}, 200
+
+
+@bp.post("/refresh")
+@pydantify(AuthResponse)
+@auth_required(refresh=True)
+def get_refresh() -> tuple[str, int]:
+    """Refresh the access token."""
+    if "token" in g:
+        token = Token(
+            id=current_user.id,
+            fullname=current_user.fullname,
+            username=current_user.username,
+            email=current_user.email,
+            role=current_user.role,
+            exp=datetime.now() + timedelta(hours=12),
+            jti=secrets.token_hex(16),
+        )
+        return (
+            {
+                "message": "success",
+                "access_token": "Bearer "
+                + jwt.encode(
+                    token.dict(),
+                    current_app.config["JWT_SECRET_KEY"],
+                    algorithm="HS256",
+                ),
+            },
+        ), 200
+    return {"message": "invalid"}, 400

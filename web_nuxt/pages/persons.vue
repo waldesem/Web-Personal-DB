@@ -85,7 +85,7 @@ onChange(async (files) => {
   const { person_id, exists } = await $api<{
     person_id: string;
     exists: boolean;
-  }>("/route/anketa/json", {
+  }>("/route/json", {
     method: "POST",
     body: formData,
   });

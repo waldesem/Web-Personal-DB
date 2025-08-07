@@ -50,7 +50,7 @@ async function switchSelf(): Promise<void> {
   }
   status.value = "pending";
   const { message } = (await $api<Record<string, string>>(
-    "/route/anketa/self/" + person.value?.id
+    "/route/self/" + person.value?.id
   ));
   status.value = message as "success" | "error";
   if (message == "success") {
@@ -74,7 +74,7 @@ onChange(async (files) => {
     formData.append("file", file);
   }
   const { message } = (await $api<Record<string, string>>(
-    `/route/anketa/files/${candId.value}`,
+    `/route/files/${candId.value}`,
     {
       method: "POST",
       body: formData,

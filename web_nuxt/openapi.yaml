@@ -21,7 +21,7 @@ components:
       $ref: '../schemas/Token.json'
 
 paths:
-  /route/anketa/api/json:
+  /route/api/json:
     post:
       summary: Получение анкеты из JSON
       security:

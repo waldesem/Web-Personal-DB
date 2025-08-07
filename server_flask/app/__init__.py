@@ -7,10 +7,10 @@ import logging
 from flask import Flask, Response, jsonify
 from werkzeug.exceptions import HTTPException
 
-from app.extensions.authorize import Auth
 from app.extensions.caching import Cache
 from app.extensions.compress import Compress
 from app.extensions.database import Database
+from app.extensions.revoking import RevokeDB
 from config import Config
 
 handler = logging.FileHandler("error.log", mode="w", encoding="utf-8")
@@ -18,10 +18,10 @@ handler.setLevel(logging.ERROR)
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 handler.setFormatter(formatter)
 
-auth = Auth()  # Create the JWT authentication instance
 caching = Cache()  # Create the caching instance
 compress = Compress()  # Create the compression instance
-db = Database()  # Create the database instance
+db = Database()  # Create the database instance for SQLAlchemy
+revoked = RevokeDB()  # Create the database instance for revoked tokens
 
 def create_app(config_class: Config = Config) -> Flask:
     """Create and configure the Flask application."""
@@ -29,7 +29,6 @@ def create_app(config_class: Config = Config) -> Flask:
     app.config.from_object(config_class)
     app.logger.addHandler(handler)
 
-    auth.init_app(app)  # Initialize the JWT authentication
     compress.init_app(app)  # Initialize the compression
     db.init_app(app)  # Initialize the database
 
