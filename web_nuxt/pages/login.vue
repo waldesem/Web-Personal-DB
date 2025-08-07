@@ -49,18 +49,22 @@ const validate = (state: Partial<Login>) => {
 };
 
 async function submitLogin() {
-  const { message, access_token } = (await $fetch(
+  const { message, access_token, refresh_token } = (await $fetch(
     "/route/auth/" + action.value,
     {
       method: "POST",
       body: loginForm.value,
     }
-  )) as { message: string; access_token: string };
+  )) as { message: string; access_token: string, refresh_token: string };
   if (message === "success") {
     const token = useCookie("token", {
-      maxAge: 60 * 60 * 24, // 1 day
+      maxAge: 60 * 60 * 12,
     });
     token.value = access_token.split(" ")[1];
+    const refresh = useCookie("refresh", {
+      maxAge: 60 * 60 * 24 * 30,
+    });
+    refresh.value = refresh_token.split(" ")[1];
     return navigateTo("/persons");
   } else if (message === "updated") {
     action.value = "login";
