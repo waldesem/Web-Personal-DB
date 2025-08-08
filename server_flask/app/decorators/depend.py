@@ -36,7 +36,7 @@ def get_current_user(user_id: int) -> Users | Response:
     return abort(401)
 
 
-def auth_required(roles: tuple | None = None, refresh: bool = False) -> Callable:  # noqa: FBT001, FBT002
+def auth_required(roles: tuple | None = None, credential: str = "access") -> Callable:
     """Decorate a function that checks a valid JWT token and the user has roles."""
 
     def decorator(func: Callable) -> Callable:
@@ -44,13 +44,14 @@ def auth_required(roles: tuple | None = None, refresh: bool = False) -> Callable
         def wrapper(*args: tuple, **kwargs: dict) -> Response | Callable:
             if (
                 (header := request.headers.get("Authorization"))
-                and (token := decode_token(header[7:], refresh))
+                and (token := decode_token(header[7:], credential))
                 and token.jti not in jwt_revoked_db.data
             ):
                 g.token = token.dict()
-            if ("token" not in g) or not current_user:
+                if ("token" not in g) or not current_user:
+                    return abort(401)
+            else:
                 return abort(401)
-
             # Role validation
             if roles and current_user.role not in roles:
                 return abort(403)
@@ -62,19 +63,19 @@ def auth_required(roles: tuple | None = None, refresh: bool = False) -> Callable
     return decorator
 
 
-def decode_token(payload: str, refresh: bool = False) -> Token | Refresh | None:  # noqa: FBT001, FBT002
+def decode_token(payload: str, credential: str = "access") -> Token | Refresh | None:
     """Decode JWT token and return payload."""
     try:
         decoded = jwt.decode(
             payload,
             current_app.config["JWT_SECRET_KEY"]
-            if not refresh
+            if credential == "access"
             else current_app.config["REFRESH_SECRET_KEY"],
             algorithms=["HS256"],
             options={"verify_exp": True},
         )
-        token = Token(**decoded) if not refresh else Refresh(**decoded)
-    except (jwt.exceptions.PyJWTError, ValidationError):
+        token = Token(**decoded) if credential == "access" else Refresh(**decoded)
+    except (jwt.exceptions.InvalidTokenError, ValidationError):
         current_app.logger.exception("JWT decode failed")
         return None
     else:

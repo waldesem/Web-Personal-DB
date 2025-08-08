@@ -61,7 +61,7 @@ Items = Literal[
 def get_item(item: Items, person_id: int) -> tuple[list[DeclarativeBase], int]:
     """Retrieve an item from the database based on the provided item."""
     if cached_data := caching.get_data(person_id, item):
-        return cached_data
+        return cached_data, 200
     stmt = (
         db.metatables[item]
         .select()

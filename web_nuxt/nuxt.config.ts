@@ -47,5 +47,5 @@ export default defineNuxtConfig({
   ui: {
     fonts: false,
     colorMode: false,
-  }
+  },
 });

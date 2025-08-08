@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 import secrets
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Literal
 
 import jwt
-from flask import Blueprint, current_app, g
+from flask import Blueprint, current_app
 from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
@@ -46,49 +46,20 @@ def post_login(
 
         if action == "update":
             user.passhash = generate_password_hash(json_data.new_pswd)
-            user.pswd_create = datetime.now()
+            user.pswd_create = datetime.now(tz=timezone.utc)  # noqa: UP017
             user.change_pswd = False
             user.attempt = 0
             db.session.commit()
             return {"message": "updated"}, 201
 
         delta_change = datetime.now() - user.pswd_create
-        if (
-            not user.change_pswd
-            and delta_change.days < 365
-        ):
+        if not user.change_pswd and delta_change.days < 365:
             user.attempt = 0
             db.session.commit()
-            token = Token(
-                id=user.id,
-                fullname=user.fullname,
-                username=user.username,
-                email=user.email,
-                role=user.role,
-                exp=datetime.now()
-                + timedelta(minutes=current_app.config["JWT_SECRET_KEY_LIVE"]),
-                jti=secrets.token_hex(16),
-            )
-            refresh = Refresh(
-                id=user.id,
-                exp=datetime.now()
-                + timedelta(days=current_app.config["REFRESH_SECRET_KEY_LIVE"]),
-                jti=secrets.token_hex(16),
-            )
             return {
                 "message": "success",
-                "access_token": "Bearer "
-                + jwt.encode(
-                    token.dict(),
-                    current_app.config["JWT_SECRET_KEY"],
-                    algorithm="HS256",
-                ),
-                "refresh_token": "Bearer "
-                + jwt.encode(
-                    refresh.dict(),
-                    current_app.config["REFRESH_SECRET_KEY"],
-                    algorithm="HS256",
-                ),
+                "access_token": "Bearer " + create_access_token(user),
+                "refresh_token": "Bearer " + create_refresh_token(user),
             }, 200
         return {"message": "denied"}, 200  # noqa: TRY300
 
@@ -109,28 +80,48 @@ def get_logout() -> tuple[str, int]:
 
 @bp.post("/refresh")
 @pydantify(AuthResponse)
-@auth_required(refresh=True)
+@auth_required(credential="refresh")
 def refresh_token() -> tuple[str, int]:
     """Refresh the access token."""
-    if "token" in g:
-        token = Token(
-            id=current_user.id,
-            fullname=current_user.fullname,
-            username=current_user.username,
-            email=current_user.email,
-            role=current_user.role,
-            exp=datetime.now() + timedelta(hours=12),
-            jti=secrets.token_hex(16),
-        )
-        return (
-            {
-                "message": "success",
-                "access_token": "Bearer "
-                + jwt.encode(
-                    token.dict(),
-                    current_app.config["JWT_SECRET_KEY"],
-                    algorithm="HS256",
-                ),
-            },
-        ), 200
-    return {"message": "invalid"}, 400
+    try:
+        access_token = create_access_token(current_user)
+        return {
+            "message": "success",
+            "access_token": "Bearer " + access_token,
+        }, 201
+    except (ValueError, ValidationError):
+        return {"message": "invalid"}, 400
+
+
+def create_access_token(user: Users) -> Token:
+    """Create token."""
+    token = Token(
+        id=user.id,
+        fullname=user.fullname,
+        username=user.username,
+        email=user.email,
+        role=user.role,
+        exp=datetime.now(tz=timezone.utc)  # noqa: UP017
+        + timedelta(minutes=current_app.config["JWT_SECRET_KEY_LIVE"]),
+        jti=secrets.token_hex(16),
+    )
+    return jwt.encode(
+        token.dict(),
+        current_app.config["JWT_SECRET_KEY"],
+        algorithm="HS256",
+    )
+
+
+def create_refresh_token(user: Users) -> Refresh:
+    """Create refresh token."""
+    refresh = Refresh(
+        id=user.id,
+        exp=datetime.now()
+        + timedelta(days=current_app.config["REFRESH_SECRET_KEY_LIVE"]),
+        jti=secrets.token_hex(16),
+    )
+    return jwt.encode(
+        refresh.dict(),
+        current_app.config["REFRESH_SECRET_KEY"],
+        algorithm="HS256",
+    )

@@ -58,7 +58,7 @@ async function submitLogin() {
   )) as { message: string; access_token: string, refresh_token: string };
   if (message === "success") {
     const token = useCookie("token", {
-      maxAge: 60 * 60 * 12,
+      maxAge: 60 * 15,
     });
     token.value = access_token.split(" ")[1];
     const refresh = useCookie("refresh", {
