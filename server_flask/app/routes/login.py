@@ -55,7 +55,7 @@ def post_login(
         delta_change = datetime.now() - user.pswd_create
         if (
             not user.change_pswd
-            and delta_change.days < current_app.config["JWT_SECRET_KEY_LIVE"]
+            and delta_change.days < 365
         ):
             user.attempt = 0
             db.session.commit()
@@ -65,12 +65,14 @@ def post_login(
                 username=user.username,
                 email=user.email,
                 role=user.role,
-                exp=datetime.now() + timedelta(hours=12),
+                exp=datetime.now()
+                + timedelta(minutes=current_app.config["JWT_SECRET_KEY_LIVE"]),
                 jti=secrets.token_hex(16),
             )
             refresh = Refresh(
                 id=user.id,
-                exp=datetime.now() + timedelta(days=30),
+                exp=datetime.now()
+                + timedelta(days=current_app.config["REFRESH_SECRET_KEY_LIVE"]),
                 jti=secrets.token_hex(16),
             )
             return {
@@ -108,7 +110,7 @@ def get_logout() -> tuple[str, int]:
 @bp.post("/refresh")
 @pydantify(AuthResponse)
 @auth_required(refresh=True)
-def get_refresh() -> tuple[str, int]:
+def refresh_token() -> tuple[str, int]:
     """Refresh the access token."""
     if "token" in g:
         token = Token(

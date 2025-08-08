@@ -1,6 +1,6 @@
-import type { $Fetch, NitroFetchRequest } from 'nitropack';
+import type { $Fetch, NitroFetchRequest } from "nitropack";
 
-declare module 'nuxt/app' {
+declare module "nuxt/app" {
   interface NuxtApp {
     $api: $Fetch<unknown, NitroFetchRequest>;
   }
@@ -13,18 +13,23 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     await navigateTo("/login");
   }
   if (!token.value) {
-    const { access_token } = (await $fetch("/route/refresh", {
-      headers: {
-        Authorization: "Bearer " + refresh.value,
-      },
-      method: "POST",
-    })) as { access_token: string };
-    if (access_token) {
-      const token = useCookie("token", {
-        maxAge: 60 * 60 * 12,
-      });
-      token.value = access_token;
-    } else {
+    try {
+      const { access_token } = (await $fetch("/route/auth/refresh", {
+        headers: {
+          Authorization: "Bearer " + refresh.value,
+        },
+        method: "POST",
+      })) as { access_token: string };
+      if (access_token) {
+        const token = useCookie("token", {
+          maxAge: 60 * 60 * 12,
+        });
+        token.value = access_token;
+      } else {
+        await navigateTo("/login");
+      }
+    } catch (error) {
+      console.error(error);
       await navigateTo("/login");
     }
   }
