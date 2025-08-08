@@ -7,9 +7,34 @@ declare module "nuxt/app" {
 }
 
 export default defineNuxtPlugin(async (nuxtApp) => {
-  const token = useCookie("token");
   const api = $fetch.create({
     async onRequest({ options }) {
+      const token = useCookie("token");
+      const refresh = useCookie("refresh");
+      if (!refresh.value) {
+        await nuxtApp.runWithContext(() => navigateTo("/login"));
+      }
+      if (!token.value) {
+        try {
+          const { access_token } = (await $fetch("/route/auth/refresh", {
+            headers: {
+              Authorization: "Bearer " + refresh.value,
+            },
+            method: "POST",
+          })) as { access_token: string };
+          if (access_token) {
+            const token = useCookie("token", {
+              maxAge: 60 * 12,
+            });
+            token.value = access_token.split(" ")[1];
+          } else {
+            await nuxtApp.runWithContext(() => navigateTo("/login"));
+          }
+        } catch (error) {
+          console.error(error);
+          await nuxtApp.runWithContext(() => navigateTo("/login"));
+        }
+      }
       options.headers.set("Authorization", `Bearer ${token.value}`);
     },
     async onResponseError({ response }) {
