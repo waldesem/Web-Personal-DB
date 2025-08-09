@@ -9,7 +9,9 @@ declare module "nuxt/app" {
 export default defineNuxtPlugin(async (nuxtApp) => {
   const api = $fetch.create({
     async onRequest({ options }) {
-      const token = useCookie("token");
+      const token = useCookie("token", {
+        maxAge: 60 * 58,
+      });
       const refresh = useCookie("refresh");
       if (!refresh.value) {
         await nuxtApp.runWithContext(() => navigateTo("/login"));
@@ -23,9 +25,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
             method: "POST",
           })) as { access_token: string };
           if (access_token) {
-            const token = useCookie("token", {
-              maxAge: 60 * 12,
-            });
             token.value = access_token.split(" ")[1];
           } else {
             await nuxtApp.runWithContext(() => navigateTo("/login"));

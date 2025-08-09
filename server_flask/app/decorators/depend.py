@@ -6,18 +6,14 @@ from collections.abc import Callable  # noqa: TC003
 from datetime import datetime, timedelta
 from functools import lru_cache, wraps
 
-import jwt
-from flask import Response, abort, current_app, g, request
-from pydantic import ValidationError
+from flask import Response, abort, g, request
 from werkzeug.local import LocalProxy
 
 from app import db
-from app.extensions.revoking import RevokeDB
-from app.models.models import Refresh, Token
 from app.tables.tables import Users
+from app.utils.utilities import decode_token
 
 current_user: Users = LocalProxy(lambda: get_current_user(g.token.get("id")))
-jwt_revoked_db = RevokeDB()
 
 
 @lru_cache(maxsize=2)
@@ -44,12 +40,9 @@ def auth_required(roles: tuple | None = None, credential: str = "access") -> Cal
         def wrapper(*args: tuple, **kwargs: dict) -> Response | Callable:
             if (
                 (header := request.headers.get("Authorization"))
-                and (token := decode_token(header[7:], credential))
-                and token.jti not in jwt_revoked_db.data
+                and (decoded := decode_token(header, credential))
             ):
-                g.token = token.dict()
-                if ("token" not in g) or not current_user:
-                    return abort(401)
+                g.token = decoded.dict()
             else:
                 return abort(401)
             # Role validation
@@ -62,21 +55,3 @@ def auth_required(roles: tuple | None = None, credential: str = "access") -> Cal
 
     return decorator
 
-
-def decode_token(payload: str, credential: str = "access") -> Token | Refresh | None:
-    """Decode JWT token and return payload."""
-    try:
-        decoded = jwt.decode(
-            payload,
-            current_app.config["JWT_SECRET_KEY"]
-            if credential == "access"
-            else current_app.config["REFRESH_SECRET_KEY"],
-            algorithms=["HS256"],
-            options={"verify_exp": True},
-        )
-        token = Token(**decoded) if credential == "access" else Refresh(**decoded)
-    except (jwt.exceptions.InvalidTokenError, ValidationError):
-        current_app.logger.exception("JWT decode failed")
-        return None
-    else:
-        return token

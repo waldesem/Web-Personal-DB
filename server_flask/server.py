@@ -5,7 +5,7 @@ import asyncio
 
 from app import create_app
 from webgui import run_desktop
-from wsgi import async_server
+from wsgi import wsgi_server
 
 
 def main() -> None:
@@ -38,9 +38,9 @@ def main() -> None:
     )
     parser.add_argument(
         "--mode",
-        choices=["debug", "devel", "async", "desktop"],
+        choices=["debug", "devel", "server", "desktop"],
         default="desktop",
-        help="The mode to run the server in (debug, devel, async, desktop).",
+        help="The mode to run the server in (debug, devel, server, desktop).",
     )
     args = parser.parse_args()
 
@@ -51,8 +51,8 @@ def main() -> None:
             app.run(host=args.host, port=args.port, debug=True)
         case "devel":
             app.run(host=args.host, port=args.port, debug=False)
-        case "async":
-            asyncio.run(async_server(app, address=args.host, port=args.port))
+        case "server":
+            asyncio.run(wsgi_server(app, address=args.host, port=args.port))
         case _:
             run_desktop(app, address=args.host, port=args.port)
 

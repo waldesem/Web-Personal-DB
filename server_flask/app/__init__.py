@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 
-from flask import Flask, Response, jsonify
+from flask import Flask, Response
 from werkzeug.exceptions import HTTPException
 
 from app.extensions.caching import Cache
@@ -57,9 +57,5 @@ def create_app(config_class: Config = Config) -> Flask:
     def handle_exception(error: HTTPException) -> Response:
         app.logger.exception(error)
         return error
-
-    @app.get("/test")
-    def test() -> Response:
-        return jsonify({"message": "success"}), 200
 
     return app

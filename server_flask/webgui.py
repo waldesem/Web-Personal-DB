@@ -5,7 +5,6 @@ Original code - https://github.com/ClimenteA/flaskwebgui
 
 from __future__ import annotations
 
-import asyncio
 import shutil
 import signal
 import subprocess
@@ -16,8 +15,6 @@ from pathlib import Path
 
 import psutil
 from flask import Flask  # noqa: TC002
-
-from wsgi import async_server
 
 
 def start_browser(address: str, port: int) -> None:
@@ -57,9 +54,7 @@ def start_browser(address: str, port: int) -> None:
 def run_desktop(app: Flask, address: str, port: int) -> None:
     """Run the application in a desktop environment."""
     with ThreadPoolExecutor(max_workers=2) as executor:
-        server_future = executor.submit(
-            lambda: asyncio.run(async_server(app, address, port)),
-        )
+        server_future = executor.submit(app.run, address, port)
         browser_future = executor.submit(start_browser, address, port)
         try:
             server_future.result()

@@ -3,16 +3,73 @@
 import os
 import re
 import unicodedata
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+import jwt
 from flask import current_app
+from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 
-from app import db
+from app import db, revoked
 from app.decorators.depend import current_user
-from app.models.models import PersonIn
-from app.tables.tables import Persons
+from app.models.models import PersonIn, Refresh, Token
+from app.tables.tables import Persons, Users
+
+
+def create_access_token(user: Users) -> Token:
+    """Create token."""
+    token = Token(
+        id=user.id,
+        fullname=user.fullname,
+        username=user.username,
+        email=user.email,
+        role=user.role,
+        exp=datetime.now(tz=timezone.utc)  # noqa: UP017
+        + timedelta(minutes=current_app.config["JWT_SECRET_KEY_LIVE"]),
+    )
+    return jwt.encode(
+        token.dict(),
+        current_app.config["JWT_SECRET_KEY"],
+        algorithm="HS256",
+    )
+
+
+def create_refresh_token(user: Users) -> Refresh:
+    """Create refresh token."""
+    refresh = Refresh(
+        id=user.id,
+        exp=datetime.now()
+        + timedelta(days=current_app.config["REFRESH_SECRET_KEY_LIVE"]),
+    )
+    return jwt.encode(
+        refresh.dict(),
+        current_app.config["REFRESH_SECRET_KEY"],
+        algorithm="HS256",
+    )
+
+
+def decode_token(header: str, credential: str = "access") -> Token | Refresh | None:
+    """Decode JWT token and return payload."""
+    try:
+        if (bearer := header[7:]) and bearer.split(".")[-1] not in revoked.data:
+            decoded = jwt.decode(
+                bearer,
+                current_app.config["JWT_SECRET_KEY"]
+                if credential == "access"
+                else current_app.config["REFRESH_SECRET_KEY"],
+                algorithms=["HS256"],
+                options={"verify_exp": True},
+            )
+            token = Token(**decoded) if credential == "access" else Refresh(**decoded)
+        else:
+            return None
+    except (jwt.exceptions.InvalidTokenError, ValidationError, IndexError, ValueError):
+        current_app.logger.exception("JWT decode failed")
+        return None
+    else:
+        return token
 
 
 def create_destination(person: Persons) -> str:

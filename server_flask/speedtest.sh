@@ -1,11 +1,12 @@
 #!/bin/bash
 REQUESTS=1000
-URL="http://localhost:5000/test"
+URL="http://localhost:5000/route/test" 
+TOKEN=""
 
 start_time=$(date +%s.%N)  # Измеряем время с микросекундами
 
 for i in $(seq 1 $REQUESTS); do
-  curl -s $URL > /dev/null &
+  curl -s -H "Authorization: Bearer $TOKEN" $URL > /dev/null &
 done
 
 wait

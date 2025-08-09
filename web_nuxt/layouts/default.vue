@@ -3,15 +3,28 @@ import type { NavigationMenuItem } from "@nuxt/ui";
 
 const userState = useStateUser();
 
-const { $api } = useNuxtApp();
-
 async function logout() {
   if (!confirm("Вы действительно хотите выйти?")) return;
-  await $api<Record<string, string>>("/route/auth/logout");
   const token = useCookie("token");
-  token.value = null;
-  clearNuxtData();
-  return navigateTo("/login");
+  const refresh = useCookie("refresh");
+  const { message } = await $fetch<Record<string, string>>(
+    "/route/auth/logout",
+    {
+      method: "POST",
+      body: {
+        access_token: token.value,
+        refresh_token: refresh.value,
+      },
+    }
+  );
+  if (message == "success") {
+    token.value = null;
+    refresh.value = null;
+    clearNuxtData();
+    return navigateTo("/login");
+  } else {
+    makeToast();
+  }
 }
 
 const items = ref<NavigationMenuItem[]>([
@@ -19,19 +32,19 @@ const items = ref<NavigationMenuItem[]>([
     label: "Пользователи",
     icon: "i-lucide-users",
     to: "/users",
-    disabled: userState.value.role !== 'admin'
+    disabled: userState.value.role !== "admin",
   },
   {
     label: "Кандидаты",
     icon: "i-lucide-users-round",
     to: "/persons",
   },
-  // {
-  //   label: "OpenAPI",
-  //   icon: "i-lucide-code",
-  //   to: "redoc.html",
-  //   target: "_blank",
-  // },
+  {
+    label: "OpenAPI",
+    icon: "i-lucide-code",
+    to: "redoc.html",
+    target: "_blank",
+  },
 ]);
 </script>
 

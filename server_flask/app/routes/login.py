@@ -2,11 +2,9 @@
 
 from __future__ import annotations
 
-import secrets
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from typing import Literal
 
-import jwt
 from flask import Blueprint, current_app
 from pydantic import ValidationError
 from sqlalchemy import select
@@ -16,8 +14,9 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from app import db, revoked
 from app.decorators.depend import auth_required, current_user
 from app.decorators.validize import pydantify
-from app.models.models import AuthResponse, Login, Refresh, Token
+from app.models.models import AuthResponse, Login
 from app.tables.tables import Users
+from app.utils.utilities import create_access_token, create_refresh_token
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
@@ -69,11 +68,12 @@ def post_login(
         return {"message": "invalid"}, 400
 
 
-@bp.get("/logout")
+@bp.post("/logout")
 @pydantify()
-@auth_required()
-def get_logout() -> tuple[str, int]:
+def logout(json_data: AuthResponse) -> tuple[str, int]:
     """Logout the user."""
+    revoked.set(json_data.access_token.split(".")[-1])
+    revoked.set(json_data.refresh_token.split(".")[-1])
     revoked.revoke()
     return {"message": "success"}, 200
 
@@ -84,44 +84,9 @@ def get_logout() -> tuple[str, int]:
 def refresh_token() -> tuple[str, int]:
     """Refresh the access token."""
     try:
-        access_token = create_access_token(current_user)
         return {
             "message": "success",
-            "access_token": "Bearer " + access_token,
+            "access_token": "Bearer " + create_access_token(current_user),
         }, 201
     except (ValueError, ValidationError):
         return {"message": "invalid"}, 400
-
-
-def create_access_token(user: Users) -> Token:
-    """Create token."""
-    token = Token(
-        id=user.id,
-        fullname=user.fullname,
-        username=user.username,
-        email=user.email,
-        role=user.role,
-        exp=datetime.now(tz=timezone.utc)  # noqa: UP017
-        + timedelta(minutes=current_app.config["JWT_SECRET_KEY_LIVE"]),
-        jti=secrets.token_hex(16),
-    )
-    return jwt.encode(
-        token.dict(),
-        current_app.config["JWT_SECRET_KEY"],
-        algorithm="HS256",
-    )
-
-
-def create_refresh_token(user: Users) -> Refresh:
-    """Create refresh token."""
-    refresh = Refresh(
-        id=user.id,
-        exp=datetime.now()
-        + timedelta(days=current_app.config["REFRESH_SECRET_KEY_LIVE"]),
-        jti=secrets.token_hex(16),
-    )
-    return jwt.encode(
-        refresh.dict(),
-        current_app.config["REFRESH_SECRET_KEY"],
-        algorithm="HS256",
-    )

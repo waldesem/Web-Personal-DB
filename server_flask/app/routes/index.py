@@ -240,3 +240,12 @@ def upload_items(anketa: AnketaJson, person_id: int) -> None:
         db.session.commit()
     except SQLAlchemyError:
         current_app.logger.exception("Add items Error")
+
+
+
+@bp.get("/test")
+@pydantify(BaseResponse)
+@auth_required()
+def test() -> tuple[dict, int]:
+    """Test route."""
+    return {"message": "success"}, 200

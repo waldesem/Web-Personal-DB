@@ -44,7 +44,7 @@ class ResumeResponse(BaseModel):
 class AuthResponse(BaseModel):
     """Pydantic model for auth."""
 
-    message: str
+    message: str | None
     access_token: str | None
     refresh_token: str | None
 
@@ -72,7 +72,6 @@ class Token(BaseModel):
     email: str
     role: Roles
     exp: datetime
-    jti: str
 
     class Config:
         """Pydantic config."""
@@ -85,7 +84,6 @@ class Refresh(BaseModel):
 
     id: int
     exp: datetime
-    jti: str
 
 
 class UserForm(BaseModel):
