@@ -40,7 +40,7 @@ const { refresh, status } = await useLazyAsyncData(
         page: page.value,
       },
     }));
-    total.value = candidates.value ? candidates.value[0].total : 1
+    total.value = candidates.value?.[0]?.total ?? 1;
     updated.value = new Date().toLocaleTimeString("ru-RU");
   },
   { watch: [page] }
@@ -78,10 +78,10 @@ async function createToast(person_id: string, exists: boolean) {
 }
 
 onChange(async (files) => {
-  if (!files) return;
+  if (!files?.length) return;
   status.value = "pending";
   const formData = new FormData();
-  formData.append("file", files[0]);
+  formData.append("file", files[0] as File);
   const { person_id, exists } = await $api<{
     person_id: string;
     exists: boolean;

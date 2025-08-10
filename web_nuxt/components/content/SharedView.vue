@@ -53,7 +53,7 @@ const mappedContent = {
   inquiries: [InquiryForm, InquiryItem],
   investigations: [InquestForm, InquestItem],
   poligrafs: [PoligrafForm, PoligrafItem],
-} as { [props.view]: [Component, Component] };
+} as Record<PillsItems | DivsItems, [Component, Component]>;
 
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Passport } from '@/types';
+import type { Passport } from "@/types";
 
 const emit = defineEmits(["update"]);
 
@@ -12,16 +12,12 @@ const props = defineProps({
 
 const docForm = toRef(props.item as Passport);
 
-docForm.value.issue = docForm.value.issue
-  ? new Date(docForm.value.issue).toISOString().split("T", 1)[0]
-  : "";
+docForm.value.issue =
+  new Date(docForm.value.issue).toISOString().split("T", 1)[0] ?? "";
 </script>
 
 <template>
-  <UForm
-    :state="docForm"
-    @submit.prevent="emit('update', docForm)"
-  >
+  <UForm :state="docForm" @submit.prevent="emit('update', docForm)">
     <UFormField label="Вид документа" name="view" required>
       <USelect
         v-model="docForm.view"

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Work } from '@/types';
+import type { Work } from "@/types";
 
 const emit = defineEmits(["update"]);
 
@@ -12,12 +12,10 @@ const props = defineProps({
 
 const workForm = toRef(props.item as Work);
 
-workForm.value.starts = workForm.value.starts
-  ? new Date(workForm.value.starts).toISOString().split("T", 1)[0]
-  : "";
-workForm.value.finished = workForm.value.finished
-  ? new Date(workForm.value.finished).toISOString().split("T", 1)[0]
-  : "";
+workForm.value.starts =
+  new Date(workForm.value.starts).toISOString().split("T", 1)[0] ?? "";
+workForm.value.finished =
+  new Date(workForm.value.finished).toISOString().split("T", 1)[0] ?? "";
 </script>
 
 <template>

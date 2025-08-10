@@ -14,18 +14,17 @@ const props = defineProps({
 
 const resumeForm = ref(props.resume);
 
-resumeForm.value.birthday = resumeForm.value.birthday
-  ? new Date(resumeForm.value.birthday).toISOString().split("T", 1)[0]
-  : "";
+resumeForm.value.birthday =
+  new Date(resumeForm.value.birthday).toISOString().split("T", 1)[0] ?? "";
 
 async function submitPerson() {
-  const { person_id, exists } = (await $api<{
+  const { person_id, exists } = await $api<{
     person_id: number;
     exists: boolean;
   }>("/route/persons", {
     method: "POST",
     body: resumeForm.value,
-  }));
+  });
   emit("update", person_id, exists);
 }
 
