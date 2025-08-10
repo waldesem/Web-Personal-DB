@@ -52,6 +52,6 @@ const previousForm = toRef(props.item as Previous);
         maxlength="255"
       />
     </UFormField>
-    <UButton label="Принять" color="success" variant="outline" type="submit" />
+    <ElementsSubmitButton />
   </UForm>
 </template>

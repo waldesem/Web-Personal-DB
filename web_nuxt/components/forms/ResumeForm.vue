@@ -145,6 +145,6 @@ const validate = (state: Partial<Persons>) => {
         placeholder="Дополнительно"
       />
     </UFormField>
-    <UButton label="Принять" color="success" variant="outline" type="submit" />
+    <ElementsSubmitButton />
   </UForm>
 </template>

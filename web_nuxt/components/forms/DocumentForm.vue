@@ -53,6 +53,6 @@ docForm.value.issue =
     <UFormField label="Дата выдачи" name="issue" required>
       <UInput v-model.trim.lazy="docForm.issue" type="date" required />
     </UFormField>
-    <UButton label="Принять" color="success" variant="outline" type="submit" />
+    <ElementsSubmitButton />
   </UForm>
 </template>

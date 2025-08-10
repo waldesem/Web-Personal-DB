@@ -230,6 +230,7 @@ const items: DropdownMenuItem[] = [
 
     <div class="flex justify-center border-t border-default py-4">
       <UPagination
+        v-if="total > per_page"
         v-model:page="page"
         :items-per-page="per_page"
         :total="total"

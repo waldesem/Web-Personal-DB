@@ -35,6 +35,6 @@ const contactForm = toRef(props.item as Contact);
         required
       />
     </UFormField>
-    <UButton label="Принять" color="success" variant="outline" type="submit" />
+    <ElementsSubmitButton />
   </UForm>
 </template>

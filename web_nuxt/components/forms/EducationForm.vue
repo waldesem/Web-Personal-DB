@@ -55,6 +55,6 @@ const educationForm = toRef(props.item as Education);
         maxlength="255"
       />
     </UFormField>
-    <UButton label="Принять" color="success" variant="outline" type="submit" />
+    <ElementsSubmitButton />
   </UForm>
 </template>

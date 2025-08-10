@@ -6,26 +6,26 @@ import AddressForm from "@/components/forms/AddressForm.vue";
 import AddressItem from "@/components/items/AddressItem.vue";
 import AffilationForm from "@/components/forms/AffilationForm.vue";
 import AffilationItem from "@/components/items/AffilationItem.vue";
+import CheckForm from "@/components/forms/CheckForm.vue";
+import CheckItem from "@/components/items/CheckItem.vue";
 import ContactForm from "@/components/forms/ContactForm.vue";
 import ContactItem from "@/components/items/ContactItem.vue";
 import DocumentForm from "@/components/forms/DocumentForm.vue";
 import DocumentItem from "@/components/items/DocumentItem.vue";
 import EducationForm from "@/components/forms/EducationForm.vue";
 import EducationItem from "@/components/items/EducationItem.vue";
-import PreviousForm from "@/components/forms/PreviousForm.vue";
-import PreviousItem from "@/components/items/PreviousItem.vue";
-import StaffForm from "@/components/forms/StaffForm.vue";
-import StaffItem from "@/components/items/StaffItem.vue";
-import WorkplaceForm from "@/components/forms/WorkplaceForm.vue";
-import WorkplaceItem from "@/components/items/WorkplaceItem.vue";
-import CheckForm from "@/components/forms/CheckForm.vue";
-import CheckItem from "@/components/items/CheckItem.vue";
 import InquiryForm from "@/components/forms/InquiryForm.vue";
 import InquiryItem from "@/components/items/InquiryItem.vue";
 import InquestForm from "@/components/forms/InquestForm.vue";
 import InquestItem from "@/components/items/InquestItem.vue";
+import PreviousForm from "@/components/forms/PreviousForm.vue";
+import PreviousItem from "@/components/items/PreviousItem.vue";
 import PoligrafForm from "@/components/forms/PoligrafForm.vue";
 import PoligrafItem from "@/components/items/PoligrafItem.vue";
+import StaffForm from "@/components/forms/StaffForm.vue";
+import StaffItem from "@/components/items/StaffItem.vue";
+import WorkplaceForm from "@/components/forms/WorkplaceForm.vue";
+import WorkplaceItem from "@/components/items/WorkplaceItem.vue";
 
 const { $api } = useNuxtApp();
 
@@ -43,16 +43,16 @@ const props = defineProps({
 const mappedContent = {
   addresses: [AddressForm, AddressItem],
   affilations: [AffilationForm, AffilationItem],
+  checks: [CheckForm, CheckItem],
   contacts: [ContactForm, ContactItem],
   documents: [DocumentForm, DocumentItem],
   educations: [EducationForm, EducationItem],
-  previous: [PreviousForm, PreviousItem],
-  staffs: [StaffForm, StaffItem],
-  workplaces: [WorkplaceForm, WorkplaceItem],
-  checks: [CheckForm, CheckItem],
   inquiries: [InquiryForm, InquiryItem],
   investigations: [InquestForm, InquestItem],
+  previous: [PreviousForm, PreviousItem],
   poligrafs: [PoligrafForm, PoligrafItem],
+  staffs: [StaffForm, StaffItem],
+  workplaces: [WorkplaceForm, WorkplaceItem],
 } as Record<PillsItems | DivsItems, [Component, Component]>;
 
 const candId = inject("candId") as Ref<string>;
@@ -62,21 +62,23 @@ const item = ref({} as object);
 const modal = ref(false);
 
 const { data, status, refresh } = await useAPI<object[]>(
-  `/route/${props.view}/${candId.value}`, {
-  lazy: true,
-  server: false,
-});
+  `/route/${props.view}/${candId.value}`,
+  {
+    lazy: true,
+    server: false,
+  }
+);
 
 async function submitItem(form: object) {
   modal.value = false;
   status.value = "pending";
-  const { message } = (await $api<Record<string, string>>(
+  const { message } = await $api<Record<string, string>>(
     `/route/${props.view}/${candId.value}`,
     {
       method: "POST",
       body: form,
     }
-  ));
+  );
   await refresh();
   status.value = message as "success" | "error";
   if (message == "success") {
@@ -90,9 +92,12 @@ async function submitItem(form: object) {
 async function deleteItem(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   status.value = "pending";
-  const { message } = (await $api<Record<string, string>>(`/route/${props.view}/${id}/${candId.value}`, {
-    method: "DELETE",
-  }));
+  const { message } = await $api<Record<string, string>>(
+    `/route/${props.view}/${id}/${candId.value}`,
+    {
+      method: "DELETE",
+    }
+  );
   status.value = message as "success" | "error";
   if (message == "success") {
     makeToast(message, "Информация успешно обновлена");

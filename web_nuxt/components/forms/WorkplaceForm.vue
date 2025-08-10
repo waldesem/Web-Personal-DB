@@ -67,6 +67,6 @@ workForm.value.finished =
         placeholder="Причина увольнения"
       />
     </UFormField>
-    <UButton label="Принять" color="success" variant="outline" type="submit" />
+    <ElementsSubmitButton />
   </UForm>
 </template>

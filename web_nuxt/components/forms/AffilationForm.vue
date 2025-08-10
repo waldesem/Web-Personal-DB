@@ -46,6 +46,6 @@ const affilForm = toRef(props.item as Affilation);
         maxlength="12"
       />
     </UFormField>
-    <UButton label="Принять" color="success" variant="outline" type="submit" />
+    <ElementsSubmitButton />
   </UForm>
 </template>
