@@ -13,7 +13,6 @@ from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import db, revoked
-from app.decorators.depend import current_user
 from app.models.models import PersonIn, Refresh, Token
 from app.tables.tables import Persons, Users
 
@@ -84,7 +83,7 @@ def create_destination(person: Persons) -> str:
     return str(destination)
 
 
-def upload_resume(cand: PersonIn) -> tuple[int, bool]:
+def upload_resume(cand: PersonIn, user_id: int) -> tuple[int, bool]:
     """Upload a resume to the database."""
     person = (
         db.session.execute(
@@ -101,7 +100,7 @@ def upload_resume(cand: PersonIn) -> tuple[int, bool]:
 
     resume = cand.dict(exclude_none=True, exclude={"created"})
     resume["editable"] = True
-    resume["user_id"] = current_user.id
+    resume["user_id"] = user_id
 
     try:
         if not person:

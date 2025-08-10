@@ -163,7 +163,7 @@ const items: DropdownMenuItem[] = [
   },
   {
     label: "Загрузить json",
-    icon: "i-lucide-cloud-upload",
+    icon: "i-lucide-upload",
     onSelect() {
       open();
     },

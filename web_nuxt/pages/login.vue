@@ -160,18 +160,10 @@ async function submitLogin() {
                 type="submit"
               />
               <UButton
-                v-if="action === 'login'"
-                label="Изменить"
+                :label="action == 'login' ? 'Изменить' : 'Отмена'"
                 color="secondary"
                 variant="outline"
-                @click="action = 'update'"
-              />
-              <UButton
-                v-if="action === 'update'"
-                label="Отмена"
-                color="error"
-                variant="outline"
-                @click="action = 'login'"
+                @click="action == 'login' ? action = 'update' : action = 'login'"
               />
             </div>
           </UForm>

@@ -147,6 +147,9 @@ const items = [
           label="Загрузить файлы"
           @click="open()"
         />
+        <!-- <UForm :state="file" @change="onChange">
+          <UFileUpload v-model="file" required variant="button" description="Загрузка файла"/>
+        </UForm> -->
         <UButton
           :loading="status === 'pending'"
           :color="

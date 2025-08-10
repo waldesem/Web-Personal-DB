@@ -171,7 +171,7 @@ def post_json(anketa: AnketaJson) -> dict:
         # Валидация данных и создание объекта класса Person
         resume = PersonIn(**anketa.dict(exclude_none=True))
         # Загрузка резюме в БД
-        person_id, existed = upload_resume(resume)
+        person_id, existed = upload_resume(resume, current_user.id)
 
         # Сохранение дополнительной информации о кандидате в БД
         if person_id:
