@@ -43,9 +43,11 @@ def auth_required(roles: tuple | None = None, credential: str = "access") -> Cal
                 and (decoded := decode_token(header, credential))
             ):
                 g.token = decoded.dict()
+                if not current_user:
+                    return abort(401)
             else:
                 return abort(401)
-            # Role validation
+
             if roles and current_user.role not in roles:
                 return abort(403)
 

@@ -11,7 +11,7 @@ from pydantic import ValidationError
 from sqlalchemy import desc, func, select
 from sqlalchemy.exc import SQLAlchemyError
 
-from app import caching, db
+from app import db
 from app.classes.classes import Roles
 from app.decorators.depend import auth_required, current_user
 from app.decorators.validize import pydantify
@@ -108,7 +108,6 @@ def change_self_id(person_id: int) -> tuple[str, int]:
         current_app.logger.exception("Exception in change_self_id")
         return {"message": "error"}, 400
     else:
-        caching.set_data(person_id)
         return {"message": "success"}, 201
 
 

@@ -52,7 +52,7 @@ async function deleteItem(id: string, idx: number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   status.value = "pending";
   const { message } = await $api<Record<string, string>>(
-    `/route/${props.view}/${id}/${candId.value}`,
+    `/route/${props.view}/${id}`,
     {
       method: "DELETE",
     }

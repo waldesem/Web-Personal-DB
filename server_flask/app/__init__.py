@@ -7,7 +7,6 @@ import logging
 from flask import Flask, Response
 from werkzeug.exceptions import HTTPException
 
-from app.extensions.caching import Cache
 from app.extensions.compress import Compress
 from app.extensions.database import Database
 from app.extensions.revoking import RevokeDB
@@ -18,7 +17,6 @@ handler.setLevel(logging.ERROR)
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 handler.setFormatter(formatter)
 
-caching = Cache()  # Create the caching instance
 compress = Compress()  # Create the compression instance
 db = Database()  # Create the database instance for SQLAlchemy
 revoked = RevokeDB()  # Create the database instance for revoked tokens

@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import DeclarativeBase
 
-from app import caching, db
+from app import db
 from app.classes.classes import Roles
 from app.decorators.depend import auth_required
 from app.decorators.validize import pydantify
@@ -60,8 +60,6 @@ Items = Literal[
 
 def get_item(item: Items, person_id: int) -> tuple[list[DeclarativeBase], int]:
     """Retrieve an item from the database based on the provided item."""
-    if cached_data := caching.get_data(person_id, item):
-        return cached_data, 200
     stmt = (
         db.metatables[item]
         .select()
@@ -69,7 +67,6 @@ def get_item(item: Items, person_id: int) -> tuple[list[DeclarativeBase], int]:
         .order_by(db.metatables[item].c.id.desc())
     )
     result = db.session.execute(stmt).all()
-    caching.set_data(person_id, result, item)
     return result, 200
 
 
@@ -92,8 +89,6 @@ def post_item(item: Items, person_id: int, json_data: BaseModel) -> tuple[dict, 
             stmt = db.metatables[item].insert().values(json_dict)
         db.session.execute(stmt)
         db.session.commit()
-        # Удаление устаревших данных из кэша
-        caching.set_data(person_id, item=item)
     except SQLAlchemyError:
         current_app.logger.exception("Database error")
         db.session.rollback()
@@ -294,10 +289,10 @@ def post_investigations(person_id: int, json_data: Investigation) -> tuple[str, 
     return post_item("investigations", person_id, json_data)
 
 
-@bp.delete("/<item>/<int:item_id>/<int:person_id>")
+@bp.delete("/<item>/<int:item_id>")
 @pydantify()
 @auth_required(Roles.user.value)
-def delete(item: Items, item_id: int, person_id: int) -> tuple[str, int]:
+def delete(item: Items, item_id: int) -> tuple[str, int]:
     """Delete an item from the database based on the provided item name and item ID."""
     try:
         db.session.execute(
@@ -309,5 +304,4 @@ def delete(item: Items, item_id: int, person_id: int) -> tuple[str, int]:
         db.session.rollback()
         return {"message": "error"}, 400
     else:
-        caching.set_data(person_id, item, [])
         return {"message": "success"}, 201
