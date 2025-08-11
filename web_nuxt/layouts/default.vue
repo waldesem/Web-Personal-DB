@@ -7,7 +7,7 @@ async function logout() {
   if (!confirm("Вы действительно хотите выйти?")) return;
   const token = useCookie("token");
   const refresh = useCookie("refresh");
-  const { message } = await $fetch<Record<string, string>>(
+  await $fetch<Record<string, string>>(
     "/route/auth/logout",
     {
       method: "POST",
@@ -17,14 +17,10 @@ async function logout() {
       },
     }
   );
-  if (message == "success") {
-    token.value = null;
-    refresh.value = null;
-    clearNuxtData();
-    return navigateTo("/login");
-  } else {
-    makeToast();
-  }
+  token.value = null;
+  refresh.value = null;
+  clearNuxtData();
+  return navigateTo("/login");
 }
 
 const items = ref<NavigationMenuItem[]>([

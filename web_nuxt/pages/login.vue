@@ -97,6 +97,7 @@ async function submitLogin() {
   <UContainer>
     <div class="flex flex-row justify-center">
       <div class="py-12">
+
         <UAlert
           variant="subtle"
           :color="(alert.color as AlertProps['color'])"
@@ -104,9 +105,11 @@ async function submitLogin() {
           :description="alert.description"
           :icon="alert.icon"
         />
+
         <h3 class="text-2xl text-blue-800 font-bold my-6">
           Кадровая безопасность
         </h3>
+
         <UCard>
           <h3 class="text-xl text-red-800 font-bold mb-2">Вход в систему</h3>
           <UForm
@@ -132,6 +135,7 @@ async function submitLogin() {
                 required
               />
             </UFormField>
+
             <div v-if="action === 'update'">
               <UFormField label="Новый пароль" name="new_pswd" required>
                 <UInput
@@ -142,6 +146,7 @@ async function submitLogin() {
                   required
                 />
               </UFormField>
+              
               <UFormField label="Повтор пароля" name="conf_pswd" required>
                 <UInput
                   v-model="loginForm.conf_pswd"
@@ -152,6 +157,7 @@ async function submitLogin() {
                 />
               </UFormField>
             </div>
+
             <div class="flex justify-between mt-2">
               <UButton
                 :label="action === 'login' ? 'Войти' : 'Изменить'"

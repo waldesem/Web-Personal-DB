@@ -1,7 +1,14 @@
 <script setup lang="ts">
 import { useFileDialog } from "@vueuse/core";
 import type { TabsItem } from "@nuxt/ui";
-import type { Persons, PillsItems } from "@/types";
+import type {
+  Inquisition,
+  Needs,
+  Persons,
+  Pfo,
+  PillsItems,
+  Verification,
+} from "@/types";
 
 await preloadComponents(["ContentAnketaTab", "ContentSharedView"]);
 
@@ -49,9 +56,9 @@ async function switchSelf(): Promise<void> {
     return;
   }
   status.value = "pending";
-  const { message } = (await $api<Record<string, string>>(
+  const { message } = await $api<Record<string, string>>(
     "/route/self/" + person.value?.id
-  ));
+  );
   status.value = message as "success" | "error";
   if (message == "success") {
     await refresh();
@@ -73,13 +80,13 @@ onChange(async (files) => {
     }
     formData.append("file", file);
   }
-  const { message } = (await $api<Record<string, string>>(
+  const { message } = await $api<Record<string, string>>(
     `/route/files/${candId.value}`,
     {
       method: "POST",
       body: formData,
     }
-  ));
+  );
   status.value = message as "success" | "error";
   if (message == "success") {
     makeToast(message, "Файлы успешно загружены");
@@ -147,9 +154,6 @@ const items = [
           label="Загрузить файлы"
           @click="open()"
         />
-        <!-- <UForm :state="file" @change="onChange">
-          <UFileUpload v-model="file" required variant="button" description="Загрузка файла"/>
-        </UForm> -->
         <UButton
           :loading="status === 'pending'"
           :color="
@@ -181,21 +185,68 @@ const items = [
       <template #person>
         <ContentAnketaTab
           :person="(person ? person : {} as Persons)"
-          :rows="12"
           @refresh="refresh()"
         />
       </template>
+
       <template #checks="{ item }">
-        <ContentSharedView :view="item.slot" :rows="16" />
+        <ContentSharedView :view="item.slot" :rows="16">
+          <template #item="{ itemContent }">
+            <ItemsCheckItem :item="itemContent as Verification" />
+          </template>
+
+          <template #form="{ formContent, submitItem }">
+            <FormsCheckForm
+              :item="formContent as Verification"
+              @update="submitItem"
+            />
+          </template>
+        </ContentSharedView>
       </template>
+
       <template #poligrafs="{ item }">
-        <ContentSharedView :view="item.slot" :rows="4" />
+        <ContentSharedView :view="item.slot" :rows="4">
+          <template #item="{ itemContent }">
+            <ItemsPoligrafItem :item="itemContent as Pfo" />
+          </template>
+
+          <template #form="{ formContent, submitItem }">
+            <FormsPoligrafForm
+              :item="formContent as Pfo"
+              @update="submitItem"
+            />
+          </template>
+        </ContentSharedView>
       </template>
+
       <template #investigations="{ item }">
-        <ContentSharedView :view="item.slot" :rows="3" />
+        <ContentSharedView :view="item.slot" :rows="3">
+          <template #item="{ itemContent }">
+            <ItemsInquestItem :item="itemContent as Inquisition" />
+          </template>
+
+          <template #form="{ formContent, submitItem }">
+            <FormsInquestForm
+              :item="formContent as Inquisition"
+              @update="submitItem"
+            />
+          </template>
+        </ContentSharedView>
       </template>
+
       <template #inquiries="{ item }">
-        <ContentSharedView :view="item.slot" :rows="3" />
+        <ContentSharedView :view="item.slot" :rows="3">
+          <template #item="{ itemContent }">
+            <ItemsInquiryItem :item="itemContent as Needs" />
+          </template>
+
+          <template #form="{ formContent, submitItem }">
+            <FormsInquiryForm
+              :item="formContent as Needs"
+              @update="submitItem"
+            />
+          </template>
+        </ContentSharedView>
       </template>
     </UTabs>
   </div>

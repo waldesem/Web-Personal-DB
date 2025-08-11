@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useFileDialog, watchDebounced } from "@vueuse/core";
 import type { DropdownMenuItem, TableColumn } from "@nuxt/ui";
+import type { Candidate } from "@/types";
 
 const { $api } = useNuxtApp();
 
@@ -12,48 +13,55 @@ const UDropdownMenu = resolveComponent("UDropdownMenu");
 
 const userState = useStateUser();
 
-export interface Candidate {
-  id: string;
-  fullname: string;
-  birthday: string;
-  editable: boolean;
-  created: string;
-  username: string;
-  total: number;
-}
-
 const page = ref(1);
 const search = ref("");
 const modal = ref(false);
-const total = ref(1);
 const updated = ref("Данные обновляются...");
-const candidates = shallowRef<Candidate[]>([]);
 const per_page = 10;
 
-const { refresh, status } = await useLazyAsyncData(
-  "candidates",
-  async () => {
-    candidates.value = (await $api<Candidate[]>("/route/index", {
-      params: {
-        search: search.value,
-        per_page: per_page,
-        page: page.value,
-      },
-    }));
-    total.value = candidates.value?.[0]?.total ?? 1;
-    updated.value = new Date().toLocaleTimeString("ru-RU");
+const {
+  data: candidates,
+  status,
+  refresh,
+} = await useAPI<Candidate[]>("/route/index", {
+  params: {
+    search: search.value,
+    per_page: per_page,
+    page: page.value,
   },
-  { watch: [page] }
-);
+  watch: [page],
+  lazy: true,
+  server: false,
+});
 
 watchDebounced(search, async () => await refresh(), {
   debounce: 1000,
   maxWait: 2000,
 });
 
+watch(
+  candidates,
+  () => (updated.value = new Date().toLocaleTimeString("ru-RU"))
+);
+
 const { open, onChange } = useFileDialog({
   accept: ".json",
   multiple: false,
+});
+
+onChange(async (files) => {
+  if (!files?.length) return;
+  status.value = "pending";
+  const formData = new FormData();
+  formData.append("file", files[0] as File);
+  const { person_id, exists } = await $api<{
+    person_id: string;
+    exists: boolean;
+  }>("/route/json", {
+    method: "POST",
+    body: formData,
+  });
+  createToast(person_id, exists);
 });
 
 async function createToast(person_id: string, exists: boolean) {
@@ -76,21 +84,6 @@ async function createToast(person_id: string, exists: boolean) {
     }
   }
 }
-
-onChange(async (files) => {
-  if (!files?.length) return;
-  status.value = "pending";
-  const formData = new FormData();
-  formData.append("file", files[0] as File);
-  const { person_id, exists } = await $api<{
-    person_id: string;
-    exists: boolean;
-  }>("/route/json", {
-    method: "POST",
-    body: formData,
-  });
-  createToast(person_id, exists);
-});
 
 function submitResume(person_id: string, exists: boolean) {
   modal.value = false;
@@ -173,6 +166,7 @@ const items: DropdownMenuItem[] = [
 
 <template>
   <div class="py-4">
+
     <div class="flex items-center justify-between mb-3">
       <h3 class="text-2xl text-red-800 font-bold">КАНДИДАТЫ</h3>
       <div v-if="userState.role == 'user'">
@@ -185,6 +179,7 @@ const items: DropdownMenuItem[] = [
             title="Выбор действия"
           />
         </UDropdownMenu>
+
         <UModal
           v-model:open="modal"
           title="Добавить анкету"
@@ -230,10 +225,9 @@ const items: DropdownMenuItem[] = [
 
     <div class="flex justify-center border-t border-default py-4">
       <UPagination
-        v-if="total > per_page"
         v-model:page="page"
         :items-per-page="per_page"
-        :total="total"
+        :total="candidates?.[0]?.total ?? 1"
         :sibling-count="1"
         @update:page="(p) => (page = p)"
       />

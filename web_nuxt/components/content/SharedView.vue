@@ -1,31 +1,5 @@
 <script setup lang="ts">
-import type { Component } from "vue";
 import type { DivsItems, PillsItems } from "@/types";
-
-import AddressForm from "@/components/forms/AddressForm.vue";
-import AddressItem from "@/components/items/AddressItem.vue";
-import AffilationForm from "@/components/forms/AffilationForm.vue";
-import AffilationItem from "@/components/items/AffilationItem.vue";
-import CheckForm from "@/components/forms/CheckForm.vue";
-import CheckItem from "@/components/items/CheckItem.vue";
-import ContactForm from "@/components/forms/ContactForm.vue";
-import ContactItem from "@/components/items/ContactItem.vue";
-import DocumentForm from "@/components/forms/DocumentForm.vue";
-import DocumentItem from "@/components/items/DocumentItem.vue";
-import EducationForm from "@/components/forms/EducationForm.vue";
-import EducationItem from "@/components/items/EducationItem.vue";
-import InquiryForm from "@/components/forms/InquiryForm.vue";
-import InquiryItem from "@/components/items/InquiryItem.vue";
-import InquestForm from "@/components/forms/InquestForm.vue";
-import InquestItem from "@/components/items/InquestItem.vue";
-import PreviousForm from "@/components/forms/PreviousForm.vue";
-import PreviousItem from "@/components/items/PreviousItem.vue";
-import PoligrafForm from "@/components/forms/PoligrafForm.vue";
-import PoligrafItem from "@/components/items/PoligrafItem.vue";
-import StaffForm from "@/components/forms/StaffForm.vue";
-import StaffItem from "@/components/items/StaffItem.vue";
-import WorkplaceForm from "@/components/forms/WorkplaceForm.vue";
-import WorkplaceItem from "@/components/items/WorkplaceItem.vue";
 
 const { $api } = useNuxtApp();
 
@@ -39,21 +13,6 @@ const props = defineProps({
     default: 3,
   },
 });
-
-const mappedContent = {
-  addresses: [AddressForm, AddressItem],
-  affilations: [AffilationForm, AffilationItem],
-  checks: [CheckForm, CheckItem],
-  contacts: [ContactForm, ContactItem],
-  documents: [DocumentForm, DocumentItem],
-  educations: [EducationForm, EducationItem],
-  inquiries: [InquiryForm, InquiryItem],
-  investigations: [InquestForm, InquestItem],
-  previous: [PreviousForm, PreviousItem],
-  poligrafs: [PoligrafForm, PoligrafItem],
-  staffs: [StaffForm, StaffItem],
-  workplaces: [WorkplaceForm, WorkplaceItem],
-} as Record<PillsItems | DivsItems, [Component, Component]>;
 
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
@@ -126,7 +85,7 @@ async function deleteItem(id: string, idx: number) {
         @delete="deleteItem(content['id' as keyof typeof content], index)"
       />
       <LazyElementsWrapperDiv>
-        <component :is="mappedContent[props.view][1]" :item="content" />
+        <slot name="item" :item-content="content" />
       </LazyElementsWrapperDiv>
       <USeparator v-if="data && index < data.length - 1" />
     </div>
@@ -158,11 +117,7 @@ async function deleteItem(id: string, idx: number) {
   >
     <template #body>
       <LazyElementsWrapperDiv>
-        <component
-          :is="mappedContent[props.view][0]"
-          :item="item"
-          @update="submitItem"
-        />
+        <slot name="form" :form-content="item" :submit-item="submitItem" />
       </LazyElementsWrapperDiv>
     </template>
   </UModal>

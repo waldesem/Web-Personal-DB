@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import threading
 from datetime import datetime, timezone
 from typing import Literal
 
@@ -72,10 +73,14 @@ def post_login(
 @pydantify()
 def logout(json_data: AuthResponse) -> tuple[str, int]:
     """Logout the user."""
-    revoked.set(json_data.access_token.split(".")[-1])
-    revoked.set(json_data.refresh_token.split(".")[-1])
-    revoked.revoke()
-    return {"message": "success"}, 200
+    try:
+        revoked.set(json_data.access_token.split(".")[-1])
+        revoked.set(json_data.refresh_token.split(".")[-1])
+        thread = threading.Thread(target=revoked.revoke)
+        thread.start()
+    except (ValueError, IndexError):
+        current_app.logger.exception("Error occurred in logout route")
+    return {"message": ""}, 200
 
 
 @bp.post("/refresh")

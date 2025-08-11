@@ -32,6 +32,16 @@ export interface User extends Token {
   attempt: string;
 }
 
+export interface Candidate {
+  id: string;
+  fullname: string;
+  birthday: string;
+  editable: boolean;
+  created: string;
+  username: string;
+  total: number;
+}
+
 export interface Persons {
   id: string;
   surname: string;
