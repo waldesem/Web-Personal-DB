@@ -21,6 +21,7 @@ compress = Compress()  # Create the compression instance
 db = Database()  # Create the database instance for SQLAlchemy
 revoked = RevokeDB()  # Create the database instance for revoked tokens
 
+
 def create_app(config_class: Config = Config) -> Flask:
     """Create and configure the Flask application."""
     app = Flask(__name__)
@@ -45,6 +46,16 @@ def create_app(config_class: Config = Config) -> Flask:
     def static_file(path: str) -> Response:
         """Return a static file."""
         return app.send_static_file(path)
+
+    @app.errorhandler(401)
+    def handle_401(error: HTTPException) -> Response:
+        app.logger.exception(error)
+        return app.redirect("/")
+
+    @app.errorhandler(403)
+    def handle_403(error: HTTPException) -> Response:
+        app.logger.exception(error)
+        return app.redirect("/")
 
     @app.errorhandler(404)
     def handle_404(error: HTTPException) -> Response:

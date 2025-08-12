@@ -13,62 +13,59 @@ from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import db, revoked
-from app.models.models import PersonIn, Refresh, Token
+from app.models.models import PersonIn, User
 from app.tables.tables import Persons, Users
 
 
-def create_access_token(user: Users) -> Token:
+def create_access_token(user: Users | User) -> str:
     """Create token."""
-    token = Token(
-        id=user.id,
-        fullname=user.fullname,
-        username=user.username,
-        email=user.email,
-        role=user.role,
-        exp=datetime.now(tz=timezone.utc)  # noqa: UP017
-        + timedelta(minutes=current_app.config["JWT_SECRET_KEY_LIVE"]),
-    )
     return jwt.encode(
-        token.dict(),
+        {
+            "id": user.id,
+            "fullname": user.fullname,
+            "username": user.username,
+            "email": user.email,
+            "role": user.role,
+            "exp": datetime.now(tz=timezone.utc)  # noqa: UP017
+            + timedelta(minutes=current_app.config["JWT_SECRET_KEY_LIVE"]),
+        },
         current_app.config["JWT_SECRET_KEY"],
         algorithm="HS256",
     )
 
 
-def create_refresh_token(user: Users) -> Refresh:
+def create_refresh_token(user: Users) -> str:
     """Create refresh token."""
-    refresh = Refresh(
-        id=user.id,
-        exp=datetime.now()
-        + timedelta(days=current_app.config["REFRESH_SECRET_KEY_LIVE"]),
-    )
     return jwt.encode(
-        refresh.dict(),
+        {
+            "id": user.id,
+            "exp": datetime.now(tz=timezone.utc)  # noqa: UP017
+            + timedelta(minutes=current_app.config["REFRESH_SECRET_KEY_LIVE"]),
+        },
         current_app.config["REFRESH_SECRET_KEY"],
         algorithm="HS256",
     )
 
 
-def decode_token(header: str, credential: str = "access") -> Token | Refresh | None:
+def decode_token(header: str, *, refresh: bool = False) -> dict | None:
     """Decode JWT token and return payload."""
     try:
         if (bearer := header[7:]) and bearer.split(".")[-1] not in revoked.data:
             decoded = jwt.decode(
                 bearer,
                 current_app.config["JWT_SECRET_KEY"]
-                if credential == "access"
+                if not refresh
                 else current_app.config["REFRESH_SECRET_KEY"],
                 algorithms=["HS256"],
                 options={"verify_exp": True},
             )
-            token = Token(**decoded) if credential == "access" else Refresh(**decoded)
         else:
             return None
     except (jwt.exceptions.InvalidTokenError, ValidationError, IndexError, ValueError):
         current_app.logger.exception("JWT decode failed")
         return None
     else:
-        return token
+        return decoded
 
 
 def create_destination(person: Persons) -> str:

@@ -10,7 +10,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
 from app.classes.classes import Roles
-from app.models.models import AnketaJson, Token, UserForm
+from app.models.models import AnketaJson, UserForm
 from app.tables.tables import Users
 
 bp = Blueprint("command", __name__)
@@ -85,8 +85,7 @@ def create_schemas() -> None:
     """Create schemas."""
     path = Path("..", "schemas")
     path.mkdir(exist_ok=True)
-    for model in [AnketaJson, Token]:
-        file_path = Path(path, f"{model.__name__}.json")
-        with file_path.open("w", encoding="utf-8") as f:
-            schema = model.schema_json(by_alias=model.__name__ == "AnketaJson")
-            f.write(schema)
+    file_path = Path(path, f"{AnketaJson.__name__}.json")
+    with file_path.open("w", encoding="utf-8") as f:
+        schema = AnketaJson.schema_json(by_alias=AnketaJson.__name__ == "AnketaJson")
+        f.write(schema)

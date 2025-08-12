@@ -6,49 +6,49 @@ from collections.abc import Callable  # noqa: TC003
 from datetime import datetime, timedelta
 from functools import lru_cache, wraps
 
-from flask import Response, abort, g, request
-from werkzeug.local import LocalProxy
+from flask import Response, abort, current_app, g, request
+from pydantic import ValidationError
+from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
+from app.models.models import User
 from app.tables.tables import Users
 from app.utils.utilities import decode_token
 
-current_user: Users = LocalProxy(lambda: get_current_user(g.token.get("id")))
-
 
 @lru_cache(maxsize=2)
-def get_current_user(user_id: int) -> Users | Response:
+def get_current_user(user_id: int) -> User:
     """Retrieve the current user stored in the global variable."""
     if user_id:
-        user = db.session.get(Users, user_id)
-        if (
-            user
-            and not user.blocked
-            and not user.deleted
-            and not user.change_pswd
-            and user.pswd_create + timedelta(days=365) > datetime.now()
-        ):
-            return user
+        try:
+            user = db.session.get(Users, user_id)
+            if (
+                user
+                and not user.blocked
+                and not user.deleted
+                and not user.change_pswd
+                and user.pswd_create + timedelta(days=365) > datetime.now()
+            ):
+                return User.from_orm(user)
+        except (SQLAlchemyError, ValidationError):
+            current_app.logger.exception("Database error.")
     return abort(401)
 
 
-def auth_required(roles: tuple | None = None, credential: str = "access") -> Callable:
+def auth_required(roles: tuple | None = None, *, refresh: bool = False) -> Callable:
     """Decorate a function that checks a valid JWT token and the user has roles."""
 
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args: tuple, **kwargs: dict) -> Response | Callable:
-            if (
-                (header := request.headers.get("Authorization"))
-                and (decoded := decode_token(header, credential))
+            if (header := request.headers.get("Authorization")) and (
+                decoded := decode_token(header, refresh=refresh)
             ):
-                g.token = decoded.dict()
-                if not current_user:
-                    return abort(401)
+                g.user = get_current_user(decoded.get("id"))
             else:
                 return abort(401)
 
-            if roles and current_user.role not in roles:
+            if roles and g.user.role not in roles:
                 return abort(403)
 
             return func(*args, **kwargs)
@@ -56,4 +56,3 @@ def auth_required(roles: tuple | None = None, credential: str = "access") -> Cal
         return wrapper
 
     return decorator
-

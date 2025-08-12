@@ -6,14 +6,14 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from flask import Blueprint, current_app, request
+from flask import Blueprint, current_app, g, request
 from pydantic import ValidationError
 from sqlalchemy import desc, func, select
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
 from app.classes.classes import Roles
-from app.decorators.depend import auth_required, current_user
+from app.decorators.depend import auth_required
 from app.decorators.validize import pydantify
 from app.models.models import (
     AnketaJson,
@@ -95,11 +95,11 @@ def change_self_id(person_id: int) -> tuple[str, int]:
     try:
         if not person.destination or not Path(person.destination).is_dir():
             person.destination = create_destination(person)
-        if person.user_id != current_user.id:
+        if person.user_id != g.user.id:
             if person.editable:
                 person.editable = False
             else:
-                person.user_id = current_user.id
+                person.user_id = g.user.id
                 person.editable = True
         else:
             person.editable = not person.editable
@@ -170,7 +170,7 @@ def post_json(anketa: AnketaJson) -> dict:
         # Валидация данных и создание объекта класса Person
         resume = PersonIn(**anketa.dict(exclude_none=True))
         # Загрузка резюме в БД
-        person_id, existed = upload_resume(resume, current_user.id)
+        person_id, existed = upload_resume(resume, g.user.id)
 
         # Сохранение дополнительной информации о кандидате в БД
         if person_id:

@@ -63,29 +63,6 @@ class Login(BaseModel):
         return v.lower()
 
 
-class Token(BaseModel):
-    """JWT payloads."""
-
-    id: int
-    fullname: str
-    username: str
-    email: str
-    role: Roles
-    exp: datetime
-
-    class Config:
-        """Pydantic config."""
-
-        use_enum_values = True
-
-
-class Refresh(BaseModel):
-    """Refresh token payload."""
-
-    id: int
-    exp: datetime
-
-
 class UserForm(BaseModel):
     """Pydantic model for user form."""
 

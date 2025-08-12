@@ -1,11 +1,11 @@
 """Person routes."""
 
-from flask import Blueprint, current_app
+from flask import Blueprint, current_app, g
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
 from app.classes.classes import Roles
-from app.decorators.depend import auth_required, current_user
+from app.decorators.depend import auth_required
 from app.decorators.validize import pydantify
 from app.models.models import PersonIn, PersonOut, ResumeResponse
 from app.tables.tables import Persons
@@ -28,7 +28,7 @@ def get_person(person_id: int) -> tuple[Persons, int]:
 def post_person(json_data: PersonIn) -> tuple[dict, int]:
     """Replace a record in persons table."""
     # Загружаем резюме, получаем id кандидата, а также был ли он ранее загружен
-    cand_id, existed = upload_resume(json_data, current_user.id)
+    cand_id, existed = upload_resume(json_data, g.user.id)
     return {"person_id": cand_id, "exists": existed}, 201
 
 

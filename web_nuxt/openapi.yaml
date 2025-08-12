@@ -15,11 +15,6 @@ components:
       description: |
         Используйте Bearer-токен в заголовке `Authorization`:  
         `Authorization: Bearer <token>`.  
-  schemas:
-    JwtToken:
-      type: object
-      $ref: '../schemas/Token.json'
-
 paths:
   /route/api/json:
     post:

@@ -6,14 +6,14 @@ import threading
 from datetime import datetime, timezone
 from typing import Literal
 
-from flask import Blueprint, current_app
+from flask import Blueprint, current_app, g
 from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app import db, revoked
-from app.decorators.depend import auth_required, current_user
+from app.decorators.depend import auth_required
 from app.decorators.validize import pydantify
 from app.models.models import AuthResponse, Login
 from app.tables.tables import Users
@@ -85,13 +85,13 @@ def logout(json_data: AuthResponse) -> tuple[str, int]:
 
 @bp.post("/refresh")
 @pydantify(AuthResponse)
-@auth_required(credential="refresh")
+@auth_required(refresh=True)
 def refresh_token() -> tuple[str, int]:
     """Refresh the access token."""
     try:
         return {
             "message": "success",
-            "access_token": "Bearer " + create_access_token(current_user),
+            "access_token": "Bearer " + create_access_token(g.user),
         }, 201
     except (ValueError, ValidationError):
         return {"message": "invalid"}, 400

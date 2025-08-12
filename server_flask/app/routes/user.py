@@ -1,13 +1,13 @@
 """User routes."""
 
-from flask import Blueprint, current_app
+from flask import Blueprint, current_app, g
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import generate_password_hash
 
 from app import db
 from app.classes.classes import Roles
-from app.decorators.depend import auth_required, current_user, get_current_user
+from app.decorators.depend import auth_required, get_current_user
 from app.decorators.validize import pydantify
 from app.models.models import User, UserActions, UserForm
 from app.tables.tables import Users
@@ -35,7 +35,7 @@ def post_user_actions(user_id: int, json_query: UserActions) -> tuple[str, int]:
     """Change a user's information in the database based on their user ID."""
     user = db.session.get(Users, user_id)
     # Если пользователь не найден или пытается изменить собственный профиль
-    if not user or current_user.id == user.id:
+    if not user or g.user.id == user.id:
         return {"message": "error"}, 400
 
     if json_query.item == "reset":
