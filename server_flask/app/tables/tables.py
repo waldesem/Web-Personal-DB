@@ -1,7 +1,5 @@
 """SQLAlchemy models."""
 
-from __future__ import annotations
-
 from sqlalchemy import (
     Boolean,
     Date,
@@ -67,62 +65,62 @@ class Persons(db.Model):
     )
     editable: Mapped[bool] = mapped_column(Boolean(), default=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
-    previous: Mapped[list[Previous]] = relationship(
+    previous: Mapped[list["Previous"]] = relationship(
         back_populates="person",
         cascade="all, delete",
         lazy="dynamic",
     )
-    educations: Mapped[list[Educations]] = relationship(
+    educations: Mapped[list["Educations"]] = relationship(
         back_populates="person",
         cascade="all, delete",
         lazy="dynamic",
     )
-    staffs: Mapped[list[Staffs]] = relationship(
+    staffs: Mapped[list["Staffs"]] = relationship(
         back_populates="person",
         cascade="all, delete",
         lazy="dynamic",
     )
-    addresses: Mapped[list[Addresses]] = relationship(
+    addresses: Mapped[list["Addresses"]] = relationship(
         back_populates="person",
         cascade="all, delete",
         lazy="dynamic",
     )
-    documents: Mapped[list[Documents]] = relationship(
+    documents: Mapped[list["Documents"]] = relationship(
         back_populates="person",
         cascade="all, delete",
         lazy="dynamic",
     )
-    contacts: Mapped[list[Contacts]] = relationship(
+    contacts: Mapped[list["Contacts"]] = relationship(
         back_populates="person",
         cascade="all, delete",
         lazy="dynamic",
     )
-    workplaces: Mapped[list[Workplaces]] = relationship(
+    workplaces: Mapped[list["Workplaces"]] = relationship(
         back_populates="person",
         cascade="all, delete",
         lazy="dynamic",
     )
-    affilations: Mapped[list[Affilations]] = relationship(
+    affilations: Mapped[list["Affilations"]] = relationship(
         back_populates="person",
         cascade="all, delete",
         lazy="dynamic",
     )
-    checks: Mapped[list[Checks]] = relationship(
+    checks: Mapped[list["Checks"]] = relationship(
         back_populates="person",
         cascade="all, delete",
         lazy="dynamic",
     )
-    poligrafs: Mapped[list[Poligrafs]] = relationship(
+    poligrafs: Mapped[list["Poligrafs"]] = relationship(
         back_populates="person",
         cascade="all, delete",
         lazy="dynamic",
     )
-    investigations: Mapped[list[Investigations]] = relationship(
+    investigations: Mapped[list["Investigations"]] = relationship(
         back_populates="person",
         cascade="all, delete",
         lazy="dynamic",
     )
-    inquiries: Mapped[list[Inquiries]] = relationship(
+    inquiries: Mapped[list["Inquiries"]] = relationship(
         back_populates="person",
         cascade="all, delete",
         lazy="dynamic",
