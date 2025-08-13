@@ -22,7 +22,7 @@ db = Database()  # Create the database instance for SQLAlchemy
 revoked = RevokeDB()  # Create the database instance for revoked tokens
 
 
-def create_app(config_class: Config = Config) -> Flask:
+def create_app(config_class: type[Config] = Config) -> Flask:
     """Create and configure the Flask application."""
     app = Flask(__name__)
     app.config.from_object(config_class)
@@ -63,7 +63,7 @@ def create_app(config_class: Config = Config) -> Flask:
         return app.redirect("/")
 
     @app.errorhandler(HTTPException)
-    def handle_exception(error: HTTPException) -> Response:
+    def handle_exception(error: HTTPException) -> HTTPException:
         app.logger.exception(error)
         return error
 

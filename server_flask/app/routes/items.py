@@ -1,11 +1,10 @@
 """Items routes."""
 
-from typing import Literal
+from typing import Literal, TypeVar
 
 from flask import Blueprint, current_app
 from pydantic import BaseModel
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import DeclarativeBase
 
 from app import db
 from app.classes.classes import Roles
@@ -57,8 +56,9 @@ Items = Literal[
     "workplaces",
 ]
 
+T = TypeVar("T")
 
-def get_item(item: Items, person_id: int) -> tuple[list[DeclarativeBase], int]:
+def get_item(item: Items, person_id: int) -> tuple[list[T], int]:
     """Retrieve an item from the database based on the provided item."""
     stmt = (
         db.metatables[item]
@@ -196,7 +196,7 @@ def get_investigations(person_id: int) -> tuple[list[Investigations], int]:
 @bp.post("/previous/<int:person_id>")
 @pydantify()
 @auth_required(Roles.user.value)
-def post_previous(person_id: int, json_data: Prev) -> tuple[str, int]:
+def post_previous(person_id: int, json_data: Prev) -> tuple[dict, int]:
     """Insert or replaces a record in previous table with the given item ID."""
     return post_item("previous", person_id, json_data)
 
@@ -204,7 +204,7 @@ def post_previous(person_id: int, json_data: Prev) -> tuple[str, int]:
 @bp.post("/educations/<int:person_id>")
 @pydantify()
 @auth_required(Roles.user.value)
-def post_educations(person_id: int, json_data: Education) -> tuple[str, int]:
+def post_educations(person_id: int, json_data: Education) -> tuple[dict, int]:
     """Insert or replaces a record in educations table with the given item ID."""
     return post_item("educations", person_id, json_data)
 
@@ -212,7 +212,7 @@ def post_educations(person_id: int, json_data: Education) -> tuple[str, int]:
 @bp.post("/addresses/<int:person_id>")
 @pydantify()
 @auth_required(Roles.user.value)
-def post_addresses(person_id: int, json_data: Address) -> tuple[str, int]:
+def post_addresses(person_id: int, json_data: Address) -> tuple[dict, int]:
     """Insert or replaces a record in addresses table with the given item ID."""
     return post_item("addresses", person_id, json_data)
 
@@ -220,7 +220,7 @@ def post_addresses(person_id: int, json_data: Address) -> tuple[str, int]:
 @bp.post("/affilations/<int:person_id>")
 @pydantify()
 @auth_required(Roles.user.value)
-def post_affilations(person_id: int, json_data: Affilation) -> tuple[str, int]:
+def post_affilations(person_id: int, json_data: Affilation) -> tuple[dict, int]:
     """Insert or replaces a record in affilations table with the given item ID."""
     return post_item("affilations", person_id, json_data)
 
@@ -228,7 +228,7 @@ def post_affilations(person_id: int, json_data: Affilation) -> tuple[str, int]:
 @bp.post("/staffs/<int:person_id>")
 @pydantify()
 @auth_required(Roles.user.value)
-def post_staffs(person_id: int, json_data: Staff) -> tuple[str, int]:
+def post_staffs(person_id: int, json_data: Staff) -> tuple[dict, int]:
     """Insert or replaces a record in staffs table with the given item ID."""
     return post_item("staffs", person_id, json_data)
 
@@ -236,7 +236,7 @@ def post_staffs(person_id: int, json_data: Staff) -> tuple[str, int]:
 @bp.post("/workplaces/<int:person_id>")
 @pydantify()
 @auth_required(Roles.user.value)
-def post_workplaces(person_id: int, json_data: Workplace) -> tuple[str, int]:
+def post_workplaces(person_id: int, json_data: Workplace) -> tuple[dict, int]:
     """Insert or replaces a record in workplaces table with the given item ID."""
     return post_item("workplaces", person_id, json_data)
 
@@ -244,7 +244,7 @@ def post_workplaces(person_id: int, json_data: Workplace) -> tuple[str, int]:
 @bp.post("/contacts/<int:person_id>")
 @pydantify()
 @auth_required(Roles.user.value)
-def post_contacts(person_id: int, json_data: Contact) -> tuple[str, int]:
+def post_contacts(person_id: int, json_data: Contact) -> tuple[dict, int]:
     """Insert or replaces a record in contacts table with the given item ID."""
     return post_item("contacts", person_id, json_data)
 
@@ -252,7 +252,7 @@ def post_contacts(person_id: int, json_data: Contact) -> tuple[str, int]:
 @bp.post("/documents/<int:person_id>")
 @pydantify()
 @auth_required(Roles.user.value)
-def post_documents(person_id: int, json_data: Document) -> tuple[str, int]:
+def post_documents(person_id: int, json_data: Document) -> tuple[dict, int]:
     """Insert or replaces a record in documents table with the given item ID."""
     return post_item("documents", person_id, json_data)
 
@@ -260,7 +260,7 @@ def post_documents(person_id: int, json_data: Document) -> tuple[str, int]:
 @bp.post("/checks/<int:person_id>")
 @pydantify()
 @auth_required(Roles.user.value)
-def post_checks(person_id: int, json_data: Check) -> tuple[str, int]:
+def post_checks(person_id: int, json_data: Check) -> tuple[dict, int]:
     """Insert or replaces a record in checks table with the given item ID."""
     return post_item("checks", person_id, json_data)
 
@@ -268,7 +268,7 @@ def post_checks(person_id: int, json_data: Check) -> tuple[str, int]:
 @bp.post("/poligrafs/<int:person_id>")
 @pydantify()
 @auth_required(Roles.user.value)
-def post_poligrafs(person_id: int, json_data: Poligraf) -> tuple[str, int]:
+def post_poligrafs(person_id: int, json_data: Poligraf) -> tuple[dict, int]:
     """Insert or replaces a record in poligrafs table with the given item ID."""
     return post_item("poligrafs", person_id, json_data)
 
@@ -276,7 +276,7 @@ def post_poligrafs(person_id: int, json_data: Poligraf) -> tuple[str, int]:
 @bp.post("/inquiries/<int:person_id>")
 @pydantify()
 @auth_required(Roles.user.value)
-def post_inquiries(person_id: int, json_data: Inquiry) -> tuple[str, int]:
+def post_inquiries(person_id: int, json_data: Inquiry) -> tuple[dict, int]:
     """Insert or replaces a record in inquiries table with the given item ID."""
     return post_item("inquiries", person_id, json_data)
 
@@ -284,7 +284,7 @@ def post_inquiries(person_id: int, json_data: Inquiry) -> tuple[str, int]:
 @bp.post("/investigations/<int:person_id>")
 @pydantify()
 @auth_required(Roles.user.value)
-def post_investigations(person_id: int, json_data: Investigation) -> tuple[str, int]:
+def post_investigations(person_id: int, json_data: Investigation) -> tuple[dict, int]:
     """Insert or replaces a record in investigations table with the given item ID."""
     return post_item("investigations", person_id, json_data)
 
@@ -292,7 +292,7 @@ def post_investigations(person_id: int, json_data: Investigation) -> tuple[str, 
 @bp.delete("/<item>/<int:item_id>")
 @pydantify()
 @auth_required(Roles.user.value)
-def delete(item: Items, item_id: int) -> tuple[str, int]:
+def delete(item: Items, item_id: int) -> tuple[dict, int]:
     """Delete an item from the database based on the provided item name and item ID."""
     try:
         db.session.execute(

@@ -8,6 +8,7 @@ from pathlib import Path
 
 import jwt
 from flask import current_app
+from jwt.exceptions import InvalidTokenError
 from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
@@ -49,6 +50,7 @@ def create_refresh_token(user: Users) -> str:
 
 def decode_token(header: str, *, refresh: bool = False) -> dict | None:
     """Decode JWT token and return payload."""
+    decoded = None
     try:
         if (bearer := header[7:]) and bearer.split(".")[-1] not in revoked.data:
             decoded = jwt.decode(
@@ -59,9 +61,7 @@ def decode_token(header: str, *, refresh: bool = False) -> dict | None:
                 algorithms=["HS256"],
                 options={"verify_exp": True},
             )
-        else:
-            return None
-    except (jwt.exceptions.InvalidTokenError, ValidationError, IndexError, ValueError):
+    except (InvalidTokenError, ValidationError, IndexError, ValueError):
         current_app.logger.exception("JWT decode failed")
         return None
     else:
@@ -80,7 +80,7 @@ def create_destination(person: Persons) -> str:
     return str(destination)
 
 
-def upload_resume(cand: PersonIn, user_id: int) -> tuple[int, bool]:
+def upload_resume(cand: PersonIn, user_id: int) -> tuple[int | None, bool]:
     """Upload a resume to the database."""
     person = (
         db.session.execute(
@@ -122,7 +122,7 @@ def upload_resume(cand: PersonIn, user_id: int) -> tuple[int, bool]:
         return person.id, True
 
 
-def check_filename(name: str) -> str:
+def check_filename(name: str) -> str | None:
     """Check filename for valid chars."""
     try:
         filename_ascii_strip_re = re.compile(r"[^A-zА-яЁё0-9_.-]")

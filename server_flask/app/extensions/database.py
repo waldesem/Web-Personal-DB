@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from flask import Flask  # noqa: TC002
 from sqlalchemy import create_engine
-from sqlalchemy.orm import DeclarativeBase, Session, scoped_session, sessionmaker
+from sqlalchemy.orm import DeclarativeBase, scoped_session, sessionmaker
 
 
 class Base(DeclarativeBase):
@@ -19,7 +19,6 @@ class Database:
         self.Model = Base
         self.metadata = self.Model.metadata
         self.metatables = self.metadata.tables
-        self.session = Session | None
         if app is not None:
             self.init_app(app)
 

@@ -30,7 +30,7 @@ def create_user(
     fullname: str,
     username: str,
     email: str,
-    role: str,
+    role: Roles,
 ) -> None:
     """Create a new user.
 

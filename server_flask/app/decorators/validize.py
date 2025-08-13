@@ -11,7 +11,7 @@ from app.models.models import BaseResponse, Result
 
 
 def pydantify(
-    model: BaseModel = BaseResponse,
+    model: type[BaseModel] = BaseResponse,
     *,
     orm: bool = False,
     many: bool = False,
@@ -19,7 +19,7 @@ def pydantify(
     """Decorate a function for validate and serialize data using Pydantic models."""
     def decorator(func: Callable) -> Callable:
         @wraps(func)
-        def wrapper(*args: tuple, **kwargs: dict) -> Response:
+        def wrapper(*args: tuple, **kwargs: dict) -> tuple[Response, int]:
             try:
                 # Валидация входных данных параметров функции
                 type_hints = get_type_hints(func)
@@ -28,7 +28,7 @@ def pydantify(
                     for k, v in type_hints.items()
                     if k not in ["return", "json_query", "json_data"]
                 }:
-                    model_class: BaseModel = create_model("Params", **params)
+                    model_class = create_model("Params", **params)
                     kwargs = model_class(**{key: kwargs[key] for key in params}).dict()
 
                 if model_class := type_hints.get("json_query"):

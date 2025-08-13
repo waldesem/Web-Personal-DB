@@ -31,7 +31,7 @@ def get_users() -> tuple[list[Users], int]:
 @bp.post("/user/<user_id>")
 @pydantify()
 @auth_required(Roles.admin.value)
-def post_user_actions(user_id: int, json_query: UserActions) -> tuple[str, int]:
+def post_user_actions(user_id: int, json_query: UserActions) -> tuple[dict, int]:
     """Change a user's information in the database based on their user ID."""
     user = db.session.get(Users, user_id)
     # Если пользователь не найден или пытается изменить собственный профиль
@@ -64,7 +64,7 @@ def post_user_actions(user_id: int, json_query: UserActions) -> tuple[str, int]:
 @bp.post("/user")
 @pydantify()
 @auth_required(Roles.admin.value)
-def post_user(json_data: UserForm) -> tuple[str, int]:
+def post_user(json_data: UserForm) -> tuple[dict, int]:
     """Handle the POST request to create a user in the database."""
     # Проверить, существует ли уже пользователь с таким именем
     user = db.session.execute(

@@ -1,6 +1,6 @@
 """Person routes."""
 
-from flask import Blueprint, current_app, g
+from flask import Blueprint, Response, current_app, g, redirect
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
@@ -17,9 +17,11 @@ bp = Blueprint("persons", __name__)
 @bp.get("/persons/<int:person_id>")
 @pydantify(PersonOut, orm=True)
 @auth_required()
-def get_person(person_id: int) -> tuple[Persons, int]:
+def get_person(person_id: int) -> tuple[Persons, int] | Response:
     """Retrieve an item from the database based on the provided item ID."""
-    return db.session.get(Persons, person_id), 200
+    if person := db.session.get(Persons, person_id):
+        return person, 200
+    return redirect("/", 302)
 
 
 @bp.post("/persons")
@@ -35,7 +37,7 @@ def post_person(json_data: PersonIn) -> tuple[dict, int]:
 @bp.delete("/persons/<int:person_id>")
 @pydantify(ResumeResponse)
 @auth_required(Roles.user.value)
-def delete_person(person_id: int) -> tuple[str, int]:
+def delete_person(person_id: int) -> tuple[dict, int]:
     """Delete an item from the database based on the provided item name and item ID."""
     try:
         person = db.session.get(Persons, person_id)

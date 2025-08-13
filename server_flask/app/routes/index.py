@@ -89,53 +89,55 @@ def get_index(json_query: Index) -> tuple[list[Persons], int]:
 @bp.get("/self/<int:person_id>")
 @pydantify()
 @auth_required(Roles.user.value)
-def change_self_id(person_id: int) -> tuple[str, int]:
+def change_self_id(person_id: int) -> tuple[dict, int]:
     """Toggle the editable status of a person."""
-    person = db.session.get(Persons, person_id)
-    try:
-        if not person.destination or not Path(person.destination).is_dir():
-            person.destination = create_destination(person)
-        if person.user_id != g.user.id:
-            if person.editable:
-                person.editable = False
+    if person := db.session.get(Persons, person_id):
+        try:
+            if not person.destination or not Path(person.destination).is_dir():
+                person.destination = create_destination(person)
+            if person.user_id != g.user.id:
+                if person.editable:
+                    person.editable = False
+                else:
+                    person.user_id = g.user.id
+                    person.editable = True
             else:
-                person.user_id = g.user.id
-                person.editable = True
+                person.editable = not person.editable
+            db.session.commit()
+        except SQLAlchemyError:
+            current_app.logger.exception("Exception in change_self_id")
+            return {"message": "error"}, 400
         else:
-            person.editable = not person.editable
-        db.session.commit()
-    except SQLAlchemyError:
-        current_app.logger.exception("Exception in change_self_id")
-        return {"message": "error"}, 400
-    else:
-        return {"message": "success"}, 201
+            return {"message": "success"}, 201
+    return {"message": "error"}, 400
 
 
 @bp.post("/files/<int:person_id>")
 @pydantify()
 @auth_required(Roles.user.value)
-def post_files(person_id: int) -> tuple[str, int]:
+def post_files(person_id: int) -> tuple[dict, int]:
     """Upload a file to the server."""
     file_data = request.files.getlist("file")
-    person = db.session.get(Persons, person_id)
-    try:
-        subfolder = Path(
-            person.destination,
-            datetime.now().strftime("%d-%m-%Y %H-%M-%S"),
-        )
-        subfolder.mkdir(parents=True, exist_ok=True)
+    if person := db.session.get(Persons, person_id):
+        try:
+            subfolder = Path(
+                person.destination,
+                datetime.now().strftime("%d-%m-%Y %H-%M-%S"),
+            )
+            subfolder.mkdir(parents=True, exist_ok=True)
 
-        for data in file_data:
-            secure_filename = check_filename(data.filename)
-            if secure_filename:
-                file_path = Path(subfolder, secure_filename)
-                if not file_path.is_file():
-                    data.save(file_path)
-    except (TypeError, ValueError, AttributeError):
-        current_app.logger.exception("Exception in post_files")
-        return {"message": "error"}, 400
-    else:
-        return {"message": "success"}, 201
+            for data in file_data:
+                secure_filename = check_filename(data.filename)
+                if secure_filename:
+                    file_path = Path(subfolder, secure_filename)
+                    if not file_path.is_file():
+                        data.save(file_path)
+        except (TypeError, ValueError, AttributeError):
+            current_app.logger.exception("Exception in post_files")
+            return {"message": "error"}, 400
+        else:
+            return {"message": "success"}, 201
+    return {"message": "error"}, 400
 
 
 @bp.post("/api/json")
@@ -158,8 +160,11 @@ def post_json_file() -> tuple[dict, int]:
     # Чтение файла JSON и создание объектов классов для сохранения в БД
     if not (file := request.files.get("file")):
         return {"person_id": None, "exists": False}, 400
-    json_data = json.load(file)
-    anketa = AnketaJson(**json_data)
+    try:
+        json_data = json.load(file)
+        anketa = AnketaJson(**json_data)
+    except (TypeError, json.JSONDecodeError, ValidationError):
+        return {"person_id": None, "exists": False}, 400
     result = post_json(anketa)
     return result, 201 if result.get("person_id") else 400
 

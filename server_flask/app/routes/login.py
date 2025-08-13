@@ -44,7 +44,7 @@ def post_login(
             db.session.commit()
             return {"message": "invalid"}, 200
 
-        if action == "update":
+        if action == "update" and json_data.new_pswd:
             user.passhash = generate_password_hash(json_data.new_pswd)
             user.pswd_create = datetime.now(tz=timezone.utc)  # noqa: UP017
             user.change_pswd = False
@@ -71,8 +71,11 @@ def post_login(
 
 @bp.post("/logout")
 @pydantify()
-def logout(json_data: AuthResponse) -> tuple[str, int]:
+def logout(json_data: AuthResponse) -> tuple[dict, int]:
     """Logout the user."""
+    if not json_data.access_token or not json_data.refresh_token:
+        current_app.logger.warning("Invalid token")
+        return {"message": "invalid"}, 400
     try:
         revoked.set(json_data.access_token.split(".")[-1])
         revoked.set(json_data.refresh_token.split(".")[-1])
@@ -86,7 +89,7 @@ def logout(json_data: AuthResponse) -> tuple[str, int]:
 @bp.post("/refresh")
 @pydantify(AuthResponse)
 @auth_required(refresh=True)
-def refresh_token() -> tuple[str, int]:
+def refresh_token() -> tuple[dict, int]:
     """Refresh the access token."""
     try:
         return {
