@@ -35,12 +35,12 @@ const items = ref<NavigationMenuItem[]>([
     icon: "i-lucide-users-round",
     to: "/persons",
   },
-  {
-    label: "OpenAPI",
-    icon: "i-lucide-code",
-    to: "redoc.html",
-    target: "_blank",
-  },
+  // {
+  //   label: "OpenAPI",
+  //   icon: "i-lucide-code",
+  //   to: "redoc.html",
+  //   target: "_blank",
+  // },
 ]);
 </script>
 

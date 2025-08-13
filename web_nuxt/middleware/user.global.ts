@@ -3,7 +3,7 @@ import type { Token } from "@/types";
 
 export default defineNuxtRouteMiddleware(async (to) => {
   const token = useCookie("token");
-  if (to.path === "/persons" && token.value) {
+  if (token.value && to.path !== "/" && to.path !== "/login") {
     try {
       const userState = useStateUser();
       userState.value = jwtDecode(token.value) as Token;

@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import type { Work } from '@/types';
+import type { Work } from "@/types";
+
+const NuxtTime = resolveComponent("NuxtTime");
 
 const props = defineProps({
   item: {
@@ -10,12 +12,12 @@ const props = defineProps({
 
 const workplace = {
   "Текущая работа": props.item.now_work ? "Да" : "Нет",
-  "Начало работы": props.item.starts
-    ? new Date(props.item.starts).toLocaleDateString("ru-RU").split(",")[0]
-    : "",
-  "Окончание работы": props.item.finished
-    ? new Date(props.item.finished).toLocaleDateString("ru-RU").split(",")[0]
-    : "",
+  "Начало работы": props.item.starts ? h(NuxtTime, {
+    datetime: props.item.starts,
+  }) : "",
+  "Окончание работы": props.item.finished ? h(NuxtTime, {
+    datetime: props.item.finished,
+  }) : "",
   Место: props.item.workplace,
   Адрес: props.item.address,
   Должность: props.item.position,

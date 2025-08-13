@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Passport } from '@/types';
 
+const NuxtTime = resolveComponent("NuxtTime");
+
 const props = defineProps({
   item: {
     type: Object as PropType<Passport>,
@@ -12,9 +14,9 @@ const document = {
   "Вид документа": props.item.view,
   "Серия документа": props.item.series,
   "Номер документа": props.item.digits,
-  "Дата выдачи": props.item.issue
-    ? new Date(props.item.issue).toLocaleDateString("ru-RU").split(",")[0]
-    : "",
+  "Дата выдачи": h(NuxtTime, {
+    datetime: props.item.issue,
+  }),
   "Кем выдан": props.item.agency,
 };
 </script>

@@ -3,6 +3,7 @@ import type { Verification } from '@/types';
 import { Conclusions } from "@/types";
 
 const UBadge = resolveComponent("UBadge");
+const NuxtTime = resolveComponent("NuxtTime");
 
 const props = defineProps({
   item: {
@@ -36,9 +37,9 @@ const check = {
 
     label: props.item.conclusion,
   }),
-  "Дата записи": props.item.created
-    ? new Date(props.item.created).toLocaleDateString("ru-RU")
-    : "",
+  "Дата записи": h(NuxtTime, {
+    datetime: props.item.created,
+  })
 };
 </script>
 

@@ -6,6 +6,7 @@ const UIcon = resolveComponent("UIcon");
 const UBadge = resolveComponent("UBadge");
 const UButton = resolveComponent("UButton");
 const UDropdownMenu = resolveComponent("UDropdownMenu");
+const NuxtTime = resolveComponent("NuxtTime");
 
 const { $api } = useNuxtApp();
 
@@ -164,7 +165,9 @@ const columns: TableColumn<User>[] = [
     accessorKey: "created",
     header: "Создан",
     cell: ({ row }) => {
-      return new Date(row.original.created).toLocaleDateString("ru-RU");
+      return h(NuxtTime, {
+        datetime: row.original.created,
+      });
     },
   },
   { accessorKey: "attempt", header: "Попыток" },

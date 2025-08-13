@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Needs } from '@/types';
 
+const NuxtTime = resolveComponent("NuxtTime");
+
 const props = defineProps({
   item: {
     type: Object as PropType<Needs>,
@@ -11,9 +13,9 @@ const props = defineProps({
 const inquiry = {
   Информация: props.item.info,
   Иннициатор: props.item.initiator,
-  "Дата записи": props.item.created
-    ? new Date(props.item.created).toLocaleDateString("ru-RU").split(",")[0]
-    : "",
+  "Дата записи": h(NuxtTime, {
+    datetime: props.item.created,
+  })
 };
 </script>
 

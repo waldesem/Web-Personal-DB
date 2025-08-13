@@ -10,13 +10,14 @@ await preloadRouteComponents("/profile/[id]");
 const UIcon = resolveComponent("UIcon");
 const UButton = resolveComponent("UButton");
 const UDropdownMenu = resolveComponent("UDropdownMenu");
+const NuxtTime = resolveComponent("NuxtTime");
 
 const userState = useStateUser();
 
 const page = ref(1);
 const search = ref("");
 const modal = ref(false);
-const updated = ref("Данные обновляются...");
+const updated = ref(Date.now());
 const per_page = 10;
 
 const {
@@ -39,10 +40,7 @@ watchDebounced(search, async () => await refresh(), {
   maxWait: 2000,
 });
 
-watch(
-  candidates,
-  () => (updated.value = new Date().toLocaleTimeString("ru-RU"))
-);
+watch(candidates, () => (updated.value = Date.now()));
 
 const { open, onChange } = useFileDialog({
   accept: ".json",
@@ -97,11 +95,9 @@ const columns: TableColumn<Candidate>[] = [
     accessorKey: "birthday",
     header: "Дата рождения",
     cell: ({ row }) => {
-      try {
-        return new Date(row.original.birthday).toLocaleDateString("ru-RU");
-      } catch {
-        return "";
-      }
+      return h(NuxtTime, {
+        datetime: row.original.birthday,
+      });
     },
   },
   {
@@ -126,11 +122,9 @@ const columns: TableColumn<Candidate>[] = [
     accessorKey: "created",
     header: "Обновлено",
     cell: ({ row }) => {
-      try {
-        return new Date(row.original.created).toLocaleDateString("ru-RU");
-      } catch {
-        return "";
-      }
+      return h(NuxtTime, {
+        datetime: row.original.created,
+      });
     },
   },
   {
@@ -166,7 +160,6 @@ const items: DropdownMenuItem[] = [
 
 <template>
   <div class="py-4">
-
     <div class="flex items-center justify-between mb-3">
       <h3 class="text-2xl text-red-800 font-bold">КАНДИДАТЫ</h3>
       <div v-if="userState.role == 'user'">
@@ -216,11 +209,12 @@ const items: DropdownMenuItem[] = [
       <UButton
         variant="ghost"
         icon="i-lucide-refresh-ccw"
-        :label="`Обновлено в: ${updated}`"
         :loading="status === 'pending'"
         title="Обновить данные"
         @click="refresh()"
-      />
+        >Обновлено в
+        <NuxtTime :datetime="updated" hour="2-digit" minute="2-digit" />
+      </UButton>
     </div>
 
     <div class="flex justify-center border-t border-default py-4">

@@ -3,6 +3,7 @@ import type { Pfo } from "@/types";
 import { Decisions } from "@/types";
 
 const UBadge = resolveComponent("UBadge");
+const NuxtTime = resolveComponent("NuxtTime");
 
 const props = defineProps({
   item: {
@@ -25,9 +26,9 @@ const poligraf = {
         : "error",
     label: props.item.conclusion,
   }),
-  "Дата записи": props.item.created
-    ? new Date(props.item.created).toLocaleDateString("ru-RU").split(",")[0]
-    : "",
+  "Дата записи": h(NuxtTime, {
+    datetime: props.item.created,
+  })
 };
 </script>
 
