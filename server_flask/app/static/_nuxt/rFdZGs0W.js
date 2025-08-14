@@ -1,0 +1,1 @@
+import{a as r}from"./OPRrCmfW.js";import{c as s,o as t,r as a}from"./eVedJuvA.js";const o={},c={class:"wrap"};function n(e,_){return t(),s("div",c,[a(e.$slots,"default")])}const l=Object.assign(r(o,[["render",n]]),{__name:"ElementsWrapperDiv"});export{l as default};

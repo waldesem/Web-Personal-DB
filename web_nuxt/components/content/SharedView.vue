@@ -17,7 +17,7 @@ const props = defineProps({
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
-const item = ref({} as object);
+const item = shallowRef({} as object);
 const modal = ref(false);
 
 const { data, status, refresh } = await useAPI<object[]>(

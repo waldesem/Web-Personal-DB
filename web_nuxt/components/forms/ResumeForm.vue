@@ -12,7 +12,7 @@ const props = defineProps({
   },
 });
 
-const resumeForm = ref(props.resume);
+const resumeForm = toRef(props.resume);
 
 resumeForm.value.birthday =
   new Date(resumeForm.value.birthday).toISOString().split("T", 1)[0] ?? "";

@@ -7,32 +7,28 @@ const { $api } = useNuxtApp();
 
 await preloadRouteComponents("/profile/[id]");
 
-const UIcon = resolveComponent("UIcon");
+const NuxtTime = resolveComponent("NuxtTime");
 const UButton = resolveComponent("UButton");
 const UDropdownMenu = resolveComponent("UDropdownMenu");
-const NuxtTime = resolveComponent("NuxtTime");
+const UIcon = resolveComponent("UIcon");
 
 const userState = useStateUser();
 
-const page = ref(1);
-const search = ref("");
 const modal = ref(false);
-const updated = ref(Date.now());
+const page = ref(1);
 const per_page = 10;
+const search = ref("");
+const updated = ref(Date.now());
 
-const {
-  data: candidates,
-  status,
-  refresh,
-} = await useAPI<Candidate[]>("/route/index", {
-  params: {
+const { data, status, refresh } = await useAPI<Candidate[]>("/route/index", {
+  query: {
     search: search.value,
     per_page: per_page,
     page: page.value,
   },
-  watch: [page],
   lazy: true,
   server: false,
+  watch: [page],
 });
 
 watchDebounced(search, async () => await refresh(), {
@@ -40,7 +36,7 @@ watchDebounced(search, async () => await refresh(), {
   maxWait: 2000,
 });
 
-watch(candidates, () => (updated.value = Date.now()));
+watch(data, () => (updated.value = Date.now()));
 
 const { open, onChange } = useFileDialog({
   accept: ".json",
@@ -75,7 +71,7 @@ async function createToast(person_id: string, exists: boolean) {
     if (exists) {
       makeToast(
         "info",
-        "Анкета находится в другом регионе или назначена иному пользователю"
+        "Анкета назначена другому пользователю"
       );
     } else {
       makeToast();
@@ -124,6 +120,7 @@ const columns: TableColumn<Candidate>[] = [
     cell: ({ row }) => {
       return h(NuxtTime, {
         datetime: row.original.created,
+        relative: true,
       });
     },
   },
@@ -200,7 +197,7 @@ const items: DropdownMenuItem[] = [
       loading-animation="carousel"
       empty="Данные не найдены"
       :columns="columns"
-      :data="candidates"
+      :data="data"
       :meta="{ class: { tr: 'cursor-pointer' } }"
       @select="navigateTo(`/profile/${$event.original.id}`)"
     />
@@ -212,8 +209,8 @@ const items: DropdownMenuItem[] = [
         :loading="status === 'pending'"
         title="Обновить данные"
         @click="refresh()"
-        >Обновлено в
-        <NuxtTime :datetime="updated" hour="2-digit" minute="2-digit" />
+        >Обновлено
+        <NuxtTime :datetime="updated" relative />
       </UButton>
     </div>
 
@@ -221,7 +218,7 @@ const items: DropdownMenuItem[] = [
       <UPagination
         v-model:page="page"
         :items-per-page="per_page"
-        :total="candidates?.[0]?.total ?? 1"
+        :total="data?.[0]?.total ?? 1"
         :sibling-count="1"
         @update:page="(p) => (page = p)"
       />
