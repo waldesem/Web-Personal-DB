@@ -20,28 +20,27 @@ const userState = useStateUser();
 const candId = computed(() => route.params.id as string);
 provide("candId", candId);
 
-const {
-  data: person,
-  status,
-  refresh,
-} = await useAPI<Persons>("/route/persons/" + candId.value, {
-  server: false,
-});
-provide("status", status);
+const { data, status, refresh } = await useAPI<Persons>(
+  "/route/persons/" + candId.value,
+  {
+    key: "persons",
+    server: false,
+  }
+);
 
 const editable = computed(() => {
   return (
-    person.value &&
-    person.value.editable &&
+    data.value &&
+    data.value.editable &&
     userState.value.role == "user" &&
-    userState.value.id == person.value.user_id
+    userState.value.id == data.value.user_id
   );
 });
 provide("editable", editable);
 
 async function switchSelf(): Promise<void> {
-  if (person.value && person.value.user_id != userState.value.id) {
-    if (person.value.editable) {
+  if (data.value && data.value.user_id != userState.value.id) {
+    if (data.value.editable) {
       if (
         !confirm(
           "Анкета редактируется другим пользователем. Переключить режим?"
@@ -57,7 +56,7 @@ async function switchSelf(): Promise<void> {
   }
   status.value = "pending";
   const { message } = await $api<Record<string, string>>(
-    "/route/self/" + person.value?.id
+    "/route/self/" + data.value?.id
   );
   status.value = message as "success" | "error";
   if (message == "success") {
@@ -139,11 +138,7 @@ const items = [
       <USkeleton v-if="status == 'pending'" class="py-1 h-10 w-96" />
       <div v-else class="py-1">
         <h3 class="text-2xl text-red-800 font-bold">
-          {{
-            `${person?.surname} ${person?.firstname} ${
-              person?.patronymic ?? ""
-            }`
-          }}
+          {{ `${data?.surname} ${data?.firstname} ${data?.patronymic ?? ""}` }}
         </h3>
       </div>
       <div v-if="userState.role == 'user'" class="flex items-center space-x-4">
@@ -157,16 +152,16 @@ const items = [
         <UButton
           :loading="status === 'pending'"
           :color="
-            !person?.editable
+            !data?.editable
               ? 'secondary'
-              : person.user_id == userState.id
+              : data.user_id == userState.id
               ? 'success'
               : 'error'
           "
           :label="
-            !person?.editable
+            !data?.editable
               ? 'Доступно  для редактирования'
-              : person.user_id == userState.id
+              : data.user_id == userState.id
               ? 'Назначено текущему пользователю'
               : 'Редактируется другим пользователем'
           "
@@ -183,10 +178,7 @@ const items = [
       :ui="{ trigger: 'flex-1' }"
     >
       <template #person>
-        <ContentAnketaTab
-          :person="(person ? person : {} as Persons)"
-          @refresh="refresh()"
-        />
+        <ContentAnketaTab :person="(data ?? {} as Persons)" :status="status" />
       </template>
 
       <template #checks="{ item }">

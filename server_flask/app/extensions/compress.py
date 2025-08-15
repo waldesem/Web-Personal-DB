@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import zlib
+from typing import TYPE_CHECKING
 
-from flask import Flask, Response  # noqa: TC002
+if TYPE_CHECKING:
+    from flask import Flask, Response
 
 
 class Compress:
@@ -27,7 +29,7 @@ class Compress:
         elif "accept-encoding" not in vary.lower():
             response.headers["Vary"] = f"{vary}, Accept-Encoding"
 
-        # Only compress application/json and text/* content types.
+        # Only compress */json and text/* content types.
         if (
             (
                 "/json" not in response.mimetype

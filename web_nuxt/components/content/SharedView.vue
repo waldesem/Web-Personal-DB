@@ -48,7 +48,7 @@ async function submitItem(form: object) {
   }
 }
 
-async function deleteItem(id: string, idx: number) {
+async function deleteItem(id: string) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   status.value = "pending";
   const { message } = await $api<Record<string, string>>(
@@ -60,7 +60,7 @@ async function deleteItem(id: string, idx: number) {
   status.value = message as "success" | "error";
   if (message == "success") {
     makeToast(message, "Информация успешно обновлена");
-    data.value?.splice(idx, 1);
+    await refresh();
   } else {
     makeToast();
   }
@@ -82,7 +82,7 @@ async function deleteItem(id: string, idx: number) {
           item = content;
           modal = true;
         "
-        @delete="deleteItem(content['id' as keyof typeof content], index)"
+        @delete="deleteItem(content['id' as keyof typeof content])"
       />
       <LazyElementsWrapperDiv>
         <slot name="item" :item-content="content" />

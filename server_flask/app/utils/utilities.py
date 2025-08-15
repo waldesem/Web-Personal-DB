@@ -111,8 +111,7 @@ def upload_resume(cand: PersonIn, user_id: int) -> tuple[int | None, bool]:
         if not person.destination or not Path(person.destination).is_dir():
             resume["destination"] = create_destination(person)
         for k, v in resume.items():
-            if v:
-                setattr(person, k, v)
+            setattr(person, k, v)
         db.session.commit()
     except SQLAlchemyError:
         current_app.logger.exception("Database error")

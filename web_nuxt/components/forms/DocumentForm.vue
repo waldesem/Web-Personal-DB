@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useDateFormat } from "@vueuse/core";
 import type { Passport } from "@/types";
 
 const emit = defineEmits(["update"]);
@@ -10,10 +11,12 @@ const props = defineProps({
   },
 });
 
-const docForm = toRef(props.item as Passport);
-
-docForm.value.issue =
-  new Date(docForm.value.issue).toISOString().split("T", 1)[0] ?? "";
+const docForm = computed(() => {
+  return {
+    ...props.item,
+    issue: useDateFormat(props.item.issue, "YYYY-MM-DD").value,
+  };
+});
 </script>
 
 <template>

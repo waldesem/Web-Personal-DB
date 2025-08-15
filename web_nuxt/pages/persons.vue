@@ -38,7 +38,7 @@ watchDebounced(search, async () => await refresh(), {
 
 watch(data, () => (updated.value = Date.now()));
 
-const { open, onChange } = useFileDialog({
+const { open, onChange, reset } = useFileDialog({
   accept: ".json",
   multiple: false,
 });
@@ -55,10 +55,16 @@ onChange(async (files) => {
     method: "POST",
     body: formData,
   });
-  createToast(person_id, exists);
+  reset();
+  proceedResult(person_id, exists);
 });
 
-async function createToast(person_id: string, exists: boolean) {
+function submitResume(person_id: string, exists: boolean) {
+  modal.value = false;
+  proceedResult(person_id, exists);
+}
+
+async function proceedResult(person_id: string, exists: boolean) {
   status.value = "success";
   if (person_id) {
     if (exists) {
@@ -77,11 +83,6 @@ async function createToast(person_id: string, exists: boolean) {
       makeToast();
     }
   }
-}
-
-function submitResume(person_id: string, exists: boolean) {
-  modal.value = false;
-  createToast(person_id, exists);
 }
 
 const columns: TableColumn<Candidate>[] = [

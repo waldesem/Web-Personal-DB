@@ -13,27 +13,36 @@ import type {
   Work,
 } from "@/types";
 
+// Импортируем композабл плагин для передачи данных на сервер
 const { $api } = useNuxtApp();
 
-const emits = defineEmits(["refresh"]);
-
+// Определяем данные которые передаются из родительского компонента
 const props = defineProps({
   person: {
     type: Object as PropType<Persons>,
     required: true,
   },
+  status: {
+    type: String as PropType<"idle" | "pending" | "success" | "error">,
+    default: "success",
+  },
 });
-const editable = inject("editable") as Ref<boolean>;
-const status = inject("status") as Ref<string>;
 
-const person = toRef(props.person as Persons);
+// Преобразуем переменную для чтения в реактивную
+const status = toRef(props, "status");
+
+// Инжектируем данные (находится ли анкета в режиме редактирования)
+const editable = inject("editable") as Ref<boolean>;
+
+// Определяем переменную для переключения модального окна
 const modal = ref(false);
 
-function submitPerson(person_id: string) {
+// Определяем функцию для отправки данных формы на сервер
+function submitPerson(person_id: number | null) {
   modal.value = false;
-  status.value = "pending";
-  emits("refresh");
-  if (person_id == person.value.id) {
+  if (person_id) {
+    status.value = "pending";
+    refreshNuxtData("persons");
     makeToast("success", "Информация успешно обновлена");
     status.value = "success";
   } else {
@@ -41,13 +50,14 @@ function submitPerson(person_id: string) {
   }
 }
 
+// Определяем функцию для удаления данных
 async function deletePerson() {
   if (!confirm("Вы действительно хотите удалить профиль и связанные записи?"))
     return;
-  if (!confirm("Данные будут удалены безвозвратно!?")) return;
+  if (!confirm("Все данные будут удалены безвозвратно!?")) return;
   status.value = "pending";
   const { message } = await $api<Record<string, string>>(
-    `/route/persons/${person.value.id}`,
+    `/route/persons/${props.person.id}`,
     {
       method: "DELETE",
     }
@@ -61,10 +71,12 @@ async function deletePerson() {
   }
 }
 
+// Определяем интерфейс для элементов аккордеона
 interface Accordion extends AccordionItem {
   content: DivsItems;
 }
 
+// Определяем массив элементов аккордеона
 const items = [
   {
     content: "staffs",
@@ -128,7 +140,7 @@ const items = [
       <LazyElementsSkeletonDiv :rows="12" />
     </div>
     <div v-else class="ps-2">
-      <LazyItemsPersonItem :item="person" />
+      <LazyItemsPersonItem :item="props.person" />
     </div>
 
     <UModal
@@ -138,7 +150,7 @@ const items = [
       description="Отредактируйте анкетные данные"
     >
       <template #body>
-        <LazyFormsResumeForm :resume="person" @update="submitPerson" />
+        <LazyFormsResumeForm :resume="props.person" @update="submitPerson" />
       </template>
     </UModal>
 

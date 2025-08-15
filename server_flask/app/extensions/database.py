@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
-from flask import Flask  # noqa: TC002
+from typing import TYPE_CHECKING
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, scoped_session, sessionmaker
+
+if TYPE_CHECKING:
+    from flask import Flask
 
 
 class Base(DeclarativeBase):

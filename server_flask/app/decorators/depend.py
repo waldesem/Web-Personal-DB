@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable  # noqa: TC003
 from datetime import datetime, timedelta
 from functools import lru_cache, wraps
+from typing import TYPE_CHECKING
 
 from flask import Response, abort, current_app, g, request
 from pydantic import ValidationError
@@ -14,6 +14,9 @@ from app import db
 from app.models.models import User
 from app.tables.tables import Users
 from app.utils.utilities import decode_token
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 @lru_cache(maxsize=2)

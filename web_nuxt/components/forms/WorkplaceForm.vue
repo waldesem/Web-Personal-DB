@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useDateFormat } from "@vueuse/core";
 import type { Work } from "@/types";
 
 const emit = defineEmits(["update"]);
@@ -10,12 +11,13 @@ const props = defineProps({
   },
 });
 
-const workForm = toRef(props.item as Work);
-
-workForm.value.starts =
-  new Date(workForm.value.starts).toISOString().split("T", 1)[0] ?? "";
-workForm.value.finished =
-  new Date(workForm.value.finished).toISOString().split("T", 1)[0] ?? "";
+const workForm = computed(() => {
+  return {
+    ...props.item,
+    starts: useDateFormat(props.item.starts, "YYYY-MM-DD").value,
+    finished: useDateFormat(props.item.finished, "YYYY-MM-DD").value,
+  };
+});
 </script>
 
 <template>

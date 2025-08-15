@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useDateFormat } from "@vueuse/core";
 import type { Persons } from "@/types";
 
 const { $api } = useNuxtApp();
@@ -12,10 +13,12 @@ const props = defineProps({
   },
 });
 
-const resumeForm = toRef(props.resume);
-
-resumeForm.value.birthday =
-  new Date(resumeForm.value.birthday).toISOString().split("T", 1)[0] ?? "";
+const resumeForm= computed(() => {
+  return {
+    ...props.resume,
+    birthday: useDateFormat(props.resume.birthday, "YYYY-MM-DD").value,
+  };
+});
 
 async function submitPerson() {
   const { person_id, exists } = await $api<{
