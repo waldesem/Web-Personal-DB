@@ -13,21 +13,21 @@ const { $api } = useNuxtApp();
 const modal = ref(false);
 const expanded = ref({ 1: false });
 const globalFilter = ref("");
+const users = shallowRef<User[]>([]);
 
-const {
-  data: users,
-  refresh,
-  status,
-} = await useAPI("/route/users", {
-  lazy: true,
-  server: false,
+const { status, refresh } = await useLazyAsyncData(async () => {
+  users.value = await $api("/route/users");
 });
 
 async function userAction(item: string, user_id: string) {
   if (!confirm("Подтвердите выполнение действия")) return;
-  const { message } = (await $api<Record<string, string>>("/route/user/" + user_id, {
-    params: { item: item },
-  }));
+  const { message } = await $api<Record<string, string>>(
+    "/route/user/" + user_id,
+    {
+      method: "POST",
+      body: { item: item },
+    }
+  );
   if (message == "success") {
     makeToast("success", "Действие успешно выполнено");
   } else {
@@ -55,41 +55,6 @@ function getRowItems(user: User) {
       onSelect() {
         userAction("reset", user.id);
       },
-    },
-    {
-      label: "Изменить регион",
-      children: [
-        {
-          label: "Главный офис",
-          onSelect() {
-            userAction("Главный офис", user.id);
-          },
-        },
-        {
-          label: "РЦ Юг",
-          onSelect() {
-            userAction("РЦ Юг", user.id);
-          },
-        },
-        {
-          label: "РЦ Запад",
-          onSelect() {
-            userAction("РЦ Запад", user.id);
-          },
-        },
-        {
-          label: "РЦ Урал",
-          onSelect() {
-            userAction("РЦ Урал", user.id);
-          },
-        },
-        {
-          label: "РЦ Восток",
-          onSelect() {
-            userAction("РЦ Восток", user.id);
-          },
-        },
-      ],
     },
     {
       label: "Изменить роль",
@@ -200,6 +165,21 @@ const columns: TableColumn<User>[] = [
     },
   },
   {
+    accessorKey: "deleted",
+    header: "Удален",
+    cell: ({ row }) => {
+      return h(UIcon, {
+        name: row.original.deleted ? "i-lucide-user-x" : "i-lucide-user-check",
+        class: row.original.deleted
+          ? "text-center w-4 h-4 text-red-600"
+          : "text-center w-4 h-4 text-green-600",
+        title: row.original.deleted
+          ? "Помечен на удаление"
+          : "Пользователь активен",
+      });
+    },
+  },
+  {
     id: "actions",
     cell: ({ row }) => {
       return h(
@@ -269,7 +249,6 @@ const columns: TableColumn<User>[] = [
       class="flex-1 max-h-[800px]"
       :data="(users as User[])"
       :columns="columns"
-      :meta="{ class: { tr: 'cursor-pointer' } }"
       :loading="status === 'pending'"
       loading-animation="carousel"
       empty="Данные не найдены"

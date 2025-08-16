@@ -31,14 +31,14 @@ def get_users() -> tuple[list[Users], int]:
 @bp.post("/user/<user_id>")
 @pydantify()
 @auth_required(Roles.admin.value)
-def post_user_actions(user_id: int, json_query: UserActions) -> tuple[dict, int]:
+def post_user_actions(user_id: int, json_data: UserActions) -> tuple[dict, int]:
     """Change a user's information in the database based on their user ID."""
     user = db.session.get(Users, user_id)
     # Если пользователь не найден или пытается изменить собственный профиль
     if not user or g.user.id == user.id:
         return {"message": "error"}, 400
 
-    if json_query.item == "reset":
+    if json_data.item == "reset":
         # Сбросить пароль пользователя и обнулить попытки входа
         user.passhash = generate_password_hash(
             current_app.config["DEFAULT_PASSWORD"],
@@ -46,15 +46,15 @@ def post_user_actions(user_id: int, json_query: UserActions) -> tuple[dict, int]
         user.attempt = 0
         user.blocked = False
         user.change_pswd = True
-    elif json_query.item == "block":
+    elif json_data.item == "block":
         # Заблокировать или разблокировать пользователя
         user.blocked = not user.blocked
-    elif json_query.item == "delete":
+    elif json_data.item == "delete":
         # Удалить или восстановить пользователя
         user.deleted = not user.deleted
-    elif json_query.item in [reg.value for reg in Roles]:
+    elif json_data.item in [reg.value for reg in Roles]:
         # Изменить роль пользователя
-        user.role = json_query.item
+        user.role = json_data.item
     db.session.commit()
     # Очистить кэш для id пользователей
     get_current_user.cache_clear()

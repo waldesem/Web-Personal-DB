@@ -21,10 +21,9 @@ const per_page = 10;
 const search = ref("");
 const updated = ref(Date.now());
 
-const { status, refresh } = await useAsyncData(
-  "index",
+const { status, refresh } = await useLazyAsyncData(
   async () => {
-    data.value = await $api<Candidate[]>("/route/index", {
+    data.value = await $api("/route/index", {
       query: {
         page: page.value,
         per_page: per_page,

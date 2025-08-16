@@ -10,37 +10,45 @@ import type {
   Verification,
 } from "@/types";
 
+// Презагрузка компонентов
 await preloadComponents(["ContentAnketaTab", "ContentSharedView"]);
 
+// Используем плагин для передачи данных на сервер
 const { $api } = useNuxtApp();
 
+// Определяем композаблы для работы с данными
 const route = useRoute();
 const userState = useStateUser();
 
+// Получаем данные id кандидата из URL
 const candId = computed(() => route.params.id as string);
+// Передаем данные id кандидата в другие компоненты
 provide("candId", candId);
 
-const { data, status, refresh } = await useAPI<Persons>(
-  "/route/persons/" + candId.value,
-  {
-    key: "persons",
-    server: false,
-  }
-);
+// Объявляем переменную для анкеты кандидата
+const person = shallowRef({} as Persons);
 
+// Определяем функцию для получения данных из API
+const { status, refresh } = await useAsyncData("persons", async () => {
+  person.value = await $api("/route/persons/" + candId.value);
+});
+
+// Вычисляем статус редактирования анкеты
 const editable = computed(() => {
   return (
-    data.value &&
-    data.value.editable &&
+    person.value &&
+    person.value.editable &&
     userState.value.role == "user" &&
-    userState.value.id == data.value.user_id
+    userState.value.id == person.value.user_id
   );
 });
+// Передаем статус редактирования в другие компоненты
 provide("editable", editable);
 
+// Определяем функцию для переключения режима редактирования
 async function switchSelf(): Promise<void> {
-  if (data.value && data.value.user_id != userState.value.id) {
-    if (data.value.editable) {
+  if (person.value && person.value.user_id != userState.value.id) {
+    if (person.value.editable) {
       if (
         !confirm(
           "Анкета редактируется другим пользователем. Переключить режим?"
@@ -56,7 +64,7 @@ async function switchSelf(): Promise<void> {
   }
   status.value = "pending";
   const { message } = await $api<Record<string, string>>(
-    "/route/self/" + data.value?.id
+    "/route/self/" + person.value?.id
   );
   status.value = message as "success" | "error";
   if (message == "success") {
@@ -66,14 +74,15 @@ async function switchSelf(): Promise<void> {
   }
 }
 
+// Определяем диалог загрузки файлов
 const { open, reset, onCancel, onChange } = useFileDialog();
 
+// Определяем функцию для загрузки файлов
 onChange(async (files) => {
   if (!files) return;
   const formData = new FormData();
   for (const file of files) {
-    const maxSize = 10 * 1024 * 1024;
-    if (file.size > maxSize) {
+    if (file.size > (10 * 1024 * 1024)) {
       makeToast("info", "Размер одного файла не должен превышать 10 МБ");
       continue;
     }
@@ -95,14 +104,17 @@ onChange(async (files) => {
   reset();
 });
 
+// Определяем функцию для закрытия диалога
 onCancel(() => {
   reset();
 });
 
+// Определяем интерфейс для элементов табов
 interface Pills extends TabsItem {
   slot: PillsItems | "person";
 }
 
+// Определяем массив элементов табов
 const items = [
   {
     label: "Анкета",
@@ -138,7 +150,11 @@ const items = [
       <USkeleton v-if="status == 'pending'" class="py-1 h-10 w-96" />
       <div v-else class="py-1">
         <h3 class="text-2xl text-red-800 font-bold">
-          {{ `${data?.surname} ${data?.firstname} ${data?.patronymic ?? ""}` }}
+          {{
+            `${person?.surname} ${person?.firstname} ${
+              person?.patronymic ?? ""
+            }`
+          }}
         </h3>
       </div>
       <div v-if="userState.role == 'user'" class="flex items-center space-x-4">
@@ -152,16 +168,16 @@ const items = [
         <UButton
           :loading="status === 'pending'"
           :color="
-            !data?.editable
+            !person?.editable
               ? 'secondary'
-              : data.user_id == userState.id
+              : person.user_id == userState.id
               ? 'success'
               : 'error'
           "
           :label="
-            !data?.editable
+            !person?.editable
               ? 'Доступно  для редактирования'
-              : data.user_id == userState.id
+              : person.user_id == userState.id
               ? 'Назначено текущему пользователю'
               : 'Редактируется другим пользователем'
           "
@@ -178,7 +194,10 @@ const items = [
       :ui="{ trigger: 'flex-1' }"
     >
       <template #person>
-        <ContentAnketaTab :person="(data ?? {} as Persons)" :status="status" />
+        <ContentAnketaTab
+          :person="(person ?? {} as Persons)"
+          :status="status"
+        />
       </template>
 
       <template #checks="{ item }">

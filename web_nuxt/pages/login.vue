@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import type { AlertProps } from "@nuxt/ui";
 
+// Определяем мета-данные для страницы - не показывать layout
 definePageMeta({ layout: false });
 
+// Определяем интерфейс для формы логина
 interface Login {
   username: string;
   password: string;
@@ -10,9 +12,11 @@ interface Login {
   conf_pswd: string;
 }
 
+// Объявляем переменные для формы и состояния
 const action = ref("login");
 const loginForm = ref({} as Login);
 
+// Объявляем переменную для показа алерта
 const alert = ref({
   color: "success",
   title: "Информация",
@@ -20,6 +24,7 @@ const alert = ref({
   icon: "i-lucide-circle-alert",
 });
 
+// Объявляем функцию для валидации формы
 const validate = (state: Partial<Login>) => {
   const errors = [];
   if (action.value === "update") {
@@ -48,6 +53,7 @@ const validate = (state: Partial<Login>) => {
   return errors;
 };
 
+// Объявляем функцию для отправки формы
 async function submitLogin() {
   const { message, access_token, refresh_token } = (await $fetch(
     "/route/auth/" + action.value,
@@ -55,15 +61,15 @@ async function submitLogin() {
       method: "POST",
       body: loginForm.value,
     }
-  )) as { message: string; access_token: string, refresh_token: string };
+  )) as { message: string; access_token: string; refresh_token: string };
   if (message === "success") {
     const token = useCookie("token", {
       maxAge: 60 * 59,
     });
-    token.value = access_token.split(" ")[1];
     const refresh = useCookie("refresh", {
       maxAge: 60 * 60 * 24 * 30,
     });
+    token.value = access_token.split(" ")[1];
     refresh.value = refresh_token.split(" ")[1];
     return navigateTo("/persons");
   } else if (message === "updated") {
@@ -97,7 +103,6 @@ async function submitLogin() {
   <UContainer>
     <div class="flex flex-row justify-center">
       <div class="py-12">
-
         <UAlert
           variant="subtle"
           :color="(alert.color as AlertProps['color'])"
@@ -146,7 +151,7 @@ async function submitLogin() {
                   required
                 />
               </UFormField>
-              
+
               <UFormField label="Повтор пароля" name="conf_pswd" required>
                 <UInput
                   v-model="loginForm.conf_pswd"
@@ -169,7 +174,9 @@ async function submitLogin() {
                 :label="action == 'login' ? 'Изменить' : 'Отмена'"
                 color="secondary"
                 variant="outline"
-                @click="action == 'login' ? action = 'update' : action = 'login'"
+                @click="
+                  action == 'login' ? (action = 'update') : (action = 'login')
+                "
               />
             </div>
           </UForm>

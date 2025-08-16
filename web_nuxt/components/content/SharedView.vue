@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import type { DivsItems, PillsItems } from "@/types";
 
+// Импортируем плагин для передачи данных на сервер
 const { $api } = useNuxtApp();
 
+// Определяем данные которые передаются из родительского компонента
 const props = defineProps({
   view: {
     type: String as PropType<PillsItems | DivsItems>,
@@ -14,21 +16,22 @@ const props = defineProps({
   },
 });
 
+// Инжектируем данные (id кандидата и доступна ли анкета для редактирования)
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
+// Объявляем переменные для работы с данными
 const item = shallowRef({} as object);
+const data = shallowRef([] as typeof item.value[]);
 const modal = ref(false);
 
-const { data, status, refresh } = await useAPI<object[]>(
-  `/route/${props.view}/${candId.value}`,
-  {
-    lazy: true,
-    server: false,
-  }
-);
+// Определяем функцию для получения данных из API
+const { status, refresh } = await useLazyAsyncData(async () => {
+  data.value = await $api(`/route/${props.view}/${candId.value}`);
+});
 
-async function submitItem(form: object) {
+// Определяем функцию для отправки данных формы на сервер
+async function submitItem(form: typeof item.value) {
   modal.value = false;
   status.value = "pending";
   const { message } = await $api<Record<string, string>>(
@@ -41,13 +44,14 @@ async function submitItem(form: object) {
   await refresh();
   status.value = message as "success" | "error";
   if (message == "success") {
-    item.value = {} as object;
+    item.value = {};
     makeToast(message, "Информация успешно обновлена");
   } else {
     makeToast();
   }
 }
 
+// Определяем функцию для удаления данных
 async function deleteItem(id: string) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   status.value = "pending";
@@ -104,7 +108,7 @@ async function deleteItem(id: string) {
       icon="i-lucide-file-plus"
       variant="ghost"
       @click="
-        item = {} as object;
+        item = {};
         modal = true;
       "
     />
