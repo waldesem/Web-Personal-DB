@@ -14,22 +14,26 @@ const UIcon = resolveComponent("UIcon");
 
 const userState = useStateUser();
 
+const data = shallowRef<Candidate[]>([]);
 const modal = ref(false);
 const page = ref(1);
 const per_page = 10;
 const search = ref("");
 const updated = ref(Date.now());
 
-const { data, status, refresh } = await useAPI<Candidate[]>("/route/index", {
-  query: {
-    search: search.value,
-    per_page: per_page,
-    page: page.value,
+const { status, refresh } = await useAsyncData(
+  "index",
+  async () => {
+    data.value = await $api<Candidate[]>("/route/index", {
+      query: {
+        page: page.value,
+        per_page: per_page,
+        search: search.value,
+      },
+    });
   },
-  lazy: true,
-  server: false,
-  watch: [page],
-});
+  { watch: [page] }
+);
 
 watchDebounced(search, async () => await refresh(), {
   debounce: 1000,
@@ -75,10 +79,7 @@ async function proceedResult(person_id: string, exists: boolean) {
     return navigateTo("/profile/" + person_id);
   } else {
     if (exists) {
-      makeToast(
-        "info",
-        "Анкета назначена другому пользователю"
-      );
+      makeToast("info", "Анкета назначена другому пользователю");
     } else {
       makeToast();
     }

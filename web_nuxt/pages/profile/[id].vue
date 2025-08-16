@@ -134,7 +134,7 @@ const items = [
 
 <template>
   <div>
-    <div class="flex items-center justify-between mb-8">
+    <div class="flex items-center justify-between py-4">
       <USkeleton v-if="status == 'pending'" class="py-1 h-10 w-96" />
       <div v-else class="py-1">
         <h3 class="text-2xl text-red-800 font-bold">

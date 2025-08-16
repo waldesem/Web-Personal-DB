@@ -10,7 +10,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const api = $fetch.create({
     async onRequest({ options }) {
       const token = useCookie("token", {
-        maxAge: 60 * 58,
+        maxAge: 60 * 59,
       });
       const refresh = useCookie("refresh");
       if (!refresh.value) {

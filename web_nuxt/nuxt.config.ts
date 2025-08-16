@@ -5,16 +5,6 @@ export default defineNuxtConfig({
     "@/": fileURLToPath(new URL("./src", import.meta.url)),
   },
   app: {
-    head: {
-      htmlAttrs: { lang: "ru" },
-      link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
-      meta: [
-        { name: "description", content: "Кадровая безопасность" },
-        { name: "viewport", content: "width=device-width, initial-scale=1" },
-        { charset: "utf-8" },
-      ],
-      title: "StaffSec - кадровая безопасность",
-    },
     keepalive: { include: "persons", max: 3 },
     pageTransition: { name: "page", mode: "out-in" },
   },

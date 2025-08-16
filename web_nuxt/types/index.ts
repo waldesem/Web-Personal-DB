@@ -58,7 +58,6 @@ export interface Persons {
   destination?: string;
   editable: boolean;
   created: string;
-  username: string;
   user_id: string;
 }
 
