@@ -43,10 +43,10 @@ function submitPerson(person_id: number | null) {
   if (person_id) {
     status.value = "pending";
     refreshNuxtData("persons");
-    makeToast("success", "Информация успешно обновлена");
+    useToasts("success", "Информация успешно обновлена");
     status.value = "success";
   } else {
-    makeToast();
+    useToasts();
   }
 }
 
@@ -63,10 +63,10 @@ async function deletePerson() {
     }
   );
   if (message == "success") {
-    makeToast(message, "Информация успешно обновлена");
+    useToasts(message, "Информация успешно обновлена");
     return navigateTo("/persons");
   } else {
-    makeToast();
+    useToasts();
     status.value = "error";
   }
 }
@@ -131,18 +131,22 @@ const items = [
 
 <template>
   <div class="mt-4">
+    <!-- Выводим кнопки редактирования или удаления данных если доступно редактирование -->
     <LazyElementsDivMenu
       v-if="editable"
       @change="modal = true"
       @delete="deletePerson()"
     />
+    <!-- Выводим скелетный элемент. если данные ещё не загружены -->
     <div v-if="status == 'pending'" class="ps-2">
       <LazyElementsSkeletonDiv :rows="12" />
     </div>
+    <!-- Выводим элемент данных -->
     <div v-else class="ps-2">
       <LazyItemsPersonItem :item="props.person" />
     </div>
 
+    <!-- Выводим модальное окно для редактирования данных -->
     <UModal
       v-if="editable"
       v-model:open="modal"
@@ -150,25 +154,30 @@ const items = [
       description="Отредактируйте анкетные данные"
     >
       <template #body>
+        <!-- Выводим форму для редактирования данных внутри модального окна -->
         <LazyFormsResumeForm :resume="props.person" @update="submitPerson" />
       </template>
     </UModal>
 
     <USeparator />
 
+    <!-- Выводим аккордеон с данными staffs, educations и т.д. -->
     <UAccordion :items="items" :unmount-on-hide="false">
+      <!-- Элемент staffs -->
       <template #staffs="{ item }">
         <ContentSharedView :view="item.content">
           <template #item="{ itemContent }">
+            <!-- Выводим элементы staffs в слоте item -->
             <ItemsStaffItem :item="itemContent as Staff" />
           </template>
 
           <template #form="{ formContent, submitItem }">
-            <FormsStaffForm :item="formContent as Staff" @update="submitItem" />
+            <!-- Выводим форму для редактирования staffs в слоте form -->
+            <FormsStaffForm :item="(formContent as Staff)" @update="submitItem" />
           </template>
         </ContentSharedView>
       </template>
-
+      
       <template #educations="{ item }">
         <ContentSharedView :view="item.content">
           <template #item="{ itemContent }">
@@ -177,7 +186,7 @@ const items = [
 
           <template #form="{ formContent, submitItem }">
             <FormsEducationForm
-              :item="formContent as Education"
+              :item="(formContent as Education)"
               @update="submitItem"
             />
           </template>
@@ -192,7 +201,7 @@ const items = [
 
           <template #form="{ formContent, submitItem }">
             <FormsWorkplaceForm
-              :item="formContent as Work"
+              :item="(formContent as Work)"
               @update="submitItem"
             />
           </template>
@@ -207,7 +216,7 @@ const items = [
 
           <template #form="{ formContent, submitItem }">
             <FormsDocumentForm
-              :item="formContent as Passport"
+              :item="(formContent as Passport)"
               @update="submitItem"
             />
           </template>
@@ -222,7 +231,7 @@ const items = [
 
           <template #form="{ formContent, submitItem }">
             <FormsAddressForm
-              :item="formContent as Address"
+              :item="(formContent as Address)"
               @update="submitItem"
             />
           </template>
@@ -237,7 +246,7 @@ const items = [
 
           <template #form="{ formContent, submitItem }">
             <FormsContactForm
-              :item="formContent as Contact"
+              :item="(formContent as Contact)"
               @update="submitItem"
             />
           </template>
@@ -252,7 +261,7 @@ const items = [
 
           <template #form="{ formContent, submitItem }">
             <FormsPreviousForm
-              :item="formContent as Previous"
+              :item="(formContent as Previous)"
               @update="submitItem"
             />
           </template>
@@ -267,7 +276,7 @@ const items = [
 
           <template #form="{ formContent, submitItem }">
             <FormsAffilationForm
-              :item="formContent as Affilation"
+              :item="(formContent as Affilation)"
               @update="submitItem"
             />
           </template>

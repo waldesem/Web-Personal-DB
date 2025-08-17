@@ -1,5 +1,6 @@
 <script setup lang="ts">
-const emits = defineEmits(["change", "delete"])
+// Компонент для отображения выпадающего списка действий над элементом: изменить и удалить
+const emits = defineEmits(["change", "delete"]);
 </script>
 
 <template>

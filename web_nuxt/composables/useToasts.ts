@@ -1,9 +1,10 @@
 import type { ToastProps } from "@nuxt/ui";
 
-export const makeToast = (
+// Функция для отображения уведомлений в зависимости от статуса
+export function useToasts(
   color: ToastProps["color"] = "error",
   description = "Невозможно выполнить действие или операция завершилсь ошибкой"
-) => {
+) {
   const icon = {
     error: "i-heroicons-exclamation-triangle",
     info: "i-heroicons-exclamation-circle",

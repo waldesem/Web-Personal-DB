@@ -36,9 +36,9 @@ async function submitUser() {
   if (message === "success") {
     emit("update");
     form.value = {} as UserForm;
-    makeToast("success", "Пользователь успешно добавлен");
+    useToasts("success", "Пользователь успешно добавлен");
   } else {
-    makeToast();
+    useToasts();
   }
 }
 </script>

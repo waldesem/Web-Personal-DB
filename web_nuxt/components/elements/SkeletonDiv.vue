@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// Компонент для отображения скилета для элементов
 const props = defineProps({
   rows: {
     type: Number,

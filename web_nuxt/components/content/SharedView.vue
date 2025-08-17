@@ -45,9 +45,9 @@ async function submitItem(form: typeof item.value) {
   status.value = message as "success" | "error";
   if (message == "success") {
     item.value = {};
-    makeToast(message, "Информация успешно обновлена");
+    useToasts(message, "Информация успешно обновлена");
   } else {
-    makeToast();
+    useToasts();
   }
 }
 
@@ -63,15 +63,16 @@ async function deleteItem(id: string) {
   );
   status.value = message as "success" | "error";
   if (message == "success") {
-    makeToast(message, "Информация успешно обновлена");
+    useToasts(message, "Информация успешно обновлена");
     await refresh();
   } else {
-    makeToast();
+    useToasts();
   }
 }
 </script>
 
 <template>
+  <!-- Выводим скелетный элемент. если данные ещё не загружены -->
   <div v-if="status === 'pending' && data">
     <div v-for="i in data.length + 1" :key="i">
       <LazyElementsSkeletonDiv :rows="props.rows" />
@@ -79,7 +80,9 @@ async function deleteItem(id: string) {
     </div>
   </div>
   <div v-else>
+    <!-- Выводим список элементов с кнопками для редактирования и удаления -->
     <div v-for="(content, index) in data" :key="index" class="py-4 ms-2">
+      <!-- Выводим кнопки редактирования или удаления данных если доступно редактирование -->
       <LazyElementsDivMenu
         v-if="editable"
         @change="
@@ -88,15 +91,16 @@ async function deleteItem(id: string) {
         "
         @delete="deleteItem(content['id' as keyof typeof content])"
       />
-      <LazyElementsWrapperDiv>
-        <slot name="item" :item-content="content" />
-      </LazyElementsWrapperDiv>
+      <!-- Выводим элемент данных -->
+      <slot name="item" :item-content="content" />
       <USeparator v-if="data && index < data.length - 1" />
     </div>
+    <!-- Выводим сообщение если данные отсутствуют -->
     <div v-if="!data || !data.length" class="p-2 text-red-800">
       Данные отсутствуют
     </div>
   </div>
+  <!-- Выводим кнопку для добавления данных, если доступно редактирование -->
   <div
     v-if="editable"
     class="flex justify-start py-2"
@@ -113,6 +117,7 @@ async function deleteItem(id: string) {
       "
     />
   </div>
+  <!-- Модальное окно для редактирования данных -->
   <UModal
     v-if="editable"
     v-model:open="modal"
@@ -120,9 +125,8 @@ async function deleteItem(id: string) {
     description="Введите или отредактируйте данные"
   >
     <template #body>
-      <LazyElementsWrapperDiv>
-        <slot name="form" :form-content="item" :submit-item="submitItem" />
-      </LazyElementsWrapperDiv>
+      <!-- Выводим форму для редактирования данных внутри модального окна -->
+      <slot name="form" :form-content="item" :submit-item="submitItem" />
     </template>
   </UModal>
 </template>

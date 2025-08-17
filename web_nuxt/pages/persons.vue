@@ -71,16 +71,16 @@ async function proceedResult(person_id: string, exists: boolean) {
   status.value = "success";
   if (person_id) {
     if (exists) {
-      makeToast("info", "Кандидат ранее уже был загружен");
+      useToasts("info", "Кандидат ранее уже был загружен");
     } else {
-      makeToast("success", "Анкета успешно загружена");
+      useToasts("success", "Анкета успешно загружена");
     }
     return navigateTo("/profile/" + person_id);
   } else {
     if (exists) {
-      makeToast("info", "Анкета назначена другому пользователю");
+      useToasts("info", "Анкета назначена другому пользователю");
     } else {
-      makeToast();
+      useToasts();
     }
   }
 }

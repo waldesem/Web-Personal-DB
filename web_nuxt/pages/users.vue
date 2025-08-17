@@ -29,9 +29,9 @@ async function userAction(item: string, user_id: string) {
     }
   );
   if (message == "success") {
-    makeToast("success", "Действие успешно выполнено");
+    useToasts("success", "Действие успешно выполнено");
   } else {
-    makeToast();
+    useToasts();
   }
   refresh();
 }

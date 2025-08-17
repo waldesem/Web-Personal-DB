@@ -70,7 +70,7 @@ async function switchSelf(): Promise<void> {
   if (message == "success") {
     await refresh();
   } else {
-    makeToast();
+    useToasts();
   }
 }
 
@@ -83,7 +83,7 @@ onChange(async (files) => {
   const formData = new FormData();
   for (const file of files) {
     if (file.size > (10 * 1024 * 1024)) {
-      makeToast("info", "Размер одного файла не должен превышать 10 МБ");
+      useToasts("info", "Размер одного файла не должен превышать 10 МБ");
       continue;
     }
     formData.append("file", file);
@@ -97,9 +97,9 @@ onChange(async (files) => {
   );
   status.value = message as "success" | "error";
   if (message == "success") {
-    makeToast(message, "Файлы успешно загружены");
+    useToasts(message, "Файлы успешно загружены");
   } else {
-    makeToast();
+    useToasts();
   }
   reset();
 });
