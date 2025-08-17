@@ -9,7 +9,7 @@ useHead({
     { charset: "utf-8" },
   ],
   title: "StaffSec - кадровая безопасность",
-}); 
+});
 </script>
 
 <template>

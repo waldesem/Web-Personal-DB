@@ -103,6 +103,7 @@ async function submitLogin() {
   <UContainer>
     <div class="flex flex-row justify-center">
       <div class="py-12">
+        <!-- Алерт -->
         <UAlert
           variant="subtle"
           :color="(alert.color as AlertProps['color'])"
@@ -111,10 +112,12 @@ async function submitLogin() {
           :icon="alert.icon"
         />
 
+        <!-- Заголовок -->
         <h3 class="text-2xl text-blue-800 font-bold my-6">
           Кадровая безопасность
         </h3>
 
+        <!-- Форма логина -->
         <UCard>
           <h3 class="text-xl text-red-800 font-bold mb-2">Вход в систему</h3>
           <UForm
@@ -162,7 +165,8 @@ async function submitLogin() {
                 />
               </UFormField>
             </div>
-
+            
+            <!-- Кнопки для входа или изменения пароля -->
             <div class="flex justify-between mt-2">
               <UButton
                 :label="action === 'login' ? 'Войти' : 'Изменить'"

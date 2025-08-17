@@ -2,23 +2,28 @@
 import type { TableColumn } from "@nuxt/ui";
 import type { User } from "@/types";
 
+// Объявляем переменные для рендера компонентов
 const UIcon = resolveComponent("UIcon");
 const UBadge = resolveComponent("UBadge");
 const UButton = resolveComponent("UButton");
 const UDropdownMenu = resolveComponent("UDropdownMenu");
 const NuxtTime = resolveComponent("NuxtTime");
 
+// Вызываем плагин для работы с API
 const { $api } = useNuxtApp();
 
+// Определяем переменные для работы с данными
 const modal = ref(false);
 const expanded = ref({ 1: false });
 const globalFilter = ref("");
 const users = shallowRef<User[]>([]);
 
+// Определяем функцию для получения данных из API
 const { status, refresh } = await useLazyAsyncData(async () => {
   users.value = await $api("/route/users");
 });
 
+// Объявляем функцию для действия с пользователем
 async function userAction(item: string, user_id: string) {
   if (!confirm("Подтвердите выполнение действия")) return;
   const { message } = await $api<Record<string, string>>(
@@ -36,6 +41,7 @@ async function userAction(item: string, user_id: string) {
   refresh();
 }
 
+// Объявляем функцию для изменения данных таблицы
 function getRowItems(user: User) {
   return [
     {
@@ -88,6 +94,7 @@ function getRowItems(user: User) {
   ];
 }
 
+// Определяем массив данных для таблицы пользователей
 const columns: TableColumn<User>[] = [
   {
     id: "expand",
@@ -211,7 +218,9 @@ const columns: TableColumn<User>[] = [
 <template>
   <div class="py-4">
     <div class="flex items-center justify-between mb-3">
+      <!-- Выводим заголовок таблицы -->
       <h3 class="text-2xl text-gray-500 font-bold">ПОЛЬЗОВАТЕЛИ</h3>
+      <!-- Модальное окно для добавления пользователя -->
       <UModal
         v-model:open="modal"
         title="Добавить пользователя"
@@ -224,6 +233,7 @@ const columns: TableColumn<User>[] = [
           title="Добавить пользователя"
           @click="modal = true"
         />
+        <!-- Вставляем форму для добавления пользователя -->
         <template #body>
           <LazyFormsUserForm
             @update="
@@ -234,6 +244,7 @@ const columns: TableColumn<User>[] = [
         </template>
       </UModal>
     </div>
+    <!-- Строка поиска -->
     <div class="my-6">
       <UInput
         v-model="globalFilter"
@@ -242,6 +253,7 @@ const columns: TableColumn<User>[] = [
         type="search"
       />
     </div>
+    <!-- Таблица с данными пользователей -->
     <UTable
       v-model:expanded="expanded"
       v-model:global-filter="globalFilter"
@@ -254,6 +266,7 @@ const columns: TableColumn<User>[] = [
       empty="Данные не найдены"
     >
       <template #expanded="{ row }">
+        <!-- Выводим подробную информацию о пользователе -->
         <pre class="text-break">{{ row.original }}</pre>
       </template>
     </UTable>

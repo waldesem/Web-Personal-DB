@@ -147,7 +147,9 @@ const items = [
 <template>
   <div>
     <div class="flex items-center justify-between py-4">
+      <!-- Выводим скелетный элемент. если данные ещё не загружены -->
       <USkeleton v-if="status == 'pending'" class="py-1 h-10 w-96" />
+      <!-- Заголовок -->
       <div v-else class="py-1">
         <h3 class="text-2xl text-red-800 font-bold">
           {{
@@ -157,6 +159,7 @@ const items = [
           }}
         </h3>
       </div>
+      <!-- Кнопки для загрузки файлов и переключения режима редактирования -->
       <div v-if="userState.role == 'user'" class="flex items-center space-x-4">
         <UButton
           :loading="status === 'pending'"
@@ -185,6 +188,7 @@ const items = [
         />
       </div>
     </div>
+    <!-- Меню для переключения между вкладками -->
     <UTabs
       :unmount-on-hide="false"
       color="info"
@@ -193,6 +197,7 @@ const items = [
       class="gap-4 w-full"
       :ui="{ trigger: 'flex-1' }"
     >
+      <!-- Вкладка для отображения анкеты -->
       <template #person>
         <ContentAnketaTab
           :person="(person ?? {} as Persons)"
@@ -200,60 +205,66 @@ const items = [
         />
       </template>
 
+      <!-- Вкладка для отображения проверок -->
       <template #checks="{ item }">
         <ContentSharedView :view="item.slot" :rows="16">
           <template #item="{ itemContent }">
-            <ItemsCheckItem :item="itemContent as Verification" />
+            <!-- Отображаем элементы проверки -->
+            <ItemsCheckItem :item="(itemContent as Verification)" />
           </template>
 
           <template #form="{ formContent, submitItem }">
+            <!-- Отображаем форму проверки -->
             <FormsCheckForm
-              :item="formContent as Verification"
+              :item="(formContent as Verification)"
               @update="submitItem"
             />
           </template>
         </ContentSharedView>
       </template>
 
+      <!-- Вкладка для отображения полиграфов -->
       <template #poligrafs="{ item }">
         <ContentSharedView :view="item.slot" :rows="4">
           <template #item="{ itemContent }">
-            <ItemsPoligrafItem :item="itemContent as Pfo" />
+            <ItemsPoligrafItem :item="(itemContent as Pfo)" />
           </template>
 
           <template #form="{ formContent, submitItem }">
             <FormsPoligrafForm
-              :item="formContent as Pfo"
+              :item="(formContent as Pfo)"
               @update="submitItem"
             />
           </template>
         </ContentSharedView>
       </template>
 
+      <!-- Вкладка для отображения расследований -->
       <template #investigations="{ item }">
         <ContentSharedView :view="item.slot" :rows="3">
           <template #item="{ itemContent }">
-            <ItemsInquestItem :item="itemContent as Inquisition" />
+            <ItemsInquestItem :item="(itemContent as Inquisition)" />
           </template>
 
           <template #form="{ formContent, submitItem }">
             <FormsInquestForm
-              :item="formContent as Inquisition"
+              :item="(formContent as Inquisition)"
               @update="submitItem"
             />
           </template>
         </ContentSharedView>
       </template>
 
+      <!-- Вкладка для отображения запросов -->
       <template #inquiries="{ item }">
         <ContentSharedView :view="item.slot" :rows="3">
           <template #item="{ itemContent }">
-            <ItemsInquiryItem :item="itemContent as Needs" />
+            <ItemsInquiryItem :item="(itemContent as Needs)" />
           </template>
 
           <template #form="{ formContent, submitItem }">
             <FormsInquiryForm
-              :item="formContent as Needs"
+              :item="(formContent as Needs)"
               @update="submitItem"
             />
           </template>

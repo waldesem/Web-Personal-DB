@@ -3,24 +3,31 @@ import { useFileDialog, watchDebounced } from "@vueuse/core";
 import type { DropdownMenuItem, TableColumn } from "@nuxt/ui";
 import type { Candidate } from "@/types";
 
+// Используем плагин для передачи данных на сервер
 const { $api } = useNuxtApp();
 
+// Прелоадим компонент для загрузки анкеты
 await preloadRouteComponents("/profile/[id]");
 
+// Объявляем переменные рендера компонентов
 const NuxtTime = resolveComponent("NuxtTime");
 const UButton = resolveComponent("UButton");
 const UDropdownMenu = resolveComponent("UDropdownMenu");
 const UIcon = resolveComponent("UIcon");
 
+// Объявляем переменную для получения данных пользователя
 const userState = useStateUser();
 
+// Объявляем переменные для работы с данными
 const data = shallowRef<Candidate[]>([]);
+const expanded = ref({ 1: false });
 const modal = ref(false);
 const page = ref(1);
 const per_page = 10;
 const search = ref("");
 const updated = ref(Date.now());
 
+// Определяем функцию для получения списка кандидатов из API
 const { status, refresh } = await useLazyAsyncData(
   async () => {
     data.value = await $api("/route/index", {
@@ -30,22 +37,24 @@ const { status, refresh } = await useLazyAsyncData(
         search: search.value,
       },
     });
+    updated.value = Date.now();
   },
   { watch: [page] }
 );
 
+// Определяем наблюдатель за изменением строки поиска
 watchDebounced(search, async () => await refresh(), {
   debounce: 1000,
   maxWait: 2000,
 });
 
-watch(data, () => (updated.value = Date.now()));
-
+// Определяем данные для загрузки файла JSON
 const { open, onChange, reset } = useFileDialog({
   accept: ".json",
   multiple: false,
 });
 
+// Обработчик загрузки файла JSON
 onChange(async (files) => {
   if (!files?.length) return;
   status.value = "pending";
@@ -62,11 +71,13 @@ onChange(async (files) => {
   proceedResult(person_id, exists);
 });
 
+// Определяем функцию для закрытия диалога
 function submitResume(person_id: string, exists: boolean) {
   modal.value = false;
   proceedResult(person_id, exists);
 }
 
+// Обработчик закрытия диалога
 async function proceedResult(person_id: string, exists: boolean) {
   status.value = "success";
   if (person_id) {
@@ -85,7 +96,25 @@ async function proceedResult(person_id: string, exists: boolean) {
   }
 }
 
+// Определяем массив данных для таблицы кандидатов
 const columns: TableColumn<Candidate>[] = [
+  {
+    id: "expand",
+    cell: ({ row }) =>
+      h(UButton, {
+        color: "neutral",
+        variant: "ghost",
+        icon: "i-lucide-chevron-down",
+        square: true,
+        ui: {
+          leadingIcon: [
+            "transition-transform",
+            row.getIsExpanded() ? "duration-200 rotate-180" : "",
+          ],
+        },
+        onClick: () => row.toggleExpanded(),
+      }),
+  },
   { accessorKey: "id", header: "#" },
   { accessorKey: "fullname", header: "Фамилия Имя Отчество" },
   {
@@ -138,6 +167,7 @@ const columns: TableColumn<Candidate>[] = [
   },
 ];
 
+// Определяем массив данных для выпадающего меню
 const items: DropdownMenuItem[] = [
   {
     label: "Создать анкету",
@@ -160,6 +190,7 @@ const items: DropdownMenuItem[] = [
   <div class="py-4">
     <div class="flex items-center justify-between mb-3">
       <h3 class="text-2xl text-red-800 font-bold">КАНДИДАТЫ</h3>
+      <!-- Выпадающее меню для действий -->
       <div v-if="userState.role == 'user'">
         <UDropdownMenu :items="items" :content="{ align: 'end' }">
           <UButton
@@ -171,11 +202,13 @@ const items: DropdownMenuItem[] = [
           />
         </UDropdownMenu>
 
+        <!-- Модальное окно для добавления анкеты -->
         <UModal
           v-model:open="modal"
           title="Добавить анкету"
           description="Введите анкетные данные кандидата"
         >
+          <!-- Вставляем форму для добавления анкеты -->
           <template #body>
             <LazyFormsResumeForm @update="submitResume" />
           </template>
@@ -183,6 +216,7 @@ const items: DropdownMenuItem[] = [
       </div>
     </div>
 
+    <!-- Строка поиска -->
     <div class="my-6">
       <UInput
         id="search"
@@ -193,7 +227,9 @@ const items: DropdownMenuItem[] = [
       />
     </div>
 
+    <!-- Таблица с данными кандидатов -->
     <UTable
+      v-model:expanded="expanded"
       :loading="status === 'pending'"
       loading-animation="carousel"
       empty="Данные не найдены"
@@ -201,8 +237,14 @@ const items: DropdownMenuItem[] = [
       :data="data"
       :meta="{ class: { tr: 'cursor-pointer' } }"
       @select="navigateTo(`/profile/${$event.original.id}`)"
-    />
+    >
+      <template #expanded="{ row }">
+        <!-- Выводим подробную информацию о кандидате -->
+         <ItemsPersonItem :item="row.original" />
+      </template>
+    </UTable>
 
+    <!-- Кнопка обновления и показа времени обновления -->
     <div class="my-2">
       <UButton
         variant="ghost"
@@ -215,6 +257,7 @@ const items: DropdownMenuItem[] = [
       </UButton>
     </div>
 
+    <!-- Пагинация -->
     <div class="flex justify-center border-t border-default py-4">
       <UPagination
         v-model:page="page"
