@@ -26,7 +26,7 @@ const data = shallowRef([] as typeof item.value[]);
 const modal = ref(false);
 
 // Определяем функцию для получения данных из API
-const { status, refresh } = await useLazyAsyncData(async () => {
+const { status, refresh } = await useLazyAsyncData(props.view, async () => {
   data.value = await $api(`/route/${props.view}/${candId.value}`);
 });
 

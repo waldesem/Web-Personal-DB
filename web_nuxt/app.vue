@@ -32,4 +32,18 @@ useHead({
 .page-leave-to {
   opacity: 0;
 }
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateX(-100%);
+}
+
+.slide-fade-enter-to,
+.slide-fade-leave-from {
+  transform: translateX(0);
+}
+
+html, body {
+  scrollbar-gutter: stable;
+}
 </style>

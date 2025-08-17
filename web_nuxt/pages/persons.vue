@@ -102,7 +102,6 @@ const columns: TableColumn<Candidate>[] = [
     id: "expand",
     cell: ({ row }) =>
       h(UButton, {
-        color: "neutral",
         variant: "ghost",
         icon: "i-lucide-chevron-down",
         square: true,

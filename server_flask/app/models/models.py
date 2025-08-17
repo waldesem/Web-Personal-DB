@@ -169,16 +169,12 @@ class PersonOut(Model):
     user_id: int
 
 
-class Candidates(Model):
-    """Pydantic model for candidate."""
+class Candidates(PersonOut):
+    """Pydantic model for candidates."""
 
-    id: int | None
     fullname: str
-    birthday: date
-    editable: bool
     username: str
     total: int
-    created: datetime | str | None
 
 
 class Prev(Model):

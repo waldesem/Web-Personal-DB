@@ -34,19 +34,10 @@ export interface User extends Token {
 
 export interface Candidate {
   id: string;
-  fullname: string;
-  birthday: string;
-  editable: boolean;
-  created: string;
-  username: string;
-  total: number;
-}
-
-export interface Persons {
-  id: string;
   surname: string;
   firstname: string;
   patronymic?: string;
+  fullname: string;
   birthday: string;
   birthplace?: string;
   citizenship?: string;
@@ -59,7 +50,11 @@ export interface Persons {
   editable: boolean;
   created: string;
   user_id: string;
+  username: string;
+  total: number;
 }
+
+export type Persons = Omit<Candidate, "fullname" | "username" | "total">;
 
 export interface Previous {
   id: string;
