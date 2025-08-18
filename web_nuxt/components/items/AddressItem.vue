@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import type { Address } from '@/types';
+import type { Address } from "@/types";
+
+const UButton = resolveComponent("UButton");
 
 const props = defineProps({
   item: {
@@ -10,7 +12,17 @@ const props = defineProps({
 
 const address = {
   Тип: props.item.view,
-  Адрес: props.item.address,
+  Адрес: h("div", [
+    props.item.address,
+    h(UButton, {
+      to: `https://yandex.ru/maps/?text=${props.item.address}%10с%10`,
+      target: "_blank",
+      title: "Показать на Яндекс.Карте",
+      variant: "outline",
+      icon: "i-lucide-map-pinned",
+      class: "ms-4"
+    }),
+  ]),
 };
 </script>
 

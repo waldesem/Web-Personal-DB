@@ -7,6 +7,9 @@ export default defineNuxtConfig({
   app: {
     keepalive: { include: "persons", max: 3 },
     pageTransition: { name: "page", mode: "out-in" },
+    head: {
+      title: "StaffSec - кадровая безопасность",
+    }
   },
   build: {
     analyze: true,

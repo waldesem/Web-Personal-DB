@@ -2,6 +2,7 @@
 import type { Persons } from "@/types";
 
 const NuxtTime = resolveComponent("NuxtTime");
+const UButton = resolveComponent("UButton");
 
 const props = defineProps({
   item: {
@@ -27,7 +28,25 @@ const person = {
     datetime: props.item.created,
   }),
   "Дополнительная информация": props.item.addition,
-  "Материалы проверок": props.item.destination,
+  "Материалы проверок": h(
+    UButton,
+    {
+      variant: "outline",
+      size: "sm",
+      onClick() {
+        navigator.clipboard
+          .writeText(
+            props.item.destination
+              ? props.item.destination
+              : "Отсутствует путь к папке"
+          )
+          .then(() => {
+            alert("Путь скопирован!");
+          });
+      },
+    },
+    { default: () => "Копировать адрес" }
+  ),
 };
 </script>
 

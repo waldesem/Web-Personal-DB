@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 useHead({
   htmlAttrs: { lang: "ru" },
   link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
@@ -8,7 +7,7 @@ useHead({
     { name: "viewport", content: "width=device-width, initial-scale=1" },
     { charset: "utf-8" },
   ],
-  title: "StaffSec - кадровая безопасность",
+  
 });
 </script>
 
@@ -16,34 +15,27 @@ useHead({
   <UApp>
     <NuxtLoadingIndicator color="red" :height="5" />
     <NuxtLayout>
-      <NuxtPage :transition="true" />
+      <NuxtPage
+        :transition="{
+          name: 'page',
+        }"
+      />
     </NuxtLayout>
   </UApp>
 </template>
 
 <style>
 .page-enter-active,
-.page-leave-active,
-.slide-fade-enter-active,
-.slide-fade-leave-active {
-  transition: all 0.1s;
+.page-leave-active {
+  transition: all 0.2s;
 }
 .page-enter-from,
 .page-leave-to {
   opacity: 0;
 }
 
-.slide-fade-enter-from,
-.slide-fade-leave-to {
-  transform: translateX(-100%);
-}
-
-.slide-fade-enter-to,
-.slide-fade-leave-from {
-  transform: translateX(0);
-}
-
-html, body {
+html,
+body {
   scrollbar-gutter: stable;
 }
 </style>

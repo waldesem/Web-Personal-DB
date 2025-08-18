@@ -82,7 +82,7 @@ onChange(async (files) => {
   if (!files) return;
   const formData = new FormData();
   for (const file of files) {
-    if (file.size > (10 * 1024 * 1024)) {
+    if (file.size > 10 * 1024 * 1024) {
       useToasts("info", "Размер одного файла не должен превышать 10 МБ");
       continue;
     }
@@ -159,6 +159,7 @@ const items = [
           }}
         </h3>
       </div>
+
       <!-- Кнопки для загрузки файлов и переключения режима редактирования -->
       <div v-if="userState.role == 'user'" class="flex items-center space-x-4">
         <UButton

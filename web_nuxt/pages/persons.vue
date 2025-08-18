@@ -121,7 +121,7 @@ const columns: TableColumn<Candidate>[] = [
     header: "Дата рождения",
     cell: ({ row }) => {
       return h(NuxtTime, {
-        datetime: row.original.birthday,
+        datetime: row.getValue("birthday"),
       });
     },
   },
@@ -130,14 +130,14 @@ const columns: TableColumn<Candidate>[] = [
     header: "Статус",
     cell: ({ row }) => {
       return h(UIcon, {
-        name: !row.original.editable
+        name: !row.getValue("editable")
           ? "i-lucide-circle-check"
           : "i-lucide-triangle-alert",
 
-        class: !row.original.editable
+        class: !row.getValue("editable")
           ? "text-start w-5 h-5 text-blue-600"
           : "text-start w-5 h-5 text-red-600",
-        title: !row.original.editable
+        title: !row.getValue("editable")
           ? "Анкета доступна для редактирования"
           : "Анкета находится в режиме редактирования",
       });
@@ -148,7 +148,7 @@ const columns: TableColumn<Candidate>[] = [
     header: "Обновлено",
     cell: ({ row }) => {
       return h(NuxtTime, {
-        datetime: row.original.created,
+        datetime: row.getValue("created"),
         relative: true,
       });
     },
@@ -239,7 +239,7 @@ const items: DropdownMenuItem[] = [
     >
       <template #expanded="{ row }">
         <!-- Выводим подробную информацию о кандидате -->
-         <ItemsPersonItem :item="row.original" />
+        <ItemsPersonItem :item="row.original" />
       </template>
     </UTable>
 

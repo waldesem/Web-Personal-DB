@@ -41,7 +41,7 @@ def create_refresh_token(user: Users) -> str:
         {
             "id": user.id,
             "exp": datetime.now(tz=timezone.utc)  # noqa: UP017
-            + timedelta(minutes=current_app.config["REFRESH_SECRET_KEY_LIVE"]),
+            + timedelta(days=current_app.config["REFRESH_SECRET_KEY_LIVE"]),
         },
         current_app.config["REFRESH_SECRET_KEY"],
         algorithm="HS256",

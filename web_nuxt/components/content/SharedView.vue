@@ -22,7 +22,7 @@ const editable = inject("editable") as Ref<boolean>;
 
 // Объявляем переменные для работы с данными
 const item = shallowRef({} as object);
-const data = shallowRef([] as typeof item.value[]);
+const data = shallowRef([] as (typeof item.value)[]);
 const modal = ref(false);
 
 // Определяем функцию для получения данных из API
@@ -83,14 +83,15 @@ async function deleteItem(id: string) {
     <!-- Выводим список элементов с кнопками для редактирования и удаления -->
     <div v-for="(content, index) in data" :key="index" class="py-4 ms-2">
       <!-- Выводим кнопки редактирования или удаления данных если доступно редактирование -->
-      <LazyElementsDivMenu
-        v-if="editable"
-        @change="
-          item = content;
-          modal = true;
-        "
-        @delete="deleteItem(content['id' as keyof typeof content])"
-      />
+        <LazyElementsDivMenu
+          v-if="editable"
+          @change="
+            item = content;
+            modal = true;
+          "
+          @delete="deleteItem(content['id' as keyof typeof content])"
+        />
+
       <!-- Выводим элемент данных -->
       <slot name="item" :item-content="content" />
       <USeparator v-if="data && index < data.length - 1" />
@@ -100,6 +101,7 @@ async function deleteItem(id: string) {
       Данные отсутствуют
     </div>
   </div>
+
   <!-- Выводим кнопку для добавления данных, если доступно редактирование -->
   <div
     v-if="editable"
@@ -117,6 +119,7 @@ async function deleteItem(id: string) {
       "
     />
   </div>
+
   <!-- Модальное окно для редактирования данных -->
   <UModal
     v-if="editable"

@@ -137,6 +137,7 @@ const items = [
       @change="modal = true"
       @delete="deletePerson()"
     />
+
     <!-- Выводим скелетный элемент. если данные ещё не загружены -->
     <div v-if="status == 'pending'" class="ps-2">
       <LazyElementsSkeletonDiv :rows="12" />
@@ -173,11 +174,14 @@ const items = [
 
           <template #form="{ formContent, submitItem }">
             <!-- Выводим форму для редактирования staffs в слоте form -->
-            <FormsStaffForm :item="(formContent as Staff)" @update="submitItem" />
+            <FormsStaffForm
+              :item="(formContent as Staff)"
+              @update="submitItem"
+            />
           </template>
         </ContentSharedView>
       </template>
-      
+
       <template #educations="{ item }">
         <ContentSharedView :view="item.content">
           <template #item="{ itemContent }">

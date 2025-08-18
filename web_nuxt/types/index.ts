@@ -108,6 +108,7 @@ export interface Work {
   address: string;
   reason: string;
   position: string;
+  created: string;
 }
 
 export interface Affilation {
