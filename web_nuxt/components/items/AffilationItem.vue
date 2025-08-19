@@ -7,16 +7,10 @@ const props = defineProps({
     default: () => ({}),
   },
 });
-
-const affilation = {
-  "Тип участия": props.item.view,
-  Организация: props.item.organization,
-  ИНН: props.item.inn,
-};
 </script>
 
 <template>
-  <div v-for="(value, key) in affilation" :key="key">
-    <ElementsLabelValue :label="key" :value="value" />
-  </div>
+  <ElementsLabelValue label="Тип участия" :value="props.item.view" />
+  <ElementsLabelValue label="Организация" :value="props.item.organization" />
+  <ElementsLabelValue label="ИНН" :value="props.item.inn" />
 </template>

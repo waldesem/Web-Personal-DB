@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import type { Needs } from '@/types';
-
-const NuxtTime = resolveComponent("NuxtTime");
+import type { Needs } from "@/types";
 
 const props = defineProps({
   item: {
@@ -9,18 +7,12 @@ const props = defineProps({
     default: () => ({}),
   },
 });
-
-const inquiry = {
-  Информация: props.item.info,
-  Иннициатор: props.item.initiator,
-  "Дата записи": h(NuxtTime, {
-    datetime: props.item.created,
-  })
-};
 </script>
 
 <template>
-  <div v-for="(value, key) in inquiry" :key="key">
-    <ElementsLabelValue :label="key" :value="value" />
-  </div>
+  <ElementsLabelValue label="Информация" :value="props.item.info" />
+  <ElementsLabelValue label="Иннициатор" :value="props.item.initiator" />
+  <ElementsLabelSlot v-if="props.item.created" label="Дата записи">
+    <NuxtTime :datetime="props.item.created" />
+  </ElementsLabelSlot>
 </template>

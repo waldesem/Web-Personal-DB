@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import type { Passport } from '@/types';
-
-const NuxtTime = resolveComponent("NuxtTime");
+import type { Passport } from "@/types";
 
 const props = defineProps({
   item: {
@@ -9,20 +7,14 @@ const props = defineProps({
     default: () => ({}),
   },
 });
-
-const document = {
-  "Вид документа": props.item.view,
-  "Серия документа": props.item.series,
-  "Номер документа": props.item.digits,
-  "Дата выдачи": h(NuxtTime, {
-    datetime: props.item.issue,
-  }),
-  "Кем выдан": props.item.agency,
-};
 </script>
 
 <template>
-  <div v-for="(value, key) in document" :key="key">
-    <ElementsLabelValue :label="key" :value="value" />
-  </div>
+  <ElementsLabelValue label="Вид документа" :value="props.item.view" />
+  <ElementsLabelValue label="Серия документа" :value="props.item.series" />
+  <ElementsLabelValue label="Номер документа" :value="props.item.digits" />
+  <ElementsLabelSlot v-if="props.item.issue" label="Дата выдачи">
+    <NuxtTime :datetime="props.item.issue" />
+  </ElementsLabelSlot>
+  <ElementsLabelValue label="Кем выдан" :value="props.item.agency" />
 </template>

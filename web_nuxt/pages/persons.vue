@@ -115,7 +115,15 @@ const columns: TableColumn<Candidate>[] = [
       }),
   },
   { accessorKey: "id", header: "#" },
-  { accessorKey: "fullname", header: "Фамилия Имя Отчество" },
+  {
+    accessorKey: "fullname",
+    header: "Фамилия Имя Отчество",
+    cell: ({ row }) => {
+      return `${row.original.surname} ${row.original.firstname} ${
+        row.original.patronymic ?? ""
+      }`;
+    },
+  },
   {
     accessorKey: "birthday",
     header: "Дата рождения",

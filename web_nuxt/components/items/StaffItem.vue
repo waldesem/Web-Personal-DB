@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Staff } from '@/types';
+import type { Staff } from "@/types";
 
 const props = defineProps({
   item: {
@@ -7,15 +7,9 @@ const props = defineProps({
     default: () => ({}),
   },
 });
-
-const staff = {
-  Должность: props.item.position,
-  Департамент: props.item.department,
-};
 </script>
 
 <template>
-  <div v-for="(value, key) in staff" :key="key">
-    <ElementsLabelValue :label="key" :value="value" />
-  </div>
+  <ElementsLabelValue label="Должность" :value="props.item.position" />
+  <ElementsLabelValue label="Департамент" :value="props.item.department" />
 </template>

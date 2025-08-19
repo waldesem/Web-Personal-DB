@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Previous } from '@/types';
+import type { Previous } from "@/types";
 
 const props = defineProps({
   item: {
@@ -7,18 +7,12 @@ const props = defineProps({
     default: () => ({}),
   },
 });
-
-const previous = {
-  Фамилия: props.item.surname,
-  Имя: props.item.firstname,
-  Отчество: props.item.patronymic,
-  "Год изменения": props.item.changed,
-  Причина: props.item.reason,
-};
 </script>
 
 <template>
-  <div v-for="(value, key) in previous" :key="key">
-    <ElementsLabelValue :label="key" :value="value" />
-  </div>
+  <ElementsLabelValue label="Фамилия" :value="props.item.surname" />
+  <ElementsLabelValue label="Имя" :value="props.item.firstname" />
+  <ElementsLabelValue label="Отчество" :value="props.item.patronymic" />
+  <ElementsLabelValue label="Год изменения" :value="props.item.changed" />
+  <ElementsLabelValue label="Причина" :value="props.item.reason" />
 </template>

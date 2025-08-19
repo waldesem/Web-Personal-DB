@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Education } from '@/types';
+import type { Education } from "@/types";
 
 const props = defineProps({
   item: {
@@ -7,17 +7,14 @@ const props = defineProps({
     default: () => ({}),
   },
 });
-
-const education = {
-  "Уровень образования": props.item.view,
-  "Название учебного заведения": props.item.institution,
-  "Год окончания": props.item.finished,
-  Специальность: props.item.specialty,
-};
 </script>
 
 <template>
-  <div v-for="(value, key) in education" :key="key">
-    <ElementsLabelValue :label="key" :value="value" />
-  </div>
+  <ElementsLabelValue label="Уровень образования" :value="props.item.view" />
+  <ElementsLabelValue
+    label="Учебное заведение"
+    :value="props.item.institution"
+  />
+  <ElementsLabelValue label="Год окончания" :value="props.item.finished" />
+  <ElementsLabelValue label="Специальность" :value="props.item.specialty" />
 </template>

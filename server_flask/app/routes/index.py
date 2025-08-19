@@ -48,14 +48,6 @@ def get_index(json_query: Index) -> tuple[list[Persons], int]:
     try:
         stmt = select(
             Persons.id,
-            # Получение полного имени кандидата
-            (
-                Persons.surname
-                + " "
-                + Persons.firstname
-                + " "
-                + func.coalesce(Persons.patronymic, "")
-            ).label("fullname"),
             Persons.birthday,
             Persons.surname,
             Persons.firstname,

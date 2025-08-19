@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import type { Inquisition } from '@/types';
-
-const NuxtTime = resolveComponent("NuxtTime");
+import type { Inquisition } from "@/types";
 
 const props = defineProps({
   item: {
@@ -9,18 +7,12 @@ const props = defineProps({
     default: () => ({}),
   },
 });
-
-const investigation = {
-  "Тема проверки": props.item.theme,
-  Информация: props.item.info,
-  "Дата записи": h(NuxtTime, {
-    datetime: props.item.created,
-  })
-};
 </script>
 
 <template>
-  <div v-for="(value, key) in investigation" :key="key">
-    <ElementsLabelValue :label="key" :value="value" />
-  </div>
+  <ElementsLabelValue label="Тема проверки" :value="props.item.theme" />
+  <ElementsLabelValue label="Информация" :value="props.item.info" />
+  <ElementsLabelSlot v-if="props.item.created" label="Дата записи">
+    <NuxtTime :datetime="props.item.created" />
+  </ElementsLabelSlot>
 </template>

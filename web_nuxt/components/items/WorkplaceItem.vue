@@ -1,10 +1,6 @@
 <script setup lang="ts">
 import type { Work } from "@/types";
 
-const NuxtTime = resolveComponent("NuxtTime");
-const UBadge = resolveComponent("UBadge");
-const UButton = resolveComponent("UButton");
-
 const props = defineProps({
   item: {
     type: Object as PropType<Work>,
@@ -49,56 +45,47 @@ const experience = computed(() => {
 
   return duration;
 });
-
-const workplace = {
-  "Текущая работа": props.item.now_work ? "Да" : "Нет",
-  "Начало работы": props.item.starts
-    ? h(NuxtTime, {
-        datetime: props.item.starts,
-      })
-    : "",
-  "Окончание работы": props.item.finished
-    ? h(NuxtTime, {
-        datetime: props.item.finished,
-      })
-    : "",
-  "Стаж на рабочем месте": h(
-    UBadge,
-    {
-      variant: "outline",
-      color:
-        experience.value.years > 0
-          ? "success"
-          : experience.value.months > 0
-          ? "info"
-          : "danger",
-    },
-    {
-      default: () =>
-        `${experience.value.years} лет, ${experience.value.months} месяцев, ${experience.value.days} дней`,
-    }
-  ),
-  Место: props.item.workplace,
-  Адрес: props.item.address
-    ? h("div", [
-        props.item.address,
-        h(UButton, {
-          to: `https://yandex.ru/maps/?text=${props.item.address}%10с%10`,
-          target: "_blank",
-          title: "Показать на Яндекс.Карте",
-          variant: "outline",
-          icon: "i-lucide-map-pinned",
-          class: "ms-4",
-        }),
-      ])
-    : "",
-  Должность: props.item.position,
-  "Причина увольнения": props.item.reason,
-};
 </script>
 
 <template>
-  <div v-for="(value, key) in workplace" :key="key">
-    <ElementsLabelValue :label="key" :value="value" />
-  </div>
+  <ElementsLabelValue
+    label="Текущая работа"
+    :value="props.item.now_work ? 'Да' : 'Нет'"
+  />
+  <ElementsLabelSlot v-if="props.item.starts" label="Начало работы">
+    <NuxtTime :datetime="props.item.starts" />
+  </ElementsLabelSlot>
+  <ElementsLabelSlot v-if="props.item.finished" label="Окончание работы">
+    <NuxtTime :datetime="props.item.finished" />
+  </ElementsLabelSlot>
+  <ElementsLabelSlot label="Стаж на рабочем месте">
+    <UBadge
+      variant="outline"
+      :color="
+        experience.years > 0
+          ? 'success'
+          : experience.months > 0
+          ? 'info'
+          : 'error'
+      "
+    >
+      {{
+        `${experience.years} лет, ${experience.months} месяцев, ${experience.days} дней`
+      }}
+    </UBadge>
+  </ElementsLabelSlot>
+  <ElementsLabelValue label="Место" :value="props.item.workplace" />
+  <ElementsLabelSlot v-if="props.item.address" label="Адрес">
+    {{ props.item.address }}
+    <UButton
+      :to="`https://yandex.ru/maps/?text=${props.item.address}%10с%10`"
+      target="_blank"
+      title="Показать на Яндекс.Карте"
+      variant="outline"
+      icon="i-lucide-map-pinned"
+      class="ms-4"
+    />
+  </ElementsLabelSlot>
+  <ElementsLabelValue label="Должность" :value="props.item.position" />
+  <ElementsLabelValue label="Причина увольнения" :value="props.item.reason" />
 </template>

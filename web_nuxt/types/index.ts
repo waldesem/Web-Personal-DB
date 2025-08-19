@@ -37,7 +37,6 @@ export interface Candidate {
   surname: string;
   firstname: string;
   patronymic?: string;
-  fullname: string;
   birthday: string;
   birthplace?: string;
   citizenship?: string;
@@ -54,7 +53,7 @@ export interface Candidate {
   total: number;
 }
 
-export type Persons = Omit<Candidate, "fullname" | "username" | "total">;
+export type Persons = Omit<Candidate, "username" | "total">;
 
 export interface Previous {
   id: string;

@@ -2,53 +2,69 @@
 import type { Verification } from "@/types";
 import { Conclusions } from "@/types";
 
-const UBadge = resolveComponent("UBadge");
-const NuxtTime = resolveComponent("NuxtTime");
-
 const props = defineProps({
   item: {
     type: Object as PropType<Verification>,
     default: () => ({}),
   },
 });
-
-const check = {
-  "Проверка по местам работы": props.item.workplace,
-  "Проверка документов": props.item.document,
-  "Проверка задолженностей": props.item.debt,
-  "Проверка банкротства": props.item.bankruptcy,
-  "Проверка по БКИ": props.item.bki,
-  "Проверка судебных решений": props.item.courts,
-  "Проверка аффилированности": props.item.affilation,
-  "Проверка по списку террористов": props.item.terrorist,
-  "Проверка в открытых источниках": props.item.internet,
-  "Проверка Кронос": props.item.cronos,
-  "Дополнительная информация": props.item.addition,
-  Комментарии: props.item.comment,
-  Результат: h(UBadge, {
-    color:
-      props.item.conclusion === Conclusions.agreed
-        ? "success"
-        : props.item.conclusion === Conclusions.comments
-        ? "warning"
-        : props.item.conclusion === Conclusions.cancel
-        ? "neutral"
-        : "error",
-
-    label: props.item.conclusion,
-  }),
-  "Дата записи": h(NuxtTime, {
-    datetime: props.item.created,
-  }),
-};
 </script>
 
 <template>
-  <div
-    v-for="(value, key) in check"
-    :key="key"
-    :class="{ 'text-red-800': props.item.conclusion === Conclusions.denied }"
-  >
-    <ElementsLabelValue :label="key" :value="value" />
-  </div>
+  <ElementsLabelValue
+    label="Проверка по местам работы"
+    :value="props.item.workplace"
+  />
+  <ElementsLabelValue
+    label="Проверка документов"
+    :value="props.item.document"
+  />
+  <ElementsLabelValue
+    label="Проверка задолженностей"
+    :value="props.item.debt"
+  />
+  <ElementsLabelValue
+    label="Проверка банкротства"
+    :value="props.item.bankruptcy"
+  />
+  <ElementsLabelValue label="Проверка по БКИ" :value="props.item.bki" />
+  <ElementsLabelValue
+    label="Проверка судебных решений"
+    :value="props.item.courts"
+  />
+  <ElementsLabelValue
+    label="Проверка аффилированности"
+    :value="props.item.affilation"
+  />
+  <ElementsLabelValue
+    label="Проверка по списку террористов"
+    :value="props.item.terrorist"
+  />
+  <ElementsLabelValue
+    label="Проверка в открытых источниках"
+    :value="props.item.internet"
+  />
+  <ElementsLabelValue label="Проверка Кронос" :value="props.item.cronos" />
+  <ElementsLabelValue
+    label="Дополнительная информация"
+    :value="props.item.addition"
+  />
+  <ElementsLabelValue label="Комментарии" :value="props.item.comment" />
+  <ElementsLabelSlot v-if="props.item.conclusion" label="Результат">
+    <UBadge
+      :color="
+        props.item.conclusion === Conclusions.agreed
+          ? 'success'
+          : props.item.conclusion === Conclusions.comments
+          ? 'warning'
+          : props.item.conclusion === Conclusions.cancel
+          ? 'neutral'
+          : 'error'
+      "
+      :label="props.item.conclusion"
+    />
+  </ElementsLabelSlot>
+  <ElementsLabelSlot v-if="props.item.created" label="Дата записи">
+    <NuxtTime :datetime="props.item.created" />
+  </ElementsLabelSlot>
 </template>

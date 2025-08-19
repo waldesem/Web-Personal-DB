@@ -7,15 +7,9 @@ const props = defineProps({
     default: () => ({}),
   },
 });
-
-const contact = {
-  Вид: props.item.view,
-  Контакт: props.item.contact,
-};
 </script>
 
 <template>
-  <div v-for="(value, key) in contact" :key="key">
-    <ElementsLabelValue :label="key" :value="value" />
-  </div>
+    <ElementsLabelValue label="Вид" :value="props.item.view" />
+    <ElementsLabelValue label="Контакт" :value="props.item.contact" />
 </template>

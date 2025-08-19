@@ -29,7 +29,7 @@ const props = defineProps({
 });
 
 // Преобразуем переменную для чтения в реактивную
-const status = toRef(props, "status");
+const status = toRef(props.status);
 
 // Инжектируем данные (находится ли анкета в режиме редактирования)
 const editable = inject("editable") as Ref<boolean>;

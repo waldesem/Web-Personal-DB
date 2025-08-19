@@ -172,7 +172,6 @@ class PersonOut(Model):
 class Candidates(PersonOut):
     """Pydantic model for candidates."""
 
-    fullname: str
     username: str
     total: int
 
