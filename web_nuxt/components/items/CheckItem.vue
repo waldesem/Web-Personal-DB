@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Verification } from '@/types';
+import type { Verification } from "@/types";
 import { Conclusions } from "@/types";
 
 const UBadge = resolveComponent("UBadge");
@@ -39,12 +39,16 @@ const check = {
   }),
   "Дата записи": h(NuxtTime, {
     datetime: props.item.created,
-  })
+  }),
 };
 </script>
 
 <template>
-  <div v-for="(value, key) in check" :key="key">
+  <div
+    v-for="(value, key) in check"
+    :key="key"
+    :class="{ 'text-red-800': props.item.conclusion === Conclusions.denied }"
+  >
     <ElementsLabelValue :label="key" :value="value" />
   </div>
 </template>
