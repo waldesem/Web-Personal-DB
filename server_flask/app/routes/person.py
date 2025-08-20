@@ -46,6 +46,6 @@ def delete_person(person_id: int) -> tuple[dict, int]:
     except SQLAlchemyError:
         current_app.logger.exception("Database error")
         db.session.rollback()
-        return {"message": "error"}, 400
+        return {"message": "error"}, 200
     else:
         return {"message": "success"}, 201

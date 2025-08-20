@@ -85,11 +85,11 @@ async function deleteItem(id: string) {
       <!-- Выводим кнопки редактирования или удаления данных если доступно редактирование -->
         <LazyElementsDivMenu
           v-if="editable"
-          @change="
+          @update="
             item = content;
             modal = true;
           "
-          @delete="deleteItem(content['id' as keyof typeof content])"
+          @refresh="deleteItem(content['id' as keyof typeof content])"
         />
 
       <!-- Выводим элемент данных -->

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useFileDialog, watchDebounced } from "@vueuse/core";
-import type { DropdownMenuItem, TableColumn } from "@nuxt/ui";
+import { useFileDialog, refDebounced } from "@vueuse/core";
+import type { TableColumn } from "@nuxt/ui";
 import type { Candidate } from "@/types";
 
 // Используем плагин для передачи данных на сервер
@@ -12,25 +12,23 @@ await preloadRouteComponents("/profile/[id]");
 // Объявляем переменные рендера компонентов
 const NuxtTime = resolveComponent("NuxtTime");
 const UButton = resolveComponent("UButton");
-const UDropdownMenu = resolveComponent("UDropdownMenu");
 const UIcon = resolveComponent("UIcon");
 
 // Объявляем переменную для получения данных пользователя
 const userState = useStateUser();
 
 // Объявляем переменные для работы с данными
-const data = shallowRef<Candidate[]>([]);
-const expanded = ref({ 1: false });
-const modal = ref(false);
-const page = ref(1);
-const per_page = 10;
-const search = ref("");
-const updated = ref(Date.now());
+const expanded = ref({ 1: false }); // Состояние раскрытия строк таблицы
+const modal = ref(false); // Состояние модального окна
+const page = ref(1); // Страница таблицы
+const per_page = 10; // Количество строк в таблице
+const search = ref(""); // Поисковый запрос
+const updated = ref(Date.now()); // Дата обновления данных
 
 // Определяем функцию для получения списка кандидатов из API
-const { status, refresh } = await useLazyAsyncData(
+const { data, status, refresh } = await useLazyAsyncData(
   async () => {
-    data.value = await $api("/route/index", {
+    const response = await $api("/route/index", {
       query: {
         page: page.value,
         per_page: per_page,
@@ -38,36 +36,32 @@ const { status, refresh } = await useLazyAsyncData(
       },
     });
     updated.value = Date.now();
+    return response as Candidate[];
   },
-  { watch: [page] }
+  // Опции для обновления данных: переключение страницы, изменение поисковой строки (1 секунда)
+  { watch: [page, refDebounced(search, 1000)] }
 );
 
-// Определяем наблюдатель за изменением строки поиска
-watchDebounced(search, async () => await refresh(), {
-  debounce: 1000,
-  maxWait: 2000,
-});
-
-// Определяем данные для загрузки файла JSON
-const { open, onChange, reset } = useFileDialog({
+// Определяем обработчики диалогового окна для загрузки JSON
+const { open, onChange } = useFileDialog({
   accept: ".json",
   multiple: false,
 });
 
-// Обработчик загрузки файла JSON
+// Фукция загрузки файла JSON
 onChange(async (files) => {
-  if (!files?.length) return;
+  if (!files?.[0]?.name.endsWith(".json")) {
+    useToasts();
+    return
+  };
   status.value = "pending";
-  const formData = new FormData();
-  formData.append("file", files[0] as File);
   const { person_id, exists } = await $api<{
     person_id: string;
     exists: boolean;
   }>("/route/json", {
     method: "POST",
-    body: formData,
+    body: files[0],
   });
-  reset();
   proceedResult(person_id, exists);
 });
 
@@ -173,24 +167,6 @@ const columns: TableColumn<Candidate>[] = [
     },
   },
 ];
-
-// Определяем массив данных для выпадающего меню
-const items: DropdownMenuItem[] = [
-  {
-    label: "Создать анкету",
-    icon: "i-lucide-user-plus",
-    onSelect() {
-      modal.value = true;
-    },
-  },
-  {
-    label: "Загрузить json",
-    icon: "i-lucide-upload",
-    onSelect() {
-      open();
-    },
-  },
-];
 </script>
 
 <template>
@@ -199,15 +175,14 @@ const items: DropdownMenuItem[] = [
       <h3 class="text-2xl text-red-800 font-bold">КАНДИДАТЫ</h3>
       <!-- Выпадающее меню для действий -->
       <div v-if="userState.role == 'user'">
-        <UDropdownMenu :items="items" :content="{ align: 'end' }">
-          <UButton
-            :loading="status === 'pending'"
-            icon="i-lucide-ellipsis-vertical"
-            variant="ghost"
-            size="lg"
-            title="Выбор действия"
+        <ElementsDivMenu
+          :label-update="'Создать анкету'"
+          :label-refresh="'Загрузить json'"
+          :icon-update="'i-lucide-user-plus'"
+          :icon-refresh="'i-lucide-upload'"
+          @update="modal = true"
+          @refresh="open()"
           />
-        </UDropdownMenu>
 
         <!-- Модальное окно для добавления анкеты -->
         <UModal
@@ -245,9 +220,9 @@ const items: DropdownMenuItem[] = [
       :meta="{ class: { tr: 'cursor-pointer' } }"
       @select="navigateTo(`/profile/${$event.original.id}`)"
     >
+      <!-- Выводим подробную информацию о кандидате -->
       <template #expanded="{ row }">
-        <!-- Выводим подробную информацию о кандидате -->
-        <ItemsPersonItem :item="row.original" />
+        <UCard><ItemsPersonItem :item="row.original" /></UCard>
       </template>
     </UTable>
 

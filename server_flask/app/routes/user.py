@@ -36,7 +36,7 @@ def post_user_actions(user_id: int, json_data: UserActions) -> tuple[dict, int]:
     user = db.session.get(Users, user_id)
     # Если пользователь не найден или пытается изменить собственный профиль
     if not user or g.user.id == user.id:
-        return {"message": "error"}, 400
+        return {"message": "error"}, 200
 
     if json_data.item == "reset":
         # Сбросить пароль пользователя и обнулить попытки входа
@@ -71,7 +71,7 @@ def post_user(json_data: UserForm) -> tuple[dict, int]:
         select(Users).filter(Users.username == json_data.username),
     ).all()
     if user:
-        return {"message": "error"}, 400
+        return {"message": "error"}, 200
     try:
         # Создать нового пользователя
         db.session.add(Users(**json_data.dict()))
@@ -79,6 +79,6 @@ def post_user(json_data: UserForm) -> tuple[dict, int]:
     except SQLAlchemyError:
         current_app.logger.exception("Database error")
         db.session.rollback()
-        return {"message": "error"}, 400
+        return {"message": "error"}, 200
     else:
         return {"message": "success"}, 201

@@ -75,7 +75,7 @@ async function switchSelf(): Promise<void> {
 }
 
 // Определяем диалог загрузки файлов
-const { open, reset, onCancel, onChange } = useFileDialog();
+const { open, onChange } = useFileDialog();
 
 // Определяем функцию для загрузки файлов
 onChange(async (files) => {
@@ -101,12 +101,6 @@ onChange(async (files) => {
   } else {
     useToasts();
   }
-  reset();
-});
-
-// Определяем функцию для закрытия диалога
-onCancel(() => {
-  reset();
 });
 
 // Определяем интерфейс для элементов табов

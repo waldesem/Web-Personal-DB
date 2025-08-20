@@ -134,8 +134,8 @@ const items = [
     <!-- Выводим кнопки редактирования или удаления данных если доступно редактирование -->
     <LazyElementsDivMenu
       v-if="editable"
-      @change="modal = true"
-      @delete="deletePerson()"
+      @update="modal = true"
+      @refresh="deletePerson()"
     />
 
     <!-- Выводим скелетный элемент. если данные ещё не загружены -->

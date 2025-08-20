@@ -51,7 +51,7 @@ function handleClick() {
       :color="copy === 'Копировать адрес' ? 'info' : 'success'"
       size="sm"
       :label="copy"
-      @click="handleClick()"
+      @click="handleClick"
     />
   </ElementsLabelSlot>
 </template>

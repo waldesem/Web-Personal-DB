@@ -85,7 +85,7 @@ def get_index(json_query: Index) -> tuple[list[Persons], int]:
 
     except SQLAlchemyError:
         current_app.logger.exception("SQL Error")
-        return [], 400
+        return [], 200
     else:
         return result, 200
 
@@ -110,10 +110,10 @@ def change_self_id(person_id: int) -> tuple[dict, int]:
             db.session.commit()
         except SQLAlchemyError:
             current_app.logger.exception("Exception in change_self_id")
-            return {"message": "error"}, 400
+            return {"message": "error"}, 200
         else:
             return {"message": "success"}, 201
-    return {"message": "error"}, 400
+    return {"message": "error"}, 200
 
 
 @bp.post("/files/<int:person_id>")
@@ -138,10 +138,10 @@ def post_files(person_id: int) -> tuple[dict, int]:
                         data.save(file_path)
         except (TypeError, ValueError, AttributeError):
             current_app.logger.exception("Exception in post_files")
-            return {"message": "error"}, 400
+            return {"message": "error"}, 200
         else:
             return {"message": "success"}, 201
-    return {"message": "error"}, 400
+    return {"message": "error"}, 200
 
 
 @bp.post("/api/json")
@@ -162,15 +162,15 @@ def post_json_api(json_data: AnketaJson) -> tuple[dict, int]:
 def post_json_file() -> tuple[dict, int]:
     """Create a new person or updates an existing person from file."""
     # Чтение файла JSON и создание объектов классов для сохранения в БД
-    if not (file := request.files.get("file")):
-        return {"person_id": None, "exists": False}, 400
+    if not (file := request.data):
+        return {"person_id": None, "exists": False}, 200
     try:
-        json_data = json.load(file)
+        json_data = json.loads(file)
         anketa = AnketaJson(**json_data)
     except (TypeError, json.JSONDecodeError, ValidationError):
-        return {"person_id": None, "exists": False}, 400
+        return {"person_id": None, "exists": False}, 200
     result = post_json(anketa)
-    return result, 201 if result.get("person_id") else 400
+    return result, 201 if result.get("person_id") else 200
 
 
 def post_json(anketa: AnketaJson) -> dict:

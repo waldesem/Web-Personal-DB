@@ -1,6 +1,25 @@
 <script setup lang="ts">
-// Компонент для отображения выпадающего списка действий над элементом: изменить и удалить
-const emits = defineEmits(["change", "delete"]);
+// Компонент для отображения выпадающего списка действий
+const props = defineProps({
+  labelUpdate: {
+    type: String,
+    default: "Изменить",
+  },
+  labelRefresh: {
+    type: String,
+    default: "Удалить",
+  },
+  iconUpdate: {
+    type: String,
+    default: "i-lucide-pencil",
+  },
+  iconRefresh: {
+    type: String,
+    default: "i-lucide-trash",
+  },
+});
+
+const emits = defineEmits(["update", "refresh"]);
 </script>
 
 <template>
@@ -9,24 +28,23 @@ const emits = defineEmits(["change", "delete"]);
       <UDropdownMenu
         :items="[
           {
-            label: 'Изменить',
-            icon: 'i-lucide-pencil',
+            label: props.labelUpdate,
+            icon: props.iconUpdate,
             onSelect() {
-              emits('change');
+              emits('update');
             },
           },
           {
-            label: 'Удалить',
-            icon: 'i-lucide-trash',
+            label: props.labelRefresh,
+            icon: props.iconRefresh,
             onSelect() {
-              emits('delete');
+              emits('refresh');
             },
           },
         ]"
         :content="{ align: 'end' }"
       >
         <UButton
-          size="xl"
           color="neutral"
           icon="i-lucide-ellipsis-vertical"
           variant="ghost"

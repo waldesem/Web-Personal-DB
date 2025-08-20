@@ -65,7 +65,7 @@ def post_login(
     except (SQLAlchemyError, ValueError, ValidationError):
         current_app.logger.exception("Error occurred in login route")
         db.session.rollback()
-        return {"message": "invalid"}, 400
+        return {"message": "invalid"}, 200
 
 
 @bp.post("/logout")
@@ -74,7 +74,7 @@ def logout(json_data: AuthResponse) -> tuple[dict, int]:
     """Logout the user."""
     if not json_data.access_token or not json_data.refresh_token:
         current_app.logger.warning("Invalid token")
-        return {"message": "invalid"}, 400
+        return {"message": "invalid"}, 200
     try:
         revoked.set(json_data.access_token.split(".")[-1])
         revoked.set(json_data.refresh_token.split(".")[-1])
@@ -95,4 +95,4 @@ def refresh_token() -> tuple[dict, int]:
             "access_token": "Bearer " + create_access_token(g.user),
         }, 201
     except (ValueError, ValidationError):
-        return {"message": "invalid"}, 400
+        return {"message": "invalid"}, 200
