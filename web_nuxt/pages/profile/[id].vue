@@ -25,21 +25,18 @@ const candId = computed(() => route.params.id as string);
 // Передаем данные id кандидата в другие компоненты
 provide("candId", candId);
 
-// Объявляем переменную для анкеты кандидата
-const person = shallowRef({} as Persons);
-
 // Определяем функцию для получения данных из API
-const { status, refresh } = await useAsyncData("persons", async () => {
-  person.value = await $api("/route/persons/" + candId.value);
+const { data, status, refresh } = await useAsyncData("persons", async () => {
+  return (await $api("/route/persons/" + candId.value)) as Persons;
 });
 
 // Вычисляем статус редактирования анкеты
 const editable = computed(() => {
   return (
-    person.value &&
-    person.value.editable &&
+    data.value &&
+    data.value.editable &&
     userState.value.role == "user" &&
-    userState.value.id == person.value.user_id
+    userState.value.id == data.value.user_id
   );
 });
 // Передаем статус редактирования в другие компоненты
@@ -47,8 +44,8 @@ provide("editable", editable);
 
 // Определяем функцию для переключения режима редактирования
 async function switchSelf(): Promise<void> {
-  if (person.value && person.value.user_id != userState.value.id) {
-    if (person.value.editable) {
+  if (data.value && data.value.user_id != userState.value.id) {
+    if (data.value.editable) {
       if (
         !confirm(
           "Анкета редактируется другим пользователем. Переключить режим?"
@@ -64,7 +61,7 @@ async function switchSelf(): Promise<void> {
   }
   status.value = "pending";
   const { message } = await $api<Record<string, string>>(
-    "/route/self/" + person.value?.id
+    "/route/self/" + data.value?.id
   );
   status.value = message as "success" | "error";
   if (message == "success") {
@@ -146,11 +143,7 @@ const items = [
       <!-- Заголовок -->
       <div v-else class="py-1">
         <h3 class="text-2xl text-red-800 font-bold">
-          {{
-            `${person?.surname} ${person?.firstname} ${
-              person?.patronymic ?? ""
-            }`
-          }}
+          {{ `${data?.surname} ${data?.firstname} ${data?.patronymic ?? ""}` }}
         </h3>
       </div>
 
@@ -166,16 +159,16 @@ const items = [
         <UButton
           :loading="status === 'pending'"
           :color="
-            !person?.editable
+            !data?.editable
               ? 'secondary'
-              : person.user_id == userState.id
+              : data.user_id == userState.id
               ? 'success'
               : 'error'
           "
           :label="
-            !person?.editable
+            !data?.editable
               ? 'Доступно  для редактирования'
-              : person.user_id == userState.id
+              : data.user_id == userState.id
               ? 'Назначено текущему пользователю'
               : 'Редактируется другим пользователем'
           "
@@ -194,22 +187,19 @@ const items = [
     >
       <!-- Вкладка для отображения анкеты -->
       <template #person>
-        <ContentAnketaTab
-          :person="(person ?? {} as Persons)"
-          :status="status"
-        />
+        <ContentAnketaTab :person="(data ?? {} as Persons)" :status="status" />
       </template>
 
       <!-- Вкладка для отображения проверок -->
       <template #checks="{ item }">
         <ContentSharedView :view="item.slot" :rows="16">
+          <!-- Отображаем элементы проверки -->
           <template #item="{ itemContent }">
-            <!-- Отображаем элементы проверки -->
             <ItemsCheckItem :item="(itemContent as Verification)" />
           </template>
 
+          <!-- Отображаем форму проверки -->
           <template #form="{ formContent, submitItem }">
-            <!-- Отображаем форму проверки -->
             <FormsCheckForm
               :item="(formContent as Verification)"
               @update="submitItem"

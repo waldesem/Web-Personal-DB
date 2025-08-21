@@ -127,7 +127,7 @@ async function submitLogin() {
           >
             <UFormField label="Логин" name="username" required>
               <UInput
-                v-model="loginForm['username']"
+                v-model.trim="loginForm['username']"
                 placeholder="Имя пользователя"
                 icon="i-lucide-user"
                 autofocus

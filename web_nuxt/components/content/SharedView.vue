@@ -21,13 +21,12 @@ const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
 // Объявляем переменные для работы с данными
-const item = shallowRef({} as object);
-const data = shallowRef([] as (typeof item.value)[]);
-const modal = ref(false);
+const item = shallowRef({} as object); // Данные для передачи в форму и редактирования
+const modal = ref(false); // Флаг для открытия модального окна
 
-// Определяем функцию для получения данных из API
-const { status, refresh } = await useLazyAsyncData(props.view, async () => {
-  data.value = await $api(`/route/${props.view}/${candId.value}`);
+// Определяем Composable для получения данных из API
+const { data, status, refresh } = await useLazyAsyncData(props.view, async () => {
+  return await $api(`/route/${props.view}/${candId.value}`) as object[];
 });
 
 // Определяем функцию для отправки данных формы на сервер

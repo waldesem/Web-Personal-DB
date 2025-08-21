@@ -1,13 +1,16 @@
 <script setup lang="ts">
-import { useFileDialog, refDebounced } from "@vueuse/core";
+import { refDebounced, useIdle, useFileDialog } from "@vueuse/core";
 import type { TableColumn } from "@nuxt/ui";
 import type { Candidate } from "@/types";
+
+// Прелоадим компонент для загрузки анкеты
+await preloadRouteComponents("/profile/[id]");
 
 // Используем плагин для передачи данных на сервер
 const { $api } = useNuxtApp();
 
-// Прелоадим компонент для загрузки анкеты
-await preloadRouteComponents("/profile/[id]");
+// Отслеживаем неактивность пользователя в течение 15 минут
+const { idle } = useIdle(15 * 60 * 1000);
 
 // Объявляем переменные рендера компонентов
 const NuxtTime = resolveComponent("NuxtTime");
@@ -38,8 +41,8 @@ const { data, status, refresh } = await useLazyAsyncData(
     updated.value = Date.now();
     return response as Candidate[];
   },
-  // Опции для обновления данных: переключение страницы, изменение поисковой строки (1 секунда)
-  { watch: [page, refDebounced(search, 1000)] }
+  // Наблюдаем: активность пользователя, переключение страницы, изменение строки поиска.
+  { watch: [idle, page, refDebounced(search, 1000)] }
 );
 
 // Определяем обработчики диалогового окна для загрузки JSON
@@ -52,8 +55,8 @@ const { open, onChange } = useFileDialog({
 onChange(async (files) => {
   if (!files?.[0]?.name.endsWith(".json")) {
     useToasts();
-    return
-  };
+    return;
+  }
   status.value = "pending";
   const { person_id, exists } = await $api<{
     person_id: string;
@@ -65,14 +68,14 @@ onChange(async (files) => {
   proceedResult(person_id, exists);
 });
 
-// Определяем функцию для закрытия диалога
-function submitResume(person_id: string, exists: boolean) {
+// Определяем функцию для обработки события обновления данных через форму
+function handleEmit(person_id: string, exists: boolean) {
   modal.value = false;
   proceedResult(person_id, exists);
 }
 
-// Обработчик закрытия диалога
-async function proceedResult(person_id: string, exists: boolean) {
+// Обработчик результата загрузки данных
+function proceedResult(person_id: string, exists: boolean) {
   status.value = "success";
   if (person_id) {
     if (exists) {
@@ -92,6 +95,7 @@ async function proceedResult(person_id: string, exists: boolean) {
 
 // Определяем массив данных для таблицы кандидатов
 const columns: TableColumn<Candidate>[] = [
+  // Раскрытие строк таблицы
   {
     id: "expand",
     cell: ({ row }) =>
@@ -108,7 +112,9 @@ const columns: TableColumn<Candidate>[] = [
         onClick: () => row.toggleExpanded(),
       }),
   },
+  // ID кандидата
   { accessorKey: "id", header: "#" },
+  // Имя кандидата
   {
     accessorKey: "fullname",
     header: "Фамилия Имя Отчество",
@@ -118,6 +124,7 @@ const columns: TableColumn<Candidate>[] = [
       }`;
     },
   },
+  // Дата рождения
   {
     accessorKey: "birthday",
     header: "Дата рождения",
@@ -127,6 +134,7 @@ const columns: TableColumn<Candidate>[] = [
       });
     },
   },
+  // Статус кандидата
   {
     accessorKey: "editable",
     header: "Статус",
@@ -145,6 +153,7 @@ const columns: TableColumn<Candidate>[] = [
       });
     },
   },
+  // Обновлено
   {
     accessorKey: "created",
     header: "Обновлено",
@@ -155,6 +164,7 @@ const columns: TableColumn<Candidate>[] = [
       });
     },
   },
+  // Сотрудник
   {
     accessorKey: "username",
     header: "Сотрудник",
@@ -182,7 +192,7 @@ const columns: TableColumn<Candidate>[] = [
           :icon-refresh="'i-lucide-upload'"
           @update="modal = true"
           @refresh="open()"
-          />
+        />
 
         <!-- Модальное окно для добавления анкеты -->
         <UModal
@@ -192,7 +202,7 @@ const columns: TableColumn<Candidate>[] = [
         >
           <!-- Вставляем форму для добавления анкеты -->
           <template #body>
-            <LazyFormsResumeForm @update="submitResume" />
+            <LazyFormsResumeForm @update="handleEmit" />
           </template>
         </UModal>
       </div>

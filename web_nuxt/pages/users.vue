@@ -16,11 +16,10 @@ const { $api } = useNuxtApp();
 const modal = ref(false);
 const expanded = ref({ 1: false });
 const globalFilter = ref("");
-const users = shallowRef<User[]>([]);
 
 // Определяем функцию для получения данных из API
-const { status, refresh } = await useLazyAsyncData(async () => {
-  users.value = await $api("/route/users");
+const { data, status, refresh } = await useLazyAsyncData(async () => {
+  return await $api("/route/users") as User[];
 });
 
 // Объявляем функцию для действия с пользователем
@@ -259,7 +258,7 @@ const columns: TableColumn<User>[] = [
       v-model:global-filter="globalFilter"
       sticky
       class="flex-1 max-h-[800px]"
-      :data="(users as User[])"
+      :data="data"
       :columns="columns"
       :loading="status === 'pending'"
       loading-animation="carousel"
