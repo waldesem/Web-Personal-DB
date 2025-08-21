@@ -13,12 +13,12 @@ const props = defineProps({
   },
 });
 
-const resumeForm= computed(() => {
-  return {
-    ...props.resume,
-    birthday: useDateFormat(props.resume.birthday, "YYYY-MM-DD").value,
-  };
-});
+const resumeForm = toRef(props.resume);
+// Преобразование даты в формат YYYY-MM-DD
+resumeForm.value.birthday = useDateFormat(
+  props.resume.birthday,
+  "YYYY-MM-DD"
+).value;
 
 async function submitPerson() {
   const { person_id, exists } = await $api<{

@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import type { DivsItems, PillsItems } from "@/types";
-
 // Импортируем плагин для передачи данных на сервер
 const { $api } = useNuxtApp();
 
 // Определяем данные которые передаются из родительского компонента
 const props = defineProps({
   view: {
-    type: String as PropType<PillsItems | DivsItems>,
+    type: String,
     required: true,
   },
   rows: {
@@ -25,9 +23,12 @@ const item = shallowRef({} as object); // Данные для передачи �
 const modal = ref(false); // Флаг для открытия модального окна
 
 // Определяем Composable для получения данных из API
-const { data, status, refresh } = await useLazyAsyncData(props.view, async () => {
-  return await $api(`/route/${props.view}/${candId.value}`) as object[];
-});
+const { data, status, refresh } = await useLazyAsyncData(
+  props.view,
+  async () => {
+    return (await $api(`/route/${props.view}/${candId.value}`)) as object[];
+  }
+);
 
 // Определяем функцию для отправки данных формы на сервер
 async function submitItem(form: typeof item.value) {
@@ -42,8 +43,8 @@ async function submitItem(form: typeof item.value) {
   );
   await refresh();
   status.value = message as "success" | "error";
+  item.value = {};
   if (message == "success") {
-    item.value = {};
     useToasts(message, "Информация успешно обновлена");
   } else {
     useToasts();
@@ -82,52 +83,45 @@ async function deleteItem(id: string) {
     <!-- Выводим список элементов с кнопками для редактирования и удаления -->
     <div v-for="(content, index) in data" :key="index" class="py-4 ms-2">
       <!-- Выводим кнопки редактирования или удаления данных если доступно редактирование -->
-        <LazyElementsDivMenu
-          v-if="editable"
-          @update="
-            item = content;
-            modal = true;
-          "
-          @refresh="deleteItem(content['id' as keyof typeof content])"
-        />
+      <LazyElementsDivMenu
+        v-if="editable"
+        @update="
+          item = content;
+          modal = true;
+        "
+        @refresh="deleteItem(content['id' as keyof typeof content])"
+      />
 
       <!-- Выводим элемент данных -->
       <slot name="item" :item-content="content" />
       <USeparator v-if="data && index < data.length - 1" />
     </div>
+
     <!-- Выводим сообщение если данные отсутствуют -->
-    <div v-if="!data || !data.length" class="p-2 text-red-800">
+    <div v-if="!data || !data.length" class="p-4 text-red-800">
       Данные отсутствуют
     </div>
   </div>
 
-  <!-- Выводим кнопку для добавления данных, если доступно редактирование -->
-  <div
-    v-if="editable"
-    class="flex justify-start py-2"
-    :class="{ 'border-t border-gray-200': data && data.length > 0 }"
-  >
-    <UButton
-      :loading="status == 'pending'"
-      label="Добавить запись"
-      icon="i-lucide-file-plus"
-      variant="ghost"
-      @click="
-        item = {};
-        modal = true;
-      "
-    />
-  </div>
-
   <!-- Модальное окно для редактирования данных -->
   <UModal
-    v-if="editable"
     v-model:open="modal"
     title="Данные профиля"
     description="Введите или отредактируйте данные"
   >
+    <div
+      v-if="editable"
+      class="flex justify-start py-2"
+      :class="{ 'border-t border-gray-200': data && data.length > 0 }"
+    >
+      <UButton
+        :loading="status == 'pending'"
+        label="Добавить запись"
+        icon="i-lucide-file-plus"
+        variant="ghost"
+      />
+    </div>
     <template #body>
-      <!-- Выводим форму для редактирования данных внутри модального окна -->
       <slot name="form" :form-content="item" :submit-item="submitItem" />
     </template>
   </UModal>

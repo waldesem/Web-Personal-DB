@@ -1,24 +1,19 @@
-export type DivsItems =
-  | "staffs"
-  | "educations"
-  | "workplaces"
-  | "documents"
-  | "addresses"
-  | "contacts"
-  | "previous"
-  | "affilations";
+export interface Login {
+  username: string;
+  password: string;
+  new_pswd: string;
+  conf_pswd: string;
+}
 
-export type PillsItems =
-  | "checks"
-  | "poligrafs"
-  | "investigations"
-  | "inquiries";
 
-export interface Token {
-  id: string;
+export interface UserForm {
   fullname: string;
   username: string;
   email: string;
+}
+
+export interface Token extends UserForm {
+  id: string;
   role: Roles;
   exp: number;
 }

@@ -1,16 +1,10 @@
 <script setup lang="ts">
 import type { AlertProps } from "@nuxt/ui";
+import type { Login } from "@/types";
 
 // Определяем мета-данные для страницы - не показывать layout
 definePageMeta({ layout: false });
 
-// Определяем интерфейс для формы логина
-interface Login {
-  username: string;
-  password: string;
-  new_pswd: string;
-  conf_pswd: string;
-}
 
 // Объявляем переменные для формы и состояния
 const action = ref("login");

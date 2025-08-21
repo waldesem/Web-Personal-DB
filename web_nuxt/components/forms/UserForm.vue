@@ -1,11 +1,7 @@
 <script setup lang="ts">
-const emit = defineEmits(["update"]);
+import type { UserForm } from '@/types';
 
-interface UserForm {
-  fullname: string;
-  username: string;
-  email: string;
-}
+const emit = defineEmits(["update"]);
 
 const { $api } = useNuxtApp();
 

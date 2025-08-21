@@ -1,17 +1,27 @@
 <script setup lang="ts">
 import type { AccordionItem } from "@nuxt/ui";
 import type {
-  Address,
-  Affilation,
-  Contact,
-  DivsItems,
-  Education,
-  Passport,
+  // Address,
+  // Affilation,
+  // Contact,
+  // Education,
+  // Passport,
   Persons,
-  Previous,
-  Staff,
-  Work,
+  // Previous,
+  // Staff,
+  // Work,
 } from "@/types";
+
+// type SectionType = {
+//   staffs: Staff;
+//   educations: Education;
+//   workplaces: Work;
+//   documents: Passport;
+//   addresses: Address;
+//   contacts: Contact;
+//   previous: Previous;
+//   affilations: Affilation;
+// };
 
 // Используем плагин для передачи данных на сервер
 const { $api } = useNuxtApp();
@@ -71,11 +81,6 @@ async function deletePerson() {
   }
 }
 
-// Определяем интерфейс для элементов аккордеона
-interface Accordion extends AccordionItem {
-  content: DivsItems;
-}
-
 // Определяем массив элементов аккордеона
 const items = [
   {
@@ -83,50 +88,98 @@ const items = [
     label: "Должности",
     icon: "i-lucide-user",
     slot: "staffs" as const,
+    ItemComponent: defineAsyncComponent(
+      () => import("@/components/items/StaffItem.vue")
+    ),
+    FormComponent: defineAsyncComponent(
+      () => import("@/components/forms/StaffForm.vue")
+    ),
   },
   {
     content: "educations",
     label: "Образование",
     icon: "i-lucide-graduation-cap",
     slot: "educations" as const,
+    ItemComponent: defineAsyncComponent(
+      () => import("@/components/items/EducationItem.vue")
+    ),
+    FormComponent: defineAsyncComponent(
+      () => import("@/components/forms/EducationForm.vue")
+    ),
   },
   {
     content: "workplaces",
     label: "Места работы",
     icon: "i-lucide-briefcase-business",
     slot: "workplaces" as const,
+    ItemComponent: defineAsyncComponent(
+      () => import("@/components/items/WorkplaceItem.vue")
+    ),
+    FormComponent: defineAsyncComponent(
+      () => import("@/components/forms/WorkplaceForm.vue")
+    ),
   },
   {
     content: "documents",
     label: "Документы",
     icon: "i-lucide-book-text",
     slot: "documents" as const,
+    ItemComponent: defineAsyncComponent(
+      () => import("@/components/items/DocumentItem.vue")
+    ),
+    FormComponent: defineAsyncComponent(
+      () => import("@/components/forms/DocumentForm.vue")
+    ),
   },
   {
     content: "addresses",
     label: "Адреса",
     icon: "i-lucide-house",
     slot: "addresses" as const,
+    ItemComponent: defineAsyncComponent(
+      () => import("@/components/items/AddressItem.vue")
+    ),
+    FormComponent: defineAsyncComponent(
+      () => import("@/components/forms/AddressForm.vue")
+    ),
   },
   {
     content: "contacts",
     label: "Контакты",
     icon: "i-lucide-phone-call",
     slot: "contacts" as const,
+    ItemComponent: defineAsyncComponent(
+      () => import("@/components/items/ContactItem.vue")
+    ),
+    FormComponent: defineAsyncComponent(
+      () => import("@/components/forms/ContactForm.vue")
+    ),
   },
   {
     content: "previous",
     label: "Изменения имени",
     icon: "i-lucide-file-pen-line",
     slot: "previous" as const,
+    ItemComponent: defineAsyncComponent(
+      () => import("@/components/items/PreviousItem.vue")
+    ),
+    FormComponent: defineAsyncComponent(
+      () => import("@/components/forms/PreviousForm.vue")
+    ),
   },
   {
     content: "affilations",
     label: "Аффилированность",
     icon: "i-lucide-users-round",
     slot: "affilations" as const,
+    ItemComponent: defineAsyncComponent(
+      () => import("@/components/items/AffilationItem.vue")
+    ),
+    FormComponent: defineAsyncComponent(
+      () => import("@/components/forms/AffilationForm.vue")
+    ),
   },
-] satisfies Accordion[];
+] satisfies AccordionItem[];
 </script>
 
 <template>
@@ -164,123 +217,16 @@ const items = [
 
     <!-- Выводим аккордеон с данными staffs, educations и т.д. -->
     <UAccordion :items="items" :unmount-on-hide="false">
-      <!-- Элемент staffs -->
-      <template #staffs="{ item }">
+      <template v-for="data in items" #[data.slot]="{ item }" :key="data.slot">
         <ContentSharedView :view="item.content">
           <template #item="{ itemContent }">
-            <!-- Выводим элементы staffs в слоте item -->
-            <ItemsStaffItem :item="itemContent as Staff" />
+            <component :is="data.ItemComponent" :item="itemContent" />
           </template>
 
           <template #form="{ formContent, submitItem }">
-            <!-- Выводим форму для редактирования staffs в слоте form -->
-            <FormsStaffForm
-              :item="(formContent as Staff)"
-              @update="submitItem"
-            />
-          </template>
-        </ContentSharedView>
-      </template>
-
-      <template #educations="{ item }">
-        <ContentSharedView :view="item.content">
-          <template #item="{ itemContent }">
-            <ItemsEducationItem :item="itemContent as Education" />
-          </template>
-
-          <template #form="{ formContent, submitItem }">
-            <FormsEducationForm
-              :item="(formContent as Education)"
-              @update="submitItem"
-            />
-          </template>
-        </ContentSharedView>
-      </template>
-
-      <template #workplaces="{ item }">
-        <ContentSharedView :view="item.content">
-          <template #item="{ itemContent }">
-            <ItemsWorkplaceItem :item="itemContent as Work" />
-          </template>
-
-          <template #form="{ formContent, submitItem }">
-            <FormsWorkplaceForm
-              :item="(formContent as Work)"
-              @update="submitItem"
-            />
-          </template>
-        </ContentSharedView>
-      </template>
-
-      <template #documents="{ item }">
-        <ContentSharedView :view="item.content">
-          <template #item="{ itemContent }">
-            <ItemsDocumentItem :item="itemContent as Passport" />
-          </template>
-
-          <template #form="{ formContent, submitItem }">
-            <FormsDocumentForm
-              :item="(formContent as Passport)"
-              @update="submitItem"
-            />
-          </template>
-        </ContentSharedView>
-      </template>
-
-      <template #addresses="{ item }">
-        <ContentSharedView :view="item.content">
-          <template #item="{ itemContent }">
-            <ItemsAddressItem :item="itemContent as Address" />
-          </template>
-
-          <template #form="{ formContent, submitItem }">
-            <FormsAddressForm
-              :item="(formContent as Address)"
-              @update="submitItem"
-            />
-          </template>
-        </ContentSharedView>
-      </template>
-
-      <template #contacts="{ item }">
-        <ContentSharedView :view="item.content">
-          <template #item="{ itemContent }">
-            <ItemsContactItem :item="itemContent as Contact" />
-          </template>
-
-          <template #form="{ formContent, submitItem }">
-            <FormsContactForm
-              :item="(formContent as Contact)"
-              @update="submitItem"
-            />
-          </template>
-        </ContentSharedView>
-      </template>
-
-      <template #previous="{ item }">
-        <ContentSharedView :view="item.content">
-          <template #item="{ itemContent }">
-            <ItemsPreviousItem :item="itemContent as Previous" />
-          </template>
-
-          <template #form="{ formContent, submitItem }">
-            <FormsPreviousForm
-              :item="(formContent as Previous)"
-              @update="submitItem"
-            />
-          </template>
-        </ContentSharedView>
-      </template>
-
-      <template #affilations="{ item }">
-        <ContentSharedView :view="item.content">
-          <template #item="{ itemContent }">
-            <ItemsAffilationItem :item="itemContent as Affilation" />
-          </template>
-
-          <template #form="{ formContent, submitItem }">
-            <FormsAffilationForm
-              :item="(formContent as Affilation)"
+            <component
+              :is="data.FormComponent"
+              :item="formContent"
               @update="submitItem"
             />
           </template>

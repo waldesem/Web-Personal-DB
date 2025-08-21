@@ -11,12 +11,9 @@ const props = defineProps({
   },
 });
 
-const docForm = computed(() => {
-  return {
-    ...props.item,
-    issue: useDateFormat(props.item.issue, "YYYY-MM-DD").value,
-  };
-});
+const docForm = toRef(props.item);
+// Преобразуем дату в формат YYYY-MM-DD
+docForm.value.issue = useDateFormat(props.item.issue, "YYYY-MM-DD").value;
 </script>
 
 <template>

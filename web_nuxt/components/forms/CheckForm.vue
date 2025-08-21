@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Verification } from '@/types';
+import type { Verification } from "@/types";
 import { Conclusions } from "@/types";
 
 const emit = defineEmits(["update"]);
@@ -13,20 +13,7 @@ const props = defineProps({
 
 const checkForm = toRef(props.item as Verification);
 
-const textAreas = {
-  workplace: "Проверка по местам работы",
-  document: "Проверка документов",
-  debt: "Проверка задолженностей",
-  bankruptcy: "Проверка банкротства",
-  bki: "Проверка Кредитной истории",
-  courts: "Проверка судебных дел",
-  affilation: "Проверка аффилированности",
-  terrorist: "Проверка в списке террористов",
-  internet: "Проверка в открытых источниках",
-  cronos: "Проверка в Кронос",
-  addition: "Дополнительная информация",
-};
-
+// Переключатель для автоматического заполнения полей по умолчанию
 const noNegative = ref(false);
 
 watch(noNegative, () => {
@@ -52,15 +39,76 @@ watch(noNegative, () => {
     <USwitch v-model="noNegative" />
   </UFormField>
   <UForm :state="checkForm" @submit.prevent="emit('update', checkForm)">
-    <div v-for="(value, key) in textAreas" :key="key">
-      <UFormField :label="value" :name="key">
-        <UTextarea
-          v-model.trim.lazy="checkForm[key]"
-          autoresize
-          :placeholder="value"
-        />
-      </UFormField>
-    </div>
+    <UFormField label="Проверка по местам работы" name="workplace">
+      <UTextarea
+        v-model.trim.lazy="checkForm.workplace"
+        autoresize
+        placeholder="Проверка по местам работы"
+      />
+    </UFormField>
+    <UFormField label="Проверка документов" name="document">
+      <UTextarea
+        v-model.trim.lazy="checkForm.document"
+        autoresize
+        placeholder="Проверка документов"
+      />
+    </UFormField>
+    <UFormField label="Проверка задолженностей" name="debt">
+      <UTextarea
+        v-model.trim.lazy="checkForm.debt"
+        autoresize
+        placeholder="Проверка задолженностей"
+      />
+    </UFormField>
+    <UFormField label="Проверка банкротства" name="bankruptcy">
+      <UTextarea
+        v-model.trim.lazy="checkForm.bankruptcy"
+        autoresize
+        placeholder="Проверка банкротства"
+      />
+    </UFormField>
+    <UFormField label="Проверка Кредитной истории" name="bki">
+      <UTextarea
+        v-model.trim.lazy="checkForm.bki"
+        autoresize
+        placeholder="Проверка Кредитной истории"
+      />
+    </UFormField>
+    <UFormField label="Проверка судебных дел" name="courts">
+      <UTextarea
+        v-model.trim.lazy="checkForm.courts"
+        autoresize
+        placeholder="Проверка судебных дел"
+      />
+    </UFormField>
+    <UFormField label="Проверка аффилированности" name="affilation">
+      <UTextarea
+        v-model.trim.lazy="checkForm.affilation"
+        autoresize
+        placeholder="Проверка аффилированности"
+      />
+    </UFormField>
+    <UFormField label="Проверка в списке террористов" name="terrorist">
+      <UTextarea
+        v-model.trim.lazy="checkForm.terrorist"
+        autoresize
+        placeholder="Проверка в списке террористов"
+      />
+    </UFormField>
+    <UFormField label="Проверка в открытых источниках" name="internet">
+      <UTextarea
+        v-model.trim.lazy="checkForm.internet"
+        autoresize
+        placeholder="Проверка в открытых источниках"
+      />
+    </UFormField>
+    <UFormField label="Проверка в Кронос" name="cronos">
+      <UTextarea
+        v-model.trim.lazy="checkForm.cronos"
+        autoresize
+        placeholder="Проверка в Кронос"
+      />
+    </UFormField>
     <UFormField label="Результат" name="conclusion" required>
       <USelect
         v-model="checkForm.conclusion"

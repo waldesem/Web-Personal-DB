@@ -6,7 +6,6 @@ import type {
   Needs,
   Persons,
   Pfo,
-  PillsItems,
   Verification,
 } from "@/types";
 
@@ -100,11 +99,6 @@ onChange(async (files) => {
   }
 });
 
-// Определяем интерфейс для элементов табов
-interface Pills extends TabsItem {
-  slot: PillsItems | "person";
-}
-
 // Определяем массив элементов табов
 const items = [
   {
@@ -132,7 +126,7 @@ const items = [
     icon: "i-lucide-book-text",
     slot: "inquiries" as const,
   },
-] satisfies Pills[];
+] satisfies TabsItem[];
 </script>
 
 <template>

@@ -11,13 +11,15 @@ const props = defineProps({
   },
 });
 
-const workForm = computed(() => {
-  return {
-    ...props.item,
-    starts: useDateFormat(props.item.starts, "YYYY-MM-DD").value,
-    finished: useDateFormat(props.item.finished, "YYYY-MM-DD").value,
-  };
-});
+const workForm = toRef(props.item);
+// Преобразование даты в формат YYYY-MM-DD для корректного отображения в форме
+workForm.value.starts = !workForm.value.now_work
+  ? useDateFormat(props.item.starts, "YYYY-MM-DD").value
+  : "";
+workForm.value.finished = useDateFormat(
+  props.item.finished,
+  "YYYY-MM-DD"
+).value;
 </script>
 
 <template>
@@ -25,7 +27,12 @@ const workForm = computed(() => {
     <UFormField label="Текущая работа" name="now_work">
       <UCheckbox v-model="workForm.now_work" />
     </UFormField>
-    <UFormField label="Начало работы" name="starts" required>
+    <UFormField
+      v-if="!workForm.now_work"
+      label="Начало работы"
+      name="starts"
+      required
+    >
       <UInput
         v-model="workForm.starts"
         placeholder="Начало работы"
