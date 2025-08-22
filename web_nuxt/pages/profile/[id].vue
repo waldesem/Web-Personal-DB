@@ -1,13 +1,6 @@
 <script setup lang="ts">
 import { useFileDialog } from "@vueuse/core";
-import type { TabsItem } from "@nuxt/ui";
-import type {
-  Inquisition,
-  Needs,
-  Persons,
-  Pfo,
-  Verification,
-} from "@/types";
+import type { Persons } from "@/types";
 
 // Презагрузка компонентов
 await preloadComponents(["ContentAnketaTab", "ContentSharedView"]);
@@ -102,31 +95,67 @@ onChange(async (files) => {
 // Определяем массив элементов табов
 const items = [
   {
+    content: "person",
     label: "Анкета",
     icon: "i-lucide-user",
     slot: "person" as const,
   },
   {
+    content: "checks",
     label: "Проверки",
     icon: "i-lucide-circle-check-big",
     slot: "checks" as const,
+    ItemComponent: defineAsyncComponent(
+      () => import("@/components/items/CheckItem.vue")
+    ),
+    FormComponent: defineAsyncComponent(
+      () => import("@/components/forms/CheckForm.vue")
+    ),
   },
   {
+    content: "poligrafs",
     label: "Полиграф",
     icon: "i-lucide-heart-pulse",
     slot: "poligrafs" as const,
+    ItemComponent: defineAsyncComponent(
+      () => import("@/components/items/PoligrafItem.vue")
+    ),
+    FormComponent: defineAsyncComponent(
+      () => import("@/components/forms/PoligrafForm.vue")
+    ),
   },
   {
+    content: "investigations",
     label: "Расследования",
     icon: "i-lucide-briefcase-business",
     slot: "investigations" as const,
+    ItemComponent: defineAsyncComponent(
+      () => import("@/components/items/InquestItem.vue")
+    ),
+    FormComponent: defineAsyncComponent(
+      () => import("@/components/forms/InquestForm.vue")
+    ),
   },
   {
+    content: "inquiries",
     label: "Запросы",
     icon: "i-lucide-book-text",
     slot: "inquiries" as const,
+    ItemComponent: defineAsyncComponent(
+      () => import("@/components/items/InquiryItem.vue")
+    ),
+    FormComponent: defineAsyncComponent(
+      () => import("@/components/forms/InquiryForm.vue")
+    ),
   },
-] satisfies TabsItem[];
+] satisfies {
+  content: string;
+  label: string;
+  icon: string;
+  slot: string;
+  ItemComponent?: Component;
+  FormComponent?: Component;
+}[];
 </script>
 
 <template>
@@ -184,66 +213,23 @@ const items = [
         <ContentAnketaTab :person="(data ?? {} as Persons)" :status="status" />
       </template>
 
-      <!-- Вкладка для отображения проверок -->
-      <template #checks="{ item }">
-        <ContentSharedView :view="item.slot" :rows="16">
-          <!-- Отображаем элементы проверки -->
+      <template
+        v-for="tab in items.slice(1)"
+        #[tab.slot]="{ item }"
+        :key="tab.slot"
+      >
+        <ContentSharedView :view="item.content">
           <template #item="{ itemContent }">
-            <ItemsCheckItem :item="(itemContent as Verification)" />
-          </template>
-
-          <!-- Отображаем форму проверки -->
-          <template #form="{ formContent, submitItem }">
-            <FormsCheckForm
-              :item="(formContent as Verification)"
-              @update="submitItem"
+            <component
+              :is="tab.ItemComponent"
+              :item="(itemContent as unknown as undefined)"
             />
           </template>
-        </ContentSharedView>
-      </template>
-
-      <!-- Вкладка для отображения полиграфов -->
-      <template #poligrafs="{ item }">
-        <ContentSharedView :view="item.slot" :rows="4">
-          <template #item="{ itemContent }">
-            <ItemsPoligrafItem :item="(itemContent as Pfo)" />
-          </template>
 
           <template #form="{ formContent, submitItem }">
-            <FormsPoligrafForm
-              :item="(formContent as Pfo)"
-              @update="submitItem"
-            />
-          </template>
-        </ContentSharedView>
-      </template>
-
-      <!-- Вкладка для отображения расследований -->
-      <template #investigations="{ item }">
-        <ContentSharedView :view="item.slot" :rows="3">
-          <template #item="{ itemContent }">
-            <ItemsInquestItem :item="(itemContent as Inquisition)" />
-          </template>
-
-          <template #form="{ formContent, submitItem }">
-            <FormsInquestForm
-              :item="(formContent as Inquisition)"
-              @update="submitItem"
-            />
-          </template>
-        </ContentSharedView>
-      </template>
-
-      <!-- Вкладка для отображения запросов -->
-      <template #inquiries="{ item }">
-        <ContentSharedView :view="item.slot" :rows="3">
-          <template #item="{ itemContent }">
-            <ItemsInquiryItem :item="(itemContent as Needs)" />
-          </template>
-
-          <template #form="{ formContent, submitItem }">
-            <FormsInquiryForm
-              :item="(formContent as Needs)"
+            <component
+              :is="tab.FormComponent"
+              :item="(formContent as unknown as undefined)"
               @update="submitItem"
             />
           </template>

@@ -33,9 +33,9 @@ useHead({
 .page-leave-to {
   opacity: 0;
 }
-/* 
+
 html,
 body {
   scrollbar-gutter: stable;
-} */
+}
 </style>

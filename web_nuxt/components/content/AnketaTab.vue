@@ -1,27 +1,5 @@
 <script setup lang="ts">
-import type { AccordionItem } from "@nuxt/ui";
-import type {
-  // Address,
-  // Affilation,
-  // Contact,
-  // Education,
-  // Passport,
-  Persons,
-  // Previous,
-  // Staff,
-  // Work,
-} from "@/types";
-
-// type SectionType = {
-//   staffs: Staff;
-//   educations: Education;
-//   workplaces: Work;
-//   documents: Passport;
-//   addresses: Address;
-//   contacts: Contact;
-//   previous: Previous;
-//   affilations: Affilation;
-// };
+import type { Persons } from "@/types";
 
 // Используем плагин для передачи данных на сервер
 const { $api } = useNuxtApp();
@@ -179,7 +157,14 @@ const items = [
       () => import("@/components/forms/AffilationForm.vue")
     ),
   },
-] satisfies AccordionItem[];
+] satisfies {
+  content: string;
+  label: string;
+  icon: string;
+  slot: string;
+  ItemComponent?: Component;
+  FormComponent?: Component;
+}[];
 </script>
 
 <template>
@@ -217,16 +202,23 @@ const items = [
 
     <!-- Выводим аккордеон с данными staffs, educations и т.д. -->
     <UAccordion :items="items" :unmount-on-hide="false">
-      <template v-for="data in items" #[data.slot]="{ item }" :key="data.slot">
+      <template
+        v-for="accord in items"
+        #[accord.slot]="{ item }"
+        :key="accord.slot"
+      >
         <ContentSharedView :view="item.content">
           <template #item="{ itemContent }">
-            <component :is="data.ItemComponent" :item="itemContent" />
+            <component
+              :is="accord.ItemComponent"
+              :item="(itemContent as unknown as undefined)"
+            />
           </template>
 
           <template #form="{ formContent, submitItem }">
             <component
-              :is="data.FormComponent"
-              :item="formContent"
+              :is="accord.FormComponent"
+              :item="(formContent as unknown as undefined)"
               @update="submitItem"
             />
           </template>
