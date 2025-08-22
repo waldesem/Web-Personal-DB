@@ -7,8 +7,7 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare",
-    "redoc": "bunx @redocly/cli build-docs openapi.yaml -o=../server_flask/app/static/redoc.html --disableGoogleFont=true"
+    "postinstall": "nuxt prepare"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.63",
@@ -23,7 +22,6 @@
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.9.0",
-    "redoc": "^2.5.0",
     "tsx": "^4.20.4",
     "vue-tsc": "^3.0.6"
   }

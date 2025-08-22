@@ -1,0 +1,1 @@
+import{f as s,o as _,p as r}from"./u7W8rDDj.js";const a=(n,o)=>{const t=n.__vccOpts||n;for(const[c,e]of o)t[c]=e;return t},m={};function u(n,o){const t=r;return _(),s(t,{label:"Принять",color:"success",variant:"outline",type:"submit"})}const p=Object.assign(a(m,[["render",u]]),{__name:"ElementsSubmitButton"});export{p as _};

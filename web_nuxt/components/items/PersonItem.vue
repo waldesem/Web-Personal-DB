@@ -32,7 +32,7 @@ function handleClick() {
   <ElementsLabelValue label="Место рождения" :value="props.item.birthplace" />
   <ElementsLabelValue label="Гражданство" :value="props.item.citizenship" />
   <ElementsLabelSlot v-if="props.item.dual" label="Двойное гражданство">
-    <UBadge variant="outline" color="error" :value="props.item.dual" />
+    <UBadge variant="outline" color="error" :label="props.item.dual" />
   </ElementsLabelSlot>
   <ElementsLabelValue label="СНИЛС" :value="props.item.snils" />
   <ElementsLabelValue label="ИНН" :value="props.item.inn" />
