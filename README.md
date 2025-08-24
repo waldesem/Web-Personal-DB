@@ -46,19 +46,14 @@ flask command schemas
 
 ### Build frontend
 
-First you need install Bun - an all-in-one toolkit for JavaScript and TypeScript apps.
+First you need install Node.js a JavaScript runtime environment. Then:
 ```
-curl -fsSL https://bun.com/install | bash
 cd Web-Personal-DB/web_nuxt
-bun i
+npm i
 ```
 To build Nuxt3 with Client-side Only Rendering:
 ```
-bunx nuxi generate
-```
-To generate OpenAPI run:
-```
-bun run redoc
+npx nuxi generate
 ```
 Builded files can be found in `server_flask/app/static`.
 
