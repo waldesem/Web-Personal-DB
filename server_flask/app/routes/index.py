@@ -144,18 +144,6 @@ def post_files(person_id: int) -> tuple[dict, int]:
     return {"message": "error"}, 200
 
 
-@bp.post("/api/json")
-@pydantify(BaseResponse)
-@auth_required(Roles.api.value)
-def post_json_api(json_data: AnketaJson) -> tuple[dict, int]:
-    """Create a new person or updates an existing person from api."""
-    result = post_json(json_data)
-    return (
-        {"message": "success" if result.get("person_id") else "error"},
-        201 if result.get("person_id") else 400,
-    )
-
-
 @bp.post("/json")
 @pydantify(ResumeResponse)
 @auth_required(Roles.user.value)
