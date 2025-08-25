@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { refDebounced, useIdle, useFileDialog } from "@vueuse/core";
+import { refDebounced, useFileDialog } from "@vueuse/core";
 import type { TableColumn } from "@nuxt/ui";
 import type { Candidate } from "@/types";
 
@@ -8,9 +8,6 @@ await preloadRouteComponents("/profile/[id]");
 
 // Используем плагин для передачи данных на сервер
 const { $api } = useNuxtApp();
-
-// Отслеживаем неактивность пользователя в течение 15 минут
-const { idle } = useIdle(15 * 60 * 1000);
 
 // Объявляем переменные рендера компонентов
 const NuxtTime = resolveComponent("NuxtTime");
@@ -42,7 +39,7 @@ const { data, status, refresh } = await useLazyAsyncData(
     return response as Candidate[];
   },
   // Наблюдаем: активность пользователя, переключение страницы, изменение строки поиска.
-  { watch: [idle, page, refDebounced(search, 1000)] }
+  { watch: [page, refDebounced(search, 1000)] }
 );
 
 // Определяем обработчики диалогового окна для загрузки JSON
