@@ -11,7 +11,7 @@ const props = defineProps({
   },
 });
 
-const poligrafForm = toRef(props.item as Pfo);
+const poligrafForm = toRef(props.item);
 </script>
 
 <template>

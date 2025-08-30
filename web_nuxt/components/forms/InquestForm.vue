@@ -10,7 +10,7 @@ const props = defineProps({
   },
 });
 
-const investigationForm = toRef(props.item as Inquisition);
+const investigationForm = toRef(props.item);
 </script>
 
 <template>

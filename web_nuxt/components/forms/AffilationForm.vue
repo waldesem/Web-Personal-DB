@@ -10,7 +10,7 @@ const props = defineProps({
   },
 });
 
-const affilForm = toRef(props.item as Affilation);
+const affilForm = toRef(props.item);
 </script>
 
 <template>

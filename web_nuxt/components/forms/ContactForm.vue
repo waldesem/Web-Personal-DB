@@ -11,7 +11,7 @@ const props = defineProps({
   },
 });
 
-const contactForm = toRef(props.item as Contact);
+const contactForm = toRef(props.item);
 </script>
 
 <template>

@@ -10,7 +10,7 @@ const props = defineProps({
   },
 });
 
-const staffForm = toRef(props.item as Staff);
+const staffForm = toRef(props.item);
 </script>
 
 <template>

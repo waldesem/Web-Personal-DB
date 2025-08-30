@@ -11,7 +11,7 @@ const props = defineProps({
   },
 });
 
-const checkForm = toRef(props.item as Verification);
+const checkForm = toRef(props.item);
 
 // Переключатель для автоматического заполнения полей по умолчанию
 const noNegative = ref(false);

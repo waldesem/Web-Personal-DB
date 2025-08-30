@@ -10,7 +10,7 @@ const props = defineProps({
   },
 });
 
-const educationForm = toRef(props.item as Education);
+const educationForm = toRef(props.item);
 </script>
 
 <template>

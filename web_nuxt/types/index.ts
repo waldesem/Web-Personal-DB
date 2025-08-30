@@ -5,7 +5,6 @@ export interface Login {
   conf_pswd: string;
 }
 
-
 export interface UserForm {
   fullname: string;
   username: string;
@@ -27,7 +26,7 @@ export interface User extends Token {
   attempt: string;
 }
 
-export interface Candidate {
+export interface Persons {
   id: string;
   surname: string;
   firstname: string;
@@ -44,16 +43,17 @@ export interface Candidate {
   editable: boolean;
   created: string;
   user_id: string;
+}
+
+export interface Candidate extends Persons {
   username: string;
   total: number;
 }
 
-export type Persons = Omit<Candidate, "username" | "total">;
-
 export interface Previous {
   id: string;
-  surname: string;
-  firstname: string;
+  surname?: string;
+  firstname?: string;
   patronymic?: string;
   changed?: string;
   reason?: string;
@@ -62,20 +62,20 @@ export interface Education {
   id: string;
   view: string;
   institution: string;
-  finished: string;
+  finished?: string;
   specialty: string;
 }
 
 export interface Staff {
   id: string;
   position: string;
-  department: string;
+  department?: string;
 }
 
 export interface Passport {
   id: string;
   view: string;
-  series: string;
+  series?: string;
   digits: string;
   agency: string;
   issue: string;
@@ -97,10 +97,10 @@ export interface Work {
   id: string;
   now_work: boolean;
   starts: string;
-  finished: string;
+  finished?: string;
   workplace: string;
-  address: string;
-  reason: string;
+  address?: string;
+  reason?: string;
   position: string;
   created: string;
 }
@@ -109,27 +109,26 @@ export interface Affilation {
   id: string;
   view: string;
   organization: string;
-  inn: string;
+  inn?: string;
 }
 
 export interface Verification {
   id: string;
-  workplace: string;
-  document: string;
-  inn: string;
-  debt: string;
-  bankruptcy: string;
-  bki: string;
-  courts: string;
-  affilation: string;
-  terrorist: string;
-  mvd: string;
-  internet: string;
-  cronos: string;
-  cros: string;
-  addition: string;
+  workplace?: string;
+  document?: string;
+  inn?: string;
+  debt?: string;
+  bankruptcy?: string;
+  bki?: string;
+  courts?: string;
+  affilation?: string;
+  terrorist?: string;
+  mvd?: string;
+  internet?: string;
+  cronos?: string;
+  addition?: string;
   conclusion: Conclusions;
-  comment: string;
+  comment?: string;
   created: string;
 }
 
@@ -152,7 +151,7 @@ export interface Needs {
   id: string;
   info: string;
   initiator: string;
-  origins: string;
+  origins?: string;
   created: string;
 }
 

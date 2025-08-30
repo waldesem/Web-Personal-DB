@@ -10,7 +10,7 @@ const props = defineProps({
   },
 });
 
-const addressForm = toRef(props.item as Address);
+const addressForm = toRef(props.item);
 </script>
 
 <template>

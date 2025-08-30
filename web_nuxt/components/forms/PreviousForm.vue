@@ -10,7 +10,7 @@ const props = defineProps({
   },
 });
 
-const previousForm = toRef(props.item as Previous);
+const previousForm = toRef(props.item);
 </script>
 
 <template>
