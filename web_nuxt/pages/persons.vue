@@ -177,6 +177,7 @@ const columns: TableColumn<Candidate>[] = [
 </script>
 
 <template>
+  <ElementsLoadModal :modal="status=== 'pending'"/>
   <div class="py-4">
     <div class="flex items-center justify-between mb-3">
       <h3 class="text-2xl text-red-800 font-bold">КАНДИДАТЫ</h3>
