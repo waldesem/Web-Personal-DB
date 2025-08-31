@@ -15,6 +15,7 @@
     "@nuxt/ui": "^3.3.2",
     "@vueuse/core": "^13.7.0",
     "@vueuse/nuxt": "^13.7.0",
+    "db0": "^0.3.2",
     "jwt-decode": "^4.0.0",
     "nuxt": "^4.0.3",
     "nuxt-security": "^2.4.0",

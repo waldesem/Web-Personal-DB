@@ -9,7 +9,7 @@ export default defineNuxtConfig({
     pageTransition: { name: "page", mode: "out-in" },
     head: {
       title: "StaffSec - кадровая безопасность",
-    }
+    },
   },
   build: {
     analyze: true,
@@ -24,6 +24,18 @@ export default defineNuxtConfig({
   },
   modules: ["@nuxt/ui", "@nuxt/eslint", "@vueuse/nuxt", "nuxt-security"],
   nitro: {
+    // database: {
+    //   default: {
+    //     connector: "sqlite",
+    //     options: {
+    //       name: "database.db",
+    //       path: "/home/semenenko/MyProjects/Web-Personal-DB/server_flask/PersonalDB/database.db",
+    //     },
+    //   },
+    // },
+    // experimental: {
+    //   database: true,
+    // },
     output: {
       publicDir: "../server_flask/app/static",
     },
