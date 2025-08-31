@@ -177,7 +177,6 @@ const columns: TableColumn<Candidate>[] = [
 </script>
 
 <template>
-  <ElementsLoadModal :modal="status=== 'pending'"/>
   <div class="py-4">
     <div class="flex items-center justify-between mb-3">
       <h3 class="text-2xl text-red-800 font-bold">КАНДИДАТЫ</h3>
@@ -221,7 +220,8 @@ const columns: TableColumn<Candidate>[] = [
     <UTable
       v-model:expanded="expanded"
       :loading="status === 'pending'"
-      loading-animation="carousel"
+      :loading-color="'neutral'"
+      loading-animation="swing"
       empty="Данные не найдены"
       :columns="columns"
       :data="data"
@@ -231,6 +231,9 @@ const columns: TableColumn<Candidate>[] = [
       <!-- Выводим подробную информацию о кандидате -->
       <template #expanded="{ row }">
         <UCard><ItemsPersonItem :item="row.original" /></UCard>
+      </template>
+      <template #loading>
+        <UIcon name="i-lucide-refresh-ccw" size="32" mode="css" class="animate-spin" />
       </template>
     </UTable>
 
