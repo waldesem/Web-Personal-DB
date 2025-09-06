@@ -26,9 +26,9 @@ const search = ref(""); // Поисковый запрос
 const updated = ref(Date.now()); // Дата обновления данных
 
 // Определяем функцию для получения списка кандидатов из API
-const { data, status, refresh } = await useLazyAsyncData(
+const { data, status, refresh } = useLazyAsyncData(
   async () => {
-    const response = await $api("/routes/persons", {
+    const response = await $api("/routes/candidates", {
       query: {
         page: page.value,
         per_page: per_page,
