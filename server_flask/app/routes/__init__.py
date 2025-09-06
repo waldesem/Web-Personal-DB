@@ -8,7 +8,7 @@ from .login import bp as login_bp
 from .person import bp as person_bp
 from .user import bp as user_bp
 
-bp = Blueprint("route", __name__, url_prefix="/route")
+bp = Blueprint("routes", __name__, url_prefix="/routes")
 
 bp.register_blueprint(items_bp)
 bp.register_blueprint(login_bp)

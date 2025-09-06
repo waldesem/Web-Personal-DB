@@ -24,7 +24,7 @@ async function submitPerson() {
   const { person_id, exists } = await $api<{
     person_id: number;
     exists: boolean;
-  }>("/route/persons", {
+  }>("/routes/persons", {
     method: "POST",
     body: resumeForm.value,
   });

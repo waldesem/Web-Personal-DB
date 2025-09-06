@@ -9,7 +9,7 @@ async function logout() {
   if (!confirm("Вы действительно хотите выйти?")) return;
   const token = useCookie("token");
   const refresh = useCookie("refresh");
-  await $fetch("/route/auth/logout", {
+  await $fetch("/routes/auth/logout", {
     method: "POST",
     body: {
       access_token: token.value,

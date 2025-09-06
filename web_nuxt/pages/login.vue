@@ -50,7 +50,7 @@ const validate = (state: Partial<Login>) => {
 // Объявляем функцию для отправки формы
 async function submitLogin() {
   const { message, access_token, refresh_token } = (await $fetch(
-    "/route/auth/" + action.value,
+    "/routes/auth/" + action.value,
     {
       method: "POST",
       body: loginForm.value,

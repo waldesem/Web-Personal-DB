@@ -41,7 +41,8 @@ export default defineNuxtConfig({
     },
   },
   routeRules: {
-    "/route/**": { proxy: "http://127.0.0.1:5000/route/**" },
+    "/routes/**": { proxy: "http://127.0.0.1:5000/routes/**" },
+    // "/routes/**": { proxy: "http://127.0.0.1:3000/api/**" },
   },
   ssr: false,
   vite: {

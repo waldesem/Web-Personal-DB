@@ -40,7 +40,7 @@ from app.utils.utilities import check_filename, create_destination, upload_resum
 bp = Blueprint("route", __name__)
 
 
-@bp.get("/index")
+@bp.get("/persons")
 @pydantify(Candidates, orm=True, many=True)
 @auth_required()
 def get_index(json_query: Index) -> tuple[list[Persons], int]:

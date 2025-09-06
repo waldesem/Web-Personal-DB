@@ -19,7 +19,7 @@ provide("candId", candId);
 
 // Определяем функцию для получения данных из API
 const { data, status, refresh } = await useAsyncData("persons", async () => {
-  return (await $api("/route/persons/" + candId.value)) as Persons;
+  return (await $api("/routes/persons/" + candId.value)) as Persons;
 });
 
 // Вычисляем статус редактирования анкеты
@@ -53,7 +53,7 @@ async function switchSelf(): Promise<void> {
   }
   status.value = "pending";
   const { message } = await $api<Record<string, string>>(
-    "/route/self/" + data.value?.id
+    "/routes/self/" + data.value?.id
   );
   status.value = message as "success" | "error";
   if (message == "success") {

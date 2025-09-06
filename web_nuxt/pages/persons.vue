@@ -28,7 +28,7 @@ const updated = ref(Date.now()); // Дата обновления данных
 // Определяем функцию для получения списка кандидатов из API
 const { data, status, refresh } = await useLazyAsyncData(
   async () => {
-    const response = await $api("/route/index", {
+    const response = await $api("/routes/persons", {
       query: {
         page: page.value,
         per_page: per_page,
@@ -41,7 +41,6 @@ const { data, status, refresh } = await useLazyAsyncData(
   // Наблюдаем: активность пользователя, переключение страницы, изменение строки поиска.
   { watch: [page, refDebounced(search, 1000)] }
 );
-
 // Определяем обработчики диалогового окна для загрузки JSON
 const { open, onChange } = useFileDialog({
   accept: ".json",
@@ -58,7 +57,7 @@ onChange(async (files) => {
   const { person_id, exists } = await $api<{
     person_id: string;
     exists: boolean;
-  }>("/route/json", {
+  }>("/routes/json", {
     method: "POST",
     body: files[0],
   });

@@ -19,14 +19,14 @@ const globalFilter = ref("");
 
 // Определяем функцию для получения данных из API
 const { data, status, refresh } = await useLazyAsyncData(async () => {
-  return await $api("/route/users") as User[];
+  return await $api("/routes/users") as User[];
 });
 
 // Объявляем функцию для действия с пользователем
 async function userAction(item: string, user_id: string) {
   if (!confirm("Подтвердите выполнение действия")) return;
   const { message } = await $api<Record<string, string>>(
-    "/route/user/" + user_id,
+    "/routes/user/" + user_id,
     {
       method: "POST",
       body: { item: item },

@@ -25,7 +25,7 @@ const validate = (state: Partial<UserForm>) => {
 };
 
 async function submitUser() {
-  const { message } = await $api<Record<string, string>>("/route/user", {
+  const { message } = await $api<Record<string, string>>("/routes/user", {
     method: "POST",
     body: form.value,
   });

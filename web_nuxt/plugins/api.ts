@@ -26,7 +26,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       if (!token.value) {
         try {
           // Запрашиваем новый токен доступа с помощью токена обновления
-          const { access_token } = (await $fetch("/route/auth/refresh", {
+          const { access_token } = (await $fetch("/routes/auth/refresh", {
             headers: {
               Authorization: "Bearer " + refresh.value,
             },
