@@ -45,7 +45,7 @@ async function deletePerson() {
   if (!confirm("Все данные будут удалены безвозвратно!?")) return;
   status.value = "pending";
   const { message } = await $api<Record<string, string>>(
-    `/route/persons/${props.person.id}`,
+    `/routes/persons/${props.person.id}`,
     {
       method: "DELETE",
     }

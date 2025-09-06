@@ -78,7 +78,7 @@ onChange(async (files) => {
     formData.append("file", file);
   }
   const { message } = await $api<Record<string, string>>(
-    `/route/files/${candId.value}`,
+    `/routes/files/${candId.value}`,
     {
       method: "POST",
       body: formData,

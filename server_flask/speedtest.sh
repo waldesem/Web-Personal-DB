@@ -1,6 +1,6 @@
 #!/bin/bash
 REQUESTS=1000
-URL="http://localhost:5000/route/test" 
+URL="http://localhost:5000/routes/test" 
 TOKEN=""
 
 start_time=$(date +%s.%N)  # Измеряем время с микросекундами
