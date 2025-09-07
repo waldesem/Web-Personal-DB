@@ -24,25 +24,12 @@ export default defineNuxtConfig({
   },
   modules: ["@nuxt/ui", "@nuxt/eslint", "@vueuse/nuxt", "nuxt-security"],
   nitro: {
-    // database: {
-    //   default: {
-    //     connector: "sqlite",
-    //     options: {
-    //       name: "database.db",
-    //       path: "/home/semenenko/MyProjects/Web-Personal-DB/server_flask/PersonalDB/database.db",
-    //     },
-    //   },
-    // },
-    // experimental: {
-    //   database: true,
-    // },
     output: {
       publicDir: "../server_flask/app/static",
     },
   },
   routeRules: {
     "/routes/**": { proxy: "http://127.0.0.1:5000/routes/**" },
-    // "/routes/**": { proxy: "http://127.0.0.1:3000/api/**" },
   },
   ssr: false,
   vite: {
