@@ -26,7 +26,7 @@ const modal = ref(false); // Флаг для открытия модальног
 const { data, status, refresh } = await useLazyAsyncData(
   props.view,
   async () => {
-    return (await $api(`/routes/${props.view}/${candId.value}`)) as object[];
+    return (await $api(`/routes/items/${props.view}/${candId.value}`)) as object[];
   }
 );
 
@@ -35,7 +35,7 @@ async function submitItem(form: typeof item.value) {
   modal.value = false;
   status.value = "pending";
   const { message } = await $api<Record<string, string>>(
-    `/routes/${props.view}/${candId.value}`,
+    `/routes/items/${props.view}/${candId.value}`,
     {
       method: "POST",
       body: form,
@@ -56,7 +56,7 @@ async function deleteItem(id: string) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   status.value = "pending";
   const { message } = await $api<Record<string, string>>(
-    `/routes/${props.view}/${id}`,
+    `/routes/items/${props.view}/${id}`,
     {
       method: "DELETE",
     }

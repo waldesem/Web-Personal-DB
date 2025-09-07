@@ -4,10 +4,6 @@ export default defineEventHandler(async (event) => {
   const itemId = getRouterParam(event, "id");
   const item = getRouterParam(event, "item");
 
-  const stmt = db.prepare(`DELETE FROM ${item} WHERE id = ?`);
-  await stmt.run(itemId);
-
-  return {
-    message: "success",
-  };
+  const stmt = db.prepare(`SELECT * FROM ${item} WHERE id = ?`);
+  return await stmt.get(itemId);
 });

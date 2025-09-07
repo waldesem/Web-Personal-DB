@@ -39,7 +39,7 @@ from app.tables.tables import (
     Workplaces,
 )
 
-bp = Blueprint("items", __name__)
+bp = Blueprint("items", __name__, url_prefix="/items")
 
 Items = Literal[
     "addresses",
