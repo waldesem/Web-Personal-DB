@@ -6,9 +6,9 @@ export function useToasts(
   description = "Невозможно выполнить действие или операция завершилсь ошибкой"
 ) {
   const icon = {
-    error: "i-heroicons-exclamation-triangle",
-    info: "i-heroicons-exclamation-circle",
-    success: "i-heroicons-information-circle",
+    error: "i-lucide-triangle-alert",
+    info: "i-lucide-octagon-alert",
+    success: "i-lucide-circle-alert",
   };
   const title = {
     error: "Ошибка",

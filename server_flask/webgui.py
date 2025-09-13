@@ -12,9 +12,12 @@ import tempfile
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import psutil
-from flask import Flask  # noqa: TC002
+
+if TYPE_CHECKING:
+    from flask import Flask
 
 
 def start_browser(address: str, port: int) -> None:
