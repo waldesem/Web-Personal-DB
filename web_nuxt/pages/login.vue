@@ -148,7 +148,7 @@ async function submitLogin() {
                   v-model="loginForm.new_pswd"
                   type="password"
                   placeholder="Новый пароль"
-                  icon="i-i-lucide-lock-keyhole"
+                  icon="i-lucide-lock-keyhole"
                   required
                 />
               </UFormField>
@@ -158,7 +158,7 @@ async function submitLogin() {
                   v-model="loginForm.conf_pswd"
                   type="password"
                   placeholder="Подтверждение пароля"
-                  icon="i-i-lucide-lock-keyhole"
+                  icon="i-lucide-lock-keyhole"
                   required
                 />
               </UFormField>
