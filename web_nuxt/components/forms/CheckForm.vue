@@ -109,6 +109,12 @@ watch(noNegative, () => {
         placeholder="Проверка в Кронос"
       />
     </UFormField>
+    <UFormField label="Дополнительнаяинформация" name="addition">
+      <UTextarea
+        v-model.trim.lazy="checkForm.addition"
+        autoresize
+        placeholder="Дополнительная информация"
+      />
     <UFormField label="Результат" name="conclusion" required>
       <USelect
         v-model="checkForm.conclusion"
