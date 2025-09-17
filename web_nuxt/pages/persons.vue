@@ -180,7 +180,7 @@ const columns: TableColumn<Candidate>[] = [
     <div class="flex items-center justify-between mb-3">
       <h3 class="text-2xl text-red-800 font-bold">КАНДИДАТЫ</h3>
       <!-- Выпадающее меню для действий -->
-      <div v-if="userState.role == 'user'">
+      <div v-if="userState.role == 'user' && status != 'pending'">
         <ElementsDivMenu
           :label-update="'Создать анкету'"
           :label-refresh="'Загрузить json'"
