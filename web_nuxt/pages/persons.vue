@@ -202,6 +202,12 @@ const columns: TableColumn<Candidate>[] = [
           </template>
         </UModal>
       </div>
+      <UIcon 
+        v-if="status == 'pending'" 
+        name="i-lucide-refresh-ccw" 
+        size="24" mode="css" 
+        class="animate-spin" 
+      />
     </div>
 
     <!-- Строка поиска -->
