@@ -7,7 +7,7 @@ from app import db
 from app.classes.classes import Roles
 from app.decorators.depend import auth_required
 from app.decorators.validize import pydantify
-from app.models.models import PersonIn, PersonOut, ResumeResponse
+from app.models.models import BaseResponse, PersonIn, PersonOut, ResumeResponse
 from app.tables.tables import Persons
 from app.utils.utilities import upload_resume
 
@@ -35,7 +35,7 @@ def post_person(json_data: PersonIn) -> tuple[dict, int]:
 
 
 @bp.delete("/persons/<int:person_id>")
-@pydantify(ResumeResponse)
+@pydantify(BaseResponse)
 @auth_required(Roles.user.value)
 def delete_person(person_id: int) -> tuple[dict, int]:
     """Delete an item from the database based on the provided item name and item ID."""
