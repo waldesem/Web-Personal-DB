@@ -105,57 +105,34 @@ const items = [
     label: "Проверки",
     icon: "i-lucide-circle-check-big",
     slot: "checks" as const,
-    ItemComponent: defineAsyncComponent(
-      () => import("@/components/items/CheckItem.vue")
-    ),
-    FormComponent: defineAsyncComponent(
-      () => import("@/components/forms/CheckForm.vue")
-    ),
+    ItemComponent: resolveComponent("ItemsCheckItem"),
+    FormComponent: resolveComponent("FormsCheckForm"),
   },
   {
     content: "poligrafs",
     label: "Полиграф",
     icon: "i-lucide-heart-pulse",
     slot: "poligrafs" as const,
-    ItemComponent: defineAsyncComponent(
-      () => import("@/components/items/PoligrafItem.vue")
-    ),
-    FormComponent: defineAsyncComponent(
-      () => import("@/components/forms/PoligrafForm.vue")
-    ),
+    ItemComponent: resolveComponent("ItemsPoligrafItem"),
+    FormComponent: resolveComponent("FormsPoligrafForm"),
   },
   {
     content: "investigations",
     label: "Расследования",
     icon: "i-lucide-briefcase-business",
     slot: "investigations" as const,
-    ItemComponent: defineAsyncComponent(
-      () => import("@/components/items/InquestItem.vue")
-    ),
-    FormComponent: defineAsyncComponent(
-      () => import("@/components/forms/InquestForm.vue")
-    ),
+    ItemComponent: resolveComponent("ItemsInquestItem"),
+    FormComponent: resolveComponent("FormsInquestForm"),
   },
   {
     content: "inquiries",
     label: "Запросы",
     icon: "i-lucide-book-text",
     slot: "inquiries" as const,
-    ItemComponent: defineAsyncComponent(
-      () => import("@/components/items/InquiryItem.vue")
-    ),
-    FormComponent: defineAsyncComponent(
-      () => import("@/components/forms/InquiryForm.vue")
-    ),
+    ItemComponent: resolveComponent("ItemsInquiryItem"),
+    FormComponent: resolveComponent("FormsInquiryForm"),
   },
-] satisfies {
-  content: string;
-  label: string;
-  icon: string;
-  slot: string;
-  ItemComponent?: Component;
-  FormComponent?: Component;
-}[];
+];
 </script>
 
 <template>

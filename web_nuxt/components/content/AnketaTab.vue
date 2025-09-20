@@ -66,105 +66,66 @@ const items = [
     label: "Должности",
     icon: "i-lucide-user",
     slot: "staffs" as const,
-    ItemComponent: defineAsyncComponent(
-      () => import("@/components/items/StaffItem.vue")
-    ),
-    FormComponent: defineAsyncComponent(
-      () => import("@/components/forms/StaffForm.vue")
-    ),
+    ItemComponent: resolveComponent("ItemsStaffItem"),
+    FormComponent: resolveComponent("FormsStaffItem") 
   },
   {
     content: "educations",
     label: "Образование",
     icon: "i-lucide-graduation-cap",
     slot: "educations" as const,
-    ItemComponent: defineAsyncComponent(
-      () => import("@/components/items/EducationItem.vue")
-    ),
-    FormComponent: defineAsyncComponent(
-      () => import("@/components/forms/EducationForm.vue")
-    ),
+    ItemComponent: resolveComponent("ItemsEducationItem"),
+    FormComponent: resolveComponent("FormsEducationForm"),
   },
   {
     content: "workplaces",
     label: "Места работы",
     icon: "i-lucide-briefcase-business",
     slot: "workplaces" as const,
-    ItemComponent: defineAsyncComponent(
-      () => import("@/components/items/WorkplaceItem.vue")
-    ),
-    FormComponent: defineAsyncComponent(
-      () => import("@/components/forms/WorkplaceForm.vue")
-    ),
+    ItemComponent: resolveComponent("ItemsWorkplaceItem"),
+    FormComponent: resolveComponent("FormsWorkplaceForm"),
   },
   {
     content: "documents",
     label: "Документы",
     icon: "i-lucide-book-text",
     slot: "documents" as const,
-    ItemComponent: defineAsyncComponent(
-      () => import("@/components/items/DocumentItem.vue")
-    ),
-    FormComponent: defineAsyncComponent(
-      () => import("@/components/forms/DocumentForm.vue")
-    ),
+    ItemComponent: resolveComponent("ItemsDocumentItem"),
+    FormComponent: resolveComponent("FormsDocumentForm"),
   },
   {
     content: "addresses",
     label: "Адреса",
     icon: "i-lucide-house",
     slot: "addresses" as const,
-    ItemComponent: defineAsyncComponent(
-      () => import("@/components/items/AddressItem.vue")
-    ),
-    FormComponent: defineAsyncComponent(
-      () => import("@/components/forms/AddressForm.vue")
-    ),
+    ItemComponent: resolveComponent("ItemsAddressItem"),
+    FormComponent: resolveComponent("FormsAddressForm"),
   },
   {
     content: "contacts",
     label: "Контакты",
     icon: "i-lucide-phone-call",
     slot: "contacts" as const,
-    ItemComponent: defineAsyncComponent(
-      () => import("@/components/items/ContactItem.vue")
-    ),
-    FormComponent: defineAsyncComponent(
-      () => import("@/components/forms/ContactForm.vue")
-    ),
+    ItemComponent: resolveComponent("ItemsContactItem"),
+    FormComponent: resolveComponent("FormsContactForm"),
   },
   {
     content: "previous",
     label: "Изменения имени",
     icon: "i-lucide-file-pen-line",
     slot: "previous" as const,
-    ItemComponent: defineAsyncComponent(
-      () => import("@/components/items/PreviousItem.vue")
-    ),
-    FormComponent: defineAsyncComponent(
-      () => import("@/components/forms/PreviousForm.vue")
-    ),
+    ItemComponent: resolveComponent("ItemsPreviousItem"),
+    FormComponent: resolveComponent("FormsPreviousForm"),
   },
   {
     content: "affilations",
     label: "Аффилированность",
     icon: "i-lucide-users-round",
     slot: "affilations" as const,
-    ItemComponent: defineAsyncComponent(
-      () => import("@/components/items/AffilationItem.vue")
-    ),
-    FormComponent: defineAsyncComponent(
-      () => import("@/components/forms/AffilationForm.vue")
-    ),
+    ItemComponent: resolveComponent("ItemsAffilationItem"),
+    FormComponent: resolveComponent("FormsAffilationForm"),
   },
-] satisfies {
-  content: string;
-  label: string;
-  icon: string;
-  slot: string;
-  ItemComponent?: Component;
-  FormComponent?: Component;
-}[];
+];
 </script>
 
 <template>
