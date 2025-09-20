@@ -203,7 +203,7 @@ const columns: TableColumn<Candidate>[] = [
         </UModal>
       </div>
       <UIcon 
-        v-if="status == 'pending'" 
+        v-if="userState.role == 'user' && status == 'pending'"
         name="i-lucide-refresh-ccw" 
         size="24" mode="css" 
         class="animate-spin" 
