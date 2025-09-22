@@ -51,7 +51,8 @@ async function deletePerson() {
     }
   );
   if (message == "success") {
-    useToasts(message, "Информация успешно обновлена");
+    useToasts(message, "Информация успешно удалена");
+    clearNuxtData();
     return navigateTo("/persons");
   } else {
     useToasts();
