@@ -205,7 +205,7 @@ const columns: TableColumn<Candidate>[] = [
       <UIcon 
         v-if="userState.role == 'user' && status == 'pending'"
         name="i-lucide-refresh-ccw" 
-        size="24" mode="css" 
+        mode="css" 
         class="animate-spin" 
       />
     </div>
@@ -238,7 +238,7 @@ const columns: TableColumn<Candidate>[] = [
         <UCard><ItemsPersonItem :item="row.original" /></UCard>
       </template>
       <template #loading>
-        <UIcon name="i-lucide-refresh-ccw" size="24" mode="css" class="animate-spin" />
+        <UIcon name="i-lucide-refresh-ccw"  mode="css" class="animate-spin" />
       </template>
     </UTable>
 
