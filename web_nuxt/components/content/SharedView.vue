@@ -26,7 +26,9 @@ const modal = ref(false); // Флаг для открытия модальног
 const { data, status, refresh } = await useLazyAsyncData(
   props.view,
   async () => {
-    return (await $api(`/routes/items/${props.view}/${candId.value}`)) as object[];
+    return (await $api(
+      `/routes/items/${props.view}/${candId.value}`
+    )) as object[];
   }
 );
 
@@ -73,35 +75,41 @@ async function deleteItem(id: string) {
 
 <template>
   <!-- Выводим скелетный элемент. если данные ещё не загружены -->
-  <div v-if="status === 'pending' && data">
-    <div v-for="i in data.length + 1" :key="i">
-      <LazyElementsSkeletonDiv :rows="props.rows" />
-      <USeparator v-if="i < data.length" />
-    </div>
-  </div>
-  <div v-else>
-    <!-- Выводим список элементов с кнопками для редактирования и удаления -->
-    <div v-for="(content, index) in data" :key="index" class="py-4 ms-2">
-      <!-- Выводим кнопки редактирования или удаления данных если доступно редактирование -->
-      <LazyElementsDivMenu
-        v-if="editable"
-        @update="
-          item = content;
-          modal = true;
-        "
-        @refresh="deleteItem(content['id' as keyof typeof content])"
-      />
+  <Suspense>
+    <template #default>
+      <div>
+        <!-- Выводим список элементов с кнопками для редактирования и удаления -->
+        <div v-for="(content, index) in data" :key="index" class="py-2 ms-2">
+          <!-- Выводим кнопки редактирования или удаления данных если доступно редактирование -->
+          <LazyElementsDivMenu
+            v-if="editable"
+            @update="
+              item = content;
+              modal = true;
+            "
+            @refresh="deleteItem(content['id' as keyof typeof content])"
+          />
 
-      <!-- Выводим элемент данных -->
-      <slot name="item" :item-content="content" />
-      <USeparator v-if="data && index < data.length - 1" />
-    </div>
+          <!-- Выводим элемент данных -->
+          <slot name="item" :item-content="content" />
+          <USeparator v-if="data && index < data.length - 1" />
+        </div>
 
-    <!-- Выводим сообщение если данные отсутствуют -->
-    <div v-if="!data || !data.length" class="p-4 text-red-800">
-      Данные отсутствуют
-    </div>
-  </div>
+        <!-- Выводим сообщение если данные отсутствуют -->
+        <div v-if="!data || !data.length" class="py-4 ms-2 text-red-800">
+          Данные отсутствуют
+        </div>
+      </div>
+    </template>
+    <template #fallback>
+      <div v-if="data">
+        <div v-for="i in data.length + 1" :key="i">
+          <LazyElementsSkeletonDiv :rows="props.rows" />
+          <USeparator v-if="i < data.length" />
+        </div>
+      </div>
+    </template>
+  </Suspense>
 
   <!-- Модальное окно для редактирования данных -->
   <UModal

@@ -143,7 +143,7 @@ const items = [
   <div>
     <div class="flex items-center justify-between py-4">
       <!-- Выводим скелетный элемент. если данные ещё не загружены -->
-      <USkeleton v-if="status == 'pending'" class="py-1 h-10 w-96" />
+      <USkeleton v-if="status === 'pending'" class="py-1 h-10 w-96" />
       <!-- Заголовок -->
       <div v-else class="py-1">
         <h3 class="text-2xl text-red-800 font-bold">

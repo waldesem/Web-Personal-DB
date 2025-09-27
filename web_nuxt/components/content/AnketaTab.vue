@@ -68,7 +68,7 @@ const items = [
     icon: "i-lucide-user",
     slot: "staffs" as const,
     ItemComponent: resolveComponent("ItemsStaffItem"),
-    FormComponent: resolveComponent("FormsStaffForm") 
+    FormComponent: resolveComponent("FormsStaffForm"),
   },
   {
     content: "educations",
@@ -139,14 +139,16 @@ const items = [
     />
 
     <!-- Выводим скелетный элемент. если данные ещё не загружены -->
-    <div v-if="status == 'pending'" class="ps-2">
-      <LazyElementsSkeletonDiv :rows="12" />
+    <div class="ps-2">
+      <Suspense>
+        <template #default>
+          <LazyItemsPersonItem :item="props.person" />
+        </template>
+        <template #fallback>
+          <LazyElementsSkeletonDiv :rows="12" />
+        </template>
+      </Suspense>
     </div>
-    <!-- Выводим элемент данных -->
-    <div v-else class="ps-2">
-      <LazyItemsPersonItem :item="props.person" />
-    </div>
-
     <!-- Выводим модальное окно для редактирования данных -->
     <UModal
       v-if="editable"
