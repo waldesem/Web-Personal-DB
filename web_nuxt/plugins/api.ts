@@ -1,3 +1,4 @@
+import { refreshToken } from "@/utils/refresh";
 import type { $Fetch, NitroFetchRequest } from "nitropack";
 
 declare module "nuxt/app" {
@@ -17,21 +18,18 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         await nuxtApp.runWithContext(() => navigateTo("/login"));
       }
       // Получаем токен доступа
-      const token = useCookie("token") ?? useCookie("token", {
-        maxAge: 60 * 59,
-        sameSite: 'strict',
-        watch: "shallow",
-      });
+      const token =
+        useCookie("token") ??
+        useCookie("token", {
+          maxAge: 60 * 59,
+          sameSite: "strict",
+          watch: "shallow",
+        });
       // Если токен доступа не найден, получаем новый токен доступа из API
-      if (!token.value) {
+      if (!token.value && refresh.value) {
         try {
           // Запрашиваем новый токен доступа с помощью токена обновления
-          const { access_token } = (await $fetch("/routes/auth/refresh", {
-            headers: {
-              Authorization: "Bearer " + refresh.value,
-            },
-            method: "POST",
-          })) as { access_token: string };
+          const access_token = await refreshToken(refresh.value);
           if (access_token) {
             // Если токен доступа получен, сохраняем его в cookie
             token.value = access_token.split(" ")[1];

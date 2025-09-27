@@ -24,9 +24,8 @@ def get_current_user(user_id: int) -> User:
     """Retrieve the current user stored in the global variable."""
     if user_id:
         try:
-            user = db.session.get(Users, user_id)
             if (
-                user
+                (user := db.session.get(Users, user_id))
                 and not user.blocked
                 and not user.deleted
                 and not user.change_pswd

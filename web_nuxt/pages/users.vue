@@ -2,6 +2,10 @@
 import type { TableColumn } from "@nuxt/ui";
 import type { User } from "@/types";
 
+definePageMeta({
+  middleware: ["user"],
+});
+
 // Объявляем переменные для рендера компонентов
 const UIcon = resolveComponent("UIcon");
 const UBadge = resolveComponent("UBadge");

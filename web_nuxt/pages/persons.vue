@@ -3,6 +3,10 @@ import { refDebounced, useFileDialog } from "@vueuse/core";
 import type { TableColumn } from "@nuxt/ui";
 import type { Candidate } from "@/types";
 
+definePageMeta({
+  middleware: ["user"],
+});
+
 // Прелоадим компонент для загрузки анкеты
 await preloadRouteComponents("/profile/[id]");
 
@@ -34,9 +38,9 @@ const { data, status, refresh } = useLazyAsyncData(
         per_page: per_page,
         search: search.value,
       },
-    });
+    }) as Candidate[];
     updated.value = Date.now();
-    return response as Candidate[];
+    return response;
   },
   // Наблюдаем: активность пользователя, переключение страницы, изменение строки поиска.
   { watch: [page, refDebounced(search, 1000)] }
@@ -202,11 +206,11 @@ const columns: TableColumn<Candidate>[] = [
           </template>
         </UModal>
       </div>
-      <UIcon 
+      <UIcon
         v-if="userState.role == 'user' && status == 'pending'"
-        name="i-lucide-refresh-ccw" 
-        mode="css" 
-        class="animate-spin" 
+        name="i-lucide-refresh-ccw"
+        mode="css"
+        class="animate-spin"
       />
     </div>
 
@@ -238,7 +242,7 @@ const columns: TableColumn<Candidate>[] = [
         <UCard><ItemsPersonItem :item="row.original" /></UCard>
       </template>
       <template #loading>
-        <UIcon name="i-lucide-refresh-ccw"  mode="css" class="animate-spin" />
+        <UIcon name="i-lucide-refresh-ccw" mode="css" class="animate-spin" />
       </template>
     </UTable>
 

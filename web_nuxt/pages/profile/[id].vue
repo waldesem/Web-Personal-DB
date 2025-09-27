@@ -2,6 +2,10 @@
 import { useFileDialog } from "@vueuse/core";
 import type { Persons } from "@/types";
 
+definePageMeta({
+  middleware: ["user"],
+});
+
 // Презагрузка компонентов
 await preloadComponents(["ContentAnketaTab", "ContentSharedView"]);
 

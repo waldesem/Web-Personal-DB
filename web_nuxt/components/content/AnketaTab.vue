@@ -68,7 +68,7 @@ const items = [
     icon: "i-lucide-user",
     slot: "staffs" as const,
     ItemComponent: resolveComponent("ItemsStaffItem"),
-    FormComponent: resolveComponent("FormsStaffItem") 
+    FormComponent: resolveComponent("FormsStaffForm") 
   },
   {
     content: "educations",
