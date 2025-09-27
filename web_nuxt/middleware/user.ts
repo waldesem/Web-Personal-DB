@@ -12,23 +12,24 @@ export default defineNuxtRouteMiddleware(async () => {
       console.error(error);
       await navigateTo("/login");
     }
-  }
-  if (!token.value) {
+  } else {
     const refresh = useCookie("refresh");
-    try {
-      // Запрашиваем новый токен доступа с помощью токена обновления
-      const access_token = await refreshToken(refresh.value);
-      if (access_token) {
-        // Если токен доступа получен, сохраняем его в cookie
-        token.value = access_token.split(" ")[1];
-      } else {
+    if (refresh.value) {
+      try {
+        // Запрашиваем новый токен доступа с помощью токена обновления
+        const access_token = await refreshToken(refresh.value);
+        if (access_token) {
+          // Если токен доступа получен, сохраняем его в cookie
+          token.value = access_token.split(" ")[1];
+        } else {
+          await navigateTo("/login");
+        }
+      } catch (error) {
+        console.error(error);
         await navigateTo("/login");
       }
-    } catch (error) {
-      console.error(error);
+    } else {
       await navigateTo("/login");
     }
-  } else {
-     await navigateTo("/login");
   }
 });

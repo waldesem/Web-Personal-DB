@@ -1,4 +1,3 @@
-import { refreshToken } from "@/utils/refresh";
 import type { $Fetch, NitroFetchRequest } from "nitropack";
 
 declare module "nuxt/app" {
