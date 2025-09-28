@@ -84,7 +84,7 @@ async function deleteItem(id: string) {
           <LazyElementsDivMenu
             v-if="editable"
             @update="
-              item = content;
+              item = content as object;
               modal = true;
             "
             @refresh="deleteItem(content['id' as keyof typeof content])"
