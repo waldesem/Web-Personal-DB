@@ -10,17 +10,17 @@ const props = defineProps({
 </script>
 
 <template>
-  <div class="flex flex-col items-center h-screen p-8">
-    <h1 class="text-4xl font-bold text-red-800 mb-4">
-      {{ props.error.name }}
-    </h1>
-    <div class="text-primary my-4">
-      <div class="text-2xl">{{ props.error.message }}</div>
-      <div class="text-xl">{{ props.error.stack }}</div>
-    </div>
-    <UButton
-      label="Очистить ошибку"
-      @click="clearError({ redirect: '/persons' })"
-    />
-  </div>
+  <UError
+    :clear="{
+      color: 'neutral',
+      size: 'xl',
+      icon: 'i-lucide-arrow-left',
+      class: 'rounded-full',
+    }"
+    :error="{
+      statusCode: props.error.statusCode,
+      statusMessage: props.error.statusMessage,
+      message: props.error.message,
+    }"
+  />
 </template>

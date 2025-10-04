@@ -2,10 +2,6 @@
 import type { AlertProps } from "@nuxt/ui";
 import type { Login } from "@/types";
 
-// Определяем мета-данные для страницы - не показывать layout
-definePageMeta({ layout: false });
-
-
 // Объявляем переменные для формы и состояния
 const action = ref("login");
 const loginForm = ref({} as Login);
@@ -59,12 +55,12 @@ async function submitLogin() {
   if (message === "success") {
     const token = useCookie("token", {
       maxAge: 60 * 59,
-      sameSite: 'strict',
+      sameSite: "strict",
       watch: "shallow",
     });
     const refresh = useCookie("refresh", {
       maxAge: 60 * 60 * 24 * 30,
-      sameSite: 'strict',
+      sameSite: "strict",
       watch: "shallow",
     });
     token.value = access_token.split(" ")[1];
@@ -98,92 +94,89 @@ async function submitLogin() {
 </script>
 
 <template>
-  <UContainer>
-    <div class="flex flex-row justify-center">
-      <div class="py-12">
-        <!-- Алерт -->
-        <UAlert
-          variant="subtle"
-          :color="(alert.color as AlertProps['color'])"
-          :title="alert.title"
-          :description="alert.description"
-          :icon="alert.icon"
-        />
+  <div class="flex flex-col justify-center items-center">
+    <!-- Алерт -->
+    <UAlert
+      variant="subtle"
+      :color="(alert.color as AlertProps['color'])"
+      :title="alert.title"
+      :description="alert.description"
+      :icon="alert.icon"
+      :ui="{
+        root: 'w-xs',
+      }"
+    />
 
-        <!-- Заголовок -->
-        <h3 class="text-2xl text-blue-800 font-bold my-6">
-          Кадровая безопасность
-        </h3>
+    <!-- Заголовок -->
+    <h3 class="text-2xl text-blue-800 font-bold my-6">Кадровая безопасность</h3>
 
-        <!-- Форма логина -->
-        <UCard>
-          <h3 class="text-xl text-red-800 font-bold mb-2">Вход в систему</h3>
-          <UForm
-            :validate="validate"
-            :state="loginForm"
-            @submit.prevent="submitLogin()"
-          >
-            <UFormField label="Логин" name="username" required>
-              <UInput
-                v-model.trim="loginForm['username']"
-                placeholder="Имя пользователя"
-                icon="i-lucide-user"
-                autofocus
-                required
-              />
-            </UFormField>
-            <UFormField label="Пароль" name="password" required>
-              <UInput
-                v-model="loginForm.password"
-                type="password"
-                placeholder="Пароль"
-                icon="i-lucide-lock-keyhole"
-                required
-              />
-            </UFormField>
+    <!-- Форма логина -->
+    <UCard>
+      <h3 class="text-xl text-red-800 font-bold mb-2">Вход в систему</h3>
+      <UForm
+        :validate="validate"
+        :state="loginForm"
+        @submit.prevent="submitLogin()"
+      >
+        <UFormField label="Логин" name="username" required>
+          <UInput
+            v-model.trim="loginForm['username']"
+            placeholder="Имя пользователя"
+            icon="i-lucide-user"
+            autofocus
+            required
+          />
+        </UFormField>
+        <UFormField label="Пароль" name="password" required>
+          <UInput
+            v-model="loginForm.password"
+            type="password"
+            placeholder="Пароль"
+            icon="i-lucide-lock-keyhole"
+            required
+          />
+        </UFormField>
 
-            <div v-if="action === 'update'">
-              <UFormField label="Новый пароль" name="new_pswd" required>
-                <UInput
-                  v-model="loginForm.new_pswd"
-                  type="password"
-                  placeholder="Новый пароль"
-                  icon="i-lucide-lock-keyhole"
-                  required
-                />
-              </UFormField>
+        <div v-if="action === 'update'">
+          <UFormField label="Новый пароль" name="new_pswd" required>
+            <UInput
+              v-model="loginForm.new_pswd"
+              type="password"
+              placeholder="Новый пароль"
+              icon="i-lucide-lock-keyhole"
+              required
+            />
+          </UFormField>
 
-              <UFormField label="Повтор пароля" name="conf_pswd" required>
-                <UInput
-                  v-model="loginForm.conf_pswd"
-                  type="password"
-                  placeholder="Подтверждение пароля"
-                  icon="i-lucide-lock-keyhole"
-                  required
-                />
-              </UFormField>
-            </div>
-            
-            <!-- Кнопки для входа или изменения пароля -->
-            <div class="flex justify-between mt-2">
-              <UButton
-                :label="action === 'login' ? 'Войти' : 'Изменить'"
-                color="success"
-                variant="outline"
-                type="submit"
-              />
-              <UButton
-                :label="action == 'login' ? 'Изменить' : 'Отмена'"
-                color="secondary"
-                variant="outline"
-                @click="
-                  action == 'login' ? (action = 'update') : (action = 'login')
-                "
-              />
-            </div>
-          </UForm>
-        </UCard>
-      </div>
-    </div>
-  </UContainer>
+          <UFormField label="Повтор пароля" name="conf_pswd" required>
+            <UInput
+              v-model="loginForm.conf_pswd"
+              type="password"
+              placeholder="Подтверждение пароля"
+              icon="i-lucide-lock-keyhole"
+              required
+            />
+          </UFormField>
+        </div>
+
+        <!-- Кнопки для входа или изменения пароля -->
+        <div class="flex justify-between mt-2">
+          <UButton
+            :label="action === 'login' ? 'Войти' : 'Изменить'"
+            color="success"
+            variant="outline"
+            type="submit"
+          />
+          <UButton
+            :label="action == 'login' ? 'Изменить' : 'Отмена'"
+            color="secondary"
+            variant="outline"
+            @click="
+              action == 'login' ? (action = 'update') : (action = 'login')
+            "
+          />
+        </div>
+      </UForm>
+    </UCard>
+  </div>
 </template>
