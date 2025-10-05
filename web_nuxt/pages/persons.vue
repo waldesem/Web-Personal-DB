@@ -32,13 +32,13 @@ const updated = ref(Date.now()); // Дата обновления данных
 // Определяем функцию для получения списка кандидатов из API
 const { data, status, refresh } = useLazyAsyncData(
   async () => {
-    const response = await $api("/routes/candidates", {
+    const response = (await $api("/routes/candidates", {
       query: {
         page: page.value,
         per_page: per_page,
         search: search.value,
       },
-    }) as Candidate[];
+    })) as Candidate[];
     updated.value = Date.now();
     return response;
   },
@@ -180,39 +180,46 @@ const columns: TableColumn<Candidate>[] = [
 </script>
 
 <template>
-  <div class="py-4">
-    <div class="flex items-center justify-between mb-3">
-      <h3 class="text-2xl text-red-800 font-bold">КАНДИДАТЫ</h3>
-      <!-- Выпадающее меню для действий -->
-      <div v-if="userState.role == 'user' && status !== 'pending'">
-        <ElementsDivMenu
-          :label-update="'Создать анкету'"
-          :label-refresh="'Загрузить json'"
-          :icon-update="'i-lucide-user-plus'"
-          :icon-refresh="'i-lucide-upload'"
-          @update="modal = true"
-          @refresh="open()"
-        />
+  <UPage>
+    <UPageHeader
+      title="КАНДИДАТЫ"
+      :ui="{
+        root: 'relative border-none py-4',
+        title: 'text-2xl sm:text-3xl text-red-800',
+      }"
+    >
+      <template #links>
+        <!-- Выпадающее меню для действий -->
+        <div v-if="userState.role == 'user' && status !== 'pending'">
+          <ElementsDivMenu
+            :label-update="'Создать анкету'"
+            :label-refresh="'Загрузить json'"
+            :icon-update="'i-lucide-user-plus'"
+            :icon-refresh="'i-lucide-upload'"
+            @update="modal = true"
+            @refresh="open()"
+          />
 
-        <!-- Модальное окно для добавления анкеты -->
-        <UModal
-          v-model:open="modal"
-          title="Добавить анкету"
-          description="Введите анкетные данные кандидата"
-        >
-          <!-- Вставляем форму для добавления анкеты -->
-          <template #body>
-            <LazyFormsResumeForm @update="handleEmit" />
-          </template>
-        </UModal>
-      </div>
-      <UIcon
-        v-if="userState.role == 'user' && status === 'pending'"
-        name="i-lucide-refresh-ccw"
-        mode="css"
-        class="animate-spin"
-      />
-    </div>
+          <!-- Модальное окно для добавления анкеты -->
+          <UModal
+            v-model:open="modal"
+            title="Добавить анкету"
+            description="Введите анкетные данные кандидата"
+          >
+            <!-- Вставляем форму для добавления анкеты -->
+            <template #body>
+              <LazyFormsResumeForm @update="handleEmit" />
+            </template>
+          </UModal>
+        </div>
+        <UIcon
+          v-if="userState.role == 'user' && status === 'pending'"
+          name="i-lucide-refresh-ccw"
+          mode="css"
+          class="animate-spin"
+        />
+      </template>
+    </UPageHeader>
 
     <!-- Строка поиска -->
     <div class="my-6">
@@ -269,5 +276,5 @@ const columns: TableColumn<Candidate>[] = [
         @update:page="(p) => (page = p)"
       />
     </div>
-  </div>
+  </UPage>
 </template>
