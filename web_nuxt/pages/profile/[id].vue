@@ -140,46 +140,46 @@ const items = [
 </script>
 
 <template>
-  <div>
-    <div class="flex items-center justify-between py-4">
-      <!-- Выводим скелетный элемент. если данные ещё не загружены -->
-      <USkeleton v-if="status === 'pending'" class="py-1 h-10 w-96" />
-      <!-- Заголовок -->
-      <div v-else class="py-1">
-        <h3 class="text-2xl text-red-800 font-bold">
-          {{ `${data?.surname} ${data?.firstname} ${data?.patronymic ?? ""}` }}
-        </h3>
-      </div>
+  <UPage v-if="data">
+    <UPageHeader
+      :title="`${data?.surname} ${data?.firstname} ${data?.patronymic ?? ''}`"
+      :ui="{
+        root: 'relative border-none py-4',
+        title: 'text-2xl sm:text-3xl text-red-800',
+      }"
+    >
+      <template #links>
+        <!-- Кнопки для загрузки файлов и переключения режима редактирования -->
+        <div v-if="userState.role == 'user'" class="flex items-center space-x-4">
+          <UButton
+            :loading="status === 'pending'"
+            variant="outline"
+            icon="i-lucide-cloud-upload"
+            label="Загрузить файлы"
+            @click="open()"
+          />
+          <UButton
+            :loading="status === 'pending'"
+            :color="
+              !data?.editable
+                ? 'secondary'
+                : data.user_id == userState.id
+                ? 'success'
+                : 'error'
+            "
+            :label="
+              !data?.editable
+                ? 'Доступно для редактирования'
+                : data.user_id == userState.id
+                ? 'Назначено текущему пользователю'
+                : 'Редактируется другим пользователем'
+            "
+            @click="switchSelf"
+          />
+        </div>
+      </template>
+    </UPageHeader>
 
-      <!-- Кнопки для загрузки файлов и переключения режима редактирования -->
-      <div v-if="userState.role == 'user'" class="flex items-center space-x-4">
-        <UButton
-          :loading="status === 'pending'"
-          variant="outline"
-          icon="i-lucide-cloud-upload"
-          label="Загрузить файлы"
-          @click="open()"
-        />
-        <UButton
-          :loading="status === 'pending'"
-          :color="
-            !data?.editable
-              ? 'secondary'
-              : data.user_id == userState.id
-              ? 'success'
-              : 'error'
-          "
-          :label="
-            !data?.editable
-              ? 'Доступно  для редактирования'
-              : data.user_id == userState.id
-              ? 'Назначено текущему пользователю'
-              : 'Редактируется другим пользователем'
-          "
-          @click="switchSelf"
-        />
-      </div>
-    </div>
     <!-- Меню для переключения между вкладками -->
     <UTabs
       :unmount-on-hide="false"
@@ -217,5 +217,5 @@ const items = [
         </ContentSharedView>
       </template>
     </UTabs>
-  </div>
+  </UPage>
 </template>

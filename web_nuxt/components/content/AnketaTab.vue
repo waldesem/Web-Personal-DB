@@ -135,7 +135,7 @@ const items = [
     <LazyElementsDivMenu
       v-if="editable"
       @update="modal = true"
-      @refresh="deletePerson()"
+      @delete="deletePerson()"
     />
 
     <!-- Выводим скелетный элемент. если данные ещё не загружены -->

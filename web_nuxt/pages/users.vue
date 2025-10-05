@@ -23,7 +23,7 @@ const globalFilter = ref("");
 
 // Определяем функцию для получения данных из API
 const { data, status, refresh } = await useLazyAsyncData(async () => {
-  return await $api("/routes/users") as User[];
+  return (await $api("/routes/users")) as User[];
 });
 
 // Объявляем функцию для действия с пользователем
@@ -219,34 +219,40 @@ const columns: TableColumn<User>[] = [
 </script>
 
 <template>
-  <div class="py-4">
-    <div class="flex items-center justify-between mb-3">
-      <!-- Выводим заголовок таблицы -->
-      <h3 class="text-2xl text-gray-500 font-bold">ПОЛЬЗОВАТЕЛИ</h3>
-      <!-- Модальное окно для добавления пользователя -->
-      <UModal
-        v-model:open="modal"
-        title="Добавить пользователя"
-        description="Введите данные пользователя"
-      >
-        <UButton
-          variant="ghost"
-          size="lg"
-          icon="i-lucide-user-plus"
+  <UPage>
+    <UPageHeader
+      title="ПОЛЬЗОВАТЕЛИ"
+      :ui="{
+        root: 'relative border-none py-4',
+        title: 'text-2xl sm:text-3xl text-gray-800',
+      }"
+    >
+      <template #links>
+        <UModal
+          v-model:open="modal"
           title="Добавить пользователя"
-          @click="modal = true"
-        />
-        <!-- Вставляем форму для добавления пользователя -->
-        <template #body>
-          <LazyFormsUserForm
-            @update="
-              modal = false;
-              refresh();
-            "
+          description="Введите данные пользователя"
+        >
+          <UButton
+            variant="ghost"
+            size="lg"
+            icon="i-lucide-user-plus"
+            title="Добавить пользователя"
+            @click="modal = true"
           />
-        </template>
-      </UModal>
-    </div>
+          <!-- Вставляем форму для добавления пользователя -->
+          <template #body>
+            <LazyFormsUserForm
+              @update="
+                modal = false;
+                refresh();
+              "
+            />
+          </template>
+        </UModal>
+      </template>
+    </UPageHeader>
+
     <!-- Строка поиска -->
     <div class="my-6">
       <UInput
@@ -273,5 +279,5 @@ const columns: TableColumn<User>[] = [
         <pre class="text-break">{{ row.original }}</pre>
       </template>
     </UTable>
-  </div>
+  </UPage>
 </template>

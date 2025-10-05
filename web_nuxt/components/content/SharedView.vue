@@ -87,7 +87,7 @@ async function deleteItem(id: string) {
               item = content as object;
               modal = true;
             "
-            @refresh="deleteItem(content['id' as keyof typeof content])"
+            @delete="deleteItem(content['id' as keyof typeof content])"
           />
 
           <!-- Выводим элемент данных -->

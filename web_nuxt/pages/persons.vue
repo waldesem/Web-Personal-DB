@@ -189,35 +189,45 @@ const columns: TableColumn<Candidate>[] = [
       }"
     >
       <template #links>
-        <!-- Выпадающее меню для действий -->
-        <div v-if="userState.role == 'user' && status !== 'pending'">
-          <ElementsDivMenu
-            :label-update="'Создать анкету'"
-            :label-refresh="'Загрузить json'"
-            :icon-update="'i-lucide-user-plus'"
-            :icon-refresh="'i-lucide-upload'"
-            @update="modal = true"
-            @refresh="open()"
+        <!-- меню для действий -->
+         <UDropdownMenu
+          v-if="userState.role === 'user'"
+          :items="[
+            {
+              label: 'Создать анкету',
+              icon: 'i-lucide-user-plus',
+              onSelect() {
+                modal = true;
+              },
+            },
+            {
+              label: 'Загрузить json',
+              icon: 'i-lucide-upload',
+              onSelect() {
+                open();
+              },
+            },
+          ]"
+          :content="{ align: 'end' }"
+        >
+          <UButton
+            icon="i-lucide-menu"
+            variant="ghost"
+            title="Действия"
+            :loading="status === 'pending'"
           />
-
-          <!-- Модальное окно для добавления анкеты -->
-          <UModal
-            v-model:open="modal"
-            title="Добавить анкету"
-            description="Введите анкетные данные кандидата"
-          >
-            <!-- Вставляем форму для добавления анкеты -->
-            <template #body>
-              <LazyFormsResumeForm @update="handleEmit" />
-            </template>
-          </UModal>
-        </div>
-        <UIcon
-          v-if="userState.role == 'user' && status === 'pending'"
-          name="i-lucide-refresh-ccw"
-          mode="css"
-          class="animate-spin"
-        />
+        </UDropdownMenu>
+        <!-- Модальное окно для добавления анкеты -->
+        <UModal
+          v-model:open="modal"
+          title="Добавить анкету"
+          description="Введите анкетные данные кандидата"
+        >
+          <!-- Вставляем форму для добавления анкеты -->
+          <template #body>
+            <LazyFormsResumeForm @update="handleEmit" />
+          </template>
+        </UModal>
       </template>
     </UPageHeader>
 

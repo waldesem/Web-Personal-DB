@@ -1,25 +1,6 @@
 <script setup lang="ts">
 // Компонент для отображения выпадающего списка действий
-const props = defineProps({
-  labelUpdate: {
-    type: String,
-    default: "Изменить",
-  },
-  labelRefresh: {
-    type: String,
-    default: "Удалить",
-  },
-  iconUpdate: {
-    type: String,
-    default: "i-lucide-pencil",
-  },
-  iconRefresh: {
-    type: String,
-    default: "i-lucide-trash",
-  },
-});
-
-const emits = defineEmits(["update", "refresh"]);
+const emits = defineEmits(["update", "delete"]);
 </script>
 
 <template>
@@ -28,17 +9,17 @@ const emits = defineEmits(["update", "refresh"]);
       <UDropdownMenu
         :items="[
           {
-            label: props.labelUpdate,
-            icon: props.iconUpdate,
+            label: 'Изменить',
+            icon: 'i-lucide-pencil',
             onSelect() {
               emits('update');
             },
           },
           {
-            label: props.labelRefresh,
-            icon: props.iconRefresh,
+            label: 'Удалить',
+            icon: 'i-lucide-trash',
             onSelect() {
-              emits('refresh');
+              emits('delete');
             },
           },
         ]"
