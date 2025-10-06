@@ -1,20 +1,86 @@
 <script setup lang="ts">
-import type { AlertProps } from "@nuxt/ui";
+import type { AlertProps, AuthFormField } from "@nuxt/ui";
 import type { Login } from "@/types";
 
 definePageMeta({ layout: false });
+
+const alerts = {
+  login: {
+    color: "success",
+    title: "Информация",
+    description: "Введите логин и пароль",
+    icon: "i-lucide-circle-alert",
+  },
+  refresh: {
+    color: "info",
+    title: "Информация",
+    description: "Введите новый пароль и подтверждение",
+    icon: "i-lucide-circle-alert",
+  },
+  denied: {
+    color: "warning",
+    title: "Предупреждение",
+    description: "Пароль просрочен.",
+    icon: "i-lucide-circle-alert",
+  },
+  updated: {
+    color: "success",
+    title: "Информация",
+    description: "Войдите с новым паролем.",
+    icon: "i-lucide-circle-alert",
+  },
+  error: {
+    color: "error",
+    title: "Внимание",
+    description: "Неправильный логин или пароль.",
+    icon: "i-lucide-triangle-alert",
+  },
+};
 
 // Объявляем переменные для формы и состояния
 const action = ref("login");
 const loginForm = ref({} as Login);
 
 // Объявляем переменную для показа алерта
-const alert = ref({
-  color: "success",
-  title: "Информация",
-  description: "Введите логин и пароль",
-  icon: "i-lucide-circle-alert",
-});
+const alert = ref(alerts.login);
+
+const login: AuthFormField[] = [
+  {
+    name: "username",
+    label: "Имя пользователя",
+    placeholder: "Имя пользователя",
+    icon: "i-lucide-user",
+    type: "text",
+    required: true,
+  },
+  {
+    name: "password",
+    label: "Пароль",
+    placeholder: "Пароль",
+    icon: "i-lucide-lock-keyhole",
+    type: "password",
+    required: true,
+  },
+];
+
+const update = login.concat([
+  {
+    name: "new_pswd",
+    label: "Новый пароль",
+    placeholder: "Новый пароль",
+    icon: "i-lucide-lock-keyhole",
+    type: "password",
+    required: true,
+  },
+  {
+    name: "conf_pswd",
+    label: "Подтверждение пароля",
+    placeholder: "Подтверждение пароля",
+    icon: "i-lucide-lock-keyhole",
+    type: "password",
+    required: true,
+  },
+]);
 
 // Объявляем функцию для валидации формы
 const validate = (state: Partial<Login>) => {
@@ -70,119 +136,58 @@ async function submitLogin() {
     return navigateTo("/persons");
   } else if (message === "updated") {
     action.value = "login";
-    Object.assign(alert.value, {
-      color: "success",
-      title: "Информация",
-      description: "Войдите с новым паролем.",
-      icon: "i-lucide-circle-alert",
-    });
+    Object.assign(alert.value, alerts.updated);
   } else if (message === "denied") {
     action.value = "update";
-    Object.assign(alert.value, {
-      color: "warning",
-      title: "Предупреждение",
-      description: "Пароль просрочен.",
-      icon: "i-lucide-circle-alert",
-    });
+    Object.assign(alert.value, alerts.denied);
   } else {
-    Object.assign(alert.value, {
-      color: "error",
-      title: "Внимание",
-      description: "Неправильный логин или пароль.",
-      icon: "i-lucide-triangle-alert",
-    });
+    Object.assign(alert.value, alerts.error);
   }
 }
 </script>
 
 <template>
-  <div class="flex h-1/2 justify-center">
-    <div class="flex flex-col pt-24">
-      <!-- Алерт -->
-      <UAlert
-        variant="subtle"
-        :color="(alert.color as AlertProps['color'])"
-        :title="alert.title"
-        :description="alert.description"
-        :icon="alert.icon"
-        :ui="{
-          root: 'w-xs',
-        }"
-      />
-
-      <!-- Заголовок -->
-      <h3 class="text-2xl text-blue-800 font-bold my-6">
-        Кадровая безопасность
-      </h3>
-
-      <!-- Форма логина -->
-      <UCard>
-        <h3 class="text-xl text-red-800 font-bold mb-2">Вход в систему</h3>
-        <UForm
+  <UPage>
+    <div class="flex flex-col items-center justify-center gap-4 p-4">
+      <UPageCard class="w-full max-w-md">
+        <UAuthForm
+          title="Вход в систему"
+          description="Доступ в систему кадровой безопасности."
+          icon="i-lucide-user"
           :validate="validate"
-          :state="loginForm"
-          @submit.prevent="submitLogin()"
+          :fields="action == 'login' ? login : update"
+          :submit="{
+            label: action === 'login' ? 'Войти' : 'Изменить',
+            color: 'success',
+            variant: 'outline',
+          }"
+          @submit="submitLogin()"
         >
-          <UFormField label="Логин" name="username" required>
-            <UInput
-              v-model.trim="loginForm['username']"
-              placeholder="Имя пользователя"
-              icon="i-lucide-user"
-              autofocus
-              required
+          <template #title>
+            <ElementsLogoDiv />
+          </template>
+          <template #validation>
+            <UAlert
+              variant="subtle"
+              :color="(alert.color as AlertProps['color'])"
+              :title="alert.title"
+              :description="alert.description"
+              :icon="alert.icon"
             />
-          </UFormField>
-          <UFormField label="Пароль" name="password" required>
-            <UInput
-              v-model="loginForm.password"
-              type="password"
-              placeholder="Пароль"
-              icon="i-lucide-lock-keyhole"
-              required
-            />
-          </UFormField>
-
-          <div v-if="action === 'update'">
-            <UFormField label="Новый пароль" name="new_pswd" required>
-              <UInput
-                v-model="loginForm.new_pswd"
-                type="password"
-                placeholder="Новый пароль"
-                icon="i-lucide-lock-keyhole"
-                required
-              />
-            </UFormField>
-
-            <UFormField label="Повтор пароля" name="conf_pswd" required>
-              <UInput
-                v-model="loginForm.conf_pswd"
-                type="password"
-                placeholder="Подтверждение пароля"
-                icon="i-lucide-lock-keyhole"
-                required
-              />
-            </UFormField>
-          </div>
-
-          <!-- Кнопки для входа или изменения пароля -->
-          <div class="flex justify-between mt-2">
-            <UButton
-              :label="action === 'login' ? 'Войти' : 'Изменить'"
-              color="success"
-              variant="outline"
-              type="submit"
-            />
+          </template>
+          <template #footer>
             <UButton
               :label="action == 'login' ? 'Изменить' : 'Отмена'"
               color="secondary"
               variant="outline"
+              block
               @click="
                 action == 'login' ? (action = 'update') : (action = 'login')
               "
             />
-          </div>
-        </UForm>
-      </UCard>
+          </template>
+        </UAuthForm>
+      </UPageCard>
     </div>
-  </div>
+  </UPage>
 </template>

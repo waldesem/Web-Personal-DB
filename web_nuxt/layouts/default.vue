@@ -24,70 +24,65 @@ async function logout() {
 
 <template>
   <div>
-  <UHeader>
-    <template #title>
-      <NuxtLink to="/persons" title="На главную страницу">
-        <div
-          class="flex inline-flex items-center text-xl font-bold space-x-1"
-        >
-          <h3 class="text-blue-600">STAFFSEC</h3>
-          <h3 class="text-red-600">ФИНТЕХ</h3>
-        </div>
-      </NuxtLink>
-    </template>
-    <template #default>
-      <UNavigationMenu
-        v-if="userState.role"
-        :items="[
-          {
-            label: 'Пользователи',
-            icon: 'i-lucide-users',
-            to: '/users',
-            disabled: userState.role !== 'admin',
-          },
-          {
-            label: 'Кандидаты',
-            icon: 'i-lucide-users-round',
-            to: '/persons',
-          },
-        ]"
-        variant="link"
-      />
-    </template>
-    <template #right>
-      <UButton
-        class="rounded-full"
-        :label="userState.username ?? ''"
-        :disabled="!userState.username"
-        color="error"
-        icon="i-lucide-log-out"
-        @click="logout()"
-      />
-    </template>
-  </UHeader>
-  <UMain>
-    <UContainer class="pt-16">
-      <slot />
-    </UContainer>
-  </UMain>
-  <USeparator type="dashed" class="h-px" />
-  <UFooter>
-    <template #left>
-      <p class="text-muted text-sm">
-        Copyright © {{ new Date().getFullYear() }}
-      </p>
-    </template>
+    <UHeader>
+      <template #title>
+        <NuxtLink to="/persons" title="На главную страницу">
+          <ElementsLogoDiv />
+        </NuxtLink>
+      </template>
+      <template #default>
+        <UNavigationMenu
+          v-if="userState.role"
+          :items="[
+            {
+              label: 'Пользователи',
+              icon: 'i-lucide-users',
+              to: '/users',
+              disabled: userState.role !== 'admin',
+            },
+            {
+              label: 'Кандидаты',
+              icon: 'i-lucide-users-round',
+              to: '/persons',
+            },
+          ]"
+          variant="link"
+        />
+      </template>
+      <template #right>
+        <UButton
+          class="rounded-full"
+          :label="userState.username ?? ''"
+          :disabled="!userState.username"
+          color="error"
+          icon="i-lucide-log-out"
+          @click="logout()"
+        />
+      </template>
+    </UHeader>
+    <UMain>
+      <UContainer class="pt-16">
+        <slot />
+      </UContainer>
+    </UMain>
+    <USeparator type="dashed" class="h-px" />
+    <UFooter>
+      <template #left>
+        <p class="text-muted text-sm">
+          Copyright © {{ new Date().getFullYear() }}
+        </p>
+      </template>
 
-    <template #right>
-      <UButton
-        icon="i-lucide-computer"
-        title="GitHub"
-        color="neutral"
-        variant="ghost"
-        to="https://github.com/waldesem/Web-Personal-DB"
-        target="_blank"
-      />
-    </template>
-  </UFooter>
+      <template #right>
+        <UButton
+          icon="i-lucide-computer"
+          title="GitHub"
+          color="neutral"
+          variant="ghost"
+          to="https://github.com/waldesem/Web-Personal-DB"
+          target="_blank"
+        />
+      </template>
+    </UFooter>
   </div>
 </template>
