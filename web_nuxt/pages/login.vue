@@ -138,7 +138,6 @@ async function submitLogin() {
     action.value = "login";
     Object.assign(alert.value, alerts.updated);
   } else if (message === "denied") {
-    action.value = "update";
     Object.assign(alert.value, alerts.denied);
   } else {
     Object.assign(alert.value, alerts.error);
@@ -182,7 +181,15 @@ async function submitLogin() {
               variant="outline"
               block
               @click="
-                action == 'login' ? (action = 'update') : (action = 'login')
+                () => {
+                  if (action == 'login') {
+                    action = 'update';
+                    Object.assign(alert, alerts.refresh);
+                  } else {
+                    action = 'login';
+                    Object.assign(alert, alerts.login);
+                  }
+                }
               "
             />
           </template>
