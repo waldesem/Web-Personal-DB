@@ -1,48 +1,26 @@
 <script setup lang="ts">
-import type { AlertProps, AuthFormField } from "@nuxt/ui";
+import type { AlertProps, AuthFormField, FormSubmitEvent } from "@nuxt/ui";
 import type { Login } from "@/types";
 
 definePageMeta({ layout: false });
 
-const alerts = {
-  login: {
-    color: "success",
-    title: "Информация",
-    description: "Введите логин и пароль",
-    icon: "i-lucide-circle-alert",
-  },
-  refresh: {
-    color: "info",
-    title: "Информация",
-    description: "Введите новый пароль и подтверждение",
-    icon: "i-lucide-circle-alert",
-  },
-  denied: {
-    color: "warning",
-    title: "Предупреждение",
-    description: "Пароль просрочен.",
-    icon: "i-lucide-circle-alert",
-  },
-  updated: {
-    color: "success",
-    title: "Информация",
-    description: "Войдите с новым паролем.",
-    icon: "i-lucide-circle-alert",
-  },
-  error: {
-    color: "error",
-    title: "Внимание",
-    description: "Неправильный логин или пароль.",
-    icon: "i-lucide-triangle-alert",
-  },
-};
-
 // Объявляем переменные для формы и состояния
 const action = ref("login");
-const loginForm = ref({} as Login);
 
 // Объявляем переменную для показа алерта
-const alert = ref(alerts.login);
+const alert = ref({}) as Ref<AlertProps>;
+
+function setAlert(
+  color = "success",
+  title = "Информация",
+  description = "Введите логин и пароль"
+) {
+  alert.value.color = color as AlertProps["color"];
+  alert.value.title = title;
+  alert.value.description = description;
+}
+
+setAlert();
 
 const login: AuthFormField[] = [
   {
@@ -107,40 +85,68 @@ const validate = (state: Partial<Login>) => {
         message: "Новый пароль и подтверждение не совпадают",
       });
     }
+  } else {
+    if (!state.username) {
+      errors.push({
+        name: "username",
+        message: "Введите имя пользователя",
+      });
+    } else if (state.username.length > 255) {
+      errors.push({
+        name: "username",
+        message: "Слишком длинное имя",
+      });
+    }
+    if (!state.password) {
+      errors.push({
+        name: "password",
+        message: "Введите пароль",
+      });
+    } else if (state.password.length > 255) {
+      errors.push({
+        name: "password",
+        message: "Слишком длинный пароль",
+      });
+    }
   }
   return errors;
 };
 
 // Объявляем функцию для отправки формы
-async function submitLogin() {
-  const { message, access_token, refresh_token } = (await $fetch(
-    "/routes/auth/" + action.value,
-    {
-      method: "POST",
-      body: loginForm.value,
+async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
+  try {
+    const { message, access_token, refresh_token } = (await $fetch(
+      "/routes/auth/" + action.value,
+      {
+        method: "POST",
+        body: payload.data,
+      }
+    )) as { message: string; access_token: string; refresh_token: string };
+    if (message === "success") {
+      const token = useCookie("token", {
+        maxAge: 60 * 59,
+        sameSite: "strict",
+        watch: "shallow",
+      });
+      const refresh = useCookie("refresh", {
+        maxAge: 60 * 60 * 24 * 30,
+        sameSite: "strict",
+        watch: "shallow",
+      });
+      token.value = access_token.split(" ")[1];
+      refresh.value = refresh_token.split(" ")[1];
+      return navigateTo("/persons");
+    } else if (message === "updated") {
+      action.value = "login";
+      setAlert("success", "Информация", "Войдите с новым паролем.");
+    } else if (message === "denied") {
+      setAlert("warning", "Предупреждение", "Пароль просрочен.");
+    } else {
+      setAlert("error", "Внимание", "Неправильный логин или пароль.");
     }
-  )) as { message: string; access_token: string; refresh_token: string };
-  if (message === "success") {
-    const token = useCookie("token", {
-      maxAge: 60 * 59,
-      sameSite: "strict",
-      watch: "shallow",
-    });
-    const refresh = useCookie("refresh", {
-      maxAge: 60 * 60 * 24 * 30,
-      sameSite: "strict",
-      watch: "shallow",
-    });
-    token.value = access_token.split(" ")[1];
-    refresh.value = refresh_token.split(" ")[1];
-    return navigateTo("/persons");
-  } else if (message === "updated") {
-    action.value = "login";
-    Object.assign(alert.value, alerts.updated);
-  } else if (message === "denied") {
-    Object.assign(alert.value, alerts.denied);
-  } else {
-    Object.assign(alert.value, alerts.error);
+  } catch (error) {
+    console.error(error)
+    setAlert("error", "Внимание", "Ошибка соединения с сервером.");
   }
 }
 </script>
@@ -160,7 +166,7 @@ async function submitLogin() {
             color: 'success',
             variant: 'outline',
           }"
-          @submit="submitLogin()"
+          @submit="onSubmit"
         >
           <template #title>
             <ElementsLogoDiv />
@@ -168,10 +174,10 @@ async function submitLogin() {
           <template #validation>
             <UAlert
               variant="subtle"
-              :color="(alert.color as AlertProps['color'])"
+              :color="alert.color"
               :title="alert.title"
               :description="alert.description"
-              :icon="alert.icon"
+              icon="i-lucide-circle-alert"
             />
           </template>
           <template #footer>
@@ -184,10 +190,14 @@ async function submitLogin() {
                 () => {
                   if (action == 'login') {
                     action = 'update';
-                    Object.assign(alert, alerts.refresh);
+                    setAlert(
+                      'info',
+                      'Информация',
+                      'Введите новый пароль и подтверждение'
+                    );
                   } else {
                     action = 'login';
-                    Object.assign(alert, alerts.login);
+                    setAlert();
                   }
                 }
               "
