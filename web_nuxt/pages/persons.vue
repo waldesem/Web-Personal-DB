@@ -237,6 +237,7 @@ const columns: TableColumn<Candidate>[] = [
         id="search"
         v-model="search"
         type="search"
+        size="lg"
         icon="i-lucide-search"
         placeholder="поиск по фаимилии, имени, отчеству"
       />

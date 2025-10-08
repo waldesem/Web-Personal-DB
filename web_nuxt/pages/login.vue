@@ -166,7 +166,7 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
             color: 'success',
             variant: 'outline',
           }"
-          @submit="onSubmit"
+          @submit="onSubmit($event)"
         >
           <template #title>
             <ElementsLogoDiv />

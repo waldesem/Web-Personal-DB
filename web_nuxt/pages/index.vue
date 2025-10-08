@@ -10,5 +10,5 @@ definePageMeta({
 </script>
 
 <template>
-  <div><!-- Пустая страница --></div>
+  <UPage />
 </template>
