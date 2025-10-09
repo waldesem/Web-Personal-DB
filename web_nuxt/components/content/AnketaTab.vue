@@ -97,6 +97,6 @@ async function deletePerson() {
     <USeparator />
 
     <!-- Выводим аккордеон с данными staffs, educations и т.д. -->
-    <ContentItemsDivs />
+    <slot name="#items" />
   </div>
 </template>

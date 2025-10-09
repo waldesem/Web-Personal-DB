@@ -155,7 +155,7 @@ const items = [
             :loading="status === 'pending'"
             variant="outline"
             icon="i-lucide-cloud-upload"
-            label="Загрузить файлы"
+            title="Загрузить файлы"
             @click="open()"
           />
           <UButton
@@ -183,15 +183,19 @@ const items = [
     <!-- Меню для переключения между вкладками -->
     <UTabs
       :unmount-on-hide="false"
-      color="info"
+      :ui="{ trigger: 'flex-1' }"
       :items="items"
+      color="info"
       variant="pill"
       class="gap-4 w-full"
-      :ui="{ trigger: 'flex-1' }"
     >
       <!-- Вкладка для отображения анкеты -->
       <template #person>
-        <ContentAnketaTab :person="(data ?? {} as Persons)" :status="status" />
+        <ContentAnketaTab :person="(data ?? {} as Persons)" :status="status">
+          <template #items>
+            <ContentItemsDivs />
+          </template>
+        </ContentAnketaTab>
       </template>
 
       <template
