@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import { useDateFormat } from "@vueuse/core";
 import type { Persons } from "@/types";
-
-const { $api } = useNuxtApp();
 
 const emit = defineEmits(["update"]);
 
@@ -13,12 +10,14 @@ const props = defineProps({
   },
 });
 
-const resumeForm = toRef(props.resume);
+const form = toRef(props.resume);
+
+const { $api } = useNuxtApp();
+
 // Преобразование даты в формат YYYY-MM-DD
-resumeForm.value.birthday = useDateFormat(
-  props.resume.birthday,
-  "YYYY-MM-DD"
-).value;
+form.value.birthday = computed(() => {
+  return form.value.birthday ? new Date(form.value.birthday).toISOString() : "";
+}).value;
 
 async function submitPerson() {
   const { person_id, exists } = await $api<{
@@ -26,7 +25,7 @@ async function submitPerson() {
     exists: boolean;
   }>("/routes/persons", {
     method: "POST",
-    body: resumeForm.value,
+    body: form.value,
   });
   emit("update", person_id, exists);
 }
@@ -69,14 +68,10 @@ const validate = (state: Partial<Persons>) => {
 </script>
 
 <template>
-  <UForm
-    :validate="validate"
-    :state="resumeForm"
-    @submit.prevent="submitPerson()"
-  >
+  <UForm :validate="validate" :state="form" @submit.prevent="submitPerson()">
     <UFormField label="Фамилия" name="surname" required>
       <UInput
-        v-model.lazy.trim="resumeForm.surname"
+        v-model.lazy.trim="form.surname"
         placeholder="Фамилия"
         maxlength="255"
         required
@@ -84,7 +79,7 @@ const validate = (state: Partial<Persons>) => {
     </UFormField>
     <UFormField label="Имя" name="firstname" required>
       <UInput
-        v-model.lazy.trim="resumeForm.firstname"
+        v-model.lazy.trim="form.firstname"
         placeholder="Имя"
         maxlength="255"
         required
@@ -92,59 +87,55 @@ const validate = (state: Partial<Persons>) => {
     </UFormField>
     <UFormField label="Отчество" name="patronymic">
       <UInput
-        v-model.lazy.trim="resumeForm.patronymic"
+        v-model.lazy.trim="form.patronymic"
         placeholder="Отчество"
         maxlength="255"
       />
     </UFormField>
     <UFormField label="Дата рождения" name="birthday" required>
-      <UInput v-model.lazy="resumeForm.birthday" type="date" required />
+      <UInput v-model.lazy="form.birthday" type="date" required />
     </UFormField>
     <UFormField label="Место рождения" name="birthplace">
       <UInput
-        v-model.lazy.trim="resumeForm.birthplace"
+        v-model.lazy.trim="form.birthplace"
         placeholder="Место рождения"
         maxlength="255"
       />
     </UFormField>
     <UFormField label="Гражданство" name="citizenship">
       <UInput
-        v-model.lazy.trim="resumeForm.citizenship"
+        v-model.lazy.trim="form.citizenship"
         placeholder="Гражданство"
         maxlength="255"
       />
     </UFormField>
     <UFormField label="Двойное гражданство" name="dual">
       <UInput
-        v-model.lazy.trim="resumeForm.dual"
+        v-model.lazy.trim="form.dual"
         placeholder="Двойное гражданство"
         maxlength="255"
       />
     </UFormField>
     <UFormField label="СНИЛС" name="snils">
       <UInput
-        v-model.lazy.trim="resumeForm.snils"
+        v-model.lazy.trim="form.snils"
         placeholder="СНИЛС"
         maxlength="11"
       />
     </UFormField>
     <UFormField label="ИНН" name="inn">
-      <UInput
-        v-model.lazy.trim="resumeForm.inn"
-        placeholder="ИНН"
-        maxlength="12"
-      />
+      <UInput v-model.lazy.trim="form.inn" placeholder="ИНН" maxlength="12" />
     </UFormField>
     <UFormField label="Семейное положение" name="marital">
       <UInput
-        v-model.lazy.trim="resumeForm.marital"
+        v-model.lazy.trim="form.marital"
         placeholder="Семейное положение"
         maxlength="255"
       />
     </UFormField>
     <UFormField label="Дополнительно" name="addition">
       <UTextarea
-        v-model.lazy.trim="resumeForm.addition"
+        v-model.lazy.trim="form.addition"
         placeholder="Дополнительно"
       />
     </UFormField>
