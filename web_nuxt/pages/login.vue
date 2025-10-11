@@ -153,8 +153,8 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
 
 <template>
   <UPage>
-    <div class="flex flex-col items-center justify-center gap-4 p-4">
-      <UPageCard class="w-full max-w-md">
+    <div class="flex flex-col items-center justify-center pt-16">
+      <UPageCard class="w-full max-w-md m-auto">
         <UAuthForm
           title="Вход в систему"
           description="Доступ в систему кадровой безопасности."
@@ -169,7 +169,7 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
           @submit="onSubmit($event)"
         >
           <template #title>
-            <ElementsLogoDiv />
+            <ElementsLogoDiv class="my-2" />
           </template>
           <template #validation>
             <UAlert
