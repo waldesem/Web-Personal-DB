@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { refAutoReset } from "@vueuse/core";
 import type { Persons } from "@/types";
 
 const props = defineProps({
@@ -9,14 +8,10 @@ const props = defineProps({
   },
 });
 
-const copy = refAutoReset("Копировать адрес", 3000);
-
 function handleClick() {
   if (props.item.destination) {
     navigator.clipboard.writeText(props.item.destination).then(() => {
-      if (copy.value) {
-        copy.value = "Адрес скопирован!";
-      }
+      useToasts("success", "Адрес скопирован!");
     });
   }
 }
@@ -46,11 +41,10 @@ function handleClick() {
   />
   <ElementsLabelSlot v-if="props.item.destination" label="Материалы проверок">
     <UButton
-      :variant="copy === 'Копировать адрес' ? 'outline' : 'solid'"
-      :disabled="!props.item.destination || copy === 'Адрес скопирован!'"
-      :color="copy === 'Копировать адрес' ? 'info' : 'success'"
+      variant="outline"
+      color="info"
       size="sm"
-      :label="copy"
+      label="Копировать ссылку"
       @click="handleClick"
     />
   </ElementsLabelSlot>

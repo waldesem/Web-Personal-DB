@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useDateFormat } from "@vueuse/core";
 import type { Work } from "@/types";
 
 const emit = defineEmits(["update"]);
@@ -12,14 +11,10 @@ const props = defineProps({
 });
 
 const workForm = toRef(props.item);
+
 // Преобразование даты в формат YYYY-MM-DD для корректного отображения в форме
-workForm.value.starts = !workForm.value.now_work
-  ? useDateFormat(props.item.starts, "YYYY-MM-DD").value
-  : "";
-workForm.value.finished = useDateFormat(
-  props.item.finished,
-  "YYYY-MM-DD"
-).value;
+const starts = useISODate(workForm.value.starts);
+const finished = useISODate(workForm.value.finished);
 </script>
 
 <template>
@@ -34,18 +29,18 @@ workForm.value.finished = useDateFormat(
       required
     >
       <UInput
-        v-model="workForm.starts"
-        placeholder="Начало работы"
+        :value="starts"
         type="date"
         required
+        @input="workForm.starts = $event.target.value"
       />
     </UFormField>
     <UFormField label="Окончание работы" name="finished" required>
       <UInput
-        v-model="workForm.finished"
-        placeholder="Окончание работы"
+        :value="finished"
         type="date"
         required
+        @input="workForm.finished = $event.target.value"
       />
     </UFormField>
     <UFormField label="Место работы" name="workplace" required>

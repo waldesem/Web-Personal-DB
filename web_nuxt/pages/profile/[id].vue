@@ -155,7 +155,7 @@ const items = [
             :loading="status === 'pending'"
             variant="outline"
             icon="i-lucide-cloud-upload"
-            title="Загрузить файлы"
+            label="Загрузить файлы"
             @click="open()"
           />
           <UButton

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useDateFormat } from "@vueuse/core";
 import type { Passport } from "@/types";
 
 const emit = defineEmits(["update"]);
@@ -12,8 +11,8 @@ const props = defineProps({
 });
 
 const docForm = toRef(props.item);
-// Преобразуем дату в формат YYYY-MM-DD
-docForm.value.issue = useDateFormat(props.item.issue, "YYYY-MM-DD").value;
+
+const issue = useISODate(docForm.value.issue);
 </script>
 
 <template>
@@ -51,7 +50,12 @@ docForm.value.issue = useDateFormat(props.item.issue, "YYYY-MM-DD").value;
       />
     </UFormField>
     <UFormField label="Дата выдачи" name="issue" required>
-      <UInput v-model.trim.lazy="docForm.issue" type="date" required />
+      <UInput
+        :value="issue"
+        type="date"
+        required
+        @input="docForm.issue = $event.target.value"
+      />
     </UFormField>
     <ElementsSubmitButton />
   </UForm>

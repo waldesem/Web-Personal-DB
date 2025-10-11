@@ -15,9 +15,7 @@ const form = toRef(props.resume);
 const { $api } = useNuxtApp();
 
 // Преобразование даты в формат YYYY-MM-DD
-form.value.birthday = computed(() => {
-  return form.value.birthday ? new Date(form.value.birthday).toISOString() : "";
-}).value;
+const birthday = useISODate(form.value.birthday);
 
 async function submitPerson() {
   const { person_id, exists } = await $api<{
@@ -93,7 +91,12 @@ const validate = (state: Partial<Persons>) => {
       />
     </UFormField>
     <UFormField label="Дата рождения" name="birthday" required>
-      <UInput v-model.lazy="form.birthday" type="date" required />
+      <UInput
+        :value="birthday"
+        type="date"
+        required
+        @input="form.birthday = $event.target.value"
+      />
     </UFormField>
     <UFormField label="Место рождения" name="birthplace">
       <UInput
