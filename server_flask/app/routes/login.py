@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Literal
 
-from flask import Blueprint, current_app, g
+from flask import Blueprint, current_app, g, jsonify
 from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
@@ -69,14 +69,7 @@ def post_login(
 
 
 @bp.post("/refresh")
-@pydantify(AuthResponse)
 @auth_required(refresh=True)
 def refresh_token() -> tuple[dict, int]:
     """Refresh the access token."""
-    try:
-        return {
-            "message": "success",
-            "access_token": create_access_token(g.user),
-        }, 201
-    except (ValueError, ValidationError):
-        return {"message": "invalid"}, 200
+    return jsonify({"access_token": create_access_token(g.user)}), 201

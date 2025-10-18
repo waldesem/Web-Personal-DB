@@ -43,9 +43,13 @@ def auth_required(roles: tuple | None = None, *, refresh: bool = False) -> Calla
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args: tuple, **kwargs: dict) -> Response | Callable:
-            if (header := request.headers.get("Authorization")) and (
-                decoded := decode_token(header, refresh=refresh)
-            ):
+            token = None
+            if refresh:
+                token = request.get_json().get("refresh_token")
+            else:
+                token = request.headers.get("Authorization")
+
+            if token and (decoded := decode_token(token, refresh=refresh)):
                 g.user = get_current_user(decoded.get("id"))
             else:
                 return abort(401)

@@ -8,7 +8,7 @@ from pathlib import Path
 
 from flask import Blueprint, current_app, g, request
 from pydantic import ValidationError
-from sqlalchemy import desc, func, select
+from sqlalchemy import desc, func, select, text
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
@@ -35,7 +35,7 @@ from app.tables.tables import (
     Users,
     Workplaces,
 )
-from app.utils.utilities import check_filename, create_destination, upload_resume
+from app.utils.utilities import check_filename, upload_resume
 
 bp = Blueprint("route", __name__)
 
@@ -93,54 +93,33 @@ def get_index(json_query: Index) -> tuple[list[Persons], int]:
 @bp.get("/self/<int:person_id>")
 @pydantify()
 @auth_required(Roles.user.value)
-def change_self_id(person_id: int) -> tuple[dict, int]:
+def switch_status(person_id: int) -> tuple[dict, int]:
     """Toggle the editable status of a person."""
-    if person := db.session.get(Persons, person_id):
-        try:
-            if not person.destination or not Path(person.destination).is_dir():
-                person.destination = create_destination(person)
-            if person.user_id != g.user.id:
-                if person.editable:
-                    person.editable = False
-                else:
-                    person.user_id = g.user.id
-                    person.editable = True
-            else:
-                person.editable = not person.editable
-            db.session.commit()
-        except SQLAlchemyError:
-            current_app.logger.exception("Exception in change_self_id")
-            return {"message": "error"}, 200
-        else:
-            return {"message": "success"}, 201
-    return {"message": "error"}, 200
+    stmt = text(
+        "UPDATE persons SET user_id = :user_id, editable = NOT editable WHERE id = :id",
+    )
+    db.session.execute(stmt, {"user_id": g.user.id, "id": person_id})
+    db.session.commit()
+    return {"message": "success"}, 201
 
 
 @bp.post("/files/<int:person_id>")
 @pydantify()
 @auth_required(Roles.user.value)
 def post_files(person_id: int) -> tuple[dict, int]:
-    """Upload a file to the server."""
-    file_data = request.files.getlist("file")
-    if person := db.session.get(Persons, person_id):
-        try:
-            subfolder = Path(
-                person.destination,
-                datetime.now().strftime("%d-%m-%Y %H-%M-%S"),
-            )
-            subfolder.mkdir(parents=True, exist_ok=True)
-
-            for data in file_data:
-                secure_filename = check_filename(data.filename)
-                if secure_filename:
-                    file_path = Path(subfolder, secure_filename)
-                    if not file_path.is_file():
-                        data.save(file_path)
-        except (TypeError, ValueError, AttributeError):
-            current_app.logger.exception("Exception in post_files")
-            return {"message": "error"}, 200
-        else:
-            return {"message": "success"}, 201
+    """Upload files to the server."""
+    if (person := db.session.get(Persons, person_id)) and person.destination:
+        subfolder = Path(
+            person.destination,
+            datetime.now().strftime("%d-%m-%Y %H-%M-%S"),
+        )
+        subfolder.mkdir(parents=True, exist_ok=True)
+        for data in request.files.getlist("file"):
+            if secure_filename := check_filename(data.filename):
+                file_path = Path(subfolder, secure_filename)
+                if not file_path.is_file():
+                    data.save(file_path)
+        return {"message": "success"}, 201
     return {"message": "error"}, 200
 
 
@@ -236,7 +215,6 @@ def upload_items(anketa: AnketaJson, person_id: int) -> None:
         db.session.commit()
     except SQLAlchemyError:
         current_app.logger.exception("Add items Error")
-
 
 
 @bp.get("/test")

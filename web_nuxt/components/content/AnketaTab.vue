@@ -14,13 +14,14 @@ const props = defineProps({
     type: String as PropType<"idle" | "pending" | "success" | "error">,
     default: "success",
   },
+  editable: {
+    type: Boolean,
+    default: false,
+  }
 });
 
 // Преобразуем переменную для чтения в реактивную
 const status = toRef(props.status);
-
-// Инжектируем данные (находится ли анкета в режиме редактирования)
-const editable = inject("editable") as Ref<boolean>;
 
 // Объявляем переменную для переключения модального окна
 const modal = ref(false);
@@ -97,6 +98,6 @@ async function deletePerson() {
     <USeparator />
 
     <!-- Выводим аккордеон с данными staffs, educations и т.д. -->
-    <slot name="items" />
+    <ContentItemsDivs />
   </div>
 </template>

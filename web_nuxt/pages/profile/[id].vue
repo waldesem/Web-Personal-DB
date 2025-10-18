@@ -57,7 +57,7 @@ async function switchSelf(): Promise<void> {
   }
   status.value = "pending";
   const { message } = await $api<Record<string, string>>(
-    "/routes/self/" + data.value?.id
+    "/routes/self/" + candId.value
   );
   status.value = message as "success" | "error";
   if (message == "success") {
@@ -95,48 +95,6 @@ onChange(async (files) => {
     useToasts();
   }
 });
-
-// Определяем массив элементов табов
-const items = [
-  {
-    content: "person",
-    label: "Анкета",
-    icon: "i-lucide-user",
-    slot: "person" as const,
-  },
-  {
-    content: "checks",
-    label: "Проверки",
-    icon: "i-lucide-circle-check-big",
-    slot: "checks" as const,
-    ItemComponent: resolveComponent("ItemsCheckItem"),
-    FormComponent: resolveComponent("FormsCheckForm"),
-  },
-  {
-    content: "poligrafs",
-    label: "Полиграф",
-    icon: "i-lucide-heart-pulse",
-    slot: "poligrafs" as const,
-    ItemComponent: resolveComponent("ItemsPoligrafItem"),
-    FormComponent: resolveComponent("FormsPoligrafForm"),
-  },
-  {
-    content: "investigations",
-    label: "Расследования",
-    icon: "i-lucide-briefcase-business",
-    slot: "investigations" as const,
-    ItemComponent: resolveComponent("ItemsInquestItem"),
-    FormComponent: resolveComponent("FormsInquestForm"),
-  },
-  {
-    content: "inquiries",
-    label: "Запросы",
-    icon: "i-lucide-book-text",
-    slot: "inquiries" as const,
-    ItemComponent: resolveComponent("ItemsInquiryItem"),
-    FormComponent: resolveComponent("FormsInquiryForm"),
-  },
-];
 </script>
 
 <template>
@@ -179,47 +137,15 @@ const items = [
         </div>
       </template>
     </UPageHeader>
-
     <!-- Меню для переключения между вкладками -->
-    <UTabs
-      :unmount-on-hide="false"
-      :ui="{ trigger: 'flex-1' }"
-      :items="items"
-      color="info"
-      variant="pill"
-      class="gap-4 w-full"
-    >
-      <!-- Вкладка для отображения анкеты -->
-      <template #person>
-        <ContentAnketaTab :person="(data ?? {} as Persons)" :status="status">
-          <template #items>
-            <ContentItemsDivs />
-          </template>
-        </ContentAnketaTab>
+    <ContentSharedTabs>
+      <template #anketa-tab>
+        <ContentAnketaTab
+          :person="data"
+          :status="status"
+          :editable="editable"
+        />
       </template>
-
-      <template
-        v-for="tab in items.slice(1)"
-        #[tab.slot]="{ item }"
-        :key="tab.slot"
-      >
-        <ContentSharedView :view="item.content">
-          <template #item="{ itemContent }">
-            <component
-              :is="tab.ItemComponent"
-              :item="(itemContent as unknown as undefined)"
-            />
-          </template>
-
-          <template #form="{ formContent, submitItem }">
-            <component
-              :is="tab.FormComponent"
-              :item="(formContent as unknown as undefined)"
-              @update="submitItem"
-            />
-          </template>
-        </ContentSharedView>
-      </template>
-    </UTabs>
+    </ContentSharedTabs>
   </UPage>
 </template>
