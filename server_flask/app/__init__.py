@@ -9,7 +9,6 @@ from werkzeug.exceptions import HTTPException
 
 from app.extensions.compress import Compress
 from app.extensions.database import Database
-from app.extensions.revoking import RevokeDB
 from config import Config
 
 handler = logging.FileHandler("error.log", mode="w", encoding="utf-8")
@@ -19,7 +18,6 @@ handler.setFormatter(formatter)
 
 compress = Compress()  # Create the compression instance
 db = Database()  # Create the database instance for SQLAlchemy
-revoked = RevokeDB()  # Create the database instance for revoked tokens
 
 
 def create_app(config_class: type[Config] = Config) -> Flask:

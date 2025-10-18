@@ -11,7 +11,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from app import db, revoked
+from app import db
 from app.decorators.depend import auth_required
 from app.decorators.validize import pydantify
 from app.models.models import AuthResponse, Login
@@ -57,8 +57,8 @@ def post_login(
             db.session.commit()
             return {
                 "message": "success",
-                "access_token": "Bearer " + create_access_token(user),
-                "refresh_token": "Bearer " + create_refresh_token(user),
+                "access_token": create_access_token(user),
+                "refresh_token": create_refresh_token(user),
             }, 200
         return {"message": "denied"}, 200  # noqa: TRY300
 
@@ -66,22 +66,6 @@ def post_login(
         current_app.logger.exception("Error occurred in login route")
         db.session.rollback()
         return {"message": "invalid"}, 200
-
-
-@bp.post("/logout")
-@pydantify()
-def logout(json_data: AuthResponse) -> tuple[dict, int]:
-    """Logout the user."""
-    if not json_data.access_token or not json_data.refresh_token:
-        current_app.logger.warning("Invalid token")
-        return {"message": "invalid"}, 200
-    try:
-        revoked.set(json_data.access_token.split(".")[-1])
-        revoked.set(json_data.refresh_token.split(".")[-1])
-        revoked.revoke()
-    except (ValueError, IndexError):
-        current_app.logger.exception("Error occurred in logout route")
-    return {"message": ""}, 200
 
 
 @bp.post("/refresh")
@@ -92,7 +76,7 @@ def refresh_token() -> tuple[dict, int]:
     try:
         return {
             "message": "success",
-            "access_token": "Bearer " + create_access_token(g.user),
+            "access_token": create_access_token(g.user),
         }, 201
     except (ValueError, ValidationError):
         return {"message": "invalid"}, 200

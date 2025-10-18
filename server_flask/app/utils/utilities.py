@@ -13,7 +13,7 @@ from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 
-from app import db, revoked
+from app import db
 from app.models.models import PersonIn, User
 from app.tables.tables import Persons, Users
 
@@ -52,7 +52,7 @@ def decode_token(header: str, *, refresh: bool = False) -> dict | None:
     """Decode JWT token and return payload."""
     decoded = None
     try:
-        if (bearer := header[7:]) and bearer.split(".")[-1] not in revoked.data:
+        if (bearer := header[7:]):
             decoded = jwt.decode(
                 bearer,
                 current_app.config["JWT_SECRET_KEY"]

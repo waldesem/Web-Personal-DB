@@ -20,7 +20,7 @@ export default defineNuxtRouteMiddleware(async () => {
         const access_token = await refreshToken(refresh.value);
         if (access_token) {
           // Если токен доступа получен, сохраняем его в cookie
-          token.value = access_token.split(" ")[1];
+          token.value = access_token;
         } else {
           await navigateTo("/login");
         }

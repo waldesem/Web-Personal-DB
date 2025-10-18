@@ -133,8 +133,8 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
         sameSite: "strict",
         watch: "shallow",
       });
-      token.value = access_token.split(" ")[1];
-      refresh.value = refresh_token.split(" ")[1];
+      token.value = access_token;
+      refresh.value = refresh_token;
       return navigateTo("/persons");
     } else if (message === "updated") {
       action.value = "login";
