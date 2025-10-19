@@ -4,6 +4,9 @@ import type { Login } from "@/types";
 
 definePageMeta({ layout: false });
 
+// Прелоадим роут для перехода на страницу со списком кандидатов
+await preloadRouteComponents("/persons");
+
 // Объявляем переменные для формы и состояния
 const action = ref("login");
 

@@ -5,7 +5,7 @@ export default defineNuxtConfig({
     "@/": fileURLToPath(new URL("./src", import.meta.url)),
   },
   app: {
-    keepalive: { include: "persons", max: 3 },
+    keepalive: { include: "persons", max: 2 },
     pageTransition: { name: "page", mode: "out-in" },
     head: {
       title: "StaffSec - кадровая безопасность",
@@ -14,7 +14,7 @@ export default defineNuxtConfig({
   build: {
     analyze: true,
   },
-  compatibilityDate: "2025-07-05",
+  compatibilityDate: "2025-10-05",
   css: ["~/assets/css/main.css"],
   devtools: { enabled: true },
   icon: {

@@ -59,7 +59,7 @@ def post_login(
                 "message": "success",
                 "access_token": create_access_token(user),
                 "refresh_token": create_refresh_token(user),
-            }, 200
+            }, 201
         return {"message": "denied"}, 200  # noqa: TRY300
 
     except (SQLAlchemyError, ValueError, ValidationError):

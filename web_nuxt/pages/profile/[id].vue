@@ -2,24 +2,18 @@
 import { useFileDialog } from "@vueuse/core";
 import type { Persons } from "@/types";
 
-definePageMeta({
-  middleware: ["user"],
-});
-
-// Презагрузка компонентов
-await preloadComponents(["ContentAnketaTab", "ContentSharedView"]);
-
-// Используем плагин для передачи данных на сервер
-const { $api } = useNuxtApp();
-
-// Определяем композаблы для работы с данными
-const route = useRoute();
-const userState = useStateUser();
+await prefetchComponents('UModal');
 
 // Получаем данные id кандидата из URL
+const route = useRoute();
 const candId = computed(() => route.params.id as string);
 // Передаем данные id кандидата в другие компоненты
 provide("candId", candId);
+
+const userState = useStateUser();
+
+// Используем плагин для передачи данных на сервер
+const { $api } = useNuxtApp();
 
 // Определяем функцию для получения данных из API
 const { data, status, refresh } = await useAsyncData("persons", async () => {
@@ -108,7 +102,10 @@ onChange(async (files) => {
     >
       <template #links>
         <!-- Кнопки для загрузки файлов и переключения режима редактирования -->
-        <div v-if="userState.role == 'user'" class="flex items-center space-x-4">
+        <div
+          v-if="userState.role == 'user'"
+          class="flex items-center space-x-4"
+        >
           <UButton
             :loading="status === 'pending'"
             variant="outline"

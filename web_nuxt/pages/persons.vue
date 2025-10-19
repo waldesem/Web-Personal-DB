@@ -3,10 +3,6 @@ import { refDebounced, useFileDialog } from "@vueuse/core";
 import type { TableColumn } from "@nuxt/ui";
 import type { Candidate } from "@/types";
 
-definePageMeta({
-  middleware: ["user"],
-});
-
 // Прелоадим компонент для загрузки анкеты
 await preloadRouteComponents("/profile/[id]");
 
@@ -75,7 +71,7 @@ function handleEmit(person_id: string, exists: boolean) {
 }
 
 // Обработчик результата загрузки данных
-function proceedResult(person_id: string, exists: boolean) {
+async function proceedResult(person_id: string, exists: boolean) {
   status.value = "success";
   if (person_id) {
     if (exists) {
@@ -83,13 +79,16 @@ function proceedResult(person_id: string, exists: boolean) {
     } else {
       useToasts("success", "Анкета успешно загружена");
     }
+    await refresh();
     return navigateTo("/profile/" + person_id);
   } else {
     if (exists) {
+      await refresh();
       useToasts("info", "Анкета назначена другому пользователю");
     } else {
       useToasts();
     }
+    status.value = "success";
   }
 }
 
@@ -217,13 +216,13 @@ const columns: TableColumn<Candidate>[] = [
             :loading="status === 'pending'"
           />
         </UDropdownMenu>
+
         <!-- Модальное окно для добавления анкеты -->
         <UModal
           v-model:open="modal"
           title="Добавить анкету"
           description="Введите анкетные данные кандидата"
         >
-          <!-- Вставляем форму для добавления анкеты -->
           <template #body>
             <LazyFormsResumeForm @update="handleEmit" />
           </template>
@@ -273,7 +272,10 @@ const columns: TableColumn<Candidate>[] = [
         title="Обновить данные"
         @click="refresh()"
         >Обновлено
-        <NuxtTime :datetime="updated" relative />
+        <NuxtTime 
+          :datetime="updated" 
+          relative 
+        />
       </UButton>
     </div>
 

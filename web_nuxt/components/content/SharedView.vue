@@ -1,4 +1,5 @@
 <script setup lang="ts">
+
 // Импортируем плагин для передачи данных на сервер
 const { $api } = useNuxtApp();
 
@@ -118,7 +119,6 @@ async function deleteItem(id: string) {
     description="Введите или отредактируйте данные"
   >
     <div
-      v-if="editable"
       class="flex justify-start py-2"
       :class="{ 'border-t border-gray-200': data && data.length > 0 }"
     >

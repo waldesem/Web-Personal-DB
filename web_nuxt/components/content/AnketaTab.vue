@@ -31,7 +31,6 @@ function submitPerson(person_id: number | null) {
   modal.value = false;
   if (person_id) {
     status.value = "pending";
-    refreshNuxtData("persons");
     useToasts("success", "Информация успешно обновлена");
     status.value = "success";
   } else {
@@ -84,7 +83,6 @@ async function deletePerson() {
     </div>
     <!-- Выводим модальное окно для редактирования данных -->
     <UModal
-      v-if="editable"
       v-model:open="modal"
       title="Редактирование анкеты"
       description="Отредактируйте анкетные данные"

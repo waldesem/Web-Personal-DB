@@ -1,17 +1,16 @@
 <script setup lang="ts">
-
 // Объявляем переменную для получения данных пользователя
 const userState = useStateUser();
 
 // Объявляем функцию для выхода из системы и очистки данных пользователя
-async function logout() {
+function logout() {
   if (!confirm("Вы действительно хотите выйти?")) return;
   const token = useCookie("token");
   const refresh = useCookie("refresh");
   token.value = null;
   refresh.value = null;
   clearNuxtData();
-  return navigateTo("/login");
+  return navigateTo("/login", { external: true });
 }
 </script>
 
@@ -25,18 +24,13 @@ async function logout() {
       </template>
       <template #default>
         <UNavigationMenu
-          v-if="userState.role"
+          v-if="userState.role === 'admin'"
           :items="[
             {
               label: 'Пользователи',
               icon: 'i-lucide-users',
               to: '/users',
               disabled: userState.role !== 'admin',
-            },
-            {
-              label: 'Кандидаты',
-              icon: 'i-lucide-users-round',
-              to: '/persons',
             },
           ]"
           variant="link"
@@ -61,15 +55,13 @@ async function logout() {
     <USeparator type="dashed" class="h-px" />
     <UFooter>
       <template #left>
-        <p class="text-muted text-sm">
-          Copyright © {{ new Date().getFullYear() }}
-        </p>
+        <p class="text-sm">{{ new Date().getFullYear() }}</p>
       </template>
 
       <template #right>
         <UButton
           icon="i-lucide-computer"
-          title="GitHub"
+          label="GitHub"
           color="neutral"
           variant="ghost"
           to="https://github.com/waldesem/Web-Personal-DB"

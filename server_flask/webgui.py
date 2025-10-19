@@ -1,7 +1,4 @@
-"""WebGUI module.
-
-Original code - https://github.com/ClimenteA/flaskwebgui
-"""
+"""WebGUI module."""
 
 from __future__ import annotations
 

@@ -66,8 +66,7 @@ def get_item(item: Items, person_id: int) -> tuple[list[T], int]:
         .filter(db.metatables[item].c.person_id == person_id)
         .order_by(db.metatables[item].c.id.desc())
     )
-    result = db.session.execute(stmt).all()
-    return result, 200
+    return db.session.execute(stmt).all(), 200
 
 
 def post_item(item: Items, person_id: int, json_data: BaseModel) -> tuple[dict, int]:
@@ -88,6 +87,24 @@ def post_item(item: Items, person_id: int, json_data: BaseModel) -> tuple[dict, 
             # Если нет, создаем запрос на вставку новой записи
             stmt = db.metatables[item].insert().values(json_dict)
         db.session.execute(stmt)
+        db.session.commit()
+    except SQLAlchemyError:
+        current_app.logger.exception("Database error")
+        db.session.rollback()
+        return {"message": "error"}, 200
+    else:
+        return {"message": "success"}, 201
+
+
+@bp.delete("/<item>/<int:item_id>")
+@pydantify()
+@auth_required(Roles.user.value)
+def delete(item: Items, item_id: int) -> tuple[dict, int]:
+    """Delete an item from the database based on the provided item name and item ID."""
+    try:
+        db.session.execute(
+            db.metatables[item].delete().where(db.metatables[item].c.id == item_id),
+        )
         db.session.commit()
     except SQLAlchemyError:
         current_app.logger.exception("Database error")
@@ -287,21 +304,3 @@ def post_inquiries(person_id: int, json_data: Inquiry) -> tuple[dict, int]:
 def post_investigations(person_id: int, json_data: Investigation) -> tuple[dict, int]:
     """Insert or replaces a record in investigations table with the given item ID."""
     return post_item("investigations", person_id, json_data)
-
-
-@bp.delete("/<item>/<int:item_id>")
-@pydantify()
-@auth_required(Roles.user.value)
-def delete(item: Items, item_id: int) -> tuple[dict, int]:
-    """Delete an item from the database based on the provided item name and item ID."""
-    try:
-        db.session.execute(
-            db.metatables[item].delete().where(db.metatables[item].c.id == item_id),
-        )
-        db.session.commit()
-    except SQLAlchemyError:
-        current_app.logger.exception("Database error")
-        db.session.rollback()
-        return {"message": "error"}, 200
-    else:
-        return {"message": "success"}, 201

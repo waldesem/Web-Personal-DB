@@ -47,12 +47,11 @@ def create_user(
             email=email,
             role=role,
         )
-        created = db.session.execute(
+        if db.session.execute(
             select(Users).where(
-                or_(Users.username == username or Users.email == email),
+                or_(Users.username == username, Users.email == email),
             ),
-        ).scalar()
-        if created:
+        ).scalar():
             click.echo(f"User {username} already exists or email is taken")
         else:
             db.session.add(Users(**user.dict()))
