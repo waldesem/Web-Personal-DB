@@ -10,7 +10,7 @@ function logout() {
   token.value = null;
   refresh.value = null;
   clearNuxtData();
-  return navigateTo("/login", { external: true });
+  return navigateTo("/login");
 }
 </script>
 

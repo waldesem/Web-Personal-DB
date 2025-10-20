@@ -15,7 +15,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       // Если токен не найден, переходим на страницу логина
       if (!refresh.value) {
         await nuxtApp.runWithContext(() =>
-          navigateTo("/login", { external: true })
+          navigateTo("/login")
         );
       }
 
@@ -41,7 +41,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         } catch (error) {
           console.error(error);
           await nuxtApp.runWithContext(() =>
-            navigateTo("/login", { external: true })
+            navigateTo("/login")
           );
         }
       }
@@ -54,7 +54,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     async onResponseError({ response }) {
       if (response.status === 401 || response.status === 403) {
         await nuxtApp.runWithContext(() =>
-          navigateTo("/login", { external: true })
+          navigateTo("/login")
         );
       }
     },

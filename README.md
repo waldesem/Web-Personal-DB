@@ -34,15 +34,10 @@ flask command folders
 ```
 For creating new user run the command in terminal:
 ```
-flask command user 'Super Admin' superadmin superadmin@elocalhost --role=admin
+flask command user Super superadmin 'superadmin@localhost.ru' --role=admin
 ```
 Recomend to create user with role `admin` for first login.
 DEFAULT_PASSWORD for created user - `88888888`.
-
-For creating api schemas for uploading anketa run the command:
-```
-flask command schemas
-```
 
 ### Build frontend
 

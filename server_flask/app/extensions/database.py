@@ -32,10 +32,10 @@ class Database:
             msg = "DATABASE_URI is Empty."
             raise RuntimeError(msg)
 
-        engine = create_engine(app.config["DATABASE_URI"])
-        self.metadata.create_all(bind=engine)
+        self.engine = create_engine(app.config["DATABASE_URI"])
+        # self.metadata.create_all(bind=self.engine)  # noqa: ERA001
         self.session = scoped_session(
-            sessionmaker(bind=engine, autoflush=False, autocommit=False),
+            sessionmaker(bind=self.engine, autoflush=False, autocommit=False),
         )
 
         app.teardown_appcontext(self._teardown_session)

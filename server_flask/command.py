@@ -36,8 +36,7 @@ def create_user(
 
     Example:
         export FLASK_APP=app
-        flask command user 'Super Admin' superadmin superadmin@elocalhost \
-            --role=admin
+        flask command user Super superadmin 'superadmin@localhost.ru' --role=admin
 
     """
     try:
@@ -47,6 +46,7 @@ def create_user(
             email=email,
             role=role,
         )
+        db.metadata.create_all(bind=db.engine)
         if db.session.execute(
             select(Users).where(
                 or_(Users.username == username, Users.email == email),
