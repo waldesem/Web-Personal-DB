@@ -238,7 +238,7 @@ const columns: TableColumn<User>[] = [
           />
           <!-- Вставляем форму для добавления пользователя -->
           <template #body>
-            <LazyFormsUserForm
+            <FormsUserForm
               @update="
                 modal = false;
                 refresh();

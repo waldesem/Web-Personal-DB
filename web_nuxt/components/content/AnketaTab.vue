@@ -52,7 +52,6 @@ async function deletePerson() {
   );
   if (message == "success") {
     useToasts(message, "Информация успешно удалена");
-    clearNuxtData();
     return navigateTo("/persons");
   } else {
     useToasts();
@@ -74,10 +73,10 @@ async function deletePerson() {
     <div class="ps-2">
       <Suspense>
         <template #default>
-          <LazyItemsPersonItem :item="props.person" />
+          <ItemsPersonItem :item="props.person" />
         </template>
         <template #fallback>
-          <LazyElementsSkeletonDiv :rows="12" />
+          <ElementsSkeletonDiv :rows="12" />
         </template>
       </Suspense>
     </div>
@@ -89,7 +88,7 @@ async function deletePerson() {
     >
       <template #body>
         <!-- Выводим форму для редактирования данных внутри модального окна -->
-        <LazyFormsResumeForm :resume="props.person" @update="submitPerson" />
+        <FormsResumeForm :resume="props.person" @update="submitPerson" />
       </template>
     </UModal>
 

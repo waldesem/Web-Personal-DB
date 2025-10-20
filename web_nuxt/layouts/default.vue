@@ -1,4 +1,9 @@
 <script setup lang="ts">
+
+definePageMeta({
+  middleware: ["user"],
+});
+
 // Объявляем переменную для получения данных пользователя
 const userState = useStateUser();
 

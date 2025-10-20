@@ -105,7 +105,7 @@ async function deleteItem(id: string) {
     <template #fallback>
       <div v-if="data">
         <div v-for="i in data.length + 1" :key="i">
-          <LazyElementsSkeletonDiv :rows="props.rows" />
+          <ElementsSkeletonDiv :rows="props.rows" />
           <USeparator v-if="i < data.length" />
         </div>
       </div>

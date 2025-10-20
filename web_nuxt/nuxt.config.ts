@@ -27,9 +27,6 @@ export default defineNuxtConfig({
     output: {
       publicDir: "../server_flask/app/static",
     },
-    prerender: {
-      routes: ["/", "/users", "/persons", "/profile/[id]"],
-    },
   },
   routeRules: {
     "/routes/**": { proxy: "http://127.0.0.1:5000/routes/**" },

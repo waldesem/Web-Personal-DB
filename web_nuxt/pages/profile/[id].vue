@@ -2,12 +2,15 @@
 import { useFileDialog } from "@vueuse/core";
 import type { Persons } from "@/types";
 
+definePageMeta({
+  middleware: ["user"],
+});
+
 await prefetchComponents('UModal');
 
 // Получаем данные id кандидата из URL
 const route = useRoute();
 const candId = computed(() => route.params.id as string);
-// Передаем данные id кандидата в другие компоненты
 provide("candId", candId);
 
 const userState = useStateUser();
@@ -92,7 +95,7 @@ onChange(async (files) => {
 </script>
 
 <template>
-  <UPage v-if="data">
+  <UPage>
     <UPageHeader
       :title="`${data?.surname} ${data?.firstname} ${data?.patronymic ?? ''}`"
       :ui="{
@@ -138,7 +141,7 @@ onChange(async (files) => {
     <ContentSharedTabs>
       <template #anketa-tab>
         <ContentAnketaTab
-          :person="data"
+          :person="data ?? ({} as Persons)"
           :status="status"
           :editable="editable"
         />

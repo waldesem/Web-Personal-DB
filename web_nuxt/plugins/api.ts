@@ -10,43 +10,7 @@ declare module "nuxt/app" {
 export default defineNuxtPlugin(async (nuxtApp) => {
   const api = $fetch.create({
     async onRequest({ options }) {
-      // Получаем токен обновления
-      const refresh = useCookie("refresh");
-      // Если токен не найден, переходим на страницу логина
-      if (!refresh.value) {
-        await nuxtApp.runWithContext(() =>
-          navigateTo("/login")
-        );
-      }
-
-      // Получаем токен доступа
-      const token =
-        useCookie("token") ??
-        useCookie("token", {
-          maxAge: 60 * 59,
-          sameSite: "strict",
-          watch: "shallow",
-        });
-
-      // Если токен доступа не найден, получаем новый токен доступа из API
-      if (!token.value) {
-        try {
-          const { access_token } = (await $fetch("/routes/auth/refresh", {
-            method: "POST",
-            body: {
-              refresh_token: `Bearer ${refresh.value}`,
-            },
-          })) as { access_token: string };
-          token.value = access_token;
-        } catch (error) {
-          console.error(error);
-          await nuxtApp.runWithContext(() =>
-            navigateTo("/login")
-          );
-        }
-      }
-
-      // Если токен доступа найден, добавляем его в заголовок запроса
+      const token = useCookie("token");
       options.headers.set("Authorization", `Bearer ${token.value}`);
     },
 

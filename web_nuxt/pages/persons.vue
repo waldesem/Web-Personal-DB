@@ -3,16 +3,20 @@ import { refDebounced, useFileDialog } from "@vueuse/core";
 import type { TableColumn } from "@nuxt/ui";
 import type { Candidate } from "@/types";
 
-// Прелоадим компонент для загрузки анкеты
-await preloadRouteComponents("/profile/[id]");
+definePageMeta({
+  middleware: ["user"],
+});
 
-// Используем плагин для передачи данных на сервер
-const { $api } = useNuxtApp();
+// Прелоадим компонент
+await preloadRouteComponents("/profile/[id]");
 
 // Объявляем переменные рендера компонентов
 const NuxtTime = resolveComponent("NuxtTime");
 const UButton = resolveComponent("UButton");
 const UIcon = resolveComponent("UIcon");
+
+// Используем плагин для передачи данных на сервер
+const { $api } = useNuxtApp();
 
 // Объявляем переменную для получения данных пользователя
 const userState = useStateUser();
@@ -224,7 +228,7 @@ const columns: TableColumn<Candidate>[] = [
           description="Введите анкетные данные кандидата"
         >
           <template #body>
-            <LazyFormsResumeForm @update="handleEmit" />
+            <FormsResumeForm @update="handleEmit" />
           </template>
         </UModal>
       </template>
@@ -245,10 +249,10 @@ const columns: TableColumn<Candidate>[] = [
     <!-- Таблица с данными кандидатов -->
     <UTable
       v-model:expanded="expanded"
+      loading-animation="swing"
+      empty="Данные не найдены"      
       :loading="status === 'pending'"
       :loading-color="'neutral'"
-      loading-animation="swing"
-      empty="Данные не найдены"
       :columns="columns"
       :data="data"
       :meta="{ class: { tr: 'cursor-pointer' } }"
@@ -256,7 +260,7 @@ const columns: TableColumn<Candidate>[] = [
     >
       <!-- Выводим подробную информацию о кандидате -->
       <template #expanded="{ row }">
-        <UCard><ItemsPersonItem :item="row.original" /></UCard>
+        <UCard><LazyItemsPersonItem :item="row.original" /></UCard>
       </template>
       <template #loading>
         <UIcon name="i-lucide-refresh-ccw" mode="css" class="animate-spin" />
@@ -268,8 +272,8 @@ const columns: TableColumn<Candidate>[] = [
       <UButton
         variant="ghost"
         icon="i-lucide-refresh-ccw"
-        :loading="status === 'pending'"
         title="Обновить данные"
+        :loading="status === 'pending'"
         @click="refresh()"
         >Обновлено
         <NuxtTime 

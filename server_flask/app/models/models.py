@@ -77,12 +77,6 @@ class UserForm(BaseModel):
         """Check username."""
         return v.lower()
 
-    @validator("fullname")
-    @classmethod
-    def fullname_check(cls, v: str) -> str:
-        """Check fullname."""
-        return v.upper()
-
     class Config:
         """Pydantic config."""
 
