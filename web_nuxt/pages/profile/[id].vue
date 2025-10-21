@@ -2,18 +2,12 @@
 import { useFileDialog } from "@vueuse/core";
 import type { Persons } from "@/types";
 
-definePageMeta({
-  middleware: ["user"],
-});
-
 await prefetchComponents('UModal');
 
 // Получаем данные id кандидата из URL
 const route = useRoute();
 const candId = computed(() => route.params.id as string);
 provide("candId", candId);
-
-const userState = useStateUser();
 
 // Используем плагин для передачи данных на сервер
 const { $api } = useNuxtApp();

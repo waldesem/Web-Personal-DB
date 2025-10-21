@@ -14,7 +14,7 @@ export interface UserForm {
 export interface Token extends UserForm {
   id: string;
   role: Roles;
-  exp: number;
+  exp?: number;
 }
 
 export interface User extends Token {

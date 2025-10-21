@@ -135,17 +135,19 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
       });
       token.value = access_token;
       refresh.value = refresh_token;
+      // userState.value = useJwt(token.value).payload.value as Token;
       return navigateTo("/persons");
     } else if (message === "updated") {
       action.value = "login";
       setAlert("success", "Информация", "Войдите с новым паролем.");
     } else if (message === "denied") {
       setAlert("warning", "Предупреждение", "Пароль просрочен.");
+      action.value = "update";
     } else {
       setAlert("error", "Внимание", "Неправильный логин или пароль.");
     }
   } catch (error) {
-    console.error(error)
+    console.error(error);
     setAlert("error", "Внимание", "Ошибка соединения с сервером.");
   }
 }

@@ -3,10 +3,6 @@ import { refDebounced, useFileDialog } from "@vueuse/core";
 import type { TableColumn } from "@nuxt/ui";
 import type { Candidate } from "@/types";
 
-definePageMeta({
-  middleware: ["user"],
-});
-
 // Прелоадим компонент
 await preloadRouteComponents("/profile/[id]");
 
@@ -17,9 +13,6 @@ const UIcon = resolveComponent("UIcon");
 
 // Используем плагин для передачи данных на сервер
 const { $api } = useNuxtApp();
-
-// Объявляем переменную для получения данных пользователя
-const userState = useStateUser();
 
 // Объявляем переменные для работы с данными
 const expanded = ref({ 1: false }); // Состояние раскрытия строк таблицы

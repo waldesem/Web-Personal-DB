@@ -1,12 +1,5 @@
 <script setup lang="ts">
 
-definePageMeta({
-  middleware: ["user"],
-});
-
-// Объявляем переменную для получения данных пользователя
-const userState = useStateUser();
-
 // Объявляем функцию для выхода из системы и очистки данных пользователя
 function logout() {
   if (!confirm("Вы действительно хотите выйти?")) return;
@@ -14,6 +7,7 @@ function logout() {
   const refresh = useCookie("refresh");
   token.value = null;
   refresh.value = null;
+  userState.value = null;
   clearNuxtData();
   return navigateTo("/login");
 }

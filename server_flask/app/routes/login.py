@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Literal
 
-from flask import Blueprint, current_app, g, jsonify
+from flask import Blueprint, Response, current_app, g, jsonify
 from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
@@ -73,3 +73,18 @@ def post_login(
 def refresh_token() -> tuple[dict, int]:
     """Refresh the access token."""
     return jsonify({"access_token": create_access_token(g.user)}), 201
+
+
+@bp.get("/session")
+@auth_required()
+def get_session() -> Response:
+    """Retrieve an item from the database based on the provided item ID."""
+    return jsonify(
+        {
+            "id": g.user.id,
+            "fullname": g.user.fullname,
+            "username": g.user.username,
+            "email": g.user.email,
+            "role": g.user.role,
+        },
+    ), 200
