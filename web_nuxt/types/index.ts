@@ -11,13 +11,15 @@ export interface UserForm {
   email: string;
 }
 
-export interface Token extends UserForm {
+export interface Session {
   id: string;
+  fullname: string;
+  username: string;
+  email: string;
   role: Roles;
-  exp?: number;
 }
 
-export interface User extends Token {
+export interface User extends Session {
   pswd_create: string;
   change_pswd: boolean;
   blocked: boolean;

@@ -123,6 +123,7 @@ async function deleteItem(id: string) {
       :class="{ 'border-t border-gray-200': data && data.length > 0 }"
     >
       <UButton
+        v-if="editable"
         :loading="status == 'pending'"
         label="Добавить запись"
         icon="i-lucide-file-plus"

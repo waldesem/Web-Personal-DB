@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { Contact } from '@/types';
 
-
 const emit = defineEmits(["update"]);
 
 const props = defineProps({
@@ -35,6 +34,6 @@ const contactForm = toRef(props.item);
         required
       />
     </UFormField>
-    <ElementsSubmitButton />
+    <UButton label="Принять" color="success" variant="outline" type="submit" />
   </UForm>
 </template>

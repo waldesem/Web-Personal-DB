@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useDateFormat } from "@vueuse/core";
 import type { Persons } from "@/types";
 
 const emit = defineEmits(["update"]);
@@ -15,7 +16,7 @@ const form = toRef(props.resume);
 const { $api } = useNuxtApp();
 
 // Преобразование даты в формат YYYY-MM-DD
-const birthday = useISODate(form.value.birthday);
+const birthday = useDateFormat(form.value.birthday, "YYYY-MM-DD");
 
 async function submitPerson() {
   const { person_id, exists } = await $api<{
@@ -142,6 +143,6 @@ const validate = (state: Partial<Persons>) => {
         placeholder="Дополнительно"
       />
     </UFormField>
-    <ElementsSubmitButton />
+    <UButton label="Принять" color="success" variant="outline" type="submit" />
   </UForm>
 </template>

@@ -1,18 +1,13 @@
 <script setup lang="ts">
 import type { Needs } from "@/types";
 
-const props = defineProps({
-  item: {
-    type: Object as PropType<Needs>,
-    default: () => ({}),
-  },
-});
+const props = defineProps<Needs>()
 </script>
 
 <template>
-  <ElementsLabelValue label="Информация" :value="props.item.info" />
-  <ElementsLabelValue label="Иннициатор" :value="props.item.initiator" />
-  <ElementsLabelSlot v-if="props.item.created" label="Дата записи">
-    <NuxtTime :datetime="props.item.created" />
+  <ElementsLabelValue label="Информация" :value="props.info" />
+  <ElementsLabelValue label="Иннициатор" :value="props.initiator" />
+  <ElementsLabelSlot v-if="props.created" label="Дата записи">
+    <NuxtTime :datetime="props.created" />
   </ElementsLabelSlot>
 </template>

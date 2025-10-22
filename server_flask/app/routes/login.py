@@ -16,7 +16,7 @@ from app.decorators.depend import auth_required
 from app.decorators.validize import pydantify
 from app.models.models import AuthResponse, Login
 from app.tables.tables import Users
-from app.utils.utilities import create_access_token, create_refresh_token
+from app.utils.utilities import create_token
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
@@ -57,8 +57,8 @@ def post_login(
             db.session.commit()
             return {
                 "message": "success",
-                "access_token": create_access_token(user),
-                "refresh_token": create_refresh_token(user),
+                "access_token": create_token(user.id),
+                "refresh_token": create_token(user.id, "REFRESH"),
             }, 201
         return {"message": "denied"}, 200  # noqa: TRY300
 
@@ -72,7 +72,7 @@ def post_login(
 @auth_required(refresh=True)
 def refresh_token() -> tuple[dict, int]:
     """Refresh the access token."""
-    return jsonify({"access_token": create_access_token(g.user)}), 201
+    return jsonify({"access_token": create_token(g.user.id)}), 201
 
 
 @bp.get("/session")

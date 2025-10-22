@@ -14,36 +14,19 @@ from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
-from app.models.models import PersonIn, User
-from app.tables.tables import Persons, Users
+from app.models.models import PersonIn
+from app.tables.tables import Persons
 
 
-def create_access_token(user: Users | User) -> str:
+def create_token(user_id: int, item: str= "ACCESS") -> str:
     """Create token."""
     return jwt.encode(
         {
-            "id": user.id,
-            "fullname": user.fullname,
-            "username": user.username,
-            "email": user.email,
-            "role": user.role,
+            "id": user_id,
             "exp": datetime.now(tz=timezone.utc)  # noqa: UP017
-            + timedelta(minutes=current_app.config["JWT_SECRET_KEY_LIVE"]),
+            + timedelta(minutes=current_app.config[f"{item}_SECRET_KEY_LIVE"]),
         },
-        current_app.config["JWT_SECRET_KEY"],
-        algorithm="HS256",
-    )
-
-
-def create_refresh_token(user: Users) -> str:
-    """Create refresh token."""
-    return jwt.encode(
-        {
-            "id": user.id,
-            "exp": datetime.now(tz=timezone.utc)  # noqa: UP017
-            + timedelta(days=current_app.config["REFRESH_SECRET_KEY_LIVE"]),
-        },
-        current_app.config["REFRESH_SECRET_KEY"],
+        current_app.config[f"{item}_SECRET_KEY"],
         algorithm="HS256",
     )
 
@@ -52,10 +35,10 @@ def decode_token(header: str, *, refresh: bool = False) -> dict | None:
     """Decode JWT token and return payload."""
     decoded = None
     try:
-        if (bearer := header[7:]):
+        if bearer := header[7:]:
             decoded = jwt.decode(
                 bearer,
-                current_app.config["JWT_SECRET_KEY"]
+                current_app.config["ACCESS_SECRET_KEY"]
                 if not refresh
                 else current_app.config["REFRESH_SECRET_KEY"],
                 algorithms=["HS256"],

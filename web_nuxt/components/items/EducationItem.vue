@@ -1,20 +1,15 @@
 <script setup lang="ts">
 import type { Education } from "@/types";
 
-const props = defineProps({
-  item: {
-    type: Object as PropType<Education>,
-    default: () => ({}),
-  },
-});
+const props = defineProps<Education>()
 </script>
 
 <template>
-  <ElementsLabelValue label="Уровень образования" :value="props.item.view" />
+  <ElementsLabelValue label="Уровень образования" :value="props.view" />
   <ElementsLabelValue
     label="Учебное заведение"
-    :value="props.item.institution"
+    :value="props.institution"
   />
-  <ElementsLabelValue label="Год окончания" :value="props.item.finished" />
-  <ElementsLabelValue label="Специальность" :value="props.item.specialty" />
+  <ElementsLabelValue label="Год окончания" :value="props.finished" />
+  <ElementsLabelValue label="Специальность" :value="props.specialty" />
 </template>

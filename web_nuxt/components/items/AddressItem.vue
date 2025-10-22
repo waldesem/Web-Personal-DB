@@ -1,22 +1,15 @@
 <script setup lang="ts">
 import type { Address } from "@/types";
 
-const UButton = resolveComponent("UButton");
-
-const props = defineProps({
-  item: {
-    type: Object as PropType<Address>,
-    default: () => ({}),
-  },
-});
+const props = defineProps<Address>();
 </script>
 
 <template>
-  <ElementsLabelValue label="Тип" :value="props.item.view" />
-  <ElementsLabelSlot v-if="props.item.address" label="Адрес">
-    {{ props.item.address }}
+  <ElementsLabelValue label="Тип" :value="props.view" />
+  <ElementsLabelSlot v-if="props.address" label="Адрес">
+    {{ props.address }}
     <UButton
-      :to="`https://yandex.ru/maps/?text=${props.item.address}%10с%10`"
+      :to="`https://yandex.ru/maps/?text=${props.address}%10с%10`"
       target="_blank"
       title="Показать на Яндекс.Карте"
       variant="outline"

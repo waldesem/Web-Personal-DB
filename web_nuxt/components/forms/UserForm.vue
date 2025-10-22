@@ -61,6 +61,6 @@ async function submitUser() {
     <UFormField label="Email" name="email" type="email" required>
       <UInput v-model.lazy.trim="form.email" placeholder="Email" required />
     </UFormField>
-    <ElementsSubmitButton />
+    <UButton label="Принять" color="success" variant="outline" type="submit" />
   </UForm>
 </template>

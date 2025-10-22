@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { useDocumentVisibility } from "@vueuse/core";
-import type { Token } from "./types";
 
 useHead({
   htmlAttrs: { lang: "ru" },
@@ -10,19 +8,6 @@ useHead({
     { name: "viewport", content: "width=device-width, initial-scale=1" },
     { charset: "utf-8" },
   ],
-});
-
-const visibility = useDocumentVisibility();
-watchEffect(async () => {
-  if (visibility.value === "visible") {
-    const { $api } = useNuxtApp();
-    try {
-      userState.value = (await $api("/routes/auth/session")) as Token;
-    } catch (error) {
-      console.error(error);
-      await navigateTo("/login");
-    }
-  }
 });
 </script>
 

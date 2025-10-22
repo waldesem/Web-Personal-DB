@@ -135,7 +135,6 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
       });
       token.value = access_token;
       refresh.value = refresh_token;
-      // userState.value = useJwt(token.value).payload.value as Token;
       return navigateTo("/persons");
     } else if (message === "updated") {
       action.value = "login";

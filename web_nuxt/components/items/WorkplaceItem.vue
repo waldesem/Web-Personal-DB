@@ -1,12 +1,7 @@
 <script setup lang="ts">
 import type { Work } from "@/types";
 
-const props = defineProps({
-  item: {
-    type: Object as PropType<Work>,
-    default: () => ({}),
-  },
-});
+const props = defineProps<Work>()
 
 const experience = computed(() => {
   const duration = {
@@ -14,13 +9,13 @@ const experience = computed(() => {
     months: 0,
     days: 0,
   };
-  const end = props.item.finished
-    ? new Date(props.item.finished)
-    : new Date(props.item.created);
-  if (!props.item.starts) {
+  const end = props.finished
+    ? new Date(props.finished)
+    : new Date(props.created);
+  if (!props.starts) {
     return duration;
   }
-  const start = new Date(props.item.starts);
+  const start = new Date(props.starts);
 
   duration.years = end.getFullYear() - start.getFullYear();
   duration.months = end.getMonth() - start.getMonth();
@@ -50,13 +45,13 @@ const experience = computed(() => {
 <template>
   <ElementsLabelValue
     label="Текущая работа"
-    :value="props.item.now_work ? 'Да' : 'Нет'"
+    :value="props.now_work ? 'Да' : 'Нет'"
   />
-  <ElementsLabelSlot v-if="props.item.starts" label="Начало работы">
-    <NuxtTime :datetime="props.item.starts" />
+  <ElementsLabelSlot v-if="props.starts" label="Начало работы">
+    <NuxtTime :datetime="props.starts" />
   </ElementsLabelSlot>
-  <ElementsLabelSlot v-if="props.item.finished" label="Окончание работы">
-    <NuxtTime :datetime="props.item.finished" />
+  <ElementsLabelSlot v-if="props.finished" label="Окончание работы">
+    <NuxtTime :datetime="props.finished" />
   </ElementsLabelSlot>
   <ElementsLabelSlot label="Стаж на рабочем месте">
     <UBadge
@@ -74,11 +69,11 @@ const experience = computed(() => {
       }}
     </UBadge>
   </ElementsLabelSlot>
-  <ElementsLabelValue label="Место" :value="props.item.workplace" />
-  <ElementsLabelSlot v-if="props.item.address" label="Адрес">
-    {{ props.item.address }}
+  <ElementsLabelValue label="Место" :value="props.workplace" />
+  <ElementsLabelSlot v-if="props.address" label="Адрес">
+    {{ props.address }}
     <UButton
-      :to="`https://yandex.ru/maps/?text=${props.item.address}%10с%10`"
+      :to="`https://yandex.ru/maps/?text=${props.address}%10с%10`"
       target="_blank"
       title="Показать на Яндекс.Карте"
       variant="outline"
@@ -86,6 +81,6 @@ const experience = computed(() => {
       class="ms-4"
     />
   </ElementsLabelSlot>
-  <ElementsLabelValue label="Должность" :value="props.item.position" />
-  <ElementsLabelValue label="Причина увольнения" :value="props.item.reason" />
+  <ElementsLabelValue label="Должность" :value="props.position" />
+  <ElementsLabelValue label="Причина увольнения" :value="props.reason" />
 </template>

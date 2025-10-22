@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useDateFormat } from "@vueuse/core";
 import type { Work } from "@/types";
 
 const emit = defineEmits(["update"]);
@@ -13,8 +14,8 @@ const props = defineProps({
 const workForm = toRef(props.item);
 
 // Преобразование даты в формат YYYY-MM-DD для корректного отображения в форме
-const starts = useISODate(workForm.value.starts);
-const finished = useISODate(workForm.value.finished);
+const starts = useDateFormat(workForm.value.starts, "YYYY-MM-DD");
+const finished = useDateFormat(workForm.value.finished, "YYYY-MM-DD");
 </script>
 
 <template>
@@ -71,6 +72,6 @@ const finished = useISODate(workForm.value.finished);
         placeholder="Причина увольнения"
       />
     </UFormField>
-    <ElementsSubmitButton />
+    <UButton label="Принять" color="success" variant="outline" type="submit" />
   </UForm>
 </template>

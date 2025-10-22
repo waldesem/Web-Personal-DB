@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useDateFormat } from "@vueuse/core";
 import type { Passport } from "@/types";
 
 const emit = defineEmits(["update"]);
@@ -12,7 +13,7 @@ const props = defineProps({
 
 const docForm = toRef(props.item);
 
-const issue = useISODate(docForm.value.issue);
+const issue = useDateFormat(docForm.value.issue, "YYYY-MM-DD");
 </script>
 
 <template>
@@ -57,6 +58,6 @@ const issue = useISODate(docForm.value.issue);
         @input="docForm.issue = $event.target.value"
       />
     </UFormField>
-    <ElementsSubmitButton />
+    <UButton label="Принять" color="success" variant="outline" type="submit" />
   </UForm>
 </template>

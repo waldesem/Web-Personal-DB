@@ -1,4 +1,25 @@
 <script setup lang="ts">
+import { useDocumentVisibility } from "@vueuse/core";
+import type { Session } from "@/types";
+
+const timeSession = ref(0);
+const visibility = useDocumentVisibility();
+
+watchEffect(async () => {
+  if (
+    visibility.value === "visible" &&
+    (timeSession.value === 0 ||
+      Date.now() - timeSession.value > 60000)
+  ) {
+    try {
+      const { $api } = useNuxtApp();
+      userState.value = (await $api("/routes/auth/session")) as Session;
+      timeSession.value = Date.now();
+    } catch (error) {
+      console.error(error);
+    }
+  }
+});
 
 // Объявляем функцию для выхода из системы и очистки данных пользователя
 function logout() {
