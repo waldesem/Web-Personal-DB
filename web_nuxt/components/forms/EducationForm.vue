@@ -10,17 +10,17 @@ const props = defineProps({
   },
 });
 
-const educationForm = toRef(props.item);
+const form = toRef(props.item);
 </script>
 
 <template>
   <UForm
-    :state="educationForm"
-    @submit.prevent="emit('update', educationForm)"
+    :state="form"
+    @submit.prevent="emit('update', form)"
   >
     <UFormField label="Тип образования" name="view" required>
       <USelect
-        v-model="educationForm.view"
+        v-model="form.view"
         :items="[
           'Основное общее',
           'Среднее общее',
@@ -35,7 +35,7 @@ const educationForm = toRef(props.item);
     </UFormField>
     <UFormField label="Название учебного заведения" name="institution" required>
       <UInput
-        v-model.trim.lazy="educationForm.institution"
+        v-model.trim.lazy="form.institution"
         placeholder="Название учебного заведения"
         maxlength="255"
         required
@@ -43,14 +43,14 @@ const educationForm = toRef(props.item);
     </UFormField>
     <UFormField label="Год окончания" name="finished">
       <UInput
-        v-model.trim.lazy="educationForm.finished"
+        v-model.trim.lazy="form.finished"
         placeholder="Год окончания"
         maxlength="4"
       />
     </UFormField>
     <UFormField label="Специальность" name="specialty">
       <UInput
-        v-model.trim.lazy="educationForm.specialty"
+        v-model.trim.lazy="form.specialty"
         placeholder="Специальность"
         maxlength="255"
       />

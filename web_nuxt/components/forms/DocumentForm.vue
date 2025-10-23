@@ -11,16 +11,18 @@ const props = defineProps({
   },
 });
 
-const docForm = toRef(props.item);
+const form = toRef(props.item);
 
-const issue = useDateFormat(docForm.value.issue, "YYYY-MM-DD");
+form.value.issue = form.value.issue
+  ? useDateFormat(form.value.issue, "YYYY-MM-DD").value
+  : "";
 </script>
 
 <template>
-  <UForm :state="docForm" @submit.prevent="emit('update', docForm)">
+  <UForm :state="form" @submit.prevent="emit('update', form)">
     <UFormField label="Вид документа" name="view" required>
       <USelect
-        v-model="docForm.view"
+        v-model="form.view"
         :items="['Паспорт', 'Иностранный паспорт', 'Другое']"
         placeholder="Выберите вид документа"
         required
@@ -28,7 +30,7 @@ const issue = useDateFormat(docForm.value.issue, "YYYY-MM-DD");
     </UFormField>
     <UFormField label="Серия документа" name="series">
       <UInput
-        v-model.trim.lazy="docForm.series"
+        v-model.trim.lazy="form.series"
         placeholder="Серия документа"
         maxlength="4"
         pattern="[0-9]*"
@@ -36,7 +38,7 @@ const issue = useDateFormat(docForm.value.issue, "YYYY-MM-DD");
     </UFormField>
     <UFormField label="Номер документа" name="digits" required>
       <UInput
-        v-model.trim.lazy="docForm.digits"
+        v-model.trim.lazy="form.digits"
         placeholder="Номер документа"
         maxlength="8"
         pattern="[0-9]*"
@@ -45,18 +47,13 @@ const issue = useDateFormat(docForm.value.issue, "YYYY-MM-DD");
     </UFormField>
     <UFormField label="Кем выдан" name="agency">
       <UInput
-        v-model.trim="docForm.agency"
+        v-model.trim="form.agency"
         placeholder="Кем выдан"
         maxlength="255"
       />
     </UFormField>
     <UFormField label="Дата выдачи" name="issue" required>
-      <UInput
-        :value="issue"
-        type="date"
-        required
-        @input="docForm.issue = $event.target.value"
-      />
+      <UInput v-model="form.issue" type="date" required />
     </UFormField>
     <UButton label="Принять" color="success" variant="outline" type="submit" />
   </UForm>

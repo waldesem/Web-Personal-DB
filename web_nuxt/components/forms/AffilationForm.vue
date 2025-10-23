@@ -10,17 +10,17 @@ const props = defineProps({
   },
 });
 
-const affilForm = toRef(props.item);
+const form = toRef(props.item);
 </script>
 
 <template>
   <UForm
-    :state="affilForm"
-    @submit.prevent="emit('update', affilForm)"
+    :state="form"
+    @submit.prevent="emit('update', form)"
   >
     <UFormField label="Вид участия" name="view" required>
       <USelect
-        v-model="affilForm.view"
+        v-model="form.view"
         :items="[
           'Являлся государственным/муниципальным служащим',
           'Являлся государственным должностным лицом',
@@ -33,7 +33,7 @@ const affilForm = toRef(props.item);
     </UFormField>
     <UFormField label="Организация" name="organization" required>
       <UInput
-        v-model.trim.lazy="affilForm.organization"
+        v-model.trim.lazy="form.organization"
         placeholder="Организация"
         maxlength="255"
         required
@@ -41,7 +41,7 @@ const affilForm = toRef(props.item);
     </UFormField>
     <UFormField label="ИНН" name="inn">
       <UInput
-        v-model.trim.lazy="affilForm.inn"
+        v-model.trim.lazy="form.inn"
         placeholder="ИНН"
         maxlength="12"
       />

@@ -138,6 +138,7 @@ onChange(async (files) => {
           :person="data ?? ({} as Persons)"
           :status="status"
           :editable="editable"
+          @update="refresh()"
         />
       </template>
     </ContentSharedTabs>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { refDebounced, useFileDialog } from "@vueuse/core";
+import { refDebounced, useDateFormat, useFileDialog } from "@vueuse/core";
 import type { TableColumn } from "@nuxt/ui";
 import type { Candidate } from "@/types";
 
@@ -124,11 +124,8 @@ const columns: TableColumn<Candidate>[] = [
   {
     accessorKey: "birthday",
     header: "Дата рождения",
-    cell: ({ row }) => {
-      return h(NuxtTime, {
-        datetime: row.getValue("birthday"),
-      });
-    },
+    cell: ({ row }) =>
+      useDateFormat(row.getValue("birthday"), "DD.MM.YYYY").value,
   },
   // Статус кандидата
   {
@@ -186,7 +183,7 @@ const columns: TableColumn<Candidate>[] = [
     >
       <template #links>
         <!-- меню для действий -->
-         <UDropdownMenu
+        <UDropdownMenu
           v-if="userState.role === 'user'"
           :items="[
             {
@@ -243,7 +240,7 @@ const columns: TableColumn<Candidate>[] = [
     <UTable
       v-model:expanded="expanded"
       loading-animation="swing"
-      empty="Данные не найдены"      
+      empty="Данные не найдены"
       :loading="status === 'pending'"
       :loading-color="'neutral'"
       :columns="columns"
@@ -269,10 +266,7 @@ const columns: TableColumn<Candidate>[] = [
         :loading="status === 'pending'"
         @click="refresh()"
         >Обновлено
-        <NuxtTime 
-          :datetime="updated" 
-          relative 
-        />
+        <NuxtTime :datetime="updated" relative />
       </UButton>
     </div>
 

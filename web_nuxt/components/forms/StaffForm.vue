@@ -10,14 +10,14 @@ const props = defineProps({
   },
 });
 
-const staffForm = toRef(props.item);
+const form = toRef(props.item);
 </script>
 
 <template>
-  <UForm :state="staffForm" @submit.prevent="emit('update', staffForm)">
+  <UForm :state="form" @submit.prevent="emit('update', form)">
     <UFormField label="Должность" name="position" required>
       <UInput
-        v-model.trim.lazy="staffForm.position"
+        v-model.trim.lazy="form.position"
         placeholder="Должность"
         maxlength="255"
         required
@@ -25,7 +25,7 @@ const staffForm = toRef(props.item);
     </UFormField>
     <UFormField label="Подразделение" name="department">
       <UInput
-        v-model.trim.lazy="staffForm.department"
+        v-model.trim.lazy="form.department"
         placeholder="Подразделение"
         maxlength="255"
       />

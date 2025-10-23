@@ -10,14 +10,14 @@ const props = defineProps({
   },
 });
 
-const addressForm = toRef(props.item);
+const form = toRef(props.item);
 </script>
 
 <template>
-  <UForm :state="addressForm" @submit.prevent="emit('update', addressForm)">
+  <UForm :state="form" @submit.prevent="emit('update', form)">
     <UFormField label="Вид адреса" name="view" required>
       <USelect
-        v-model="addressForm.view"
+        v-model="form.view"
         :items="['Адрес регистрации', 'Адрес проживания', 'Другое']"
         placeholder="Выберите вид адреса"
         required
@@ -25,7 +25,7 @@ const addressForm = toRef(props.item);
     </UFormField>
     <UFormField label="Адрес" name="address" required>
       <UTextarea
-        v-model.trim.lazy="addressForm.address"
+        v-model.trim.lazy="form.address"
         placeholder="Адрес"
         required
       />

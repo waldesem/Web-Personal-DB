@@ -2,27 +2,32 @@
 import type { Pfo } from "@/types";
 import { Decisions } from "@/types";
 
-const props = defineProps<Pfo>()
+const props = defineProps({
+  item: {
+    type: Object as PropType<Pfo>,
+    default: () => ({}),
+  },
+});
 </script>
 
 <template>
-  <ElementsLabelValue label="Тема проверки" :value="props.theme" />
-  <ElementsLabelValue label="Результаты" :value="props.results" />
-  <ElementsLabelSlot v-if="props.conclusion" label="Заключение">
+  <ElementsLabelValue label="Тема проверки" :value="props.item.theme" />
+  <ElementsLabelValue label="Результаты" :value="props.item.results" />
+  <ElementsLabelSlot v-if="props.item.conclusion" label="Заключение">
     <UBadge
       :color="
-        props.conclusion === Decisions.agreed
+        props.item.conclusion === Decisions.agreed
           ? 'success'
-          : props.conclusion === Decisions.comments
+          : props.item.conclusion === Decisions.comments
           ? 'warning'
-          : props.conclusion === Decisions.cancel
+          : props.item.conclusion === Decisions.cancel
           ? 'neutral'
           : 'error'
       "
-      :label="props.conclusion"
+      :label="props.item.conclusion"
     />
   </ElementsLabelSlot>
-  <ElementsLabelSlot v-if="props.created" label="Дата записи">
-    <NuxtTime :datetime="props.created" />
+  <ElementsLabelSlot v-if="props.item.created" label="Дата записи">
+    <NuxtTime :datetime="props.item.created" />
   </ElementsLabelSlot>
 </template>

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Persons } from "@/types";
 
+const emits = defineEmits(["update"])
+
 // Используем плагин для передачи данных на сервер
 const { $api } = useNuxtApp();
 
@@ -33,6 +35,7 @@ function submitPerson(person_id: number | null) {
     status.value = "pending";
     useToasts("success", "Информация успешно обновлена");
     status.value = "success";
+    emits("update")
   } else {
     useToasts();
   }
@@ -73,7 +76,7 @@ async function deletePerson() {
     <div class="ps-2">
       <Suspense>
         <template #default>
-          <ItemsPersonItem :v-bind="props.person" />
+          <ItemsPersonItem :item="props.person" />
         </template>
         <template #fallback>
           <ElementsSkeletonDiv :rows="12" />

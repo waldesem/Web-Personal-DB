@@ -1,11 +1,16 @@
 <script setup lang="ts">
 import type { Affilation } from '@/types';
 
-const props = defineProps<Affilation>()
+const props = defineProps({
+  item: {
+    type: Object as PropType<Affilation>,
+    default: () => ({}),
+  },
+});
 </script>
 
 <template>
-  <ElementsLabelValue label="Тип участия" :value="props.view" />
-  <ElementsLabelValue label="Организация" :value="props.organization" />
-  <ElementsLabelValue label="ИНН" :value="props.inn" />
+  <ElementsLabelValue label="Тип участия" :value="props.item.view" />
+  <ElementsLabelValue label="Организация" :value="props.item.organization" />
+  <ElementsLabelValue label="ИНН" :value="props.item.inn" />
 </template>

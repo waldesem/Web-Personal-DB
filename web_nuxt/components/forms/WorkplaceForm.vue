@@ -11,42 +11,36 @@ const props = defineProps({
   },
 });
 
-const workForm = toRef(props.item);
+const form = toRef(props.item);
 
 // Преобразование даты в формат YYYY-MM-DD для корректного отображения в форме
-const starts = useDateFormat(workForm.value.starts, "YYYY-MM-DD");
-const finished = useDateFormat(workForm.value.finished, "YYYY-MM-DD");
+form.value.starts = form.value.starts
+  ? useDateFormat(form.value.starts, "YYYY-MM-DD").value
+  : "";
+form.value.finished = form.value.finished
+  ? useDateFormat(form.value.finished, "YYYY-MM-DD").value
+  : "";
 </script>
 
 <template>
-  <UForm :state="workForm" @submit.prevent="emit('update', workForm)">
+  <UForm :state="form" @submit.prevent="emit('update', form)">
     <UFormField label="Текущая работа" name="now_work">
-      <UCheckbox v-model="workForm.now_work" />
+      <UCheckbox v-model="form.now_work" />
     </UFormField>
     <UFormField
-      v-if="!workForm.now_work"
+      v-if="!form.now_work"
       label="Начало работы"
       name="starts"
       required
     >
-      <UInput
-        :value="starts"
-        type="date"
-        required
-        @input="workForm.starts = $event.target.value"
-      />
+      <UInput v-model="form.starts" type="date" required />
     </UFormField>
     <UFormField label="Окончание работы" name="finished" required>
-      <UInput
-        :value="finished"
-        type="date"
-        required
-        @input="workForm.finished = $event.target.value"
-      />
+      <UInput v-model="form.finished" type="date" required />
     </UFormField>
     <UFormField label="Место работы" name="workplace" required>
       <UInput
-        v-model.trim.lazy="workForm.workplace"
+        v-model.trim.lazy="form.workplace"
         placeholder="Место работы"
         maxlength="255"
         required
@@ -54,7 +48,7 @@ const finished = useDateFormat(workForm.value.finished, "YYYY-MM-DD");
     </UFormField>
     <UFormField label="Должность" name="position" required>
       <UInput
-        v-model.trim.lazy="workForm.position"
+        v-model.trim.lazy="form.position"
         placeholder="Должность"
         maxlength="255"
         required
@@ -62,13 +56,13 @@ const finished = useDateFormat(workForm.value.finished, "YYYY-MM-DD");
     </UFormField>
     <UFormField label="Адрес организации" name="address">
       <UTextarea
-        v-model.trim.lazy="workForm.address"
+        v-model.trim.lazy="form.address"
         placeholder="Адрес организации"
       />
     </UFormField>
     <UFormField label="Причина увольнения" name="reason">
       <UTextarea
-        v-model.trim.lazy="workForm.reason"
+        v-model.trim.lazy="form.reason"
         placeholder="Причина увольнения"
       />
     </UFormField>

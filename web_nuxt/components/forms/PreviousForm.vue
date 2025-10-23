@@ -10,14 +10,14 @@ const props = defineProps({
   },
 });
 
-const previousForm = toRef(props.item);
+const form = toRef(props.item);
 </script>
 
 <template>
-  <UForm :state="previousForm" @submit.prevent="emit('update', previousForm)">
+  <UForm :state="form" @submit.prevent="emit('update', form)">
     <UFormField label="Фамилия" name="surname" required>
       <UInput
-        v-model.trim.lazy="previousForm.surname"
+        v-model.trim.lazy="form.surname"
         placeholder="Фамилия"
         maxlength="255"
         required
@@ -25,7 +25,7 @@ const previousForm = toRef(props.item);
     </UFormField>
     <UFormField label="Имя" name="firstname" required>
       <UInput
-        v-model.trim.lazy="previousForm.firstname"
+        v-model.trim.lazy="form.firstname"
         placeholder="Имя"
         maxlength="255"
         required
@@ -33,21 +33,21 @@ const previousForm = toRef(props.item);
     </UFormField>
     <UFormField label="Отчество" name="patronymic">
       <UInput
-        v-model.trim.lazy="previousForm.patronymic"
+        v-model.trim.lazy="form.patronymic"
         placeholder="Отчество"
         maxlength="255"
       />
     </UFormField>
     <UFormField label="Год изменения" name="changed">
       <UInput
-        v-model.trim.lazy="previousForm.changed"
+        v-model.trim.lazy="form.changed"
         placeholder="Год изменения"
         maxlength="4"
       />
     </UFormField>
     <UFormField label="Причина изменения" name="reason">
       <UInput
-        v-model.trim.lazy="previousForm.reason"
+        v-model.trim.lazy="form.reason"
         placeholder="Причина изменения"
         maxlength="255"
       />

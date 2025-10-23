@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import type { Staff } from "@/types";
 
-const props = defineProps<Staff>()
+const props = defineProps({
+  item: {
+    type: Object as PropType<Staff>,
+    default: () => ({}),
+  },
+});
 </script>
 
 <template>
-  <ElementsLabelValue label="Должность" :value="props.position" />
-  <ElementsLabelValue label="Департамент" :value="props.department" />
+  <ElementsLabelValue label="Должность" :value="props.item.position" />
+  <ElementsLabelValue label="Департамент" :value="props.item.department" />
 </template>

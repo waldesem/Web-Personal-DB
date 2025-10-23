@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import type { Contact } from '@/types';
 
-const props = defineProps<Contact>()
+const props = defineProps({
+  item: {
+    type: Object as PropType<Contact>,
+    default: () => ({}),
+  },
+});
 </script>
 
 <template>
-    <ElementsLabelValue label="Вид" :value="props.view" />
-    <ElementsLabelValue label="Контакт" :value="props.contact" />
+    <ElementsLabelValue label="Вид" :value="props.item.view" />
+    <ElementsLabelValue label="Контакт" :value="props.item.contact" />
 </template>

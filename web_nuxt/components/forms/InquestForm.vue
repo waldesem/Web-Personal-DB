@@ -10,17 +10,17 @@ const props = defineProps({
   },
 });
 
-const investigationForm = toRef(props.item);
+const form = toRef(props.item);
 </script>
 
 <template>
   <UForm
-    :state="investigationForm"
-    @submit.prevent="emit('update', investigationForm)"
+    :state="form"
+    @submit.prevent="emit('update', form)"
   >
     <UFormField label="Тема проверки" name="theme" required>
       <UInput
-        v-model.trim.lazy="investigationForm.theme"
+        v-model.trim.lazy="form.theme"
         placeholder="Тема проверки"
         maxlength="255"
         required
@@ -28,7 +28,7 @@ const investigationForm = toRef(props.item);
     </UFormField>
     <UFormField label="Информация" name="info" required>
       <UTextarea
-        v-model.trim.lazy="investigationForm.info"
+        v-model.trim.lazy="form.info"
         autoresize
         placeholder="Информация"
         required

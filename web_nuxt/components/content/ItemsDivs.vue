@@ -80,7 +80,7 @@ const items = [
         <template #item="{ itemContent }">
           <component
             :is="accord.ItemComponent"
-            :v-bind="(itemContent as unknown as undefined)"
+            :item="(itemContent as unknown as undefined)"
           />
         </template>
 

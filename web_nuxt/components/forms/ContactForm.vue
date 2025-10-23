@@ -10,17 +10,17 @@ const props = defineProps({
   },
 });
 
-const contactForm = toRef(props.item);
+const form = toRef(props.item);
 </script>
 
 <template>
   <UForm
-    :state="contactForm"
-    @submit.prevent="emit('update', contactForm)"
+    :state="form"
+    @submit.prevent="emit('update', form)"
   >
     <UFormField label="Вид контакта" name="view" required>
       <USelect
-        v-model="contactForm.view"
+        v-model="form.view"
         :items="['Телефон', 'Электронная почта', 'Другое']"
         placeholder="Выберите вид контакта"
         required
@@ -28,7 +28,7 @@ const contactForm = toRef(props.item);
     </UFormField>
     <UFormField label="Контакт" name="contact" required>
       <UInput
-        v-model.trim.lazy="contactForm.contact"
+        v-model.trim.lazy="form.contact"
         placeholder="Контакт"
         maxlength="255"
         required

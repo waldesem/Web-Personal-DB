@@ -2,64 +2,69 @@
 import type { Verification } from "@/types";
 import { Conclusions } from "@/types";
 
-const props = defineProps<Verification>()
+const props = defineProps({
+  item: {
+    type: Object as PropType<Verification>,
+    default: () => ({}),
+  },
+});
 </script>
 
 <template>
   <ElementsLabelValue
     label="Проверка по местам работы"
-    :value="props.workplace"
+    :value="props.item.workplace"
   />
   <ElementsLabelValue
     label="Проверка документов"
-    :value="props.document"
+    :value="props.item.document"
   />
   <ElementsLabelValue
     label="Проверка задолженностей"
-    :value="props.debt"
+    :value="props.item.debt"
   />
   <ElementsLabelValue
     label="Проверка банкротства"
-    :value="props.bankruptcy"
+    :value="props.item.bankruptcy"
   />
-  <ElementsLabelValue label="Проверка по БКИ" :value="props.bki" />
+  <ElementsLabelValue label="Проверка по БКИ" :value="props.item.bki" />
   <ElementsLabelValue
     label="Проверка судебных решений"
-    :value="props.courts"
+    :value="props.item.courts"
   />
   <ElementsLabelValue
     label="Проверка аффилированности"
-    :value="props.affilation"
+    :value="props.item.affilation"
   />
   <ElementsLabelValue
     label="Проверка по списку террористов"
-    :value="props.terrorist"
+    :value="props.item.terrorist"
   />
   <ElementsLabelValue
     label="Проверка в открытых источниках"
-    :value="props.internet"
+    :value="props.item.internet"
   />
-  <ElementsLabelValue label="Проверка Кронос" :value="props.cronos" />
+  <ElementsLabelValue label="Проверка Кронос" :value="props.item.cronos" />
   <ElementsLabelValue
     label="Дополнительная информация"
-    :value="props.addition"
+    :value="props.item.addition"
   />
-  <ElementsLabelValue label="Комментарии" :value="props.comment" />
-  <ElementsLabelSlot v-if="props.conclusion" label="Результат">
+  <ElementsLabelValue label="Комментарии" :value="props.item.comment" />
+  <ElementsLabelSlot v-if="props.item.conclusion" label="Результат">
     <UBadge
       :color="
-        props.conclusion === Conclusions.agreed
+        props.item.conclusion === Conclusions.agreed
           ? 'success'
-          : props.conclusion === Conclusions.comments
+          : props.item.conclusion === Conclusions.comments
           ? 'warning'
-          : props.conclusion === Conclusions.cancel
+          : props.item.conclusion === Conclusions.cancel
           ? 'neutral'
           : 'error'
       "
-      :label="props.conclusion"
+      :label="props.item.conclusion"
     />
   </ElementsLabelSlot>
-  <ElementsLabelSlot v-if="props.created" label="Дата записи">
-    <NuxtTime :datetime="props.created" />
+  <ElementsLabelSlot v-if="props.item.created" label="Дата записи">
+    <NuxtTime :datetime="props.item.created" />
   </ElementsLabelSlot>
 </template>

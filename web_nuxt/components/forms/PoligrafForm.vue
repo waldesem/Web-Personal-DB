@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { Pfo } from '@/types';
-import { Decisions } from '@/types';
+import type { Pfo } from "@/types";
+import { Decisions } from "@/types";
 
 const emit = defineEmits(["update"]);
 
@@ -11,14 +11,14 @@ const props = defineProps({
   },
 });
 
-const poligrafForm = toRef(props.item);
+const form = toRef(props.item);
 </script>
 
 <template>
-  <UForm :state="poligrafForm" @submit.prevent="emit('update', poligrafForm)">
+  <UForm :state="form" @submit.prevent="emit('update', form)">
     <UFormField label="Тема проверки" name="theme" required>
       <USelect
-        v-model="poligrafForm.theme"
+        v-model="form.theme"
         :items="[
           'Проверка кандидата',
           'Служебная проверка',
@@ -31,7 +31,7 @@ const poligrafForm = toRef(props.item);
     </UFormField>
     <UFormField label="Результат" name="results" required>
       <UTextarea
-        v-model.trim.lazy="poligrafForm.results"
+        v-model.trim.lazy="form.results"
         autoresize
         placeholder="Результат"
         required
@@ -39,7 +39,7 @@ const poligrafForm = toRef(props.item);
     </UFormField>
     <UFormField label="Результат" name="conclusion" required>
       <USelect
-        v-model="poligrafForm.conclusion"
+        v-model="form.conclusion"
         :items="Object.values(Decisions)"
         placeholder="Выберите результат"
         required
