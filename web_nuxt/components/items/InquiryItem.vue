@@ -4,7 +4,7 @@ import type { Needs } from "@/types";
 const props = defineProps({
   item: {
     type: Object as PropType<Needs>,
-    default: () => ({}),
+    required: true,
   },
 });
 </script>

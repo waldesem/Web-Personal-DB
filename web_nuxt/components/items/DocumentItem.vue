@@ -4,7 +4,7 @@ import type { Passport } from "@/types";
 const props = defineProps({
   item: {
     type: Object as PropType<Passport>,
-    default: () => ({}),
+    required: true,
   },
 });
 </script>
@@ -13,8 +13,8 @@ const props = defineProps({
   <ElementsLabelValue label="Вид документа" :value="props.item.view" />
   <ElementsLabelValue label="Серия документа" :value="props.item.series" />
   <ElementsLabelValue label="Номер документа" :value="props.item.digits" />
+  <ElementsLabelValue label="Кем выдан" :value="props.item.agency" />
   <ElementsLabelSlot v-if="props.item.issue" label="Дата выдачи">
     <NuxtTime :datetime="props.item.issue" />
   </ElementsLabelSlot>
-  <ElementsLabelValue label="Кем выдан" :value="props.item.agency" />
 </template>

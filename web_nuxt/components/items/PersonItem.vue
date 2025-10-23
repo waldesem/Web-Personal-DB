@@ -5,7 +5,7 @@ import type { Persons } from "@/types";
 const props = defineProps({
   item: {
     type: Object as PropType<Persons>,
-    default: () => ({}),
+    required: true,
   },
 });
 

@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import type { AsyncDataRequestStatus } from 'nuxt/app';
+
+interface ItemResponse {
+  message: AsyncDataRequestStatus
+}
 
 // Импортируем плагин для передачи данных на сервер
 const { $api } = useNuxtApp();
@@ -35,79 +40,61 @@ const { data, status, refresh } = await useLazyAsyncData(
 
 // Определяем функцию для отправки данных формы на сервер
 async function submitItem(form: typeof item.value) {
-  modal.value = false;
   status.value = "pending";
-  const { message } = await $api<Record<string, string>>(
+  modal.value = false;
+  const { message } = (await $api(
     `/routes/items/${props.view}/${candId.value}`,
     {
       method: "POST",
       body: form,
     }
-  );
-  await refresh();
-  status.value = message as "success" | "error";
+  )) as ItemResponse;
   item.value = {};
-  if (message == "success") {
-    useToasts(message, "Информация успешно обновлена");
-  } else {
-    useToasts();
-  }
+  await refresh();
+  if (message === "success") {
+    useToasts("success", "Информация успешно обновлена");
+  } else useToasts();
 }
 
 // Определяем функцию для удаления данных
 async function deleteItem(id: string) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   status.value = "pending";
-  const { message } = await $api<Record<string, string>>(
-    `/routes/items/${props.view}/${id}`,
-    {
-      method: "DELETE",
-    }
-  );
-  status.value = message as "success" | "error";
-  if (message == "success") {
-    useToasts(message, "Информация успешно обновлена");
-    await refresh();
-  } else {
-    useToasts();
-  }
+  const { message } = (await $api(`/routes/items/${props.view}/${id}`, {
+    method: "DELETE",
+  })) as ItemResponse;
+  await refresh();
+  if (message === "success") {
+    useToasts("success", "Информация успешно удалена");
+  } else useToasts();
 }
 </script>
 
 <template>
-  <!-- Выводим скелетный элемент. если данные ещё не загружены -->
-  <Suspense>
+  <!-- Выводим сообщение если данные отсутствуют -->
+  <div v-if="!data" class="py-4 ms-2 text-red-800">Данные отсутствуют</div>
+  <Suspense v-else>
     <template #default>
-      <div>
-        <!-- Выводим список элементов с кнопками для редактирования и удаления -->
-        <div v-for="(content, index) in data" :key="index" class="py-2 ms-2">
-          <!-- Выводим кнопки редактирования или удаления данных если доступно редактирование -->
-          <LazyElementsDivMenu
-            v-if="editable"
-            @update="
-              item = content as object;
-              modal = true;
-            "
-            @delete="deleteItem(content['id' as keyof typeof content])"
-          />
+      <div v-for="(content, index) in data" :key="index" class="py-2 ms-2">
+        <!-- Выводим кнопки редактирования/удаления данных, если доступно редактирование -->
+        <LazyElementsDivMenu
+          v-if="editable"
+          @update="
+            item = content as object;
+            modal = true;
+          "
+          @delete="deleteItem(content['id' as keyof typeof content])"
+        />
 
-          <!-- Выводим элемент данных -->
-          <slot name="item" :item-content="content" />
-          <USeparator v-if="data && index < data.length - 1" />
-        </div>
-
-        <!-- Выводим сообщение если данные отсутствуют -->
-        <div v-if="!data || !data.length" class="py-4 ms-2 text-red-800">
-          Данные отсутствуют
-        </div>
+        <!-- Выводим элемент данных -->
+        <slot name="item" :item-content="content" />
+        <USeparator v-if="data && index < data.length - 1" />
       </div>
     </template>
     <template #fallback>
-      <div v-if="data">
-        <div v-for="i in data.length + 1" :key="i">
-          <ElementsSkeletonDiv :rows="props.rows" />
-          <USeparator v-if="i < data.length" />
-        </div>
+      <div v-for="i in data.length + 1" :key="i">
+        <ElementsSkeletonDiv :rows="props.rows" />
+        <USeparator v-if="i < data.length" />
       </div>
     </template>
   </Suspense>
@@ -119,11 +106,11 @@ async function deleteItem(id: string) {
     description="Введите или отредактируйте данные"
   >
     <div
+      v-if="editable"
       class="flex justify-start py-2"
       :class="{ 'border-t border-gray-200': data && data.length > 0 }"
     >
       <UButton
-        v-if="editable"
         :loading="status == 'pending'"
         label="Добавить запись"
         icon="i-lucide-file-plus"

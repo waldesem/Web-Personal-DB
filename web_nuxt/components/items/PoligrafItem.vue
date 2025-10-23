@@ -5,7 +5,7 @@ import { Decisions } from "@/types";
 const props = defineProps({
   item: {
     type: Object as PropType<Pfo>,
-    default: () => ({}),
+    required: true,
   },
 });
 </script>

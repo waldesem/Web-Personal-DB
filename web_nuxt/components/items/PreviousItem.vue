@@ -4,7 +4,7 @@ import type { Previous } from "@/types";
 const props = defineProps({
   item: {
     type: Object as PropType<Previous>,
-    default: () => ({}),
+    required: true,
   },
 });
 </script>

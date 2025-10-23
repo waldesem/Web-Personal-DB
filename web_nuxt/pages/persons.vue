@@ -61,14 +61,9 @@ onChange(async (files) => {
   proceedResult(person_id, exists);
 });
 
-// Определяем функцию для обработки события обновления данных через форму
-function handleEmit(person_id: string, exists: boolean) {
-  modal.value = false;
-  proceedResult(person_id, exists);
-}
-
 // Обработчик результата загрузки данных
 async function proceedResult(person_id: string, exists: boolean) {
+  modal.value = false;
   status.value = "success";
   if (person_id) {
     if (exists) {
@@ -218,7 +213,10 @@ const columns: TableColumn<Candidate>[] = [
           description="Введите анкетные данные кандидата"
         >
           <template #body>
-            <FormsResumeForm @update="handleEmit" />
+            <FormsResumeForm
+              @update="proceedResult"
+              @start="status === 'pending'"
+            />
           </template>
         </UModal>
       </template>

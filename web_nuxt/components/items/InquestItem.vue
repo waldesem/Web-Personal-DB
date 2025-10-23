@@ -4,7 +4,7 @@ import type { Inquisition } from "@/types";
 const props = defineProps({
   item: {
     type: Object as PropType<Inquisition>,
-    default: () => ({}),
+    required: true,
   },
 });
 </script>

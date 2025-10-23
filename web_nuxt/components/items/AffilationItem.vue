@@ -4,7 +4,7 @@ import type { Affilation } from '@/types';
 const props = defineProps({
   item: {
     type: Object as PropType<Affilation>,
-    default: () => ({}),
+    required: true,
   },
 });
 </script>

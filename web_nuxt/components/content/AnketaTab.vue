@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Persons } from "@/types";
 
-const emits = defineEmits(["update"])
+const emits = defineEmits(["update"]);
 
 // Используем плагин для передачи данных на сервер
 const { $api } = useNuxtApp();
@@ -19,7 +19,7 @@ const props = defineProps({
   editable: {
     type: Boolean,
     default: false,
-  }
+  },
 });
 
 // Преобразуем переменную для чтения в реактивную
@@ -32,10 +32,9 @@ const modal = ref(false);
 function submitPerson(person_id: number | null) {
   modal.value = false;
   if (person_id) {
-    status.value = "pending";
     useToasts("success", "Информация успешно обновлена");
     status.value = "success";
-    emits("update")
+    emits("update");
   } else {
     useToasts();
   }
@@ -91,7 +90,11 @@ async function deletePerson() {
     >
       <template #body>
         <!-- Выводим форму для редактирования данных внутри модального окна -->
-        <FormsResumeForm :resume="props.person" @update="submitPerson" />
+        <FormsResumeForm
+          :resume="props.person"
+          @start="status = 'pending'"
+          @update="submitPerson"
+        />
       </template>
     </UModal>
 
