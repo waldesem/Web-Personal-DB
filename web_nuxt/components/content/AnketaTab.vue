@@ -73,7 +73,7 @@ async function deletePerson() {
     <div class="ps-2">
       <Suspense>
         <template #default>
-          <ItemsPersonItem :item="props.person" />
+          <ItemsPersonItem :v-bind="props.person" />
         </template>
         <template #fallback>
           <ElementsSkeletonDiv :rows="12" />
