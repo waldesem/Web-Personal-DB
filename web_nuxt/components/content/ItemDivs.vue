@@ -76,22 +76,22 @@ const items = [
       #[accord.slot]="{ item }"
       :key="accord.slot"
     >
-      <ContentSharedView :view="item.content">
-        <template #item="{ itemContent }">
+      <ContentItemView :icon="item.icon" :view="item.content">
+        <template #[`item-${accord.slot}`]="{ itemContent }">
           <component
             :is="accord.ItemComponent"
             :item="(itemContent as unknown as undefined)"
           />
         </template>
 
-        <template #form="{ formContent, submitItem }">
+        <template #[`form-${accord.slot}`]="{ formContent, submitItem }">
           <component
             :is="accord.FormComponent"
             :item="(formContent as unknown as undefined)"
             @update="submitItem"
           />
         </template>
-      </ContentSharedView>
+      </ContentItemView>
     </template>
   </UAccordion>
 </template>

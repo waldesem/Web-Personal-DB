@@ -132,7 +132,7 @@ onChange(async (files) => {
       </template>
     </UPageHeader>
     <!-- Меню для переключения между вкладками -->
-    <ContentSharedTabs>
+    <ContentItemTabs>
       <template #anketa-tab>
         <ContentAnketaTab
           :person="data ?? ({} as Persons)"
@@ -140,7 +140,10 @@ onChange(async (files) => {
           :editable="editable"
           @update="refresh()"
         />
+        <USeparator />
+        <!-- Выводим аккордеон с данными staffs, educations и т.д. -->
+        <ContentItemDivs />
       </template>
-    </ContentSharedTabs>
+    </ContentItemTabs>
   </UPage>
 </template>

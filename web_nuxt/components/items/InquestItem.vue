@@ -12,7 +12,9 @@ const props = defineProps({
 <template>
   <ElementsLabelValue label="Тема проверки" :value="props.item.theme" />
   <ElementsLabelValue label="Информация" :value="props.item.info" />
-  <ElementsLabelSlot v-if="props.item.created" label="Дата записи">
-    <NuxtTime :datetime="props.item.created" />
-  </ElementsLabelSlot>
+  <ElementsLabelValue v-if="props.item.created" label="Дата записи">
+    <template #value>
+      <NuxtTime :datetime="props.item.created" />
+    </template>
+  </ElementsLabelValue>
 </template>

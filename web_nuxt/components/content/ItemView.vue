@@ -1,15 +1,25 @@
 <script setup lang="ts">
-import type { AsyncDataRequestStatus } from 'nuxt/app';
+import type { AsyncDataRequestStatus } from "nuxt/app";
 
 interface ItemResponse {
-  message: AsyncDataRequestStatus
+  message: AsyncDataRequestStatus;
 }
+
+type ItemObject = {
+  id: string;
+} & {
+  [key: string]: string | number | boolean;
+};
 
 // Импортируем плагин для передачи данных на сервер
 const { $api } = useNuxtApp();
 
 // Определяем данные которые передаются из родительского компонента
 const props = defineProps({
+  icon: {
+    type: String,
+    required: true,
+  },
   view: {
     type: String,
     required: true,
@@ -34,7 +44,7 @@ const { data, status, refresh } = await useLazyAsyncData(
   async () => {
     return (await $api(
       `/routes/items/${props.view}/${candId.value}`
-    )) as object[];
+    )) as ItemObject[];
   }
 );
 
@@ -72,29 +82,54 @@ async function deleteItem(id: string) {
 
 <template>
   <!-- Выводим сообщение если данные отсутствуют -->
-  <div v-if="!data" class="py-4 ms-2 text-red-800">Данные отсутствуют</div>
-  <Suspense v-else>
+  <UEmpty
+    :icon="!data ? props.icon : ''"
+    :title="!data ? 'Данные отсутствуют' : ''"
+    :variant="!data ? 'outline' : 'naked'"
+  >
+    <template #body>
+      <UButton
+        v-if="editable"
+        :loading="status == 'pending'"
+        :block="data ? true : false"
+        :icon="data ? 'i-lucide-plus' : 'i-lucide-list-plus'"
+        label="Добавить запись"
+        variant="outline"
+        size="sm"
+        @click="modal = true"
+      />
+    </template>
+  </UEmpty>
+
+  <Suspense>
     <template #default>
       <div v-for="(content, index) in data" :key="index" class="py-2 ms-2">
-        <!-- Выводим кнопки редактирования/удаления данных, если доступно редактирование -->
+        <!-- Выводим кнопки редактирования/удаления данных, в режиме редактирования -->
         <LazyElementsDivMenu
           v-if="editable"
           @update="
             item = content as object;
             modal = true;
           "
-          @delete="deleteItem(content['id' as keyof typeof content])"
+          @delete="deleteItem(content['id'])"
         />
-
         <!-- Выводим элемент данных -->
-        <slot name="item" :item-content="content" />
+        <slot :name="`item-${props.view}`" :item-content="content" />
         <USeparator v-if="data && index < data.length - 1" />
       </div>
     </template>
-    <template #fallback>
-      <div v-for="i in data.length + 1" :key="i">
-        <ElementsSkeletonDiv :rows="props.rows" />
-        <USeparator v-if="i < data.length" />
+
+    <template v-if="data" #fallback>
+      <div v-for="d in data.length + 1" :key="d">
+        <ElementsLabelValue v-for="row in props.rows" :key="row">
+          <template #label>
+            <USkeleton class="h-6" />
+          </template>
+          <template #value>
+            <USkeleton class="h-6 w-[300px]" />
+          </template>
+        </ElementsLabelValue>
+        <USeparator v-if="d < data.length" />
       </div>
     </template>
   </Suspense>
@@ -105,7 +140,7 @@ async function deleteItem(id: string) {
     title="Данные профиля"
     description="Введите или отредактируйте данные"
   >
-    <div
+    <!-- <div
       v-if="editable"
       class="flex justify-start py-2"
       :class="{ 'border-t border-gray-200': data && data.length > 0 }"
@@ -116,9 +151,13 @@ async function deleteItem(id: string) {
         icon="i-lucide-file-plus"
         variant="ghost"
       />
-    </div>
+    </div> -->
     <template #body>
-      <slot name="form" :form-content="item" :submit-item="submitItem" />
+      <slot
+        :name="`form-${props.view}`"
+        :form-content="item"
+        :submit-item="submitItem"
+      />
     </template>
   </UModal>
 </template>

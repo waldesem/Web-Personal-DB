@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Persons } from "@/types";
+import type { AsyncDataRequestStatus } from "nuxt/app";
 
 const emits = defineEmits(["update"]);
 
@@ -13,7 +14,7 @@ const props = defineProps({
     required: true,
   },
   status: {
-    type: String as PropType<"idle" | "pending" | "success" | "error">,
+    type: String as PropType<AsyncDataRequestStatus>,
     default: "success",
   },
   editable: {
@@ -31,9 +32,9 @@ const modal = ref(false);
 // Определяем функцию для отправки данных формы на сервер
 function submitPerson(person_id: number | null) {
   modal.value = false;
+  emits("update");
   if (person_id) {
     useToasts("success", "Информация успешно обновлена");
-    status.value = "success";
     emits("update");
   } else {
     useToasts();
@@ -53,35 +54,41 @@ async function deletePerson() {
     }
   );
   if (message == "success") {
-    useToasts(message, "Информация успешно удалена");
-    return navigateTo("/persons");
+    useToasts("success", "Информация успешно удалена");
+    await navigateTo("/persons");
   } else {
+    emits("update");
     useToasts();
-    status.value = "error";
   }
 }
 </script>
 
 <template>
-  <div class="mt-4">
-    <!-- Выводим кнопки редактирования или удаления данных если доступно редактирование -->
+  <div class="ms-2 mt-4">
+    <!-- Выводим кнопки редактирования или удаления данных -->
     <LazyElementsDivMenu
       v-if="editable"
       @update="modal = true"
       @delete="deletePerson()"
     />
 
-    <!-- Выводим скелетный элемент. если данные ещё не загружены -->
-    <div class="ps-2">
-      <Suspense>
-        <template #default>
-          <ItemsPersonItem :item="props.person" />
-        </template>
-        <template #fallback>
-          <ElementsSkeletonDiv :rows="12" />
-        </template>
-      </Suspense>
-    </div>
+    <!-- Выводим данные или скелетный элемент -->
+    <Suspense>
+      <template #default>
+        <ItemsPersonItem :item="props.person" />
+      </template>
+      <template #fallback>
+        <ElementsLabelValue v-for="row in 12" :key="row">
+          <template #label>
+            <USkeleton class="h-6" />
+          </template>
+          <template #value>
+            <USkeleton class="h-6 w-[300px]" />
+          </template>
+        </ElementsLabelValue>
+      </template>
+    </Suspense>
+
     <!-- Выводим модальное окно для редактирования данных -->
     <UModal
       v-model:open="modal"
@@ -89,7 +96,6 @@ async function deletePerson() {
       description="Отредактируйте анкетные данные"
     >
       <template #body>
-        <!-- Выводим форму для редактирования данных внутри модального окна -->
         <FormsResumeForm
           :resume="props.person"
           @start="status = 'pending'"
@@ -97,10 +103,5 @@ async function deletePerson() {
         />
       </template>
     </UModal>
-
-    <USeparator />
-
-    <!-- Выводим аккордеон с данными staffs, educations и т.д. -->
-    <ContentItemsDivs />
   </div>
 </template>

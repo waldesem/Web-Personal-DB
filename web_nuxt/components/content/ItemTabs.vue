@@ -44,41 +44,41 @@ const items = [
 
 <template>
   <!-- Меню для переключения между вкладками -->
-    <UTabs
-      :unmount-on-hide="false"
-      :ui="{ trigger: 'flex-1' }"
-      :items="items"
-      color="info"
-      variant="pill"
-      class="gap-4 w-full"
+  <UTabs
+    :unmount-on-hide="false"
+    :ui="{ trigger: 'flex-1' }"
+    :items="items"
+    color="info"
+    variant="pill"
+    class="gap-4 w-full"
+  >
+    <!-- Слот вкладки для отображения анкеты -->
+    <template #anketa>
+      <slot name="anketa-tab" />
+    </template>
+
+    <!-- Вкладки проверки, полиграф и др. -->
+    <template
+      v-for="tab in items.slice(1)"
+      #[tab.slot]="{ item }"
+      :key="tab.slot"
     >
-      <!-- Слот вкладки для отображения анкеты -->
-      <template #anketa>
-        <slot name="anketa-tab" />
-      </template>
+      <ContentItemView :view="item.content" :icon="item.icon">
+        <template #[`item-${tab.slot}`]="{ itemContent }">
+          <component
+            :is="tab.ItemComponent"
+            :item="(itemContent as unknown as undefined)"
+          />
+        </template>
 
-      <!-- Вкладки проверки, полиграф и др. -->
-      <template
-        v-for="tab in items.slice(1)"
-        #[tab.slot]="{ item }"
-        :key="tab.slot"
-      >
-        <ContentSharedView :view="item.content">
-          <template #item="{ itemContent }">
-            <component
-              :is="tab.ItemComponent"
-              :item="(itemContent as unknown as undefined)"
-            />
-          </template>
-
-          <template #form="{ formContent, submitItem }">
-            <component
-              :is="tab.FormComponent"
-              :item="(formContent as unknown as undefined)"
-              @update="submitItem"
-            />
-          </template>
-        </ContentSharedView>
-      </template>
-    </UTabs>
+        <template #[`form-${tab.slot}`]="{ formContent, submitItem }">
+          <component
+            :is="tab.FormComponent"
+            :item="(formContent as unknown as undefined)"
+            @update="submitItem"
+          />
+        </template>
+      </ContentItemView>
+    </template>
+  </UTabs>
 </template>

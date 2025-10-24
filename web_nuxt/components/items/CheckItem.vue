@@ -50,21 +50,25 @@ const props = defineProps({
     :value="props.item.addition"
   />
   <ElementsLabelValue label="Комментарии" :value="props.item.comment" />
-  <ElementsLabelSlot v-if="props.item.conclusion" label="Результат">
-    <UBadge
-      :color="
-        props.item.conclusion === Conclusions.agreed
-          ? 'success'
-          : props.item.conclusion === Conclusions.comments
-          ? 'warning'
-          : props.item.conclusion === Conclusions.cancel
-          ? 'neutral'
-          : 'error'
-      "
-      :label="props.item.conclusion"
-    />
-  </ElementsLabelSlot>
-  <ElementsLabelSlot v-if="props.item.created" label="Дата записи">
-    <NuxtTime :datetime="props.item.created" />
-  </ElementsLabelSlot>
+  <ElementsLabelValue v-if="props.item.conclusion" label="Результат">
+    <template #value>
+      <UBadge
+        :color="
+          props.item.conclusion === Conclusions.agreed
+            ? 'success'
+            : props.item.conclusion === Conclusions.comments
+            ? 'warning'
+            : props.item.conclusion === Conclusions.cancel
+            ? 'neutral'
+            : 'error'
+        "
+        :label="props.item.conclusion"
+      />
+    </template>
+  </ElementsLabelValue>
+  <ElementsLabelValue v-if="props.item.created" label="Дата записи">
+    <template #value>
+      <NuxtTime :datetime="props.item.created" />
+    </template>
+  </ElementsLabelValue>
 </template>

@@ -52,40 +52,51 @@ const experience = computed(() => {
     label="Текущая работа"
     :value="props.item.now_work ? 'Да' : 'Нет'"
   />
-  <ElementsLabelSlot v-if="props.item.starts" label="Начало работы">
-    <NuxtTime :datetime="props.item.starts" />
-  </ElementsLabelSlot>
-  <ElementsLabelSlot v-if="props.item.finished" label="Окончание работы">
-    <NuxtTime :datetime="props.item.finished" />
-  </ElementsLabelSlot>
-  <ElementsLabelSlot label="Стаж на рабочем месте">
-    <UBadge
-      variant="outline"
-      :color="
-        experience.years > 0
-          ? 'success'
-          : experience.months > 0
-          ? 'info'
-          : 'error'
-      "
-    >
-      {{
-        `${experience.years} лет, ${experience.months} месяцев, ${experience.days} дней`
-      }}
-    </UBadge>
-  </ElementsLabelSlot>
+  <ElementsLabelValue v-if="props.item.starts" label="Начало работы">
+    <template #value>
+      <NuxtTime :datetime="props.item.starts" />
+    </template>
+  </ElementsLabelValue>
+  <ElementsLabelValue v-if="props.item.finished" label="Окончание работы">
+    <template #value>
+      <NuxtTime :datetime="props.item.finished" />
+    </template>
+  </ElementsLabelValue>
+  <ElementsLabelValue label="Стаж на рабочем месте">
+    <template #value>
+      <UBadge
+        variant="outline"
+        :color="
+          experience.years > 0
+            ? 'success'
+            : experience.months > 0
+            ? 'info'
+            : 'error'
+        "
+      >
+        {{
+          `${experience.years} лет, ${experience.months} месяцев, ${experience.days} дней`
+        }}
+      </UBadge>
+    </template>
+  </ElementsLabelValue>
   <ElementsLabelValue label="Место" :value="props.item.workplace" />
-  <ElementsLabelSlot v-if="props.item.address" label="Адрес">
-    {{ props.item.address }}
-    <UButton
-      :to="`https://yandex.ru/maps/?text=${props.item.address}%10с%10`"
-      target="_blank"
-      title="Показать на Яндекс.Карте"
-      variant="outline"
-      icon="i-lucide-map-pinned"
-      class="ms-4"
-    />
-  </ElementsLabelSlot>
+  <ElementsLabelValue v-if="props.item.address" label="Адрес">
+    <template #value>
+      {{ props.item.address }}
+      <UButton
+        :to="`https://yandex.ru/maps/?text=${props.item.address}%10с%10`"
+        target="_blank"
+        title="Показать на Яндекс.Карте"
+        variant="outline"
+        icon="i-lucide-map-pinned"
+        class="ms-4"
+      />
+    </template>
+  </ElementsLabelValue>
   <ElementsLabelValue label="Должность" :value="props.item.position" />
-  <ElementsLabelValue label="Причина увольнения" :value="props.item.reason" />
+  <ElementsLabelValue
+    label="Причина увольнения"
+    :value="props.item.reason"
+  />
 </template>
