@@ -244,7 +244,7 @@ const columns: TableColumn<Candidate>[] = [
       :columns="columns"
       :data="data"
       :meta="{ class: { tr: 'cursor-pointer' } }"
-      @select="navigateTo(`/profile/${$event.original.id}`)"
+      @select="(_, row) => navigateTo(`/profile/${row.original.id}`)"
     >
       <!-- Выводим подробную информацию о кандидате -->
       <template #expanded="{ row }">

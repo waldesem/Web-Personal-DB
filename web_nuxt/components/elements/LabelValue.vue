@@ -12,7 +12,7 @@ const props = defineProps({
 </script>
 
 <template>
-  <div class="flex grid grid-cols-12 gap-3 mb-4">
+  <div v-if="props.value || $slots.value" class="flex grid grid-cols-12 gap-3 mb-4">
     <div v-if="props.label" class="col-span-3">{{ props.label }}</div>
     <div v-else-if="$slots.label" class="col-span-3"><slot name="label" /></div>
     

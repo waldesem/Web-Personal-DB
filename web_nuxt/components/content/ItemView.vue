@@ -83,16 +83,16 @@ async function deleteItem(id: string) {
 <template>
   <!-- Выводим сообщение если данные отсутствуют -->
   <UEmpty
-    :icon="!data ? props.icon : ''"
-    :title="!data ? 'Данные отсутствуют' : ''"
-    :variant="!data ? 'outline' : 'naked'"
+    v-if="!data?.length"
+    :icon="props.icon"
+    title="Данные отсутствуют"
+    size="sm"
   >
     <template #body>
       <UButton
         v-if="editable"
         :loading="status == 'pending'"
-        :block="data ? true : false"
-        :icon="data ? 'i-lucide-plus' : 'i-lucide-list-plus'"
+        icon="i-lucide-list-plus"
         label="Добавить запись"
         variant="outline"
         size="sm"
@@ -115,7 +115,7 @@ async function deleteItem(id: string) {
         />
         <!-- Выводим элемент данных -->
         <slot :name="`item-${props.view}`" :item-content="content" />
-        <USeparator v-if="data && index < data.length - 1" />
+        <USeparator v-if="data && (index < data.length - 1)" />
       </div>
     </template>
 
@@ -140,18 +140,15 @@ async function deleteItem(id: string) {
     title="Данные профиля"
     description="Введите или отредактируйте данные"
   >
-    <!-- <div
-      v-if="editable"
-      class="flex justify-start py-2"
-      :class="{ 'border-t border-gray-200': data && data.length > 0 }"
-    >
       <UButton
+        v-if="editable && data?.length"
         :loading="status == 'pending'"
+        class="my-2"
         label="Добавить запись"
-        icon="i-lucide-file-plus"
-        variant="ghost"
+        icon="i-lucide-plus"
+        variant="outline"
+        block
       />
-    </div> -->
     <template #body>
       <slot
         :name="`form-${props.view}`"
