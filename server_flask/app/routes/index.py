@@ -90,19 +90,50 @@ def get_index(json_query: Index) -> tuple[list[Persons], int]:
         return result, 200
 
 
-@bp.get("/advanced")
+@bp.get("/metadata")
 @auth_required()
-def get_advanced() -> Response:
+def get_metadata() -> Response:
+    """Retrieve a tables and columns from the database."""
+    return jsonify(
+        {
+            table.name: {column.name: f"{column.type}" for column in table.columns}
+            for table in db.metadata.tables.values()
+        },
+    ), 200
+
+
+@bp.post("/query")
+@auth_required()
+def post_query() -> Response:
     """Retrieve a paginated list of rows from the database."""
-    query = request.args.get("query")
+    query = request.get_json().get("query")
     if query.lower().startswith("select "):
         try:
-            query = db.session.execute(text(query)).all()
-            return jsonify([row._asdict() for row in query[:100]]), 200
+            result = db.session.execute(text(query)).all()
+            return jsonify(
+                {
+                    "status": "success",
+                    "message": "",
+                    "result": [row._asdict() for row in result[:100]],
+                },
+            ), 200
         except (KeyError, SQLAlchemyError):
             current_app.logger.exception("SQL Error")
             db.session.rollback()
-    return jsonify([]), 200
+            return jsonify(
+                {
+                    "status": "error",
+                    "message": current_app.logger.exception(),
+                    "result": [],
+                },
+            ), 200
+    return jsonify(
+        {
+            "status": "error",
+            "message": "Query should start with 'SELECT'",
+            "result": [],
+        },
+    ), 200
 
 
 @bp.get("/self/<int:person_id>")

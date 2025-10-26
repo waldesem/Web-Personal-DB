@@ -164,6 +164,12 @@ enum Roles {
   guest = "guest",
 }
 
+export type Item = {
+  id: string;
+} & {
+  [key: string]: string | number | boolean;
+};
+
 export enum Conclusions {
   agreed = "СОГЛАСОВАНО",
   comments = "СОГЛАСОВАНО С КОММЕНТАРИЕМ",

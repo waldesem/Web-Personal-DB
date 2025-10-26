@@ -1,15 +1,10 @@
 <script setup lang="ts">
 import type { AsyncDataRequestStatus } from "nuxt/app";
+import type { Item } from "@/types";
 
 interface Response {
   message: AsyncDataRequestStatus;
 }
-
-type Item = {
-  id: string;
-} & {
-  [key: string]: string | number | boolean;
-};
 
 // Импортируем плагин для передачи данных на сервер
 const { $api } = useNuxtApp();
@@ -114,7 +109,7 @@ async function deleteItem(id: string) {
           @delete="deleteItem(content['id'])"
         />
         <!-- Выводим элемент данных -->
-        <slot :name="'item-' + props.view" :item-content="content" />
+        <slot name="item" :item-content="content" />
         <USeparator v-if="data && (index < data.length - 1)" />
       </div>
     </template>
@@ -151,7 +146,7 @@ async function deleteItem(id: string) {
       />
     <template #body>
       <slot
-        :name="'form-' + props.view"
+        name="form"
         :form-content="item"
         :submit-item="submitItem"
       />

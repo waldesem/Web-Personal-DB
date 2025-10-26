@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { Item } from "@/types";
+
 // Определяем массив элементов аккордеона
 const items = [
   {
@@ -77,14 +79,14 @@ const items = [
       :key="accord.slot"
     >
       <ContentItemView :icon="item.icon" :view="item.content">
-        <template #[`item-${accord.slot}`]="{ itemContent }">
+        <template #item="{ itemContent }">
           <component
             :is="accord.ItemComponent"
-            :item="(itemContent as unknown as undefined)"
+            :item="(itemContent as Item)"
           />
         </template>
 
-        <template #[`form-${accord.slot}`]="{ formContent, submitItem }">
+        <template #form="{ formContent, submitItem }">
           <component
             :is="accord.FormComponent"
             :item="(formContent as unknown as undefined)"

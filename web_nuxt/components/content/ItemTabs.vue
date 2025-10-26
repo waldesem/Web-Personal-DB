@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { Item } from "@/types";
+
 // Определяем массив элементов табов
 const items = [
   {
@@ -64,14 +66,14 @@ const items = [
       :key="tab.slot"
     >
       <ContentItemView :view="item.content" :icon="item.icon">
-        <template #[`item-${tab.slot}`]="{ itemContent }">
+        <template #item="{ itemContent }">
           <component
             :is="tab.ItemComponent"
-            :item="(itemContent as unknown as undefined)"
+            :item="(itemContent as Item)"
           />
         </template>
 
-        <template #[`form-${tab.slot}`]="{ formContent, submitItem }">
+        <template #form="{ formContent, submitItem }">
           <component
             :is="tab.FormComponent"
             :item="(formContent as unknown as undefined)"
