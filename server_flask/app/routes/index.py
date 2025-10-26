@@ -6,7 +6,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from flask import Blueprint, current_app, g, request
+from flask import Blueprint, Response, current_app, g, jsonify, request
 from pydantic import ValidationError
 from sqlalchemy import desc, func, select, text
 from sqlalchemy.exc import SQLAlchemyError
@@ -88,6 +88,21 @@ def get_index(json_query: Index) -> tuple[list[Persons], int]:
         return [], 200
     else:
         return result, 200
+
+
+@bp.get("/advanced")
+@auth_required()
+def get_advanced() -> Response:
+    """Retrieve a paginated list of rows from the database."""
+    query = request.args.get("query")
+    if query.lower().startswith("select "):
+        try:
+            query = db.session.execute(text(query)).all()
+            return jsonify([row._asdict() for row in query[:100]]), 200
+        except (KeyError, SQLAlchemyError):
+            current_app.logger.exception("SQL Error")
+            db.session.rollback()
+    return jsonify([]), 200
 
 
 @bp.get("/self/<int:person_id>")

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { AsyncDataRequestStatus } from "nuxt/app";
 
-interface ItemResponse {
+interface Response {
   message: AsyncDataRequestStatus;
 }
 
-type ItemObject = {
+type Item = {
   id: string;
 } & {
   [key: string]: string | number | boolean;
@@ -44,7 +44,7 @@ const { data, status, refresh } = await useLazyAsyncData(
   async () => {
     return (await $api(
       `/routes/items/${props.view}/${candId.value}`
-    )) as ItemObject[];
+    )) as Item[];
   }
 );
 
@@ -58,7 +58,7 @@ async function submitItem(form: typeof item.value) {
       method: "POST",
       body: form,
     }
-  )) as ItemResponse;
+  )) as Response;
   item.value = {};
   await refresh();
   if (message === "success") {
@@ -72,7 +72,7 @@ async function deleteItem(id: string) {
   status.value = "pending";
   const { message } = (await $api(`/routes/items/${props.view}/${id}`, {
     method: "DELETE",
-  })) as ItemResponse;
+  })) as Response;
   await refresh();
   if (message === "success") {
     useToasts("success", "Информация успешно удалена");
@@ -103,7 +103,7 @@ async function deleteItem(id: string) {
 
   <Suspense>
     <template #default>
-      <div v-for="(content, index) in data" :key="index" class="py-2 ms-2">
+      <div v-for="(content, index) in data" :key="index" class="ms-2 py-2">
         <!-- Выводим кнопки редактирования/удаления данных, в режиме редактирования -->
         <LazyElementsDivMenu
           v-if="editable"
@@ -114,7 +114,7 @@ async function deleteItem(id: string) {
           @delete="deleteItem(content['id'])"
         />
         <!-- Выводим элемент данных -->
-        <slot :name="`item-${props.view}`" :item-content="content" />
+        <slot :name="'item-' + props.view" :item-content="content" />
         <USeparator v-if="data && (index < data.length - 1)" />
       </div>
     </template>
@@ -151,7 +151,7 @@ async function deleteItem(id: string) {
       />
     <template #body>
       <slot
-        :name="`form-${props.view}`"
+        :name="'form-' + props.view"
         :form-content="item"
         :submit-item="submitItem"
       />

@@ -81,6 +81,8 @@ function logout() {
         <p class="text-sm">{{ new Date().getFullYear() }}</p>
       </template>
 
+        <ULink to="/query">Расширенный поиск</ULink>
+
       <template #right>
         <UButton
           icon="i-lucide-computer"

@@ -38,6 +38,7 @@ const { data, status, refresh } = useLazyAsyncData(
   // Наблюдаем: активность пользователя, переключение страницы, изменение строки поиска.
   { watch: [page, refDebounced(search, 1000)] }
 );
+
 // Определяем обработчики диалогового окна для загрузки JSON
 const { open, onChange } = useFileDialog({
   accept: ".json",
