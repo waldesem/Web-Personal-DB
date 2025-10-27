@@ -41,7 +41,7 @@ export interface Persons {
   inn?: string;
   marital?: string;
   addition?: string;
-  destination?: string;
+  destination: string;
   editable: boolean;
   created: string;
   user_id: string;
@@ -99,7 +99,7 @@ export interface Work {
   id: string;
   now_work: boolean;
   starts: string;
-  finished?: string;
+  finished: string;
   workplace: string;
   address?: string;
   reason?: string;

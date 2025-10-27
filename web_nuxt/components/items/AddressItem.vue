@@ -11,8 +11,8 @@ const props = defineProps({
 
 <template>
   <ElementsLabelValue label="Тип" :value="props.item.view" />
-  <ElementsLabelValue v-if="props.item.address" label="Адрес">
-    <template #value>
+  <ElementsLabelValue label="Адрес">
+    <div class="space-x-4">
       {{ props.item.address }}
       <UButton
         :to="`https://yandex.ru/maps/?text=${props.item.address}%10с%10`"
@@ -20,8 +20,7 @@ const props = defineProps({
         title="Показать на Яндекс.Карте"
         variant="outline"
         trailing-icon="i-lucide-map-pinned"
-        class="ms-4"
       />
-    </template>
+    </div>
   </ElementsLabelValue>
 </template>

@@ -12,9 +12,7 @@ const props = defineProps({
 <template>
   <ElementsLabelValue label="Информация" :value="props.item.info" />
   <ElementsLabelValue label="Иннициатор" :value="props.item.initiator" />
-  <ElementsLabelValue v-if="props.item.created" label="Дата записи">
-    <template #value>
-      <NuxtTime :datetime="props.item.created" />
-    </template>
+  <ElementsLabelValue label="Дата записи">
+    <NuxtTime :datetime="props.item.created" />
   </ElementsLabelValue>
 </template>

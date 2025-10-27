@@ -10,7 +10,7 @@ const { data, status } = useLazyAsyncData(async () => {
     query: {
       query: query.value,
     },
-  })) as Record<string, Record<string, string>>;
+  })) as Ref<{ [key: string]: [key: string] }>;
   return response;
 });
 
@@ -51,11 +51,14 @@ async function saveJSON() {
   URL.revokeObjectURL(url);
 }
 
-const tabs = computed(() =>
-  Object.keys(data.value).map((table) => {
-    return { label: table };
-  })
-);
+const tabs = computed(() => {
+  if (data.value) {
+    Object.keys(data.value).map((table) => {
+      return { label: table };
+    });
+  }
+  return [{ label: "" }];
+});
 </script>
 
 <template>
@@ -64,7 +67,7 @@ const tabs = computed(() =>
       title="Расширенный запрос"
       :ui="{
         root: 'relative border-none py-4',
-        title: 'text-2xl sm:text-3xl text-red-800',
+        title: 'text-2xl sm:text-3xl text-gray-800',
       }"
     />
 
@@ -105,10 +108,13 @@ const tabs = computed(() =>
         }"
       />
       <template #content>
-        <UTabs v-if="data" :items="tabs" variant="link">
+        <UTabs v-if="tabs" :items="tabs" variant="link">
           <template #content="{ item }">
             <div class="px-4">
-              <div v-for="(value, key) in data[item.label]" :key="key">
+              <div
+                v-for="(value, key) in data[item['label'] as keyof typeof data]"
+                :key="key"
+              >
                 {{ key }} - {{ value }}
               </div>
             </div>

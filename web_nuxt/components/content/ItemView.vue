@@ -110,7 +110,7 @@ async function deleteItem(id: string) {
         />
         <!-- Выводим элемент данных -->
         <slot name="item" :item-content="content" />
-        <USeparator v-if="data && (index < data.length - 1)" />
+        <USeparator v-if="data && index < data.length - 1" />
       </div>
     </template>
 
@@ -120,9 +120,7 @@ async function deleteItem(id: string) {
           <template #label>
             <USkeleton class="h-6" />
           </template>
-          <template #value>
-            <USkeleton class="h-6 w-[300px]" />
-          </template>
+          <USkeleton class="h-6 w-[300px]" />
         </ElementsLabelValue>
         <USeparator v-if="d < data.length" />
       </div>
@@ -135,21 +133,17 @@ async function deleteItem(id: string) {
     title="Данные профиля"
     description="Введите или отредактируйте данные"
   >
-      <UButton
-        v-if="editable && data?.length"
-        :loading="status == 'pending'"
-        class="my-2"
-        label="Добавить запись"
-        icon="i-lucide-plus"
-        variant="outline"
-        block
-      />
+    <UButton
+      v-if="editable && data?.length"
+      :loading="status == 'pending'"
+      class="my-2"
+      label="Добавить запись"
+      icon="i-lucide-plus"
+      variant="outline"
+      block
+    />
     <template #body>
-      <slot
-        name="form"
-        :form-content="item"
-        :submit-item="submitItem"
-      />
+      <slot name="form" :form-content="item" :submit-item="submitItem" />
     </template>
   </UModal>
 </template>

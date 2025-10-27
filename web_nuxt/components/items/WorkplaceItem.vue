@@ -52,37 +52,31 @@ const experience = computed(() => {
     label="Текущая работа"
     :value="props.item.now_work ? 'Да' : 'Нет'"
   />
-  <ElementsLabelValue v-if="props.item.starts" label="Начало работы">
-    <template #value>
-      <NuxtTime :datetime="props.item.starts" />
-    </template>
+  <ElementsLabelValue label="Начало работы">
+    <NuxtTime :datetime="props.item.starts" />
   </ElementsLabelValue>
-  <ElementsLabelValue v-if="props.item.finished" label="Окончание работы">
-    <template #value>
-      <NuxtTime :datetime="props.item.finished" />
-    </template>
+  <ElementsLabelValue label="Окончание работы">
+    <NuxtTime :datetime="props.item.finished" />
   </ElementsLabelValue>
   <ElementsLabelValue label="Стаж на рабочем месте">
-    <template #value>
-      <UBadge
-        variant="outline"
-        :color="
-          experience.years > 0
-            ? 'success'
-            : experience.months > 0
-            ? 'info'
-            : 'error'
-        "
-      >
-        {{
-          `${experience.years} лет, ${experience.months} месяцев, ${experience.days} дней`
-        }}
-      </UBadge>
-    </template>
+    <UBadge
+      variant="outline"
+      :color="
+        experience.years > 0
+          ? 'success'
+          : experience.months > 0
+          ? 'info'
+          : 'error'
+      "
+    >
+      {{
+        `${experience.years} лет, ${experience.months} месяцев, ${experience.days} дней`
+      }}
+    </UBadge>
   </ElementsLabelValue>
   <ElementsLabelValue label="Место" :value="props.item.workplace" />
-  <ElementsLabelValue v-if="props.item.address" label="Адрес">
-    <template #value>
+  <ElementsLabelValue label="Адрес">
+    <div class="space-x-4">
       {{ props.item.address }}
       <UButton
         :to="`https://yandex.ru/maps/?text=${props.item.address}%10с%10`"
@@ -90,13 +84,9 @@ const experience = computed(() => {
         title="Показать на Яндекс.Карте"
         variant="outline"
         icon="i-lucide-map-pinned"
-        class="ms-4"
       />
-    </template>
+    </div>
   </ElementsLabelValue>
   <ElementsLabelValue label="Должность" :value="props.item.position" />
-  <ElementsLabelValue
-    label="Причина увольнения"
-    :value="props.item.reason"
-  />
+  <ElementsLabelValue label="Причина увольнения" :value="props.item.reason" />
 </template>

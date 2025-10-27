@@ -261,10 +261,11 @@ const columns: TableColumn<Candidate>[] = [
       <UButton
         variant="ghost"
         icon="i-lucide-refresh-ccw"
+        label="Обновлено"
         title="Обновить данные"
         :loading="status === 'pending'"
         @click="refresh()"
-        >Обновлено
+      >
         <NuxtTime :datetime="updated" relative />
       </UButton>
     </div>

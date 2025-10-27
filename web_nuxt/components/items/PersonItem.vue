@@ -16,48 +16,31 @@ const { copy, copied } = useClipboard();
   <ElementsLabelValue label="Фамилия" :value="props.item.surname" />
   <ElementsLabelValue label="Имя" :value="props.item.firstname" />
   <ElementsLabelValue label="Отчество" :value="props.item.patronymic" />
-  <ElementsLabelValue v-if="props.item.birthday" label="Дата рождения">
-    <template #value>
-      <NuxtTime :datetime="props.item.birthday" />
-    </template>
+  <ElementsLabelValue label="Дата рождения">
+    <NuxtTime :datetime="props.item.birthday" />
   </ElementsLabelValue>
-  <ElementsLabelValue
-    label="Место рождения"
-    :value="props.item.birthplace"
-  />
+  <ElementsLabelValue label="Место рождения" :value="props.item.birthplace" />
   <ElementsLabelValue label="Гражданство" :value="props.item.citizenship" />
-  <ElementsLabelValue v-if="props.item.dual" label="Двойное гражданство">
-    <template #value>
-      <UBadge variant="outline" color="error" :label="props.item.dual" />
-    </template>
+  <ElementsLabelValue label="Двойное гражданство">
+    <UBadge variant="outline" color="info" :label="props.item.dual" />
   </ElementsLabelValue>
   <ElementsLabelValue label="СНИЛС" :value="props.item.snils" />
   <ElementsLabelValue label="ИНН" :value="props.item.inn" />
-  <ElementsLabelValue
-    label="Семейное положение"
-    :value="props.item.marital"
-  />
-  <ElementsLabelValue v-if="props.item.created" label="Дата записи">
-    <template #value>
-      <NuxtTime :datetime="props.item.created" />
-    </template>
+  <ElementsLabelValue label="Семейное положение" :value="props.item.marital" />
+  <ElementsLabelValue label="Дата записи">
+    <NuxtTime :datetime="props.item.created" />
   </ElementsLabelValue>
   <ElementsLabelValue
     label="Дополнительная информация"
     :value="props.item.addition"
   />
-  <ElementsLabelValue
-    v-if="props.item.destination"
-    label="Материалы проверок"
-  >
-    <template #value>
-      <UButton
-        variant="outline"
-        :color="!copied ? 'info' : 'success'"
-        size="sm"
-        :label="!copied ? 'Копировать ссылку' : 'Скопировано'"
-        @click="copy(props.item.destination)"
-      />
-    </template>
+  <ElementsLabelValue label="Материалы проверок">
+    <UButton
+      variant="outline"
+      :color="!copied ? 'info' : 'success'"
+      size="sm"
+      :label="!copied ? 'Копировать ссылку' : 'Скопировано'"
+      @click="copy(props.item.destination)"
+    />
   </ElementsLabelValue>
 </template>

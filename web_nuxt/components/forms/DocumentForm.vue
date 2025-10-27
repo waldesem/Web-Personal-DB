@@ -55,6 +55,6 @@ form.value.issue = form.value.issue
     <UFormField label="Дата выдачи" name="issue" required>
       <UInput v-model="form.issue" type="date" required />
     </UFormField>
-    <UButton label="Принять" color="success" variant="outline" type="submit" />
+    <ElementsSubmitButton />
   </UForm>
 </template>

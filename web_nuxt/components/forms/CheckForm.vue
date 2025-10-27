@@ -124,6 +124,6 @@ watch(noNegative, () => {
         required
       />
     </UFormField>
-    <UButton label="Принять" color="success" variant="outline" type="submit" />
+    <ElementsSubmitButton />
   </UForm>
 </template>

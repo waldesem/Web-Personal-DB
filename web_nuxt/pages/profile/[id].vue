@@ -131,6 +131,7 @@ onChange(async (files) => {
         </div>
       </template>
     </UPageHeader>
+    
     <!-- Меню для переключения между вкладками -->
     <ContentItemTabs>
       <template #anketa-tab>

@@ -167,7 +167,7 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
             color: 'success',
             variant: 'outline',
           }"
-          @submit="onSubmit($event)"
+          @submit.prevent="onSubmit($event)"
         >
           <template #title>
             <ElementsLogoDiv class="my-2" />

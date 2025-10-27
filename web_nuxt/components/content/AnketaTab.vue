@@ -82,9 +82,7 @@ async function deletePerson() {
           <template #label>
             <USkeleton class="h-6" />
           </template>
-          <template #value>
-            <USkeleton class="h-6 w-[300px]" />
-          </template>
+          <USkeleton class="h-6 w-[300px]" />
         </ElementsLabelValue>
       </template>
     </Suspense>
