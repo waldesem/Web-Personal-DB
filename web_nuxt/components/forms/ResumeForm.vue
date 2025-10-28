@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { useDateFormat } from "@vueuse/core";
-import type { Persons } from "@/types";
+import type { Person } from "@/types";
 
 const emit = defineEmits(["start", "update"]);
 
 const props = defineProps({
   resume: {
-    type: Object as PropType<Persons>,
+    type: Object as PropType<Person>,
     default: () => ({}),
   },
 });
@@ -32,7 +32,7 @@ async function submitPerson() {
   emit("update", person_id, exists);
 }
 
-const validate = (state: Partial<Persons>) => {
+const validate = (state: Partial<Person>) => {
   const errors = [];
   const namePathern = /^[А-яЁё][А-яЁёIV\-.,'()\s]*[А-яЁё\s]$/;
   if (state.surname && !state.surname.match(namePathern)) {

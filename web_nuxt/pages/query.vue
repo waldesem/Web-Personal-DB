@@ -1,29 +1,30 @@
 <script setup lang="ts">
+interface Query {
+  status: string;
+  message: string;
+  result: Record<string, string>[];
+}
+
 const { $api } = useNuxtApp();
 
-const query = ref("");
-const items = ref([]) as Ref<Record<string, string>[]>;
 const globalFilter = ref();
+const query = ref("");
 
-const { data, status } = useLazyAsyncData(async () => {
-  const response = (await $api("/routes/metadata", {
-    query: {
-      query: query.value,
-    },
-  })) as Ref<{ [key: string]: [key: string] }>;
-  return response;
-});
+const { data: tables } = await useLazyAsyncData("metadata", () =>
+  $api<{ [key: string]: [key: string] }>("/routes/metadata")
+);
 
-async function onSubmit() {
-  status.value = "pending";
-  const response = (await $api("/routes/query", {
-    query: {
-      query: query.value,
-    },
-  })) as Record<string, string>[];
-  items.value = response;
-  status.value = "success";
-}
+const { data, status, refresh } = await useLazyAsyncData(
+  "query",
+  () =>
+    $api<Query>("/routes/query", {
+      method: "POST",
+      body: {
+        query: query.value,
+      },
+    }),
+  { immediate: false }
+);
 
 const validate = () => {
   const errors = [];
@@ -37,8 +38,8 @@ const validate = () => {
   return errors;
 };
 
-async function saveJSON() {
-  const dataToSave = JSON.stringify(items.value, null, 2);
+function saveJSON() {
+  const dataToSave = JSON.stringify(data.value?.result, null, 2);
   const blob = new Blob([dataToSave], { type: "application/json" });
   const url = URL.createObjectURL(blob);
 
@@ -52,8 +53,8 @@ async function saveJSON() {
 }
 
 const tabs = computed(() => {
-  if (data.value) {
-    Object.keys(data.value).map((table) => {
+  if (tables.value) {
+    Object.keys(tables.value).map((table) => {
       return { label: table };
     });
   }
@@ -76,7 +77,7 @@ const tabs = computed(() => {
       :validate="validate"
       :state="query"
       class="my-6"
-      @submit.prevent="onSubmit"
+      @submit.prevent="refresh"
     >
       <UFormField name="query">
         <UInput
@@ -94,7 +95,7 @@ const tabs = computed(() => {
       </UFormField>
     </UForm>
 
-    <UCollapsible v-if="data" label="Таблица данных">
+    <UCollapsible v-if="tables">
       <UButton
         class="group"
         label="Показать структуру"
@@ -108,14 +109,14 @@ const tabs = computed(() => {
         }"
       />
       <template #content>
-        <UTabs v-if="tabs" :items="tabs" variant="link">
+        <UTabs v-if="tabs && tabs[0]?.label" :items="tabs" variant="link">
           <template #content="{ item }">
-            <div class="px-4">
+            <div v-if="data" class="px-4">
               <div
-                v-for="(value, key) in data[item['label'] as keyof typeof data]"
+                v-for="(value, key) in data.result[item.label as keyof typeof data.result]"
                 :key="key"
               >
-                {{ key }} - {{ value }}
+                <ElementsLabelValue :label="key" :value="value" />
               </div>
             </div>
           </template>
@@ -123,7 +124,17 @@ const tabs = computed(() => {
       </template>
     </UCollapsible>
 
-    <UCard class="mt-4">
+    <UAlert
+      v-if="data?.status === 'error'"
+      :description="data?.message"
+      color="error"
+      icon="i-lucide-terminal"
+      title="Error"
+      variant="subtle"
+      close
+    />
+
+    <UCard v-else class="mt-4">
       <template #header>
         <div class="flex justify-between">
           <UInput
@@ -146,7 +157,8 @@ const tabs = computed(() => {
         sticky="header"
         :loading="status === 'pending'"
         :loading-color="'neutral'"
-        :data="items"
-    /></UCard>
+        :data="data?.result"
+      />
+    </UCard>
   </UPage>
 </template>

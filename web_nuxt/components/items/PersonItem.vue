@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { useClipboard } from "@vueuse/core";
-import type { Persons } from "@/types";
+import type { Person } from "@/types";
 
 const props = defineProps({
   item: {
-    type: Object as PropType<Persons>,
+    type: Object as PropType<Person>,
     required: true,
   },
 });
@@ -21,7 +21,7 @@ const { copy, copied } = useClipboard();
   </ElementsLabelValue>
   <ElementsLabelValue label="Место рождения" :value="props.item.birthplace" />
   <ElementsLabelValue label="Гражданство" :value="props.item.citizenship" />
-  <ElementsLabelValue label="Двойное гражданство">
+  <ElementsLabelValue v-if="props.item.dual" label="Двойное гражданство">
     <UBadge variant="outline" color="info" :label="props.item.dual" />
   </ElementsLabelValue>
   <ElementsLabelValue label="СНИЛС" :value="props.item.snils" />
@@ -34,7 +34,7 @@ const { copy, copied } = useClipboard();
     label="Дополнительная информация"
     :value="props.item.addition"
   />
-  <ElementsLabelValue label="Материалы проверок">
+  <ElementsLabelValue v-if="props.item.destination" label="Материалы проверок">
     <UButton
       variant="outline"
       :color="!copied ? 'info' : 'success'"

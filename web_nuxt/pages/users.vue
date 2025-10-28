@@ -18,9 +18,9 @@ const expanded = ref({ 1: false });
 const globalFilter = ref("");
 
 // Определяем функцию для получения данных из API
-const { data, status, refresh } = await useLazyAsyncData(async () => {
-  return (await $api("/routes/users")) as User[];
-});
+const { data, status, refresh } = await useLazyAsyncData<User[]>("users", () =>
+  $api("/routes/users")
+);
 
 // Объявляем функцию для действия с пользователем
 async function userAction(item: string, user_id: string) {

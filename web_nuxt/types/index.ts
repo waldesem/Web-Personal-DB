@@ -28,7 +28,7 @@ export interface User extends Session {
   attempt: string;
 }
 
-export interface Persons {
+export interface Person {
   id: string;
   surname: string;
   firstname: string;
@@ -41,13 +41,13 @@ export interface Persons {
   inn?: string;
   marital?: string;
   addition?: string;
-  destination: string;
+  destination?: string;
   editable: boolean;
   created: string;
   user_id: string;
 }
 
-export interface Candidate extends Persons {
+export interface Candidate extends Person {
   username: string;
   total: number;
 }
@@ -62,7 +62,7 @@ export interface Previous {
 }
 export interface Education {
   id: string;
-  view: string;
+  view?: string;
   institution: string;
   finished?: string;
   specialty: string;
@@ -79,7 +79,7 @@ export interface Passport {
   view: string;
   series?: string;
   digits: string;
-  agency: string;
+  agency?: string;
   issue: string;
 }
 

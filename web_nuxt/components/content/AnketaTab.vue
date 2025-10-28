@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Persons } from "@/types";
+import type { Person } from "@/types";
 import type { AsyncDataRequestStatus } from "nuxt/app";
 
 const emits = defineEmits(["update"]);
@@ -10,7 +10,7 @@ const { $api } = useNuxtApp();
 // Определяем данные которые передаются из родительского компонента
 const props = defineProps({
   person: {
-    type: Object as PropType<Persons>,
+    type: Object as PropType<Person>,
     required: true,
   },
   status: {

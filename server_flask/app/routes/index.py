@@ -91,7 +91,7 @@ def get_index(json_query: Index) -> tuple[list[Persons], int]:
 
 
 @bp.get("/metadata")
-@auth_required()
+@auth_required(roles=Roles.admin.value)
 def get_metadata() -> Response:
     """Retrieve a tables and columns from the database."""
     return jsonify(
@@ -103,7 +103,7 @@ def get_metadata() -> Response:
 
 
 @bp.post("/query")
-@auth_required()
+@auth_required(roles=Roles.admin.value)
 def post_query() -> Response:
     """Retrieve a paginated list of rows from the database."""
     query = request.get_json().get("query")
@@ -117,13 +117,12 @@ def post_query() -> Response:
                     "result": [row._asdict() for row in result[:100]],
                 },
             ), 200
-        except (KeyError, SQLAlchemyError):
-            current_app.logger.exception("SQL Error")
+        except (KeyError, SQLAlchemyError) as e:
             db.session.rollback()
             return jsonify(
                 {
                     "status": "error",
-                    "message": current_app.logger.exception(),
+                    "message": str(e),
                     "result": [],
                 },
             ), 200

@@ -14,7 +14,7 @@ watch(
     ) {
       try {
         const { $api } = useNuxtApp();
-        userState.value = (await $api("/routes/auth/session")) as Session;
+        userState.value = await $api<Session>("/routes/auth/session");
         timeSession.value = Date.now();
       } catch (error) {
         console.error(error);
@@ -81,7 +81,9 @@ function logout() {
         <p class="text-sm">{{ new Date().getFullYear() }}</p>
       </template>
 
-      <ULink v-if="userState.role === 'admin'" to="/query">Расширенный поиск</ULink>
+      <ULink v-if="userState.role === 'admin'" to="/query"
+        >Расширенный поиск</ULink
+      >
 
       <template #right>
         <UButton

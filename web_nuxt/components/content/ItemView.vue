@@ -34,13 +34,8 @@ const item = shallowRef({} as object); // Данные для передачи �
 const modal = ref(false); // Флаг для открытия модального окна
 
 // Определяем Composable для получения данных из API
-const { data, status, refresh } = await useLazyAsyncData(
-  props.view,
-  async () => {
-    return (await $api(
-      `/routes/items/${props.view}/${candId.value}`
-    )) as Item[];
-  }
+const { data, status, refresh } = await useLazyAsyncData(props.view, () =>
+  $api<Item[]>(`/routes/items/${props.view}/${candId.value}`)
 );
 
 // Определяем функцию для отправки данных формы на сервер
@@ -136,7 +131,7 @@ async function deleteItem(id: string) {
     <UButton
       v-if="editable && data?.length"
       :loading="status == 'pending'"
-      class="my-2"
+      class="mt-2"
       label="Добавить запись"
       icon="i-lucide-plus"
       variant="outline"

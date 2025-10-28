@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { useFileDialog } from "@vueuse/core";
-import type { Persons } from "@/types";
+import type { Person } from "@/types";
 
-await prefetchComponents('UModal');
+await prefetchComponents("UModal");
 
 // Получаем данные id кандидата из URL
 const route = useRoute();
@@ -13,9 +13,9 @@ provide("candId", candId);
 const { $api } = useNuxtApp();
 
 // Определяем функцию для получения данных из API
-const { data, status, refresh } = await useAsyncData("persons", async () => {
-  return (await $api("/routes/persons/" + candId.value)) as Persons;
-});
+const { data, status, refresh } = await useAsyncData("person", () =>
+  $api<Person>("/routes/persons/" + candId.value)
+);
 
 // Вычисляем статус редактирования анкеты
 const editable = computed(() => {
@@ -131,12 +131,12 @@ onChange(async (files) => {
         </div>
       </template>
     </UPageHeader>
-    
+
     <!-- Меню для переключения между вкладками -->
     <ContentItemTabs>
       <template #anketa-tab>
         <ContentAnketaTab
-          :person="data ?? ({} as Persons)"
+          :person="data ?? ({} as Person)"
           :status="status"
           :editable="editable"
           @update="refresh()"

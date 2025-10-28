@@ -23,21 +23,23 @@ const search = ref(""); // Поисковый запрос
 const updated = ref(Date.now()); // Дата обновления данных
 
 // Определяем функцию для получения списка кандидатов из API
-const { data, status, refresh } = useLazyAsyncData(
-  async () => {
-    const response = (await $api("/routes/candidates", {
+const { data, status, refresh } = await useLazyAsyncData(
+  "candidates",
+  () =>
+    $api<Candidate[]>("/routes/candidates", {
       query: {
         page: page.value,
         per_page: per_page,
         search: search.value,
       },
-    })) as Candidate[];
-    updated.value = Date.now();
-    return response;
-  },
-  // Наблюдаем: активность пользователя, переключение страницы, изменение строки поиска.
+    }),
+  // Наблюдаем: переключение страницы, изменение строки поиска.
   { watch: [page, refDebounced(search, 1000)] }
 );
+
+watch(data, () => {
+  updated.value = Date.now();
+});
 
 // Определяем обработчики диалогового окна для загрузки JSON
 const { open, onChange } = useFileDialog({
