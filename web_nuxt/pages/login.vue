@@ -46,7 +46,7 @@ const update = login.concat([
     name: "new_pswd",
     label: "Новый пароль",
     placeholder: "Новый пароль",
-    icon: "i-lucide-lock-keyhole",
+    icon: "i-lucide-lock",
     type: "password",
     required: true,
   },
@@ -54,7 +54,7 @@ const update = login.concat([
     name: "conf_pswd",
     label: "Подтверждение пароля",
     placeholder: "Подтверждение пароля",
-    icon: "i-lucide-lock-keyhole",
+    icon: "i-lucide-lock",
     type: "password",
     required: true,
   },
@@ -159,7 +159,7 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
         <UAuthForm
           title="Вход в систему"
           description="Доступ в систему кадровой безопасности."
-          icon="i-lucide-user"
+          icon="i-lucide-user-lock"
           :validate="validate"
           :fields="action == 'login' ? login : update"
           :submit="{

@@ -1,91 +1,99 @@
 <script setup lang="ts">
-const { data: person } = useNuxtData('person');
+definePageMeta({
+  layout: false,
+});
+
+onMounted(() => window.print());
+
+const { data: person } = useNuxtData("person");
 
 const items = [
   {
-    content: "staffs",
     label: "Должности",
-    icon: "i-lucide-user",
     component: resolveComponent("ItemsStaffItem"),
+    data: useNuxtData("staffs").data.value,
   },
   {
-    content: "educations",
     label: "Образование",
-    icon: "i-lucide-graduation-cap",
     component: resolveComponent("ItemsEducationItem"),
+    data: useNuxtData("educations").data.value,
   },
   {
-    content: "workplaces",
     label: "Места работы",
-    icon: "i-lucide-briefcase-business",
     component: resolveComponent("ItemsWorkplaceItem"),
+    data: useNuxtData("workplaces").data.value,
   },
   {
-    content: "documents",
     label: "Документы",
-    icon: "i-lucide-book-text",
     component: resolveComponent("ItemsDocumentItem"),
+    data: useNuxtData("documents").data.value,
   },
   {
-    content: "addresses",
     label: "Адреса",
-    icon: "i-lucide-house",
     component: resolveComponent("ItemsAddressItem"),
+    data: useNuxtData("addresses").data.value,
   },
   {
-    content: "contacts",
     label: "Контакты",
-    icon: "i-lucide-phone-call",
     component: resolveComponent("ItemsContactItem"),
+    data: useNuxtData("contacts").data.value,
   },
   {
-    content: "previous",
     label: "Изменения имени",
-    icon: "i-lucide-file-pen-line",
     component: resolveComponent("ItemsPreviousItem"),
+    data: useNuxtData("previous").data.value,
   },
   {
-    content: "affilations",
     label: "Аффилированность",
-    icon: "i-lucide-users-round",
     component: resolveComponent("ItemsAffilationItem"),
+    data: useNuxtData("affilations").data.value,
   },
   {
-    content: "checks",
     label: "Проверки",
-    icon: "i-lucide-circle-check-big",
     component: resolveComponent("ItemsCheckItem"),
+    data: useNuxtData("checks").data.value,
   },
   {
-    content: "poligrafs",
     label: "Полиграф",
-    icon: "i-lucide-heart-pulse",
     component: resolveComponent("ItemsPoligrafItem"),
+    data: useNuxtData("poligrafs").data.value,
   },
   {
-    content: "investigations",
     label: "Расследования",
-    icon: "i-lucide-briefcase-business",
     component: resolveComponent("ItemsInquestItem"),
+    data: useNuxtData("investigations").data.value,
   },
   {
-    content: "inquiries",
     label: "Запросы",
-    icon: "i-lucide-book-text",
     component: resolveComponent("ItemsInquiryItem"),
+    data: useNuxtData("inquiries").data.value,
   },
 ];
 </script>
 
 <template>
-  <Upage>
-    <UPageCard title="Анкета" icon="i-lucide-user">
+  <UMain>
+    <UPage>
+      <UPageHeader
+        :title="`${person?.surname} ${person?.firstname} ${
+          person?.patronymic ?? ''
+        }`"
+        :ui="{
+          title: 'text-2xl sm:text-xl',
+        }"
+      />
       <ItemsPersonItem :item="person" />
-    </UPageCard>
-    <UPageCard v-for="item in items" :key="item.content" :title="item.label">
-      <div v-for="content in useNuxtData(item.content).data" :key="content.id">
-        <component :is="item.component" :item="content"/>
+      <div v-for="(item, index) in items" :key="index">
+        <USeparator v-if="item.data" type="dashed" :label="item.label" />
+        <div v-for="(data, idx) in item.data" :key="idx">
+          <component :is="item.component" :item="data" />
+          <USeparator
+            v-if="idx + 1 !== item.data.length"
+            type="dotted"
+            label="#"
+          />
+        </div>
       </div>
-    </UPageCard>
-  </Upage>
+    </UPage>
+  </UMain>
 </template>

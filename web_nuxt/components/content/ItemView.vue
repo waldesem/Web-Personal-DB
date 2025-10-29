@@ -135,6 +135,7 @@ async function deleteItem(id: string) {
       label="Добавить запись"
       icon="i-lucide-plus"
       variant="outline"
+      size="sm"
       block
     />
     <template #body>

@@ -70,7 +70,7 @@ const experience = computed(() => {
       "
     >
       {{
-        `${experience.years} лет, ${experience.months} месяцев, ${experience.days} дней`
+        `${experience.years} г., ${experience.months} мес., ${experience.days} дн.`
       }}
     </UBadge>
   </ElementsLabelValue>

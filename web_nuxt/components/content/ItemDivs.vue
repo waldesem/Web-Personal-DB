@@ -6,7 +6,7 @@ const items = [
   {
     content: "staffs",
     label: "Должности",
-    icon: "i-lucide-user",
+    icon: "i-lucide-workflow",
     slot: "staffs" as const,
     ItemComponent: resolveComponent("ItemsStaffItem"),
     FormComponent: resolveComponent("FormsStaffForm"),

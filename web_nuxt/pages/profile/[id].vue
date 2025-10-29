@@ -106,8 +106,15 @@ onChange(async (files) => {
           <UButton
             :loading="status === 'pending'"
             variant="outline"
+            icon="i-lucide-printer"
+            label="Печать"
+            @click="navigateTo('/print')"
+          />
+          <UButton
+            :loading="status === 'pending'"
+            variant="outline"
             icon="i-lucide-cloud-upload"
-            label="Загрузить файлы"
+            label="Загрузить"
             @click="open()"
           />
           <UButton

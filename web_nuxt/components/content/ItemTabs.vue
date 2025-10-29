@@ -12,7 +12,7 @@ const items = [
   {
     content: "checks",
     label: "Проверки",
-    icon: "i-lucide-circle-check-big",
+    icon: "i-lucide-shield-check",
     slot: "checks" as const,
     ItemComponent: resolveComponent("ItemsCheckItem"),
     FormComponent: resolveComponent("FormsCheckForm"),
@@ -28,7 +28,7 @@ const items = [
   {
     content: "investigations",
     label: "Расследования",
-    icon: "i-lucide-briefcase-business",
+    icon: "i-lucide-hat-glasses",
     slot: "investigations" as const,
     ItemComponent: resolveComponent("ItemsInquestItem"),
     FormComponent: resolveComponent("FormsInquestForm"),
@@ -36,7 +36,7 @@ const items = [
   {
     content: "inquiries",
     label: "Запросы",
-    icon: "i-lucide-book-text",
+    icon: "i-lucide-message-circle-question-mark",
     slot: "inquiries" as const,
     ItemComponent: resolveComponent("ItemsInquiryItem"),
     FormComponent: resolveComponent("FormsInquiryForm"),

@@ -78,16 +78,16 @@ function logout() {
     <USeparator type="dashed" class="h-px" />
     <UFooter>
       <template #left>
-        <p class="text-sm">{{ new Date().getFullYear() }}</p>
+        <p class="text-sm">Copyright © {{ new Date().getFullYear() }}</p>
       </template>
 
-      <ULink v-if="userState.role === 'admin'" to="/query"
-        >Расширенный поиск</ULink
-      >
+      <ULink v-if="userState.role === 'admin'" to="/query">
+        Расширенный поиск
+      </ULink>
 
       <template #right>
         <UButton
-          icon="i-lucide-computer"
+          icon="i-lucide-git-graph"
           label="GitHub"
           color="neutral"
           variant="ghost"
