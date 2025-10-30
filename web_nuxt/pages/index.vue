@@ -10,5 +10,5 @@ definePageMeta({
 </script>
 
 <template>
-  <UPage />
+  <div>Index</div>
 </template>

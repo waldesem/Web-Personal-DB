@@ -73,27 +73,27 @@ const items = [
 
 <template>
   <UMain>
-    <UPage>
-      <UPageHeader
-        :title="`${person?.surname} ${person?.firstname} ${
-          person?.patronymic ?? ''
-        }`"
-        :ui="{
-          title: 'text-2xl sm:text-xl',
-        }"
-      />
-      <ItemsPersonItem :item="person" />
-      <div v-for="(item, index) in items" :key="index">
-        <USeparator v-if="item.data" type="dashed" :label="item.label" />
-        <div v-for="(data, idx) in item.data" :key="idx">
-          <component :is="item.component" :item="data" />
-          <USeparator
-            v-if="idx + 1 !== item.data.length"
-            type="dotted"
-            label="#"
-          />
-        </div>
+    <!-- <UPage> -->
+    <UPageHeader
+      :title="`${person?.surname} ${person?.firstname} ${
+        person?.patronymic ?? ''
+      }`"
+      :ui="{
+        title: 'text-2xl sm:text-xl',
+      }"
+    />
+    <ItemsPersonItem :item="person" />
+    <div v-for="(item, index) in items" :key="index">
+      <USeparator v-if="item.data" type="dashed" :label="item.label" />
+      <div v-for="(data, idx) in item.data" :key="idx">
+        <component :is="item.component" :item="data" />
+        <USeparator
+          v-if="idx + 1 !== item.data.length"
+          type="dotted"
+          label="#"
+        />
       </div>
-    </UPage>
+    </div>
+    <!-- </UPage> -->
   </UMain>
 </template>

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+// import { useFileSystemAccess } from '@vueuse/core'
+
 interface Query {
   status: string;
   message: string;
@@ -33,7 +35,7 @@ const validate = () => {
   if (!query.value.toLowerCase().startsWith("select"))
     errors.push({
       name: "query",
-      message: "Запрос должен начинаться SELECT...",
+      message: "Запрос должен быть в формате: SELECT * FROM persons",
     });
   return errors;
 };

@@ -20,7 +20,7 @@ const modal = ref(false); // Состояние модального окна
 const page = ref(1); // Страница таблицы
 const per_page = 10; // Количество строк в таблице
 const search = ref(""); // Поисковый запрос
-const updated = ref(Date.now()); // Дата обновления данных
+const updated = ref(); // Дата обновления данных
 
 // Определяем функцию для получения списка кандидатов из API
 const { data, status, refresh } = await useLazyAsyncData(

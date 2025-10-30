@@ -11,16 +11,16 @@ const action = ref("login");
 const alert = ref({}) as Ref<AlertProps>;
 
 function setAlert(
-  color = "success",
-  title = "Информация",
-  description = "Введите логин и пароль"
+  color: AlertProps["color"] = "success",
+  description = "Введите логин и пароль",
+  title = "Информация"
 ) {
-  alert.value.color = color as AlertProps["color"];
+  alert.value.color = color;
   alert.value.title = title;
   alert.value.description = description;
 }
 
-setAlert();
+onMounted(() => setAlert());
 
 const login: AuthFormField[] = [
   {
@@ -153,59 +153,57 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
 </script>
 
 <template>
-  <UPage>
-    <div class="flex flex-col items-center justify-center pt-16">
-      <UPageCard class="w-full max-w-md m-auto">
-        <UAuthForm
-          title="Вход в систему"
-          description="Доступ в систему кадровой безопасности."
-          icon="i-lucide-user-lock"
-          :validate="validate"
-          :fields="action == 'login' ? login : update"
-          :submit="{
-            label: action === 'login' ? 'Войти' : 'Изменить',
-            color: 'success',
-            variant: 'outline',
-          }"
-          @submit.prevent="onSubmit($event)"
-        >
-          <template #title>
-            <ElementsLogoDiv class="my-2" />
-          </template>
-          <template #validation>
-            <UAlert
-              variant="subtle"
-              :color="alert.color"
-              :title="alert.title"
-              :description="alert.description"
-              icon="i-lucide-circle-alert"
-            />
-          </template>
-          <template #footer>
-            <UButton
-              :label="action == 'login' ? 'Изменить' : 'Отмена'"
-              color="secondary"
-              variant="outline"
-              block
-              @click="
-                () => {
-                  if (action == 'login') {
-                    action = 'update';
-                    setAlert(
-                      'info',
-                      'Информация',
-                      'Введите новый пароль и подтверждение'
-                    );
-                  } else {
-                    action = 'login';
-                    setAlert();
-                  }
+  <UMain class="flex items-center">
+    <UPageCard class="w-full max-w-md m-auto">
+      <UAuthForm
+        title="Вход в систему"
+        description="Доступ в систему кадровой безопасности."
+        icon="i-lucide-user-lock"
+        :validate="validate"
+        :fields="action == 'login' ? login : update"
+        :submit="{
+          label: action === 'login' ? 'Войти' : 'Изменить',
+          color: 'success',
+          variant: 'outline',
+        }"
+        @submit.prevent="onSubmit($event)"
+      >
+        <template #title>
+          <ElementsLogoDiv class="my-2" />
+        </template>
+        <template #validation>
+          <UAlert
+            variant="subtle"
+            :color="alert.color"
+            :title="alert.title"
+            :description="alert.description"
+            icon="i-lucide-circle-alert"
+          />
+        </template>
+        <template #footer>
+          <UButton
+            :label="action == 'login' ? 'Изменить' : 'Отмена'"
+            color="secondary"
+            variant="outline"
+            block
+            @click="
+              () => {
+                if (action == 'login') {
+                  action = 'update';
+                  setAlert(
+                    'info',
+                    'Информация',
+                    'Введите новый пароль и подтверждение'
+                  );
+                } else {
+                  action = 'login';
+                  setAlert();
                 }
-              "
-            />
-          </template>
-        </UAuthForm>
-      </UPageCard>
-    </div>
-  </UPage>
+              }
+            "
+          />
+        </template>
+      </UAuthForm>
+    </UPageCard>
+  </UMain>
 </template>
