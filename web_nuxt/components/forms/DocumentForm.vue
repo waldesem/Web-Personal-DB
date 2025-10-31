@@ -13,9 +13,9 @@ const props = defineProps({
 
 const form = toRef(props.item);
 
-form.value.issue = form.value.issue
-  ? useDateFormat(form.value.issue, "YYYY-MM-DD").value
-  : "";
+const issue = computed(() =>
+  form.value.issue ? useDateFormat(form.value.issue, "YYYY-MM-DD").value : ""
+);
 </script>
 
 <template>
@@ -53,7 +53,12 @@ form.value.issue = form.value.issue
       />
     </UFormField>
     <UFormField label="Дата выдачи" name="issue" required>
-      <UInput v-model="form.issue" type="date" required />
+      <UInput
+        :value="issue"
+        type="date"
+        required
+        @input="(event: { target: { value: string; }; }) => (form.issue = event.target.value)"
+      />
     </UFormField>
     <ElementsSubmitButton />
   </UForm>

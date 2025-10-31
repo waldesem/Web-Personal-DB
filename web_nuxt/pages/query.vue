@@ -1,6 +1,4 @@
 <script setup lang="ts">
-// import { useFileSystemAccess } from '@vueuse/core'
-
 interface Query {
   status: string;
   message: string;

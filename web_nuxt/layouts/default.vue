@@ -27,10 +27,8 @@ watch(
 // Объявляем функцию для выхода из системы и очистки данных пользователя
 function logout() {
   if (!confirm("Вы действительно хотите выйти?")) return;
-  const token = useCookie("token");
-  const refresh = useCookie("refresh");
-  token.value = null;
-  refresh.value = null;
+  useCookie("token").value = null;
+  useCookie("refresh").value = null;
   userState.value = null;
   clearNuxtData();
   return navigateTo("/login");
@@ -38,7 +36,7 @@ function logout() {
 </script>
 
 <template>
-  <div>
+  <UMain>
     <UHeader>
       <template #title>
         <NuxtLink to="/persons" title="На главную страницу">
@@ -70,12 +68,13 @@ function logout() {
         />
       </template>
     </UHeader>
-    <UMain>
-      <UContainer class="pt-16">
-        <slot />
-      </UContainer>
-    </UMain>
+    
+    <UContainer class="pt-16">
+      <slot />
+    </UContainer>
+
     <USeparator type="dashed" class="h-px" />
+
     <UFooter>
       <template #left>
         <p class="text-sm">Copyright © {{ new Date().getFullYear() }}</p>
@@ -96,5 +95,5 @@ function logout() {
         />
       </template>
     </UFooter>
-  </div>
+  </UMain>
 </template>
