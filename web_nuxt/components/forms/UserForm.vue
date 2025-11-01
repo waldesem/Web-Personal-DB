@@ -3,6 +3,8 @@ import type { UserForm } from '@/types';
 
 const emit = defineEmits(["update"]);
 
+const toasts = useToasts();
+
 const { $api } = useNuxtApp();
 
 const form = ref({} as UserForm);
@@ -32,9 +34,9 @@ async function submitUser() {
   if (message === "success") {
     emit("update");
     form.value = {} as UserForm;
-    useToasts("success", "Пользователь успешно добавлен");
+    toasts.create("success", "Пользователь успешно добавлен");
   } else {
-    useToasts();
+    toasts.create();
   }
 }
 </script>

@@ -4,6 +4,8 @@ import type { AsyncDataRequestStatus } from "nuxt/app";
 
 const emits = defineEmits(["update"]);
 
+const toasts = useToasts();
+
 // Используем плагин для передачи данных на сервер
 const { $api } = useNuxtApp();
 
@@ -34,10 +36,10 @@ function submitPerson(person_id: number | null) {
   modal.value = false;
   emits("update");
   if (person_id) {
-    useToasts("success", "Информация успешно обновлена");
+    toasts.create("success", "Информация успешно обновлена");
     emits("update");
   } else {
-    useToasts();
+    toasts.create();
   }
 }
 
@@ -54,11 +56,11 @@ async function deletePerson() {
     }
   );
   if (message == "success") {
-    useToasts("success", "Информация успешно удалена");
+    toasts.create("success", "Информация успешно удалена");
     await navigateTo("/persons");
   } else {
     emits("update");
-    useToasts();
+    toasts.create();
   }
 }
 </script>

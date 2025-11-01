@@ -9,6 +9,8 @@ interface Response {
 // Импортируем плагин для передачи данных на сервер
 const { $api } = useNuxtApp();
 
+const toasts = useToasts();
+
 // Определяем данные которые передаются из родительского компонента
 const props = defineProps({
   icon: {
@@ -52,8 +54,8 @@ async function submitItem(form: typeof item.value) {
   item.value = {};
   await refresh();
   if (message === "success") {
-    useToasts("success", "Информация успешно обновлена");
-  } else useToasts();
+    toasts.create("success", "Информация успешно обновлена");
+  } else toasts.create();
 }
 
 // Определяем функцию для удаления данных
@@ -65,8 +67,8 @@ async function deleteItem(id: string) {
   })) as Response;
   await refresh();
   if (message === "success") {
-    useToasts("success", "Информация успешно удалена");
-  } else useToasts();
+    toasts.create("success", "Информация успешно удалена");
+  } else toasts.create();
 }
 </script>
 

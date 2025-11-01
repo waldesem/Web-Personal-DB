@@ -4,6 +4,8 @@ import type { Person } from "@/types";
 
 await prefetchComponents("UModal");
 
+const toasts = useToasts();
+
 // Получаем данные id кандидата из URL
 const route = useRoute();
 const candId = computed(() => route.params.id as string);
@@ -54,7 +56,7 @@ async function switchSelf(): Promise<void> {
   if (message == "success") {
     await refresh();
   } else {
-    useToasts();
+    toasts.create();
   }
 }
 
@@ -67,7 +69,7 @@ onChange(async (files) => {
   const formData = new FormData();
   for (const file of files) {
     if (file.size > 10 * 1024 * 1024) {
-      useToasts("info", "Размер одного файла не должен превышать 10 МБ");
+      toasts.create("info", "Размер одного файла не должен превышать 10 МБ");
       continue;
     }
     formData.append("file", file);
@@ -81,9 +83,9 @@ onChange(async (files) => {
   );
   status.value = message as "success" | "error";
   if (message == "success") {
-    useToasts(message, "Файлы успешно загружены");
+    toasts.create(message, "Файлы успешно загружены");
   } else {
-    useToasts();
+    toasts.create();
   }
 });
 </script>

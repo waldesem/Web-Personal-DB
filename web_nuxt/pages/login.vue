@@ -1,26 +1,19 @@
 <script setup lang="ts">
 import type { AlertProps, AuthFormField, FormSubmitEvent } from "@nuxt/ui";
+import { refManualReset } from '@vueuse/core'
 import type { Login } from "@/types";
 
 definePageMeta({ layout: false });
 
 // Объявляем переменные для формы и состояния
-const action = ref("login");
+const action = refManualReset("login");
 
 // Объявляем переменную для показа алерта
-const alert = ref({}) as Ref<AlertProps>;
-
-function setAlert(
-  color: AlertProps["color"] = "success",
-  description = "Введите логин и пароль",
-  title = "Информация"
-) {
-  alert.value.color = color;
-  alert.value.title = title;
-  alert.value.description = description;
-}
-
-onMounted(() => setAlert());
+const alert = ref({
+  color: "success",
+  title: "Информация",
+  description: "Введите логин и пароль",
+}) as Ref<AlertProps>;
 
 const login: AuthFormField[] = [
   {
@@ -137,17 +130,25 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
       refresh.value = refresh_token;
       return navigateTo("/persons");
     } else if (message === "updated") {
-      action.value = "login";
-      setAlert("success", "Информация", "Войдите с новым паролем.");
+      action.reset();
+      alert.value.color = "success";
+      alert.value.title = "Информация";
+      alert.value.description = "Войдите с новым паролем.";
     } else if (message === "denied") {
-      setAlert("warning", "Предупреждение", "Пароль просрочен.");
+      alert.value.color = "warning";
+      alert.value.title = "Предупреждение";
+      alert.value.description = "Пароль просрочен.";
       action.value = "update";
     } else {
-      setAlert("error", "Внимание", "Неправильный логин или пароль.");
+      alert.value.color = "error";
+      alert.value.title = "Внимание";
+      alert.value.description = "Неправильный логин или пароль.";
     }
   } catch (error) {
     console.error(error);
-    setAlert("error", "Внимание", "Ошибка соединения с сервером.");
+    alert.value.color = "error";
+    alert.value.title = "Внимание";
+    alert.value.description = "Ошибка соединения с сервером.";
   }
 }
 </script>
@@ -190,14 +191,14 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
               () => {
                 if (action == 'login') {
                   action = 'update';
-                  setAlert(
-                    'info',
-                    'Информация',
-                    'Введите новый пароль и подтверждение'
-                  );
+                  alert.color = 'info';
+                  alert.title = 'Информация';
+                  alert.description = 'Введите новый пароль и подтверждение.';
                 } else {
                   action = 'login';
-                  setAlert();
+                  alert.color = 'success';
+                  alert.title = 'Информация';
+                  alert.description = 'Введите логин и пароль';
                 }
               }
             "

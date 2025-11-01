@@ -8,6 +8,7 @@ const UBadge = resolveComponent("UBadge");
 const UButton = resolveComponent("UButton");
 const UDropdownMenu = resolveComponent("UDropdownMenu");
 const NuxtTime = resolveComponent("NuxtTime");
+const toasts = useToasts();
 
 // Вызываем плагин для работы с API
 const { $api } = useNuxtApp();
@@ -33,9 +34,9 @@ async function userAction(item: string, user_id: string) {
     }
   );
   if (message == "success") {
-    useToasts("success", "Действие успешно выполнено");
+    toasts.create("success", "Действие успешно выполнено");
   } else {
-    useToasts();
+    toasts.create();
   }
   refresh();
 }

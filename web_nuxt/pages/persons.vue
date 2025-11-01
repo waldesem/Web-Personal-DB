@@ -6,6 +6,8 @@ import type { Candidate } from "@/types";
 // Прелоадим компонент
 await preloadRouteComponents("/profile/[id]");
 
+const toasts = useToasts();
+
 // Объявляем переменные рендера компонентов
 const NuxtTime = resolveComponent("NuxtTime");
 const UButton = resolveComponent("UButton");
@@ -50,7 +52,7 @@ const { open, onChange } = useFileDialog({
 // Фукция загрузки файла JSON
 onChange(async (files) => {
   if (!files?.[0]?.name.endsWith(".json")) {
-    useToasts();
+    toasts.create();
     return;
   }
   status.value = "pending";
@@ -70,18 +72,18 @@ async function proceedResult(person_id: string, exists: boolean) {
   status.value = "success";
   if (person_id) {
     if (exists) {
-      useToasts("info", "Кандидат ранее уже был загружен");
+      toasts.create("info", "Кандидат ранее уже был загружен");
     } else {
-      useToasts("success", "Анкета успешно загружена");
+      toasts.create("success", "Анкета успешно загружена");
     }
     await refresh();
     return navigateTo("/profile/" + person_id);
   } else {
     if (exists) {
       await refresh();
-      useToasts("info", "Анкета назначена другому пользователю");
+      toasts.create("info", "Анкета назначена другому пользователю");
     } else {
-      useToasts();
+      toasts.create();
     }
     status.value = "success";
   }

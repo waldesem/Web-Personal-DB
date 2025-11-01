@@ -21,17 +21,17 @@ def start_browser(address: str, port: int) -> None:
     """Start the browser."""
     profile_dir = tempfile.mkdtemp(prefix=f"webgui{uuid.uuid1().hex}")
     paths = [
-        # "/snap/bin/chromium",
+        "/snap/bin/chromium",
         r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
         r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
         r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
         r"C:\Program Files\Google\Chrome\Application\chrome.exe",
     ]
 
-    if browser_paths := list(filter(lambda path: Path(path).is_file(), paths)):
+    if browser_path := next((p for p in paths if Path(p).is_file()), None):
         subprocess.Popen(  # noqa: S603
             [
-                browser_paths[0],
+                browser_path,
                 f"--app=http://{address}:{port}",
                 f"--user-data-dir={profile_dir}",
                 "--new-window",
