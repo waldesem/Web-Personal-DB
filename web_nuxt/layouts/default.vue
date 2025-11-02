@@ -36,7 +36,7 @@ function logout() {
 </script>
 
 <template>
-  <UMain>
+  <UPage>
     <UHeader>
       <template #title>
         <NuxtLink to="/persons" title="На главную страницу">
@@ -68,10 +68,11 @@ function logout() {
         />
       </template>
     </UHeader>
-    
-    <UContainer class="pt-16">
-      <slot />
-    </UContainer>
+    <UMain>
+      <UContainer class="pt-16">
+        <slot />
+      </UContainer>
+    </UMain>
 
     <USeparator type="dashed" class="h-px" />
 
@@ -95,5 +96,5 @@ function logout() {
         />
       </template>
     </UFooter>
-  </UMain>
+  </UPage>
 </template>

@@ -55,8 +55,8 @@ const experience = computed(() => {
   <ElementsLabelValue v-if="props.item.starts" label="Начало работы">
     <NuxtTime :datetime="props.item.starts" />
   </ElementsLabelValue>
-  <ElementsLabelValue label="Окончание работы">
-    <NuxtTime v-if="props.item.finished" :datetime="props.item.finished" />
+  <ElementsLabelValue v-if="props.item.finished" label="Окончание работы">
+    <NuxtTime :datetime="props.item.finished" />
   </ElementsLabelValue>
   <ElementsLabelValue v-if="experience" label="Стаж на рабочем месте">
     <UBadge

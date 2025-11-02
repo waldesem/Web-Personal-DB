@@ -8,7 +8,7 @@ from werkzeug.security import generate_password_hash
 from app import db
 from app.classes.classes import Roles
 from app.decorators.depend import auth_required, get_current_user
-from app.decorators.validize import pydantify
+from app.decorators.pydantify import serialize, validize
 from app.models.models import User, UserActions, UserForm
 from app.tables.tables import Users
 
@@ -16,7 +16,8 @@ bp = Blueprint("users", __name__)
 
 
 @bp.get("/users")
-@pydantify(User, orm=True, many=True)
+@serialize(User, orm=True, many=True)
+@validize()
 @auth_required(Roles.admin.value)
 def get_users() -> tuple[list[Users], int]:
     """Retrieve a list of users from the database."""
@@ -29,7 +30,8 @@ def get_users() -> tuple[list[Users], int]:
 
 
 @bp.post("/user/<user_id>")
-@pydantify()
+@serialize()
+@validize()
 @auth_required(Roles.admin.value)
 def post_user_actions(user_id: int, json_data: UserActions) -> tuple[dict, int]:
     """Change a user's information in the database based on their user ID."""
@@ -62,7 +64,8 @@ def post_user_actions(user_id: int, json_data: UserActions) -> tuple[dict, int]:
 
 
 @bp.post("/user")
-@pydantify()
+@serialize()
+@validize()
 @auth_required(Roles.admin.value)
 def post_user(json_data: UserForm) -> tuple[dict, int]:
     """Handle the POST request to create a user in the database."""

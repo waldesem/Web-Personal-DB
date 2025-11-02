@@ -6,7 +6,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from app import db
 from app.classes.classes import Roles
 from app.decorators.depend import auth_required
-from app.decorators.validize import pydantify
+from app.decorators.pydantify import serialize, validize
 from app.models.models import BaseResponse, PersonIn, PersonOut, ResumeResponse
 from app.tables.tables import Persons
 from app.utils.utilities import upload_resume
@@ -15,7 +15,8 @@ bp = Blueprint("persons", __name__)
 
 
 @bp.get("/persons/<int:person_id>")
-@pydantify(PersonOut, orm=True)
+@serialize(PersonOut, orm=True)
+@validize()
 @auth_required()
 def get_person(person_id: int) -> tuple[Persons, int] | Response:
     """Retrieve an item from the database based on the provided item ID."""
@@ -25,7 +26,8 @@ def get_person(person_id: int) -> tuple[Persons, int] | Response:
 
 
 @bp.post("/persons")
-@pydantify(ResumeResponse)
+@serialize(ResumeResponse)
+@validize()
 @auth_required(Roles.user.value)
 def post_person(json_data: PersonIn) -> tuple[dict, int]:
     """Replace a record in persons table."""
@@ -35,7 +37,8 @@ def post_person(json_data: PersonIn) -> tuple[dict, int]:
 
 
 @bp.delete("/persons/<int:person_id>")
-@pydantify(BaseResponse)
+@serialize(BaseResponse)
+@validize()
 @auth_required(Roles.user.value)
 def delete_person(person_id: int) -> tuple[dict, int]:
     """Delete an item from the database based on the provided item name and item ID."""

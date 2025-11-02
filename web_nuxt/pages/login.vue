@@ -154,7 +154,7 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
 </script>
 
 <template>
-  <UMain class="flex items-center">
+  <UMain class="my-[20vh]">
     <UPageCard class="w-full max-w-md m-auto">
       <UAuthForm
         title="Вход в систему"

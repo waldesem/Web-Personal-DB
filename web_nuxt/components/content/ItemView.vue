@@ -77,6 +77,7 @@ async function deleteItem(id: string) {
   <UEmpty
     v-if="!data?.length"
     :icon="props.icon"
+    class="m-2"
     title="Данные отсутствуют"
     size="sm"
   >
@@ -133,10 +134,11 @@ async function deleteItem(id: string) {
     <UButton
       v-if="editable && data?.length"
       :loading="status == 'pending'"
-      class="mt-2"
+      class="mb-2"
       label="Добавить запись"
       icon="i-lucide-plus"
       variant="outline"
+      color="neutral"
       size="sm"
       block
     />

@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Literal
 
-from flask import Blueprint, Response, current_app, g, jsonify
+from flask import Blueprint, Response, current_app, g
 from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
@@ -13,8 +13,8 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from app import db
 from app.decorators.depend import auth_required
-from app.decorators.validize import pydantify
-from app.models.models import AuthResponse, Login
+from app.decorators.pydantify import serialize, validize
+from app.models.models import AuthResponse, Login, Session
 from app.tables.tables import Users
 from app.utils.utilities import create_token
 
@@ -22,7 +22,8 @@ bp = Blueprint("auth", __name__, url_prefix="/auth")
 
 
 @bp.post("/<action>")
-@pydantify(AuthResponse)
+@serialize(AuthResponse)
+@validize()
 def post_login(
     action: Literal["login", "update"],
     json_data: Login,
@@ -69,22 +70,25 @@ def post_login(
 
 
 @bp.post("/refresh")
+@serialize(AuthResponse)
 @auth_required(refresh=True)
 def refresh_token() -> tuple[dict, int]:
     """Refresh the access token."""
-    return jsonify({"access_token": create_token(g.user.id)}), 201
+    return {
+        "message": "success",
+        "access_token": create_token(g.user.id),
+    }, 201
 
 
 @bp.get("/session")
+@serialize(Session)
 @auth_required()
 def get_session() -> Response:
     """Retrieve an item from the database based on the provided item ID."""
-    return jsonify(
-        {
-            "id": g.user.id,
-            "fullname": g.user.fullname,
-            "username": g.user.username,
-            "email": g.user.email,
-            "role": g.user.role,
-        },
-    ), 200
+    return {
+        "id": g.user.id,
+        "fullname": g.user.fullname,
+        "username": g.user.username,
+        "email": g.user.email,
+        "role": g.user.role,
+    }, 200

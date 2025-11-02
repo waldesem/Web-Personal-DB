@@ -14,13 +14,14 @@ from sqlalchemy.exc import SQLAlchemyError
 from app import db
 from app.classes.classes import Roles
 from app.decorators.depend import auth_required
-from app.decorators.validize import pydantify
+from app.decorators.pydantify import serialize, validize
 from app.models.models import (
     AnketaJson,
-    BaseResponse,
     Candidates,
     Index,
     PersonIn,
+    Query,
+    QueryResponse,
     ResumeResponse,
 )
 from app.tables.tables import (
@@ -41,7 +42,8 @@ bp = Blueprint("route", __name__)
 
 
 @bp.get("/candidates")
-@pydantify(Candidates, orm=True, many=True)
+@serialize(Candidates, orm=True, many=True)
+@validize()
 @auth_required()
 def get_index(json_query: Index) -> tuple[list[Persons], int]:
     """Retrieve a paginated list of persons from the database."""
@@ -69,11 +71,14 @@ def get_index(json_query: Index) -> tuple[list[Persons], int]:
             Users.id == Persons.user_id,
         )
         if json_query.search:
-            search = json_query.search.upper().split(maxsplit=3)[:3]
             stmt = stmt.where(
-                Persons.surname == search[0],
-                Persons.firstname == search[1] if len(search) > 1 else True,
-                Persons.patronymic == search[2] if len(search) > 2 else True,
+                Persons.surname == json_query.search[0],
+                Persons.firstname == json_query.search[1]
+                if len(json_query.search) > 1
+                else True,
+                Persons.patronymic == json_query.search[2]
+                if len(json_query.search) > 2
+                else True,
             )
         # Пагинация списка кандидатов
         result = db.session.execute(
@@ -103,40 +108,30 @@ def get_metadata() -> Response:
 
 
 @bp.post("/query")
+@serialize(QueryResponse)
+@validize()
 @auth_required(roles=Roles.admin.value)
-def post_query() -> Response:
+def post_query(query: Query) -> Response:
     """Retrieve a paginated list of rows from the database."""
-    query = request.get_json().get("query")
-    if query.lower().startswith("select "):
-        try:
-            result = db.session.execute(text(query)).all()
-            return jsonify(
-                {
-                    "status": "success",
-                    "message": "",
-                    "result": [row._asdict() for row in result[:100]],
-                },
-            ), 200
-        except (KeyError, SQLAlchemyError) as e:
-            db.session.rollback()
-            return jsonify(
-                {
-                    "status": "error",
-                    "message": str(e),
-                    "result": [],
-                },
-            ), 200
-    return jsonify(
-        {
+    try:
+        result = db.session.execute(text(query.text)).all()
+        return {
+            "status": "success",
+            "message": "",
+            "result": [row._asdict() for row in result[:99]],
+        }, 200
+    except (KeyError, SQLAlchemyError) as e:
+        db.session.rollback()
+        return {
             "status": "error",
-            "message": "Query should start with 'SELECT'",
+            "message": str(e),
             "result": [],
-        },
-    ), 200
+        }, 200
 
 
 @bp.get("/self/<int:person_id>")
-@pydantify()
+@serialize()
+@validize()
 @auth_required(Roles.user.value)
 def switch_status(person_id: int) -> tuple[dict, int]:
     """Toggle the editable status of a person."""
@@ -149,7 +144,8 @@ def switch_status(person_id: int) -> tuple[dict, int]:
 
 
 @bp.post("/files/<int:person_id>")
-@pydantify()
+@serialize()
+@validize()
 @auth_required(Roles.user.value)
 def post_files(person_id: int) -> tuple[dict, int]:
     """Upload files to the server."""
@@ -169,7 +165,8 @@ def post_files(person_id: int) -> tuple[dict, int]:
 
 
 @bp.post("/json")
-@pydantify(ResumeResponse)
+@serialize(ResumeResponse)
+@validize()
 @auth_required(Roles.user.value)
 def post_json_file() -> tuple[dict, int]:
     """Create a new person or updates an existing person from file."""
@@ -260,11 +257,3 @@ def upload_items(anketa: AnketaJson, person_id: int) -> None:
         db.session.commit()
     except SQLAlchemyError:
         current_app.logger.exception("Add items Error")
-
-
-@bp.get("/test")
-@pydantify(BaseResponse)
-@auth_required()
-def test() -> tuple[dict, int]:
-    """Test route."""
-    return {"message": "success"}, 200
