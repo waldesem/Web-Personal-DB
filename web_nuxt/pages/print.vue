@@ -73,18 +73,23 @@ const items = [
 
 <template>
   <UMain>
-    <!-- <UPage> -->
     <UPageHeader
       :title="`${person?.surname} ${person?.firstname} ${
         person?.patronymic ?? ''
       }`"
       :ui="{
+        root: 'relative border-none pb-4',
         title: 'text-2xl sm:text-xl',
       }"
     />
     <ItemsPersonItem :item="person" />
     <div v-for="(item, index) in items" :key="index">
-      <USeparator v-if="item.data" type="dashed" :label="item.label" />
+      <USeparator
+        v-if="item.data.length"
+        type="dashed"
+        :label="item.label"
+        class="my-4"
+      />
       <div v-for="(data, idx) in item.data" :key="idx">
         <component :is="item.component" :item="data" />
         <USeparator
@@ -94,6 +99,14 @@ const items = [
         />
       </div>
     </div>
-    <!-- </UPage> -->
   </UMain>
 </template>
+
+<style>
+@media print {
+  .no-print,
+  .no-print * {
+    display: none !important;
+  }
+}
+</style>

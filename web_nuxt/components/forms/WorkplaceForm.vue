@@ -14,14 +14,12 @@ const props = defineProps({
 const form = toRef(props.item);
 
 // Преобразование даты в формат YYYY-MM-DD для корректного отображения в форме
-const starts = computed(() =>
-  form.value.starts ? useDateFormat(form.value.starts, "YYYY-MM-DD").value : ""
-);
-const finished = computed(() =>
-  form.value.finished
-    ? useDateFormat(form.value.finished, "YYYY-MM-DD").value
-    : ""
-);
+form.value.starts = form.value.starts
+  ? useDateFormat(form.value.starts, "YYYY-MM-DD").value
+  : "";
+form.value.finished = form.value.finished
+  ? useDateFormat(form.value.finished, "YYYY-MM-DD").value
+  : "";
 </script>
 
 <template>
@@ -36,18 +34,16 @@ const finished = computed(() =>
       required
     >
       <UInput
-        :value="starts"
+        v-model="form.starts"
         type="date"
         required
-        @input="(event: { target: { value: string; }; }) => (form.starts = event.target.value)"
       />
     </UFormField>
     <UFormField label="Окончание работы" name="finished" required>
       <UInput
-        :value="finished"
+        v-model="form.finished"
         type="date"
         required
-        @input="(event: { target: { value: string; }; }) => (form.finished = event.target.value)"
       />
     </UFormField>
     <UFormField label="Место работы" name="workplace" required>

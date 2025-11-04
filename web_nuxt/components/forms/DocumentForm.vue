@@ -8,14 +8,14 @@ const props = defineProps({
   item: {
     type: Object as PropType<Passport>,
     default: () => ({}),
-  },
+  },  
 });
 
 const form = toRef(props.item);
 
-const issue = computed(() =>
-  form.value.issue ? useDateFormat(form.value.issue, "YYYY-MM-DD").value : ""
-);
+form.value.issue = form.value.issue
+  ? useDateFormat(form.value.issue, "YYYY-MM-DD").value
+  : "";
 </script>
 
 <template>
@@ -53,12 +53,7 @@ const issue = computed(() =>
       />
     </UFormField>
     <UFormField label="Дата выдачи" name="issue" required>
-      <UInput
-        :value="issue"
-        type="date"
-        required
-        @input="(event: { target: { value: string; }; }) => (form.issue = event.target.value)"
-      />
+      <UInput v-model="form.issue" type="date" required />
     </UFormField>
     <ElementsSubmitButton />
   </UForm>

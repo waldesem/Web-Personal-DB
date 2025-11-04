@@ -34,7 +34,11 @@ const { copy, copied } = useClipboard();
     label="Дополнительная информация"
     :value="props.item.addition"
   />
-  <ElementsLabelValue v-if="props.item.destination" label="Материалы проверок">
+  <ElementsLabelValue
+    v-if="props.item.destination"
+    class="no-print"
+    label="Материалы проверок"
+  >
     <UButton
       variant="outline"
       :color="!copied ? 'info' : 'success'"

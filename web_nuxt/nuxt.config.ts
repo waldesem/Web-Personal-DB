@@ -14,7 +14,7 @@ export default defineNuxtConfig({
   build: {
     analyze: true,
   },
-  compatibilityDate: "2025-10-05",
+  compatibilityDate: "2025-11-05",
   css: ["~/assets/css/main.css"],
   devtools: { enabled: true },
   icon: {
@@ -36,8 +36,5 @@ export default defineNuxtConfig({
     build: {
       emptyOutDir: true,
     },
-  },
-  ui: {
-    colorMode: false,
   },
 });

@@ -58,7 +58,11 @@ const experience = computed(() => {
   <ElementsLabelValue v-if="props.item.finished" label="Окончание работы">
     <NuxtTime :datetime="props.item.finished" />
   </ElementsLabelValue>
-  <ElementsLabelValue v-if="experience" label="Стаж на рабочем месте">
+  <ElementsLabelValue
+    v-if="experience"
+    class="no-print"
+    label="Стаж на рабочем месте"
+  >
     <UBadge
       variant="outline"
       :color="
@@ -79,6 +83,7 @@ const experience = computed(() => {
     <div class="space-x-4">
       {{ props.item.address }}
       <UButton
+        class="no-print"
         :to="`https://yandex.ru/maps/?text=${props.item.address}%10с%10`"
         target="_blank"
         title="Показать на Яндекс.Карте"

@@ -113,6 +113,7 @@ onChange(async (files) => {
             @click="navigateTo('/print')"
           />
           <UButton
+            v-if="editable"
             :loading="status === 'pending'"
             variant="outline"
             icon="i-lucide-cloud-upload"
@@ -121,6 +122,7 @@ onChange(async (files) => {
           />
           <UButton
             :loading="status === 'pending'"
+            variant="outline"
             :color="
               !data?.editable
                 ? 'secondary'
@@ -130,10 +132,17 @@ onChange(async (files) => {
             "
             :label="
               !data?.editable
-                ? 'Доступно для редактирования'
+                ? 'Доступно'
                 : data.user_id == userState.id
-                ? 'Назначено текущему пользователю'
-                : 'Редактируется другим пользователем'
+                ? 'Редакция'
+                : 'Занято'
+            "
+            :icon="
+              !data?.editable
+                ? 'i-lucide-lock-open'
+                : data.user_id == userState.id
+                ? 'i-lucide-edit'
+                : 'i-lucide-lock'
             "
             @click="switchSelf"
           />
