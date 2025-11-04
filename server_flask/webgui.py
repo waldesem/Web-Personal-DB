@@ -41,14 +41,14 @@ def start_browser(address: str, port: int) -> None:
             ],
         ).wait()
 
-    shutil.rmtree(profile_dir, ignore_errors=True)
-    for conn in psutil.net_connections():
-        if conn.laddr.port == port:
-            try:
-                psutil.Process(conn.pid).send_signal(signal.SIGTERM)
-            except psutil.AccessDenied:
-                continue
-            break
+        shutil.rmtree(profile_dir, ignore_errors=True)
+        for conn in psutil.net_connections():
+            if conn.laddr.port == port:
+                try:
+                    psutil.Process(conn.pid).send_signal(signal.SIGTERM)
+                except psutil.AccessDenied:
+                    continue
+                break
 
 
 def run_desktop(app: Flask, address: str, port: int) -> None:
