@@ -1,11 +1,8 @@
 """A module that runs the application server."""
 
 import argparse
-import asyncio
 
 from app import create_app
-from webgui import run_desktop
-from wsgi import wsgi_server
 
 
 def main() -> None:
@@ -52,8 +49,14 @@ def main() -> None:
         case "devel":
             app.run(host=args.host, port=args.port, debug=False)
         case "server":
+            import asyncio
+
+            from wsgi import wsgi_server
+
             asyncio.run(wsgi_server(app, address=args.host, port=args.port))
         case _:
+            from webgui import run_desktop
+
             run_desktop(app, address=args.host, port=args.port)
 
 

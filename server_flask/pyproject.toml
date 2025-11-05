@@ -21,4 +21,4 @@ dependencies = [
 ]
 [tool.ruff]
 select = ["ALL"]
-ignore = ["DTZ005", "RUF003", "RUF001", "PLR2004"]
+ignore = ["DTZ005", "RUF003", "RUF001", "PLR2004", "PLC0415"]
