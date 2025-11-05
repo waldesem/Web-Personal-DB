@@ -2,6 +2,7 @@
 import { useDocumentVisibility } from "@vueuse/core";
 import type { Session } from "@/types";
 
+const { $api } = useNuxtApp();
 const timeSession = ref(0);
 const visibility = useDocumentVisibility();
 
@@ -13,7 +14,6 @@ watch(
       (timeSession.value === 0 || Date.now() - timeSession.value > 600000)
     ) {
       try {
-        const { $api } = useNuxtApp();
         userState.value = await $api<Session>("/routes/auth/session");
         timeSession.value = Date.now();
       } catch (error) {

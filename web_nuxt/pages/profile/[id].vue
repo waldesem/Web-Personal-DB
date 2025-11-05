@@ -157,7 +157,6 @@ onChange(async (files) => {
           :person="data ?? ({} as Person)"
           :status="status"
           :editable="editable"
-          @update="refresh()"
         />
         <USeparator />
         <!-- Выводим аккордеон с данными staffs, educations и т.д. -->

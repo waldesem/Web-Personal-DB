@@ -2,8 +2,6 @@
 import type { Person } from "@/types";
 import type { AsyncDataRequestStatus } from "nuxt/app";
 
-const emits = defineEmits(["update"]);
-
 const toasts = useToasts();
 
 // Используем плагин для передачи данных на сервер
@@ -34,10 +32,9 @@ const modal = ref(false);
 // Определяем функцию для отправки данных формы на сервер
 function submitPerson(person_id: number | null) {
   modal.value = false;
-  emits("update");
+  refreshNuxtData("person");
   if (person_id) {
     toasts.create("success", "Информация успешно обновлена");
-    emits("update");
   } else {
     toasts.create();
   }
@@ -59,7 +56,7 @@ async function deletePerson() {
     toasts.create("success", "Информация успешно удалена");
     await navigateTo("/persons");
   } else {
-    emits("update");
+    refreshNuxtData("person");
     toasts.create();
   }
 }
