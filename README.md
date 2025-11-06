@@ -6,7 +6,7 @@ StaffSec is a web interface for managing a candidate database.
 
 - Flask;
 - Sqlite;
-- Nuxt4;
+- Nuxt;
 
 ### Installation
 
@@ -46,7 +46,7 @@ First you need install Node.js a JavaScript runtime environment. Then:
 cd Web-Personal-DB/web_nuxt
 npm i
 ```
-To build Nuxt4 with Client-side Only Rendering:
+To build Nuxt with Client-side Only Rendering:
 ```
 npx nuxi generate
 ```

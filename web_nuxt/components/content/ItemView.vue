@@ -32,12 +32,14 @@ const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
 // Объявляем переменные для работы с данными
-const item = shallowRef({} as object); // Данные для передачи в форму и редактирования
+const item = shallowRef<Item>(); // Данные для передачи в форму и редактирования
 const modal = ref(false); // Флаг для открытия модального окна
 
 // Определяем Composable для получения данных из API
-const { data, status, refresh } = await useLazyAsyncData(props.view, () =>
-  $api<Item[]>(`/routes/items/${props.view}/${candId.value}`)
+const { data, status, refresh } = await useLazyAsyncData(
+  props.view,
+  () => $api<Item[]>(`/routes/items/${props.view}/${candId.value}`),
+  { default: () => [] as Item[] }
 );
 
 // Определяем функцию для отправки данных формы на сервер
@@ -51,7 +53,7 @@ async function submitItem(form: typeof item.value) {
       body: form,
     }
   )) as Response;
-  item.value = {};
+  item.value = {} as Item;
   await refresh();
   if (message === "success") {
     toasts.create("success", "Информация успешно обновлена");
@@ -101,7 +103,7 @@ async function deleteItem(id: string) {
         <LazyElementsDivMenu
           v-if="editable"
           @update="
-            item = content as object;
+            item = content;
             modal = true;
           "
           @delete="deleteItem(content['id'])"

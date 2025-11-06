@@ -36,7 +36,10 @@ const { data, status, refresh } = await useLazyAsyncData(
       },
     }),
   // Наблюдаем: переключение страницы, изменение строки поиска.
-  { watch: [page, refDebounced(search, 1000)] }
+  {
+    watch: [page, refDebounced(search, 1000)],
+    default: () => [] as Candidate[],
+  }
 );
 
 watch(data, () => {
@@ -142,7 +145,7 @@ const columns: TableColumn<Candidate>[] = [
           : "text-start w-5 h-5 text-red-600",
         title: !row.getValue("editable")
           ? "Анкета доступна для редактирования"
-          : "Анкета находится в режиме редактирования",
+          : "Анкета в режиме редактирования",
       });
     },
   },
@@ -162,11 +165,7 @@ const columns: TableColumn<Candidate>[] = [
     accessorKey: "username",
     header: "Сотрудник",
     cell: ({ row }) => {
-      try {
-        return row.original.username.split(" ")[0];
-      } catch {
-        return "";
-      }
+      return row.original.username.split(" ")[0];
     },
   },
 ];
@@ -269,7 +268,7 @@ const columns: TableColumn<Candidate>[] = [
         :loading="status === 'pending'"
         @click="refresh()"
       >
-        Обновлено: 
+        Обновлено:
         <NuxtTime :datetime="updated" relative />
       </UButton>
     </div>

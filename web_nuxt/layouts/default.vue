@@ -1,27 +1,20 @@
 <script setup lang="ts">
-import { useDocumentVisibility } from "@vueuse/core";
+import { useDocumentVisibility, watchThrottled } from "@vueuse/core";
 import type { Session } from "@/types";
 
 const { $api } = useNuxtApp();
-const timeSession = ref(0);
 const visibility = useDocumentVisibility();
 
-watch(
+watchThrottled(
   visibility,
   async () => {
-    if (
-      visibility.value === "visible" &&
-      (timeSession.value === 0 || Date.now() - timeSession.value > 600000)
-    ) {
-      try {
-        userState.value = await $api<Session>("/routes/auth/session");
-        timeSession.value = Date.now();
-      } catch (error) {
-        console.error(error);
-      }
+    try {
+      userState.value = await $api<Session>("/routes/auth/session");
+    } catch (error) {
+      console.error(error);
     }
   },
-  { immediate: true }
+  { immediate: true, throttle: 600000 }
 );
 
 // Объявляем функцию для выхода из системы и очистки данных пользователя
@@ -80,10 +73,6 @@ function logout() {
       <template #left>
         <p class="text-sm">Copyright © {{ new Date().getFullYear() }}</p>
       </template>
-
-      <ULink v-if="userState.role === 'admin'" to="/query">
-        Расширенный поиск
-      </ULink>
 
       <template #right>
         <UButton

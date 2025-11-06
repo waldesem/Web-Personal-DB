@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 useHead({
   htmlAttrs: { lang: "ru" },
   link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import date, datetime  # noqa: TC003
-from typing import Any, Literal
+from typing import Literal
 
 from pydantic import BaseModel, Field, validator
 
@@ -191,28 +191,6 @@ class Candidates(PersonOut):
 
     username: str
     total: int
-
-
-class Query(Model):
-    """Query schema."""
-
-    text: str
-
-    @validator("text")
-    @classmethod
-    def check_query(cls, v: str) -> str:
-        """Check query."""
-        if v and v.upper().startswith("SELECT"):
-            return v
-        return ""
-
-
-class QueryResponse(BaseModel):
-    """Query response."""
-
-    status: str
-    message: str
-    result: list[Any]
 
 
 class Prev(Model):

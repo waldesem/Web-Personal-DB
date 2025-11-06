@@ -16,7 +16,7 @@ const { $api } = useNuxtApp();
 
 // Определяем функцию для получения данных из API
 const { data, status, refresh } = await useAsyncData("person", () =>
-  $api<Person>("/routes/persons/" + candId.value)
+  $api<Person>("/routes/persons/" + candId.value), {default: () => ({} as Person) }
 );
 
 // Вычисляем статус редактирования анкеты
@@ -154,7 +154,7 @@ onChange(async (files) => {
     <ContentItemTabs>
       <template #anketa-tab>
         <ContentAnketaTab
-          :person="data ?? ({} as Person)"
+          :person="data"
           :status="status"
           :editable="editable"
         />

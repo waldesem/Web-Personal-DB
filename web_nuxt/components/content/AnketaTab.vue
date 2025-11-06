@@ -48,12 +48,11 @@ async function deletePerson() {
   status.value = "pending";
   const { message } = await $api<Record<string, string>>(
     `/routes/persons/${props.person.id}`,
-    {
-      method: "DELETE",
-    }
+    { method: "DELETE" }
   );
   if (message == "success") {
     toasts.create("success", "Информация успешно удалена");
+    refreshNuxtData("candidates");
     await navigateTo("/persons");
   } else {
     refreshNuxtData("person");

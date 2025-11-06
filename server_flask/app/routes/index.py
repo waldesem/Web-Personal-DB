@@ -6,7 +6,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from flask import Blueprint, Response, current_app, g, jsonify, request
+from flask import Blueprint, current_app, g, request
 from pydantic import ValidationError
 from sqlalchemy import desc, func, select, text
 from sqlalchemy.exc import SQLAlchemyError
@@ -20,8 +20,6 @@ from app.models.models import (
     Candidates,
     Index,
     PersonIn,
-    Query,
-    QueryResponse,
     ResumeResponse,
 )
 from app.tables.tables import (
@@ -93,40 +91,6 @@ def get_index(json_query: Index) -> tuple[list[Persons], int]:
         return [], 200
     else:
         return result, 200
-
-
-@bp.get("/metadata")
-@auth_required(roles=Roles.admin.value)
-def get_metadata() -> Response:
-    """Retrieve a tables and columns from the database."""
-    return jsonify(
-        {
-            table.name: {column.name: f"{column.type}" for column in table.columns}
-            for table in db.metadata.tables.values()
-        },
-    ), 200
-
-
-@bp.post("/query")
-@serialize(QueryResponse)
-@validize()
-@auth_required(roles=Roles.admin.value)
-def post_query(query: Query) -> Response:
-    """Retrieve a paginated list of rows from the database."""
-    try:
-        result = db.session.execute(text(query.text)).all()
-        return {
-            "status": "success",
-            "message": "",
-            "result": [row._asdict() for row in result[:99]],
-        }, 200
-    except (KeyError, SQLAlchemyError) as e:
-        db.session.rollback()
-        return {
-            "status": "error",
-            "message": str(e),
-            "result": [],
-        }, 200
 
 
 @bp.get("/self/<int:person_id>")
