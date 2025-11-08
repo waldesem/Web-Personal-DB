@@ -1,10 +1,16 @@
 <script setup lang="ts">
-import { useFileDialog } from "@vueuse/core";
+import { useEventListener, useFileDialog } from "@vueuse/core";
 import type { Person } from "@/types";
 
 await prefetchComponents("UModal");
 
 const toasts = useToasts();
+
+const print = ref(false);
+
+useEventListener(document, 'afterprint', (_event) => {
+  print.value = false;
+});
 
 // Получаем данные id кандидата из URL
 const route = useRoute();
@@ -15,8 +21,10 @@ provide("candId", candId);
 const { $api } = useNuxtApp();
 
 // Определяем функцию для получения данных из API
-const { data, status, refresh } = await useAsyncData("person", () =>
-  $api<Person>("/routes/persons/" + candId.value), {default: () => ({} as Person) }
+const { data, status, refresh } = await useAsyncData(
+  "person",
+  () => $api<Person>("/routes/persons/" + candId.value),
+  { default: () => ({} as Person) }
 );
 
 // Вычисляем статус редактирования анкеты
@@ -95,7 +103,7 @@ onChange(async (files) => {
     <UPageHeader
       :title="`${data?.surname} ${data?.firstname} ${data?.patronymic ?? ''}`"
       :ui="{
-        root: 'relative border-none py-4',
+        root: 'relative border-none py-4 mb-2',
         title: 'text-2xl sm:text-3xl text-red-800',
       }"
     >
@@ -103,17 +111,17 @@ onChange(async (files) => {
         <!-- Кнопки для загрузки файлов и переключения режима редактирования -->
         <div
           v-if="userState.role == 'user'"
-          class="flex items-center space-x-4"
+          class="flex items-center space-x-4 no-print"
         >
           <UButton
             :loading="status === 'pending'"
             variant="outline"
-            icon="i-lucide-printer"
-            label="Печать"
-            @click="navigateTo('/print')"
+            :icon="!print ? 'i-lucide-printer' : 'i-lucide-arrow-left'"
+            :label="!print ? 'Печать' : 'Вернуться'"
+            @click="print = !print"
           />
           <UButton
-            v-if="editable"
+            v-if="editable && !print"
             :loading="status === 'pending'"
             variant="outline"
             icon="i-lucide-cloud-upload"
@@ -121,6 +129,7 @@ onChange(async (files) => {
             @click="open()"
           />
           <UButton
+            v-if="!print"
             :loading="status === 'pending'"
             variant="outline"
             :color="
@@ -150,18 +159,21 @@ onChange(async (files) => {
       </template>
     </UPageHeader>
 
-    <!-- Меню для переключения между вкладками -->
-    <ContentItemTabs>
-      <template #anketa-tab>
-        <ContentAnketaTab
-          :person="data"
-          :status="status"
-          :editable="editable"
-        />
-        <USeparator />
-        <!-- Выводим аккордеон с данными staffs, educations и т.д. -->
-        <ContentItemDivs />
-      </template>
-    </ContentItemTabs>
+    <KeepAlive>
+      <ContentItemTabs v-if="!print">
+        <template #anketa-tab>
+          <ContentAnketaTab
+            :person="data"
+            :status="status"
+            :editable="editable"
+          />
+          <USeparator />
+          <!-- Выводим аккордеон с данными staffs, educations и т.д. -->
+          <ContentItemDivs />
+        </template>
+      </ContentItemTabs>
+
+      <ContentPrintDiv v-else />
+    </KeepAlive>
   </UPage>
 </template>

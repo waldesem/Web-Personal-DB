@@ -30,7 +30,7 @@ function logout() {
 
 <template>
   <UPage>
-    <UHeader>
+    <UHeader class="no-print">
       <template #title>
         <NuxtLink to="/persons" title="На главную страницу">
           <ElementsLogoDiv />
@@ -67,9 +67,9 @@ function logout() {
       </UContainer>
     </UMain>
 
-    <USeparator type="dashed" class="h-px" />
+    <USeparator type="dashed" class="h-px no-print" />
 
-    <UFooter>
+    <UFooter class="no-print">
       <template #left>
         <p class="text-sm">Copyright © {{ new Date().getFullYear() }}</p>
       </template>

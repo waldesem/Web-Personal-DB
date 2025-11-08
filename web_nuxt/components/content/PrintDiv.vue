@@ -1,8 +1,4 @@
 <script setup lang="ts">
-definePageMeta({
-  layout: false,
-});
-
 onMounted(() => window.print());
 
 const { data: person } = useNuxtData("person");
@@ -73,15 +69,6 @@ const items = [
 
 <template>
   <UMain>
-    <UPageHeader
-      :title="`${person?.surname} ${person?.firstname} ${
-        person?.patronymic ?? ''
-      }`"
-      :ui="{
-        root: 'relative border-none pb-4',
-        title: 'text-2xl sm:text-xl',
-      }"
-    />
     <ItemsPersonItem :item="person" />
     <div v-for="(item, index) in items" :key="index">
       <USeparator
@@ -101,12 +88,3 @@ const items = [
     </div>
   </UMain>
 </template>
-
-<style>
-@media print {
-  .no-print,
-  .no-print * {
-    display: none !important;
-  }
-}
-</style>

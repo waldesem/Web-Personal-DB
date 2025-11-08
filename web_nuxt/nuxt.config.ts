@@ -5,7 +5,7 @@ export default defineNuxtConfig({
     "@/": fileURLToPath(new URL("./src", import.meta.url)),
   },
   app: {
-    keepalive: { include: ["persons", "query"], max: 2 },
+    keepalive: { include: "persons" },
     pageTransition: { name: "page", mode: "out-in" },
     head: {
       title: "StaffSec - кадровая безопасность",
