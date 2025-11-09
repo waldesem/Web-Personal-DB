@@ -1,5 +1,5 @@
 <script setup lang="ts">
-onMounted(() => window.print());
+onActivated(() => window.print());
 
 const { data: person } = useNuxtData("person");
 

@@ -8,7 +8,7 @@ const toasts = useToasts();
 
 const print = ref(false);
 
-useEventListener(document, 'afterprint', (_event) => {
+useEventListener(window, 'afterprint', (_event) => {
   print.value = false;
 });
 
@@ -143,8 +143,8 @@ onChange(async (files) => {
               !data?.editable
                 ? 'Доступно'
                 : data.user_id == userState.id
-                ? 'Редакция'
-                : 'Занято'
+                ? 'Изменение'
+                : 'Закрыто'
             "
             :icon="
               !data?.editable

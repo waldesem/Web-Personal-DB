@@ -9,7 +9,6 @@ from pathlib import Path
 import jwt
 from flask import current_app
 from jwt.exceptions import InvalidTokenError
-from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -18,7 +17,7 @@ from app.models.models import PersonIn
 from app.tables.tables import Persons
 
 
-def create_token(user_id: int, item: str= "ACCESS") -> str:
+def create_token(user_id: int, item: str = "ACCESS") -> str:
     """Create token."""
     return jwt.encode(
         {
@@ -38,17 +37,13 @@ def decode_token(header: str, *, refresh: bool = False) -> dict | None:
         if bearer := header[7:]:
             decoded = jwt.decode(
                 bearer,
-                current_app.config["ACCESS_SECRET_KEY"]
-                if not refresh
-                else current_app.config["REFRESH_SECRET_KEY"],
+                current_app.config[f"{'REFRESH' if refresh else 'ACCESS'}_SECRET_KEY"],
                 algorithms=["HS256"],
                 options={"verify_exp": True},
             )
-    except (InvalidTokenError, ValidationError, IndexError, ValueError):
+    except (InvalidTokenError, IndexError, ValueError):
         current_app.logger.exception("JWT decode failed")
-        return None
-    else:
-        return decoded
+    return decoded
 
 
 def create_destination(person: Persons) -> str:

@@ -1,7 +1,6 @@
 """Person routes."""
 
-from flask import Blueprint, Response, current_app, g, redirect
-from sqlalchemy.exc import SQLAlchemyError
+from flask import Blueprint, Response, g
 
 from app import db
 from app.classes.classes import Roles
@@ -20,9 +19,7 @@ bp = Blueprint("persons", __name__)
 @auth_required()
 def get_person(person_id: int) -> tuple[Persons, int] | Response:
     """Retrieve an item from the database based on the provided item ID."""
-    if person := db.session.get(Persons, person_id):
-        return person, 200
-    return redirect("/", 302)
+    return db.session.get(Persons, person_id), 200
 
 
 @bp.post("/persons")
@@ -42,13 +39,7 @@ def post_person(json_data: PersonIn) -> tuple[dict, int]:
 @auth_required(Roles.user.value)
 def delete_person(person_id: int) -> tuple[dict, int]:
     """Delete an item from the database based on the provided item name and item ID."""
-    try:
-        person = db.session.get(Persons, person_id)
-        db.session.delete(person)
-        db.session.commit()
-    except SQLAlchemyError:
-        current_app.logger.exception("Database error")
-        db.session.rollback()
-        return {"message": "error"}, 200
-    else:
-        return {"message": "success"}, 201
+    person = db.session.get(Persons, person_id)
+    db.session.delete(person)
+    db.session.commit()
+    return {"message": "success"}, 201

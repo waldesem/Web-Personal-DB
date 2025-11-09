@@ -6,6 +6,7 @@ from typing import get_type_hints
 
 from flask import Response, abort, current_app, jsonify, request
 from pydantic import ValidationError, create_model
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.models.models import BaseModel, BaseResponse, models
 
@@ -86,9 +87,8 @@ def serialize(
                     return jsonify([model(**d).dict() for d in data]), status
                 return jsonify(model(**data).dict()), status
 
-            except (ValidationError, KeyError):
-                current_app.logger.exception("Error pydantify data")
-
+            except (SQLAlchemyError, ValidationError):
+                current_app.logger.exception("Error serialize data")
                 return abort(400)
 
         return wrapper

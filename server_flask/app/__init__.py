@@ -29,8 +29,8 @@ def create_app(config_class: type[Config] = Config) -> Flask:
     compress.init_app(app)  # Initialize the compression
     db.init_app(app)  # Initialize the database
 
-    from app.routes import bp as route_bp  # noqa: PLC0415
-    from command import bp as command_bp  # noqa: PLC0415
+    from app.routes import bp as route_bp
+    from command import bp as command_bp
 
     app.register_blueprint(route_bp)  # Register the routes
     app.register_blueprint(command_bp)  # Register the commands
@@ -52,7 +52,7 @@ def create_app(config_class: type[Config] = Config) -> Flask:
 
     @app.errorhandler(HTTPException)
     def handle_exception(error: HTTPException) -> HTTPException:
-        app.logger.exception(error)
+        app.logger.exception(error.description)
         return error
 
     return app

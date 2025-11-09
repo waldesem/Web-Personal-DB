@@ -2,7 +2,6 @@
 
 from flask import Blueprint, current_app, g
 from sqlalchemy import select
-from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import generate_password_hash
 
 from app import db
@@ -21,12 +20,8 @@ bp = Blueprint("users", __name__)
 @auth_required(Roles.admin.value)
 def get_users() -> tuple[list[Users], int]:
     """Retrieve a list of users from the database."""
-    # Выбрать все столбцы, кроме passhash
-    columns = filter(lambda x: x != "passhash", Users.__table__.columns.keys())
-    # Создать запрос для выборки пользователей
-    stmt = select(*[getattr(Users, column) for column in columns])
     # Преобразовать результат в список словарей и вернуть в качестве ответа
-    return db.session.execute(stmt).all(), 200
+    return db.session.execute(Users).all(), 200
 
 
 @bp.post("/user/<user_id>")
@@ -75,13 +70,6 @@ def post_user(json_data: UserForm) -> tuple[dict, int]:
     ).all()
     if user:
         return {"message": "error"}, 200
-    try:
-        # Создать нового пользователя
-        db.session.add(Users(**json_data.dict()))
-        db.session.commit()
-    except SQLAlchemyError:
-        current_app.logger.exception("Database error")
-        db.session.rollback()
-        return {"message": "error"}, 200
-    else:
-        return {"message": "success"}, 201
+    db.session.add(Users(**json_data.dict()))
+    db.session.commit()
+    return {"message": "success"}, 201
