@@ -126,7 +126,7 @@ def check_filename(name: str) -> str | None:
         if filename and filename.split(".")[0].upper() in windows_device_files:
             filename = f"_{filename}"
     except (TypeError, ValueError, AttributeError):
-        current_app.logger.exception()
+        current_app.logger.exception("Error file name")
         return None
     else:
         return filename

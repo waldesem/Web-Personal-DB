@@ -48,6 +48,7 @@ def post_items(item: Items, person_id: int, json_data: Model) -> tuple[dict, int
         stmt = db.metatables[item].insert().values(json_dict)
     db.session.execute(stmt)
     db.session.commit()
+    return {"message": "success"}, 201
 
 
 @bp.delete("/<item>/<int:item_id>")
