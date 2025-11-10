@@ -17,6 +17,9 @@ export default defineNuxtConfig({
   compatibilityDate: "2025-11-05",
   css: ["~/assets/css/main.css"],
   devtools: { enabled: true },
+  experimental: {
+    entryImportMap: false
+  },
   icon: {
     clientBundle: {
       scan: true,

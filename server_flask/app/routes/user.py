@@ -1,7 +1,9 @@
 """User routes."""
 
+from typing import Any
+
 from flask import Blueprint, current_app, g
-from sqlalchemy import select
+from sqlalchemy import Row, Sequence, select
 from werkzeug.security import generate_password_hash
 
 from app import db
@@ -18,7 +20,7 @@ bp = Blueprint("users", __name__)
 @serialize(User, orm=True, many=True)
 @validize()
 @auth_required(Roles.admin.value)
-def get_users() -> tuple[list[Users], int]:
+def get_users() -> tuple[Sequence[Row[Any]], int]:
     """Retrieve a list of users from the database."""
     # Преобразовать результат в список словарей и вернуть в качестве ответа
     return db.session.execute(Users).all(), 200

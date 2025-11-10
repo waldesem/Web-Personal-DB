@@ -32,19 +32,18 @@ class Compress:
         # Only compress */json and text/* content types.
         if (
             (
-                "/json" not in response.mimetype
-                and "text/" not in response.content_type
+                (response.mimetype and "/json" in response.mimetype)
+                or "text/" in response.content_type
             )
-            or 200 > response.status_code >= 300
-            or "Content-Encoding" in response.headers
-            or (response.content_length is not None and response.content_length < 1000)
+            and 300 > response.status_code >= 200
+            and response.content_length
+            and response.content_length > 1000
         ):
+            response.direct_passthrough = False
+            compressed_content = zlib.compress(response.get_data())
+            response.set_data(compressed_content)
+
+            response.headers["Content-Encoding"] = "deflate"
+            response.headers["Content-Length"] = response.content_length
             return response
-
-        response.direct_passthrough = False
-        compressed_content = zlib.compress(response.get_data())
-        response.set_data(compressed_content)
-
-        response.headers["Content-Encoding"] = "deflate"
-        response.headers["Content-Length"] = response.content_length
         return response

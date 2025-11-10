@@ -5,10 +5,10 @@ from functools import wraps
 from typing import get_type_hints
 
 from flask import Response, abort, current_app, jsonify, request
-from pydantic import ValidationError, create_model
+from pydantic import BaseModel, ValidationError, create_model
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.models.models import BaseModel, BaseResponse, models
+from app.models.models import Reply, models
 
 
 def validize() -> Callable:
@@ -58,7 +58,7 @@ def validize() -> Callable:
 
 
 def serialize(
-    model: type[BaseModel] = BaseResponse,
+    model: type[BaseModel] = Reply,
     *,
     orm: bool = False,
     many: bool = False,

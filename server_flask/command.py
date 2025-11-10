@@ -46,7 +46,6 @@ def create_user(
             email=email,
             role=role,
         )
-        db.metadata.create_all(bind=db.engine)
         if db.session.execute(
             select(Users).where(
                 or_(Users.username == username, Users.email == email),
@@ -66,7 +65,7 @@ def create_user(
 @cli.with_appcontext
 def create_folders() -> None:
     """Create the folders structure according to the current configuration."""
-    if Path(current_app.config["BASE_PATH"]).is_dir():
+    if current_app.config["BASE_PATH"].is_dir():
         for letter in "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЫЭЮЯ":
             Path(
                 current_app.config["BASE_PATH"],

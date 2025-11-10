@@ -5,9 +5,10 @@ from __future__ import annotations
 import json
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 from flask import Blueprint, g, request
-from sqlalchemy import desc, func, select, text
+from sqlalchemy import Row, Sequence, desc, func, select, text
 
 from app import db
 from app.classes.classes import Roles
@@ -41,7 +42,7 @@ bp = Blueprint("route", __name__)
 @serialize(Candidates, orm=True, many=True)
 @validize()
 @auth_required()
-def get_index(json_query: Index) -> tuple[list[Persons], int]:
+def get_index(json_query: Index) -> tuple[Sequence[Row[Any]], int]:
     """Retrieve a paginated list of persons from the database."""
     stmt = select(
         Persons.id,
@@ -66,15 +67,11 @@ def get_index(json_query: Index) -> tuple[list[Persons], int]:
         Users.id == Persons.user_id,
     )
     if json_query.search:
-        stmt = stmt.where(
-            Persons.surname == json_query.search[0],
-            Persons.firstname == json_query.search[1]
-            if len(json_query.search) > 1
-            else True,
-            Persons.patronymic == json_query.search[2]
-            if len(json_query.search) > 2
-            else True,
-        )
+        stmt = stmt.filter(Persons.surname == json_query.search[0])
+        if len(json_query.search) > 1:
+            stmt = stmt.filter(Persons.surname == json_query.search[1])
+            if len(json_query.search) > 2:
+                stmt = stmt.filter(Persons.surname == json_query.search[2])
     # Пагинация списка кандидатов
     result = db.session.execute(
         stmt.order_by(desc(Persons.id)).slice(

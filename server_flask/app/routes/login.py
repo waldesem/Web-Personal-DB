@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Literal
 
-from flask import Blueprint, Response, g
+from flask import Blueprint, g
 from sqlalchemy import select
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -75,7 +75,7 @@ def refresh_token() -> tuple[dict, int]:
 @bp.get("/session")
 @serialize(Session)
 @auth_required()
-def get_session() -> Response:
+def get_session() -> tuple[dict, int]:
     """Retrieve an item from the database based on the provided item ID."""
     return {
         "id": g.user.id,

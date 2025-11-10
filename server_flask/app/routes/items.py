@@ -1,6 +1,9 @@
 """Items routes."""
 
+from typing import Any
+
 from flask import Blueprint
+from sqlalchemy import Row, Sequence
 
 from app import db
 from app.classes.classes import Roles
@@ -15,7 +18,7 @@ bp = Blueprint("items", __name__, url_prefix="/items")
 @serialize(Model, orm=True, many=True)
 @validize()
 @auth_required()
-def get_items(item: Items, person_id: int) -> tuple[list[Model], int]:
+def get_items(item: Items, person_id: int) -> tuple[Sequence[Row[Any]], int]:
     """Retrieve an item from the database based on the provided item."""
     stmt = (
         db.metatables[item]

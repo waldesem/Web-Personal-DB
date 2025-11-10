@@ -33,7 +33,8 @@ class Database:
             raise RuntimeError(msg)
 
         self.engine = create_engine(app.config["DATABASE_URI"])
-        # self.metadata.create_all(bind=self.engine)  # noqa: ERA001
+        if not self.metatables:
+            self.metadata.create_all(bind=self.engine)
         self.session = scoped_session(
             sessionmaker(bind=self.engine, autoflush=False, autocommit=False),
         )

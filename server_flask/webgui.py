@@ -19,6 +19,7 @@ if TYPE_CHECKING:
 
 def start_browser(address: str, port: int) -> None:
     """Start the browser."""
+    profile_dir = tempfile.mkdtemp(prefix=f"webgui{uuid.uuid1().hex}")
     paths = [
         "/snap/bin/chromium",
         r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
@@ -27,7 +28,6 @@ def start_browser(address: str, port: int) -> None:
         r"C:\Program Files\Google\Chrome\Application\chrome.exe",
     ]
     if browser_path := next((p for p in paths if Path(p).is_file()), None):
-        profile_dir = tempfile.mkdtemp(prefix=f"webgui{uuid.uuid1().hex}")
         subprocess.Popen(  # noqa: S603
             [
                 browser_path,
@@ -40,14 +40,14 @@ def start_browser(address: str, port: int) -> None:
             ],
         ).wait()
 
-        shutil.rmtree(profile_dir, ignore_errors=True)
-        for conn in psutil.net_connections():
-            if conn.laddr.port == port:
-                try:
-                    psutil.Process(conn.pid).send_signal(signal.SIGTERM)
-                except psutil.AccessDenied:
-                    continue
-                break
+    shutil.rmtree(profile_dir, ignore_errors=True)
+    for conn in psutil.net_connections():
+        if conn.laddr.port == port:
+            try:
+                psutil.Process(conn.pid).send_signal(signal.SIGTERM)
+            except psutil.AccessDenied:
+                continue
+            break
 
 
 def run_desktop(app: Flask, address: str, port: int) -> None:

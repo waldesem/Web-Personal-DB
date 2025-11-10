@@ -1,12 +1,12 @@
 """Person routes."""
 
-from flask import Blueprint, Response, g
+from flask import Blueprint, g
 
 from app import db
 from app.classes.classes import Roles
 from app.decorators.depend import auth_required
 from app.decorators.pydantify import serialize, validize
-from app.models.models import BaseResponse, PersonIn, PersonOut, ResumeResponse
+from app.models.models import PersonIn, PersonOut, ResumeResponse
 from app.tables.tables import Persons
 from app.utils.utilities import upload_resume
 
@@ -17,7 +17,7 @@ bp = Blueprint("persons", __name__)
 @serialize(PersonOut, orm=True)
 @validize()
 @auth_required()
-def get_person(person_id: int) -> tuple[Persons, int] | Response:
+def get_person(person_id: int) -> tuple[Persons, int]:
     """Retrieve an item from the database based on the provided item ID."""
     return db.session.get(Persons, person_id), 200
 
@@ -34,7 +34,7 @@ def post_person(json_data: PersonIn) -> tuple[dict, int]:
 
 
 @bp.delete("/persons/<int:person_id>")
-@serialize(BaseResponse)
+@serialize()
 @validize()
 @auth_required(Roles.user.value)
 def delete_person(person_id: int) -> tuple[dict, int]:

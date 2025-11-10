@@ -37,7 +37,7 @@ class Model(BaseModel):
         use_enum_values = True
 
 
-class BaseResponse(BaseModel):
+class Reply(BaseModel):
     """Base model for response."""
 
     message: str
