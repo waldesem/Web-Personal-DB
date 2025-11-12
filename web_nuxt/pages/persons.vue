@@ -219,7 +219,7 @@ const columns: TableColumn<Candidate>[] = [
           <template #body>
             <FormsResumeForm
               @update="proceedResult"
-              @start="status === 'pending'"
+              @pending="status === 'pending'"
             />
           </template>
         </UModal>
