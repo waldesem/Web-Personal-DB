@@ -94,7 +94,7 @@ async function deletePerson() {
       <template #body>
         <FormsResumeForm
           :resume="props.person"
-          @start="status = 'pending'"
+          @pending="status = 'pending'"
           @update="submitPerson"
         />
       </template>
