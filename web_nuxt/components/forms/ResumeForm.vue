@@ -2,7 +2,7 @@
 import { useDateFormat } from "@vueuse/core";
 import type { Person } from "@/types";
 
-const emit = defineEmits(["start", "update"]);
+const emit = defineEmits(["pending", "update"]);
 
 const props = defineProps({
   resume: {
@@ -21,7 +21,7 @@ form.value.birthday = form.value.birthday
   : "";
 
 async function submitPerson() {
-  emit("start");
+  emit("pending");
   const { person_id, exists } = await $api<{
     person_id: number;
     exists: boolean;
