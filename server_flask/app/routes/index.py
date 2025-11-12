@@ -56,11 +56,9 @@ def get_index(json_query: Index) -> tuple[Sequence[Row[Any]], int]:
         Persons.snils,
         Persons.inn,
         Persons.marital,
-        Persons.addition,
         Persons.destination,
         Persons.editable,
         Persons.created,
-        Persons.user_id,
         Users.fullname.label("username"),
         func.count().over().label("total"),
     ).filter(
@@ -109,8 +107,8 @@ def post_files(person_id: int) -> tuple[dict, int]:
         )
         subfolder.mkdir(parents=True, exist_ok=True)
         for data in request.files.getlist("file"):
-            if secure_filename := check_filename(data.filename):
-                file_path = Path(subfolder, secure_filename)
+            if data.filename and (secure_filename := check_filename(data.filename)):
+                file_path = subfolder.joinpath(secure_filename)
                 if not file_path.is_file():
                     data.save(file_path)
         return {"message": "success"}, 201

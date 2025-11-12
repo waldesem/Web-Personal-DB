@@ -6,9 +6,7 @@ from datetime import datetime, timedelta
 from functools import lru_cache, wraps
 from typing import TYPE_CHECKING
 
-from flask import Response, abort, current_app, g, request
-from pydantic import ValidationError
-from sqlalchemy.exc import SQLAlchemyError
+from flask import Response, abort, g, request
 
 from app import db
 from app.models.models import User
@@ -22,18 +20,14 @@ if TYPE_CHECKING:
 @lru_cache(maxsize=2)
 def get_current_user(user_id: int) -> User:
     """Retrieve the current user stored in the global variable."""
-    if user_id:
-        try:
-            if (
-                (user := db.session.get(Users, user_id))
-                and not user.blocked
-                and not user.deleted
-                and not user.change_pswd
-                and user.pswd_create + timedelta(days=365) > datetime.now()
-            ):
-                return User.from_orm(user)
-        except (SQLAlchemyError, ValidationError):
-            current_app.logger.exception("Database error.")
+    if (
+        (user := db.session.get(Users, user_id))
+        and not user.blocked
+        and not user.deleted
+        and not user.change_pswd
+        and user.pswd_create + timedelta(days=365) > datetime.now()
+    ):
+        return User.from_orm(user)
     return abort(401)
 
 
@@ -43,14 +37,17 @@ def auth_required(roles: tuple | None = None, *, refresh: bool = False) -> Calla
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args: tuple, **kwargs: dict) -> Response | Callable:
-            token = None
-            if refresh:
-                token = request.get_json().get("refresh_token")
-            else:
-                token = request.headers.get("Authorization")
-
-            if token and (decoded := decode_token(token, refresh=refresh)):
-                g.user = get_current_user(decoded.get("id"))
+            token = (
+                request.get_json().get("refresh_token")
+                if refresh
+                else request.headers.get("Authorization")
+            )
+            if (
+                token
+                and (decoded := decode_token(token, refresh=refresh))
+                and (user_id := decoded.get("id"))
+            ):
+                g.user = get_current_user(user_id)
             else:
                 return abort(401)
 

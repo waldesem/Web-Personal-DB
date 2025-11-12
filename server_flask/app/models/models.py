@@ -358,23 +358,23 @@ class Inquiry(Model):
 class AnketaJson(PersonIn):
     """Candidate anketa schema."""
 
-    position: str = Field(default="", alias="positionName")
+    email: str | None = ""
     department: str | None = ""
+    position: str = Field(default="", alias="positionName")
     series: str | None = Field(default="", alias="passportSerial")
     digits: str = Field(default="", alias="passportNumber")
     issue: date | None = Field(default=None, alias="passportIssueDate")
     agency: str | None = Field(default="", alias="passportIssuedBy")
     valid_address: str = Field(default="", alias="validAddress")
     reg_address: str = Field(default="", alias="regAddress")
-    email: str | None = ""
     contact_phone: str = Field(default="", alias="contactPhone")
     education: list[Education] = []
     experience: list[Workplace] = []
+    organizations: list[Affilation] = []
     name_was_changed: list[Prev] = Field(
         default=[],
         alias="nameWasChanged",
     )
-    organizations: list[Affilation] = []
     related_organizations: list[Affilation] = Field(
         default=[],
         alias="relatedPersonsOrganizations",
@@ -389,7 +389,7 @@ class AnketaJson(PersonIn):
     )
 
 
-models = {
+models: dict[Items, Model] = {
     model.__modelname__: model
     for model in Model.__subclasses__()
     if "__modelname__" in model.__dict__
