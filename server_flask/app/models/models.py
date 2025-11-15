@@ -140,11 +140,9 @@ class Index(BaseModel):
 class PersonIn(Model):
     """Person schema."""
 
-    __PATTERN = r"^[А-яЁёIV\-\s\.\,\'\(\)]*$"
-
     id: int | None
-    surname: str = Field(alias="lastName", regex=__PATTERN)
-    firstname: str = Field(alias="firstName", regex=__PATTERN)
+    surname: str = Field(alias="lastName", regex=r"^[А-яЁёIV\-\s\.\,\'\(\)]*$")
+    firstname: str = Field(alias="firstName", regex=r"^[А-яЁёIV\-\s\.\,\'\(\)]*$")
     patronymic: str | None = Field(default="", alias="midName")
     birthday: date
     birthplace: str | None = ""
