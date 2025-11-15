@@ -57,4 +57,5 @@ Builded files can be found in `server_flask/app/static`.
 To start a server run the command in terminal:
 ```
 uv run server.py # for desktop mode; more options see in the server.py
+gunicorn wsgi:app # for gunicorn mode
 ```

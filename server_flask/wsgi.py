@@ -1,16 +1,8 @@
-"""WSGI server using Tornado."""
+"""WSGI server."""
 
-import asyncio
+from app import create_app
 
-from flask import Flask
-from tornado.httpserver import HTTPServer
-from tornado.wsgi import WSGIContainer
+app = create_app()
 
-
-async def wsgi_server(app: Flask, address: str, port: int) -> None:
-    """Start a WSGI server using Tornado."""
-    container = WSGIContainer(app)
-    http_server = HTTPServer(container)
-    http_server.listen(port, address)
-    print(f"Listening on http://{address}:{port}")  # noqa: T201
-    await asyncio.Event().wait()
+if __name__ == "__main__":
+    app.run(host="127.0.0.1", port=5000)

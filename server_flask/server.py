@@ -15,11 +15,11 @@ def main() -> None:
         For development:
             uv run server.py --host 127.0.0.1 --port 5000 --mode devel
 
-        For production:
-            uv run server.py --host 127.0.0.1 --port 5000 --mode server
-
         For desktop:
             uv run server.py
+
+        For production:
+            gunicorn wsgi:app
     """
     parser = argparse.ArgumentParser(description="Run the application server.")
     parser.add_argument(
@@ -35,9 +35,9 @@ def main() -> None:
     )
     parser.add_argument(
         "--mode",
-        choices=["debug", "devel", "server", "desktop"],
+        choices=["debug", "devel", "desktop"],
         default="desktop",
-        help="The mode to run the server in (debug, devel, server, desktop).",
+        help="The mode to run the server in (debug, devel, desktop).",
     )
     args = parser.parse_args()
 
@@ -48,12 +48,6 @@ def main() -> None:
             app.run(host=args.host, port=args.port, debug=True)
         case "devel":
             app.run(host=args.host, port=args.port, debug=False)
-        case "server":
-            import asyncio
-
-            from wsgi import wsgi_server
-
-            asyncio.run(wsgi_server(app, address=args.host, port=args.port))
         case _:
             from webgui import run_desktop
 
