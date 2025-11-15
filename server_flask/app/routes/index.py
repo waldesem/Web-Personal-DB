@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from flask import Blueprint, g, request
-from sqlalchemy import Row, Sequence, desc, func, select, text
+from sqlalchemy import Row, Sequence, func, select, text
 
 from app import db
 from app.classes.classes import Roles
@@ -45,37 +45,22 @@ bp = Blueprint("route", __name__)
 def get_index(json_query: Index) -> tuple[Sequence[Row[Any]], int]:
     """Retrieve a paginated list of persons from the database."""
     stmt = select(
-        Persons.id,
-        Persons.birthday,
-        Persons.surname,
-        Persons.firstname,
-        Persons.patronymic,
-        Persons.birthplace,
-        Persons.citizenship,
-        Persons.dual,
-        Persons.snils,
-        Persons.inn,
-        Persons.marital,
-        Persons.destination,
-        Persons.editable,
-        Persons.created,
+        db.metatables["persons"],
         Users.fullname.label("username"),
-        func.count().over().label("total"),
-    ).filter(
-        Users.id == Persons.user_id,
+        select(func.count(Persons.id)).scalar_subquery().label("total"),
     )
     if json_query.search:
         stmt = stmt.filter(Persons.surname == json_query.search[0])
         if len(json_query.search) > 1:
-            stmt = stmt.filter(Persons.surname == json_query.search[1])
+            stmt = stmt.filter(Persons.firstname == json_query.search[1])
             if len(json_query.search) > 2:
-                stmt = stmt.filter(Persons.surname == json_query.search[2])
+                stmt = stmt.filter(Persons.patronymic == json_query.search[2])
     # Пагинация списка кандидатов
     result = db.session.execute(
-        stmt.order_by(desc(Persons.id)).slice(
-            (json_query.page - 1) * json_query.per_page,
-            json_query.per_page * json_query.page,
-        ),
+        stmt.filter(Users.id == Persons.user_id)
+        .order_by(Persons.id.desc())
+        .offset((json_query.page - 1) * json_query.per_page)
+        .limit(json_query.per_page * json_query.page),
     ).all()
     return result, 200
 
