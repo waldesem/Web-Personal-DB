@@ -1,11 +1,30 @@
 """A module that runs the application server."""
 
-import argparse
+import click
 
 from app import create_app
 
 
-def main() -> None:
+@click.command("server")
+@click.option(
+    "--host",
+    type=str,
+    default="127.0.0.1",
+    help="The host to bind the server to.",
+)
+@click.option(
+    "--port",
+    type=int,
+    default=5000,
+    help="The port to run the server on.",
+)
+@click.option(
+    "--mode",
+    type=click.Choice(["debug", "devel", "desktop"]),
+    default="desktop",
+    help="The mode to run the server in (debug, devel, desktop).",
+)
+def server(host: str, port: int, mode: str) -> None:
     """Run the application server based on the provided arguments.
 
     Example usage:
@@ -21,38 +40,18 @@ def main() -> None:
         For production:
             gunicorn wsgi:app
     """
-    parser = argparse.ArgumentParser(description="Run the application server.")
-    parser.add_argument(
-        "--host",
-        default="127.0.0.1",
-        help="The host to bind the server to.",
-    )
-    parser.add_argument(
-        "--port",
-        default=5000,
-        type=int,
-        help="The port to run the server on.",
-    )
-    parser.add_argument(
-        "--mode",
-        choices=["debug", "devel", "desktop"],
-        default="desktop",
-        help="The mode to run the server in (debug, devel, desktop).",
-    )
-    args = parser.parse_args()
-
     app = create_app()
 
-    match args.mode:
+    match mode:
         case "debug":
-            app.run(host=args.host, port=args.port, debug=True)
+            app.run(host=host, port=port, debug=True)
         case "devel":
-            app.run(host=args.host, port=args.port, debug=False)
+            app.run(host=host, port=port, debug=False)
         case _:
             from webgui import run_desktop
 
-            run_desktop(app, address=args.host, port=args.port)
+            run_desktop(app, address=host, port=port)
 
 
 if __name__ == "__main__":
-    main()
+    server()
