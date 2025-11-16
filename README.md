@@ -1,6 +1,6 @@
 # StaffSec
 
-StaffSec is a web interface for managing a candidate database.
+StaffSec is a web interface for managing a candidates database.
 
 ### The technology stack used in this project:
 
@@ -37,6 +37,7 @@ For creating alphabeth folders in destination directory run (Linux, macOS и WSL
 chmod +x folders.sh 
 ./folders.sh
 ```
+
 For creating new user:
 ```
 export FLASK_APP=app
@@ -45,9 +46,9 @@ flask command user Super superadmin 'superadmin@localhost.ru' --role=admin
 Recomend to create user with role `admin` for first login.
 DEFAULT_PASSWORD for created user set in settings.ini.
 
-### Build frontend
+### Build frontend (if needs)
 
-First you need install Node.js a JavaScript runtime environment. Then:
+First install Node.js. Then run in terminal:
 ```
 cd Web-Personal-DB/web_nuxt
 npm i
@@ -60,7 +61,7 @@ Builded files can be found in `server_flask/app/static`.
 
 ### Start backend
 
-To start a server run the command in terminal:
+To start an application run the command in terminal:
 ```
 uv run server.py # for desktop mode; more options see in the server.py
 ```
