@@ -26,18 +26,24 @@ SQLite3 Database will be used by default and crated automatically in the first r
 
 ### Settings
 
-For creating alphabeth folders in destination directory add path in settings.ini.
-Then run the command:
+For creating settings.ini file run in terminal (Linux, macOS и WSL):
+```
+chmod +x settings.sh 
+./settings.sh
+```
+
+For creating alphabeth folders in destination directory run (Linux, macOS и WSL):
+```
+chmod +x folders.sh 
+./folders.sh
+```
+For creating new user:
 ```
 export FLASK_APP=app
-flask command folders
-```
-For creating new user run the command in terminal:
-```
 flask command user Super superadmin 'superadmin@localhost.ru' --role=admin
 ```
 Recomend to create user with role `admin` for first login.
-DEFAULT_PASSWORD for created user - `88888888`.
+DEFAULT_PASSWORD for created user set in settings.ini.
 
 ### Build frontend
 
@@ -57,5 +63,4 @@ Builded files can be found in `server_flask/app/static`.
 To start a server run the command in terminal:
 ```
 uv run server.py # for desktop mode; more options see in the server.py
-gunicorn wsgi:app # for gunicorn mode
 ```

@@ -1,9 +1,7 @@
 """Command line module."""
 
-from pathlib import Path
-
 import click
-from flask import Blueprint, cli, current_app
+from flask import Blueprint, cli
 from pydantic import ValidationError
 from sqlalchemy import or_, select
 from sqlalchemy.exc import SQLAlchemyError
@@ -59,19 +57,3 @@ def create_user(
     except (ValidationError, SQLAlchemyError) as error:
         click.echo(error)
         db.session.rollback()
-
-
-@bp.cli.command("folders")
-@cli.with_appcontext
-def create_folders() -> None:
-    """Create the folders structure according to the current configuration."""
-    if current_app.config["BASE_PATH"].is_dir():
-        for letter in "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЫЭЮЯ":
-            Path(
-                current_app.config["BASE_PATH"],
-                "Главный офис",
-                letter,
-            ).mkdir(exist_ok=True, parents=True)
-        click.echo("Folders created")
-    else:
-        click.echo("BASE_PATH is not a directory")

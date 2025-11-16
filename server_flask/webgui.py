@@ -21,7 +21,7 @@ def start_browser(address: str, port: int) -> None:
     """Start the browser."""
     profile_dir = tempfile.mkdtemp(prefix=f"webgui{uuid.uuid1().hex}")
     paths = [
-        "/snap/bin/chromium",
+        # "/snap/bin/chromium",
         r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
         r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
         r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
