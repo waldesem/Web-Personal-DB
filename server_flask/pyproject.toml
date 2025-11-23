@@ -19,6 +19,24 @@ dependencies = [
     "typing-extensions==4.12.2",
     "werkzeug==3.0.4",
 ]
+
+[dependency-groups]
+dev = ["pytest>=9.0.1"]
+
 [tool.ruff]
 select = ["ALL"]
 ignore = ["DTZ005", "RUF003", "RUF001", "PLR2004", "PLC0415"]
+
+[tool.ruff.per-file-ignores]
+"app/tests/*.py" = ["ALL"]
+
+[tool.pytest.ini_options]
+addopts = [
+  "-vv",
+  "--import-mode=importlib",
+]
+minversion = "9.0"
+python_files = ["test_*.py", "*_test.py", "tests.py"]
+python_functions = ["test_*"]
+pythonpath = ["."]
+testpaths = ["app/tests"]

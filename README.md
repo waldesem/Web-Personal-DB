@@ -40,6 +40,7 @@ chmod +x folders.sh
 
 For creating new user:
 ```
+source .venv/bin/activate
 export FLASK_APP=app
 flask command user Super superadmin 'superadmin@localhost.ru' --role=admin
 ```

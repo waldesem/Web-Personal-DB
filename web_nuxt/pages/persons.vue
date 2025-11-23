@@ -278,7 +278,7 @@ const columns: TableColumn<Candidate>[] = [
       <UPagination
         v-model:page="page"
         :items-per-page="per_page"
-        :total="data?.[0]?.total ?? 1"
+        :total="data[0]?.total"
         :sibling-count="1"
         @update:page="(p) => (page = p)"
       />

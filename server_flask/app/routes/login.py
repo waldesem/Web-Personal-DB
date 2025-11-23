@@ -30,6 +30,7 @@ def post_login(
     user = db.session.execute(
         select(Users).filter_by(username=json_data.username),
     ).scalar_one_or_none()
+
     if not user or user.blocked or user.deleted:
         return {"message": "invalid"}, 200
 
