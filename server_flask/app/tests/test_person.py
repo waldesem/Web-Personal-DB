@@ -6,31 +6,12 @@ import pytest
 from flask.testing import FlaskClient
 
 
-params = [
-    (param, 1)
-    for param in [
-        "addresses",
-        "affilations",
-        "checks",
-        "contacts",
-        "documents",
-        "educations",
-        "inquiries",
-        "investigations",
-        "previous",
-        "poligrafs",
-        "staffs",
-        "workplaces",
-    ]
-]
-
-
 @pytest.fixture
-def mock_db_session(monkeypatch):
+def mock_db_delete(monkeypatch):
     # Создаем моки методов execute и commit
     session_mock = Mock()
 
-    def fake_execute(*args, **kwargs):
+    def fake_delete(*args, **kwargs):
         pass  # Ничего не делаем, блокируем реальный вызов метода
 
     def fake_commit():
@@ -38,13 +19,22 @@ def mock_db_session(monkeypatch):
 
     # Подменяем реальные методы на наши заглушки
     monkeypatch.setattr("db.session", session_mock)
-    monkeypatch.setattr(session_mock, "execute", fake_execute)
+    monkeypatch.setattr(session_mock, "delete", fake_delete)
     monkeypatch.setattr(session_mock, "commit", fake_commit)
 
 
-@pytest.mark.parametrize("item, person_id", params)
-def test_get_item(client: FlaskClient, item, person_id):
-    response = client.get(f"/routes/{item}/{person_id}")
+@pytest.fixture
+def mock_db_post(monkeypatch):
+
+    def fake_upload(*args, **kwargs):
+        return 1, True
+
+    # Подменяем реальные методы на заглушки
+    monkeypatch.setattr("upload_resume", fake_upload)
+
+
+def test_get_item(client: FlaskClient):
+    response = client.get(f"/routes/persons/{1}")
 
     assert response.status_code == 200
     assert response.mimetype == "application/json"
@@ -58,27 +48,25 @@ def test_get_item(client: FlaskClient, item, person_id):
     else:
         json_data = response.get_json()
 
-    assert isinstance(json_data, list)
+    assert isinstance(json_data, dict)
 
 
-@pytest.mark.parametrize("item, person_id", params)
-def test_delete_item(mock_db_session, client: FlaskClient, item, person_id):
-    response = client.delete(f"/routes/{item}/{person_id}")
+def test_delete_item(mock_db_delete, client: FlaskClient):
+    response = client.delete(f"/routes/persons/{1}")
 
     assert response.status_code == 201
     assert response.mimetype == "application/json"
     assert response.headers["Content-Type"] == "application/json"
 
-    assert mock_db_session == None
+    assert mock_db_delete == None
 
     json_data = response.get_json()
 
     assert "message" in json_data
 
 
-@pytest.mark.parametrize("item, person_id", params)
-def test_post_item(mock_db_session, client: FlaskClient, item, person_id):
-    response = client.post(f"/routes/{item}/{person_id}")
+def test_post_item(mock_db_session, client: FlaskClient):
+    response = client.post(f"/routes/persons/{1}")
 
     assert response.status_code == 201
     assert response.mimetype == "application/json"

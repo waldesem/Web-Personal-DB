@@ -180,12 +180,6 @@ wheels = [
 ]
 
 [[package]]
-name = "psutil"
-version = "5.9.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/47/b6/ea8a7728f096a597f0032564e8013b705aa992a0990becd773dcc4d7b4a7/psutil-5.9.0.tar.gz", hash = "sha256:869842dbd66bb80c3217158e629d6fceaecc3a3166d3d1faee515b05dd26ca25", size = 478322, upload-time = "2021-12-29T21:27:59.163Z" }
-
-[[package]]
 name = "pydantic"
 version = "1.10.18"
 source = { registry = "https://pypi.org/simple" }
@@ -251,7 +245,6 @@ dependencies = [
     { name = "itsdangerous" },
     { name = "jinja2" },
     { name = "markupsafe" },
-    { name = "psutil" },
     { name = "pydantic" },
     { name = "pyjwt" },
     { name = "sqlalchemy" },
@@ -274,7 +267,6 @@ requires-dist = [
     { name = "itsdangerous", specifier = "==2.2.0" },
     { name = "jinja2", specifier = "==3.1.4" },
     { name = "markupsafe", specifier = "==3.0.1" },
-    { name = "psutil", specifier = "==5.9.0" },
     { name = "pydantic", specifier = "==1.10.18" },
     { name = "pyjwt", specifier = "==2.8.0" },
     { name = "sqlalchemy", specifier = "==2.0.30" },

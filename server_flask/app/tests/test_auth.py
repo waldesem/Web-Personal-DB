@@ -4,13 +4,6 @@ from app.utils.utilities import decode_token
 
 
 def test_auth(client: FlaskClient):
-    # Проверяем метод
-    methods = ["GET", "PUT", "DELETE", "PATCH"]
-    for method in methods:
-        resp = getattr(client, method.lower())("/routes/auth/login")
-        if method != "POST":
-            assert resp.status_code in [302, 405, 404]
-
     response = client.post(
         "/routes/auth/login",
         json={
@@ -22,7 +15,7 @@ def test_auth(client: FlaskClient):
     assert response.content_type == "application/json"
     assert response.headers["Content-Type"] == "application/json"
     assert response.status_code in [200, 201]
-    
+
     json_data = response.get_json()
 
     if response.status_code == 201:

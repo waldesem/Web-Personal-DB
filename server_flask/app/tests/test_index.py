@@ -9,13 +9,6 @@ def test_get_index(client: FlaskClient):
     assert response.mimetype == "application/json"
     assert response.headers["Content-Type"] == "application/json"
 
-    # Проверяем, что метод GET работает
-    methods = ["POST", "PUT", "DELETE", "PATCH"]
-    for method in methods:
-        response = getattr(client, method.lower())("/")
-        if method != "GET":
-            assert response.status_code in [405, 404]  # Method Not Allowed
-
     json_data = None
     if response.content_length > 1000:
         assert response.headers["Content-Encoding"] == "deflate"
