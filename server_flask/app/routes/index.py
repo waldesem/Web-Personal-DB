@@ -60,7 +60,7 @@ def get_index(json_query: Index) -> tuple[Sequence[Row[Any]], int]:
         stmt.filter(Users.id == Persons.user_id)
         .order_by(Persons.id.desc())
         .offset((json_query.page - 1) * json_query.per_page)
-        .limit(json_query.per_page * json_query.page),
+        .limit(json_query.per_page),
     ).all()
     return result, 200
 
