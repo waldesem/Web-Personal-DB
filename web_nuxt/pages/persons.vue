@@ -274,7 +274,10 @@ const columns: TableColumn<Candidate>[] = [
     </div>
 
     <!-- Пагинация -->
-    <div class="flex justify-center border-t border-default py-4">
+    <div
+      v-if="data[0]"
+      class="flex justify-center border-t border-default py-4"
+    >
       <UPagination
         v-model:page="page"
         :items-per-page="per_page"
@@ -282,7 +285,23 @@ const columns: TableColumn<Candidate>[] = [
         :sibling-count="-1"
         size="lg"
         @update:page="(p) => (page = p)"
-      />
+      >
+        <template #prev>
+          <UButton
+            label="Вперед"
+            icon="i-lucide-chevron-left"
+            :to="page > 1 ? page - 1 : 1"
+          />
+        </template>
+
+        <template #next>
+          <UButton
+            label="Назад"
+            trailing-icon="i-lucide-chevron-right"
+            @click="page < Math.ceil(data[0]?.total / per_page) ? page + 1 : 1"
+          />
+        </template>
+      </UPagination>
     </div>
   </UPage>
 </template>
