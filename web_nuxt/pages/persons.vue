@@ -276,32 +276,28 @@ const columns: TableColumn<Candidate>[] = [
     <!-- Пагинация -->
     <div
       v-if="data[0]"
-      class="flex justify-center border-t border-default py-4"
+      class="flex justify-center border-t border-default space-x-4 py-4"
     >
-      <UPagination
-        v-model:page="page"
-        :items-per-page="per_page"
-        :total="data[0]?.total"
-        :sibling-count="-1"
+      <UButton
+        label="Вперед"
         size="lg"
-        @update:page="(p) => (page = p)"
-      >
-        <template #prev>
-          <UButton
-            label="Вперед"
-            icon="i-lucide-chevron-left"
-            :to="page > 1 ? page - 1 : 1"
-          />
-        </template>
-
-        <template #next>
-          <UButton
-            label="Назад"
-            trailing-icon="i-lucide-chevron-right"
-            @click="page < Math.ceil(data[0]?.total / per_page) ? page + 1 : 1"
-          />
-        </template>
-      </UPagination>
+        variant="outline"
+        icon="i-lucide-chevron-left"
+        :disabled="page < 2"
+        @click="page - 1"
+      />
+      <UButton
+        label="Назад"
+        size="lg"
+        variant="outline"
+        trailing-icon="i-lucide-chevron-right"
+        :disabled="
+          page >=
+          computed(() => (data[0] ? Math.ceil(data[0]?.total / per_page) : 1))
+            .value
+        "
+        @click="page + 1"
+      />
     </div>
   </UPage>
 </template>
