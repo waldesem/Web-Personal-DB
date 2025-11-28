@@ -279,7 +279,8 @@ const columns: TableColumn<Candidate>[] = [
         v-model:page="page"
         :items-per-page="per_page"
         :total="data[0]?.total"
-        :sibling-count="0"
+        :sibling-count="-1"
+        size="lg"
         @update:page="(p) => (page = p)"
       />
     </div>
