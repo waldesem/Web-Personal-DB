@@ -1,8 +1,5 @@
 """Utils module."""
 
-import os
-import re
-import unicodedata
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -97,36 +94,3 @@ def upload_resume(cand: PersonIn, user_id: int) -> tuple[int | None, bool]:
         return None, False
     else:
         return person.id, True
-
-
-def check_filename(name: str) -> str | None:
-    """Check filename for valid chars."""
-    try:
-        filename_ascii_strip_re = re.compile(r"[^A-zА-яЁё0-9_.-]")
-        windows_device_files = (
-            "CON",
-            "AUX",
-            "COM1",
-            "COM2",
-            "COM3",
-            "COM4",
-            "LPT1",
-            "LPT2",
-            "LPT3",
-            "PRN",
-            "NUL",
-        )
-        filename = unicodedata.normalize("NFKD", name)
-        for sep in os.sep, os.path.altsep:
-            if sep:
-                filename = filename.replace(sep, " ")
-        filename = str(
-            filename_ascii_strip_re.sub("", "_".join(filename.split())),
-        ).strip("._")
-        if filename and filename.split(".")[0].upper() in windows_device_files:
-            filename = f"_{filename}"
-    except (TypeError, ValueError, AttributeError):
-        current_app.logger.exception("Error file name")
-        return None
-    else:
-        return filename

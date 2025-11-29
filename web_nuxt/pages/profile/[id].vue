@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useEventListener, useFileDialog } from "@vueuse/core";
+import { useEventListener } from "@vueuse/core";
 import type { Person } from "@/types";
 
 await prefetchComponents("UModal");
@@ -67,35 +67,6 @@ async function switchSelf(): Promise<void> {
     toasts.create();
   }
 }
-
-// Определяем диалог загрузки файлов
-const { open, onChange } = useFileDialog();
-
-// Определяем функцию для загрузки файлов
-onChange(async (files) => {
-  if (!files) return;
-  const formData = new FormData();
-  for (const file of files) {
-    if (file.size > 10 * 1024 * 1024) {
-      toasts.create("info", "Размер одного файла не должен превышать 10 МБ");
-      continue;
-    }
-    formData.append("file", file);
-  }
-  const { message } = await $api<Record<string, string>>(
-    `/routes/files/${candId.value}`,
-    {
-      method: "POST",
-      body: formData,
-    }
-  );
-  status.value = message as "success" | "error";
-  if (message == "success") {
-    toasts.create(message, "Файлы успешно загружены");
-  } else {
-    toasts.create();
-  }
-});
 </script>
 
 <template>
@@ -119,14 +90,6 @@ onChange(async (files) => {
             :icon="!print ? 'i-lucide-printer' : 'i-lucide-arrow-left'"
             :label="!print ? 'Печать' : 'Вернуться'"
             @click="print = !print"
-          />
-          <UButton
-            v-if="editable && !print"
-            :loading="status === 'pending'"
-            variant="outline"
-            icon="i-lucide-cloud-upload"
-            label="Загрузить"
-            @click="open()"
           />
           <UButton
             v-if="!print"

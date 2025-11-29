@@ -301,7 +301,7 @@ const columns: TableColumn<Candidate>[] = [
       />
       <UInputNumber
         v-model="per_page"
-        :min="per_page"
+        :min="10"
         :max="100"
         :ui="{ root: 'w-1/8' }"
         title="Количество на странице"

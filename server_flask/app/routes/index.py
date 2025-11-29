@@ -3,8 +3,6 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime
-from pathlib import Path
 from typing import Any
 
 from flask import Blueprint, g, request
@@ -33,7 +31,7 @@ from app.tables.tables import (
     Users,
     Workplaces,
 )
-from app.utils.utilities import check_filename, upload_resume
+from app.utils.utilities import upload_resume
 
 bp = Blueprint("route", __name__)
 
@@ -77,27 +75,6 @@ def switch_status(person_id: int) -> tuple[dict, int]:
     db.session.execute(stmt, {"user_id": g.user.id, "id": person_id})
     db.session.commit()
     return {"message": "success"}, 201
-
-
-@bp.post("/files/<int:person_id>")
-@serialize()
-@validize()
-@auth_required(Roles.user.value)
-def post_files(person_id: int) -> tuple[dict, int]:
-    """Upload files to the server."""
-    if (person := db.session.get(Persons, person_id)) and person.destination:
-        subfolder = Path(
-            person.destination,
-            datetime.now().strftime("%d-%m-%Y %H-%M-%S"),
-        )
-        subfolder.mkdir(parents=True, exist_ok=True)
-        for data in request.files.getlist("file"):
-            if data.filename and (secure_filename := check_filename(data.filename)):
-                file_path = subfolder.joinpath(secure_filename)
-                if not file_path.is_file():
-                    data.save(file_path)
-        return {"message": "success"}, 201
-    return {"message": "error"}, 200
 
 
 @bp.post("/json")
