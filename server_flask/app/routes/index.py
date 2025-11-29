@@ -103,32 +103,65 @@ def post_json(anketa: AnketaJson) -> dict:
 
     # Сохранение дополнительной информации о кандидате в БД
     if person_id:
-        upload_items(anketa, person_id)
+        items = upload_items(anketa, person_id)
+        db.session.bulk_save_objects(items)
+        db.session.commit()
     return {"person_id": person_id, "exists": existed}
 
 
-def upload_items(anketa: AnketaJson, person_id: int) -> None:
-    """Save additional information about a person in the database."""
-    items = [
+def upload_items(anketa: AnketaJson, person_id: int) -> list:
+    """Organze additional information about a person for database uploads."""
+    return [
         Documents(
             digits=anketa.digits,
             series=anketa.series,
             issue=anketa.issue,
             agency=anketa.agency,
+            person_id=person_id,
         ),
-        Staffs(position=anketa.position, department=anketa.department),
-        Addresses(view="Адрес проживания", address=anketa.valid_address),
-        Addresses(view="Адрес регистрации", address=anketa.reg_address),
-        Contacts(view="Телефон", contact=anketa.contact_phone),
-        Contacts(view="Электронная почта", contact=anketa.email),
-        *[Educations(**edu.dict()) for edu in anketa.education],
-        *[Workplaces(**work.dict()) for work in anketa.experience],
-        *[Previous(**prev.dict()) for prev in anketa.name_was_changed],
+        Staffs(
+            position=anketa.position,
+            department=anketa.department,
+            person_id=person_id,
+        ),
+        Addresses(
+            view="Адрес проживания",
+            address=anketa.valid_address,
+            person_id=person_id,
+        ),
+        Addresses(
+            view="Адрес регистрации",
+            address=anketa.reg_address,
+            person_id=person_id,
+        ),
+        Contacts(
+            view="Телефон",
+            contact=anketa.contact_phone,
+            person_id=person_id,
+        ),
+        Contacts(
+            view="Электронная почта",
+            contact=anketa.email,
+            person_id=person_id,
+        ),
+        *[
+            Educations(**education.dict(), person_id=person_id)
+            for education in anketa.education
+        ],
+        *[
+            Workplaces(**workplace.dict(), person_id=person_id)
+            for workplace in anketa.experience
+        ],
+        *[
+            Previous(**prev.dict(), person_id=person_id)
+            for prev in anketa.name_was_changed
+        ],
         *[
             Affilations(
                 view="Участвует в деятельности коммерческих организаций",
                 organization=aff.organization,
                 inn=aff.inn,
+                person_id=person_id,
             )
             for aff in anketa.organizations
         ],
@@ -136,6 +169,7 @@ def upload_items(anketa: AnketaJson, person_id: int) -> None:
             Affilations(
                 view="Являлся государственным должностным лицом",
                 organization=aff.organization,
+                person_id=person_id,
             )
             for aff in anketa.state_organizations
         ],
@@ -143,6 +177,7 @@ def upload_items(anketa: AnketaJson, person_id: int) -> None:
             Affilations(
                 view="Связанные лица работают в государственных организациях",
                 organization=aff.organization,
+                person_id=person_id,
             )
             for aff in anketa.related_organizations
         ],
@@ -150,14 +185,8 @@ def upload_items(anketa: AnketaJson, person_id: int) -> None:
             Affilations(
                 view="Являлся государственным или муниципальным служащим",
                 organization=aff.organization,
+                person_id=person_id,
             )
             for aff in anketa.public_organizations
         ],
     ]
-    # Добавляем аттибуты person_id и user_id к объектам
-    for item in items:
-        if item:
-            item.person_id = person_id
-
-    db.session.bulk_save_objects(items)
-    db.session.commit()
