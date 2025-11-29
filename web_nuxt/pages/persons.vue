@@ -2,6 +2,7 @@
 import { refDebounced, useDateFormat, useFileDialog } from "@vueuse/core";
 import type { TableColumn } from "@nuxt/ui";
 import type { Candidate } from "@/types";
+import { title } from "process";
 
 // Прелоадим компонент
 await preloadRouteComponents("/profile/[id]");
@@ -17,33 +18,42 @@ const UIcon = resolveComponent("UIcon");
 const { $api } = useNuxtApp();
 
 // Объявляем переменные для работы с данными
+const candidates = ref([] as Candidate[]); // Массив кандидатов
 const expanded = ref({ 1: false }); // Состояние раскрытия строк таблицы
 const modal = ref(false); // Состояние модального окна
 const page = ref(1); // Страница таблицы
-const per_page = 10; // Количество строк в таблице
+const per_page = ref(10); // Количество строк в таблице
 const search = ref(""); // Поисковый запрос
 const updated = ref(Date.now()); // Дата обновления данных
 
+// Вычисляем количество страниц
+const total = computed(() => {
+  return candidates.value[0]
+    ? Math.ceil(candidates.value[0].total / per_page.value)
+    : 1;
+});
+
 // Определяем функцию для получения списка кандидатов из API
-const { data, status, refresh } = await useLazyAsyncData(
+const { status, refresh } = await useLazyAsyncData(
   "candidates",
-  () =>
-    $api<Candidate[]>("/routes/candidates", {
+  async () => {
+    candidates.value = await $api("/routes/candidates", {
       query: {
         page: page.value,
-        per_page: per_page,
+        per_page: per_page.value,
         search: search.value,
       },
-    }),
-  // Наблюдаем: переключение страницы, изменение строки поиска.
-  {
-    watch: [page, refDebounced(search, 1000)],
-    default: () => [] as Candidate[],
-  }
+    });
+    updated.value = Date.now();
+  },
+  // Наблюдаем: переключение страницы.
+  { watch: [page, per_page] }
 );
 
-watch(data, () => {
-  updated.value = Date.now();
+// Наблюдаем: поиск
+watch(refDebounced(search, 1000), () => {
+  page.value = 1;
+  refresh();
 });
 
 // Определяем обработчики диалогового окна для загрузки JSON
@@ -246,7 +256,7 @@ const columns: TableColumn<Candidate>[] = [
       :loading="status === 'pending'"
       :loading-color="'neutral'"
       :columns="columns"
-      :data="data"
+      :data="candidates"
       :meta="{ class: { tr: 'cursor-pointer' } }"
       @select="(_, row) => navigateTo(`/profile/${row.original.id}`)"
     >
@@ -274,29 +284,41 @@ const columns: TableColumn<Candidate>[] = [
     </div>
 
     <!-- Пагинация -->
-    <div
-      v-if="data[0]"
-      class="flex justify-center border-t border-default space-x-4 py-4"
-    >
+    <div class="flex justify-center border-t border-default space-x-2 py-4">
       <UButton
-        label="Вперед"
-        size="lg"
+        title="В начало"
         variant="outline"
-        icon="i-lucide-chevron-left"
-        :disabled="page < 2"
-        @click="page - 1"
+        icon="i-lucide-chevrons-left"
+        :disabled="page === 1"
+        @click="page = 1"
       />
       <UButton
-        label="Назад"
-        size="lg"
+        title="Вперед"
+        variant="outline"
+        icon="i-lucide-chevron-left"
+        :disabled="page === 1"
+        @click="page--"
+      />
+      <UInputNumber
+        v-model="per_page"
+        :min="per_page"
+        :max="100"
+        :ui="{ root: 'w-1/8' }"
+        title="Количество на странице"
+      />
+      <UButton
+        title="Назад "
         variant="outline"
         trailing-icon="i-lucide-chevron-right"
-        :disabled="
-          page >=
-          computed(() => (data[0] ? Math.ceil(data[0]?.total / per_page) : 1))
-            .value
-        "
-        @click="page + 1"
+        :disabled="page === total"
+        @click="page++"
+      />
+      <UButton
+        title="В конец"
+        variant="outline"
+        trailing-icon="i-lucide-chevrons-right"
+        :disabled="page === total"
+        @click="page = total"
       />
     </div>
   </UPage>

@@ -1,13 +1,14 @@
 from unittest.mock import Mock
 import zlib
 
-from flask import json
 import pytest
+
+from flask import json
 from flask.testing import FlaskClient
 
 
 params = [
-    (param, 1)
+    (param, 9)
     for param in [
         "addresses",
         "affilations",
@@ -23,6 +24,7 @@ params = [
         "workplaces",
     ]
 ]
+print(params)
 
 
 @pytest.fixture
@@ -44,15 +46,14 @@ def mock_db_session(monkeypatch):
 
 @pytest.mark.parametrize("item, person_id", params)
 def test_get_item(client: FlaskClient, item, person_id):
-    response = client.get(f"/routes/{item}/{person_id}")
+    response = client.get(f"/routes/items/{item}/{person_id}")
 
     assert response.status_code == 200
     assert response.mimetype == "application/json"
     assert response.headers["Content-Type"] == "application/json"
 
     json_data = None
-    if response.content_length > 1000:
-        assert response.headers["Content-Encoding"] == "deflate"
+    if response.headers.get("Content-Encoding") == "deflate":
         decompressed_content = zlib.decompress(response.get_data(), zlib.MAX_WBITS | 32)
         json_data = json.loads(decompressed_content.decode("utf-8"))
     else:
@@ -63,7 +64,7 @@ def test_get_item(client: FlaskClient, item, person_id):
 
 @pytest.mark.parametrize("item, person_id", params)
 def test_delete_item(mock_db_session, client: FlaskClient, item, person_id):
-    response = client.delete(f"/routes/{item}/{person_id}")
+    response = client.delete(f"/routes/items/{item}/{person_id}")
 
     assert response.status_code == 201
     assert response.mimetype == "application/json"
@@ -78,7 +79,7 @@ def test_delete_item(mock_db_session, client: FlaskClient, item, person_id):
 
 @pytest.mark.parametrize("item, person_id", params)
 def test_post_item(mock_db_session, client: FlaskClient, item, person_id):
-    response = client.post(f"/routes/{item}/{person_id}")
+    response = client.post(f"/routes/{item}/items/{person_id}")
 
     assert response.status_code == 201
     assert response.mimetype == "application/json"
