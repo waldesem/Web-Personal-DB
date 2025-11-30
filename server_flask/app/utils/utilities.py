@@ -4,14 +4,24 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import jwt
-from flask import current_app
+from flask import current_app, g
 from jwt.exceptions import InvalidTokenError
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
-from app.models.models import PersonIn
-from app.tables.tables import Persons
+from app.models.models import AnketaJson, PersonIn
+from app.tables.tables import (
+    Addresses,
+    Affilations,
+    Contacts,
+    Documents,
+    Educations,
+    Persons,
+    Previous,
+    Staffs,
+    Workplaces,
+)
 
 
 def create_token(user_id: int, item: str = "ACCESS") -> str:
@@ -94,3 +104,100 @@ def upload_resume(cand: PersonIn, user_id: int) -> tuple[int | None, bool]:
         return None, False
     else:
         return person.id, True
+
+
+def post_json(anketa: AnketaJson) -> dict:
+    """Create a new person or updates an existing person based on the provided data."""
+    resume = PersonIn(**anketa.dict(exclude_none=True))
+    # Загрузка резюме в БД
+    person_id, existed = upload_resume(resume, g.user.id)
+
+    # Сохранение дополнительной информации о кандидате в БД
+    if person_id:
+        items = upload_items(anketa, person_id)
+        db.session.bulk_save_objects(items)
+        db.session.commit()
+    return {"person_id": person_id, "exists": existed}
+
+
+def upload_items(anketa: AnketaJson, person_id: int) -> list:
+    """Organze additional information about a person for database uploads."""
+    return [
+        Documents(
+            digits=anketa.digits,
+            series=anketa.series,
+            issue=anketa.issue,
+            agency=anketa.agency,
+            person_id=person_id,
+        ),
+        Staffs(
+            position=anketa.position,
+            department=anketa.department,
+            person_id=person_id,
+        ),
+        Addresses(
+            view="Адрес проживания",
+            address=anketa.valid_address,
+            person_id=person_id,
+        ),
+        Addresses(
+            view="Адрес регистрации",
+            address=anketa.reg_address,
+            person_id=person_id,
+        ),
+        Contacts(
+            view="Телефон",
+            contact=anketa.contact_phone,
+            person_id=person_id,
+        ),
+        Contacts(
+            view="Электронная почта",
+            contact=anketa.email,
+            person_id=person_id,
+        ),
+        *[
+            Educations(**education.dict(), person_id=person_id)
+            for education in anketa.education
+        ],
+        *[
+            Workplaces(**workplace.dict(), person_id=person_id)
+            for workplace in anketa.experience
+        ],
+        *[
+            Previous(**prev.dict(), person_id=person_id)
+            for prev in anketa.name_was_changed
+        ],
+        *[
+            Affilations(
+                view="Участвует в деятельности коммерческих организаций",
+                organization=aff.organization,
+                inn=aff.inn,
+                person_id=person_id,
+            )
+            for aff in anketa.organizations
+        ],
+        *[
+            Affilations(
+                view="Являлся государственным должностным лицом",
+                organization=aff.organization,
+                person_id=person_id,
+            )
+            for aff in anketa.state_organizations
+        ],
+        *[
+            Affilations(
+                view="Связанные лица работают в государственных организациях",
+                organization=aff.organization,
+                person_id=person_id,
+            )
+            for aff in anketa.related_organizations
+        ],
+        *[
+            Affilations(
+                view="Являлся государственным или муниципальным служащим",
+                organization=aff.organization,
+                person_id=person_id,
+            )
+            for aff in anketa.public_organizations
+        ],
+    ]

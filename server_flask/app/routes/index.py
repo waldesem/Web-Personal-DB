@@ -16,22 +16,10 @@ from app.models.models import (
     AnketaJson,
     Candidates,
     Index,
-    PersonIn,
     ResumeResponse,
 )
-from app.tables.tables import (
-    Addresses,
-    Affilations,
-    Contacts,
-    Documents,
-    Educations,
-    Persons,
-    Previous,
-    Staffs,
-    Users,
-    Workplaces,
-)
-from app.utils.utilities import upload_resume
+from app.tables.tables import Persons, Users
+from app.utils.utilities import post_json
 
 bp = Blueprint("route", __name__)
 
@@ -93,100 +81,3 @@ def post_json_file() -> tuple[dict, int]:
         return {"person_id": None, "exists": False}, 200
     result = post_json(anketa)
     return result, 201 if result.get("person_id") else 200
-
-
-def post_json(anketa: AnketaJson) -> dict:
-    """Create a new person or updates an existing person based on the provided data."""
-    resume = PersonIn(**anketa.dict(exclude_none=True))
-    # Загрузка резюме в БД
-    person_id, existed = upload_resume(resume, g.user.id)
-
-    # Сохранение дополнительной информации о кандидате в БД
-    if person_id:
-        items = upload_items(anketa, person_id)
-        db.session.bulk_save_objects(items)
-        db.session.commit()
-    return {"person_id": person_id, "exists": existed}
-
-
-def upload_items(anketa: AnketaJson, person_id: int) -> list:
-    """Organze additional information about a person for database uploads."""
-    return [
-        Documents(
-            digits=anketa.digits,
-            series=anketa.series,
-            issue=anketa.issue,
-            agency=anketa.agency,
-            person_id=person_id,
-        ),
-        Staffs(
-            position=anketa.position,
-            department=anketa.department,
-            person_id=person_id,
-        ),
-        Addresses(
-            view="Адрес проживания",
-            address=anketa.valid_address,
-            person_id=person_id,
-        ),
-        Addresses(
-            view="Адрес регистрации",
-            address=anketa.reg_address,
-            person_id=person_id,
-        ),
-        Contacts(
-            view="Телефон",
-            contact=anketa.contact_phone,
-            person_id=person_id,
-        ),
-        Contacts(
-            view="Электронная почта",
-            contact=anketa.email,
-            person_id=person_id,
-        ),
-        *[
-            Educations(**education.dict(), person_id=person_id)
-            for education in anketa.education
-        ],
-        *[
-            Workplaces(**workplace.dict(), person_id=person_id)
-            for workplace in anketa.experience
-        ],
-        *[
-            Previous(**prev.dict(), person_id=person_id)
-            for prev in anketa.name_was_changed
-        ],
-        *[
-            Affilations(
-                view="Участвует в деятельности коммерческих организаций",
-                organization=aff.organization,
-                inn=aff.inn,
-                person_id=person_id,
-            )
-            for aff in anketa.organizations
-        ],
-        *[
-            Affilations(
-                view="Являлся государственным должностным лицом",
-                organization=aff.organization,
-                person_id=person_id,
-            )
-            for aff in anketa.state_organizations
-        ],
-        *[
-            Affilations(
-                view="Связанные лица работают в государственных организациях",
-                organization=aff.organization,
-                person_id=person_id,
-            )
-            for aff in anketa.related_organizations
-        ],
-        *[
-            Affilations(
-                view="Являлся государственным или муниципальным служащим",
-                organization=aff.organization,
-                person_id=person_id,
-            )
-            for aff in anketa.public_organizations
-        ],
-    ]

@@ -32,8 +32,8 @@ class Compress:
         # Only compress */json and text/* content types.
         if (
             (
-                (response.mimetype and "/json" in response.mimetype)
-                or "text/" in response.content_type
+                ("json" in response.content_type)
+                or "text" in response.content_type
             )
             and 300 > response.status_code >= 200
             and response.content_length
