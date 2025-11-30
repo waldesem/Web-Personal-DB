@@ -2,7 +2,6 @@
 import { refDebounced, useDateFormat, useFileDialog } from "@vueuse/core";
 import type { TableColumn } from "@nuxt/ui";
 import type { Candidate } from "@/types";
-import { title } from "process";
 
 // Прелоадим компонент
 await preloadRouteComponents("/profile/[id]");
@@ -52,8 +51,11 @@ const { status, refresh } = await useLazyAsyncData(
 
 // Наблюдаем: поиск
 watch(refDebounced(search, 1000), () => {
-  page.value = 1;
-  refresh();
+  if (page.value === 1) {
+    refresh();
+  } else {
+    page.value = 1;
+  }
 });
 
 // Определяем обработчики диалогового окна для загрузки JSON
@@ -166,7 +168,9 @@ const columns: TableColumn<Candidate>[] = [
     cell: ({ row }) => {
       return h(NuxtTime, {
         datetime: row.getValue("created"),
-        relative: true,
+        day: "numeric",
+        month: "long",
+        year: "numeric",
       });
     },
   },
