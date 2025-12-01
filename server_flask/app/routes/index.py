@@ -33,7 +33,7 @@ def get_index(json_query: Index) -> tuple[Sequence[Row[Any]], int]:
     stmt = select(
         db.metatables["persons"],
         Users.fullname.label("username"),
-        select(func.count(Persons.id)).scalar_subquery().label("total"),
+        func.count().over().label("total"),
     )
     if json_query.search:
         stmt = stmt.filter(Persons.surname == json_query.search[0])
