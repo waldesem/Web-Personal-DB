@@ -289,7 +289,7 @@ const columns: TableColumn<Candidate>[] = [
 
     <!-- Пагинация -->
     <div class="flex justify-center border-t border-default space-x-2 py-4">
-      <UButton
+      <!-- <UButton
         title="В начало"
         variant="outline"
         icon="i-lucide-chevrons-left"
@@ -323,7 +323,22 @@ const columns: TableColumn<Candidate>[] = [
         trailing-icon="i-lucide-chevrons-right"
         :disabled="page === total"
         @click="page = total"
-      />
+      /> -->
+      <UPagination
+        v-model:page="page"
+        :items-per-page="per_page"
+        :total="total"
+        :sibling-count="-1"
+        @update:page="(p) => (page = p)"
+      >
+        <UInputNumber
+          v-model="per_page"
+          :min="10"
+          :max="100"
+          :ui="{ root: 'w-1/8' }"
+          title="Количество на странице"
+        />
+      </UPagination>
     </div>
   </UPage>
 </template>
