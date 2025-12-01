@@ -331,13 +331,15 @@ const columns: TableColumn<Candidate>[] = [
         :sibling-count="-1"
         @update:page="(p) => (page = p)"
       >
-        <UInputNumber
-          v-model="per_page"
-          :min="10"
-          :max="100"
-          :ui="{ root: 'w-1/8' }"
-          title="Количество на странице"
-        />
+        <template #item>
+          <UInputNumber
+            v-model="per_page"
+            :min="10"
+            :max="100"
+            :ui="{ root: 'w-1/8' }"
+            title="Количество на странице"
+          />
+        </template>
       </UPagination>
     </div>
   </UPage>
