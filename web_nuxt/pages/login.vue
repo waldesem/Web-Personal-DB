@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { AlertProps, AuthFormField, FormSubmitEvent } from "@nuxt/ui";
-import { refManualReset } from '@vueuse/core'
+import { refManualReset } from "@vueuse/core";
 import type { Login } from "@/types";
 
 definePageMeta({ layout: false });
@@ -84,7 +84,7 @@ const validate = (state: Partial<Login>) => {
         name: "username",
         message: "Введите имя пользователя",
       });
-    } else if (state.username.length > 255) {
+    } else if (state.username.length > 64) {
       errors.push({
         name: "username",
         message: "Слишком длинное имя",
@@ -95,7 +95,7 @@ const validate = (state: Partial<Login>) => {
         name: "password",
         message: "Введите пароль",
       });
-    } else if (state.password.length > 255) {
+    } else if (state.password.length > 64) {
       errors.push({
         name: "password",
         message: "Слишком длинный пароль",
@@ -167,6 +167,7 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
           color: 'success',
           variant: 'outline',
         }"
+        :ui="{ leadingIcon: 'text-blue-800' }"
         @submit.prevent="onSubmit($event)"
       >
         <template #title>

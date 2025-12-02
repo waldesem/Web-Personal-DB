@@ -84,23 +84,20 @@ onChange(async (files) => {
 // Обработчик результата загрузки данных
 async function proceedResult(person_id: string, exists: boolean) {
   modal.value = false;
-  status.value = "success";
   if (person_id) {
     if (exists) {
-      toasts.create("info", "Кандидат ранее уже был загружен");
+      toasts.create(
+        "info",
+        "Анкета была загружена ранее или назначена другому пользователю"
+      );
     } else {
       toasts.create("success", "Анкета успешно загружена");
     }
     await refresh();
     return navigateTo("/profile/" + person_id);
   } else {
-    if (exists) {
-      await refresh();
-      toasts.create("info", "Анкета назначена другому пользователю");
-    } else {
-      toasts.create();
-    }
-    status.value = "success";
+    status.value = "error";
+    toasts.create();
   }
 }
 
@@ -289,41 +286,6 @@ const columns: TableColumn<Candidate>[] = [
 
     <!-- Пагинация -->
     <div class="flex justify-center border-t border-default space-x-2 py-4">
-      <!-- <UButton
-        title="В начало"
-        variant="outline"
-        icon="i-lucide-chevrons-left"
-        :disabled="page === 1"
-        @click="page = 1"
-      />
-      <UButton
-        title="Вперед"
-        variant="outline"
-        icon="i-lucide-chevron-left"
-        :disabled="page === 1"
-        @click="page--"
-      />
-      <UInputNumber
-        v-model="per_page"
-        :min="10"
-        :max="100"
-        :ui="{ root: 'w-1/8' }"
-        title="Количество на странице"
-      />
-      <UButton
-        title="Назад "
-        variant="outline"
-        trailing-icon="i-lucide-chevron-right"
-        :disabled="page === total"
-        @click="page++"
-      />
-      <UButton
-        title="В конец"
-        variant="outline"
-        trailing-icon="i-lucide-chevrons-right"
-        :disabled="page === total"
-        @click="page = total"
-      /> -->
       <UPagination
         v-model:page="page"
         :items-per-page="per_page"

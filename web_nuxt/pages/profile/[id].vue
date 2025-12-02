@@ -8,7 +8,7 @@ const toasts = useToasts();
 
 const print = ref(false);
 
-useEventListener(window, 'afterprint', (_event) => {
+useEventListener(window, "afterprint", (_event) => {
   print.value = false;
 });
 
@@ -30,7 +30,6 @@ const { data, status, refresh } = await useAsyncData(
 // Вычисляем статус редактирования анкеты
 const editable = computed(() => {
   return (
-    data.value &&
     data.value.editable &&
     userState.value.role == "user" &&
     userState.value.id == data.value.user_id
