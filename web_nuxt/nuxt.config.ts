@@ -2,7 +2,7 @@ import { fileURLToPath } from "url";
 
 export default defineNuxtConfig({
   alias: {
-    "@/": fileURLToPath(new URL("./src", import.meta.url)),
+    "@/": fileURLToPath(new URL("./src/app", import.meta.url)),
   },
   app: {
     keepalive: { include: "persons" },
@@ -18,7 +18,7 @@ export default defineNuxtConfig({
   css: ["~/assets/css/main.css"],
   devtools: { enabled: true },
   experimental: {
-    entryImportMap: false
+    entryImportMap: false,
   },
   icon: {
     clientBundle: {

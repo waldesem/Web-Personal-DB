@@ -21,6 +21,8 @@
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.11.0",
+    "@nuxt/eslint-config": "^1.11.0",
+    "@nuxt/eslint-plugin": "^1.11.0",
     "@types/node": "^24.10.1",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
