@@ -13,6 +13,6 @@ useHead({
 <template>
   <UApp>
     <NuxtLoadingIndicator color="red" :height="5" />
-    <NuxtLayout> <NuxtPage: transition="{ name: 'page' }" /> </NuxtLayout>
+    <NuxtLayout> <NuxtPage :transition="{ name: 'page' }" /> </NuxtLayout>
   </UApp>
 </template>

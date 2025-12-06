@@ -27,9 +27,7 @@ const updated = ref(Date.now()); // Дата обновления данных
 
 // Вычисляем количество страниц
 const total = computed(() => {
-  return candidates.value[0]
-    ? Math.ceil(candidates.value[0].total / per_page.value)
-    : 1;
+  return candidates.value[0] ? candidates.value[0].total : 1;
 });
 
 // Определяем функцию для получения списка кандидатов из API
@@ -292,17 +290,7 @@ const columns: TableColumn<Candidate>[] = [
         :total="total"
         :sibling-count="-1"
         @update:page="(p) => (page = p)"
-      >
-        <template #item>
-          <UInputNumber
-            v-model="per_page"
-            :min="10"
-            :max="100"
-            :ui="{ root: 'w-1/8' }"
-            title="Количество на странице"
-          />
-        </template>
-      </UPagination>
+      />
     </div>
   </UPage>
 </template>
