@@ -13,13 +13,13 @@ bind = "127.0.0.1:5000"
 timeout = 30
 
 # Log level (debug, info, warning, error, critical)
-loglevel = "info"
+loglevel = "warning"
 
 # Path to access log file
-accesslog = "-" # '-' means stdout
+accesslog = "-"  # '-' means stdout
 
 # Path to error log file
-errorlog = "-" # '-' means stderr
+errorlog = "-"  # '-' means stderr
 
 # Name of the application (for process titles)
 proc_name = "staffsec"
