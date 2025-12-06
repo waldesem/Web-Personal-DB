@@ -1,5 +1,7 @@
 """Person routes."""
 
+from pathlib import Path
+
 from flask import Blueprint, g
 
 from app import db
@@ -8,7 +10,7 @@ from app.decorators.depend import auth_required
 from app.decorators.pydantify import serialize, validize
 from app.models.models import PersonIn, PersonOut, ResumeResponse
 from app.tables.tables import Persons
-from app.utils.utilities import upload_resume
+from app.utils.utilities import create_destination, upload_resume
 
 bp = Blueprint("persons", __name__)
 
@@ -19,7 +21,11 @@ bp = Blueprint("persons", __name__)
 @auth_required()
 def get_person(person_id: int) -> tuple[Persons, int]:
     """Retrieve an item from the database based on the provided item ID."""
-    return db.session.get(Persons, person_id), 200
+    person = db.session.get(Persons, person_id)
+    if not person.destination or not Path(person.destination).exists():
+        person.destination = create_destination(person)
+        db.session.commit()
+    return person, 200
 
 
 @bp.post("/persons")
