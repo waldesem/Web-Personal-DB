@@ -17,7 +17,6 @@ const UIcon = resolveComponent("UIcon");
 const { $api } = useNuxtApp();
 
 // Объявляем переменные для работы с данными
-const candidates = ref([] as Candidate[]); // Массив кандидатов
 const expanded = ref({ 1: false }); // Состояние раскрытия строк таблицы
 const modal = ref(false); // Состояние модального окна
 const page = ref(1); // Страница таблицы
@@ -25,27 +24,29 @@ const per_page = ref(10); // Количество строк в таблице
 const search = ref(""); // Поисковый запрос
 const updated = ref(Date.now()); // Дата обновления данных
 
-// Вычисляем количество страниц
-const total = computed(() => {
-  return candidates.value[0] ? candidates.value[0].total : 1;
-});
-
 // Определяем функцию для получения списка кандидатов из API
-const { status, refresh } = await useLazyAsyncData(
+const { data, status, refresh } = await useLazyAsyncData(
   "candidates",
-  async () => {
-    candidates.value = await $api("/routes/candidates", {
+  () =>
+    $api<Candidate[]>("/routes/candidates", {
       query: {
         page: page.value,
         per_page: per_page.value,
         search: search.value,
       },
-    });
-    updated.value = Date.now();
-  },
+    }),
+
   // Наблюдаем: переключение страницы.
-  { watch: [page, per_page] }
+  {
+    watch: [page, per_page],
+    default: () => [],
+  }
 );
+
+// Вычисляем количество страниц
+const total = computed(() => {
+  return data.value[0] ? data.value[0].total : 1;
+});
 
 // Наблюдаем: поиск
 watch(refDebounced(search, 1000), () => {
@@ -54,6 +55,10 @@ watch(refDebounced(search, 1000), () => {
   } else {
     page.value = 1;
   }
+});
+
+watch(data, () => {
+  updated.value = Date.now();
 });
 
 // Определяем обработчики диалогового окна для загрузки JSON
@@ -191,34 +196,35 @@ const columns: TableColumn<Candidate>[] = [
     >
       <template #links>
         <!-- меню для действий -->
-        <UDropdownMenu
-          v-if="userState.role === 'user'"
-          :items="[
-            {
-              label: 'Создать анкету',
-              icon: 'i-lucide-user-plus',
-              onSelect() {
-                modal = true;
+        <ClientOnly>
+          <UDropdownMenu
+            v-if="userState.role === 'user'"
+            :items="[
+              {
+                label: 'Создать анкету',
+                icon: 'i-lucide-user-plus',
+                onSelect() {
+                  modal = true;
+                },
               },
-            },
-            {
-              label: 'Загрузить json',
-              icon: 'i-lucide-upload',
-              onSelect() {
-                open();
+              {
+                label: 'Загрузить json',
+                icon: 'i-lucide-upload',
+                onSelect() {
+                  open();
+                },
               },
-            },
-          ]"
-          :content="{ align: 'end' }"
-        >
-          <UButton
-            icon="i-lucide-menu"
-            variant="ghost"
-            title="Действия"
-            :loading="status === 'pending'"
-          />
-        </UDropdownMenu>
-
+            ]"
+            :content="{ align: 'end' }"
+          >
+            <UButton
+              icon="i-lucide-menu"
+              variant="ghost"
+              title="Действия"
+              :loading="status === 'pending'"
+            />
+          </UDropdownMenu>
+        </ClientOnly>
         <!-- Модальное окно для добавления анкеты -->
         <UModal
           v-model:open="modal"
@@ -255,7 +261,7 @@ const columns: TableColumn<Candidate>[] = [
       :loading="status === 'pending'"
       :loading-color="'neutral'"
       :columns="columns"
-      :data="candidates"
+      :data="data"
       :meta="{ class: { tr: 'cursor-pointer' } }"
       @select="(_, row) => navigateTo(`/profile/${row.original.id}`)"
     >

@@ -78,46 +78,48 @@ async function switchSelf(): Promise<void> {
       }"
     >
       <template #links>
-        <!-- Кнопки для загрузки файлов и переключения режима редактирования -->
-        <div
-          v-if="userState.role == 'user'"
-          class="flex items-center space-x-4 no-print"
-        >
-          <UButton
-            :loading="status === 'pending'"
-            variant="outline"
-            :icon="!print ? 'i-lucide-printer' : 'i-lucide-arrow-left'"
-            :label="!print ? 'Печать' : 'Вернуться'"
-            @click="print = !print"
-          />
-          <UButton
-            v-if="!print"
-            :loading="status === 'pending'"
-            variant="outline"
-            :color="
-              !data?.editable
-                ? 'secondary'
-                : data.user_id == userState.id
-                ? 'success'
-                : 'error'
-            "
-            :label="
-              !data?.editable
-                ? 'Доступно'
-                : data.user_id == userState.id
-                ? 'Изменение'
-                : 'Закрыто'
-            "
-            :icon="
-              !data?.editable
-                ? 'i-lucide-lock-open'
-                : data.user_id == userState.id
-                ? 'i-lucide-edit'
-                : 'i-lucide-lock'
-            "
-            @click="switchSelf"
-          />
-        </div>
+        <ClientOnly>
+          <!-- Кнопки для загрузки файлов и переключения режима редактирования -->
+          <div
+            v-if="userState.role == 'user'"
+            class="flex items-center space-x-4 no-print"
+          >
+            <UButton
+              :loading="status === 'pending'"
+              variant="outline"
+              :icon="!print ? 'i-lucide-printer' : 'i-lucide-arrow-left'"
+              :label="!print ? 'Печать' : 'Вернуться'"
+              @click="print = !print"
+            />
+            <UButton
+              v-if="!print"
+              :loading="status === 'pending'"
+              variant="outline"
+              :color="
+                !data?.editable
+                  ? 'secondary'
+                  : data.user_id == userState.id
+                  ? 'success'
+                  : 'error'
+              "
+              :label="
+                !data?.editable
+                  ? 'Доступно'
+                  : data.user_id == userState.id
+                  ? 'Изменение'
+                  : 'Закрыто'
+              "
+              :icon="
+                !data?.editable
+                  ? 'i-lucide-lock-open'
+                  : data.user_id == userState.id
+                  ? 'i-lucide-edit'
+                  : 'i-lucide-lock'
+              "
+              @click="switchSelf"
+            />
+          </div>
+        </ClientOnly>
       </template>
     </UPageHeader>
 

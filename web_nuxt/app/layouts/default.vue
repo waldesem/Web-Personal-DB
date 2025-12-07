@@ -30,35 +30,37 @@ function logout() {
 
 <template>
   <UPage>
-    <UHeader class="no-print">
+    <UHeader to="/persons" class="no-print">
       <template #title>
-        <NuxtLink to="/persons" title="На главную страницу">
-          <ElementsLogoDiv />
-        </NuxtLink>
+        <ElementsLogoDiv />
       </template>
       <template #default>
-        <UNavigationMenu
-          v-if="userState.role === 'admin'"
-          :items="[
-            {
-              label: 'Пользователи',
-              icon: 'i-lucide-users',
-              to: '/users',
-              disabled: userState.role !== 'admin',
-            },
-          ]"
-          variant="link"
-        />
+        <ClientOnly>
+          <UNavigationMenu
+            v-if="userState.role === 'admin'"
+            :items="[
+              {
+                label: 'Пользователи',
+                icon: 'i-lucide-users',
+                to: '/users',
+                disabled: userState.role !== 'admin',
+              },
+            ]"
+            variant="link"
+          />
+        </ClientOnly>
       </template>
       <template #right>
-        <UButton
-          class="rounded-full"
-          :label="userState.username ?? ''"
-          :disabled="!userState.username"
-          color="error"
-          icon="i-lucide-log-out"
-          @click="logout()"
-        />
+        <ClientOnly>
+          <UButton
+            class="rounded-full"
+            :label="userState.username ?? ''"
+            :disabled="!userState.username"
+            color="error"
+            icon="i-lucide-log-out"
+            @click="logout()"
+          />
+        </ClientOnly>
       </template>
     </UHeader>
     <UMain>
