@@ -14,7 +14,7 @@ export default defineNuxtConfig({
   build: {
     analyze: true,
   },
-  compatibilityDate: "2025-11-05",
+  compatibilityDate: "2025-12-08",
   css: ["~/assets/css/main.css"],
   devtools: { enabled: true },
   experimental: {
@@ -27,6 +27,7 @@ export default defineNuxtConfig({
   },
   modules: ["@nuxt/ui", "@nuxt/eslint", "@vueuse/nuxt", "nuxt-security"],
   nitro: {
+    compressPublicAssets: { brotli: true },
     output: {
       publicDir:
         process.env.SSR === "true"
