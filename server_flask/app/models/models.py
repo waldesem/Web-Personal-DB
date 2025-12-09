@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import re
 from datetime import date, datetime  # noqa: TC003
 from typing import Literal
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, ValidationError, validator
 
 from app.classes.classes import Conclusions, Decisions, Roles
+
+email_pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
 
 Items = Literal[
     "addresses",
@@ -72,12 +75,12 @@ class Login(BaseModel):
         return v.lower()
 
 
-class UserForm(BaseModel):
+class UserForm(Model):
     """Pydantic model for user form."""
 
     fullname: str
     username: str
-    email: str
+    email: str = Field(regex=email_pattern)
     role: Roles = Roles.guest.value
 
     @validator("username")
@@ -86,11 +89,6 @@ class UserForm(BaseModel):
         """Check username."""
         return v.lower()
 
-    class Config:
-        """Pydantic config."""
-
-        use_enum_values = True
-
 
 class Session(UserForm):
     """Pydantic model for session."""
@@ -98,7 +96,7 @@ class Session(UserForm):
     id: int
 
 
-class User(UserForm, Model):
+class User(UserForm):
     """Pydantic model for user form."""
 
     id: int | None
@@ -110,15 +108,10 @@ class User(UserForm, Model):
     created: datetime | str | None
 
 
-class UserActions(BaseModel):
+class UserActions(Model):
     """Pydantic model for user actions form."""
 
     item: Literal["reset", "block", "delete"] | Roles
-
-    class Config:
-        """Pydantic config."""
-
-        use_enum_values = True
 
 
 class Index(BaseModel):
@@ -264,6 +257,17 @@ class Contact(Model):
     contact: str
     created: datetime | str | None
 
+    @validator("contact")
+    @classmethod
+    def check_contact(cls, v: str, values: dict) -> str:
+        """Check contact."""
+        if values.get("view") == "Электронная почта":
+            if re.findall(email_pattern, v):
+                return v
+            msg = "Неправильный формат электронной почты"
+            raise ValidationError(msg)
+        return v
+
 
 class Workplace(Model):
     """Workplaces schema."""
@@ -356,7 +360,7 @@ class Inquiry(Model):
 class AnketaJson(PersonIn):
     """Candidate anketa schema."""
 
-    email: str | None = ""
+    email: str | None = Field(regex=email_pattern)
     department: str | None = ""
     position: str = Field(default="", alias="positionName")
     series: str | None = Field(default="", alias="passportSerial")
