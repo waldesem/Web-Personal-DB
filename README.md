@@ -94,3 +94,5 @@ HOST=localhost PORT=8000 node .output/server/index.mjs
 ```
 
 Nitro server should be run behind a reverse proxy like nginx.
+
+Use `npx npm-check-updates -u` for update packages for latest versions.
