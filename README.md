@@ -96,3 +96,29 @@ HOST=localhost PORT=8000 node .output/server/index.mjs
 Nitro server should be run behind a reverse proxy like nginx.
 
 Use `npx npm-check-updates -u` for update packages for latest versions.
+
+### Use Docker
+
+For building image run:
+
+```
+docker compose up --build -d
+```
+
+Run container:
+
+```
+docker run -d -p 5000:5000 --name flask-app my-flask-app
+```
+
+Manage container:
+
+```
+docker compose ps
+
+docker compose logs -f
+
+docker compose down
+
+docker compose down --rmi all
+```
