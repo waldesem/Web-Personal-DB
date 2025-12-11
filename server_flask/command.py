@@ -51,7 +51,7 @@ def create_user(
         ).scalar():
             click.echo(f"User {username} already exists or email is taken")
         else:
-            db.session.add(Users(**user.dict()))
+            db.session.add(Users(**user.model_dump()))
             db.session.commit()
             click.echo(f"User {username} created")
     except (ValidationError, SQLAlchemyError) as error:

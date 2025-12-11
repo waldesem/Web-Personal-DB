@@ -144,7 +144,9 @@ class Previous(db.Model):
         onupdate=func.now(),
     )
     person_id: Mapped[int] = mapped_column(
-        ForeignKey("persons.id"), index=True, nullable=False,
+        ForeignKey("persons.id"),
+        index=True,
+        nullable=False,
     )
     person: Mapped[Persons] = relationship(back_populates="previous")
 
@@ -165,7 +167,9 @@ class Educations(db.Model):
         onupdate=func.now(),
     )
     person_id: Mapped[int] = mapped_column(
-        ForeignKey("persons.id"), index=True, nullable=False,
+        ForeignKey("persons.id"),
+        index=True,
+        nullable=False,
     )
     person: Mapped[Persons] = relationship(back_populates="educations")
 
@@ -403,3 +407,6 @@ class Inquiries(db.Model):
         nullable=False,
     )
     person: Mapped[Persons] = relationship(back_populates="inquiries")
+
+
+db.metadata.create_all(bind=db.engine)

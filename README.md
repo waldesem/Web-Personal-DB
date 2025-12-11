@@ -5,7 +5,7 @@ StaffSec is a web interface for managing a candidates database.
 ### The technology stack used in this project:
 
 - Flask;
-- Sqlite;
+- PostreSQL;
 - Nuxt;
 
 ### Installation
@@ -18,21 +18,58 @@ git clone https://github.com/waldesem/Web-Personal-DB.git
 cd Web-Personal-DB/server_flask
 wget -qO- https://astral.sh/uv/install.sh | sh
 uv venv
+source .venv/bin/activate
 uv sync
 ```
 
 ### Database
 
-SQLite3 Database will be used by default and crated automatically in the first run.
+PostreSQL must be installed before the first run.
+
+```
+sudo ufw allow 5433/tcp
+sudo apt install postgresql postgresql-contrib -y
+sudo systemctl enable postgresql
+sudo systemctl start postgresql
+```
+
+Configuring Remote Access
+
+```
+sudo nano /etc/postgresql/16/main/postgresql.conf
+```
+
+Change `listen_addresses = '*'`
+
+Create user and database:
+
+```
+sudo -i -u postgres
+psql
+CREATE DATABASE personal;
+CREATE USER webapp WITH PASSWORD 'webapp';
+GRANT ALL PRIVILEGES ON DATABASE personal TO webapp;
+\c personal
+GRANT USAGE ON SCHEMA public TO webapp;
+GRANT CREATE ON SCHEMA public TO webapp;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO webapp;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO webapp;
+GRANT ALL ON ALL FUNCTIONS IN SCHEMA public TO webapp;
+
+\q
+exit
+```
 
 ### Settings
 
-For creating settings.ini file run in terminal (Linux, macOS и WSL):
+For creating .env file run in terminal (Linux, macOS и WSL):
 
 ```
-chmod +x settings.sh
-./settings.sh
+chmod +x dotenv.sh
+./dotenv.sh
 ```
+
+CHANGE DESTIONATION FOR `BASE_PATH` AS YOU NEED
 
 For creating alphabeth folders in destination directory run (Linux, macOS и WSL):
 
@@ -44,13 +81,12 @@ chmod +x folders.sh
 For creating new user:
 
 ```
-source .venv/bin/activate
 export FLASK_APP=app
 flask command user Super superadmin 'superadmin@localhost.ru' --role=admin
 ```
 
 Recomend to create user with role `admin` for first login.
-DEFAULT_PASSWORD for created user set in settings.ini.
+DEFAULT_PASSWORD for created user set in dotenv.sh.
 
 ### Build frontend (if needs)
 
@@ -82,10 +118,16 @@ Builded files can be found in `web_nux/.output`.
 To start server run the command in terminal:
 
 ```
-uv run server.py # for desktop mode; more options see in the server.py
+uv run flask run --port=5000 --host=127.0.0.1 --debug
 ```
 
-### Start frontend server (if needs)
+or for production:
+
+```
+gunicorn wsgi:app # for prod mode
+```
+
+### Start frontend server (if Server-Side rendering enabled)
 
 For starting frontend in SSR mode run
 

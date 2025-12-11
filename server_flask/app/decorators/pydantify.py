@@ -30,7 +30,7 @@ def validize() -> Callable:
                     if k not in ["return", "json_query", "json_data"]
                 }:
                     model = create_model("Params", **params)
-                    kwargs = model(**{key: kwargs[key] for key in params}).dict()
+                    kwargs = model(**{key: kwargs[key] for key in params}).model_dump()
 
                 if model := type_hints.get("json_query"):
                     pydantic_model = get_model(model, kwargs)
@@ -65,18 +65,23 @@ def serialize(
         @wraps(func)
         def wrapper(*args: tuple, **kwargs: dict) -> Response:
             try:
-                data, status = func(*args, **kwargs)
+                data, code = func(*args, **kwargs)
                 if orm:
                     pydantic_model = get_model(model, kwargs)
                     if many:
                         return jsonify(
-                            [pydantic_model.from_orm(row).dict() for row in data],
-                        ), status
-                    return jsonify(pydantic_model.from_orm(data).dict()), status
+                            [
+                                pydantic_model.model_validate(row).model_dump()
+                                for row in data
+                            ],
+                        ), code
+                    return jsonify(
+                        pydantic_model.model_validate(data).model_dump(),
+                    ), code
 
                 if many:
-                    return jsonify([model(**row).dict() for row in data]), status
-                return jsonify(model(**data).dict()), status
+                    return jsonify([model(**row).model_dump() for row in data]), code
+                return jsonify(model(**data).model_dump()), code
 
             except ValidationError:
                 current_app.logger.exception("Error serialize data")

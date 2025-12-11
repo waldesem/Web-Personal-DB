@@ -6,7 +6,7 @@ import re
 from datetime import date, datetime  # noqa: TC003
 from typing import Literal
 
-from pydantic import BaseModel, Field, ValidationError, validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 
 from app.classes.classes import Conclusions, Decisions, Roles
 
@@ -31,13 +31,12 @@ Items = Literal[
 class Model(BaseModel):
     """Base Pydantic model."""
 
-    class Config:
-        """Pydantic config."""
-
-        allow_population_by_field_name = True
-        anystr_strip_whitespace = True
-        orm_mode = True
-        use_enum_values = True
+    model_config = ConfigDict(
+        validate_by_name=True,
+        str_strip_whitespace=True,
+        from_attributes=True,
+        use_enum_values=True,
+    )
 
 
 class Reply(BaseModel):
@@ -57,8 +56,8 @@ class AuthResponse(BaseModel):
     """Pydantic model for auth."""
 
     message: str | None
-    access_token: str | None
-    refresh_token: str | None
+    access_token: str | None = None
+    refresh_token: str | None = None
 
 
 class Login(BaseModel):
@@ -66,9 +65,9 @@ class Login(BaseModel):
 
     username: str
     password: str
-    new_pswd: str | None
+    new_pswd: str | None = None
 
-    @validator("username")
+    @field_validator("username")
     @classmethod
     def username_check(cls, v: str) -> str:
         """Check username."""
@@ -80,10 +79,10 @@ class UserForm(Model):
 
     fullname: str
     username: str
-    email: str = Field(regex=email_pattern)
+    email: str = Field(pattern=email_pattern)
     role: Roles = Roles.guest.value
 
-    @validator("username")
+    @field_validator("username")
     @classmethod
     def username_check(cls, v: str) -> str:
         """Check username."""
@@ -121,7 +120,7 @@ class Index(BaseModel):
     per_page: int
     search: str | None = None
 
-    @validator("search")
+    @field_validator("search")
     @classmethod
     def search_check(cls, v: str) -> str | None:
         """Check username."""
@@ -133,11 +132,11 @@ class Index(BaseModel):
 class PersonIn(Model):
     """Person schema."""
 
-    id: int | None
-    surname: str = Field(alias="lastName", regex=r"^[А-яЁёIV\-\s\.\,\'\(\)]*$")
-    firstname: str = Field(alias="firstName", regex=r"^[А-яЁёIV\-\s\.\,\'\(\)]*$")
+    id: int | None = None
+    surname: str = Field(alias="lastName", pattern=r"^[А-яЁёIV\-\s\.\,\'\(\)]*$")
+    firstname: str = Field(alias="firstName", pattern=r"^[А-яЁёIV\-\s\.\,\'\(\)]*$")
     patronymic: str | None = Field(default="", alias="midName")
-    birthday: date
+    birthday: date = None
     birthplace: str | None = ""
     citizenship: str | None = Field(default="", alias="citizen")
     dual: str | None = Field(default="", alias="additionalCitizenship")
@@ -147,9 +146,9 @@ class PersonIn(Model):
     addition: str | None = ""
     destination: str | None = ""
     editable: bool = False
-    created: datetime | str | None
+    created: datetime | str | None = None
 
-    @validator("surname", "firstname", "patronymic")
+    @field_validator("surname", "firstname", "patronymic")
     @classmethod
     def check_names(cls, v: str) -> str:
         """Check names."""
@@ -159,21 +158,21 @@ class PersonIn(Model):
 class PersonOut(Model):
     """Pydantic model for person."""
 
-    id: int | None
+    id: int | None = None
     surname: str
     firstname: str
-    patronymic: str | None
+    patronymic: str | None = ""
     birthday: date
-    birthplace: str | None
-    citizenship: str | None
-    dual: str | None
-    snils: str | None
-    inn: str | None
-    marital: str | None
-    addition: str | None
-    destination: str | None
-    editable: bool
-    created: datetime | str | None
+    birthplace: str | None = ""
+    citizenship: str | None = ""
+    dual: str | None = ""
+    snils: str | None = ""
+    inn: str | None = ""
+    marital: str | None = ""
+    addition: str | None = ""
+    destination: str | None = ""
+    editable: bool = False
+    created: datetime | str | None = None
     user_id: int
 
 
@@ -189,13 +188,13 @@ class Prev(Model):
 
     __modelname__ = "previous"
 
-    id: int | None
+    id: int | None = None
     surname: str | None = Field(alias="lastNameBeforeChange")
     firstname: str | None = Field(alias="firstNameBeforeChange")
     patronymic: str | None = Field(default="", alias="midNameBeforeChange")
     changed: str | int | None = Field(default="", alias="yearOfChange")
     reason: str | None = ""
-    created: datetime | str | None
+    created: datetime | str | None = None
 
 
 class Education(Model):
@@ -203,12 +202,12 @@ class Education(Model):
 
     __modelname__ = "educations"
 
-    id: int | None
+    id: int | None = None
     view: str | None = Field(default="", alias="educationType")
     institution: str = Field(default="", alias="institutionName")
     finished: str | int | None = Field(default="", alias="endYear")
     specialty: str | None = ""
-    created: datetime | str | None
+    created: datetime | str | None = None
 
 
 class Staff(Model):
@@ -216,10 +215,10 @@ class Staff(Model):
 
     __modelname__ = "staffs"
 
-    id: int | None
+    id: int | None = None
     position: str
     department: str | None = ""
-    created: datetime | str | None
+    created: datetime | str | None = None
 
 
 class Document(Model):
@@ -227,13 +226,13 @@ class Document(Model):
 
     __modelname__ = "documents"
 
-    id: int | None
+    id: int | None = None
     view: str | None = Field(default="", alias="documentType")
     series: str | None = ""
     digits: str
     agency: str | None = ""
     issue: date | None
-    created: datetime | str | None
+    created: datetime | str | None = None
 
 
 class Address(Model):
@@ -241,10 +240,10 @@ class Address(Model):
 
     __modelname__ = "addresses"
 
-    id: int | None
+    id: int | None = None
     view: str
     address: str
-    created: datetime | str | None
+    created: datetime | str | None = None
 
 
 class Contact(Model):
@@ -252,12 +251,12 @@ class Contact(Model):
 
     __modelname__ = "contacts"
 
-    id: int | None
+    id: int | None = None
     view: str
     contact: str
-    created: datetime | str | None
+    created: datetime | str | None = None
 
-    @validator("contact")
+    @field_validator("contact")
     @classmethod
     def check_contact(cls, v: str, values: dict) -> str:
         """Check contact."""
@@ -274,7 +273,7 @@ class Workplace(Model):
 
     __modelname__ = "workplaces"
 
-    id: int | None
+    id: int | None = None
     now_work: bool | None = Field(default=False, alias="currentJob")
     starts: date | None = Field(alias="beginDate")
     finished: date | None = Field(default=None, alias="endDate")
@@ -282,7 +281,7 @@ class Workplace(Model):
     address: str | None = ""
     position: str
     reason: str | None = Field(default="", alias="fireReason")
-    created: datetime | str | None
+    created: datetime | str | None = None
 
 
 class Affilation(Model):
@@ -290,11 +289,11 @@ class Affilation(Model):
 
     __modelname__ = "affilations"
 
-    id: int | None
+    id: int | None = None
     view: str | None = Field(default="", alias="organizationType")
     organization: str | None = Field(default="", alias="name")
     inn: str | None = ""
-    created: datetime | str | None
+    created: datetime | str | None = None
 
 
 class Check(Model):
@@ -302,7 +301,7 @@ class Check(Model):
 
     __modelname__ = "checks"
 
-    id: int | None
+    id: int | None = None
     workplace: str | None = ""
     document: str | None = ""
     inn: str | None = ""
@@ -319,7 +318,7 @@ class Check(Model):
     addition: str | None = ""
     comment: str | None = ""
     conclusion: Conclusions
-    created: datetime | str | None
+    created: datetime | str | None = None
 
 
 class Poligraf(Model):
@@ -327,11 +326,11 @@ class Poligraf(Model):
 
     __modelname__ = "poligrafs"
 
-    id: int | None
+    id: int | None = None
     theme: str
     results: str | None
     conclusion: Decisions
-    created: datetime | str | None
+    created: datetime | str | None = None
 
 
 class Investigation(Model):
@@ -339,10 +338,10 @@ class Investigation(Model):
 
     __modelname__ = "investigations"
 
-    id: int | None
+    id: int | None = None
     theme: str
     info: str
-    created: datetime | str | None
+    created: datetime | str | None = None
 
 
 class Inquiry(Model):
@@ -350,17 +349,17 @@ class Inquiry(Model):
 
     __modelname__ = "inquiries"
 
-    id: int | None
+    id: int | None = None
     info: str
     initiator: str
     origins: str | None = ""
-    created: datetime | str | None
+    created: datetime | str | None = None
 
 
 class AnketaJson(PersonIn):
     """Candidate anketa schema."""
 
-    email: str | None = Field(regex=email_pattern)
+    email: str | None = Field(pattern=email_pattern)
     department: str | None = ""
     position: str = Field(default="", alias="positionName")
     series: str | None = Field(default="", alias="passportSerial")

@@ -27,7 +27,7 @@ def get_current_user(user_id: int) -> User:
         and not user.change_pswd
         and user.pswd_create + timedelta(days=365) > datetime.now()
     ):
-        return User.from_orm(user)
+        return User.model_validate(user)
     return abort(401)
 
 

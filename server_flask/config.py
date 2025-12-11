@@ -1,11 +1,7 @@
 """Configuration class."""
 
+import os
 import secrets
-from configparser import ConfigParser
-from pathlib import Path
-
-setting = ConfigParser()
-setting.read(Path(__file__).parent.resolve().joinpath("settings.ini"), encoding="utf-8")
 
 
 class Config:
@@ -17,6 +13,6 @@ class Config:
     ACCESS_SECRET_KEY_LIVE = 60  # minutes
     REFRESH_SECRET_KEY_LIVE = 30 * 24 * 60  # minutes
     MAX_CONTENT_LENGTH = 100 * 1024 * 1024
-    BASE_PATH = Path(setting["Destination"].get("path"))
-    DEFAULT_PASSWORD = setting["Password"].get("password")
-    DATABASE_URI = f"sqlite:///{BASE_PATH.joinpath('database.db')}"
+    BASE_PATH = os.getenv("BASE_PATH")
+    DEFAULT_PASSWORD = os.getenv("DEFAULT_PASSWORD")
+    DATABASE_URI = os.getenv("DATABASE_URI")

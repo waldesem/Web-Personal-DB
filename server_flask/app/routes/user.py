@@ -72,6 +72,6 @@ def post_user(json_data: UserForm) -> tuple[dict, int]:
     ).all()
     if user:
         return {"message": "error"}, 200
-    db.session.add(Users(**json_data.dict()))
+    db.session.add(Users(**json_data.model_dump()))
     db.session.commit()
     return {"message": "success"}, 201

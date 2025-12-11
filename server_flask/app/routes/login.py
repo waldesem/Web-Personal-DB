@@ -78,4 +78,4 @@ def refresh_token() -> tuple[dict, int]:
 @auth_required()
 def get_session() -> tuple[dict, int]:
     """Retrieve an item from the database based on the provided item ID."""
-    return g.user.dict(), 200
+    return g.user.model_dump(), 200

@@ -5,9 +5,9 @@ from __future__ import annotations
 import logging
 
 from flask import Flask, Response
+from flask_compress import Compress
 from werkzeug.exceptions import HTTPException
 
-from app.extensions.compress import Compress
 from app.extensions.database import Database
 from config import Config
 

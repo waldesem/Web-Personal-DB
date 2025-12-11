@@ -1,16 +1,16 @@
 #!/bin/bash
 
-config_file="settings.ini"
+env_file="dotenv.sh"
 base_path=""
 
-# Проверяем, существует ли settings.ini
-if [[ ! -f "$config_file" ]]; then
-    echo "Error: settings.ini not found"
+# Проверяем, существует ли dotenv.sh
+if [[ ! -f "$env_file" ]]; then
+    echo "Error: dotenv.sh not found"
     return 1
 fi
 
 # Извлекаем путь из секции [Destination] -> path
-base_path=$(grep -A 10 "^\[Destination\]$" "$config_file" | grep "^path=" | cut -d'=' -f2- | xargs)
+base_path=$(grep "^BASE_PATH=" | cut -d'=' -f2- | xargs)
 
 # Проверяем, найден ли путь
 if [[ -z "$base_path" ]]; then

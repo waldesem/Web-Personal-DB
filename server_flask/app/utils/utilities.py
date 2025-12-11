@@ -80,7 +80,7 @@ def upload_resume(cand: PersonIn, user_id: int) -> tuple[int | None, bool]:
         else db.session.get(Persons, cand.id)
     )
 
-    resume = cand.dict(exclude_none=True, exclude={"created"})
+    resume = cand.model_dump(exclude_none=True, exclude={"created"})
     resume["editable"] = True
     resume["user_id"] = user_id
 
@@ -108,7 +108,7 @@ def upload_resume(cand: PersonIn, user_id: int) -> tuple[int | None, bool]:
 
 def post_json(anketa: AnketaJson) -> dict:
     """Create a new person or updates an existing person based on the provided data."""
-    resume = PersonIn(**anketa.dict(exclude_none=True))
+    resume = PersonIn(**anketa.model_dump(exclude_none=True))
     # Загрузка резюме в БД
     person_id, existed = upload_resume(resume, g.user.id)
 
@@ -156,15 +156,15 @@ def upload_items(anketa: AnketaJson, person_id: int) -> list:
             person_id=person_id,
         ),
         *[
-            Educations(**education.dict(), person_id=person_id)
+            Educations(**education.model_dump(), person_id=person_id)
             for education in anketa.education
         ],
         *[
-            Workplaces(**workplace.dict(), person_id=person_id)
+            Workplaces(**workplace.model_dump(), person_id=person_id)
             for workplace in anketa.experience
         ],
         *[
-            Previous(**prev.dict(), person_id=person_id)
+            Previous(**prev.model_dump(), person_id=person_id)
             for prev in anketa.name_was_changed
         ],
         *[
