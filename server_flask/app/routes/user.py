@@ -2,14 +2,14 @@
 
 from typing import Any
 
-from flask import Blueprint, current_app, g
+from flask import Blueprint, current_app, g, jsonify
 from sqlalchemy import Row, Sequence, select
 from werkzeug.security import generate_password_hash
 
 from app import db
 from app.classes.classes import Roles
 from app.decorators.depend import auth_required, get_current_user
-from app.decorators.pydantify import serialize, validize
+from app.decorators.pydantify import validize
 from app.models.models import User, UserActions, UserForm
 from app.tables.tables import Users
 
@@ -17,17 +17,16 @@ bp = Blueprint("users", __name__)
 
 
 @bp.get("/users")
-@serialize(User, orm=True, many=True)
 @validize()
 @auth_required(Roles.admin.value)
 def get_users() -> tuple[Sequence[Row[Any]], int]:
     """Retrieve a list of users from the database."""
     # Преобразовать результат в список словарей и вернуть в качестве ответа
-    return db.session.execute(Users).all(), 200
+    users = db.session.execute(select(Users)).all()
+    return jsonify([User.from_orm(user).dict() for user in users]), 200
 
 
 @bp.post("/user/<user_id>")
-@serialize()
 @validize()
 @auth_required(Roles.admin.value)
 def post_user_actions(user_id: int, json_data: UserActions) -> tuple[dict, int]:
@@ -35,7 +34,7 @@ def post_user_actions(user_id: int, json_data: UserActions) -> tuple[dict, int]:
     user = db.session.get(Users, user_id)
     # Если пользователь не найден или пытается изменить собственный профиль
     if not user or g.user.id == user.id:
-        return {"message": "error"}, 200
+        return jsonify({"message": "error"}), 200
 
     if json_data.item == "reset":
         # Сбросить пароль пользователя и обнулить попытки входа
@@ -57,11 +56,10 @@ def post_user_actions(user_id: int, json_data: UserActions) -> tuple[dict, int]:
     db.session.commit()
     # Очистить кэш для id пользователей
     get_current_user.cache_clear()
-    return {"message": "success"}, 201
+    return jsonify({"message": "success"}), 201
 
 
 @bp.post("/user")
-@serialize()
 @validize()
 @auth_required(Roles.admin.value)
 def post_user(json_data: UserForm) -> tuple[dict, int]:
@@ -74,4 +72,4 @@ def post_user(json_data: UserForm) -> tuple[dict, int]:
         return {"message": "error"}, 200
     db.session.add(Users(**json_data.model_dump()))
     db.session.commit()
-    return {"message": "success"}, 201
+    return jsonify({"message": "success"}), 201

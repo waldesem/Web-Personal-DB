@@ -2,35 +2,35 @@
 
 from typing import Any
 
-from flask import Blueprint
+from flask import Blueprint, jsonify
 from sqlalchemy import Row, Sequence
 
 from app import db
 from app.classes.classes import Roles
 from app.decorators.depend import auth_required
-from app.decorators.pydantify import serialize, validize
-from app.models.models import Items, Model
+from app.decorators.pydantify import validize
+from app.models.models import Items, Model, models
 
 bp = Blueprint("items", __name__, url_prefix="/items")
 
 
 @bp.get("/<item>/<int:person_id>")
-@serialize(Model, orm=True, many=True)
 @validize()
 @auth_required()
 def get_items(item: Items, person_id: int) -> tuple[Sequence[Row[Any]], int]:
     """Retrieve an item from the database based on the provided item."""
+    model = models.get(item)
     stmt = (
         db.metatables[item]
         .select()
         .filter(db.metatables[item].c.person_id == person_id)
         .order_by(db.metatables[item].c.id.desc())
     )
-    return db.session.execute(stmt).all(), 200
+    items = db.session.execute(stmt).all()
+    return jsonify([model.from_orm(item).dict() for item in items]), 200
 
 
 @bp.post("/<item>/<int:person_id>")
-@serialize()
 @validize()
 @auth_required(Roles.user.value)
 def post_items(item: Items, person_id: int, json_data: Model) -> tuple[dict, int]:
@@ -51,11 +51,10 @@ def post_items(item: Items, person_id: int, json_data: Model) -> tuple[dict, int
         stmt = db.metatables[item].insert().values(json_dict)
     db.session.execute(stmt)
     db.session.commit()
-    return {"message": "success"}, 201
+    return jsonify({"message": "success"}), 201
 
 
 @bp.delete("/<item>/<int:item_id>")
-@serialize()
 @validize()
 @auth_required(Roles.user.value)
 def delete_items(item: Items, item_id: int) -> tuple[dict, int]:
@@ -64,4 +63,4 @@ def delete_items(item: Items, item_id: int) -> tuple[dict, int]:
         db.metatables[item].delete().where(db.metatables[item].c.id == item_id),
     )
     db.session.commit()
-    return {"message": "success"}, 201
+    return jsonify({"message": "success"}), 201

@@ -5,18 +5,17 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from flask import Blueprint, g, request
+from flask import Blueprint, g, jsonify, request
 from sqlalchemy import Row, Sequence, func, select, text
 
 from app import db
 from app.classes.classes import Roles
 from app.decorators.depend import auth_required
-from app.decorators.pydantify import serialize, validize
+from app.decorators.pydantify import validize
 from app.models.models import (
     AnketaJson,
     Candidates,
     Index,
-    ResumeResponse,
 )
 from app.tables.tables import Persons, Users
 from app.utils.utilities import post_json
@@ -25,7 +24,6 @@ bp = Blueprint("route", __name__)
 
 
 @bp.get("/candidates")
-@serialize(Candidates, orm=True, many=True)
 @validize()
 @auth_required()
 def get_index(json_query: Index) -> tuple[Sequence[Row[Any]], int]:
@@ -42,17 +40,16 @@ def get_index(json_query: Index) -> tuple[Sequence[Row[Any]], int]:
             if len(json_query.search) > 2:
                 stmt = stmt.filter(Persons.patronymic == json_query.search[2])
     # Пагинация списка кандидатов
-    result = db.session.execute(
+    candidates = db.session.execute(
         stmt.filter(Users.id == Persons.user_id)
         .order_by(Persons.id.desc())
         .offset((json_query.page - 1) * json_query.per_page)
         .limit(json_query.per_page),
     ).all()
-    return result, 200
+    return jsonify([Candidates.from_orm(candidate) for candidate in candidates]), 200
 
 
 @bp.get("/self/<int:person_id>")
-@serialize()
 @validize()
 @auth_required(Roles.user.value)
 def switch_status(person_id: int) -> tuple[dict, int]:
@@ -62,11 +59,10 @@ def switch_status(person_id: int) -> tuple[dict, int]:
     )
     db.session.execute(stmt, {"user_id": g.user.id, "id": person_id})
     db.session.commit()
-    return {"message": "success"}, 201
+    return jsonify({"message": "success"}), 201
 
 
 @bp.post("/json")
-@serialize(ResumeResponse)
 @validize()
 @auth_required(Roles.user.value)
 def post_json_file() -> tuple[dict, int]:

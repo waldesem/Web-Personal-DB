@@ -4,11 +4,10 @@ from collections.abc import Callable
 from functools import wraps
 from typing import get_type_hints
 
-from flask import Response, abort, current_app, jsonify, request
+from flask import abort, current_app, request
 from pydantic import BaseModel, ValidationError, create_model
-from sqlalchemy.exc import SQLAlchemyError
 
-from app.models.models import Reply, models
+from app.models.models import models
 
 
 def get_model(model: type[BaseModel], kwargs: dict) -> type[BaseModel]:
@@ -65,23 +64,18 @@ def serialize(
         @wraps(func)
         def wrapper(*args: tuple, **kwargs: dict) -> Response:
             try:
-                data, code = func(*args, **kwargs)
+                data, status = func(*args, **kwargs)
                 if orm:
                     pydantic_model = get_model(model, kwargs)
                     if many:
                         return jsonify(
-                            [
-                                pydantic_model.model_validate(row).model_dump()
-                                for row in data
-                            ],
-                        ), code
-                    return jsonify(
-                        pydantic_model.model_validate(data).model_dump(),
-                    ), code
+                            [pydantic_model.from_orm(row).dict() for row in data],
+                        ), status
+                    return jsonify(pydantic_model.from_orm(data).dict()), status
 
                 if many:
-                    return jsonify([model(**row).model_dump() for row in data]), code
-                return jsonify(model(**data).model_dump()), code
+                    return jsonify([model(**row).dict() for row in data]), status
+                return jsonify(model(**data).dict()), status
 
             except ValidationError:
                 current_app.logger.exception("Error serialize data")

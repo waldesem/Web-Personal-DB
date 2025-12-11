@@ -39,27 +39,6 @@ class Model(BaseModel):
     )
 
 
-class Reply(BaseModel):
-    """Base model for response."""
-
-    message: str
-
-
-class ResumeResponse(BaseModel):
-    """MOdel for resume creation return."""
-
-    person_id: int | None
-    exists: bool
-
-
-class AuthResponse(BaseModel):
-    """Pydantic model for auth."""
-
-    message: str | None
-    access_token: str | None = None
-    refresh_token: str | None = None
-
-
 class Login(BaseModel):
     """Pydantic model for login form."""
 
