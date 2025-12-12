@@ -1,9 +1,7 @@
 """User routes."""
 
-from typing import Any
-
-from flask import Blueprint, current_app, g, jsonify
-from sqlalchemy import Row, Sequence, select
+from flask import Blueprint, Response, current_app, g, jsonify
+from sqlalchemy import select
 from werkzeug.security import generate_password_hash
 
 from app import db
@@ -19,7 +17,7 @@ bp = Blueprint("users", __name__)
 @bp.get("/users")
 @validize()
 @auth_required(Roles.admin.value)
-def get_users() -> tuple[Sequence[Row[Any]], int]:
+def get_users() -> Response:
     """Retrieve a list of users from the database."""
     # Преобразовать результат в список словарей и вернуть в качестве ответа
     users = db.session.execute(select(Users)).all()
@@ -29,7 +27,7 @@ def get_users() -> tuple[Sequence[Row[Any]], int]:
 @bp.post("/user/<user_id>")
 @validize()
 @auth_required(Roles.admin.value)
-def post_user_actions(user_id: int, json_data: UserActions) -> tuple[dict, int]:
+def post_user_actions(user_id: int, json_data: UserActions) -> Response:
     """Change a user's information in the database based on their user ID."""
     user = db.session.get(Users, user_id)
     # Если пользователь не найден или пытается изменить собственный профиль
@@ -62,7 +60,7 @@ def post_user_actions(user_id: int, json_data: UserActions) -> tuple[dict, int]:
 @bp.post("/user")
 @validize()
 @auth_required(Roles.admin.value)
-def post_user(json_data: UserForm) -> tuple[dict, int]:
+def post_user(json_data: UserForm) -> Response:
     """Handle the POST request to create a user in the database."""
     # Проверить, существует ли уже пользователь с таким именем
     user = db.session.execute(

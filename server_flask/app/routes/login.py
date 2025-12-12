@@ -3,30 +3,25 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Literal
+from typing import Literal
 
-from flask import Blueprint, g, jsonify
+from flask import Blueprint, Response, g, jsonify
 from sqlalchemy import select
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app import db
 from app.decorators.depend import auth_required
 from app.decorators.pydantify import validize
+from app.models.models import Login  # noqa: TC001
 from app.tables.tables import Users
 from app.utils.utilities import create_token
-
-if TYPE_CHECKING:
-    from app.models.models import Login
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
 
 @bp.post("/<action>")
 @validize()
-def post_login(
-    action: Literal["login", "update"],
-    json_data: Login,
-) -> tuple[str | dict, int]:
+def post_login(action: Literal["login", "update"], json_data: Login) -> Response:
     """Handle the login process."""
     user = db.session.execute(
         select(Users).filter_by(username=json_data.username),
@@ -67,7 +62,7 @@ def post_login(
 
 @bp.post("/refresh")
 @auth_required(refresh=True)
-def refresh_token() -> tuple[dict, int]:
+def refresh_token() -> Response:
     """Refresh the access token."""
     return jsonify(
         {
@@ -79,6 +74,6 @@ def refresh_token() -> tuple[dict, int]:
 
 @bp.get("/session")
 @auth_required()
-def get_session() -> tuple[dict, int]:
+def get_session() -> Response:
     """Retrieve an item from the database based on the provided item ID."""
     return jsonify(g.user.dict()), 200

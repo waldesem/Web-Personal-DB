@@ -2,11 +2,8 @@
 
 from __future__ import annotations
 
-import json
-from typing import Any
-
-from flask import Blueprint, g, jsonify, request
-from sqlalchemy import Row, Sequence, func, select, text
+from flask import Blueprint, Response, g, json, jsonify, request
+from sqlalchemy import func, not_, select, update
 
 from app import db
 from app.classes.classes import Roles
@@ -26,7 +23,7 @@ bp = Blueprint("route", __name__)
 @bp.get("/candidates")
 @validize()
 @auth_required()
-def get_index(json_query: Index) -> tuple[Sequence[Row[Any]], int]:
+def get_index(json_query: Index) -> Response:
     """Retrieve a paginated list of persons from the database."""
     stmt = select(
         db.metatables["persons"],
@@ -46,16 +43,18 @@ def get_index(json_query: Index) -> tuple[Sequence[Row[Any]], int]:
         .offset((json_query.page - 1) * json_query.per_page)
         .limit(json_query.per_page),
     ).all()
-    return jsonify([Candidates.from_orm(candidate) for candidate in candidates]), 200
+    return jsonify([Candidates.from_orm(cand).dict() for cand in candidates]), 200
 
 
 @bp.get("/self/<int:person_id>")
 @validize()
 @auth_required(Roles.user.value)
-def switch_status(person_id: int) -> tuple[dict, int]:
+def switch_status(person_id: int) -> Response:
     """Toggle the editable status of a person."""
-    stmt = text(
-        "UPDATE persons SET user_id = :user_id, editable = NOT editable WHERE id = :id",
+    stmt = (
+        update(Persons)
+        .where(Persons.id == person_id)
+        .values(editable=not_(Persons.editable))
     )
     db.session.execute(stmt, {"user_id": g.user.id, "id": person_id})
     db.session.commit()
@@ -65,7 +64,7 @@ def switch_status(person_id: int) -> tuple[dict, int]:
 @bp.post("/json")
 @validize()
 @auth_required(Roles.user.value)
-def post_json_file() -> tuple[dict, int]:
+def post_json_file() -> Response:
     """Create a new person or updates an existing person from file."""
     # Чтение файла JSON и создание объектов классов для сохранения в БД
     if not (file := request.data):
@@ -73,7 +72,7 @@ def post_json_file() -> tuple[dict, int]:
     try:
         json_data = json.loads(file)
         anketa = AnketaJson(**json_data)
-    except (TypeError, json.JSONDecodeError):
+    except (AttributeError, TypeError):
         return {"person_id": None, "exists": False}, 200
     result = post_json(anketa)
     return result, 201 if result.get("person_id") else 200

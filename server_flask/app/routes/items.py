@@ -1,9 +1,6 @@
 """Items routes."""
 
-from typing import Any
-
-from flask import Blueprint, jsonify
-from sqlalchemy import Row, Sequence
+from flask import Blueprint, Response, jsonify
 
 from app import db
 from app.classes.classes import Roles
@@ -17,7 +14,7 @@ bp = Blueprint("items", __name__, url_prefix="/items")
 @bp.get("/<item>/<int:person_id>")
 @validize()
 @auth_required()
-def get_items(item: Items, person_id: int) -> tuple[Sequence[Row[Any]], int]:
+def get_items(item: Items, person_id: int) -> Response:
     """Retrieve an item from the database based on the provided item."""
     model = models.get(item)
     stmt = (
@@ -33,7 +30,7 @@ def get_items(item: Items, person_id: int) -> tuple[Sequence[Row[Any]], int]:
 @bp.post("/<item>/<int:person_id>")
 @validize()
 @auth_required(Roles.user.value)
-def post_items(item: Items, person_id: int, json_data: Model) -> tuple[dict, int]:
+def post_items(item: Items, person_id: int, json_data: Model) -> Response:
     """Insert or replaces a record in the specified table with the given item ID."""
     json_dict = json_data.dict(exclude_none=True, exclude={"created"})
     json_dict["person_id"] = person_id
@@ -57,7 +54,7 @@ def post_items(item: Items, person_id: int, json_data: Model) -> tuple[dict, int
 @bp.delete("/<item>/<int:item_id>")
 @validize()
 @auth_required(Roles.user.value)
-def delete_items(item: Items, item_id: int) -> tuple[dict, int]:
+def delete_items(item: Items, item_id: int) -> Response:
     """Delete an item from the database based on the provided item name and item ID."""
     db.session.execute(
         db.metatables[item].delete().where(db.metatables[item].c.id == item_id),
