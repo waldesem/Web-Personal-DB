@@ -40,7 +40,7 @@ def get_index(json_query: Index) -> Response:
     candidates = db.session.execute(
         stmt.filter(Users.id == Persons.user_id)
         .order_by(Persons.id.desc())
-        .offset((json_query.page - 1) * json_query.per_page)
+        .offset((json_query.page) * json_query.per_page)
         .limit(json_query.per_page),
     ).all()
     return jsonify(

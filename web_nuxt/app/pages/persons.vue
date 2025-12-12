@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { refDebounced, useDateFormat, useFileDialog } from "@vueuse/core";
+import { getPaginationRowModel } from "@tanstack/vue-table";
 import type { TableColumn } from "@nuxt/ui";
 import type { Candidate } from "@/types";
 
@@ -12,15 +13,16 @@ const toasts = useToasts();
 const NuxtTime = resolveComponent("NuxtTime");
 const UButton = resolveComponent("UButton");
 const UIcon = resolveComponent("UIcon");
+const table = useTemplateRef("table");
 
 // Используем плагин для передачи данных на сервер
 const { $api } = useNuxtApp();
 
 // Объявляем переменные для работы с данными
+
+const pagination = ref({ pageIndex: 0, pageSize: 10 }); // Параметры пагинации
 const expanded = ref({ 1: false }); // Состояние раскрытия строк таблицы
 const modal = ref(false); // Состояние модального окна
-const page = ref(1); // Страница таблицы
-const per_page = ref(10); // Количество строк в таблице
 const search = ref(""); // Поисковый запрос
 const updated = ref(Date.now()); // Дата обновления данных
 
@@ -30,15 +32,15 @@ const { data, status, refresh } = await useLazyAsyncData(
   () =>
     $api<Candidate[]>("/routes/candidates", {
       query: {
-        page: page.value,
-        per_page: per_page.value,
+        page: pagination.value.pageIndex,
+        per_page: pagination.value.pageSize,
         search: search.value,
       },
     }),
 
   // Наблюдаем: переключение страницы.
   {
-    watch: [page, per_page],
+    watch: [pagination],
     default: () => [],
   }
 );
@@ -50,10 +52,10 @@ const total = computed(() => {
 
 // Наблюдаем: поиск
 watch(refDebounced(search, 1000), () => {
-  if (page.value === 1) {
+  if (pagination.value.pageIndex === 1) {
     refresh();
   } else {
-    page.value = 1;
+    pagination.value.pageIndex = 1;
   }
 });
 
@@ -256,6 +258,7 @@ const columns: TableColumn<Candidate>[] = [
     <!-- Таблица с данными кандидатов -->
     <UTable
       v-model:expanded="expanded"
+      v-model:pagination="pagination"
       loading-animation="swing"
       empty="Данные не найдены"
       :loading="status === 'pending'"
@@ -263,6 +266,9 @@ const columns: TableColumn<Candidate>[] = [
       :columns="columns"
       :data="data"
       :meta="{ class: { tr: 'cursor-pointer' } }"
+      :pagination-options="{
+        getPaginationRowModel: getPaginationRowModel(),
+      }"
       @select="(_, row) => navigateTo(`/profile/${row.original.id}`)"
     >
       <!-- Выводим подробную информацию о кандидате -->
@@ -291,11 +297,10 @@ const columns: TableColumn<Candidate>[] = [
     <!-- Пагинация -->
     <div class="flex justify-center border-t border-default space-x-2 py-4">
       <UPagination
-        v-model:page="page"
-        :items-per-page="per_page"
+        :page="(table?.tableApi?.getState().pagination.pageIndex || 0) + 1"
+        :items-per-page="table?.tableApi?.getState().pagination.pageSize"
         :total="total"
-        :sibling-count="-1"
-        @update:page="(p) => (page = p)"
+        @update:page="(p) => table?.tableApi?.setPageIndex(p - 1)"
       />
     </div>
   </UPage>
