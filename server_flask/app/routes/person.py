@@ -24,7 +24,7 @@ def get_person(person_id: int) -> Response:
     if not person.destination or not Path(person.destination).exists():
         person.destination = create_destination(person)
         db.session.commit()
-    return jsonify(PersonOut.from_orm(person).dict()), 200
+    return jsonify(PersonOut.model_validate(person).model_dump()), 200
 
 
 @bp.post("/persons")

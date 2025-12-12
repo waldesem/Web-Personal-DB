@@ -15,13 +15,11 @@ bp = Blueprint("users", __name__)
 
 
 @bp.get("/users")
-@validize()
 @auth_required(Roles.admin.value)
 def get_users() -> Response:
     """Retrieve a list of users from the database."""
-    # Преобразовать результат в список словарей и вернуть в качестве ответа
-    users = db.session.execute(select(Users)).all()
-    return jsonify([User.from_orm(user).dict() for user in users]), 200
+    users = db.session.execute(select(Users)).scalars()
+    return jsonify([User.model_validate(user).model_dump() for user in users]), 200
 
 
 @bp.post("/user/<user_id>")

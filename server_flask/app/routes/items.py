@@ -24,7 +24,7 @@ def get_items(item: Items, person_id: int) -> Response:
         .order_by(db.metatables[item].c.id.desc())
     )
     items = db.session.execute(stmt).all()
-    return jsonify([model.from_orm(item).dict() for item in items]), 200
+    return jsonify([model.model_validate(item).model_dump() for item in items]), 200
 
 
 @bp.post("/<item>/<int:person_id>")

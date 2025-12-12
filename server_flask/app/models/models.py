@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-import re
 from datetime import date, datetime  # noqa: TC003
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.classes.classes import Conclusions, Decisions, Roles
 
@@ -234,17 +233,6 @@ class Contact(Model):
     view: str
     contact: str
     created: datetime | str | None = None
-
-    @field_validator("contact")
-    @classmethod
-    def check_contact(cls, v: str, values: dict) -> str:
-        """Check contact."""
-        if values.get("view") == "Электронная почта":
-            if re.findall(email_pattern, v):
-                return v
-            msg = "Неправильный формат электронной почты"
-            raise ValidationError(msg)
-        return v
 
 
 class Workplace(Model):

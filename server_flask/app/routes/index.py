@@ -43,7 +43,9 @@ def get_index(json_query: Index) -> Response:
         .offset((json_query.page - 1) * json_query.per_page)
         .limit(json_query.per_page),
     ).all()
-    return jsonify([Candidates.from_orm(cand).dict() for cand in candidates]), 200
+    return jsonify(
+        [Candidates.model_validate(cand).model_dump() for cand in candidates],
+    ), 200
 
 
 @bp.get("/self/<int:person_id>")

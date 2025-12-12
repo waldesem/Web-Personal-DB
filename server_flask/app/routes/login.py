@@ -76,4 +76,4 @@ def refresh_token() -> Response:
 @auth_required()
 def get_session() -> Response:
     """Retrieve an item from the database based on the provided item ID."""
-    return jsonify(g.user.dict()), 200
+    return jsonify(g.user.model_dump()), 200
