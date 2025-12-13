@@ -8,7 +8,7 @@ from app import db
 from app.classes.classes import Roles
 from app.decorators.depend import auth_required, get_current_user
 from app.decorators.pydantify import validize
-from app.models.models import User, UserActions, UserForm
+from app.models.models import User, Actions, UserForm
 from app.tables.tables import Users
 
 bp = Blueprint("users", __name__)
@@ -25,7 +25,7 @@ def get_users() -> Response:
 @bp.post("/user/<user_id>")
 @validize()
 @auth_required(Roles.admin.value)
-def post_user_actions(user_id: int, json_data: UserActions) -> Response:
+def post_user_actions(user_id: int, json_data: Actions) -> Response:
     """Change a user's information in the database based on their user ID."""
     user = db.session.get(Users, user_id)
     # Если пользователь не найден или пытается изменить собственный профиль

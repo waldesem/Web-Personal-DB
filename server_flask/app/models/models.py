@@ -91,7 +91,7 @@ class User(UserForm):
     created: datetime | str | None
 
 
-class UserActions(Model):
+class Actions(Model):
     """Pydantic model for user actions form."""
 
     item: Literal["reset", "block", "delete"] | Roles
@@ -102,11 +102,11 @@ class Index(BaseModel):
 
     page: int
     per_page: int
-    search: str | None = None
+    search: list | None = None
 
-    @field_validator("search")
+    @field_validator("search", pre=True)
     @classmethod
-    def search_check(cls, v: str) -> str | None:
+    def search_check(cls, v: str) -> list | None:
         """Check username."""
         if v:
             return v.upper().split(maxsplit=3)[:3]
