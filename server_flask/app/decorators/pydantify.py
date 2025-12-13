@@ -5,7 +5,7 @@ from functools import wraps
 from typing import get_type_hints
 
 from flask import abort, current_app, request
-from pydantic import BaseModel, ValidationError, create_model
+from pydantic import BaseModel, ValidationError
 
 from app.models.models import models
 
@@ -22,23 +22,17 @@ def validize() -> Callable:
         @wraps(func)
         def wrapper(*args: tuple, **kwargs: dict) -> Callable:
             try:
-                type_hints = get_type_hints(func)
-                if params := {
-                    k: (v, ...)
-                    for k, v in type_hints.items()
-                    if k not in ["return", "json_query", "json_data"]
-                }:
-                    model = create_model("Params", **params)
-                    kwargs = model(**{key: kwargs[key] for key in params}).model_dump()
-
-                if model := type_hints.get("json_query"):
-                    pydantic_model = get_model(model, kwargs)
-                    kwargs["json_query"] = pydantic_model(**request.args)
-
-                if model := type_hints.get("json_data"):
-                    pydantic_model = get_model(model, kwargs)
-                    json_data = request.get_json()
-                    kwargs["json_data"] = pydantic_model(**json_data)
+                # Получаем типы аргументов функции
+                type_hints: dict[str, BaseModel] = get_type_hints(func)
+                # Проверяем аргументы на соответствие Pydantic моделям
+                for arg, model in type_hints.items():
+                    pydantic_model = (
+                        models[kwargs["item"]] if model.__name__ == "Model" else model
+                    )
+                    if arg == "json_query":
+                        kwargs[arg] = pydantic_model(**request.args)
+                    if arg == "json_data":
+                        kwargs[arg] = pydantic_model(**request.get_json())
 
                 # Декорируемая функция
                 return func(*args, **kwargs)

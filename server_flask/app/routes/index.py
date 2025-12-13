@@ -49,7 +49,6 @@ def get_index(json_query: Index) -> Response:
 
 
 @bp.get("/self/<int:person_id>")
-@validize()
 @auth_required(Roles.user.value)
 def switch_status(person_id: int) -> Response:
     """Toggle the editable status of a person."""
@@ -64,7 +63,6 @@ def switch_status(person_id: int) -> Response:
 
 
 @bp.post("/json")
-@validize()
 @auth_required(Roles.user.value)
 def post_json_file() -> Response:
     """Create a new person or updates an existing person from file."""

@@ -16,7 +16,6 @@ bp = Blueprint("persons", __name__)
 
 
 @bp.get("/persons/<int:person_id>")
-@validize()
 @auth_required()
 def get_person(person_id: int) -> Response:
     """Retrieve an item from the database based on the provided item ID."""
@@ -38,7 +37,6 @@ def post_person(json_data: PersonIn) -> Response:
 
 
 @bp.delete("/persons/<int:person_id>")
-@validize()
 @auth_required(Roles.user.value)
 def delete_person(person_id: int) -> Response:
     """Delete an item from the database based on the provided item name and item ID."""

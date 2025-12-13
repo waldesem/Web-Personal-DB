@@ -27,6 +27,12 @@ Items = Literal[
 ]
 
 
+class ItemModel(BaseModel):
+    """Item Model."""
+
+    item: Items
+
+
 class Model(BaseModel):
     """Base Pydantic model."""
 
