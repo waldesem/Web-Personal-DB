@@ -28,17 +28,10 @@ export default defineNuxtConfig({
   modules: ["@nuxt/ui", "@nuxt/eslint", "@vueuse/nuxt", "nuxt-security"],
   nitro: {
     compressPublicAssets: { brotli: true },
-    output: {
-      publicDir:
-        process.env.SSR === "true"
-          ? ".output/public"
-          : "../server_flask/app/static",
-    },
   },
   routeRules: {
     "/routes/**": { proxy: "http://127.0.0.1:5000/routes/**" },
   },
-  ssr: process.env.SSR === "true" ? true : false,
   vite: {
     build: {
       emptyOutDir: true,

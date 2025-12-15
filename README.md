@@ -88,7 +88,7 @@ flask command user Super superadmin 'superadmin@localhost.ru' --role=admin
 Recomend to create user with role `admin` for first login.
 DEFAULT_PASSWORD for created user set in dotenv.sh.
 
-### Build frontend (if needs)
+### Build frontend
 
 First install Node.js. Then run in terminal:
 
@@ -96,14 +96,6 @@ First install Node.js. Then run in terminal:
 cd Web-Personal-DB/web_nuxt
 npm i
 ```
-
-To build Nuxt with Client-side Rendering:
-
-```
-npx nuxi generate
-```
-
-Builded files can be found in `server_flask/app/static`.
 
 For Server-Side rendering change SSR=true in env file and execute command:
 
