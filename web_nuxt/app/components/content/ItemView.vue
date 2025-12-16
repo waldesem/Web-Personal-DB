@@ -54,7 +54,7 @@ async function submitItem(form: typeof item.value) {
     }
   )) as Response;
   item.value = {} as Item;
-  await refresh();
+  refresh();
   if (message === "success") {
     toasts.create("success", "Информация успешно обновлена");
   } else toasts.create();
@@ -67,7 +67,7 @@ async function deleteItem(id: string) {
   const { message } = (await $api(`/routes/items/${props.view}/${id}`, {
     method: "DELETE",
   })) as Response;
-  await refresh();
+  refresh();
   if (message === "success") {
     toasts.create("success", "Информация успешно удалена");
   } else toasts.create();

@@ -96,7 +96,7 @@ async function proceedResult(person_id: string, exists: boolean) {
     } else {
       toasts.create("success", "Анкета успешно загружена");
     }
-    await refresh();
+    refresh();
     return navigateTo("/profile/" + person_id);
   } else {
     status.value = "error";

@@ -61,7 +61,7 @@ async function switchSelf(): Promise<void> {
   );
   status.value = message as "success" | "error";
   if (message == "success") {
-    await refresh();
+    refresh();
   } else {
     toasts.create();
   }
