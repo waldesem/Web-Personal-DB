@@ -68,11 +68,11 @@ def post_json_file() -> Response:
     """Create a new person or updates an existing person from file."""
     # Чтение файла JSON и создание объектов классов для сохранения в БД
     if not (file := request.data):
-        return {"person_id": None, "exists": False}, 200
+        return jsonify({"person_id": None, "exists": False}), 200
     try:
         json_data = json.loads(file)
         anketa = AnketaJson(**json_data)
     except (AttributeError, TypeError):
-        return {"person_id": None, "exists": False}, 200
+        return jsonify({"person_id": None, "exists": False}), 200
     result = post_json(anketa)
-    return result, 201 if result.get("person_id") else 200
+    return jsonify(result), 201 if result.get("person_id") else 200

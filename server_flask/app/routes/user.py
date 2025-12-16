@@ -8,7 +8,7 @@ from app import db
 from app.classes.classes import Roles
 from app.decorators.depend import auth_required, get_current_user
 from app.decorators.pydantify import validize
-from app.models.models import User, Actions, UserForm
+from app.models.models import Actions, User, UserForm
 from app.tables.tables import Users
 
 bp = Blueprint("users", __name__)
@@ -65,7 +65,7 @@ def post_user(json_data: UserForm) -> Response:
         select(Users).filter(Users.username == json_data.username),
     ).all()
     if user:
-        return {"message": "error"}, 200
+        return jsonify({"message": "error"}), 200
     db.session.add(Users(**json_data.model_dump()))
     db.session.commit()
     return jsonify({"message": "success"}), 201
