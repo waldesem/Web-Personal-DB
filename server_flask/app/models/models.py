@@ -129,7 +129,7 @@ class PersonIn(Model):
     marital: str | None = Field(default="", alias="maritalStatus")
     addition: str | None = ""
     destination: str | None = ""
-    editable: bool = False
+    editable: bool = True
     created: datetime | str | None = None
 
     @field_validator("surname", "firstname", "patronymic")

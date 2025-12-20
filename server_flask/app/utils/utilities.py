@@ -39,18 +39,15 @@ def create_token(user_id: int, item: str = "ACCESS") -> str:
 
 def decode_token(header: str, *, refresh: bool = False) -> dict | None:
     """Decode JWT token and return payload."""
-    decoded = None
     try:
-        if bearer := header[7:]:
-            decoded = jwt.decode(
-                bearer,
-                current_app.config[f"{'REFRESH' if refresh else 'ACCESS'}_SECRET_KEY"],
-                algorithms=["HS256"],
-                options={"verify_exp": True},
-            )
-    except (InvalidTokenError, IndexError, ValueError):
-        current_app.logger.exception("JWT decode failed")
-    return decoded
+        return jwt.decode(
+            header[7:],
+            current_app.config[f"{'REFRESH' if refresh else 'ACCESS'}_SECRET_KEY"],
+            algorithms=["HS256"],
+            options={"verify_exp": True},
+        )
+    except (InvalidTokenError, IndexError, AttributeError):
+        return None
 
 
 def create_destination(person: Persons) -> str:
@@ -65,10 +62,12 @@ def create_destination(person: Persons) -> str:
     return str(destination)
 
 
-def upload_resume(cand: PersonIn, user_id: int) -> tuple[int | None, bool]:
+def upload_resume(cand: PersonIn) -> tuple[int | None, bool]:
     """Upload a resume to the database."""
     person = (
-        db.session.execute(
+        db.session.get(Persons, cand.id)
+        if cand.id
+        else db.session.execute(
             select(Persons).where(
                 Persons.surname == cand.surname,
                 Persons.firstname == cand.firstname,
@@ -80,9 +79,10 @@ def upload_resume(cand: PersonIn, user_id: int) -> tuple[int | None, bool]:
         else db.session.get(Persons, cand.id)
     )
 
-    resume = cand.model_dump(exclude_none=True, exclude={"created"})
-    resume["editable"] = True
-    resume["user_id"] = user_id
+    resume = cand.model_dump(
+        exclude_none=True,
+        exclude={"created"},
+    ) | {"user_id": g.user.id}
 
     try:
         if not person:
@@ -110,7 +110,7 @@ def post_json(anketa: AnketaJson) -> dict:
     """Create a new person or updates an existing person based on the provided data."""
     resume = PersonIn(**anketa.model_dump(exclude_none=True))
     # Загрузка резюме в БД
-    person_id, existed = upload_resume(resume, g.user.id)
+    person_id, existed = upload_resume(resume)
 
     # Сохранение дополнительной информации о кандидате в БД
     if person_id:

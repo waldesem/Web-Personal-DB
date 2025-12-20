@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from flask import Blueprint, Response, g, jsonify
+from flask import Blueprint, Response, jsonify
 
 from app import db
 from app.classes.classes import Roles
@@ -32,7 +32,7 @@ def get_person(person_id: int) -> Response:
 def post_person(json_data: PersonIn) -> Response:
     """Replace a record in persons table."""
     # Загружаем резюме, получаем id кандидата, а также был ли он ранее загружен
-    cand_id, existed = upload_resume(json_data, g.user.id)
+    cand_id, existed = upload_resume(json_data)
     return jsonify({"person_id": cand_id, "exists": existed}), 201
 
 

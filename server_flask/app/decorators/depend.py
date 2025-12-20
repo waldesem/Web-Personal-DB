@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 
 @lru_cache(maxsize=2)
-def get_current_user(user_id: int) -> User:
+def get_current_user(user_id: int) -> User | None:
     """Retrieve the current user stored in the global variable."""
     if (
         (user := db.session.get(Users, user_id))
@@ -30,7 +30,7 @@ def get_current_user(user_id: int) -> User:
         and user.pswd_create + timedelta(days=365) > datetime.now()
     ):
         return User.model_validate(user)
-    return abort(401)
+    return None
 
 
 def auth_required(role: Roles | None = None, *, refresh: bool = False) -> Callable:
@@ -45,17 +45,19 @@ def auth_required(role: Roles | None = None, *, refresh: bool = False) -> Callab
                     if refresh
                     else request.headers["Authorization"]
                 )
-                if decoded := decode_token(token, refresh=refresh):
-                    g.user = get_current_user(decoded["id"])
+                if (decoded := decode_token(token, refresh=refresh)) and (
+                    user := get_current_user(decoded["id"])
+                ):
+                    g.user = user
                 else:
-                    return abort(401)
+                    abort(401)
 
                 if role and g.user.role != role:
-                    return abort(403)
+                    abort(403)
 
                 return func(*args, **kwargs)
             except KeyError:
-                return abort(400)
+                abort(400)
 
         return wrapper
 

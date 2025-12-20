@@ -39,7 +39,7 @@ def validize() -> Callable:
 
             except ValidationError:
                 current_app.logger.exception("Error validating data")
-                return abort(400)
+                abort(400)
 
         return wrapper
 
