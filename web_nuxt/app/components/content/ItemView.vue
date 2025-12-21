@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { AsyncDataRequestStatus } from "nuxt/app";
-import type { Item } from "@/types";
+import type { ItemKey } from "@/types";
+import type { PropType } from "vue";
 
 interface Response {
   message: AsyncDataRequestStatus;
@@ -18,8 +19,12 @@ const props = defineProps({
     required: true,
   },
   view: {
-    type: String,
+    type: String as PropType<ItemKey>,
     required: true,
+  },
+  data: {
+    type: Array as PropType<object[]>,
+    default: () => [],
   },
   rows: {
     type: Number,
@@ -32,15 +37,16 @@ const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
 // Объявляем переменные для работы с данными
-const item = shallowRef<Item>(); // Данные для передачи в форму и редактирования
+const data = shallowRef(props.data); // Данные для вывода
+const item = shallowRef(); // Данные для передачи в форму и редактирования
 const modal = ref(false); // Флаг для открытия модального окна
+const status = ref("success"); // Статус запроса
 
-// Определяем Composable для получения данных из API
-const { data, status, refresh } = await useLazyAsyncData(
-  props.view,
-  () => $api<Item[]>(`/routes/items/${props.view}/${candId.value}`),
-  { default: () => [] as Item[] }
-);
+// Определяем функцию для получения данных из API
+async function getItem() {
+  data.value = await $api(`/routes/items/${props.view}/${candId.value}`);
+  status.value = "success";
+}
 
 // Определяем функцию для отправки данных формы на сервер
 async function submitItem(form: typeof item.value) {
@@ -53,21 +59,21 @@ async function submitItem(form: typeof item.value) {
       body: form,
     }
   )) as Response;
-  item.value = {} as Item;
-  refresh();
+  item.value = {};
+  getItem();
   if (message === "success") {
     toasts.create("success", "Информация успешно обновлена");
   } else toasts.create();
 }
 
 // Определяем функцию для удаления данных
-async function deleteItem(id: string) {
+async function deleteItem(itemId: string) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   status.value = "pending";
-  const { message } = (await $api(`/routes/items/${props.view}/${id}`, {
+  const { message } = (await $api(`/routes/items/${props.view}/${itemId}`, {
     method: "DELETE",
   })) as Response;
-  refresh();
+  getItem();
   if (message === "success") {
     toasts.create("success", "Информация успешно удалена");
   } else toasts.create();
@@ -106,7 +112,7 @@ async function deleteItem(id: string) {
             item = content;
             modal = true;
           "
-          @delete="deleteItem(content['id'])"
+          @delete="deleteItem(content['id' as keyof typeof content])"
         />
         <!-- Выводим элемент данных -->
         <slot name="item" :item-content="content" />

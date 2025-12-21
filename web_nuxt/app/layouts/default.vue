@@ -30,7 +30,7 @@ function logout() {
 
 <template>
   <UPage>
-    <UHeader to="/persons" class="no-print">
+    <UHeader to="/persons">
       <template #title>
         <ElementsLogoDiv />
       </template>
@@ -69,9 +69,9 @@ function logout() {
       </UContainer>
     </UMain>
 
-    <USeparator type="dashed" class="h-px no-print" />
+    <USeparator type="dashed" class="h-px" />
 
-    <UFooter class="no-print">
+    <UFooter>
       <template #left>
         <p class="text-sm">Copyright © {{ new Date().getFullYear() }}</p>
       </template>

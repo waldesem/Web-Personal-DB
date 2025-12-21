@@ -170,6 +170,23 @@ export type Item = {
   [key: string]: string | number | boolean;
 };
 
+export interface Items {
+  staffs: Staff[];
+  educations: Education[];
+  workplaces: Work[];
+  documents: Passport[];
+  addresses: Address[];
+  contacts: Contact[];
+  affilations: Affilation[];
+  previous: Previous[];
+  checks: Verification[];
+  poligrafs: Pfo[];
+  investigations: Inquisition[];
+  inquiries: Needs[];
+}
+
+export type ItemKey = keyof Items;
+
 export enum Conclusions {
   agreed = "СОГЛАСОВАНО",
   comments = "СОГЛАСОВАНО С КОММЕНТАРИЕМ",
