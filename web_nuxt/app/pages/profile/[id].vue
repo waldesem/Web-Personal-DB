@@ -77,38 +77,40 @@ async function switchSelf(): Promise<void> {
       }"
     >
       <template #links>
-        <!-- Кнопки для загрузки файлов и переключения режима редактирования -->
-        <div
-          v-if="userState.role == 'user'"
-          class="flex items-center space-x-4"
-        >
-          <UButton
-            :loading="status === 'pending'"
-            variant="outline"
-            :color="
-              !person?.editable
-                ? 'secondary'
-                : person.user_id == userState.id
-                ? 'success'
-                : 'error'
-            "
-            :label="
-              !person?.editable
-                ? 'Доступно'
-                : person.user_id == userState.id
-                ? 'Изменение'
-                : 'Закрыто'
-            "
-            :icon="
-              !person?.editable
-                ? 'i-lucide-lock-open'
-                : person.user_id == userState.id
-                ? 'i-lucide-edit'
-                : 'i-lucide-lock'
-            "
-            @click="switchSelf"
-          />
-        </div>
+        <ClientOnly>
+          <!-- Кнопки для загрузки файлов и переключения режима редактирования -->
+          <div
+            v-if="userState.role == 'user'"
+            class="flex items-center space-x-4"
+          >
+            <UButton
+              :loading="status === 'pending'"
+              variant="outline"
+              :color="
+                !person?.editable
+                  ? 'secondary'
+                  : person.user_id == userState.id
+                  ? 'success'
+                  : 'error'
+              "
+              :label="
+                !person?.editable
+                  ? 'Доступно'
+                  : person.user_id == userState.id
+                  ? 'Изменение'
+                  : 'Закрыто'
+              "
+              :icon="
+                !person?.editable
+                  ? 'i-lucide-lock-open'
+                  : person.user_id == userState.id
+                  ? 'i-lucide-edit'
+                  : 'i-lucide-lock'
+              "
+              @click="switchSelf"
+            />
+          </div>
+        </ClientOnly>
       </template>
     </UPageHeader>
 
