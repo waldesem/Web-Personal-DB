@@ -17,7 +17,7 @@ const items = [
     slot: "staffs" as const,
     item: props.data.staffs,
     ItemComponent: resolveComponent("ItemsStaffItem"),
-    FormComponent: resolveComponent("LazyFormsStaffForm"),
+    FormComponent: resolveComponent("FormsStaffForm"),
   },
   {
     content: "educations",
@@ -26,7 +26,7 @@ const items = [
     slot: "educations" as const,
     item: props.data.educations,
     ItemComponent: resolveComponent("ItemsEducationItem"),
-    FormComponent: resolveComponent("LazyFormsEducationForm"),
+    FormComponent: resolveComponent("FormsEducationForm"),
   },
   {
     content: "workplaces",
@@ -35,7 +35,7 @@ const items = [
     slot: "workplaces" as const,
     item: props.data.workplaces,
     ItemComponent: resolveComponent("ItemsWorkplaceItem"),
-    FormComponent: resolveComponent("LazyFormsWorkplaceForm"),
+    FormComponent: resolveComponent("FormsWorkplaceForm"),
   },
   {
     content: "documents",
@@ -44,7 +44,7 @@ const items = [
     slot: "documents" as const,
     item: props.data.documents,
     ItemComponent: resolveComponent("ItemsDocumentItem"),
-    FormComponent: resolveComponent("LazyFormsDocumentForm"),
+    FormComponent: resolveComponent("FormsDocumentForm"),
   },
   {
     content: "addresses",
@@ -53,7 +53,7 @@ const items = [
     slot: "addresses" as const,
     item: props.data.addresses,
     ItemComponent: resolveComponent("ItemsAddressItem"),
-    FormComponent: resolveComponent("LazyFormsAddressForm"),
+    FormComponent: resolveComponent("FormsAddressForm"),
   },
   {
     content: "contacts",
@@ -62,7 +62,7 @@ const items = [
     slot: "contacts" as const,
     item: props.data.contacts,
     ItemComponent: resolveComponent("ItemsContactItem"),
-    FormComponent: resolveComponent("LazyFormsContactForm"),
+    FormComponent: resolveComponent("FormsContactForm"),
   },
   {
     content: "previous",
@@ -71,7 +71,7 @@ const items = [
     slot: "previous" as const,
     item: props.data.previous,
     ItemComponent: resolveComponent("ItemsPreviousItem"),
-    FormComponent: resolveComponent("LazyFormsPreviousForm"),
+    FormComponent: resolveComponent("FormsPreviousForm"),
   },
   {
     content: "affilations",
@@ -80,7 +80,7 @@ const items = [
     slot: "affilations" as const,
     item: props.data.affilations,
     ItemComponent: resolveComponent("ItemsAffilationItem"),
-    FormComponent: resolveComponent("LazyFormsAffilationForm"),
+    FormComponent: resolveComponent("FormsAffilationForm"),
   },
 ] as {
   content: ItemKey;
@@ -102,11 +102,18 @@ const items = [
       :key="accord.slot"
     >
       <ContentItemView :icon="item.icon" :view="item.content" :data="item.item">
-        <template #item="{ itemContent }">
-          <component :is="accord.ItemComponent" :item="(itemContent as Item)" />
+        <template
+          v-for="index in item.item?.length"
+          :key="index"
+          #[`item-${item.content}-${index}`]="{ itemContent }"
+        >
+          <component
+            :is="accord.ItemComponent"
+            :item="(itemContent as object)"
+          />
         </template>
 
-        <template #form="{ formContent, submitItem }">
+        <template #[`form-${item.content}`]="{ formContent, submitItem }">
           <component
             :is="accord.FormComponent"
             :item="(formContent as unknown as undefined)"

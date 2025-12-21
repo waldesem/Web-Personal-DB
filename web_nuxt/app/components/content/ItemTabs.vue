@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Item, ItemKey, Items } from "@/types";
+import type { ItemKey, Items } from "@/types";
 
 const { $api } = useNuxtApp();
 
@@ -26,7 +26,7 @@ const items = [
     icon: "i-lucide-shield-check",
     slot: "checks" as const,
     item: data.value.checks,
-    ItemComponent: resolveComponent("ItemsCheckItem"),
+    ItemComponent: resolveComponent("LazyItemsCheckItem"),
     FormComponent: resolveComponent("LazyFormsCheckForm"),
   },
   {
@@ -35,7 +35,7 @@ const items = [
     icon: "i-lucide-heart-pulse",
     slot: "poligrafs" as const,
     item: data.value.poligrafs,
-    ItemComponent: resolveComponent("ItemsPoligrafItem"),
+    ItemComponent: resolveComponent("LazyItemsPoligrafItem"),
     FormComponent: resolveComponent("LazyFormsPoligrafForm"),
   },
   {
@@ -44,7 +44,7 @@ const items = [
     icon: "i-lucide-hat-glasses",
     slot: "investigations" as const,
     item: data.value.investigations,
-    ItemComponent: resolveComponent("ItemsInquestItem"),
+    ItemComponent: resolveComponent("LazyItemsInquestItem"),
     FormComponent: resolveComponent("LazyFormsInquestForm"),
   },
   {
@@ -53,7 +53,7 @@ const items = [
     icon: "i-lucide-message-circle-question-mark",
     slot: "inquiries" as const,
     item: data.value.inquiries,
-    ItemComponent: resolveComponent("ItemsInquiryItem"),
+    ItemComponent: resolveComponent("LazyItemsInquiryItem"),
     FormComponent: resolveComponent("LazyFormsInquiryForm"),
   },
 ];
@@ -61,10 +61,12 @@ const items = [
 
 <template>
   <!-- Меню для переключения между вкладками -->
-  <UTabs :items="items" variant="pill">
+  <UTabs :items="items" variant="pill" class="mt-4">
     <!-- Слот вкладки для отображения анкеты -->
     <template #anketa>
-      <slot name="anketa-tab" />
+      <div class="mt-4">
+        <slot name="anketa-tab" />
+      </div>
       <USeparator />
       <!-- Выводим аккордеон с данными staffs, educations и т.д. -->
       <ContentItemDivs :data="data" />
@@ -72,19 +74,28 @@ const items = [
 
     <!-- Вкладки проверки, полиграф и др. -->
     <template v-for="tab in items.slice(1)" #[tab.slot] :key="tab.content">
-      <ContentItemView :view="tab.content" :icon="tab.icon" :data="tab.item">
-        <template #item="{ itemContent }">
-          <component :is="tab.ItemComponent" :item="(itemContent as Item)" />
-        </template>
+      <div class="mt-2">
+        <ContentItemView :view="tab.content" :icon="tab.icon" :data="tab.item">
+          <template
+            v-for="index in tab.item?.length"
+            :key="index"
+            #[`item-${tab.content}-${index}`]="{ itemContent }"
+          >
+            <component
+              :is="tab.ItemComponent"
+              :item="(itemContent as object)"
+            />
+          </template>
 
-        <template #form="{ formContent, submitItem }">
-          <component
-            :is="tab.FormComponent"
-            :item="(formContent as unknown as undefined)"
-            @update="submitItem"
-          />
-        </template>
-      </ContentItemView>
+          <template #[`form-${tab.content}`]="{ formContent, submitItem }">
+            <component
+              :is="tab.FormComponent"
+              :item="(formContent as object)"
+              @update="submitItem"
+            />
+          </template>
+        </ContentItemView>
+      </div>
     </template>
   </UTabs>
 </template>

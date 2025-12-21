@@ -115,7 +115,10 @@ async function deleteItem(itemId: string) {
           @delete="deleteItem(content['id' as keyof typeof content])"
         />
         <!-- Выводим элемент данных -->
-        <slot name="item" :item-content="content" />
+        <slot
+          :name="`item-${props.view}-${index + 1}`"
+          :item-content="content"
+        />
         <USeparator v-if="data && index < data.length - 1" />
       </div>
     </template>
@@ -151,7 +154,11 @@ async function deleteItem(itemId: string) {
       block
     />
     <template #body>
-      <slot name="form" :form-content="item" :submit-item="submitItem" />
+      <slot
+        :name="`form-${props.view}`"
+        :form-content="item"
+        :submit-item="submitItem"
+      />
     </template>
   </UModal>
 </template>
