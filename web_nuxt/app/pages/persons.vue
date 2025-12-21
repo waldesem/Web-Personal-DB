@@ -167,10 +167,8 @@ const columns: TableColumn<Candidate>[] = [
     header: "Обновлено",
     cell: ({ row }) => {
       return h(NuxtTime, {
-        datetime: row.getValue("created"),
-        day: "numeric",
-        month: "long",
-        year: "numeric",
+        datetime: new Date(row.getValue("created")).getTime() - 60000,
+        relative: true,
       });
     },
   },

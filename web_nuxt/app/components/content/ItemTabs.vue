@@ -27,7 +27,7 @@ const items = [
     slot: "checks" as const,
     item: data.value.checks,
     ItemComponent: resolveComponent("ItemsCheckItem"),
-    FormComponent: resolveComponent("FormsCheckForm"),
+    FormComponent: resolveComponent("LazyFormsCheckForm"),
   },
   {
     content: "poligrafs" as ItemKey,
@@ -36,7 +36,7 @@ const items = [
     slot: "poligrafs" as const,
     item: data.value.poligrafs,
     ItemComponent: resolveComponent("ItemsPoligrafItem"),
-    FormComponent: resolveComponent("FormsPoligrafForm"),
+    FormComponent: resolveComponent("LazyFormsPoligrafForm"),
   },
   {
     content: "investigations" as ItemKey,
@@ -45,7 +45,7 @@ const items = [
     slot: "investigations" as const,
     item: data.value.investigations,
     ItemComponent: resolveComponent("ItemsInquestItem"),
-    FormComponent: resolveComponent("FormsInquestForm"),
+    FormComponent: resolveComponent("LazyFormsInquestForm"),
   },
   {
     content: "inquiries" as ItemKey,
@@ -54,21 +54,14 @@ const items = [
     slot: "inquiries" as const,
     item: data.value.inquiries,
     ItemComponent: resolveComponent("ItemsInquiryItem"),
-    FormComponent: resolveComponent("FormsInquiryForm"),
+    FormComponent: resolveComponent("LazyFormsInquiryForm"),
   },
 ];
 </script>
 
 <template>
   <!-- Меню для переключения между вкладками -->
-  <UTabs
-    :unmount-on-hide="false"
-    :ui="{ trigger: 'flex-1' }"
-    :items="items"
-    color="info"
-    variant="pill"
-    class="gap-4 w-full"
-  >
+  <UTabs :items="items" variant="pill">
     <!-- Слот вкладки для отображения анкеты -->
     <template #anketa>
       <slot name="anketa-tab" />
