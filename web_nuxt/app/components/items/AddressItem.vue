@@ -15,7 +15,6 @@ const props = defineProps({
     <div class="space-x-4">
       {{ props.item.address }}
       <UButton
-        class="no-print"
         :to="`https://yandex.ru/maps/?text=${props.item.address}%10с%10`"
         target="_blank"
         title="Показать на Яндекс.Карте"

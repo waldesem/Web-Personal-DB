@@ -1,15 +1,2 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
-
-@media print {
-  .no-print,
-  .no-print * {
-    display: none !important;
-  }
-  .mb-4 {
-    margin-bottom: 5px !important;
-  }
-  .pt-16 {
-    padding-top: 0 !important;
-  }
-}
