@@ -1,3 +1,9 @@
+import type { AsyncDataRequestStatus } from "nuxt/app";
+
+export interface Status {
+  message: AsyncDataRequestStatus;
+}
+
 export interface Login {
   username: string;
   password: string;

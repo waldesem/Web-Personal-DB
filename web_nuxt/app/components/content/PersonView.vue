@@ -1,38 +1,24 @@
 <script setup lang="ts">
 import type { Person } from "@/types";
-import type { AsyncDataRequestStatus } from "nuxt/app";
-
-const toasts = useToasts();
 
 // Используем плагин для передачи данных на сервер
 const { $api } = useNuxtApp();
 
-// Определяем данные которые передаются из родительского компонента
-const props = defineProps({
-  person: {
-    type: Object as PropType<Person>,
-    required: true,
-  },
-  status: {
-    type: String as PropType<AsyncDataRequestStatus>,
-    default: "success",
-  },
-  editable: {
-    type: Boolean,
-    default: false,
-  },
-});
+const { data: person } = useNuxtData<Person>("person");
 
-// Преобразуем переменную для чтения в реактивную
-const status = toRef(props.status);
+const toasts = useToasts();
 
-// Объявляем переменную для переключения модального окна
-const modal = ref(false);
+const editable = inject("editable") as Ref<boolean>;
+
+const modal = ref(false); // Объявляем переменную модального окна
+const status = ref("success"); // Объявляем переменную статуса
 
 // Определяем функцию для отправки данных формы на сервер
 function submitPerson(person_id: number | null) {
   modal.value = false;
+  status.value = "pending";
   refreshNuxtData("person");
+  status.value = "success";
   if (person_id) {
     toasts.create("success", "Информация успешно обновлена");
   } else {
@@ -47,24 +33,25 @@ async function deletePerson() {
   if (!confirm("Все данные будут удалены безвозвратно!?")) return;
   status.value = "pending";
   const { message } = await $api<Record<string, string>>(
-    `/routes/persons/${props.person.id}`,
+    `/routes/persons/${person.value?.id}`,
     { method: "DELETE" }
   );
   if (message == "success") {
     toasts.create("success", "Информация успешно удалена");
     refreshNuxtData("candidates");
-    await navigateTo("/persons");
+    return navigateTo("/persons");
   } else {
     refreshNuxtData("person");
     toasts.create();
   }
+  status.value = "success";
 }
 </script>
 
 <template>
-  <div class="ms-2 mt-4">
+  <div class="ms-2 mt-2">
     <!-- Выводим кнопки редактирования или удаления данных -->
-    <LazyElementsDivMenu
+    <LazyElementDivMenu
       v-if="editable"
       @update="modal = true"
       @delete="deletePerson()"
@@ -73,27 +60,22 @@ async function deletePerson() {
     <!-- Выводим данные или скелетный элемент -->
     <Suspense>
       <template #default>
-        <ItemsPersonItem :item="props.person" />
+        <ItemsPersonItem :item="person" />
       </template>
       <template #fallback>
-        <ElementsLabelValue v-for="row in 12" :key="row">
-          <template #label>
-            <USkeleton class="h-6" />
-          </template>
-          <USkeleton class="h-6 w-[300px]" />
-        </ElementsLabelValue>
+        <ElementSkeletonDiv :rows="12" />
       </template>
     </Suspense>
 
     <!-- Выводим модальное окно для редактирования данных -->
     <UModal
       v-model:open="modal"
-      title="Редактирование анкеты"
+      title="Aнкета"
       description="Отредактируйте анкетные данные"
     >
       <template #body>
         <FormsResumeForm
-          :resume="props.person"
+          :resume="person"
           @pending="status = 'pending'"
           @update="submitPerson"
         />

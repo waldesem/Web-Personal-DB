@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import type { AlertProps, AuthFormField, FormSubmitEvent } from "@nuxt/ui";
-import { refManualReset } from "@vueuse/core";
 import type { Login } from "@/types";
 
 definePageMeta({ layout: false });
 
 // Объявляем переменные для формы и состояния
-const action = refManualReset("login");
+const action = ref("login");
 
 // Объявляем переменную для показа алерта
 const alert = ref({
@@ -116,7 +115,7 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
       }
     )) as { message: string; access_token: string; refresh_token: string };
     if (message === "success") {
-      const token = useCookie("token", {
+      const token = useCookie("access", {
         maxAge: 60 * 59,
         sameSite: "strict",
         watch: "shallow",
@@ -130,7 +129,7 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
       refresh.value = refresh_token;
       return navigateTo("/persons");
     } else if (message === "updated") {
-      action.reset();
+      action.value = "login";
       alert.value.color = "success";
       alert.value.title = "Информация";
       alert.value.description = "Войдите с новым паролем.";
@@ -154,7 +153,7 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
 </script>
 
 <template>
-  <UMain class="my-[20vh]">
+  <UContainer class="my-[20vh]">
     <UPageCard class="w-full max-w-md m-auto">
       <UAuthForm
         title="Вход в систему"
@@ -171,7 +170,7 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
         @submit.prevent="onSubmit($event)"
       >
         <template #title>
-          <ElementsLogoDiv class="my-2" />
+          <ElementLogoDiv class="my-2" />
         </template>
         <template #validation>
           <UAlert
@@ -207,5 +206,5 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
         </template>
       </UAuthForm>
     </UPageCard>
-  </UMain>
+  </UContainer>
 </template>

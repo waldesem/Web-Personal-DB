@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Previous } from '@/types';
+import type { Previous } from "@/types";
 
 const emit = defineEmits(["update"]);
 
@@ -52,6 +52,6 @@ const form = toRef(props.item);
         maxlength="255"
       />
     </UFormField>
-    <ElementsSubmitButton />
+    <ElementSubmitButton />
   </UForm>
 </template>

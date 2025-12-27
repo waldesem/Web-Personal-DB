@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Education } from '@/types';
+import type { Education } from "@/types";
 
 const emit = defineEmits(["update"]);
 
@@ -14,10 +14,7 @@ const form = toRef(props.item);
 </script>
 
 <template>
-  <UForm
-    :state="form"
-    @submit.prevent="emit('update', form)"
-  >
+  <UForm :state="form" @submit.prevent="emit('update', form)">
     <UFormField label="Тип образования" name="view" required>
       <USelect
         v-model="form.view"
@@ -55,6 +52,6 @@ const form = toRef(props.item);
         maxlength="255"
       />
     </UFormField>
-    <ElementsSubmitButton />
+    <ElementSubmitButton />
   </UForm>
 </template>

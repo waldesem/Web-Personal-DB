@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { UserForm } from '@/types';
+import type { UserForm } from "@/types";
 
 const emit = defineEmits(["update"]);
 
@@ -63,6 +63,6 @@ async function submitUser() {
     <UFormField label="Email" name="email" type="email" required>
       <UInput v-model.lazy.trim="form.email" placeholder="Email" required />
     </UFormField>
-    <ElementsSubmitButton />
+    <ElementSubmitButton />
   </UForm>
 </template>

@@ -8,6 +8,7 @@ const UBadge = resolveComponent("UBadge");
 const UButton = resolveComponent("UButton");
 const UDropdownMenu = resolveComponent("UDropdownMenu");
 const NuxtTime = resolveComponent("NuxtTime");
+
 const toasts = useToasts();
 
 // Вызываем плагин для работы с API
@@ -16,7 +17,7 @@ const { $api } = useNuxtApp();
 // Определяем переменные для работы с данными
 const modal = ref(false);
 const expanded = ref({ 1: false });
-const globalFilter = ref("");
+// const globalFilter = ref("");
 
 // Определяем функцию для получения данных из API
 const { data, status, refresh } = await useLazyAsyncData<User[]>(
@@ -218,7 +219,7 @@ const columns: TableColumn<User>[] = [
 </script>
 
 <template>
-  <UPage>
+  <UContainer>
     <UPageHeader
       title="ПОЛЬЗОВАТЕЛИ"
       :ui="{
@@ -254,17 +255,16 @@ const columns: TableColumn<User>[] = [
 
     <!-- Строка поиска -->
     <div class="my-6">
-      <UInput
+      <!-- <UInput
         v-model="globalFilter"
         icon="i-lucide-search"
         placeholder="Поиск пользователей"
         type="search"
-      />
+      /> -->
     </div>
     <!-- Таблица с данными пользователей -->
     <UTable
       v-model:expanded="expanded"
-      v-model:global-filter="globalFilter"
       sticky
       class="flex-1 max-h-[800px]"
       :data="data"
@@ -278,5 +278,5 @@ const columns: TableColumn<User>[] = [
         <pre class="text-break">{{ row.original }}</pre>
       </template>
     </UTable>
-  </UPage>
+  </UContainer>
 </template>

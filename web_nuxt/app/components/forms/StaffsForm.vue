@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Staff } from '@/types';
+import type { Staff } from "@/types";
 
 const emit = defineEmits(["update"]);
 
@@ -30,6 +30,6 @@ const form = toRef(props.item);
         maxlength="255"
       />
     </UFormField>
-    <ElementsSubmitButton />
+    <ElementSubmitButton />
   </UForm>
 </template>

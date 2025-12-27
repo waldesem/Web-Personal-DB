@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Contact } from '@/types';
+import type { Contact } from "@/types";
 
 const emit = defineEmits(["update"]);
 
@@ -14,10 +14,7 @@ const form = toRef(props.item);
 </script>
 
 <template>
-  <UForm
-    :state="form"
-    @submit.prevent="emit('update', form)"
-  >
+  <UForm :state="form" @submit.prevent="emit('update', form)">
     <UFormField label="Вид контакта" name="view" required>
       <USelect
         v-model="form.view"
@@ -34,6 +31,6 @@ const form = toRef(props.item);
         required
       />
     </UFormField>
-    <ElementsSubmitButton />
+    <ElementSubmitButton />
   </UForm>
 </template>

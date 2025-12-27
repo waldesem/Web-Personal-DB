@@ -11,7 +11,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const api = $fetch.create({
     async onRequest({ options }) {
       // Получаем токен доступа
-      const token = useCookie("token", {
+      const token = useCookie("access", {
         maxAge: 60 * 59,
         sameSite: "strict",
         watch: "shallow",

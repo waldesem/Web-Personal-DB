@@ -95,11 +95,7 @@ const validate = (state: Partial<Person>) => {
       />
     </UFormField>
     <UFormField label="Дата рождения" name="birthday" required>
-      <UInput
-        v-model="form.birthday"
-        type="date"
-        required
-      />
+      <UInput v-model="form.birthday" type="date" required />
     </UFormField>
     <UFormField label="Место рождения" name="birthplace">
       <UInput
@@ -145,6 +141,6 @@ const validate = (state: Partial<Person>) => {
         placeholder="Дополнительно"
       />
     </UFormField>
-    <ElementsSubmitButton />
+    <ElementSubmitButton />
   </UForm>
 </template>

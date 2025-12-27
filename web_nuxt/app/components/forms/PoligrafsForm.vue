@@ -45,6 +45,6 @@ const form = toRef(props.item);
         required
       />
     </UFormField>
-    <ElementsSubmitButton />
+    <ElementSubmitButton />
   </UForm>
 </template>

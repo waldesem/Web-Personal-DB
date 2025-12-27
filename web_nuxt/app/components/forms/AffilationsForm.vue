@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Affilation } from '@/types';
+import type { Affilation } from "@/types";
 
 const emit = defineEmits(["update"]);
 
@@ -14,10 +14,7 @@ const form = toRef(props.item);
 </script>
 
 <template>
-  <UForm
-    :state="form"
-    @submit.prevent="emit('update', form)"
-  >
+  <UForm :state="form" @submit.prevent="emit('update', form)">
     <UFormField label="Вид участия" name="view" required>
       <USelect
         v-model="form.view"
@@ -40,12 +37,8 @@ const form = toRef(props.item);
       />
     </UFormField>
     <UFormField label="ИНН" name="inn">
-      <UInput
-        v-model.trim.lazy="form.inn"
-        placeholder="ИНН"
-        maxlength="12"
-      />
+      <UInput v-model.trim.lazy="form.inn" placeholder="ИНН" maxlength="12" />
     </UFormField>
-    <ElementsSubmitButton />
+    <ElementSubmitButton />
   </UForm>
 </template>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Address } from '@/types';
+import type { Address } from "@/types";
 
 const emit = defineEmits(["update"]);
 
@@ -30,6 +30,6 @@ const form = toRef(props.item);
         required
       />
     </UFormField>
-    <ElementsSubmitButton />
+    <ElementSubmitButton />
   </UForm>
 </template>

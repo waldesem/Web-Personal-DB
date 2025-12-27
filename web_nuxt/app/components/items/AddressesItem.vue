@@ -10,8 +10,8 @@ const props = defineProps({
 </script>
 
 <template>
-  <ElementsLabelValue label="Тип" :value="props.item.view" />
-  <ElementsLabelValue label="Адрес">
+  <ElementLabelValue label="Тип" :value="props.item.view" />
+  <ElementLabelValue label="Адрес">
     <div class="space-x-4">
       {{ props.item.address }}
       <UButton
@@ -22,5 +22,5 @@ const props = defineProps({
         trailing-icon="i-lucide-map-pinned"
       />
     </div>
-  </ElementsLabelValue>
+  </ElementLabelValue>
 </template>

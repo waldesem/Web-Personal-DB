@@ -10,9 +10,9 @@ const props = defineProps({
 </script>
 
 <template>
-  <ElementsLabelValue label="Информация" :value="props.item.info" />
-  <ElementsLabelValue label="Иннициатор" :value="props.item.initiator" />
-  <ElementsLabelValue label="Дата записи">
+  <ElementLabelValue label="Информация" :value="props.item.info" />
+  <ElementLabelValue label="Иннициатор" :value="props.item.initiator" />
+  <ElementLabelValue label="Дата записи">
     <NuxtTime :datetime="props.item.created" />
-  </ElementsLabelValue>
+  </ElementLabelValue>
 </template>

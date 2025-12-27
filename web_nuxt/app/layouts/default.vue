@@ -1,30 +1,27 @@
 <script setup lang="ts">
-import { useDocumentVisibility, watchThrottled } from "@vueuse/core";
+import { useDocumentVisibility } from "@vueuse/core";
 import type { Session } from "@/types";
 
 const { $api } = useNuxtApp();
+
 const visibility = useDocumentVisibility();
 
-watchThrottled(
-  visibility,
-  async () => {
-    try {
-      userState.value = await $api<Session>("/routes/auth/session");
-    } catch (error) {
-      console.error(error);
-    }
-  },
-  { immediate: true, throttle: 600000 }
+const { data: user } = await useAsyncData(
+  "session",
+  () => $api<Session>("/routes/auth/session"),
+  {
+    watch: [refThrottled(visibility, 600000)],
+    default: () => ({} as Session),
+  }
 );
 
 // Объявляем функцию для выхода из системы и очистки данных пользователя
-function logout() {
+async function logout() {
   if (!confirm("Вы действительно хотите выйти?")) return;
-  useCookie("token").value = null;
+  useCookie("access").value = null;
   useCookie("refresh").value = null;
-  userState.value = null;
+  await navigateTo("/login");
   clearNuxtData();
-  return navigateTo("/login");
 }
 </script>
 
@@ -32,41 +29,38 @@ function logout() {
   <UPage>
     <UHeader to="/persons">
       <template #title>
-        <ElementsLogoDiv />
+        <ElementLogoDiv />
       </template>
-      <template #default>
-        <ClientOnly>
+      <ClientOnly>
+        <template #default>
           <UNavigationMenu
-            v-if="userState.role === 'admin'"
+            v-if="user.role === 'admin'"
             :items="[
               {
                 label: 'Пользователи',
                 icon: 'i-lucide-users',
                 to: '/users',
-                disabled: userState.role !== 'admin',
+                disabled: user.role !== 'admin',
               },
             ]"
             variant="link"
           />
-        </ClientOnly>
-      </template>
+        </template>
+      </ClientOnly>
       <template #right>
-        <ClientOnly>
-          <UButton
-            class="rounded-full"
-            :label="userState.username ?? ''"
-            :disabled="!userState.username"
-            color="error"
-            icon="i-lucide-log-out"
-            @click="logout()"
-          />
-        </ClientOnly>
+        <UButton
+          class="rounded-full"
+          :label="user.username ?? ''"
+          :disabled="!user.username"
+          color="error"
+          icon="i-lucide-log-out"
+          @click="logout()"
+        />
       </template>
     </UHeader>
-    <UMain>
-      <UContainer class="pt-16">
-        <slot />
-      </UContainer>
+
+    <UMain class="pt-16">
+      <slot />
     </UMain>
 
     <USeparator type="dashed" class="h-px" />

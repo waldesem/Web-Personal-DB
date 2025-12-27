@@ -33,18 +33,10 @@ form.value.finished = form.value.finished
       name="starts"
       required
     >
-      <UInput
-        v-model="form.starts"
-        type="date"
-        required
-      />
+      <UInput v-model="form.starts" type="date" required />
     </UFormField>
     <UFormField label="Окончание работы" name="finished" required>
-      <UInput
-        v-model="form.finished"
-        type="date"
-        required
-      />
+      <UInput v-model="form.finished" type="date" required />
     </UFormField>
     <UFormField label="Место работы" name="workplace" required>
       <UInput
@@ -74,6 +66,6 @@ form.value.finished = form.value.finished
         placeholder="Причина увольнения"
       />
     </UFormField>
-    <ElementsSubmitButton />
+    <ElementSubmitButton />
   </UForm>
 </template>

@@ -11,9 +11,9 @@ const props = defineProps({
 </script>
 
 <template>
-  <ElementsLabelValue label="Тема проверки" :value="props.item.theme" />
-  <ElementsLabelValue label="Результаты" :value="props.item.results" />
-  <ElementsLabelValue label="Заключение">
+  <ElementLabelValue label="Тема проверки" :value="props.item.theme" />
+  <ElementLabelValue label="Результаты" :value="props.item.results" />
+  <ElementLabelValue label="Заключение">
     <UBadge
       :color="
         props.item.conclusion === Decisions.agreed
@@ -26,8 +26,8 @@ const props = defineProps({
       "
       :label="props.item.conclusion"
     />
-  </ElementsLabelValue>
-  <ElementsLabelValue label="Дата записи">
+  </ElementLabelValue>
+  <ElementLabelValue label="Дата записи">
     <NuxtTime :datetime="props.item.created" />
-  </ElementsLabelValue>
+  </ElementLabelValue>
 </template>

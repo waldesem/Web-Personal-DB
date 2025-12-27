@@ -124,6 +124,6 @@ watch(noNegative, () => {
         required
       />
     </UFormField>
-    <ElementsSubmitButton />
+    <ElementSubmitButton />
   </UForm>
 </template>

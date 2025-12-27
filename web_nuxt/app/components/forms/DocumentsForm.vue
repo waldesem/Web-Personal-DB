@@ -8,7 +8,7 @@ const props = defineProps({
   item: {
     type: Object as PropType<Passport>,
     default: () => ({}),
-  },  
+  },
 });
 
 const form = toRef(props.item);
@@ -55,6 +55,6 @@ form.value.issue = form.value.issue
     <UFormField label="Дата выдачи" name="issue" required>
       <UInput v-model="form.issue" type="date" required />
     </UFormField>
-    <ElementsSubmitButton />
+    <ElementSubmitButton />
   </UForm>
 </template>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Needs } from '@/types';
+import type { Needs } from "@/types";
 
 const emit = defineEmits(["update"]);
 
@@ -14,10 +14,7 @@ const form = toRef(props.item);
 </script>
 
 <template>
-  <UForm
-    :state="form"
-    @submit.prevent="emit('update', form)"
-  >
+  <UForm :state="form" @submit.prevent="emit('update', form)">
     <UFormField label="Информация" name="info" required>
       <UTextarea
         v-model.trim.lazy="form.info"
@@ -34,6 +31,6 @@ const form = toRef(props.item);
         required
       />
     </UFormField>
-    <ElementsSubmitButton />
+    <ElementSubmitButton />
   </UForm>
 </template>

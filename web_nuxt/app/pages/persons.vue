@@ -1,26 +1,20 @@
 <script setup lang="ts">
 import { refDebounced, useDateFormat, useFileDialog } from "@vueuse/core";
 import type { TableColumn } from "@nuxt/ui";
-import type { Candidate } from "@/types";
-
-// Прелоадим компонент
-await preloadRouteComponents("/profile/[id]");
+import type { Candidate, Session } from "@/types";
 
 const toasts = useToasts();
 
-// Объявляем переменные рендера компонентов
-const NuxtTime = resolveComponent("NuxtTime");
-const UButton = resolveComponent("UButton");
-const UIcon = resolveComponent("UIcon");
-
 // Используем плагин для передачи данных на сервер
 const { $api } = useNuxtApp();
+
+const { data: user } = useNuxtData<Session>("session");
 
 // Объявляем переменные для работы с данными
 const expanded = ref({ 1: false }); // Состояние раскрытия строк таблицы
 const modal = ref(false); // Состояние модального окна
 const page = ref(1); // Страница таблицы
-const per_page = ref(10); // Количество строк в таблице
+const per_page = 10; // Количество строк в таблице
 const search = ref(""); // Поисковый запрос
 const updated = ref(Date.now()); // Дата обновления данных
 
@@ -31,15 +25,15 @@ const { data, status, refresh } = await useLazyAsyncData(
     $api<Candidate[]>("/routes/candidates", {
       query: {
         page: page.value,
-        per_page: per_page.value,
+        per_page: per_page,
         search: search.value,
       },
     }),
 
   // Наблюдаем: переключение страницы.
   {
-    watch: [page, per_page],
-    default: () => [],
+    watch: [page],
+    default: () => [] as Candidate[],
   }
 );
 
@@ -74,18 +68,18 @@ onChange(async (files) => {
     return;
   }
   status.value = "pending";
-  const { person_id, exists } = await $api<{
-    person_id: string;
-    exists: boolean;
-  }>("/routes/json", {
+  const { person_id, exists } = (await $api("/routes/json", {
     method: "POST",
     body: files[0],
-  });
-  proceedResult(person_id, exists);
+  })) as {
+    person_id: string;
+    exists: boolean;
+  };
+  proceedSubmit(person_id, exists);
 });
 
 // Обработчик результата загрузки данных
-async function proceedResult(person_id: string, exists: boolean) {
+async function proceedSubmit(person_id: string, exists: boolean) {
   modal.value = false;
   if (person_id) {
     if (exists) {
@@ -110,7 +104,7 @@ const columns: TableColumn<Candidate>[] = [
   {
     id: "expand",
     cell: ({ row }) =>
-      h(UButton, {
+      h(resolveComponent("UButton"), {
         variant: "ghost",
         icon: "i-lucide-chevron-down",
         square: true,
@@ -147,7 +141,7 @@ const columns: TableColumn<Candidate>[] = [
     accessorKey: "editable",
     header: "Статус",
     cell: ({ row }) => {
-      return h(UIcon, {
+      return h(resolveComponent("UIcon"), {
         name: !row.getValue("editable")
           ? "i-lucide-circle-check"
           : "i-lucide-triangle-alert",
@@ -166,7 +160,7 @@ const columns: TableColumn<Candidate>[] = [
     accessorKey: "created",
     header: "Обновлено",
     cell: ({ row }) => {
-      return h(NuxtTime, {
+      return h(resolveComponent("NuxtTime"), {
         datetime: new Date(row.getValue("created")).getTime() - 60000,
         relative: true,
       });
@@ -184,7 +178,7 @@ const columns: TableColumn<Candidate>[] = [
 </script>
 
 <template>
-  <UPage>
+  <UContainer>
     <UPageHeader
       title="КАНДИДАТЫ"
       :ui="{
@@ -196,7 +190,7 @@ const columns: TableColumn<Candidate>[] = [
         <!-- меню для действий -->
         <ClientOnly>
           <UDropdownMenu
-            v-if="userState.role === 'user'"
+            v-if="user?.role === 'user'"
             :items="[
               {
                 label: 'Создать анкету',
@@ -222,20 +216,20 @@ const columns: TableColumn<Candidate>[] = [
               :loading="status === 'pending'"
             />
           </UDropdownMenu>
+          <!-- Модальное окно для добавления анкеты -->
+          <UModal
+            v-model:open="modal"
+            title="Добавить анкету"
+            description="Введите анкетные данные кандидата"
+          >
+            <template #body>
+              <FormsResumeForm
+                @update="proceedSubmit"
+                @pending="status === 'pending'"
+              />
+            </template>
+          </UModal>
         </ClientOnly>
-        <!-- Модальное окно для добавления анкеты -->
-        <UModal
-          v-model:open="modal"
-          title="Добавить анкету"
-          description="Введите анкетные данные кандидата"
-        >
-          <template #body>
-            <FormsResumeForm
-              @update="proceedResult"
-              @pending="status === 'pending'"
-            />
-          </template>
-        </UModal>
       </template>
     </UPageHeader>
 
@@ -296,5 +290,5 @@ const columns: TableColumn<Candidate>[] = [
         @update:page="(p) => (page = p)"
       />
     </div>
-  </UPage>
+  </UContainer>
 </template>

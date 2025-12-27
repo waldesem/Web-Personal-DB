@@ -11,46 +11,40 @@ const props = defineProps({
 </script>
 
 <template>
-  <ElementsLabelValue
+  <ElementLabelValue
     label="Проверка по местам работы"
     :value="props.item.workplace"
   />
-  <ElementsLabelValue
-    label="Проверка документов"
-    :value="props.item.document"
-  />
-  <ElementsLabelValue
-    label="Проверка задолженностей"
-    :value="props.item.debt"
-  />
-  <ElementsLabelValue
+  <ElementLabelValue label="Проверка документов" :value="props.item.document" />
+  <ElementLabelValue label="Проверка задолженностей" :value="props.item.debt" />
+  <ElementLabelValue
     label="Проверка банкротства"
     :value="props.item.bankruptcy"
   />
-  <ElementsLabelValue label="Проверка по БКИ" :value="props.item.bki" />
-  <ElementsLabelValue
+  <ElementLabelValue label="Проверка по БКИ" :value="props.item.bki" />
+  <ElementLabelValue
     label="Проверка судебных решений"
     :value="props.item.courts"
   />
-  <ElementsLabelValue
+  <ElementLabelValue
     label="Проверка аффилированности"
     :value="props.item.affilation"
   />
-  <ElementsLabelValue
+  <ElementLabelValue
     label="Проверка по списку террористов"
     :value="props.item.terrorist"
   />
-  <ElementsLabelValue
+  <ElementLabelValue
     label="Проверка в открытых источниках"
     :value="props.item.internet"
   />
-  <ElementsLabelValue label="Проверка Кронос" :value="props.item.cronos" />
-  <ElementsLabelValue
+  <ElementLabelValue label="Проверка Кронос" :value="props.item.cronos" />
+  <ElementLabelValue
     label="Дополнительная информация"
     :value="props.item.addition"
   />
-  <ElementsLabelValue label="Комментарии" :value="props.item.comment" />
-  <ElementsLabelValue label="Результат">
+  <ElementLabelValue label="Комментарии" :value="props.item.comment" />
+  <ElementLabelValue label="Результат">
     <UBadge
       :color="
         props.item.conclusion === Conclusions.agreed
@@ -63,8 +57,8 @@ const props = defineProps({
       "
       :label="props.item.conclusion"
     />
-  </ElementsLabelValue>
-  <ElementsLabelValue label="Дата записи">
+  </ElementLabelValue>
+  <ElementLabelValue label="Дата записи">
     <NuxtTime :datetime="props.item.created" />
-  </ElementsLabelValue>
+  </ElementLabelValue>
 </template>
