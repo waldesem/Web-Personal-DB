@@ -2,18 +2,16 @@
 
 from __future__ import annotations
 
-from flask import Blueprint, Response, g, json, jsonify, request
+import orjson
+from flask import Blueprint, Response, current_app, g, jsonify, request
 from sqlalchemy import func, not_, select, update
+from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
 from app.classes.classes import Roles
 from app.decorators.depend import auth_required
 from app.decorators.pydantify import validize
-from app.models.models import (
-    AnketaJson,
-    Candidates,
-    Index,
-)
+from app.models.models import AnketaJson, Candidates, Index
 from app.tables.tables import Persons, Users
 from app.utils.utilities import post_json
 
@@ -52,14 +50,17 @@ def get_index(json_query: Index) -> Response:
 @auth_required(Roles.user.value)
 def switch_status(person_id: int) -> Response:
     """Toggle the editable status of a person."""
-    stmt = (
-        update(Persons)
-        .where(Persons.id == person_id)
-        .values(editable=not_(Persons.editable))
-    )
-    db.session.execute(stmt, {"user_id": g.user.id, "id": person_id})
-    db.session.commit()
-    return jsonify({"message": "success"}), 201
+    try:
+        db.session.execute(
+            update(Persons)
+            .where(Persons.id == person_id)
+            .values(editable=not_(Persons.editable), user_id=g.user.id),
+        )
+        db.session.commit()
+        return jsonify({"message": "success"}), 201
+    except SQLAlchemyError:
+        current_app.logger.exception("Database error")
+        return jsonify({"message": "error"}), 200
 
 
 @bp.post("/json")
@@ -70,7 +71,7 @@ def post_json_file() -> Response:
     if not (file := request.data):
         return jsonify({"person_id": None, "exists": False}), 200
     try:
-        json_data = json.loads(file)
+        json_data = orjson.loads(file)
         anketa = AnketaJson(**json_data)
     except (AttributeError, TypeError):
         return jsonify({"person_id": None, "exists": False}), 200

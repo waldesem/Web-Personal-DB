@@ -10,7 +10,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
-from app.models.models import AnketaJson, PersonIn
+from app.models.models import AnketaJson, Items, PersonIn, models
 from app.tables.tables import (
     Addresses,
     Affilations,
@@ -201,3 +201,15 @@ def upload_items(anketa: AnketaJson, person_id: int) -> list:
             for aff in anketa.public_organizations
         ],
     ]
+
+
+def select_item(item: Items, person_id: int) -> list:
+    """Retrieve an item from the database based on the provided item."""
+    stmt = (
+        db.metatables[item]
+        .select()
+        .filter(db.metatables[item].c.person_id == person_id)
+        .order_by(db.metatables[item].c.id.desc())
+    )
+    items = db.session.execute(stmt).all()
+    return [models[item].model_validate(table).model_dump() for table in items]

@@ -7,20 +7,9 @@ from app.classes.classes import Roles
 from app.decorators.depend import auth_required
 from app.decorators.pydantify import validize
 from app.models.models import Items, Model, models
+from app.utils.utilities import select_item
 
 bp = Blueprint("items", __name__, url_prefix="/items")
-
-
-def select_item(item: Items, person_id: int) -> list:
-    """Retrieve an item from the database based on the provided item."""
-    stmt = (
-        db.metatables[item]
-        .select()
-        .filter(db.metatables[item].c.person_id == person_id)
-        .order_by(db.metatables[item].c.id.desc())
-    )
-    items = db.session.execute(stmt).all()
-    return [models[item].model_validate(table).model_dump() for table in items]
 
 
 @bp.get("/<int:person_id>")
