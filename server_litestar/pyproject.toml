@@ -1,0 +1,17 @@
+[project]
+name = "server-litestar"
+version = "0.1.0"
+description = "StaffSec"
+requires-python = ">=3.14"
+dependencies = [
+    "litestar>=2.19.0",
+    "orjson>=3.11.5",
+    "pydantic>=2.12.5",
+    "pyjwt>=2.10.1",
+    "python-dotenv>=1.2.1",
+    "sqlalchemy>=2.0.45",
+]
+
+[tool.ruff]
+select = ["ALL"]
+ignore = ["DTZ005", "RUF003", "RUF001", "PLR2004", "PLC0415"]

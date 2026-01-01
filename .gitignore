@@ -215,4 +215,3 @@ logs
 # Project files & folders
 PersonalDB/
 settings.ini
-server_litestar/
