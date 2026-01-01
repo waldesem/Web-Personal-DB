@@ -110,7 +110,7 @@ Builded files can be found in `web_nux/.output`.
 To start server run the command in terminal:
 
 ```
-uv run flask run --port=5000 --host=127.0.0.1 --debug
+uv run flask run --port=8000 --host=127.0.0.1 --debug
 ```
 
 or for production:
@@ -142,7 +142,7 @@ docker compose up --build -d
 Run container:
 
 ```
-docker run -d -p 5000:5000 --name flask-app my-flask-app
+docker run -d -p 8000:8000 --name flask-app my-flask-app
 ```
 
 Manage container:

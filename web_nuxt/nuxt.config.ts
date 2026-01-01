@@ -30,7 +30,7 @@ export default defineNuxtConfig({
     compressPublicAssets: { brotli: true },
   },
   routeRules: {
-    "/routes/**": { proxy: "http://127.0.0.1:5000/routes/**" },
+    "/routes/**": { proxy: "http://127.0.0.1:8000/routes/**" },
   },
   vite: {
     build: {
