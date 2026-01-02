@@ -1,39 +1,50 @@
-from datetime import datetime, timedelta
-from functools import lru_cache
+"""Auth module."""
 
-from litestar.connection import ASGIConnection
+from datetime import datetime, timedelta
+from typing import TYPE_CHECKING, Any
+
 from litestar.exceptions import NotAuthorizedException
-from litestar.handlers import BaseRouteHandler
 from litestar.security.jwt import JWTAuth, Token
 
-from app.classes.classes import Roles
 from app.models.models import User
-from app.tables.tables import Users, session
+from app.tables.tables import Users
 from config import Config
 
+if TYPE_CHECKING:
+    from litestar.connection import ASGIConnection
+    from litestar.handlers import BaseRouteHandler
+    from sqlalchemy.ext.asyncio import AsyncSession
 
-def role_guard(connection: ASGIConnection, _: BaseRouteHandler, role: Roles) -> None:
-    if not connection.user.has_role(role):
-        raise NotAuthorizedException()
+
+def role_guard(connection: ASGIConnection, route_handler: BaseRouteHandler) -> None:
+    """Check if the user has the required role."""
+    if connection.user.role not in route_handler.opt.get("roles"):
+        raise NotAuthorizedException
 
 
-@lru_cache(maxsize=2)
-def get_current_user(user_id: int) -> User | None:
+async def get_current_user(user_id: int, session: AsyncSession) -> User | None:
     """Retrieve the current user stored in the global variable."""
-    if (
-        (user := session.get(Users, user_id))
-        and not user.blocked
-        and not user.deleted
-        and not user.change_pswd
-        and user.pswd_create + timedelta(days=365) > datetime.now()
-    ):
-        return User.model_validate(user)
-    return None
+    async with session.begin():
+        if (
+            (user := await session.get(Users, user_id))
+            and not user.blocked
+            and not user.deleted
+            and not user.change_pswd
+            and user.pswd_create + timedelta(days=365) > datetime.now()
+        ):
+            return User.model_validate(user)
+        return None
 
 
-async def retrieve_user_handler(token: Token) -> User | None:
-    # logic here to retrieve the user instance
-    return get_current_user(token.sub)
+async def retrieve_user_handler(
+    token: Token,
+    connection: ASGIConnection[Any, Any, Any, Any],
+) -> User | None:
+    """Retrieve the current user."""
+    sqlalchemy_plugin = connection.app.plugins.get("SQLAlchemyPlugin")
+    session_maker = sqlalchemy_plugin.config[0].create_session_maker()
+    async with session_maker() as session:
+        return get_current_user(token.sub, session)
 
 
 jwt_auth = JWTAuth[User](

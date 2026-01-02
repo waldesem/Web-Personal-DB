@@ -7,8 +7,9 @@ from litestar.exceptions import HTTPException
 from litestar.logging import LoggingConfig
 from litestar.status_codes import HTTP_500_INTERNAL_SERVER_ERROR
 
+from app.controllers import base_router
 from app.depends.auth import jwt_auth
-from app.routes import base_router
+from app.tables.tables import plugin
 
 logging_config = LoggingConfig(
     disable_stack_trace={404, ValueError},
@@ -36,6 +37,7 @@ async def index() -> None:
 app = Litestar(
     route_handlers=[index, base_router],
     on_app_init=[jwt_auth.on_app_init],
+    plugins=[plugin],
     exception_handlers={HTTPException: plain_text_exception_handler},
     logging_config=logging_config,
     openapi_config=None,

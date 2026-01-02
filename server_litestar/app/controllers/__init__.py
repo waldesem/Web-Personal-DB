@@ -6,7 +6,7 @@ from .index import get_index, post_json_file, switch_status
 from .items import ItemsController
 from .login import AuthController
 from .person import PersonController
-from .user import get_users, post_user, post_user_actions
+from .user import UserController
 
 base_router = Router(
     path="/routes",
@@ -17,8 +17,6 @@ base_router = Router(
         AuthController,
         PersonController,
         ItemsController,
-        get_users,
-        post_user,
-        post_user_actions,
+        UserController,
     ],
 )

@@ -1,6 +1,7 @@
 """Utils module."""
 
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
@@ -17,9 +18,11 @@ from app.tables.tables import (
     Previous,
     Staffs,
     Workplaces,
-    session,
 )
 from config import Config
+
+if TYPE_CHECKING:
+    from sqlalchemy.ext.asyncio import AsyncSession
 
 
 def create_destination(person: Persons) -> str:
@@ -34,60 +37,63 @@ def create_destination(person: Persons) -> str:
     return str(destination)
 
 
-def upload_resume(cand: PersonIn) -> tuple[int | None, bool]:
+async def upload_resume(
+    cand: PersonIn,
+    user_id: int,
+    db_session: AsyncSession,
+) -> tuple[int | None, bool]:
     """Upload a resume to the database."""
-    person = (
-        session.get(Persons, cand.id)
-        if cand.id
-        else session.execute(
-            select(Persons).where(
-                Persons.surname == cand.surname,
-                Persons.firstname == cand.firstname,
-                Persons.patronymic == cand.patronymic,
-                Persons.birthday == cand.birthday,
-            ),
-        ).scalar_one_or_none()
-        if not cand.id
-        else session.get(Persons, cand.id)
-    )
+    async with db_session.begin():
+        person = (
+            await db_session.get(Persons, cand.id)
+            if cand.id
+            else (
+                await db_session.execute(
+                    select(Persons).where(
+                        Persons.surname == cand.surname,
+                        Persons.firstname == cand.firstname,
+                        Persons.patronymic == cand.patronymic,
+                        Persons.birthday == cand.birthday,
+                    ),
+                )
+            ).scalar_one_or_none()
+        )
 
-    resume = cand.model_dump(
-        exclude_none=True,
-        exclude={"created"},
-    )  # | {"user_id": g.user.id}
+        resume = cand.model_dump(
+            exclude_none=True,
+            exclude={"created"},
+        ) | {"user_id": user_id}
 
-    try:
-        if not person:
-            person = Persons(**resume)
-            session.add(person)
-            session.flush()
-            person.destination = create_destination(person)
-            session.commit()
-            return person.id, False
+        try:
+            if not person:
+                person = Persons(**resume)
+                db_session.add(person)
+                db_session.flush()
+                person.destination = create_destination(person)
+                return person.id, False
 
-        if not person.destination or not Path(person.destination).is_dir():
-            resume["destination"] = create_destination(person)
-        for k, v in resume.items():
-            setattr(person, k, v)
-        session.commit()
-    except SQLAlchemyError:
-        session.rollback()
-        return None, False
-    else:
-        return person.id, True
+            if not person.destination or not Path(person.destination).is_dir():
+                resume["destination"] = create_destination(person)
+            for k, v in resume.items():
+                setattr(person, k, v)
+        except SQLAlchemyError:
+            db_session.rollback()
+            return None, False
+        else:
+            return person.id, True
 
 
-def post_json(anketa: AnketaJson) -> dict:
+async def post_json(anketa: AnketaJson, user_id: int, db_session: AsyncSession) -> dict:
     """Create a new person or updates an existing person based on the provided data."""
     resume = PersonIn(**anketa.model_dump(exclude_none=True))
     # Загрузка резюме в БД
-    person_id, existed = upload_resume(resume)
+    person_id, existed = upload_resume(resume, user_id, db_session)
 
     # Сохранение дополнительной информации о кандидате в БД
     if person_id:
-        items = upload_items(anketa, person_id)
-        session.bulk_save_objects(items)
-        session.commit()
+        async with db_session.begin():
+            items = upload_items(anketa, person_id)
+            db_session.bulk_save_objects(items)
     return {"person_id": person_id, "exists": existed}
 
 
@@ -174,13 +180,14 @@ def upload_items(anketa: AnketaJson, person_id: int) -> list:
     ]
 
 
-def select_item(item: Items, person_id: int) -> list:
+async def select_item(item: Items, person_id: int, db_session: AsyncSession) -> list:
     """Retrieve an item from the database based on the provided item."""
-    table = Base.metadata.tables[item]
-    stmt = (
-        table.select()
-        .filter(table.c.person_id == person_id)
-        .order_by(table.c.id.desc())
-    )
-    items = session.execute(stmt).all()
-    return [models[item].model_validate(table).model_dump() for table in items]
+    async with db_session.begin():
+        table = Base.metadata.tables[item]
+        stmt = (
+            table.select()
+            .filter(table.c.person_id == person_id)
+            .order_by(table.c.id.desc())
+        )
+        items = await db_session.execute(stmt).all()
+        return [models[item].model_validate(table).model_dump() for table in items]

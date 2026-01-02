@@ -1,5 +1,10 @@
 """SQLAlchemy models."""
 
+from litestar.plugins.sqlalchemy import (
+    SQLAlchemyAsyncConfig,
+    SQLAlchemyInitPlugin,
+    async_autocommit_before_send_handler,
+)
 from sqlalchemy import (
     Boolean,
     Date,
@@ -8,7 +13,6 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
-    create_engine,
     func,
 )
 from sqlalchemy.orm import (
@@ -16,8 +20,6 @@ from sqlalchemy.orm import (
     Mapped,
     mapped_column,
     relationship,
-    scoped_session,
-    sessionmaker,
 )
 
 from app.classes.classes import Roles
@@ -27,13 +29,6 @@ from config import Config
 
 class Base(DeclarativeBase):
     """Base class for models."""
-
-
-engine = create_engine(Config.DATABASE_URI)
-
-session = scoped_session(
-    sessionmaker(bind=engine, autoflush=False, autocommit=False),
-)
 
 
 class Users(Base):
@@ -427,4 +422,10 @@ class Inquiries(Base):
     person: Mapped[Persons] = relationship(back_populates="inquiries")
 
 
-Base.metadata.create_all(bind=engine)
+config = SQLAlchemyAsyncConfig(
+    before_send_handler=async_autocommit_before_send_handler,
+    connection_string=Config.DATABASE_URI,
+    create_all=True,
+    metadata=Base.metadata,
+)
+plugin = SQLAlchemyInitPlugin(config=config)

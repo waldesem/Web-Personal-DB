@@ -90,10 +90,6 @@ class User(UserForm):
     attempt: int
     created: datetime | str | None
 
-    def has_role(self, role: Roles) -> bool:
-        """Determines whether the user has a role"""
-        return self.role == role
-
 
 class Actions(Model):
     """Pydantic model for user actions form."""
@@ -106,7 +102,7 @@ class Index(BaseModel):
 
     page: int
     per_page: int
-    search: list | None = None
+    search: str | None = None
 
     @field_validator("search")
     @classmethod

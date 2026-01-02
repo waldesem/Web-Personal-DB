@@ -16,4 +16,4 @@ class Config:
     MAX_CONTENT_LENGTH = 100 * 1024 * 1024
     BASE_PATH = os.getenv("BASE_PATH")
     DEFAULT_PASSWORD = os.getenv("DEFAULT_PASSWORD")
-    DATABASE_URI = "sqlite:///" + str(Path(BASE_PATH, "database.db"))
+    DATABASE_URI = "sqlite+aiosqlite:///" + str(Path(BASE_PATH, "database.db"))
