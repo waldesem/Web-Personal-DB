@@ -18,6 +18,13 @@ const { data: user } = await useAsyncData(
 // Объявляем функцию для выхода из системы и очистки данных пользователя
 async function logout() {
   if (!confirm("Вы действительно хотите выйти?")) return;
+  const refresh = useCookie("refresh");
+  await $api("/routes/auth/logout", {
+    method: "POST",
+    body: {
+      refresh_token: refresh.value,
+    },
+  });
   useCookie("access").value = null;
   useCookie("refresh").value = null;
   await navigateTo("/login");

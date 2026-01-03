@@ -116,7 +116,7 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
     )) as { message: string; access_token: string; refresh_token: string };
     if (message === "success") {
       const token = useCookie("access", {
-        maxAge: 60 * 59,
+        maxAge: 59,
         sameSite: "strict",
         watch: "shallow",
       });

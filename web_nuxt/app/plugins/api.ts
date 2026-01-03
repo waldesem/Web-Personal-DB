@@ -12,7 +12,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     async onRequest({ options }) {
       // Получаем токен доступа
       const token = useCookie("access", {
-        maxAge: 60 * 59,
+        maxAge: 59,
         sameSite: "strict",
         watch: "shallow",
       });
@@ -30,7 +30,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
           const { access_token } = (await $fetch("/routes/auth/refresh", {
             method: "POST",
             body: {
-              refresh_token: `Bearer ${refresh.value}`,
+              refresh_token: refresh.value,
             },
           })) as { access_token: string };
           token.value = access_token;

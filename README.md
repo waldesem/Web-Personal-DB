@@ -4,18 +4,18 @@ StaffSec is a web interface for managing a candidates database.
 
 ### The technology stack used in this project:
 
-- Flask;
+- Litestar;
 - PostreSQL;
 - Nuxt;
 
 ### Installation
 
-To use this project, you will need to have Python 3.12 or higher.
+To use this project, you will need to have Python 3.14 or higher.
 For installiing the required Python packages run commands:
 
 ```
 git clone https://github.com/waldesem/Web-Personal-DB.git
-cd Web-Personal-DB/server_flask
+cd Web-Personal-DB/server_litestar
 wget -qO- https://astral.sh/uv/install.sh | sh
 uv venv
 source .venv/bin/activate
@@ -78,16 +78,6 @@ chmod +x folders.sh
 ./folders.sh
 ```
 
-For creating new user:
-
-```
-export FLASK_APP=app
-flask command user Super superadmin 'superadmin@localhost.ru' --role=admin
-```
-
-Recomend to create user with role `admin` for first login.
-DEFAULT_PASSWORD for created user set in dotenv.sh.
-
 ### Build frontend
 
 First install Node.js. Then run in terminal:
@@ -95,11 +85,6 @@ First install Node.js. Then run in terminal:
 ```
 cd Web-Personal-DB/web_nuxt
 npm i
-```
-
-For Server-Side rendering change SSR=true in env file and execute command:
-
-```
 npx nuxt build
 ```
 
@@ -110,16 +95,16 @@ Builded files can be found in `web_nux/.output`.
 To start server run the command in terminal:
 
 ```
-uv run flask run --port=8000 --host=127.0.0.1 --debug
+litestar run --reload
 ```
 
 or for production:
 
 ```
-gunicorn wsgi:app # for prod mode
+uvicorn app:app
 ```
 
-### Start frontend server (if Server-Side rendering enabled)
+### Start frontend server
 
 For starting frontend in SSR mode run
 
@@ -128,31 +113,3 @@ HOST=localhost PORT=8000 node .output/server/index.mjs
 ```
 
 Nitro server should be run behind a reverse proxy like nginx.
-
-Use `npx npm-check-updates -u` for update packages for latest versions.
-
-### Use Docker
-
-For building image run:
-
-```
-docker compose up --build -d
-```
-
-Run container:
-
-```
-docker run -d -p 8000:8000 --name flask-app my-flask-app
-```
-
-Manage container:
-
-```
-docker compose ps
-
-docker compose logs -f
-
-docker compose down
-
-docker compose down --rmi all
-```

@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Any
 
 from litestar.exceptions import NotAuthorizedException
 from litestar.security.jwt import JWTAuth, Token
+from litestar.stores.memory import MemoryStore
 
 from app.models.models import User
 from app.tables.tables import Users, config
@@ -14,6 +15,9 @@ if TYPE_CHECKING:
     from litestar.connection import ASGIConnection
     from litestar.handlers import BaseRouteHandler
     from sqlalchemy.ext.asyncio import AsyncSession
+
+
+store = MemoryStore()
 
 
 def role_guard(connection: ASGIConnection, route_handler: BaseRouteHandler) -> None:
@@ -46,13 +50,27 @@ async def retrieve_user_handler(
         return await get_current_user(token.sub, db_session)
 
 
+async def revoked_token_handler(
+    token: Token,
+    _: ASGIConnection[Any, Any, Any, Any],
+) -> bool:
+    """Check if the token is revoked."""
+    jti = token.jti  # Unique token identifier (JWT ID)
+    if jti:
+        # Check if the token is already revoked in the BLOCKLIST
+        revoked = await store.get(jti)
+        if revoked:
+            return True
+    return False
+
+
 jwt_auth = JWTAuth[User](
     retrieve_user_handler=retrieve_user_handler,
+    revoked_token_handler=revoked_token_handler,
     token_secret=Config.ACCESS_SECRET_KEY,
     exclude=[
         "/routes/auth/login",
         "/routes/auth/update",
-        "/routes/refresh",
-        "/routes/schema",
+        "/routes/auth/refresh",
     ],
 )

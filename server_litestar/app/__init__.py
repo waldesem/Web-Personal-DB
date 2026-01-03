@@ -27,4 +27,5 @@ app = Litestar(
     plugins=[plugin],
     logging_config=logging_config,
     openapi_config=None,
+    debug=True,
 )
