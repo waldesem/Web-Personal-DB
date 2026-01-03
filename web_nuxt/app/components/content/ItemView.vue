@@ -17,10 +17,6 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  rows: {
-    type: Number,
-    default: 3,
-  },
   title: {
     type: String,
     required: true,
@@ -31,20 +27,20 @@ const props = defineProps({
   },
 });
 
+const ItemComponent = defineAsyncComponent<Component>(
+  () => import(`../items/${capitalize(props.view)}Item.vue`)
+);
+const FormComponent = defineAsyncComponent<Component>(
+  () => import(`../forms/${capitalize(props.view)}Form.vue`)
+);
+
 // Инжектируем данные (id кандидата и доступна ли анкета для редактирования)
 const candId = inject("candId") as Ref<string>;
 const editable = inject("editable") as Ref<boolean>;
 
-const ItemComponent = defineAsyncComponent(
-  () => import(`../items/${capitalize(props.view)}Item.vue`)
-);
-const FormComponent = defineAsyncComponent(
-  () => import(`../forms/${capitalize(props.view)}Form.vue`)
-);
-
 // Объявляем переменные для работы с данными
 const data = shallowRef(props.data); // Данные для вывода
-const item = shallowRef(); // Данные для передачи в форму и редактирования
+const item = shallowRef<object>({}); // Данные для передачи в форму и редактирования
 const modal = ref(false); // Флаг для открытия модального окна
 const status = ref("success"); // Статус запроса
 
@@ -111,7 +107,7 @@ async function deleteItem(itemId: string) {
 
   <Suspense>
     <template #default>
-      <div v-for="(content, index) in data" :key="index" class="ms-2 py-2">
+      <div v-for="(content, index) in data" :key="index" class="mx-2 py-2">
         <!-- Выводим кнопки редактирования/удаления данных, в режиме редактирования -->
         <LazyElementDivMenu
           v-if="editable"
@@ -129,7 +125,7 @@ async function deleteItem(itemId: string) {
 
     <template #fallback>
       <div v-for="len in data?.length + 1" :key="len">
-        <ElementSkeletonDiv :rows="props.rows" />
+        <ElementSkeletonDiv />
         <USeparator v-if="len < data.length" />
       </div>
     </template>
@@ -139,12 +135,13 @@ async function deleteItem(itemId: string) {
   <UModal
     v-model:open="modal"
     :title="props.title"
-    description="Введите/редактируйте данные"
+    description="Добавить/редактировать данные"
   >
     <UButton
       v-if="editable && data?.length"
       :loading="status == 'pending'"
       class="mb-2"
+      label="Добавить запись"
       icon="i-lucide-plus"
       variant="outline"
       color="neutral"

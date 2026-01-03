@@ -10,5 +10,5 @@ definePageMeta({
 </script>
 
 <template>
-  <div>Index</div>
+  <UContainer>Index</UContainer>
 </template>

@@ -189,8 +189,8 @@ const columns: TableColumn<Candidate>[] = [
       }"
     >
       <template #links>
-        <!-- меню для действий -->
         <ClientOnly>
+          <!-- меню для действий -->
           <UDropdownMenu
             v-if="user?.role === 'user'"
             :items="[
@@ -221,7 +221,7 @@ const columns: TableColumn<Candidate>[] = [
           <!-- Модальное окно для добавления анкеты -->
           <UModal
             v-model:open="modal"
-            title="Добавить анкету"
+            title="Анкета"
             description="Введите анкетные данные кандидата"
           >
             <template #body>

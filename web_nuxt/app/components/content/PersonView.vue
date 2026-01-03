@@ -11,6 +11,7 @@ const toasts = useToasts();
 const editable = inject("editable") as Ref<boolean>;
 
 const modal = ref(false); // Объявляем переменную модального окна
+
 const status = ref("success"); // Объявляем переменную статуса
 
 // Определяем функцию для отправки данных формы на сервер
@@ -71,7 +72,7 @@ async function deletePerson() {
     <UModal
       v-model:open="modal"
       title="Aнкета"
-      description="Отредактируйте анкетные данные"
+      description="Редактирование анкетные данные"
     >
       <template #body>
         <FormsResumeForm

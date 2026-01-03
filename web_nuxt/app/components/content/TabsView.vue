@@ -100,7 +100,7 @@ const accordion = [
           <ContentItemView
             :icon="accord.icon"
             :data="data[accord.slot]"
-            :view="accord.slot as ItemKey"
+            :view="(accord.slot as ItemKey)"
             :title="accord.label"
           />
         </template>
@@ -113,7 +113,7 @@ const accordion = [
         <ContentItemView
           :icon="tab.icon"
           :data="data[tab.slot as ItemKey]"
-          :view="tab.slot as ItemKey"
+          :view="(tab.slot as ItemKey)"
           :title="tab.label"
         />
       </div>

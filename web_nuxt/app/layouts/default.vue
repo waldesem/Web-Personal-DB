@@ -31,8 +31,8 @@ async function logout() {
       <template #title>
         <ElementLogoDiv />
       </template>
-      <ClientOnly>
-        <template #default>
+      <template #default>
+        <ClientOnly>
           <UNavigationMenu
             v-if="user.role === 'admin'"
             :items="[
@@ -45,17 +45,19 @@ async function logout() {
             ]"
             variant="link"
           />
-        </template>
-      </ClientOnly>
+        </ClientOnly>
+      </template>
       <template #right>
-        <UButton
-          class="rounded-full"
-          :label="user.username ?? ''"
-          :disabled="!user.username"
-          color="error"
-          icon="i-lucide-log-out"
-          @click="logout()"
-        />
+        <ClientOnly>
+          <UButton
+            class="rounded-full"
+            :label="user.username ?? ''"
+            :disabled="!user.username"
+            color="error"
+            icon="i-lucide-log-out"
+            @click="logout()"
+          />
+        </ClientOnly>
       </template>
     </UHeader>
 

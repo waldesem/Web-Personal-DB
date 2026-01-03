@@ -228,11 +228,7 @@ const columns: TableColumn<User>[] = [
       }"
     >
       <template #links>
-        <UModal
-          v-model:open="modal"
-          title="Добавить пользователя"
-          description="Введите данные пользователя"
-        >
+        <UModal v-model:open="modal" title="Пользователь">
           <UButton
             variant="ghost"
             size="lg"
