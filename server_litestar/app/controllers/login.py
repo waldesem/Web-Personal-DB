@@ -98,4 +98,4 @@ class AuthController(Controller):
         """Retrieve an item from the database based on the provided item ID."""
         if not request.user:
             raise NotAuthorizedException
-        return get_current_user(request.user.id, db_session)
+        return await get_current_user(request.user.id, db_session)

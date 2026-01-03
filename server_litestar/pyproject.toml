@@ -6,7 +6,6 @@ requires-python = ">=3.14"
 dependencies = [
     "aiosqlite>=0.22.1",
     "litestar>=2.19.0",
-    "orjson>=3.11.5",
     "pydantic>=2.12.5",
     "pyjwt>=2.10.1",
     "python-dotenv>=1.2.1",

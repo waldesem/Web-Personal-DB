@@ -18,8 +18,7 @@ class ItemsController(Controller):
     @get("/{person_id:int}")
     async def get_items(self, person_id: int, db_session: AsyncSession) -> dict:
         """Retrieve an all items from the database."""
-        async with db_session.begin():
-            return {item: select_item(item, person_id, db_session) for item in models}
+        return {item: await select_item(item, person_id, db_session) for item in models}
 
     @get("/{item:str}/{person_id:int}")
     async def get_item(
@@ -29,8 +28,7 @@ class ItemsController(Controller):
         db_session: AsyncSession,
     ) -> list[dict]:
         """Get an item based on the provided item."""
-        async with db_session.begin():
-            return select_item(item, person_id, db_session)
+        return await select_item(item, person_id, db_session)
 
     @post(
         "{item:str}/{person_id:int}",

@@ -83,20 +83,6 @@ async def upload_resume(
             return person.id, True
 
 
-async def post_json(anketa: AnketaJson, user_id: int, db_session: AsyncSession) -> dict:
-    """Create a new person or updates an existing person based on the provided data."""
-    resume = PersonIn(**anketa.model_dump(exclude_none=True))
-    # Загрузка резюме в БД
-    person_id, existed = upload_resume(resume, user_id, db_session)
-
-    # Сохранение дополнительной информации о кандидате в БД
-    if person_id:
-        async with db_session.begin():
-            items = upload_items(anketa, person_id)
-            db_session.bulk_save_objects(items)
-    return {"person_id": person_id, "exists": existed}
-
-
 def upload_items(anketa: AnketaJson, person_id: int) -> list:
     """Organze additional information about a person for database uploads."""
     return [
@@ -189,5 +175,5 @@ async def select_item(item: Items, person_id: int, db_session: AsyncSession) -> 
             .filter(table.c.person_id == person_id)
             .order_by(table.c.id.desc())
         )
-        items = await db_session.execute(stmt).all()
+        items = (await db_session.execute(stmt)).all()
         return [models[item].model_validate(table).model_dump() for table in items]

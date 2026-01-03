@@ -68,9 +68,11 @@ onChange(async (files) => {
     return;
   }
   status.value = "pending";
+  const str = await files[0].text();
+  const jsonData = JSON.parse(str);
   const { person_id, exists } = (await $api("/routes/json", {
     method: "POST",
-    body: files[0],
+    body: jsonData,
   })) as {
     person_id: string;
     exists: boolean;

@@ -7,7 +7,7 @@ from litestar.exceptions import NotAuthorizedException
 from litestar.security.jwt import JWTAuth, Token
 
 from app.models.models import User
-from app.tables.tables import Users
+from app.tables.tables import Users, config
 from config import Config
 
 if TYPE_CHECKING:
@@ -38,13 +38,12 @@ async def get_current_user(user_id: int, session: AsyncSession) -> User | None:
 
 async def retrieve_user_handler(
     token: Token,
-    connection: ASGIConnection[Any, Any, Any, Any],
+    _: ASGIConnection[Any, Any, Any, Any],
 ) -> User | None:
     """Retrieve the current user."""
-    sqlalchemy_plugin = connection.app.plugins.get("SQLAlchemyPlugin")
-    session_maker = sqlalchemy_plugin.config[0].create_session_maker()
-    async with session_maker() as session:
-        return get_current_user(token.sub, session)
+    session_maker = config.create_session_maker()
+    async with session_maker() as db_session:
+        return await get_current_user(token.sub, db_session)
 
 
 jwt_auth = JWTAuth[User](

@@ -2,12 +2,9 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Annotated, Any
+from typing import Any
 
-import orjson
 from litestar import Request, get, post
-from litestar.enums import RequestEncodingType
-from litestar.params import Body
 from litestar.security.jwt import Token  # noqa: TC002
 from sqlalchemy import func, not_, select, update
 from sqlalchemy.exc import SQLAlchemyError
@@ -15,12 +12,9 @@ from sqlalchemy.ext.asyncio import AsyncSession  # noqa: TC002
 
 from app.classes.classes import Roles
 from app.depends.auth import role_guard
-from app.models.models import AnketaJson, Candidates, Index, User
+from app.models.models import AnketaJson, Candidates, Index, PersonIn, User
 from app.tables.tables import Base, Persons, Users
-from app.utils.utilities import post_json
-
-if TYPE_CHECKING:
-    from litestar.datastructures import UploadFile
+from app.utils.utilities import upload_items, upload_resume
 
 
 @get("/candidates")
@@ -73,15 +67,18 @@ async def switch_status(
 
 @post("/json", guards=[role_guard], opt={"roles": Roles.user.value})
 async def post_json_file(
-    data: Annotated[UploadFile, Body(media_type=RequestEncodingType.MULTI_PART)],
+    data: AnketaJson,
     db_session: AsyncSession,
     request: Request[User, Token, Any],
 ) -> dict:
     """Create a new person or updates an existing person from file."""
-    # Чтение файла JSON и создание объектов классов для сохранения в БД
-    try:
-        json_data = orjson.loads(data)
-        anketa = AnketaJson(**json_data)
-    except (AttributeError, TypeError):
-        return {"person_id": None, "exists": False}
-    return post_json(anketa, request.user.id, db_session)
+    resume = PersonIn(**data.model_dump(exclude_none=True))
+    # Загрузка резюме в БД
+    person_id, existed = await upload_resume(resume, request.user.id, db_session)
+
+    # Сохранение дополнительной информации о кандидате в БД
+    if person_id:
+        async with db_session.begin():
+            items = upload_items(data, person_id)
+            db_session.add_all(items)
+    return {"person_id": person_id, "exists": existed}
