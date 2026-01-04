@@ -1,7 +1,8 @@
 """Items routes."""
 
 from litestar import Controller, delete, get, post
-from sqlalchemy.ext.asyncio import AsyncSession  # noqa: TC002
+from litestar.di import Provide
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.classes.classes import Roles
 from app.depends.auth import role_guard
@@ -20,15 +21,10 @@ class ItemsController(Controller):
         """Retrieve an all items from the database."""
         return {item: await select_item(item, person_id, db_session) for item in models}
 
-    @get("/{item:str}/{person_id:int}")
-    async def get_item(
-        self,
-        item: Items,
-        person_id: int,
-        db_session: AsyncSession,
-    ) -> list[dict]:
-        """Get an item based on the provided item."""
-        return await select_item(item, person_id, db_session)
+    @get("/{item:str}/{person_id:int}", dependencies={"result": Provide(select_item)})
+    async def get_item(self, result: list[dict]) -> list[dict]:
+        """Get result of query based on the provided item."""
+        return result
 
     @post(
         "{item:str}/{person_id:int}",

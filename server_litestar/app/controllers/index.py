@@ -5,10 +5,10 @@ from __future__ import annotations
 from typing import Any
 
 from litestar import Request, get, post
-from litestar.security.jwt import Token  # noqa: TC002
+from litestar.security.jwt import Token
 from sqlalchemy import func, not_, select, update
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.ext.asyncio import AsyncSession  # noqa: TC002
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.classes.classes import Roles
 from app.depends.auth import role_guard
@@ -30,7 +30,7 @@ from app.utils.utilities import upload_resume
 
 
 @get("/candidates")
-async def get_index(query: Index, db_session: AsyncSession) -> list[dict]:
+async def get_index(query: Index, db_session: AsyncSession) -> list[Candidates]:
     """Retrieve a paginated list of persons from the database."""
     async with db_session.begin():
         stmt = select(
@@ -53,7 +53,7 @@ async def get_index(query: Index, db_session: AsyncSession) -> list[dict]:
                 .limit(query.per_page),
             )
         ).all()
-        return [Candidates.model_validate(cand).model_dump() for cand in candidates]
+        return [Candidates.model_validate(cand) for cand in candidates]
 
 
 @get("/self/{person_id:int}", guards=[role_guard], opt={"roles": Roles.user.value})

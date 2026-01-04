@@ -1,23 +1,22 @@
 """Utils module."""
 
 from pathlib import Path
-from typing import TYPE_CHECKING
 
+from litestar import Request
+from litestar.security.jwt import Token
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.models import Items, PersonIn, models
 from app.tables.tables import Base, Persons
-from config import Config
-
-if TYPE_CHECKING:
-    from sqlalchemy.ext.asyncio import AsyncSession
+from constants import BASE_PATH, REFRESH_SECRET_KEY
 
 
 def create_destination(person: Persons) -> str:
     """Create destination."""
     destination = Path(
-        Config.BASE_PATH,
+        BASE_PATH,
         "Главный офис",
         person.surname[0],
         f"{person.id}-{person.surname} {person.firstname} {person.patronymic}".rstrip(),
@@ -72,7 +71,11 @@ async def upload_resume(
             return person.id, True
 
 
-async def select_item(item: Items, person_id: int, db_session: AsyncSession) -> list:
+async def select_item(
+    item: Items,
+    person_id: int,
+    db_session: AsyncSession,
+) -> list[dict]:
     """Retrieve an item from the database based on the provided item."""
     async with db_session.begin():
         table = Base.metadata.tables[item]
@@ -83,3 +86,13 @@ async def select_item(item: Items, person_id: int, db_session: AsyncSession) -> 
         )
         items = (await db_session.execute(stmt)).all()
         return [models[item].model_validate(table).model_dump() for table in items]
+
+
+async def decode_token(request: Request) -> Token:
+    """Decode the token."""
+    token: dict = await request.json()
+    return Token.decode(
+        token.get("refresh_token"),
+        REFRESH_SECRET_KEY,
+        "HS256",
+    )

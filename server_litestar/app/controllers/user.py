@@ -12,7 +12,7 @@ from app.depends.auth import role_guard
 from app.models.models import Actions, User, UserForm
 from app.tables.tables import Users
 from app.utils.security import generate_password_hash
-from config import Config
+from constants import DEFAULT_PASSWORD
 
 
 class UserController(Controller):
@@ -21,11 +21,11 @@ class UserController(Controller):
     guards: ClassVar = [role_guard]
 
     @get("/users", opt={"roles": Roles.admin.value})
-    async def get_users(self, db_session: AsyncSession) -> list[dict]:
+    async def get_users(self, db_session: AsyncSession) -> list[User]:
         """Retrieve a list of users from the database."""
         async with db_session.begin():
             users = (await db_session.execute(select(Users))).scalars()
-            return [User.model_validate(user).model_dump() for user in users]
+            return [User.model_validate(user) for user in users]
 
     @post("/user/{user_id:int}", opt={"roles": Roles.admin.value})
     async def post_user_actions(
@@ -44,7 +44,7 @@ class UserController(Controller):
 
             if data.item == "reset":
                 # Сбросить пароль пользователя и обнулить попытки входа
-                user.passhash = generate_password_hash(Config.DEFAULT_PASSWORD)
+                user.passhash = generate_password_hash(DEFAULT_PASSWORD)
                 user.attempt = 0
                 user.blocked = False
                 user.change_pswd = True

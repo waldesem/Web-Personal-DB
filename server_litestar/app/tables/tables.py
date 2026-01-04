@@ -24,7 +24,7 @@ from sqlalchemy.orm import (
 
 from app.classes.classes import Roles
 from app.utils.security import generate_password_hash
-from config import Config
+from constants import DATABASE_URI, DEFAULT_PASSWORD
 
 
 class Base(DeclarativeBase):
@@ -43,7 +43,7 @@ class Users(Base):
     created: Mapped[DateTime] = mapped_column(DateTime, default=func.now())
     passhash: Mapped[str] = mapped_column(
         String(255),
-        default=generate_password_hash(Config.DEFAULT_PASSWORD),
+        default=generate_password_hash(DEFAULT_PASSWORD),
     )
     pswd_create: Mapped[DateTime] = mapped_column(DateTime, default=func.now())
     change_pswd: Mapped[bool] = mapped_column(Boolean(), default=True)
@@ -424,7 +424,7 @@ class Inquiries(Base):
 
 config = SQLAlchemyAsyncConfig(
     before_send_handler=async_autocommit_before_send_handler,
-    connection_string=Config.DATABASE_URI,
+    connection_string=DATABASE_URI,
     create_all=True,
     metadata=Base.metadata,
 )

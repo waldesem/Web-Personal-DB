@@ -3,21 +3,26 @@
 from __future__ import annotations
 
 import secrets
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any, Literal
 
-import jwt
 from litestar import Controller, Request, get, post
+from litestar.di import Provide
 from litestar.exceptions import NotAuthorizedException
-from litestar.security.jwt import Token  # noqa: TC002
+from litestar.security.jwt import Token
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession  # noqa: TC002
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.depends.auth import get_current_user, jwt_auth, store
 from app.models.models import Login, User  # noqa: TC001
 from app.tables.tables import Users
 from app.utils.security import check_password_hash, generate_password_hash
-from config import Config
+from app.utils.utilities import decode_token
+from constants import (
+    ACCESS_SECRET_KEY_LIVE,
+    REFRESH_SECRET_KEY,
+    REFRESH_SECRET_KEY_LIVE,
+)
 
 
 class AuthController(Controller):
@@ -52,7 +57,7 @@ class AuthController(Controller):
 
             if action == "update" and data.new_pswd:
                 user.passhash = generate_password_hash(data.new_pswd)
-                user.pswd_create = datetime.now(tz=timezone.utc)  # noqa: UP017
+                user.pswd_create = datetime.now(tz=UTC)
                 user.change_pswd = False
                 user.attempt = 0
                 return {"message": "updated"}
@@ -60,56 +65,56 @@ class AuthController(Controller):
             delta_change = datetime.now() - user.pswd_create
             if not user.change_pswd and delta_change.days < 365:
                 user.attempt = 0
+                refresh = Token(
+                    exp=datetime.now(tz=UTC)
+                    + timedelta(minutes=REFRESH_SECRET_KEY_LIVE),
+                    jti=secrets.token_hex(10),
+                    sub=str(user.id),
+                    iat=datetime.now(tz=UTC),
+                )
                 return {
                     "message": "success",
                     "access_token": jwt_auth.create_token(
                         identifier=str(user.id),
                         token_unique_jwt_id=secrets.token_hex(10),
                         token_expiration=timedelta(
-                            minutes=Config.ACCESS_SECRET_KEY_LIVE,
+                            minutes=ACCESS_SECRET_KEY_LIVE,
                         ),
                     ),
-                    "refresh_token": jwt.encode(
-                        {
-                            "id": str(user.id),
-                            "jti": secrets.token_hex(10),
-                            "exp": datetime.now(tz=timezone.utc)  # noqa: UP017
-                            + timedelta(minutes=Config.REFRESH_SECRET_KEY_LIVE),
-                        },
-                        Config.REFRESH_SECRET_KEY,
+                    "refresh_token": refresh.encode(
+                        REFRESH_SECRET_KEY,
                         algorithm="HS256",
                     ),
                 }
             return {"message": "denied"}
 
-    @post("/logout")
-    async def logout(self, token: Token, request: Request) -> dict:
+    @post("/logout", dependencies={"refresh": Provide(decode_token)})
+    async def logout(self, request: Request[User, Token, Any], refresh: Token) -> dict:
         """Logout the user."""
-        refresh = await request.json()
-        decoded = jwt.decode(
-            refresh.get("refresh_token"),
-            Config.REFRESH_SECRET_KEY,
-            algorithms=["HS256"],
+        await store.set(
+            "jti",
+            request.auth.jti,
+            expires_in=timedelta(
+                minutes=ACCESS_SECRET_KEY_LIVE,
+            ),
         )
-        store.set("jti", token.jti, expires_in=token.exp)
-        store.set("jti", decoded["jti"], expires_in=decoded["exp"])
+        await store.set(
+            "jti",
+            refresh.jti,
+            expires_in=timedelta(
+                minutes=REFRESH_SECRET_KEY_LIVE,
+            ),
+        )
         await store.delete_expired()
 
-    @post("/refresh")
-    async def refresh_token(self, request: Request) -> dict:
+    @post("/refresh", dependencies={"refresh": Provide(decode_token)})
+    async def refresh_token(self, refresh: Token) -> dict:
         """Refresh the access token."""
-        token: dict = await request.json()
-        decoded = jwt.decode(
-            token.get("refresh_token"),
-            Config.REFRESH_SECRET_KEY,
-            algorithms=["HS256"],
-            verify=True,
-        )
         return {
             "access_token": jwt_auth.create_token(
-                identifier=str(decoded["id"]),
+                identifier=str(refresh.sub),
                 token_unique_jwt_id=secrets.token_hex(10),
-                token_expiration=timedelta(minutes=Config.ACCESS_SECRET_KEY_LIVE),
+                token_expiration=timedelta(minutes=ACCESS_SECRET_KEY_LIVE),
             ),
         }
 

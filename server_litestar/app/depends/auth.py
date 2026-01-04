@@ -9,7 +9,7 @@ from litestar.stores.memory import MemoryStore
 
 from app.models.models import User
 from app.tables.tables import Users, config
-from config import Config
+from constants import ACCESS_SECRET_KEY
 
 if TYPE_CHECKING:
     from litestar.connection import ASGIConnection
@@ -67,7 +67,7 @@ async def revoked_token_handler(
 jwt_auth = JWTAuth[User](
     retrieve_user_handler=retrieve_user_handler,
     revoked_token_handler=revoked_token_handler,
-    token_secret=Config.ACCESS_SECRET_KEY,
+    token_secret=ACCESS_SECRET_KEY,
     exclude=[
         "/routes/auth/login",
         "/routes/auth/update",

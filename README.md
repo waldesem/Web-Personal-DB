@@ -112,4 +112,4 @@ For starting frontend in SSR mode run
 HOST=localhost PORT=8000 node .output/server/index.mjs
 ```
 
-Nitro server should be run behind a reverse proxy like nginx.
+Nitro server should be run behind a reverse proxy like nginx or with [Litestar Vite](https://github.com/litestar-org/litestar-vite)
