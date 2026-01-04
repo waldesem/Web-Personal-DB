@@ -13,8 +13,20 @@ from sqlalchemy.ext.asyncio import AsyncSession  # noqa: TC002
 from app.classes.classes import Roles
 from app.depends.auth import role_guard
 from app.models.models import AnketaJson, Candidates, Index, PersonIn, User
-from app.tables.tables import Base, Persons, Users
-from app.utils.utilities import upload_items, upload_resume
+from app.tables.tables import (
+    Addresses,
+    Affilations,
+    Base,
+    Contacts,
+    Documents,
+    Educations,
+    Persons,
+    Previous,
+    Staffs,
+    Users,
+    Workplaces,
+)
+from app.utils.utilities import upload_resume
 
 
 @get("/candidates")
@@ -79,6 +91,84 @@ async def post_json_file(
     # Сохранение дополнительной информации о кандидате в БД
     if person_id:
         async with db_session.begin():
-            items = upload_items(data, person_id)
+            items = [
+                Documents(
+                    digits=data.digits,
+                    series=data.series,
+                    issue=data.issue,
+                    agency=data.agency,
+                    person_id=person_id,
+                ),
+                Staffs(
+                    position=data.position,
+                    department=data.department,
+                    person_id=person_id,
+                ),
+                Addresses(
+                    view="Адрес проживания",
+                    address=data.valid_address,
+                    person_id=person_id,
+                ),
+                Addresses(
+                    view="Адрес регистрации",
+                    address=data.reg_address,
+                    person_id=person_id,
+                ),
+                Contacts(
+                    view="Телефон",
+                    contact=data.contact_phone,
+                    person_id=person_id,
+                ),
+                Contacts(
+                    view="Электронная почта",
+                    contact=data.email,
+                    person_id=person_id,
+                ),
+                *[
+                    Educations(**education.model_dump(), person_id=person_id)
+                    for education in data.education
+                ],
+                *[
+                    Workplaces(**workplace.model_dump(), person_id=person_id)
+                    for workplace in data.experience
+                ],
+                *[
+                    Previous(**prev.model_dump(), person_id=person_id)
+                    for prev in data.name_was_changed
+                ],
+                *[
+                    Affilations(
+                        view="Участвует в деятельности коммерческих организаций",
+                        organization=aff.organization,
+                        inn=aff.inn,
+                        person_id=person_id,
+                    )
+                    for aff in data.organizations
+                ],
+                *[
+                    Affilations(
+                        view="Являлся государственным должностным лицом",
+                        organization=aff.organization,
+                        person_id=person_id,
+                    )
+                    for aff in data.state_organizations
+                ],
+                *[
+                    Affilations(
+                        view="Связанные лица работают в государственных организациях",
+                        organization=aff.organization,
+                        person_id=person_id,
+                    )
+                    for aff in data.related_organizations
+                ],
+                *[
+                    Affilations(
+                        view="Являлся государственным или муниципальным служащим",
+                        organization=aff.organization,
+                        person_id=person_id,
+                    )
+                    for aff in data.public_organizations
+                ],
+            ]
             db_session.add_all(items)
     return {"person_id": person_id, "exists": existed}

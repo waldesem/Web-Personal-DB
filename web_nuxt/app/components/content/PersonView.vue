@@ -33,15 +33,14 @@ async function deletePerson() {
     return;
   if (!confirm("Все данные будут удалены безвозвратно!?")) return;
   status.value = "pending";
-  const { message } = await $api<Record<string, string>>(
-    `/routes/persons/${person.value?.id}`,
-    { method: "DELETE" }
-  );
-  if (message == "success") {
+  try {
+    await $api<Record<string, string>>(`/routes/persons/${person.value?.id}`, {
+      method: "DELETE",
+    });
     toasts.create("success", "Информация успешно удалена");
     refreshNuxtData("candidates");
     return navigateTo("/persons");
-  } else {
+  } catch {
     refreshNuxtData("person");
     toasts.create();
   }

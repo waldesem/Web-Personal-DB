@@ -363,8 +363,8 @@ class AnketaJson(PersonIn):
     )
 
 
-models: dict[Items, Model] = {
+models: dict[str, type[Model]] = {
     model.__modelname__: model
     for model in Model.__subclasses__()
-    if "__modelname__" in model.__dict__
+    if hasattr(model, "__modelname__")
 }

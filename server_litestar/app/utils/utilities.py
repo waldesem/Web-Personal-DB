@@ -6,19 +6,8 @@ from typing import TYPE_CHECKING
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.models.models import AnketaJson, Items, PersonIn, models
-from app.tables.tables import (
-    Addresses,
-    Affilations,
-    Base,
-    Contacts,
-    Documents,
-    Educations,
-    Persons,
-    Previous,
-    Staffs,
-    Workplaces,
-)
+from app.models.models import Items, PersonIn, models
+from app.tables.tables import Base, Persons
 from config import Config
 
 if TYPE_CHECKING:
@@ -81,89 +70,6 @@ async def upload_resume(
             return None, False
         else:
             return person.id, True
-
-
-def upload_items(anketa: AnketaJson, person_id: int) -> list:
-    """Organze additional information about a person for database uploads."""
-    return [
-        Documents(
-            digits=anketa.digits,
-            series=anketa.series,
-            issue=anketa.issue,
-            agency=anketa.agency,
-            person_id=person_id,
-        ),
-        Staffs(
-            position=anketa.position,
-            department=anketa.department,
-            person_id=person_id,
-        ),
-        Addresses(
-            view="Адрес проживания",
-            address=anketa.valid_address,
-            person_id=person_id,
-        ),
-        Addresses(
-            view="Адрес регистрации",
-            address=anketa.reg_address,
-            person_id=person_id,
-        ),
-        Contacts(
-            view="Телефон",
-            contact=anketa.contact_phone,
-            person_id=person_id,
-        ),
-        Contacts(
-            view="Электронная почта",
-            contact=anketa.email,
-            person_id=person_id,
-        ),
-        *[
-            Educations(**education.model_dump(), person_id=person_id)
-            for education in anketa.education
-        ],
-        *[
-            Workplaces(**workplace.model_dump(), person_id=person_id)
-            for workplace in anketa.experience
-        ],
-        *[
-            Previous(**prev.model_dump(), person_id=person_id)
-            for prev in anketa.name_was_changed
-        ],
-        *[
-            Affilations(
-                view="Участвует в деятельности коммерческих организаций",
-                organization=aff.organization,
-                inn=aff.inn,
-                person_id=person_id,
-            )
-            for aff in anketa.organizations
-        ],
-        *[
-            Affilations(
-                view="Являлся государственным должностным лицом",
-                organization=aff.organization,
-                person_id=person_id,
-            )
-            for aff in anketa.state_organizations
-        ],
-        *[
-            Affilations(
-                view="Связанные лица работают в государственных организациях",
-                organization=aff.organization,
-                person_id=person_id,
-            )
-            for aff in anketa.related_organizations
-        ],
-        *[
-            Affilations(
-                view="Являлся государственным или муниципальным служащим",
-                organization=aff.organization,
-                person_id=person_id,
-            )
-            for aff in anketa.public_organizations
-        ],
-    ]
 
 
 async def select_item(item: Items, person_id: int, db_session: AsyncSession) -> list:

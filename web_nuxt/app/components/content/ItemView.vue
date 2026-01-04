@@ -73,13 +73,16 @@ async function submitItem(form: typeof item.value) {
 async function deleteItem(itemId: string) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   status.value = "pending";
-  const { message } = (await $api(`/routes/items/${props.view}/${itemId}`, {
-    method: "DELETE",
-  })) as Status;
-  await getItem();
-  if (message === "success") {
+  try {
+    (await $api(`/routes/items/${props.view}/${itemId}`, {
+      method: "DELETE",
+    })) as Status;
+    await getItem();
     toasts.create("success", "Информация успешно удалена");
-  } else toasts.create();
+  } catch {
+    toasts.create();
+  }
+  status.value = "success";
 }
 </script>
 
