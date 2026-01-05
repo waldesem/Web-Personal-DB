@@ -1,7 +1,6 @@
 """Items routes."""
 
 from litestar import Controller, delete, get, post
-from litestar.di import Provide
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.classes.classes import Roles
@@ -21,10 +20,15 @@ class ItemsController(Controller):
         """Retrieve an all items from the database."""
         return {item: await select_item(item, person_id, db_session) for item in models}
 
-    @get("/{item:str}/{person_id:int}", dependencies={"result": Provide(select_item)})
-    async def get_item(self, result: list[dict]) -> list[dict]:
+    @get("/{item:str}/{person_id:int}")
+    async def get_item(
+        self,
+        item: Items,
+        person_id: int,
+        db_session: AsyncSession,
+    ) -> list[dict]:
         """Get result of query based on the provided item."""
-        return result
+        return await select_item(item, person_id, db_session)
 
     @post(
         "{item:str}/{person_id:int}",
@@ -40,8 +44,8 @@ class ItemsController(Controller):
     ) -> dict:
         """Insert or replaces a record in the specified table with the given item ID."""
         async with db_session.begin():
-            json_data = models[item].model_validate(data)
-            json_dict = json_data.model_dump(exclude_none=True, exclude={"created"})
+            model_data = models[item].model_validate(data)
+            json_dict = model_data.model_dump(exclude_none=True, exclude={"created"})
             json_dict["person_id"] = person_id
             table = Base.metadata.tables[item]
             # Проверяем, есть ли ключ "id" в словаре json_dict

@@ -88,11 +88,13 @@ async def select_item(
         return [models[item].model_validate(table).model_dump() for table in items]
 
 
-async def decode_token(request: Request) -> Token:
+async def decode_token(request: Request) -> Token | None:
     """Decode the token."""
     token: dict = await request.json()
+    if not token:
+        return None
     return Token.decode(
-        token.get("refresh_token"),
+        token.get("refresh_token").split()[1],
         REFRESH_SECRET_KEY,
         "HS256",
     )

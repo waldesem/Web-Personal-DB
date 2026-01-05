@@ -27,13 +27,13 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         }
 
         try {
-          const { access_token } = (await $fetch("/routes/auth/refresh", {
+          const res = await $fetch.raw("/routes/auth/refresh", {
             method: "POST",
             body: {
               refresh_token: refresh.value,
             },
-          })) as { access_token: string };
-          token.value = access_token;
+          });
+          token.value = res.headers?.get("Authorization");
         } catch (error) {
           console.error(error);
           await nuxtApp.runWithContext(() => navigateTo("/login"));
@@ -41,7 +41,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       }
 
       // Если токен доступа найден, добавляем его в заголовок запроса
-      options.headers.set("Authorization", `Bearer ${token.value}`);
+      options.headers.set("Authorization", token.value as string);
     },
 
     // Обработка ошибок

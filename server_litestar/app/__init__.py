@@ -8,7 +8,7 @@ from litestar.logging import LoggingConfig
 
 from app.controllers import base_router
 from app.depends.auth import jwt_auth
-from app.tables.tables import plugin
+from app.tables.tables import alchemy_plugin
 
 logging_config = LoggingConfig(
     disable_stack_trace={404, ValueError},
@@ -22,10 +22,9 @@ async def index() -> None:
 
 
 app = Litestar(
-    route_handlers=[index, base_router],
     on_app_init=[jwt_auth.on_app_init],
-    plugins=[plugin],
+    route_handlers=[index, base_router],
     logging_config=logging_config,
+    plugins=[alchemy_plugin],
     openapi_config=None,
-    debug=True,
 )

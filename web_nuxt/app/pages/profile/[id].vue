@@ -53,7 +53,7 @@ async function switchUser(): Promise<void> {
   }
   status.value = "pending";
   const { message } = await $api<Record<string, string>>(
-    "/routes/self/" + candId.value
+    "/routes/switch/" + candId.value
   );
   status.value = message as "success" | "error";
   if (message == "success") {

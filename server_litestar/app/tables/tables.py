@@ -428,4 +428,4 @@ config = SQLAlchemyAsyncConfig(
     create_all=True,
     metadata=Base.metadata,
 )
-plugin = SQLAlchemyInitPlugin(config=config)
+alchemy_plugin = SQLAlchemyInitPlugin(config=config)

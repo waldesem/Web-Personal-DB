@@ -6,7 +6,7 @@ import secrets
 from datetime import UTC, datetime, timedelta
 from typing import Any, Literal
 
-from litestar import Controller, Request, get, post
+from litestar import Controller, Request, Response, get, post
 from litestar.di import Provide
 from litestar.exceptions import NotAuthorizedException
 from litestar.security.jwt import Token
@@ -74,17 +74,21 @@ class AuthController(Controller):
                 )
                 return {
                     "message": "success",
-                    "access_token": jwt_auth.create_token(
-                        identifier=str(user.id),
-                        token_unique_jwt_id=secrets.token_hex(10),
-                        token_expiration=timedelta(
-                            minutes=ACCESS_SECRET_KEY_LIVE,
-                        ),
-                    ),
-                    "refresh_token": refresh.encode(
-                        REFRESH_SECRET_KEY,
-                        algorithm="HS256",
-                    ),
+                    "access_token": f"Bearer {
+                        jwt_auth.create_token(
+                            identifier=str(user.id),
+                            token_unique_jwt_id=secrets.token_hex(10),
+                            token_expiration=timedelta(
+                                minutes=ACCESS_SECRET_KEY_LIVE,
+                            ),
+                        )
+                    }",
+                    "refresh_token": f"Bearer {
+                        refresh.encode(
+                            REFRESH_SECRET_KEY,
+                            algorithm='HS256',
+                        )
+                    }",
                 }
             return {"message": "denied"}
 
@@ -108,15 +112,15 @@ class AuthController(Controller):
         await store.delete_expired()
 
     @post("/refresh", dependencies={"refresh": Provide(decode_token)})
-    async def refresh_token(self, refresh: Token) -> dict:
+    async def refresh_token(self, refresh: Token) -> Response | Exception:
         """Refresh the access token."""
-        return {
-            "access_token": jwt_auth.create_token(
-                identifier=str(refresh.sub),
-                token_unique_jwt_id=secrets.token_hex(10),
-                token_expiration=timedelta(minutes=ACCESS_SECRET_KEY_LIVE),
-            ),
-        }
+        if not refresh:
+            raise NotAuthorizedException
+        return jwt_auth.login(
+            identifier=str(refresh.sub),
+            token_unique_jwt_id=secrets.token_hex(10),
+            token_expiration=timedelta(minutes=ACCESS_SECRET_KEY_LIVE),
+        )
 
     @get("/session")
     async def get_session(

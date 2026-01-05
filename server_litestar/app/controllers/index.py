@@ -7,7 +7,6 @@ from typing import Any
 from litestar import Request, get, post
 from litestar.security.jwt import Token
 from sqlalchemy import func, not_, select, update
-from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.classes.classes import Roles
@@ -30,7 +29,7 @@ from app.utils.utilities import upload_resume
 
 
 @get("/candidates")
-async def get_index(query: Index, db_session: AsyncSession) -> list[Candidates]:
+async def get_candidates(query: Index, db_session: AsyncSession) -> list[Candidates]:
     """Retrieve a paginated list of persons from the database."""
     async with db_session.begin():
         stmt = select(
@@ -56,7 +55,11 @@ async def get_index(query: Index, db_session: AsyncSession) -> list[Candidates]:
         return [Candidates.model_validate(cand) for cand in candidates]
 
 
-@get("/self/{person_id:int}", guards=[role_guard], opt={"roles": Roles.user.value})
+@get(
+    "/switch/{person_id:int}",
+    guards=[role_guard],
+    opt={"roles": Roles.user.value},
+)
 async def switch_status(
     person_id: int,
     request: Request[User, Token, Any],
@@ -64,17 +67,12 @@ async def switch_status(
 ) -> dict:
     """Toggle the editable status of a person."""
     async with db_session.begin():
-        try:
-            await db_session.execute(
-                update(Persons)
-                .where(Persons.id == person_id)
-                .values(editable=not_(Persons.editable), user_id=request.user.id),
-            )
-        except SQLAlchemyError:
-            request.logger.exception("Database error")
-            return {"message": "error"}
-        else:
-            return {"message": "success"}
+        await db_session.execute(
+            update(Persons)
+            .where(Persons.id == person_id)
+            .values(editable=not_(Persons.editable), user_id=request.user.id),
+        )
+        return {"message": "success"}
 
 
 @post("/json", guards=[role_guard], opt={"roles": Roles.user.value})

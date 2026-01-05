@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import date, datetime  # noqa: TC003
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -25,12 +25,6 @@ Items = Literal[
     "staffs",
     "workplaces",
 ]
-
-
-class ItemModel(BaseModel):
-    """Item Model."""
-
-    item: Items
 
 
 class Model(BaseModel):
@@ -368,3 +362,20 @@ models: dict[str, type[Model]] = {
     for model in Model.__subclasses__()
     if hasattr(model, "__modelname__")
 }
+
+
+ItemModel = Annotated[
+    Address
+    | Affilation
+    | Check
+    | Contact
+    | Document
+    | Education
+    | Inquiry
+    | Investigation
+    | Prev
+    | Poligraf
+    | Staff
+    | Workplace,
+    Field(discriminator="item"),
+]
