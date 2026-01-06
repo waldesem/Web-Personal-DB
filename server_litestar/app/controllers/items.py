@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.classes.classes import Roles
 from app.depends.auth import role_guard
-from app.models.models import Items, models
+from app.models.models import ItemModel, Items, models
 from app.tables.tables import Base
 from app.utils.utilities import select_item
 
@@ -30,24 +30,18 @@ class ItemsController(Controller):
         """Get result of query based on the provided item."""
         return await select_item(item, person_id, db_session)
 
-    @post(
-        "{item:str}/{person_id:int}",
-        guards=[role_guard],
-        opt={"roles": Roles.user.value},
-    )
+    @post("/{person_id:int}", guards=[role_guard], opt={"roles": Roles.user.value})
     async def post_item(
         self,
-        item: Items,
         person_id: int,
-        data: dict,
+        data: ItemModel,
         db_session: AsyncSession,
     ) -> dict:
         """Insert or replaces a record in the specified table with the given item ID."""
         async with db_session.begin():
-            model_data = models[item].model_validate(data)
-            json_dict = model_data.model_dump(exclude_none=True, exclude={"created"})
+            json_dict = data.item.model_dump(exclude_none=True, exclude={"created"})
             json_dict["person_id"] = person_id
-            table = Base.metadata.tables[item]
+            table = Base.metadata.tables[json_dict.pop("item")]
             # Проверяем, есть ли ключ "id" в словаре json_dict
             if item_id := json_dict.pop("id", None):
                 # Если есть, создаем запрос на обновление записи с указанным id

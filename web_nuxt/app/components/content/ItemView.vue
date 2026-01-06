@@ -55,13 +55,10 @@ async function getItem() {
 async function submitItem(form: typeof item.value) {
   status.value = "pending";
   modal.value = false;
-  const { message } = (await $api(
-    `/routes/items/${props.view}/${candId.value}`,
-    {
-      method: "POST",
-      body: form,
-    }
-  )) as Status;
+  const { message } = (await $api(`/routes/items/${candId.value}`, {
+    method: "POST",
+    body: { item: { ...form, ...{ item: props.view } } },
+  })) as Status;
   item.value = {};
   await getItem();
   if (message === "success") {

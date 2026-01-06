@@ -85,7 +85,7 @@ async def select_item(
             .order_by(table.c.id.desc())
         )
         items = (await db_session.execute(stmt)).all()
-        return [models[item].model_validate(table).model_dump() for table in items]
+        return [models[item].model_validate(tbl).model_dump() for tbl in items]
 
 
 async def decode_token(request: Request) -> Token | None:

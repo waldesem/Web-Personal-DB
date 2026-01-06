@@ -173,6 +173,7 @@ class Prev(Model):
     changed: str | int | None = Field(default="", alias="yearOfChange")
     reason: str | None = ""
     created: datetime | str | None = None
+    item: Literal["previous"] = None
 
 
 class Education(Model):
@@ -186,6 +187,7 @@ class Education(Model):
     finished: str | int | None = Field(default="", alias="endYear")
     specialty: str | None = ""
     created: datetime | str | None = None
+    item: Literal["educations"] = None
 
 
 class Staff(Model):
@@ -197,6 +199,7 @@ class Staff(Model):
     position: str
     department: str | None = ""
     created: datetime | str | None = None
+    item: Literal["staffs"] = None
 
 
 class Document(Model):
@@ -211,6 +214,7 @@ class Document(Model):
     agency: str | None = ""
     issue: date | None
     created: datetime | str | None = None
+    item: Literal["documents"] = None
 
 
 class Address(Model):
@@ -222,6 +226,7 @@ class Address(Model):
     view: str
     address: str
     created: datetime | str | None = None
+    item: Literal["addresses"] = None
 
 
 class Contact(Model):
@@ -233,6 +238,7 @@ class Contact(Model):
     view: str
     contact: str
     created: datetime | str | None = None
+    item: Literal["contacts"] = None
 
 
 class Workplace(Model):
@@ -249,6 +255,7 @@ class Workplace(Model):
     position: str
     reason: str | None = Field(default="", alias="fireReason")
     created: datetime | str | None = None
+    item: Literal["workplaces"] = None
 
 
 class Affilation(Model):
@@ -261,6 +268,7 @@ class Affilation(Model):
     organization: str | None = Field(default="", alias="name")
     inn: str | None = ""
     created: datetime | str | None = None
+    item: Literal["affilations"] = None
 
 
 class Check(Model):
@@ -286,6 +294,7 @@ class Check(Model):
     comment: str | None = ""
     conclusion: Conclusions
     created: datetime | str | None = None
+    item: Literal["checks"] = None
 
 
 class Poligraf(Model):
@@ -298,6 +307,7 @@ class Poligraf(Model):
     results: str | None
     conclusion: Decisions
     created: datetime | str | None = None
+    item: Literal["poligrafs"] = None
 
 
 class Investigation(Model):
@@ -309,6 +319,7 @@ class Investigation(Model):
     theme: str
     info: str
     created: datetime | str | None = None
+    item: Literal["investigations"] = None
 
 
 class Inquiry(Model):
@@ -321,6 +332,7 @@ class Inquiry(Model):
     initiator: str
     origins: str | None = ""
     created: datetime | str | None = None
+    item: Literal["inquiries"] = None
 
 
 class AnketaJson(PersonIn):
@@ -364,18 +376,21 @@ models: dict[str, type[Model]] = {
 }
 
 
-ItemModel = Annotated[
-    Address
-    | Affilation
-    | Check
-    | Contact
-    | Document
-    | Education
-    | Inquiry
-    | Investigation
-    | Prev
-    | Poligraf
-    | Staff
-    | Workplace,
-    Field(discriminator="item"),
-]
+class ItemModel(BaseModel):
+    """Base model for all items."""
+
+    item: Annotated[
+        Address
+        | Affilation
+        | Check
+        | Contact
+        | Document
+        | Education
+        | Inquiry
+        | Investigation
+        | Prev
+        | Poligraf
+        | Staff
+        | Workplace,
+        Field(discriminator="item"),
+    ]
