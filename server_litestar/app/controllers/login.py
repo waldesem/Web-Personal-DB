@@ -14,15 +14,26 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.depends.auth import get_current_user, jwt_auth, store
-from app.models.models import Login, User  # noqa: TC001
+from app.models.models import Login, User
 from app.tables.tables import Users
 from app.utils.security import check_password_hash, generate_password_hash
-from app.utils.utilities import decode_token
 from constants import (
     ACCESS_SECRET_KEY_LIVE,
     REFRESH_SECRET_KEY,
     REFRESH_SECRET_KEY_LIVE,
 )
+
+
+async def decode_token(request: Request) -> Token:
+    """Decode the token."""
+    token: dict = await request.json()
+    if not token:
+        return None
+    return Token.decode(
+        token.get("refresh_token").split()[1],
+        REFRESH_SECRET_KEY,
+        "HS256",
+    )
 
 
 class AuthController(Controller):

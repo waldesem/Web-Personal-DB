@@ -1,13 +1,13 @@
 """Items routes."""
 
 from litestar import Controller, delete, get, post
+from sqlalchemy import label, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.classes.classes import Roles
+from app.classes.classes import ItemCategory, Roles
 from app.depends.auth import role_guard
-from app.models.models import ItemModel, Items
+from app.models.models import ItemModel, ItemsModel
 from app.tables.tables import Base
-from app.utils.utilities import select_item
 
 
 class ItemsController(Controller):
@@ -15,23 +15,44 @@ class ItemsController(Controller):
 
     path = "/items"
 
+    @staticmethod
+    async def select_item(
+        item: ItemCategory,
+        person_id: int,
+        db_session: AsyncSession,
+    ) -> list[ItemsModel]:
+        """Retrieve an item from the database based on the provided item."""
+        async with db_session.begin():
+            table = Base.metadata.tables[item]
+            stmt = (
+                select(table, label("item", item))
+                .filter(table.c.person_id == person_id)
+                .order_by(table.c.id.desc())
+            )
+            items = (await db_session.execute(stmt)).all()
+            return ItemsModel.model_validate({"item": items}).item
+
     @get("/{person_id:int}")
-    async def get_items(self, person_id: int, db_session: AsyncSession) -> ItemModel:
+    async def get_items(
+        self,
+        person_id: int,
+        db_session: AsyncSession,
+    ) -> dict[ItemCategory, ItemsModel]:
         """Retrieve an all items from the database."""
         return {
-            item: await select_item(item, person_id, db_session)
-            for item in Items.__args__
+            item.value: await self.select_item(item.value, person_id, db_session)
+            for item in ItemCategory
         }
 
     @get("/{item:str}/{person_id:int}")
     async def get_item(
         self,
-        item: Items,
+        item: ItemCategory,
         person_id: int,
         db_session: AsyncSession,
-    ) -> list[ItemModel]:
+    ) -> ItemsModel:
         """Get result of query based on the provided item."""
-        return await select_item(item, person_id, db_session)
+        return await self.select_item(item, person_id, db_session)
 
     @post(
         "/{item:str}/{person_id:int}",
@@ -40,7 +61,7 @@ class ItemsController(Controller):
     )
     async def post_item(
         self,
-        item: Items,
+        item: ItemCategory,
         person_id: int,
         data: ItemModel,
         db_session: AsyncSession,
@@ -70,7 +91,7 @@ class ItemsController(Controller):
     )
     async def delete_item(
         self,
-        item: Items,
+        item: ItemCategory,
         item_id: int,
         db_session: AsyncSession,
     ) -> None:

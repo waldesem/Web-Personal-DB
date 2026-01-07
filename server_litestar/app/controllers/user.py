@@ -4,6 +4,7 @@ from typing import Any, ClassVar
 
 from litestar import Controller, Request, get, post
 from litestar.security.jwt import Token
+from pydantic import TypeAdapter
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -26,7 +27,7 @@ class UserController(Controller):
         """Retrieve a list of users from the database."""
         async with db_session.begin():
             users = (await db_session.execute(select(Users))).scalars()
-            return [User.model_validate(user) for user in users]
+            return TypeAdapter(list[User]).validate_python(users)
 
     @post("/user")
     async def post_user(self, data: UserForm, db_session: AsyncSession) -> dict:

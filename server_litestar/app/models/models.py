@@ -150,8 +150,6 @@ class Candidates(PersonOut):
 class Prev(Model):
     """Previous schema."""
 
-    __modelname__ = "previous"
-
     id: int | None = None
     surname: str | None = Field(alias="lastNameBeforeChange")
     firstname: str | None = Field(alias="firstNameBeforeChange")
@@ -165,8 +163,6 @@ class Prev(Model):
 class Education(Model):
     """Educations schema."""
 
-    __modelname__ = "educations"
-
     id: int | None = None
     view: str | None = Field(default="", alias="educationType")
     institution: str = Field(default="", alias="institutionName")
@@ -179,8 +175,6 @@ class Education(Model):
 class Staff(Model):
     """Staffs schema."""
 
-    __modelname__ = "staffs"
-
     id: int | None = None
     position: str
     department: str | None = ""
@@ -190,8 +184,6 @@ class Staff(Model):
 
 class Document(Model):
     """Documents schema."""
-
-    __modelname__ = "documents"
 
     id: int | None = None
     view: str | None = Field(default="", alias="documentType")
@@ -206,8 +198,6 @@ class Document(Model):
 class Address(Model):
     """Addresses schema."""
 
-    __modelname__ = "addresses"
-
     id: int | None = None
     view: str
     address: str
@@ -218,8 +208,6 @@ class Address(Model):
 class Contact(Model):
     """Contacts schema."""
 
-    __modelname__ = "contacts"
-
     id: int | None = None
     view: str
     contact: str
@@ -229,8 +217,6 @@ class Contact(Model):
 
 class Workplace(Model):
     """Workplaces schema."""
-
-    __modelname__ = "workplaces"
 
     id: int | None = None
     now_work: bool | None = Field(default=False, alias="currentJob")
@@ -247,8 +233,6 @@ class Workplace(Model):
 class Affilation(Model):
     """Affilations schema."""
 
-    __modelname__ = "affilations"
-
     id: int | None = None
     view: str | None = Field(default="", alias="organizationType")
     organization: str | None = Field(default="", alias="name")
@@ -259,8 +243,6 @@ class Affilation(Model):
 
 class Check(Model):
     """Checks schema."""
-
-    __modelname__ = "checks"
 
     id: int | None = None
     workplace: str | None = ""
@@ -286,8 +268,6 @@ class Check(Model):
 class Poligraf(Model):
     """Poligraf schema."""
 
-    __modelname__ = "poligrafs"
-
     id: int | None = None
     theme: str
     results: str | None
@@ -299,8 +279,6 @@ class Poligraf(Model):
 class Investigation(Model):
     """Investigations schema."""
 
-    __modelname__ = "investigations"
-
     id: int | None = None
     theme: str
     info: str
@@ -310,8 +288,6 @@ class Investigation(Model):
 
 class Inquiry(Model):
     """Inquiries schema."""
-
-    __modelname__ = "inquiries"
 
     id: int | None = None
     info: str
@@ -355,37 +331,30 @@ class AnketaJson(PersonIn):
     )
 
 
-Items = Literal[
-    "addresses",
-    "affilations",
-    "checks",
-    "contacts",
-    "documents",
-    "educations",
-    "inquiries",
-    "investigations",
-    "previous",
-    "poligrafs",
-    "staffs",
-    "workplaces",
+ItemType = Annotated[
+    Address
+    | Affilation
+    | Check
+    | Contact
+    | Document
+    | Education
+    | Inquiry
+    | Investigation
+    | Prev
+    | Poligraf
+    | Staff
+    | Workplace,
+    Field(discriminator="item"),
 ]
 
 
 class ItemModel(BaseModel):
-    """Base model for all items."""
+    """Base model for item."""
 
-    item: Annotated[
-        Address
-        | Affilation
-        | Check
-        | Contact
-        | Document
-        | Education
-        | Inquiry
-        | Investigation
-        | Prev
-        | Poligraf
-        | Staff
-        | Workplace,
-        Field(discriminator="item"),
-    ]
+    item: ItemType
+
+
+class ItemsModel(BaseModel):
+    """Base model for items list."""
+
+    item: list[ItemType]

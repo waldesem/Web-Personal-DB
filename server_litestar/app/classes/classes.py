@@ -1,6 +1,6 @@
 """Enums and classes module."""
 
-from enum import Enum
+from enum import Enum, StrEnum
 
 
 class Roles(Enum):
@@ -28,3 +28,20 @@ class Decisions(Enum):
     comments = "С КОММЕНТАРИЯМИ"
     cancel = "ОТКАЗ ОТ ПРОВЕРКИ"
     denied = "НЕГАТИВ"
+
+
+class ItemCategory(StrEnum):
+    """Item categories."""
+
+    ADDRESSES = "addresses"
+    AFFILATIONS = "affilations"
+    CHECKS = "checks"
+    CONTACTS = "contacts"
+    DOCUMENTS = "documents"
+    EDUCATIONS = "educations"
+    INQUIRIES = "inquiries"
+    INVESTIGATIONS = "investigations"
+    PREVIOUS = "previous"
+    POLIGRAFS = "poligrafs"
+    STAFFS = "staffs"
+    WORKPLACES = "workplaces"

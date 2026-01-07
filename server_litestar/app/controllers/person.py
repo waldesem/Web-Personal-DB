@@ -5,17 +5,89 @@ from typing import Any
 
 from litestar import Controller, Request, delete, get, post
 from litestar.security.jwt import Token
+from pydantic import TypeAdapter
+from sqlalchemy import select
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.classes.classes import Roles
 from app.depends.auth import role_guard
-from app.models.models import PersonIn, PersonOut, User
-from app.tables.tables import Persons
-from app.utils.utilities import create_destination, upload_resume
+from app.models.models import AnketaJson, PersonIn, PersonOut, User
+from app.tables.tables import (
+    Addresses,
+    Affilations,
+    Contacts,
+    Documents,
+    Educations,
+    Persons,
+    Previous,
+    Staffs,
+    Workplaces,
+)
+from constants import BASE_PATH
 
 
 class PersonController(Controller):
     """Controller for person routes."""
+
+    @classmethod
+    def create_destination(cls, person: Persons) -> str:
+        """Create destination."""
+        destination = Path(
+            BASE_PATH,
+            "Главный офис",
+            person.surname[0],
+            f"{person.id}-{person.surname} {person.firstname} {person.patronymic}".rstrip(),
+        )
+        destination.mkdir(parents=True, exist_ok=True)
+        return str(destination)
+
+    @classmethod
+    async def upload_resume(
+        cls,
+        cand: PersonIn,
+        user_id: int,
+        db_session: AsyncSession,
+    ) -> tuple[int | None, bool]:
+        """Upload a resume to the database."""
+        async with db_session.begin():
+            person = (
+                await db_session.get(Persons, cand.id)
+                if cand.id
+                else (
+                    await db_session.execute(
+                        select(Persons).where(
+                            Persons.surname == cand.surname,
+                            Persons.firstname == cand.firstname,
+                            Persons.patronymic == cand.patronymic,
+                            Persons.birthday == cand.birthday,
+                        ),
+                    )
+                ).scalar_one_or_none()
+            )
+
+            resume = cand.model_dump(
+                exclude_none=True,
+                exclude={"created"},
+            ) | {"user_id": user_id}
+
+            try:
+                if not person:
+                    person = Persons(**resume)
+                    db_session.add(person)
+                    await db_session.flush()
+                    person.destination = cls.create_destination(person)
+                    return person.id, False
+
+                if not person.destination or not Path(person.destination).is_dir():
+                    resume["destination"] = cls.create_destination(person)
+                for k, v in resume.items():
+                    setattr(person, k, v)
+            except SQLAlchemyError:
+                await db_session.rollback()
+                return None, False
+            else:
+                return person.id, True
 
     @get("/persons/{person_id:int}")
     async def get_person(
@@ -27,8 +99,8 @@ class PersonController(Controller):
         async with db_session.begin():
             person = await db_session.get(Persons, person_id)
             if not person.destination or not Path(person.destination).exists():
-                person.destination = create_destination(person)
-            return PersonOut.model_validate(person)
+                person.destination = self.create_destination(person)
+            return TypeAdapter(PersonOut).validate_python(person)
 
     @post("/persons", guards=[role_guard], opt={"roles": Roles.user.value})
     async def post_person(
@@ -38,7 +110,7 @@ class PersonController(Controller):
         db_session: AsyncSession,
     ) -> dict:
         """Replace a record in persons table."""
-        cand_id, existed = upload_resume(data, request.user.id, db_session)
+        cand_id, existed = await self.upload_resume(data, request.user.id, db_session)
         return {"person_id": cand_id, "exists": existed}
 
     @delete(
@@ -51,3 +123,113 @@ class PersonController(Controller):
         async with db_session.begin():
             person = await db_session.get(Persons, person_id)
             db_session.delete(person)
+
+    @post("/json", guards=[role_guard], opt={"roles": Roles.user.value})
+    async def post_json_file(
+        self,
+        data: AnketaJson,
+        db_session: AsyncSession,
+        request: Request[User, Token, Any],
+    ) -> dict:
+        """Create a new person or updates an existing person from file."""
+        resume = PersonIn(**data.model_dump(exclude_none=True))
+        # Загрузка резюме в БД
+        person_id, existed = await self.upload_resume(
+            resume,
+            request.user.id,
+            db_session,
+        )
+
+        # Сохранение дополнительной информации о кандидате в БД
+        if person_id:
+            async with db_session.begin():
+                items = [
+                    Documents(
+                        digits=data.digits,
+                        series=data.series,
+                        issue=data.issue,
+                        agency=data.agency,
+                        person_id=person_id,
+                    ),
+                    Staffs(
+                        position=data.position,
+                        department=data.department,
+                        person_id=person_id,
+                    ),
+                    Addresses(
+                        view="Адрес проживания",
+                        address=data.valid_address,
+                        person_id=person_id,
+                    ),
+                    Addresses(
+                        view="Адрес регистрации",
+                        address=data.reg_address,
+                        person_id=person_id,
+                    ),
+                    Contacts(
+                        view="Телефон",
+                        contact=data.contact_phone,
+                        person_id=person_id,
+                    ),
+                    Contacts(
+                        view="Электронная почта",
+                        contact=data.email,
+                        person_id=person_id,
+                    ),
+                    *[
+                        Educations(
+                            **education.model_dump(exclude={"item"}),
+                            person_id=person_id,
+                        )
+                        for education in data.education
+                    ],
+                    *[
+                        Workplaces(
+                            **workplace.model_dump(exclude={"item"}),
+                            person_id=person_id,
+                        )
+                        for workplace in data.experience
+                    ],
+                    *[
+                        Previous(
+                            **prev.model_dump(exclude={"item"}),
+                            person_id=person_id,
+                        )
+                        for prev in data.name_was_changed
+                    ],
+                    *[
+                        Affilations(
+                            view="Участвует в деятельности коммерческих организаций",
+                            organization=aff.organization,
+                            inn=aff.inn,
+                            person_id=person_id,
+                        )
+                        for aff in data.organizations
+                    ],
+                    *[
+                        Affilations(
+                            view="Являлся государственным должностным лицом",
+                            organization=aff.organization,
+                            person_id=person_id,
+                        )
+                        for aff in data.state_organizations
+                    ],
+                    *[
+                        Affilations(
+                            view="Связанные лица работают в госструктурах",
+                            organization=aff.organization,
+                            person_id=person_id,
+                        )
+                        for aff in data.related_organizations
+                    ],
+                    *[
+                        Affilations(
+                            view="Являлся государственным или муниципальным служащим",
+                            organization=aff.organization,
+                            person_id=person_id,
+                        )
+                        for aff in data.public_organizations
+                    ],
+                ]
+                db_session.add_all(items)
+        return {"person_id": person_id, "exists": existed}
