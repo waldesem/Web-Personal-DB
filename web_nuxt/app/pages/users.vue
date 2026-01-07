@@ -23,19 +23,16 @@ const expanded = ref({ 1: false });
 const { data, status, refresh } = await useLazyAsyncData<User[]>(
   "users",
   () => $api("/routes/users"),
-  { default: () => [] as User[] }
+  { default: () => [] as User[] },
 );
 
 // Объявляем функцию для действия с пользователем
 async function userAction(item: string, user_id: string) {
   if (!confirm("Подтвердите выполнение действия")) return;
-  const { message } = await $api<Record<string, string>>(
-    "/routes/user/" + user_id,
-    {
-      method: "POST",
-      body: { item: item },
-    }
-  );
+  const { message } = await $api<Record<string, string>>("/routes/user/" + user_id, {
+    method: "POST",
+    body: { item: item },
+  });
   if (message == "success") {
     toasts.create("success", "Действие успешно выполнено");
   } else {
@@ -128,10 +125,10 @@ const columns: TableColumn<User>[] = [
           row.original.role === "admin"
             ? "error"
             : row.original.role === "user"
-            ? "success"
-            : row.original.role === "guest"
-            ? "secondary"
-            : "neutral",
+              ? "success"
+              : row.original.role === "guest"
+                ? "secondary"
+                : "neutral",
         label: row.original.role,
       });
     },
@@ -151,9 +148,7 @@ const columns: TableColumn<User>[] = [
     header: "Блокир.",
     cell: ({ row }) => {
       return h(UIcon, {
-        name: row.original.blocked
-          ? "i-lucide-lock-keyhole"
-          : "i-lucide-lock-keyhole-open",
+        name: row.original.blocked ? "i-lucide-lock-keyhole" : "i-lucide-lock-keyhole-open",
         class: "text-center w-4 h-4",
         title: row.original.blocked ? "Заблокирован" : "Разблокирован",
       });
@@ -164,13 +159,9 @@ const columns: TableColumn<User>[] = [
     header: "Пароль",
     cell: ({ row }) => {
       return h(UIcon, {
-        name: row.original.change_pswd
-          ? "i-lucide-clock-alert"
-          : "i-lucide-clock",
+        name: row.original.change_pswd ? "i-lucide-clock-alert" : "i-lucide-clock",
         class: "text-center w-4 h-4",
-        title: row.original.change_pswd
-          ? "Требуется смена пароля"
-          : "Смена пароля не требуется",
+        title: row.original.change_pswd ? "Требуется смена пароля" : "Смена пароля не требуется",
       });
     },
   },
@@ -183,9 +174,7 @@ const columns: TableColumn<User>[] = [
         class: row.original.deleted
           ? "text-center w-4 h-4 text-red-600"
           : "text-center w-4 h-4 text-green-600",
-        title: row.original.deleted
-          ? "Помечен на удаление"
-          : "Пользователь активен",
+        title: row.original.deleted ? "Помечен на удаление" : "Пользователь активен",
       });
     },
   },
@@ -210,8 +199,8 @@ const columns: TableColumn<User>[] = [
               color: "neutral",
               variant: "ghost",
               class: "ml-auto",
-            })
-        )
+            }),
+        ),
       );
     },
   },

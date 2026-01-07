@@ -4,11 +4,11 @@ from pathlib import Path
 
 from litestar import Request
 from litestar.security.jwt import Token
-from sqlalchemy import select
+from sqlalchemy import label, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.models import Items, PersonIn, models
+from app.models.models import ItemModel, Items, PersonIn
 from app.tables.tables import Base, Persons
 from constants import BASE_PATH, REFRESH_SECRET_KEY
 
@@ -80,12 +80,12 @@ async def select_item(
     async with db_session.begin():
         table = Base.metadata.tables[item]
         stmt = (
-            table.select()
+            select(table, label("item", item))
             .filter(table.c.person_id == person_id)
             .order_by(table.c.id.desc())
         )
         items = (await db_session.execute(stmt)).all()
-        return [models[item].model_validate(tbl).model_dump() for tbl in items]
+        return [ItemModel.model_validate({"item": tbl}).item for tbl in items]
 
 
 async def decode_token(request: Request) -> Token | None:

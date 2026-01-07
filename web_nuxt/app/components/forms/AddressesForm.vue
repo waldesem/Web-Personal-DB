@@ -24,11 +24,7 @@ const form = toRef(props.item);
       />
     </UFormField>
     <UFormField label="Адрес" name="address" required>
-      <UTextarea
-        v-model.trim.lazy="form.address"
-        placeholder="Адрес"
-        required
-      />
+      <UTextarea v-model.trim.lazy="form.address" placeholder="Адрес" required />
     </UFormField>
     <ElementSubmitButton />
   </UForm>

@@ -19,10 +19,10 @@ const props = defineProps({
         props.item.conclusion === Decisions.agreed
           ? 'success'
           : props.item.conclusion === Decisions.comments
-          ? 'warning'
-          : props.item.conclusion === Decisions.cancel
-          ? 'neutral'
-          : 'error'
+            ? 'warning'
+            : props.item.conclusion === Decisions.cancel
+              ? 'neutral'
+              : 'error'
       "
       :label="props.item.conclusion"
     />

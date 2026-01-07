@@ -5,11 +5,9 @@ const candId = inject("candId") as Ref<string>;
 
 const { $api } = useNuxtApp();
 
-const { data } = await useAsyncData(
-  "items",
-  () => $api<Items>("/routes/items/" + candId.value),
-  { default: () => ({} as Items) }
-);
+const { data } = await useAsyncData("items", () => $api<Items>("/routes/items/" + candId.value), {
+  default: () => ({}) as Items,
+});
 
 // Определяем массив элементов табов
 const tabs = [
@@ -100,7 +98,7 @@ const accordion = [
           <ContentItemView
             :icon="accord.icon"
             :data="data[accord.slot]"
-            :view="(accord.slot as ItemKey)"
+            :view="accord.slot as ItemKey"
             :title="accord.label"
           />
         </template>
@@ -113,7 +111,7 @@ const accordion = [
         <ContentItemView
           :icon="tab.icon"
           :data="data[tab.slot as ItemKey]"
-          :view="(tab.slot as ItemKey)"
+          :view="tab.slot as ItemKey"
           :title="tab.label"
         />
       </div>

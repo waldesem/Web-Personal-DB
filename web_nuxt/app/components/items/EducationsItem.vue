@@ -11,10 +11,7 @@ const props = defineProps({
 
 <template>
   <ElementLabelValue label="Уровень образования" :value="props.item.view" />
-  <ElementLabelValue
-    label="Учебное заведение"
-    :value="props.item.institution"
-  />
+  <ElementLabelValue label="Учебное заведение" :value="props.item.institution" />
   <ElementLabelValue label="Год окончания" :value="props.item.finished" />
   <ElementLabelValue label="Специальность" :value="props.item.specialty" />
 </template>

@@ -39,18 +39,10 @@ const form = toRef(props.item);
       />
     </UFormField>
     <UFormField label="Год окончания" name="finished">
-      <UInput
-        v-model.trim.lazy="form.finished"
-        placeholder="Год окончания"
-        maxlength="4"
-      />
+      <UInput v-model.trim.lazy="form.finished" placeholder="Год окончания" maxlength="4" />
     </UFormField>
     <UFormField label="Специальность" name="specialty">
-      <UInput
-        v-model.trim.lazy="form.specialty"
-        placeholder="Специальность"
-        maxlength="255"
-      />
+      <UInput v-model.trim.lazy="form.specialty" placeholder="Специальность" maxlength="255" />
     </UFormField>
     <ElementSubmitButton />
   </UForm>

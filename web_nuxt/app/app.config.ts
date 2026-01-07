@@ -22,7 +22,7 @@ export default defineAppConfig({
     modal: {
       slots: {
         header: "p-3",
-        content: 'sm:max-w-xl',
+        content: "sm:max-w-xl",
       },
     },
     textarea: {

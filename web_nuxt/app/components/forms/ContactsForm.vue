@@ -24,12 +24,7 @@ const form = toRef(props.item);
       />
     </UFormField>
     <UFormField label="Контакт" name="contact" required>
-      <UInput
-        v-model.trim.lazy="form.contact"
-        placeholder="Контакт"
-        maxlength="255"
-        required
-      />
+      <UInput v-model.trim.lazy="form.contact" placeholder="Контакт" maxlength="255" required />
     </UFormField>
     <ElementSubmitButton />
   </UForm>

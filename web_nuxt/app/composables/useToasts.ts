@@ -15,7 +15,7 @@ export function useToasts() {
   const toast = useToast();
   function create(
     color: ToastProps["color"] = "error",
-    description = "Невозможно выполнить действие или операция завершилась ошибкой"
+    description = "Невозможно выполнить действие или операция завершилась ошибкой",
   ) {
     toast.add({
       icon: icon[color as keyof typeof icon],

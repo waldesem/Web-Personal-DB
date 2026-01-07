@@ -10,21 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from app.classes.classes import Conclusions, Decisions, Roles
 
 email_pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
-
-Items = Literal[
-    "addresses",
-    "affilations",
-    "checks",
-    "contacts",
-    "documents",
-    "educations",
-    "inquiries",
-    "investigations",
-    "previous",
-    "poligrafs",
-    "staffs",
-    "workplaces",
-]
+name_pattern = r"^[А-яЁёIV\-\s\.\,\'\(\)]*$"
 
 
 class Model(BaseModel):
@@ -111,8 +97,8 @@ class PersonIn(Model):
     """Person schema."""
 
     id: int | None = None
-    surname: str = Field(alias="lastName", pattern=r"^[А-яЁёIV\-\s\.\,\'\(\)]*$")
-    firstname: str = Field(alias="firstName", pattern=r"^[А-яЁёIV\-\s\.\,\'\(\)]*$")
+    surname: str = Field(alias="lastName", pattern=name_pattern)
+    firstname: str = Field(alias="firstName", pattern=name_pattern)
     patronymic: str | None = Field(default="", alias="midName")
     birthday: date = None
     birthplace: str | None = ""
@@ -369,11 +355,20 @@ class AnketaJson(PersonIn):
     )
 
 
-models: dict[str, type[Model]] = {
-    model.__modelname__: model
-    for model in Model.__subclasses__()
-    if hasattr(model, "__modelname__")
-}
+Items = Literal[
+    "addresses",
+    "affilations",
+    "checks",
+    "contacts",
+    "documents",
+    "educations",
+    "inquiries",
+    "investigations",
+    "previous",
+    "poligrafs",
+    "staffs",
+    "workplaces",
+]
 
 
 class ItemModel(BaseModel):

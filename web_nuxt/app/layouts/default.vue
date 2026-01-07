@@ -6,14 +6,10 @@ const { $api } = useNuxtApp();
 
 const visibility = useDocumentVisibility();
 
-const { data: user } = await useAsyncData(
-  "session",
-  () => $api<Session>("/routes/auth/session"),
-  {
-    watch: [refThrottled(visibility, 600000)],
-    default: () => ({} as Session),
-  }
-);
+const { data: user } = await useAsyncData("session", () => $api<Session>("/routes/auth/session"), {
+  watch: [refThrottled(visibility, 600000)],
+  default: () => ({}) as Session,
+});
 
 // Объявляем функцию для выхода из системы и очистки данных пользователя
 async function logout() {

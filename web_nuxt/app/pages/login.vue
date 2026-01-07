@@ -56,10 +56,7 @@ const update = login.concat([
 const validate = (state: Partial<Login>) => {
   const errors = [];
   if (action.value === "update") {
-    if (
-      state.new_pswd &&
-      !state.new_pswd.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,16}$/)
-    ) {
+    if (state.new_pswd && !state.new_pswd.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,16}$/)) {
       errors.push({
         name: "new_pswd",
         message: "От 8 до 16 цифр и латинских букв в нижнем и верхнем регистре",
@@ -107,13 +104,10 @@ const validate = (state: Partial<Login>) => {
 // Объявляем функцию для отправки формы
 async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
   try {
-    const { message, access_token, refresh_token } = (await $fetch(
-      "/routes/auth/" + action.value,
-      {
-        method: "POST",
-        body: payload.data,
-      }
-    )) as { message: string; access_token: string; refresh_token: string };
+    const { message, access_token, refresh_token } = (await $fetch("/routes/auth/" + action.value, {
+      method: "POST",
+      body: payload.data,
+    })) as { message: string; access_token: string; refresh_token: string };
     if (message === "success") {
       const token = useCookie("access", {
         maxAge: 60 * 59,

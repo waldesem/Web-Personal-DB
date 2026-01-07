@@ -34,7 +34,7 @@ const { data, status, refresh } = await useLazyAsyncData(
   {
     watch: [page],
     default: () => [] as Candidate[],
-  }
+  },
 );
 
 // Вычисляем количество страниц
@@ -85,10 +85,7 @@ async function proceedSubmit(person_id: string, exists: boolean) {
   modal.value = false;
   if (person_id) {
     if (exists) {
-      toasts.create(
-        "info",
-        "Анкета была загружена ранее или назначена другому пользователю"
-      );
+      toasts.create("info", "Анкета была загружена ранее или назначена другому пользователю");
     } else {
       toasts.create("success", "Анкета успешно загружена");
     }
@@ -126,17 +123,14 @@ const columns: TableColumn<Candidate>[] = [
     accessorKey: "fullname",
     header: "Фамилия Имя Отчество",
     cell: ({ row }) => {
-      return `${row.original.surname} ${row.original.firstname} ${
-        row.original.patronymic ?? ""
-      }`;
+      return `${row.original.surname} ${row.original.firstname} ${row.original.patronymic ?? ""}`;
     },
   },
   // Дата рождения
   {
     accessorKey: "birthday",
     header: "Дата рождения",
-    cell: ({ row }) =>
-      useDateFormat(row.getValue("birthday"), "DD.MM.YYYY").value,
+    cell: ({ row }) => useDateFormat(row.getValue("birthday"), "DD.MM.YYYY").value,
   },
   // Статус кандидата
   {
@@ -144,9 +138,7 @@ const columns: TableColumn<Candidate>[] = [
     header: "Статус",
     cell: ({ row }) => {
       return h(resolveComponent("UIcon"), {
-        name: !row.getValue("editable")
-          ? "i-lucide-circle-check"
-          : "i-lucide-triangle-alert",
+        name: !row.getValue("editable") ? "i-lucide-circle-check" : "i-lucide-triangle-alert",
 
         class: !row.getValue("editable")
           ? "text-start w-5 h-5 text-blue-600"
@@ -225,10 +217,7 @@ const columns: TableColumn<Candidate>[] = [
             description="Введите анкетные данные кандидата"
           >
             <template #body>
-              <FormsResumeForm
-                @update="proceedSubmit"
-                @pending="status === 'pending'"
-              />
+              <FormsResumeForm @update="proceedSubmit" @pending="status === 'pending'" />
             </template>
           </UModal>
         </ClientOnly>

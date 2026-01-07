@@ -9,15 +9,12 @@ const props = defineProps({
 });
 
 const experience = computed(() =>
-  workExperience(props.item.starts, props.item.finished, props.item.created)
+  workExperience(props.item.starts, props.item.finished, props.item.created),
 );
 </script>
 
 <template>
-  <ElementLabelValue
-    label="Текущая работа"
-    :value="props.item.now_work ? 'Да' : 'Нет'"
-  />
+  <ElementLabelValue label="Текущая работа" :value="props.item.now_work ? 'Да' : 'Нет'" />
   <ElementLabelValue v-if="props.item.starts" label="Начало работы">
     <NuxtTime :datetime="props.item.starts" />
   </ElementLabelValue>
@@ -27,17 +24,9 @@ const experience = computed(() =>
   <ElementLabelValue v-if="experience" label="Стаж на рабочем месте">
     <UBadge
       variant="outline"
-      :color="
-        experience.years > 0
-          ? 'success'
-          : experience.months > 0
-          ? 'info'
-          : 'error'
-      "
+      :color="experience.years > 0 ? 'success' : experience.months > 0 ? 'info' : 'error'"
     >
-      {{
-        `${experience.years} г., ${experience.months} мес., ${experience.days} дн.`
-      }}
+      {{ `${experience.years} г., ${experience.months} мес., ${experience.days} дн.` }}
     </UBadge>
   </ElementLabelValue>
   <ElementLabelValue label="Место" :value="props.item.workplace" />

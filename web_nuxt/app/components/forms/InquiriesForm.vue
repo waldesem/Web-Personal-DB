@@ -16,20 +16,10 @@ const form = toRef(props.item);
 <template>
   <UForm :state="form" @submit.prevent="emit('update', form)">
     <UFormField label="Информация" name="info" required>
-      <UTextarea
-        v-model.trim.lazy="form.info"
-        autoresize
-        placeholder="Информация"
-        required
-      />
+      <UTextarea v-model.trim.lazy="form.info" autoresize placeholder="Информация" required />
     </UFormField>
     <UFormField label="Инициатор" name="initiator" required>
-      <UInput
-        v-model.trim.lazy="form.initiator"
-        placeholder="Инициатор"
-        maxlength="255"
-        required
-      />
+      <UInput v-model.trim.lazy="form.initiator" placeholder="Инициатор" maxlength="255" required />
     </UFormField>
     <ElementSubmitButton />
   </UForm>

@@ -29,8 +29,7 @@ function submitPerson(person_id: number | null) {
 
 // Определяем функцию для удаления данных
 async function deletePerson() {
-  if (!confirm("Вы действительно хотите удалить профиль и связанные записи?"))
-    return;
+  if (!confirm("Вы действительно хотите удалить профиль и связанные записи?")) return;
   if (!confirm("Все данные будут удалены безвозвратно!?")) return;
   status.value = "pending";
   try {
@@ -51,11 +50,7 @@ async function deletePerson() {
 <template>
   <div class="ms-2 mt-2">
     <!-- Выводим кнопки редактирования или удаления данных -->
-    <LazyElementDivMenu
-      v-if="editable"
-      @update="modal = true"
-      @delete="deletePerson()"
-    />
+    <LazyElementDivMenu v-if="editable" @update="modal = true" @delete="deletePerson()" />
 
     <!-- Выводим данные или скелетный элемент -->
     <Suspense>
@@ -68,17 +63,9 @@ async function deletePerson() {
     </Suspense>
 
     <!-- Выводим модальное окно для редактирования данных -->
-    <UModal
-      v-model:open="modal"
-      title="Aнкета"
-      description="Редактирование анкетные данные"
-    >
+    <UModal v-model:open="modal" title="Aнкета" description="Редактирование анкетные данные">
       <template #body>
-        <FormsResumeForm
-          :resume="person"
-          @pending="status = 'pending'"
-          @update="submitPerson"
-        />
+        <FormsResumeForm :resume="person" @pending="status = 'pending'" @update="submitPerson" />
       </template>
     </UModal>
   </div>

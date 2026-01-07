@@ -30,12 +30,7 @@ const form = toRef(props.item);
       />
     </UFormField>
     <UFormField label="Результат" name="results" required>
-      <UTextarea
-        v-model.trim.lazy="form.results"
-        autoresize
-        placeholder="Результат"
-        required
-      />
+      <UTextarea v-model.trim.lazy="form.results" autoresize placeholder="Результат" required />
     </UFormField>
     <UFormField label="Результат" name="conclusion" required>
       <USelect

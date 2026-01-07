@@ -30,10 +30,7 @@ const { copy, copied } = useClipboard();
   <ElementLabelValue label="Дата записи">
     <NuxtTime :datetime="props.item.created" />
   </ElementLabelValue>
-  <ElementLabelValue
-    label="Дополнительная информация"
-    :value="props.item.addition"
-  />
+  <ElementLabelValue label="Дополнительная информация" :value="props.item.addition" />
   <ElementLabelValue v-if="props.item.destination" label="Материалы проверок">
     <UButton
       variant="outline"

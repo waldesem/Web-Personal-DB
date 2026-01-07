@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.classes.classes import Roles
 from app.depends.auth import role_guard
-from app.models.models import ItemModel, Items, models
+from app.models.models import ItemModel, Items
 from app.tables.tables import Base
 from app.utils.utilities import select_item
 
@@ -16,9 +16,12 @@ class ItemsController(Controller):
     path = "/items"
 
     @get("/{person_id:int}")
-    async def get_items(self, person_id: int, db_session: AsyncSession) -> dict:
+    async def get_items(self, person_id: int, db_session: AsyncSession) -> ItemModel:
         """Retrieve an all items from the database."""
-        return {item: await select_item(item, person_id, db_session) for item in models}
+        return {
+            item: await select_item(item, person_id, db_session)
+            for item in Items.__args__
+        }
 
     @get("/{item:str}/{person_id:int}")
     async def get_item(
@@ -26,22 +29,30 @@ class ItemsController(Controller):
         item: Items,
         person_id: int,
         db_session: AsyncSession,
-    ) -> list[dict]:
+    ) -> list[ItemModel]:
         """Get result of query based on the provided item."""
         return await select_item(item, person_id, db_session)
 
-    @post("/{person_id:int}", guards=[role_guard], opt={"roles": Roles.user.value})
+    @post(
+        "/{item:str}/{person_id:int}",
+        guards=[role_guard],
+        opt={"roles": Roles.user.value},
+    )
     async def post_item(
         self,
+        item: Items,
         person_id: int,
         data: ItemModel,
         db_session: AsyncSession,
     ) -> dict:
         """Insert or replaces a record in the specified table with the given item ID."""
         async with db_session.begin():
-            json_dict = data.item.model_dump(exclude_none=True, exclude={"created"})
+            json_dict = data.item.model_dump(
+                exclude_none=True,
+                exclude={"created", "item"},
+            )
             json_dict["person_id"] = person_id
-            table = Base.metadata.tables[json_dict.pop("item")]
+            table = Base.metadata.tables[item]
             # Проверяем, есть ли ключ "id" в словаре json_dict
             if item_id := json_dict.pop("id", None):
                 # Если есть, создаем запрос на обновление записи с указанным id

@@ -17,4 +17,4 @@ REFRESH_SECRET_KEY_LIVE = 30 * 24 * 60  # minutes
 BASE_PATH = os.getenv("BASE_PATH")
 DEFAULT_PASSWORD = os.getenv("DEFAULT_PASSWORD")
 DATABASE_URI = "sqlite+aiosqlite:///" + str(Path(BASE_PATH, "database.db"))
-# DATABASE_URI = "postgresql+asyncpg://" + os.getenv("PG_DATABASE")
+# DATABASE_URI = os.getenv("PG_DATABASE")

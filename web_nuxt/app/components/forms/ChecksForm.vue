@@ -47,18 +47,10 @@ watch(noNegative, () => {
       />
     </UFormField>
     <UFormField label="Проверка документов" name="document">
-      <UTextarea
-        v-model.trim.lazy="form.document"
-        autoresize
-        placeholder="Проверка документов"
-      />
+      <UTextarea v-model.trim.lazy="form.document" autoresize placeholder="Проверка документов" />
     </UFormField>
     <UFormField label="Проверка задолженностей" name="debt">
-      <UTextarea
-        v-model.trim.lazy="form.debt"
-        autoresize
-        placeholder="Проверка задолженностей"
-      />
+      <UTextarea v-model.trim.lazy="form.debt" autoresize placeholder="Проверка задолженностей" />
     </UFormField>
     <UFormField label="Проверка банкротства" name="bankruptcy">
       <UTextarea
@@ -68,18 +60,10 @@ watch(noNegative, () => {
       />
     </UFormField>
     <UFormField label="Проверка Кредитной истории" name="bki">
-      <UTextarea
-        v-model.trim.lazy="form.bki"
-        autoresize
-        placeholder="Проверка Кредитной истории"
-      />
+      <UTextarea v-model.trim.lazy="form.bki" autoresize placeholder="Проверка Кредитной истории" />
     </UFormField>
     <UFormField label="Проверка судебных дел" name="courts">
-      <UTextarea
-        v-model.trim.lazy="form.courts"
-        autoresize
-        placeholder="Проверка судебных дел"
-      />
+      <UTextarea v-model.trim.lazy="form.courts" autoresize placeholder="Проверка судебных дел" />
     </UFormField>
     <UFormField label="Проверка аффилированности" name="affilation">
       <UTextarea
@@ -103,11 +87,7 @@ watch(noNegative, () => {
       />
     </UFormField>
     <UFormField label="Проверка в Кронос" name="cronos">
-      <UTextarea
-        v-model.trim.lazy="form.cronos"
-        autoresize
-        placeholder="Проверка в Кронос"
-      />
+      <UTextarea v-model.trim.lazy="form.cronos" autoresize placeholder="Проверка в Кронос" />
     </UFormField>
     <UFormField label="Дополнительная информация" name="addition">
       <UTextarea
