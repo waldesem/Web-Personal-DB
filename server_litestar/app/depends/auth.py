@@ -51,7 +51,7 @@ async def retrieve_user_handler(
 
     session_maker = config.create_session_maker()
     async with session_maker() as db_session:
-        current_user = await get_current_user(token.sub, db_session)
+        current_user = await get_current_user(int(token.sub), db_session)
         await user_store.set(
             str(token.sub),
             current_user,

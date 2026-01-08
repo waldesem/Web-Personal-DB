@@ -2,8 +2,8 @@
 
 import os
 import secrets
-from pathlib import Path
 
+# from pathlib import Path  # noqa: ERA001
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -16,5 +16,5 @@ ACCESS_SECRET_KEY_LIVE = 60  # minutes
 REFRESH_SECRET_KEY_LIVE = 30 * 24 * 60  # minutes
 BASE_PATH = os.getenv("BASE_PATH")
 DEFAULT_PASSWORD = os.getenv("DEFAULT_PASSWORD")
-DATABASE_URI = "sqlite+aiosqlite:///" + str(Path(BASE_PATH, "database.db"))
-# DATABASE_URI = os.getenv("PG_DATABASE")
+# DATABASE_URI = "sqlite+aiosqlite:///" + str(Path(BASE_PATH, "database.db"))  # noqa: E501, ERA001
+DATABASE_URI = os.getenv("PG_DATABASE")

@@ -28,7 +28,7 @@ async def decode_token(request: Request) -> Token:
     """Decode the token."""
     token: dict = await request.json()
     if not token:
-        return None
+        raise NotAuthorizedException
     return Token.decode(
         token.get("refresh_token").split()[1],
         REFRESH_SECRET_KEY,
