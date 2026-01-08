@@ -9,7 +9,7 @@ from litestar.stores.memory import MemoryStore
 
 from app.models.models import User
 from app.tables.tables import Users, config
-from constants import ACCESS_SECRET_KEY
+from constants import ACCESS_SECRET_KEY, ACCESS_SECRET_KEY_LIVE
 
 if TYPE_CHECKING:
     from litestar.connection import ASGIConnection
@@ -17,7 +17,8 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
 
-store = MemoryStore()
+token_store = MemoryStore()
+user_store = MemoryStore()
 
 
 def role_guard(connection: ASGIConnection, route_handler: BaseRouteHandler) -> None:
@@ -45,9 +46,18 @@ async def retrieve_user_handler(
     _: ASGIConnection[Any, Any, Any, Any],
 ) -> User | None:
     """Retrieve the current user."""
+    if current_user := await user_store.get(token.sub):
+        return current_user
+
     session_maker = config.create_session_maker()
     async with session_maker() as db_session:
-        return await get_current_user(token.sub, db_session)
+        current_user = await get_current_user(token.sub, db_session)
+        await user_store.set(
+            str(token.sub),
+            current_user,
+            expires_in=timedelta(minutes=ACCESS_SECRET_KEY_LIVE),
+        )
+        return current_user
 
 
 async def revoked_token_handler(
@@ -55,10 +65,9 @@ async def revoked_token_handler(
     _: ASGIConnection[Any, Any, Any, Any],
 ) -> bool:
     """Check if the token is revoked."""
-    jti = token.jti  # Unique token identifier (JWT ID)
-    if jti:
+    if jti := token.jti:
         # Check if the token is already revoked in the BLOCKLIST
-        revoked = await store.get(jti)
+        revoked = await token_store.get(jti)
         if revoked:
             return True
     return False

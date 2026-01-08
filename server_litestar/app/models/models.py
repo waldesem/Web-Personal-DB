@@ -110,7 +110,6 @@ class PersonIn(Model):
     addition: str | None = ""
     destination: str | None = ""
     editable: bool = True
-    created: datetime | str | None = None
 
     @field_validator("surname", "firstname", "patronymic")
     @classmethod
@@ -119,10 +118,16 @@ class PersonIn(Model):
         return v.upper() if v else ""
 
 
-class PersonOut(Model):
-    """Pydantic model for person."""
+class Items(Model):
+    """Pydantic model for items."""
 
     id: int | None = None
+    created: datetime | str | None = None
+
+
+class PersonOut(Items):
+    """Pydantic model for person."""
+
     surname: str
     firstname: str
     patronymic: str | None = ""
@@ -136,7 +141,6 @@ class PersonOut(Model):
     addition: str | None = ""
     destination: str | None = ""
     editable: bool = False
-    created: datetime | str | None = None
     user_id: int
 
 
@@ -147,78 +151,65 @@ class Candidates(PersonOut):
     total: int
 
 
-class Prev(Model):
+class Prev(Items):
     """Previous schema."""
 
-    id: int | None = None
     surname: str | None = Field(alias="lastNameBeforeChange")
     firstname: str | None = Field(alias="firstNameBeforeChange")
     patronymic: str | None = Field(default="", alias="midNameBeforeChange")
     changed: str | int | None = Field(default="", alias="yearOfChange")
     reason: str | None = ""
-    created: datetime | str | None = None
     item: Literal["previous"] = None
 
 
-class Education(Model):
+class Education(Items):
     """Educations schema."""
 
-    id: int | None = None
     view: str | None = Field(default="", alias="educationType")
     institution: str = Field(default="", alias="institutionName")
     finished: str | int | None = Field(default="", alias="endYear")
     specialty: str | None = ""
-    created: datetime | str | None = None
     item: Literal["educations"] = None
 
 
-class Staff(Model):
+class Staff(Items):
     """Staffs schema."""
 
-    id: int | None = None
     position: str
     department: str | None = ""
-    created: datetime | str | None = None
     item: Literal["staffs"] = None
 
 
-class Document(Model):
+class Document(Items):
     """Documents schema."""
 
-    id: int | None = None
     view: str | None = Field(default="", alias="documentType")
     series: str | None = ""
     digits: str
     agency: str | None = ""
     issue: date | None
-    created: datetime | str | None = None
     item: Literal["documents"] = None
 
 
-class Address(Model):
+class Address(Items):
     """Addresses schema."""
 
-    id: int | None = None
     view: str
     address: str
-    created: datetime | str | None = None
     item: Literal["addresses"] = None
 
 
-class Contact(Model):
+class Contact(Items):
     """Contacts schema."""
 
-    id: int | None = None
     view: str
     contact: str
-    created: datetime | str | None = None
     item: Literal["contacts"] = None
 
 
-class Workplace(Model):
+class Workplace(Items):
     """Workplaces schema."""
 
-    id: int | None = None
     now_work: bool | None = Field(default=False, alias="currentJob")
     starts: date | None = Field(alias="beginDate")
     finished: date | None = Field(default=None, alias="endDate")
@@ -226,25 +217,21 @@ class Workplace(Model):
     address: str | None = ""
     position: str
     reason: str | None = Field(default="", alias="fireReason")
-    created: datetime | str | None = None
     item: Literal["workplaces"] = None
 
 
-class Affilation(Model):
+class Affilation(Items):
     """Affilations schema."""
 
-    id: int | None = None
     view: str | None = Field(default="", alias="organizationType")
     organization: str | None = Field(default="", alias="name")
     inn: str | None = ""
-    created: datetime | str | None = None
     item: Literal["affilations"] = None
 
 
-class Check(Model):
+class Check(Items):
     """Checks schema."""
 
-    id: int | None = None
     workplace: str | None = ""
     document: str | None = ""
     inn: str | None = ""
@@ -261,39 +248,32 @@ class Check(Model):
     addition: str | None = ""
     comment: str | None = ""
     conclusion: Conclusions
-    created: datetime | str | None = None
     item: Literal["checks"] = None
 
 
-class Poligraf(Model):
+class Poligraf(Items):
     """Poligraf schema."""
 
-    id: int | None = None
     theme: str
     results: str | None
     conclusion: Decisions
-    created: datetime | str | None = None
     item: Literal["poligrafs"] = None
 
 
-class Investigation(Model):
+class Investigation(Items):
     """Investigations schema."""
 
-    id: int | None = None
     theme: str
     info: str
-    created: datetime | str | None = None
     item: Literal["investigations"] = None
 
 
-class Inquiry(Model):
+class Inquiry(Items):
     """Inquiries schema."""
 
-    id: int | None = None
     info: str
     initiator: str
     origins: str | None = ""
-    created: datetime | str | None = None
     item: Literal["inquiries"] = None
 
 

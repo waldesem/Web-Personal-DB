@@ -27,5 +27,4 @@ app = Litestar(
     logging_config=logging_config,
     plugins=[alchemy_plugin],
     openapi_config=None,
-    debug=True,
 )

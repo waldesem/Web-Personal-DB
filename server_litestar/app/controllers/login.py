@@ -13,7 +13,7 @@ from litestar.security.jwt import Token
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.depends.auth import get_current_user, jwt_auth, store
+from app.depends.auth import get_current_user, jwt_auth, token_store, user_store
 from app.models.models import Login, User
 from app.tables.tables import Users
 from app.utils.security import check_password_hash, generate_password_hash
@@ -106,27 +106,28 @@ class AuthController(Controller):
     @post("/logout", dependencies={"refresh": Provide(decode_token)})
     async def logout(self, request: Request[User, Token, Any], refresh: Token) -> dict:
         """Logout the user."""
-        await store.set(
+        await token_store.set(
             "jti",
             request.auth.jti,
             expires_in=timedelta(
                 minutes=ACCESS_SECRET_KEY_LIVE,
             ),
         )
-        await store.set(
+        await token_store.set(
             "jti",
             refresh.jti,
             expires_in=timedelta(
                 minutes=REFRESH_SECRET_KEY_LIVE,
             ),
         )
-        await store.delete_expired()
 
     @post("/refresh", dependencies={"refresh": Provide(decode_token)})
-    async def refresh_token(self, refresh: Token) -> Response | Exception:
+    async def refresh_token(self, refresh: Token) -> Response:
         """Refresh the access token."""
         if not refresh:
             raise NotAuthorizedException
+        await token_store.delete_expired()
+        await user_store.delete_expired()
         return jwt_auth.login(
             identifier=str(refresh.sub),
             token_unique_jwt_id=secrets.token_hex(10),
