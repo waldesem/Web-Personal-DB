@@ -6,10 +6,14 @@ const { $api } = useNuxtApp();
 
 const visibility = useDocumentVisibility();
 
-const { data: user } = await useAsyncData("session", () => $api<Session>("/routes/auth/session"), {
-  watch: [refThrottled(visibility, 600000)],
-  default: () => ({}) as Session,
-});
+const { data: user } = await useAsyncData(
+  "session",
+  () => $api<Session>("/routes/auth/session"),
+  {
+    watch: [refThrottled(visibility, 600000)],
+    default: () => ({} as Session),
+  }
+);
 
 // Объявляем функцию для выхода из системы и очистки данных пользователя
 async function logout() {
@@ -23,8 +27,7 @@ async function logout() {
   });
   useCookie("access").value = null;
   useCookie("refresh").value = null;
-  await navigateTo("/login");
-  clearNuxtData();
+  return navigateTo("/login");
 }
 </script>
 
@@ -77,7 +80,6 @@ async function logout() {
 
       <template #right>
         <UButton
-          icon="i-lucide-git-graph"
           label="GitHub"
           color="neutral"
           variant="ghost"

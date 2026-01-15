@@ -5,9 +5,13 @@ const candId = inject("candId") as Ref<string>;
 
 const { $api } = useNuxtApp();
 
-const { data } = await useAsyncData("items", () => $api<Items>("/routes/items/" + candId.value), {
-  default: () => ({}) as Items,
-});
+const { data } = await useAsyncData(
+  "items",
+  () => $api<Items>("/routes/items/" + candId.value),
+  {
+    default: () => ({} as Items),
+  }
+);
 
 // Определяем массив элементов табов
 const tabs = [
@@ -33,7 +37,7 @@ const tabs = [
   },
   {
     label: "Запросы",
-    icon: "i-lucide-message-circle-question-mark",
+    icon: "i-lucide-file-question-mark",
     slot: "inquiries" as const,
   },
 ];

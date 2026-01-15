@@ -44,7 +44,7 @@ async def get_candidates(query: Index, db_session: AsyncSession) -> list[Candida
 
 
 @get(
-    "/switch/{person_id:int}",
+    "/status/{person_id:int}",
     guards=[role_guard],
     opt={"roles": Roles.user.value},
 )

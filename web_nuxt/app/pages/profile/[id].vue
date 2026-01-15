@@ -19,22 +19,30 @@ provide("candId", candId);
 const { data, status, refresh } = await useAsyncData(
   "person",
   () => $api<Person>("/routes/persons/" + candId.value),
-  { default: () => ({}) as Person },
+  { default: () => ({} as Person) }
 );
 
 // Вычисляем статус редактирования анкеты
 const editable = computed(() => {
-  return data.value.editable && user.value?.role == "user" && user.value?.id == data.value.user_id;
+  return (
+    data.value.editable &&
+    user.value?.role === "user" &&
+    user.value?.id === data.value.user_id
+  );
 });
 
 // Передаем статус редактирования в другие компоненты
 provide("editable", editable);
 
 // Определяем функцию для переключения режима редактирования
-async function switchUser(): Promise<void> {
+async function switchStatus(): Promise<void> {
   if (data.value && data.value.user_id != user.value?.id) {
     if (data.value.editable) {
-      if (!confirm("Анкета редактируется другим пользователем. Переключить режим?")) {
+      if (
+        !confirm(
+          "Анкета редактируется другим пользователем. Переключить режим?"
+        )
+      ) {
         return;
       }
     } else if (!confirm("Вы хотите назначить анкету на себя?")) {
@@ -44,7 +52,9 @@ async function switchUser(): Promise<void> {
     return;
   }
   status.value = "pending";
-  const { message } = await $api<Record<string, string>>("/routes/switch/" + candId.value);
+  const { message } = await $api<Record<string, string>>(
+    "/routes/status/" + candId.value
+  );
   status.value = message as "success" | "error";
   if (message == "success") {
     refresh();
@@ -71,19 +81,27 @@ async function switchUser(): Promise<void> {
               variant="outline"
               :loading="status === 'pending'"
               :color="
-                !data?.editable ? 'secondary' : data.user_id == user?.id ? 'success' : 'error'
+                !data?.editable
+                  ? 'secondary'
+                  : data.user_id == user?.id
+                  ? 'success'
+                  : 'error'
               "
               :label="
-                !data?.editable ? 'Доступно' : data.user_id == user?.id ? 'Изменение' : 'Закрыто'
+                !data?.editable
+                  ? 'Доступно'
+                  : data.user_id == user?.id
+                  ? 'Изменение'
+                  : 'Закрыто'
               "
               :icon="
                 !data?.editable
                   ? 'i-lucide-lock-open'
                   : data.user_id == user?.id
-                    ? 'i-lucide-edit'
-                    : 'i-lucide-lock'
+                  ? 'i-lucide-edit'
+                  : 'i-lucide-lock'
               "
-              @click="switchUser"
+              @click="switchStatus"
             />
           </div>
         </ClientOnly>
