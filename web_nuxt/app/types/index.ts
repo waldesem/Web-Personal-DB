@@ -4,6 +4,42 @@ export interface Status {
   message: AsyncDataRequestStatus;
 }
 
+export enum ItemsEnum {
+  ADDRESSES = "addresses",
+  AFFILATIONS = "affilations",
+  CHECKS = "checks",
+  CONTACTS = "contacts",
+  DOCUMENTS = "documents",
+  EDUCATIONS = "educations",
+  INQUIRIES = "inquiries",
+  INVESTIGATIONS = "investigations",
+  PREVIOUS = "previous",
+  POLIGRAFS = "poligrafs",
+  STAFFS = "staffs",
+  WORKPLACES = "workplaces",
+}
+
+export enum Roles {
+  admin = "admin",
+  api = "api",
+  user = "user",
+  guest = "guest",
+}
+
+export enum Conclusions {
+  agreed = "СОГЛАСОВАНО",
+  comments = "СОГЛАСОВАНО С КОММЕНТАРИЕМ",
+  cancel = "СНЯТ С ПРОВЕРКИ",
+  denied = "ОТКАЗАНО В СОГЛАСОВАНИИ",
+}
+
+export enum Decisions {
+  agreed = "БЕЗ ЗАМЕЧАНИЙ",
+  comments = "С КОММЕНТАРИЯМИ",
+  cancel = "ОТКАЗ ОТ ПРОВЕРКИ",
+  denied = "НЕГАТИВ",
+}
+
 export interface Login {
   username: string;
   password: string;
@@ -17,11 +53,8 @@ export interface UserForm {
   email: string;
 }
 
-export interface Session {
+export interface Session extends UserForm {
   id: string;
-  fullname: string;
-  username: string;
-  email: string;
   role: Roles;
 }
 
@@ -163,19 +196,6 @@ export interface Needs {
   created: string;
 }
 
-enum Roles {
-  admin = "admin",
-  api = "api",
-  user = "user",
-  guest = "guest",
-}
-
-export type Item = {
-  id: string;
-} & {
-  [key: string]: string | number | boolean;
-};
-
 export interface Items {
   staffs: Staff[];
   educations: Education[];
@@ -189,20 +209,4 @@ export interface Items {
   poligrafs: Pfo[];
   investigations: Inquisition[];
   inquiries: Needs[];
-}
-
-export type ItemKey = keyof Items;
-
-export enum Conclusions {
-  agreed = "СОГЛАСОВАНО",
-  comments = "СОГЛАСОВАНО С КОММЕНТАРИЕМ",
-  denied = "ОТКАЗАНО В СОГЛАСОВАНИИ",
-  cancel = "СНЯТ С ПРОВЕРКИ",
-}
-
-export enum Decisions {
-  agreed = "БЕЗ ЗАМЕЧАНИЙ",
-  comments = "С КОММЕНТАРИЯМИ",
-  cancel = "ОТКАЗ ОТ ПРОВЕРКИ",
-  denied = "НЕГАТИВ",
 }
