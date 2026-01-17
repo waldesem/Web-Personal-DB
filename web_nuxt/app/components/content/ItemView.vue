@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import type { PropType } from "vue";
-import type { ItemKey, Status } from "@/types";
+import type { Items, Status } from "@/types";
 
 // Импортируем плагин для передачи данных на сервер
 const { $api } = useNuxtApp();
@@ -10,7 +9,7 @@ const toasts = useToasts();
 // Определяем данные которые передаются из родительского компонента
 const props = defineProps({
   data: {
-    type: Array as PropType<object[]>,
+    type: Array as PropType<Items[keyof Items]>,
     default: () => [],
   },
   icon: {
@@ -22,7 +21,7 @@ const props = defineProps({
     required: true,
   },
   view: {
-    type: String as PropType<ItemKey>,
+    type: String as PropType<keyof Items>,
     required: true,
   },
 });

@@ -37,7 +37,11 @@ const form = toRef(props.item);
       />
     </UFormField>
     <UFormField label="ИНН" name="inn">
-      <UInput v-model.trim.lazy="form.inn" placeholder="ИНН" maxlength="12" />
+      <UInput
+        v-model.trim.lazy="form.inn"
+        placeholder="ИНН"
+        pattern="^[0-9]{10,12}$"
+      />
     </UFormField>
     <ElementSubmitButton />
   </UForm>

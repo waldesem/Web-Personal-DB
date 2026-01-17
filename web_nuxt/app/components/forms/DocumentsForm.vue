@@ -13,7 +13,9 @@ const props = defineProps({
 
 const form = toRef(props.item);
 
-form.value.issue = form.value.issue ? useDateFormat(form.value.issue, "YYYY-MM-DD").value : "";
+form.value.issue = form.value.issue
+  ? useDateFormat(form.value.issue, "YYYY-MM-DD").value
+  : "";
 </script>
 
 <template>
@@ -30,7 +32,7 @@ form.value.issue = form.value.issue ? useDateFormat(form.value.issue, "YYYY-MM-D
       <UInput
         v-model.trim.lazy="form.series"
         placeholder="Серия документа"
-        maxlength="4"
+        maxlength="6"
         pattern="[0-9]*"
       />
     </UFormField>
@@ -38,16 +40,26 @@ form.value.issue = form.value.issue ? useDateFormat(form.value.issue, "YYYY-MM-D
       <UInput
         v-model.trim.lazy="form.digits"
         placeholder="Номер документа"
-        maxlength="8"
+        maxlength="10"
         pattern="[0-9]*"
         required
       />
     </UFormField>
     <UFormField label="Кем выдан" name="agency">
-      <UInput v-model.trim="form.agency" placeholder="Кем выдан" maxlength="255" />
+      <UInput
+        v-model.trim="form.agency"
+        placeholder="Кем выдан"
+        maxlength="255"
+      />
     </UFormField>
     <UFormField label="Дата выдачи" name="issue" required>
-      <UInput v-model="form.issue" type="date" required />
+      <UInput
+        v-model="form.issue"
+        type="date"
+        :max="new Date().toISOString().split('T')[0]"
+        min="1990-01-01"
+        required
+      />
     </UFormField>
     <ElementSubmitButton />
   </UForm>

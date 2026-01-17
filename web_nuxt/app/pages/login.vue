@@ -16,6 +16,14 @@ const alert = ref({
   description: "Введите логин и пароль",
 }) as Ref<AlertProps>;
 
+function defineAlert(color: string, title: string, description: string) {
+  alert.value = {
+    color,
+    title,
+    description,
+  };
+}
+
 const login: AuthFormField[] = [
   {
     name: "username",
@@ -85,21 +93,11 @@ const validate = (state: Partial<Login>) => {
         name: "username",
         message: "Введите имя пользователя",
       });
-    } else if (state.username.length > 64) {
-      errors.push({
-        name: "username",
-        message: "Слишком длинное имя",
-      });
     }
     if (!state.password) {
       errors.push({
         name: "password",
         message: "Введите пароль",
-      });
-    } else if (state.password.length > 64) {
-      errors.push({
-        name: "password",
-        message: "Слишком длинный пароль",
       });
     }
   }
@@ -131,25 +129,28 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
       refresh.value = refresh_token;
       return navigateTo("/persons");
     } else if (message === "updated") {
-      action.value = "login";
-      alert.value.color = "success";
-      alert.value.title = "Информация";
-      alert.value.description = "Войдите с новым паролем.";
+      defineAlert(
+        "success",
+        "Информация",
+        "Пароль успешно изменен. Войдите с новым паролем."
+      );
     } else if (message === "denied") {
-      alert.value.color = "warning";
-      alert.value.title = "Предупреждение";
-      alert.value.description = "Пароль просрочен.";
+      defineAlert(
+        "warning",
+        "Предупреждение",
+        "Пароль просрочен. Измените пароль."
+      );
       action.value = "update";
     } else {
-      alert.value.color = "error";
-      alert.value.title = "Внимание";
-      alert.value.description = "Неправильный логин или пароль.";
+      defineAlert(
+        "error",
+        "Ошибка",
+        "Неправильный логин или пароль. Попробуйте еще раз."
+      );
     }
   } catch (error) {
     console.error(error);
-    alert.value.color = "error";
-    alert.value.title = "Внимание";
-    alert.value.description = "Ошибка соединения с сервером.";
+    defineAlert("error", "Внимание", "Ошибка соединения с сервером.");
   }
 }
 </script>

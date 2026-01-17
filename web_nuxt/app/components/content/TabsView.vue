@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ItemKey, Items } from "@/types";
+import type { Items } from "@/types";
 
 const candId = inject("candId") as Ref<string>;
 
@@ -23,22 +23,22 @@ const tabs = [
   {
     label: "Проверки",
     icon: "i-lucide-shield-check",
-    slot: "checks" as const,
+    slot: "checks" as keyof Items,
   },
   {
     label: "Полиграф",
     icon: "i-lucide-heart-pulse",
-    slot: "poligrafs" as const,
+    slot: "poligrafs" as keyof Items,
   },
   {
     label: "Расследования",
     icon: "i-lucide-hat-glasses",
-    slot: "investigations" as const,
+    slot: "investigations" as keyof Items,
   },
   {
     label: "Запросы",
     icon: "i-lucide-file-question-mark",
-    slot: "inquiries" as const,
+    slot: "inquiries" as keyof Items,
   },
 ];
 
@@ -47,42 +47,42 @@ const accordion = [
   {
     label: "Должности",
     icon: "i-lucide-workflow",
-    slot: "staffs" as const,
+    slot: "staffs" as keyof Items,
   },
   {
     label: "Образование",
     icon: "i-lucide-graduation-cap",
-    slot: "educations" as const,
+    slot: "educations" as keyof Items,
   },
   {
     label: "Места работы",
     icon: "i-lucide-briefcase-business",
-    slot: "workplaces" as const,
+    slot: "workplaces" as keyof Items,
   },
   {
     label: "Документы",
     icon: "i-lucide-book-text",
-    slot: "documents" as const,
+    slot: "documents" as keyof Items,
   },
   {
     label: "Адреса",
     icon: "i-lucide-house",
-    slot: "addresses" as const,
+    slot: "addresses" as keyof Items,
   },
   {
     label: "Контакты",
     icon: "i-lucide-phone-call",
-    slot: "contacts" as const,
+    slot: "contacts" as keyof Items,
   },
   {
     label: "Изменения имени",
     icon: "i-lucide-file-pen-line",
-    slot: "previous" as const,
+    slot: "previous" as keyof Items,
   },
   {
     label: "Аффилированность",
     icon: "i-lucide-users-round",
-    slot: "affilations" as const,
+    slot: "affilations" as keyof Items,
   },
 ];
 </script>
@@ -102,7 +102,7 @@ const accordion = [
           <ContentItemView
             :icon="accord.icon"
             :data="data[accord.slot]"
-            :view="accord.slot as ItemKey"
+            :view="(accord.slot as keyof Items)"
             :title="accord.label"
           />
         </template>
@@ -114,8 +114,8 @@ const accordion = [
       <div class="mt-2">
         <ContentItemView
           :icon="tab.icon"
-          :data="data[tab.slot as ItemKey]"
-          :view="tab.slot as ItemKey"
+          :data="data[tab.slot as keyof Items]"
+          :view="(tab.slot as keyof Items)"
           :title="tab.label"
         />
       </div>

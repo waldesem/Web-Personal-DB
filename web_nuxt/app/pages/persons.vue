@@ -1,17 +1,13 @@
 <script setup lang="ts">
-import { refDebounced, useDateFormat, useFileDialog } from "@vueuse/core";
+import { refDebounced, useFileDialog } from "@vueuse/core";
 import type { TableColumn } from "@nuxt/ui";
 import type { Candidate, Session } from "@/types";
 
 const toasts = useToasts();
-
-// Используем плагин для передачи данных на сервер
 const { $api } = useNuxtApp();
-
 const { data: user } = useNuxtData<Session>("session");
 
 // Объявляем переменные для работы с данными
-const expanded = ref({ 1: false }); // Состояние раскрытия строк таблицы
 const modal = ref(false); // Состояние модального окна
 const page = ref(1); // Страница таблицы
 const per_page = 10; // Количество строк в таблице
@@ -63,12 +59,8 @@ const { open, onChange } = useFileDialog({
 
 // Фукция загрузки файла JSON
 onChange(async (files) => {
-  if (!files?.[0]?.name.endsWith(".json")) {
-    toasts.create();
-    return;
-  }
   status.value = "pending";
-  const str = await files[0].text();
+  const str = (await files?.[0]?.text()) as string;
   const jsonData = JSON.parse(str);
   const { person_id, exists } = (await $api("/routes/persons/json", {
     method: "POST",
@@ -92,6 +84,7 @@ async function proceedSubmit(person_id: string, exists: boolean) {
     } else {
       toasts.create("success", "Анкета успешно загружена");
     }
+    status.value = "success";
     refresh();
     return navigateTo("/profile/" + person_id);
   } else {
@@ -102,23 +95,6 @@ async function proceedSubmit(person_id: string, exists: boolean) {
 
 // Определяем массив данных для таблицы кандидатов
 const columns: TableColumn<Candidate>[] = [
-  // Раскрытие строк таблицы
-  {
-    id: "expand",
-    cell: ({ row }) =>
-      h(resolveComponent("UButton"), {
-        variant: "ghost",
-        icon: "i-lucide-chevron-down",
-        square: true,
-        ui: {
-          leadingIcon: [
-            "transition-transform",
-            row.getIsExpanded() ? "duration-200 rotate-180" : "",
-          ],
-        },
-        onClick: () => row.toggleExpanded(),
-      }),
-  },
   // ID кандидата
   { accessorKey: "id", header: "#" },
   // Имя кандидата
@@ -135,8 +111,11 @@ const columns: TableColumn<Candidate>[] = [
   {
     accessorKey: "birthday",
     header: "Дата рождения",
-    cell: ({ row }) =>
-      useDateFormat(row.getValue("birthday"), "DD.MM.YYYY").value,
+    cell: ({ row }) => {
+      return h(resolveComponent("NuxtTime"), {
+        datetime: (row.getValue("birthday"), "DD.MM.YYYY"),
+      });
+    },
   },
   // Статус кандидата
   {
@@ -249,7 +228,6 @@ const columns: TableColumn<Candidate>[] = [
 
     <!-- Таблица с данными кандидатов -->
     <UTable
-      v-model:expanded="expanded"
       loading-animation="swing"
       empty="Данные не найдены"
       :loading="status === 'pending'"
@@ -259,10 +237,6 @@ const columns: TableColumn<Candidate>[] = [
       :meta="{ class: { tr: 'cursor-pointer' } }"
       @select="(_, row) => navigateTo(`/profile/${row.original.id}`)"
     >
-      <!-- Выводим подробную информацию о кандидате -->
-      <template #expanded="{ row }">
-        <UCard><LazyItemsPersonItem :item="row.original" /></UCard>
-      </template>
       <template #loading>
         <UIcon name="i-lucide-refresh-ccw" mode="css" class="animate-spin" />
       </template>

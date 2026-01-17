@@ -16,19 +16,41 @@ const form = toRef(props.item);
 <template>
   <UForm :state="form" @submit.prevent="emit('update', form)">
     <UFormField label="Фамилия" name="surname" required>
-      <UInput v-model.trim.lazy="form.surname" placeholder="Фамилия" maxlength="255" required />
+      <UInput
+        v-model.trim.lazy="form.surname"
+        placeholder="Фамилия"
+        maxlength="255"
+        required
+      />
     </UFormField>
     <UFormField label="Имя" name="firstname" required>
-      <UInput v-model.trim.lazy="form.firstname" placeholder="Имя" maxlength="255" required />
+      <UInput
+        v-model.trim.lazy="form.firstname"
+        placeholder="Имя"
+        maxlength="255"
+        required
+      />
     </UFormField>
     <UFormField label="Отчество" name="patronymic">
-      <UInput v-model.trim.lazy="form.patronymic" placeholder="Отчество" maxlength="255" />
+      <UInput
+        v-model.trim.lazy="form.patronymic"
+        placeholder="Отчество"
+        maxlength="255"
+      />
     </UFormField>
     <UFormField label="Год изменения" name="changed">
-      <UInput v-model.trim.lazy="form.changed" placeholder="Год изменения" maxlength="4" />
+      <UInput
+        v-model.trim.lazy="form.changed"
+        placeholder="Год изменения"
+        pattern="^[0-9]{4}$"
+      />
     </UFormField>
     <UFormField label="Причина изменения" name="reason">
-      <UInput v-model.trim.lazy="form.reason" placeholder="Причина изменения" maxlength="255" />
+      <UInput
+        v-model.trim.lazy="form.reason"
+        placeholder="Причина изменения"
+        maxlength="255"
+      />
     </UFormField>
     <ElementSubmitButton />
   </UForm>

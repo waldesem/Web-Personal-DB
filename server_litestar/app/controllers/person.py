@@ -68,6 +68,9 @@ class PersonController(Controller):
                 ).scalar_one_or_none()
             )
 
+            if person.editable and person.user_id == user_id:
+                return None, True
+
             resume = cand.model_dump(exclude_none=True) | {"user_id": user_id}
 
             if not person:
