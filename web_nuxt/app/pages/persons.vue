@@ -113,7 +113,7 @@ const columns: TableColumn<Candidate>[] = [
     header: "Дата рождения",
     cell: ({ row }) => {
       return h(resolveComponent("NuxtTime"), {
-        datetime: (row.getValue("birthday"), "DD.MM.YYYY"),
+        datetime: row.getValue("birthday"),
       });
     },
   },
@@ -138,11 +138,11 @@ const columns: TableColumn<Candidate>[] = [
   },
   // Обновлено
   {
-    accessorKey: "created",
+    accessorKey: "created_at",
     header: "Обновлено",
     cell: ({ row }) => {
       return h(resolveComponent("NuxtTime"), {
-        datetime: new Date(row.getValue("created")).getTime() - 60000,
+        datetime: new Date(row.getValue("created_at")).getTime() - 60000,
         relative: true,
       });
     },

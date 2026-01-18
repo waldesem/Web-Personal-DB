@@ -7,13 +7,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.classes.classes import ItemCategory, Roles
 from app.depends.auth import role_guard
 from app.models.models import ItemModel, ItemsModel
-from app.tables.tables import Base
+from app.tables.tables import config
 
 
 class ItemsController(Controller):
     """Items controller."""
 
     path = "/items"
+    tables = config.metadata.tables
 
     @staticmethod
     async def select_item(
@@ -22,8 +23,8 @@ class ItemsController(Controller):
         db_session: AsyncSession,
     ) -> list[ItemsModel]:
         """Retrieve an item from the database based on the provided item."""
+        table = ItemsController.tables[item]
         async with db_session.begin():
-            table = Base.metadata.tables[item]
             stmt = (
                 select(table, label("item", item))
                 .filter(table.c.person_id == person_id)
@@ -70,10 +71,10 @@ class ItemsController(Controller):
         async with db_session.begin():
             json_dict = data.item.model_dump(
                 exclude_none=True,
-                exclude={"created", "item"},
+                exclude={"created_at", "updated_at", "item"},
             )
             json_dict["person_id"] = person_id
-            table = Base.metadata.tables[item]
+            table = ItemsController.tables[item]
             # Проверяем, есть ли ключ "id" в словаре json_dict
             if item_id := json_dict.pop("id", None):
                 # Если есть, создаем запрос на обновление записи с указанным id
@@ -96,8 +97,8 @@ class ItemsController(Controller):
         db_session: AsyncSession,
     ) -> None:
         """Delete an item from the database with item name and item ID."""
+        table = ItemsController.tables[item]
         async with db_session.begin():
-            table = Base.metadata.tables[item]
             await db_session.execute(
                 table.delete().where(table.c.id == item_id),
             )

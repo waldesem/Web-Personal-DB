@@ -4,6 +4,7 @@ from litestar.plugins.sqlalchemy import (
     SQLAlchemyAsyncConfig,
     SQLAlchemyInitPlugin,
     async_autocommit_before_send_handler,
+    base,
 )
 from sqlalchemy import (
     Boolean,
@@ -15,32 +16,21 @@ from sqlalchemy import (
     Text,
     func,
 )
-from sqlalchemy.orm import (
-    DeclarativeBase,
-    Mapped,
-    mapped_column,
-    relationship,
-)
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.classes.classes import Roles
 from app.utils.security import generate_password_hash
 from constants import DATABASE_URI, DEFAULT_PASSWORD
 
 
-class Base(DeclarativeBase):
-    """Base class for models."""
-
-
-class Users(Base):
+class Users(base.UUIDAuditBase):
     """User model."""
 
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
     fullname: Mapped[str] = mapped_column(String(255), nullable=False)
     username: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     email: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
-    created: Mapped[DateTime] = mapped_column(DateTime, default=func.now())
     passhash: Mapped[str] = mapped_column(
         String(255),
         default=generate_password_hash(DEFAULT_PASSWORD),
@@ -53,12 +43,11 @@ class Users(Base):
     role: Mapped[str] = mapped_column(String(), default=Roles.guest.value)
 
 
-class Persons(Base):
+class Persons(base.UUIDAuditBase):
     """Person model."""
 
     __tablename__ = "persons"
 
-    id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
     surname: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     firstname: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     patronymic: Mapped[str] = mapped_column(String(255), index=True)
@@ -71,11 +60,6 @@ class Persons(Base):
     marital: Mapped[str] = mapped_column(String(255))
     addition: Mapped[str] = mapped_column(Text)
     destination: Mapped[str] = mapped_column(Text)
-    created: Mapped[DateTime] = mapped_column(
-        DateTime,
-        default=func.now(),
-        onupdate=func.now(),
-    )
     editable: Mapped[bool] = mapped_column(Boolean(), default=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     previous: Mapped[list[Previous]] = relationship(
@@ -140,22 +124,17 @@ class Persons(Base):
     )
 
 
-class Previous(Base):
+class Previous(base.UUIDAuditBase):
     """Previous model."""
 
     __tablename__ = "previous"
 
-    id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
     surname: Mapped[str] = mapped_column(String(255))
     firstname: Mapped[str] = mapped_column(String(255))
     patronymic: Mapped[str] = mapped_column(String(255))
     changed: Mapped[str] = mapped_column(String(255))
     reason: Mapped[str] = mapped_column(Text)
-    created: Mapped[DateTime] = mapped_column(
-        DateTime,
-        default=func.now(),
-        onupdate=func.now(),
-    )
+
     person_id: Mapped[int] = mapped_column(
         ForeignKey("persons.id"),
         index=True,
@@ -164,21 +143,15 @@ class Previous(Base):
     person: Mapped[Persons] = relationship(back_populates="previous")
 
 
-class Educations(Base):
+class Educations(base.UUIDAuditBase):
     """Education model."""
 
     __tablename__ = "educations"
 
-    id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
     view: Mapped[str] = mapped_column(String(255))
     institution: Mapped[str] = mapped_column(Text)
     finished: Mapped[int] = mapped_column(Integer)
     specialty: Mapped[str] = mapped_column(Text)
-    created: Mapped[DateTime] = mapped_column(
-        DateTime,
-        default=func.now(),
-        onupdate=func.now(),
-    )
     person_id: Mapped[int] = mapped_column(
         ForeignKey("persons.id"),
         index=True,
@@ -187,19 +160,13 @@ class Educations(Base):
     person: Mapped[Persons] = relationship(back_populates="educations")
 
 
-class Staffs(Base):
+class Staffs(base.UUIDAuditBase):
     """Staff model."""
 
     __tablename__ = "staffs"
 
-    id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
     position: Mapped[str] = mapped_column(Text)
     department: Mapped[str] = mapped_column(Text)
-    created: Mapped[DateTime] = mapped_column(
-        DateTime,
-        default=func.now(),
-        onupdate=func.now(),
-    )
     person_id: Mapped[int] = mapped_column(
         ForeignKey("persons.id"),
         index=True,
@@ -208,22 +175,16 @@ class Staffs(Base):
     person: Mapped[Persons] = relationship(back_populates="staffs")
 
 
-class Documents(Base):
+class Documents(base.UUIDAuditBase):
     """Document model."""
 
     __tablename__ = "documents"
 
-    id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
     view: Mapped[str] = mapped_column(String(255), default="Паспорт")
     series: Mapped[str] = mapped_column(String(255))
     digits: Mapped[str] = mapped_column(String(255))
     agency: Mapped[str] = mapped_column(Text)
     issue: Mapped[DateTime] = mapped_column(Date)
-    created: Mapped[DateTime] = mapped_column(
-        DateTime,
-        default=func.now(),
-        onupdate=func.now(),
-    )
     person_id: Mapped[int] = mapped_column(
         ForeignKey("persons.id"),
         index=True,
@@ -232,19 +193,13 @@ class Documents(Base):
     person: Mapped[Persons] = relationship(back_populates="documents")
 
 
-class Addresses(Base):
+class Addresses(base.UUIDAuditBase):
     """Address model."""
 
     __tablename__ = "addresses"
 
-    id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
     view: Mapped[str] = mapped_column(String(255))
     address: Mapped[str] = mapped_column(Text)
-    created: Mapped[DateTime] = mapped_column(
-        DateTime,
-        default=func.now(),
-        onupdate=func.now(),
-    )
     person_id: Mapped[int] = mapped_column(
         ForeignKey("persons.id"),
         index=True,
@@ -253,19 +208,13 @@ class Addresses(Base):
     person: Mapped[Persons] = relationship(back_populates="addresses")
 
 
-class Contacts(Base):
+class Contacts(base.UUIDAuditBase):
     """Create model for contacts."""
 
     __tablename__ = "contacts"
 
-    id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
     view: Mapped[str] = mapped_column(String(255))
     contact: Mapped[str] = mapped_column(String(255))
-    created: Mapped[DateTime] = mapped_column(
-        DateTime,
-        default=func.now(),
-        onupdate=func.now(),
-    )
     person_id: Mapped[int] = mapped_column(
         ForeignKey("persons.id"),
         index=True,
@@ -274,12 +223,11 @@ class Contacts(Base):
     person: Mapped[Persons] = relationship(back_populates="contacts")
 
 
-class Workplaces(Base):
+class Workplaces(base.UUIDAuditBase):
     """Workplace model."""
 
     __tablename__ = "workplaces"
 
-    id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
     now_work: Mapped[bool] = mapped_column(Boolean, default=False)
     starts: Mapped[DateTime | None] = mapped_column(Date)
     finished: Mapped[DateTime | None] = mapped_column(Date)
@@ -287,11 +235,6 @@ class Workplaces(Base):
     address: Mapped[str] = mapped_column(Text)
     position: Mapped[str] = mapped_column(Text)
     reason: Mapped[str] = mapped_column(Text)
-    created: Mapped[DateTime] = mapped_column(
-        DateTime,
-        default=func.now(),
-        onupdate=func.now(),
-    )
     person_id: Mapped[int] = mapped_column(
         ForeignKey("persons.id"),
         index=True,
@@ -300,20 +243,14 @@ class Workplaces(Base):
     person: Mapped[Persons] = relationship(back_populates="workplaces")
 
 
-class Affilations(Base):
+class Affilations(base.UUIDAuditBase):
     """Affiliation model."""
 
     __tablename__ = "affilations"
 
-    id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
     view: Mapped[str] = mapped_column(String(255))
     organization: Mapped[str] = mapped_column(Text)
     inn: Mapped[str] = mapped_column(String(255))
-    created: Mapped[DateTime] = mapped_column(
-        DateTime,
-        default=func.now(),
-        onupdate=func.now(),
-    )
     person_id: Mapped[int] = mapped_column(
         ForeignKey("persons.id"),
         index=True,
@@ -322,12 +259,11 @@ class Affilations(Base):
     person: Mapped[Persons] = relationship(back_populates="affilations")
 
 
-class Checks(Base):
+class Checks(base.UUIDAuditBase):
     """Check model."""
 
     __tablename__ = "checks"
 
-    id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
     workplace: Mapped[str] = mapped_column(Text)
     document: Mapped[str] = mapped_column(Text)
     inn: Mapped[str] = mapped_column(Text)
@@ -344,11 +280,6 @@ class Checks(Base):
     addition: Mapped[str] = mapped_column(Text)
     comment: Mapped[str] = mapped_column(Text)
     conclusion: Mapped[str] = mapped_column(Text)
-    created: Mapped[DateTime] = mapped_column(
-        DateTime,
-        default=func.now(),
-        onupdate=func.now(),
-    )
     person_id: Mapped[int] = mapped_column(
         ForeignKey("persons.id"),
         index=True,
@@ -357,20 +288,14 @@ class Checks(Base):
     person: Mapped[Persons] = relationship(back_populates="checks")
 
 
-class Poligrafs(Base):
+class Poligrafs(base.UUIDAuditBase):
     """Poligraf model."""
 
     __tablename__ = "poligrafs"
 
-    id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
     theme: Mapped[str] = mapped_column(String(255))
     results: Mapped[str] = mapped_column(Text)
     conclusion: Mapped[str] = mapped_column(String(255))
-    created: Mapped[DateTime] = mapped_column(
-        DateTime,
-        default=func.now(),
-        onupdate=func.now(),
-    )
     person_id: Mapped[int] = mapped_column(
         ForeignKey("persons.id"),
         index=True,
@@ -379,19 +304,13 @@ class Poligrafs(Base):
     person: Mapped[Persons] = relationship(back_populates="poligrafs")
 
 
-class Investigations(Base):
+class Investigations(base.UUIDAuditBase):
     """Investigation model."""
 
     __tablename__ = "investigations"
 
-    id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
     theme: Mapped[str] = mapped_column(String(255))
     info: Mapped[str] = mapped_column(Text)
-    created: Mapped[DateTime] = mapped_column(
-        DateTime,
-        default=func.now(),
-        onupdate=func.now(),
-    )
     person_id: Mapped[int] = mapped_column(
         ForeignKey("persons.id"),
         index=True,
@@ -400,20 +319,14 @@ class Investigations(Base):
     person: Mapped[Persons] = relationship(back_populates="investigations")
 
 
-class Inquiries(Base):
+class Inquiries(base.UUIDAuditBase):
     """Inquiry model."""
 
     __tablename__ = "inquiries"
 
-    id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
     info: Mapped[str] = mapped_column(Text)
     initiator: Mapped[str] = mapped_column(String(255))
     origins: Mapped[str] = mapped_column(String(255))
-    created: Mapped[DateTime] = mapped_column(
-        DateTime,
-        default=func.now(),
-        onupdate=func.now(),
-    )
     person_id: Mapped[int] = mapped_column(
         ForeignKey("persons.id"),
         index=True,
@@ -426,6 +339,6 @@ config = SQLAlchemyAsyncConfig(
     before_send_handler=async_autocommit_before_send_handler,
     connection_string=DATABASE_URI,
     create_all=True,
-    metadata=Base.metadata,
+    metadata=base.UUIDAuditBase.metadata,
 )
 alchemy_plugin = SQLAlchemyInitPlugin(config=config)

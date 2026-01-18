@@ -137,11 +137,20 @@ const columns: TableColumn<User>[] = [
     },
   },
   {
-    accessorKey: "created",
+    accessorKey: "created_at",
     header: "Создан",
     cell: ({ row }) => {
       return h(NuxtTime, {
-        datetime: row.original.created,
+        datetime: row.original.created_at,
+      });
+    },
+  },
+  {
+    accessorKey: "updated_at",
+    header: "Обновлен",
+    cell: ({ row }) => {
+      return h(NuxtTime, {
+        datetime: row.original.updated_at,
       });
     },
   },

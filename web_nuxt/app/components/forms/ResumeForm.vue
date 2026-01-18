@@ -26,7 +26,7 @@ async function submitPerson() {
     exists: boolean;
   }>("/routes/persons", {
     method: "POST",
-    body: { ...form.value, created: new Date().toISOString(), editable: true },
+    body: form.value,
   });
   emit("update", person_id, exists);
 }

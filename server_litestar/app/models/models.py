@@ -68,7 +68,8 @@ class User(UserForm):
     blocked: bool
     deleted: bool
     attempt: int
-    created: datetime | str | None
+    created_at: datetime | str | None = None
+    updated_at: datetime | str | None = None
 
 
 class Actions(Model):
@@ -122,7 +123,8 @@ class Items(Model):
     """Pydantic model for items."""
 
     id: int | None = None
-    created: datetime | str | None = None
+    created_at: datetime | str | None = None
+    updated_at: datetime | str | None = None
 
 
 class PersonOut(Items):

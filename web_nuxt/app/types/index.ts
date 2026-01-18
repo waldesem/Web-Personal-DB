@@ -63,7 +63,8 @@ export interface User extends Session {
   change_pswd: boolean;
   blocked: boolean;
   deleted: boolean;
-  created: string;
+  created_at: string
+  updated_at: string
   attempt: string;
 }
 
@@ -82,7 +83,8 @@ export interface Person {
   addition?: string;
   destination?: string;
   editable: boolean;
-  created: string;
+  created_at: string;
+  updated_at: string;
   user_id: string;
 }
 
@@ -143,7 +145,8 @@ export interface Work {
   address?: string;
   reason?: string;
   position: string;
-  created: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Affilation {
@@ -170,7 +173,8 @@ export interface Verification {
   addition?: string;
   conclusion: Conclusions;
   comment?: string;
-  created: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Pfo {
@@ -178,14 +182,16 @@ export interface Pfo {
   theme: string;
   results: string;
   conclusion: Decisions;
-  created: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Inquisition {
   id: string;
   theme: string;
   info: string;
-  created: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Needs {
@@ -193,7 +199,8 @@ export interface Needs {
   info: string;
   initiator: string;
   origins?: string;
-  created: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Items {

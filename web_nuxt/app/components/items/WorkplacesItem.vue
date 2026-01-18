@@ -9,7 +9,7 @@ const props = defineProps({
 });
 
 const experience = computed(() =>
-  workExperience(props.item.starts, props.item.finished, props.item.created),
+  workExperience(props.item.starts, props.item.finished, props.item.updated_at),
 );
 </script>
 

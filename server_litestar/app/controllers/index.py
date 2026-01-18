@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.classes.classes import Roles
 from app.depends.auth import role_guard
 from app.models.models import Candidates, Index, User
-from app.tables.tables import Base, Persons, Users
+from app.tables.tables import Persons, Users, config
 
 
 @get("/candidates")
@@ -21,7 +21,7 @@ async def get_candidates(query: Index, db_session: AsyncSession) -> list[Candida
     """Retrieve a paginated list of persons from the database."""
     async with db_session.begin():
         stmt = select(
-            Base.metadata.tables["persons"],
+            config.metadata.tables["persons"],
             Users.fullname.label("username"),
             func.count().over().label("total"),
         )

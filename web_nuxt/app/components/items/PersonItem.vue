@@ -28,7 +28,7 @@ const { copy, copied } = useClipboard();
   <ElementLabelValue label="ИНН" :value="props.item.inn" />
   <ElementLabelValue label="Семейное положение" :value="props.item.marital" />
   <ElementLabelValue label="Дата записи">
-    <NuxtTime :datetime="props.item.created" />
+    <NuxtTime :datetime="props.item.updated_at" />
   </ElementLabelValue>
   <ElementLabelValue label="Дополнительная информация" :value="props.item.addition" />
   <ElementLabelValue v-if="props.item.destination" label="Материалы проверок">

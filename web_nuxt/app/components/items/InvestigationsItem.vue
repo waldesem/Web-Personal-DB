@@ -13,6 +13,6 @@ const props = defineProps({
   <ElementLabelValue label="Тема проверки" :value="props.item.theme" />
   <ElementLabelValue label="Информация" :value="props.item.info" />
   <ElementLabelValue label="Дата записи">
-    <NuxtTime :datetime="props.item.created" />
+    <NuxtTime :datetime="props.item.updated_at" />
   </ElementLabelValue>
 </template>

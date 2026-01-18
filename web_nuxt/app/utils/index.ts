@@ -3,13 +3,13 @@ export function capitalize(str: string) {
   else return "";
 }
 
-export function workExperience(starts: string, finished: string, created: string) {
+export function workExperience(starts: string, finished: string, created_at: string) {
   const duration = {
     years: 0,
     months: 0,
     days: 0,
   };
-  const end = finished ? new Date(finished) : new Date(created);
+  const end = finished ? new Date(finished) : new Date(created_at);
   if (!starts) {
     return duration;
   }
