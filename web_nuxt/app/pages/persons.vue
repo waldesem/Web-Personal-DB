@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { refDebounced, useFileDialog } from "@vueuse/core";
 import type { TableColumn } from "@nuxt/ui";
 import type { Candidate, Session } from "@/types";
 
-const toasts = useToasts();
+const toast = useToast();
 const { $api } = useNuxtApp();
 const { data: user } = useNuxtData<Session>("session");
 
@@ -30,7 +29,7 @@ const { data, status, refresh } = await useLazyAsyncData(
   {
     watch: [page],
     default: () => [] as Candidate[],
-  }
+  },
 );
 
 // Вычисляем количество страниц
@@ -61,10 +60,9 @@ const { open, onChange } = useFileDialog({
 onChange(async (files) => {
   status.value = "pending";
   const str = (await files?.[0]?.text()) as string;
-  const jsonData = JSON.parse(str);
   const { person_id, exists } = (await $api("/routes/persons/json", {
     method: "POST",
-    body: jsonData,
+    body: JSON.parse(str),
   })) as {
     person_id: string;
     exists: boolean;
@@ -77,19 +75,31 @@ async function proceedSubmit(person_id: string, exists: boolean) {
   modal.value = false;
   if (person_id) {
     if (exists) {
-      toasts.create(
-        "info",
-        "Анкета была загружена ранее или назначена другому пользователю"
-      );
+      toast.add({
+        icon: "i-lucide-octagon-alert",
+        title: "Внимание",
+        description:
+          "Анкета была загружена ранее или назначена другому пользователю",
+        color: "info",
+      });
     } else {
-      toasts.create("success", "Анкета успешно загружена");
+      toast.add({
+        icon: "i-lucide-triangle-alert",
+        title: "Успех",
+        description: "Анкета успешно загружена",
+        color: "success",
+      });
     }
     status.value = "success";
-    refresh();
     return navigateTo("/profile/" + person_id);
   } else {
     status.value = "error";
-    toasts.create();
+    toast.add({
+      icon: "i-lucide-triangle-alert",
+      title: "Ошибка",
+      description: "Анкета успешно загружена",
+      color: "success",
+    });
   }
 }
 
@@ -220,7 +230,6 @@ const columns: TableColumn<Candidate>[] = [
         id="search"
         v-model="search"
         type="search"
-        size="lg"
         icon="i-lucide-search"
         placeholder="поиск по фаимилии, имени, отчеству"
       />
@@ -231,7 +240,6 @@ const columns: TableColumn<Candidate>[] = [
       loading-animation="swing"
       empty="Данные не найдены"
       :loading="status === 'pending'"
-      :loading-color="'neutral'"
       :columns="columns"
       :data="data"
       :meta="{ class: { tr: 'cursor-pointer' } }"
