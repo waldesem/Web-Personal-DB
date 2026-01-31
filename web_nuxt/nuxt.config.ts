@@ -14,7 +14,7 @@ export default defineNuxtConfig({
   build: {
     analyze: true,
   },
-  compatibilityDate: "2025-12-08",
+  compatibilityDate: "2026-01-31",
   css: ["~/assets/css/main.css"],
   devtools: { enabled: true },
   experimental: {
@@ -28,6 +28,13 @@ export default defineNuxtConfig({
   modules: ["@nuxt/ui", "@nuxt/eslint", "@vueuse/nuxt", "nuxt-security"],
   nitro: {
     compressPublicAssets: { brotli: true },
+    prerender: {
+      crawlLinks: true,
+      routes: [
+        "/",
+        "/persons",
+      ],
+    },
   },
   routeRules: {
     "/routes/**": { proxy: "http://127.0.0.1:8000/routes/**" },
