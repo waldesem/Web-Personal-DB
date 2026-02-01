@@ -1,10 +1,10 @@
 [project]
 name = "server-litestar"
-version = "0.1.0"
+version = "1.0.0"
 description = "StaffSec"
 requires-python = ">=3.14"
 dependencies = [
-    "aiosqlite>=0.22.1",
+    "advanced-alchemy>=1.8.2",
     "asyncpg>=0.31.0",
     "litestar[standard, jwt, sqlalchemy]>=2.19.0",
     "pydantic>=2.12.5",
