@@ -14,19 +14,34 @@ const experience = computed(() =>
 </script>
 
 <template>
-  <ElementLabelValue label="Текущая работа" :value="props.item.now_work ? 'Да' : 'Нет'" />
-  <ElementLabelValue v-if="props.item.starts" label="Начало работы">
-    <NuxtTime :datetime="props.item.starts" />
-  </ElementLabelValue>
-  <ElementLabelValue v-if="props.item.finished" label="Окончание работы">
-    <NuxtTime :datetime="props.item.finished" />
-  </ElementLabelValue>
+  <ElementLabelValue
+    label="Текущая работа"
+    :value="!props.item.finished ? 'Да' : 'Нет'"
+  />
+  <ElementLabelValue
+    v-if="props.item.starts"
+    label="Начало работы"
+    :value="new Date(props.item.starts).toLocaleDateString()"
+  />
+  <ElementLabelValue
+    v-if="props.item.finished"
+    label="Окончание работы"
+    :value="new Date(props.item.finished).toLocaleDateString()"
+  />
   <ElementLabelValue v-if="experience" label="Стаж на рабочем месте">
     <UBadge
       variant="outline"
-      :color="experience.years > 0 ? 'success' : experience.months > 0 ? 'info' : 'error'"
+      :color="
+        experience.years > 0
+          ? 'success'
+          : experience.months > 0
+            ? 'info'
+            : 'error'
+      "
     >
-      {{ `${experience.years} г., ${experience.months} мес., ${experience.days} дн.` }}
+      {{
+        `${experience.years} г., ${experience.months} мес., ${experience.days} дн.`
+      }}
     </UBadge>
   </ElementLabelValue>
   <ElementLabelValue label="Место" :value="props.item.workplace" />

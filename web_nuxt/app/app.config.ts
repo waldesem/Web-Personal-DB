@@ -1,10 +1,5 @@
 export default defineAppConfig({
   ui: {
-    alert: {
-      slots: {
-        icon: "size-10",
-      },
-    },
     colors: {
       primary: "blue",
       neutral: "gray",
@@ -23,6 +18,12 @@ export default defineAppConfig({
       slots: {
         header: "p-3",
         content: "sm:max-w-xl",
+      },
+    },
+    pageHeader: {
+      slots: {
+        root: "relative border-none py-4",
+        title: "text-2xl sm:text-3xl",
       },
     },
     textarea: {

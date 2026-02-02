@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useDateFormat } from "@vueuse/core";
 import type { Person } from "@/types";
 
 const emit = defineEmits(["update"]);
@@ -17,7 +16,7 @@ const { $api } = useNuxtApp();
 
 // Преобразование даты в формат YYYY-MM-DD
 form.value.birthday = form.value.birthday
-  ? useDateFormat(form.value.birthday, "YYYY-MM-DD").value
+  ? new Date(form.value.birthday).toLocaleDateString()
   : "";
 
 async function submitPerson() {

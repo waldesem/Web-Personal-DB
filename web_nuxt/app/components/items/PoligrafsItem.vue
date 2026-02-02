@@ -27,7 +27,8 @@ const props = defineProps({
       :label="props.item.conclusion"
     />
   </ElementLabelValue>
-  <ElementLabelValue label="Дата записи">
-    <NuxtTime :datetime="props.item.updated_at" />
-  </ElementLabelValue>
+  <ElementLabelValue
+    label="Дата записи"
+    :value="new Date(props.item.created_at).toLocaleDateString()"
+  />
 </template>

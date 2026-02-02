@@ -112,7 +112,7 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
       {
         method: "POST",
         body: payload.data,
-      }
+      },
     )) as { message: string; access_token: string; refresh_token: string };
     if (message === "success") {
       const token = useCookie("access", {
@@ -132,20 +132,20 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
       defineAlert(
         "success",
         "Информация",
-        "Пароль успешно изменен. Войдите с новым паролем."
+        "Пароль успешно изменен. Войдите с новым паролем.",
       );
     } else if (message === "denied") {
       defineAlert(
         "warning",
         "Предупреждение",
-        "Пароль просрочен. Измените пароль."
+        "Пароль просрочен. Измените пароль.",
       );
       action.value = "update";
     } else {
       defineAlert(
         "error",
         "Ошибка",
-        "Неправильный логин или пароль. Попробуйте еще раз."
+        "Неправильный логин или пароль. Попробуйте еще раз.",
       );
     }
   } catch (error) {
@@ -179,7 +179,6 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
           :color="alert.color"
           :title="alert.title"
           :description="alert.description"
-          icon="i-lucide-circle-alert"
         />
       </template>
       <template #footer>
@@ -192,14 +191,14 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
             () => {
               if (action == 'login') {
                 action = 'update';
-                alert.color = 'info';
-                alert.title = 'Информация';
-                alert.description = 'Введите новый пароль и подтверждение.';
+                defineAlert(
+                  'info',
+                  'Информация',
+                  'Введите новый пароль и подтверждение.',
+                );
               } else {
                 action = 'login';
-                alert.color = 'success';
-                alert.title = 'Информация';
-                alert.description = 'Введите логин и пароль';
+                defineAlert('success', 'Информация', 'Введите логин и пароль');
               }
             }
           "

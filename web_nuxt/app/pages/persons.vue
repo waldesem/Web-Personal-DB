@@ -105,29 +105,29 @@ async function proceedSubmit(person_id: string, exists: boolean) {
 
 // Определяем массив данных для таблицы кандидатов
 const columns: TableColumn<Candidate>[] = [
-  // ID кандидата
   { accessorKey: "id", header: "#" },
-  // Имя кандидата
   {
     accessorKey: "fullname",
-    header: "Фамилия Имя Отчество",
+    header: "Фамилия",
+  },
+  {
+    accessorKey: "firstname",
+    header: "Имя",
+  },
+  {
+    accessorKey: "patronymic",
+    header: "Отчество",
     cell: ({ row }) => {
-      return `${row.original.surname} ${row.original.firstname} ${
-        row.original.patronymic ?? ""
-      }`;
+      return row.original.patronymic ?? "";
     },
   },
-  // Дата рождения
   {
     accessorKey: "birthday",
     header: "Дата рождения",
     cell: ({ row }) => {
-      return h(resolveComponent("NuxtTime"), {
-        datetime: row.getValue("birthday"),
-      });
+      return new Date(row.getValue("birthday")).toLocaleDateString();
     },
   },
-  // Статус кандидата
   {
     accessorKey: "editable",
     header: "Статус",
@@ -146,7 +146,6 @@ const columns: TableColumn<Candidate>[] = [
       });
     },
   },
-  // Обновлено
   {
     accessorKey: "created_at",
     header: "Обновлено",
@@ -157,7 +156,6 @@ const columns: TableColumn<Candidate>[] = [
       });
     },
   },
-  // Сотрудник
   {
     accessorKey: "username",
     header: "Сотрудник",
@@ -172,10 +170,7 @@ const columns: TableColumn<Candidate>[] = [
   <UContainer>
     <UPageHeader
       title="КАНДИДАТЫ"
-      :ui="{
-        root: 'relative border-none py-4',
-        title: 'text-2xl sm:text-3xl text-red-800',
-      }"
+      :ui="{ title: 'text-red-800' }"
     >
       <template #links>
         <ClientOnly>

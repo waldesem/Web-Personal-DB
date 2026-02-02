@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import type { Items, Status } from "@/types";
 
-// Импортируем плагин для передачи данных на сервер
 const { $api } = useNuxtApp();
 
 const toasts = useToasts();
+
+const editable = useEditable();
 
 // Определяем данные которые передаются из родительского компонента
 const props = defineProps({
@@ -27,15 +28,14 @@ const props = defineProps({
 });
 
 const ItemComponent = defineAsyncComponent<Component>(
-  () => import(`../items/${capitalize(props.view)}Item.vue`)
+  () => import(`../items/${capitalize(props.view)}Item.vue`),
 );
 const FormComponent = defineAsyncComponent<Component>(
-  () => import(`../forms/${capitalize(props.view)}Form.vue`)
+  () => import(`../forms/${capitalize(props.view)}Form.vue`),
 );
 
 // Инжектируем данные (id кандидата и доступна ли анкета для редактирования)
 const candId = inject("candId") as Ref<string>;
-const editable = inject("editable") as Ref<boolean>;
 
 // Объявляем переменные для работы с данными
 const data = shallowRef(props.data); // Данные для вывода
@@ -58,8 +58,8 @@ async function submitItem(form: typeof item.value) {
     `/routes/items/${props.view}/${candId.value}`,
     {
       method: "POST",
-      body: { item: { ...form, item: props.view } },
-    }
+      body: { item: { ...form, item: props.view } }, // add discriminator for backend validation
+    },
   )) as Status;
   item.value = {};
   await getItem();
@@ -73,14 +73,17 @@ async function deleteItem(itemId: string) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   status.value = "pending";
   try {
-    (await $api(`/routes/items/${props.view}/${itemId}`, {
+    const { status } = await $api.raw(`/routes/items/${props.view}/${itemId}`, {
       method: "DELETE",
-    })) as Status;
-    await getItem();
-    toasts.create("success", "Информация успешно удалена");
-  } catch {
-    toasts.create();
+    });
+    if (status === 204) {
+      await getItem();
+      toasts.create("success", "Информация успешно удалена");
+    }
+  } catch (error) {
+    console.error(error);
   }
+  toasts.create();
   status.value = "success";
 }
 </script>

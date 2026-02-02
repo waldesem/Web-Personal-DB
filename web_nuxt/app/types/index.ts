@@ -4,21 +4,6 @@ export interface Status {
   message: AsyncDataRequestStatus;
 }
 
-export enum ItemsEnum {
-  ADDRESSES = "addresses",
-  AFFILATIONS = "affilations",
-  CHECKS = "checks",
-  CONTACTS = "contacts",
-  DOCUMENTS = "documents",
-  EDUCATIONS = "educations",
-  INQUIRIES = "inquiries",
-  INVESTIGATIONS = "investigations",
-  PREVIOUS = "previous",
-  POLIGRAFS = "poligrafs",
-  STAFFS = "staffs",
-  WORKPLACES = "workplaces",
-}
-
 export enum Roles {
   admin = "admin",
   api = "api",

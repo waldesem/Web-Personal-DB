@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useDocumentVisibility } from "@vueuse/core";
 import type { Session } from "@/types";
 
 const { $api } = useNuxtApp();
@@ -11,8 +10,8 @@ const { data: user } = await useAsyncData(
   () => $api<Session>("/routes/auth/session"),
   {
     watch: [refThrottled(visibility, 600000)],
-    default: () => ({} as Session),
-  }
+    default: () => ({}) as Session,
+  },
 );
 
 // Объявляем функцию для выхода из системы и очистки данных пользователя
@@ -25,8 +24,9 @@ async function logout() {
       refresh_token: refresh.value,
     },
   });
-  useCookie("access").value = null;
-  useCookie("refresh").value = null;
+  const access = useCookie("access");
+  access.value = null;
+  refresh.value = null;
   return navigateTo("/login");
 }
 </script>
@@ -46,7 +46,6 @@ async function logout() {
                 label: 'Пользователи',
                 icon: 'i-lucide-users',
                 to: '/users',
-                disabled: user.role !== 'admin',
               },
             ]"
             variant="link"
@@ -57,8 +56,7 @@ async function logout() {
         <ClientOnly>
           <UButton
             class="rounded-full"
-            :label="user.username ?? ''"
-            :disabled="!user.username"
+            :label="user.username ?? 'Выйти'"
             color="error"
             icon="i-lucide-log-out"
             @click="logout()"

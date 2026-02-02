@@ -8,7 +8,7 @@ const { data: person } = useNuxtData<Person>("person");
 
 const toasts = useToasts();
 
-const editable = inject("editable") as Ref<boolean>;
+const editable = useEditable();
 
 const modal = ref(false); // Объявляем переменную модального окна
 
@@ -29,28 +29,39 @@ function submitPerson(person_id: number | null) {
 
 // Определяем функцию для удаления данных
 async function deletePerson() {
-  if (!confirm("Вы действительно хотите удалить профиль и связанные записи?")) return;
+  if (!confirm("Вы действительно хотите удалить профиль и связанные записи?"))
+    return;
   if (!confirm("Все данные будут удалены безвозвратно!?")) return;
   status.value = "pending";
   try {
-    await $api<Record<string, string>>(`/routes/persons/${person.value?.id}`, {
-      method: "DELETE",
-    });
-    toasts.create("success", "Информация успешно удалена");
-    refreshNuxtData("candidates");
-    return navigateTo("/persons");
-  } catch {
-    refreshNuxtData("person");
-    toasts.create();
+    const { status } = await $api.raw<Record<string, string>>(
+      `/routes/persons/${person.value?.id}`,
+      {
+        method: "DELETE",
+      },
+    );
+    if (status === 204) {
+      toasts.create("success", "Информация успешно удалена");
+      refreshNuxtData("candidates");
+      return navigateTo("/persons");
+    }
+  } catch (error) {
+    console.error(error);
   }
-  status.value = "success";
+  refreshNuxtData("person");
+  toasts.create();
+  status.value = "error";
 }
 </script>
 
 <template>
   <div class="ms-2 mt-2">
     <!-- Выводим кнопки редактирования или удаления данных -->
-    <LazyElementDivMenu v-if="editable" @update="modal = true" @delete="deletePerson()" />
+    <LazyElementDivMenu
+      v-if="editable"
+      @update="modal = true"
+      @delete="deletePerson()"
+    />
 
     <!-- Выводим данные или скелетный элемент -->
     <Suspense>
@@ -63,9 +74,17 @@ async function deletePerson() {
     </Suspense>
 
     <!-- Выводим модальное окно для редактирования данных -->
-    <UModal v-model:open="modal" title="Aнкета" description="Редактирование анкетные данные">
+    <UModal
+      v-model:open="modal"
+      title="Aнкета"
+      description="Редактирование анкетные данные"
+    >
       <template #body>
-        <FormsResumeForm :resume="person" @pending="status = 'pending'" @update="submitPerson" />
+        <FormsResumeForm
+          :resume="person"
+          @pending="status = 'pending'"
+          @update="submitPerson"
+        />
       </template>
     </UModal>
   </div>

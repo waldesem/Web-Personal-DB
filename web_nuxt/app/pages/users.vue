@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import type { TableColumn } from "@nuxt/ui";
-import type { User } from "@/types";
+import type { Session, User } from "@/types";
 
 // Объявляем переменные для рендера компонентов
 const UIcon = resolveComponent("UIcon");
 const UBadge = resolveComponent("UBadge");
 const UButton = resolveComponent("UButton");
 const UDropdownMenu = resolveComponent("UDropdownMenu");
-const NuxtTime = resolveComponent("NuxtTime");
 
 const toasts = useToasts();
+
+const { data: user } = useNuxtData<Session>("session");
 
 // Вызываем плагин для работы с API
 const { $api } = useNuxtApp();
@@ -23,18 +24,19 @@ const expanded = ref({ 1: false });
 const { data, status, refresh } = await useLazyAsyncData<User[]>(
   "users",
   () => $api("/routes/users"),
-  { default: () => [] as User[] }
+  { default: () => [] as User[] },
 );
 
 // Объявляем функцию для действия с пользователем
 async function userAction(item: string, user_id: string) {
   if (!confirm("Подтвердите выполнение действия")) return;
+  if (user_id === user.value?.id) return;
   const { message } = await $api<Record<string, string>>(
     "/routes/user/" + user_id,
     {
       method: "POST",
       body: { item: item },
-    }
+    },
   );
   if (message == "success") {
     toasts.create("success", "Действие успешно выполнено");
@@ -128,10 +130,10 @@ const columns: TableColumn<User>[] = [
           row.original.role === "admin"
             ? "error"
             : row.original.role === "user"
-            ? "success"
-            : row.original.role === "guest"
-            ? "secondary"
-            : "neutral",
+              ? "success"
+              : row.original.role === "guest"
+                ? "secondary"
+                : "neutral",
         label: row.original.role,
       });
     },
@@ -140,18 +142,14 @@ const columns: TableColumn<User>[] = [
     accessorKey: "created_at",
     header: "Создан",
     cell: ({ row }) => {
-      return h(NuxtTime, {
-        datetime: row.original.created_at,
-      });
+      return new Date(row.original.created_at).toLocaleDateString();
     },
   },
   {
     accessorKey: "updated_at",
     header: "Обновлен",
     cell: ({ row }) => {
-      return h(NuxtTime, {
-        datetime: row.original.updated_at,
-      });
+      return new Date(row.original.updated_at).toLocaleDateString();
     },
   },
   { accessorKey: "attempt", header: "Попыток" },
@@ -217,8 +215,8 @@ const columns: TableColumn<User>[] = [
               color: "neutral",
               variant: "ghost",
               class: "ml-auto",
-            })
-        )
+            }),
+        ),
       );
     },
   },
@@ -227,13 +225,7 @@ const columns: TableColumn<User>[] = [
 
 <template>
   <UContainer>
-    <UPageHeader
-      title="ПОЛЬЗОВАТЕЛИ"
-      :ui="{
-        root: 'relative border-none py-4',
-        title: 'text-2xl sm:text-3xl text-gray-800',
-      }"
-    >
+    <UPageHeader title="ПОЛЬЗОВАТЕЛИ" :ui="{ title: 'text-gray-800' }">
       <template #links>
         <UModal v-model:open="modal" title="Пользователь">
           <UButton

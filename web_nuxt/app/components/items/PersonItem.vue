@@ -16,9 +16,10 @@ const { copy, copied } = useClipboard();
   <ElementLabelValue label="Фамилия" :value="props.item.surname" />
   <ElementLabelValue label="Имя" :value="props.item.firstname" />
   <ElementLabelValue label="Отчество" :value="props.item.patronymic" />
-  <ElementLabelValue label="Дата рождения">
-    <NuxtTime :datetime="props.item.birthday" />
-  </ElementLabelValue>
+  <ElementLabelValue
+    label="Дата рождения"
+    :value="new Date(props.item.birthday).toLocaleDateString()"
+  />
   <ElementLabelValue label="Место рождения" :value="props.item.birthplace" />
   <ElementLabelValue label="Гражданство" :value="props.item.citizenship" />
   <ElementLabelValue v-if="props.item.dual" label="Двойное гражданство">
@@ -27,10 +28,18 @@ const { copy, copied } = useClipboard();
   <ElementLabelValue label="СНИЛС" :value="props.item.snils" />
   <ElementLabelValue label="ИНН" :value="props.item.inn" />
   <ElementLabelValue label="Семейное положение" :value="props.item.marital" />
-  <ElementLabelValue label="Дата записи">
-    <NuxtTime :datetime="props.item.updated_at" />
-  </ElementLabelValue>
-  <ElementLabelValue label="Дополнительная информация" :value="props.item.addition" />
+  <ElementLabelValue
+    label="Дата записи"
+    :value="new Date(props.item.created_at).toLocaleDateString()"
+  />
+  <ElementLabelValue
+    label="Дата обновления"
+    :value="new Date(props.item.updated_at).toLocaleDateString()"
+  />
+  <ElementLabelValue
+    label="Дополнительная информация"
+    :value="props.item.addition"
+  />
   <ElementLabelValue v-if="props.item.destination" label="Материалы проверок">
     <UButton
       variant="outline"

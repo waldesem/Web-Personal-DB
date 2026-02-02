@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useDateFormat } from "@vueuse/core";
 import type { Work } from "@/types";
 
 const emit = defineEmits(["update"]);
@@ -17,10 +16,10 @@ const workNow = ref(false);
 
 // Преобразование даты в формат YYYY-MM-DD для корректного отображения в форме
 form.value.starts = form.value.starts
-  ? useDateFormat(form.value.starts, "YYYY-MM-DD").value
+  ? new Date(form.value.starts).toLocaleDateString()
   : "";
 form.value.finished = form.value.finished
-  ? useDateFormat(form.value.finished, "YYYY-MM-DD").value
+  ? new Date(form.value.finished).toLocaleDateString()
   : "";
 </script>
 

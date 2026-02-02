@@ -18,8 +18,8 @@ const props = defineProps({
       class: 'rounded-full',
     }"
     :error="{
-      statusCode: props.error.statusCode,
-      statusMessage: props.error.statusMessage,
+      statusCode: props.error.status,
+      statusMessage: props.error.message,
       message: props.error.message,
     }"
   />

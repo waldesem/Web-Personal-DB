@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useDateFormat } from "@vueuse/core";
 import type { Passport } from "@/types";
 
 const emit = defineEmits(["update"]);
@@ -14,7 +13,7 @@ const props = defineProps({
 const form = toRef(props.item);
 
 form.value.issue = form.value.issue
-  ? useDateFormat(form.value.issue, "YYYY-MM-DD").value
+  ? new Date(form.value.issue).toLocaleDateString()
   : "";
 </script>
 

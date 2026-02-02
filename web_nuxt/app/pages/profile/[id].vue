@@ -8,6 +8,8 @@ const { data: user } = useNuxtData<Session>("session");
 
 const toasts = useToasts();
 
+const editable = useEditable();
+
 // Получаем данные id кандидата из URL
 const route = useRoute();
 
@@ -19,20 +21,17 @@ provide("candId", candId);
 const { data, status, refresh } = await useAsyncData(
   "person",
   () => $api<Person>("/routes/persons/" + candId.value),
-  { default: () => ({} as Person) }
+  { default: () => ({}) as Person },
 );
 
 // Вычисляем статус редактирования анкеты
-const editable = computed(() => {
+editable.value = computed(() => {
   return (
     data.value.editable &&
     user.value?.role === "user" &&
     user.value?.id === data.value.user_id
   );
-});
-
-// Передаем статус редактирования в другие компоненты
-provide("editable", editable);
+}).value;
 
 // Определяем функцию для переключения режима редактирования
 async function switchStatus(): Promise<void> {
@@ -40,7 +39,7 @@ async function switchStatus(): Promise<void> {
     if (data.value.editable) {
       if (
         !confirm(
-          "Анкета редактируется другим пользователем. Переключить режим?"
+          "Анкета редактируется другим пользователем. Переключить режим?",
         )
       ) {
         return;
@@ -53,7 +52,7 @@ async function switchStatus(): Promise<void> {
   }
   status.value = "pending";
   const { message } = await $api<Record<string, string>>(
-    "/routes/status/" + candId.value
+    "/routes/status/" + candId.value,
   );
   status.value = message as "success" | "error";
   if (message == "success") {
@@ -68,10 +67,7 @@ async function switchStatus(): Promise<void> {
   <UContainer>
     <UPageHeader
       :title="`${data?.surname} ${data?.firstname} ${data?.patronymic ?? ''}`"
-      :ui="{
-        root: 'relative border-none py-4 mb-2',
-        title: 'text-2xl sm:text-3xl text-red-800',
-      }"
+      :ui="{ title: 'text-red-800' }"
     >
       <template #links>
         <ClientOnly>
@@ -84,22 +80,22 @@ async function switchStatus(): Promise<void> {
                 !data?.editable
                   ? 'secondary'
                   : data.user_id == user?.id
-                  ? 'success'
-                  : 'error'
+                    ? 'success'
+                    : 'error'
               "
               :label="
                 !data?.editable
                   ? 'Доступно'
                   : data.user_id == user?.id
-                  ? 'Изменение'
-                  : 'Закрыто'
+                    ? 'Изменение'
+                    : 'Закрыто'
               "
               :icon="
                 !data?.editable
                   ? 'i-lucide-lock-open'
                   : data.user_id == user?.id
-                  ? 'i-lucide-edit'
-                  : 'i-lucide-lock'
+                    ? 'i-lucide-edit'
+                    : 'i-lucide-lock'
               "
               @click="switchStatus"
             />
