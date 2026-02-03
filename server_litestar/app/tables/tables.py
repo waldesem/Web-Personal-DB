@@ -41,7 +41,10 @@ class Users(base.UUIDAuditBase):
     deleted: Mapped[bool] = mapped_column(Boolean(), default=False)
     attempt: Mapped[int] = mapped_column(Integer(), default=0)
     role: Mapped[str] = mapped_column(String(), default=Roles.guest.value)
-
+    persons: Mapped[list[Persons]] = relationship(
+        back_populates="user",
+        lazy="dynamic",
+    )
 
 class Persons(base.UUIDAuditBase):
     """Person model."""
@@ -62,6 +65,7 @@ class Persons(base.UUIDAuditBase):
     destination: Mapped[str] = mapped_column(Text)
     editable: Mapped[bool] = mapped_column(Boolean(), default=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    user: Mapped[Users] = relationship(back_populates="persons")
     previous: Mapped[list[Previous]] = relationship(
         back_populates="person",
         cascade="all, delete",
@@ -134,7 +138,6 @@ class Previous(base.UUIDAuditBase):
     patronymic: Mapped[str] = mapped_column(String(255))
     changed: Mapped[str] = mapped_column(String(255))
     reason: Mapped[str] = mapped_column(Text)
-
     person_id: Mapped[int] = mapped_column(
         ForeignKey("persons.id"),
         index=True,
@@ -338,7 +341,7 @@ class Inquiries(base.UUIDAuditBase):
 config = SQLAlchemyAsyncConfig(
     before_send_handler=async_autocommit_before_send_handler,
     connection_string=DATABASE_URI,
-    # create_all=True,  # noqa: ERA001
+    create_all=True,
     metadata=base.UUIDAuditBase.metadata,
 )
 alchemy_plugin = SQLAlchemyInitPlugin(config=config)

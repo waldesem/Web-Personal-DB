@@ -17,9 +17,12 @@ async def create(fullname: str, username: str, email: str, role: Roles) -> None:
     """Create a new user.
 
     Example:
-        python3 user.py "Super User" superadmin 'super@host.ru' admin
+        python3 user.py "Super User" superadmin super@host.ru admin
 
     """
+    async with config.get_engine().begin() as conn:
+        await conn.run_sync(config.metadata.create_all)
+
     data = UserForm(fullname=fullname, username=username, email=email, role=role)
     async with config.get_session() as db_session:
         user = (
@@ -30,7 +33,8 @@ async def create(fullname: str, username: str, email: str, role: Roles) -> None:
         if user:
             print(f"User {username} already exists or email is taken")
         else:
-            await db_session.add(Users(**data.model_dump()))
+            db_session.add(Users(**data.model_dump()))
+            await db_session.commit()
             print(f"User {username} created")
 
 

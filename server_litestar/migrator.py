@@ -12,8 +12,6 @@ from app.tables.tables import Persons, Users, config
 
 cli = typer.Typer()
 
-config.metadata.drop_all()
-config.metadata.create_all()
 tables = config.metadata.tables
 
 
@@ -29,6 +27,9 @@ async def migrate(path: str) -> None:
         python3 migrator.py 'database.db'
 
     """
+    async with config.get_engine().begin() as conn:
+        await conn.run_sync(config.metadata.create_all)
+
     with sqlite3.connect(path) as conn:
         async with config.get_session() as db_session:
             conn.row_factory = make_dicts
@@ -42,7 +43,7 @@ async def migrate(path: str) -> None:
                 person["created_at"] = person.pop("created", None)
                 valid_person = PersonOut(person)
                 new_person = Persons(**valid_person.model_dump(exclude={"id"}))
-                await db_session.add(new_person)
+                db_session.add(new_person)
                 await db_session.flush()
 
                 for table in ItemCategory:
