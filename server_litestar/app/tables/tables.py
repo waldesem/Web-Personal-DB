@@ -338,7 +338,7 @@ class Inquiries(base.UUIDAuditBase):
 config = SQLAlchemyAsyncConfig(
     before_send_handler=async_autocommit_before_send_handler,
     connection_string=DATABASE_URI,
-    create_all=True,
+    # create_all=True,  # noqa: ERA001
     metadata=base.UUIDAuditBase.metadata,
 )
 alchemy_plugin = SQLAlchemyInitPlugin(config=config)

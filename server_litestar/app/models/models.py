@@ -63,6 +63,7 @@ class User(UserForm):
     """Pydantic model for user form."""
 
     id: int | None
+    passhash: str | None = None
     pswd_create: datetime
     change_pswd: bool
     blocked: bool

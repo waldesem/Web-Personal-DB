@@ -3,7 +3,7 @@
 import asyncio
 
 import typer
-from rich import print
+from rich import print  # noqa: A004
 from sqlalchemy import select
 
 from app.classes.classes import Roles
@@ -17,7 +17,7 @@ async def create(fullname: str, username: str, email: str, role: Roles) -> None:
     """Create a new user.
 
     Example:
-        python3 command.py "Super User" superadmin 'super@host.ru' admin
+        python3 user.py "Super User" superadmin 'super@host.ru' admin
 
     """
     data = UserForm(fullname=fullname, username=username, email=email, role=role)
