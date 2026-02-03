@@ -2,6 +2,7 @@
 
 import asyncio
 import sqlite3
+from pathlib import Path
 
 import typer
 from rich import print  # noqa: A004
@@ -24,25 +25,35 @@ async def migrate(path: str) -> None:
     """MIgrate data from sqlite to postgresql.
 
     Example:
-        python3 migrator.py 'database.db'
+        python.exe migrator.py "database.db"
 
     """
     async with config.get_engine().begin() as conn:
         await conn.run_sync(config.metadata.create_all)
 
-    with sqlite3.connect(path) as conn:
+    with sqlite3.connect(Path(path)) as conn:
         async with config.get_session() as db_session:
             conn.row_factory = make_dicts
             cur = conn.cursor()
             users: list[dict] = cur.execute("SELECT * FROM users").fetchall()
-            new_users = [Users(**User(**user).model_dump()) for user in users]
-            await db_session.add_all(new_users)
+            new_users = []
+            for user in users:
+                new_user = User(**user).model_dump(
+                    exclude={"id", "created_at", "updated_at"},
+                )
+                new_user["pswd_create"] = new_user["pswd_create"].replace(tzinfo=None)
+                new_users.append(Users(**new_user))
+            db_session.add_all(new_users)
 
             persons: list[dict] = cur.execute("SELECT * FROM persons").fetchall()
             for person in persons:
                 person["created_at"] = person.pop("created", None)
-                valid_person = PersonOut(person)
-                new_person = Persons(**valid_person.model_dump(exclude={"id"}))
+                valid_person = PersonOut(**person).model_dump(exclude={"id"})
+                valid_person["created_at"] = valid_person["created_at"].replace(
+                    tzinfo=None,
+                )
+                valid_person["updated_at"] = valid_person["created_at"]
+                new_person = Persons(**valid_person)
                 db_session.add(new_person)
                 await db_session.flush()
 
@@ -57,7 +68,13 @@ async def migrate(path: str) -> None:
                         data["item"] = table.value
                         data["created_at"] = data.pop("created", None)
                         data["person_id"] = new_person.id
-                        new_data = ItemModel(**data).model_dump(exclude={"id", "item"})
+                        new_data = ItemModel(**data).model_dump(
+                            exclude={"id", "item", "updated_at"},
+                        )
+                        new_data["created_at"] = new_data["created_at"].replace(
+                            tzinfo=None,
+                        )
+                        new_data["updated_at"] = new_data["created_at"]
                         insertions.append(new_data)
 
                     if insertions:

@@ -43,7 +43,7 @@ class UserForm(Model):
 
     fullname: str
     username: str
-    email: str = Field(pattern=email_pattern)
+    email: str #= Field(pattern=email_pattern)
     role: Roles = Roles.guest.value
 
     @field_validator("username")
@@ -69,8 +69,8 @@ class User(UserForm):
     blocked: bool
     deleted: bool
     attempt: int
-    created_at: datetime | str | None = None
-    updated_at: datetime | str | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
 
 class Actions(Model):
@@ -124,8 +124,8 @@ class Items(Model):
     """Pydantic model for items."""
 
     id: int | None = None
-    created_at: datetime | str | None = None
-    updated_at: datetime | str | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
 
 class PersonOut(Items):
