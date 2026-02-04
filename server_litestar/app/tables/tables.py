@@ -1,5 +1,8 @@
 """SQLAlchemy models."""
 
+from datetime import UTC, datetime
+
+from advanced_alchemy.types import DateTimeUTC
 from litestar.plugins.sqlalchemy import (
     SQLAlchemyAsyncConfig,
     SQLAlchemyInitPlugin,
@@ -9,12 +12,10 @@ from litestar.plugins.sqlalchemy import (
 from sqlalchemy import (
     Boolean,
     Date,
-    DateTime,
     ForeignKey,
     Integer,
     String,
     Text,
-    func,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -23,7 +24,7 @@ from app.utils.security import generate_password_hash
 from constants import DATABASE_URI, DEFAULT_PASSWORD
 
 
-class Users(base.UUIDAuditBase):
+class Users(base.BigIntAuditBase):
     """User model."""
 
     __tablename__ = "users"
@@ -35,18 +36,19 @@ class Users(base.UUIDAuditBase):
         String(255),
         default=generate_password_hash(DEFAULT_PASSWORD),
     )
-    pswd_create: Mapped[DateTime] = mapped_column(DateTime, default=func.now())
+    pswd_create: Mapped[datetime] = mapped_column(
+        DateTimeUTC(timezone=True),
+        default=lambda: datetime.now(UTC),
+    )
     change_pswd: Mapped[bool] = mapped_column(Boolean(), default=True)
     blocked: Mapped[bool] = mapped_column(Boolean(), default=False)
     deleted: Mapped[bool] = mapped_column(Boolean(), default=False)
     attempt: Mapped[int] = mapped_column(Integer(), default=0)
     role: Mapped[str] = mapped_column(String(), default=Roles.guest.value)
-    persons: Mapped[list[Persons]] = relationship(
-        back_populates="user",
-        lazy="dynamic",
-    )
+    persons: Mapped[list[Persons]] = relationship(back_populates="user")
 
-class Persons(base.UUIDAuditBase):
+
+class Persons(base.BigIntAuditBase):
     """Person model."""
 
     __tablename__ = "persons"
@@ -128,7 +130,7 @@ class Persons(base.UUIDAuditBase):
     )
 
 
-class Previous(base.UUIDAuditBase):
+class Previous(base.BigIntAuditBase):
     """Previous model."""
 
     __tablename__ = "previous"
@@ -146,7 +148,7 @@ class Previous(base.UUIDAuditBase):
     person: Mapped[Persons] = relationship(back_populates="previous")
 
 
-class Educations(base.UUIDAuditBase):
+class Educations(base.BigIntAuditBase):
     """Education model."""
 
     __tablename__ = "educations"
@@ -163,7 +165,7 @@ class Educations(base.UUIDAuditBase):
     person: Mapped[Persons] = relationship(back_populates="educations")
 
 
-class Staffs(base.UUIDAuditBase):
+class Staffs(base.BigIntAuditBase):
     """Staff model."""
 
     __tablename__ = "staffs"
@@ -178,7 +180,7 @@ class Staffs(base.UUIDAuditBase):
     person: Mapped[Persons] = relationship(back_populates="staffs")
 
 
-class Documents(base.UUIDAuditBase):
+class Documents(base.BigIntAuditBase):
     """Document model."""
 
     __tablename__ = "documents"
@@ -187,7 +189,7 @@ class Documents(base.UUIDAuditBase):
     series: Mapped[str] = mapped_column(String(255))
     digits: Mapped[str] = mapped_column(String(255))
     agency: Mapped[str] = mapped_column(Text)
-    issue: Mapped[DateTime] = mapped_column(Date)
+    issue: Mapped[Date] = mapped_column(Date)
     person_id: Mapped[int] = mapped_column(
         ForeignKey("persons.id"),
         index=True,
@@ -196,7 +198,7 @@ class Documents(base.UUIDAuditBase):
     person: Mapped[Persons] = relationship(back_populates="documents")
 
 
-class Addresses(base.UUIDAuditBase):
+class Addresses(base.BigIntAuditBase):
     """Address model."""
 
     __tablename__ = "addresses"
@@ -211,7 +213,7 @@ class Addresses(base.UUIDAuditBase):
     person: Mapped[Persons] = relationship(back_populates="addresses")
 
 
-class Contacts(base.UUIDAuditBase):
+class Contacts(base.BigIntAuditBase):
     """Create model for contacts."""
 
     __tablename__ = "contacts"
@@ -226,14 +228,14 @@ class Contacts(base.UUIDAuditBase):
     person: Mapped[Persons] = relationship(back_populates="contacts")
 
 
-class Workplaces(base.UUIDAuditBase):
+class Workplaces(base.BigIntAuditBase):
     """Workplace model."""
 
     __tablename__ = "workplaces"
 
     now_work: Mapped[bool] = mapped_column(Boolean, default=False)
-    starts: Mapped[DateTime | None] = mapped_column(Date)
-    finished: Mapped[DateTime | None] = mapped_column(Date)
+    starts: Mapped[Date | None] = mapped_column(Date)
+    finished: Mapped[Date | None] = mapped_column(Date)
     workplace: Mapped[str] = mapped_column(String(255))
     address: Mapped[str] = mapped_column(Text)
     position: Mapped[str] = mapped_column(Text)
@@ -246,7 +248,7 @@ class Workplaces(base.UUIDAuditBase):
     person: Mapped[Persons] = relationship(back_populates="workplaces")
 
 
-class Affilations(base.UUIDAuditBase):
+class Affilations(base.BigIntAuditBase):
     """Affiliation model."""
 
     __tablename__ = "affilations"
@@ -262,7 +264,7 @@ class Affilations(base.UUIDAuditBase):
     person: Mapped[Persons] = relationship(back_populates="affilations")
 
 
-class Checks(base.UUIDAuditBase):
+class Checks(base.BigIntAuditBase):
     """Check model."""
 
     __tablename__ = "checks"
@@ -291,7 +293,7 @@ class Checks(base.UUIDAuditBase):
     person: Mapped[Persons] = relationship(back_populates="checks")
 
 
-class Poligrafs(base.UUIDAuditBase):
+class Poligrafs(base.BigIntAuditBase):
     """Poligraf model."""
 
     __tablename__ = "poligrafs"
@@ -307,7 +309,7 @@ class Poligrafs(base.UUIDAuditBase):
     person: Mapped[Persons] = relationship(back_populates="poligrafs")
 
 
-class Investigations(base.UUIDAuditBase):
+class Investigations(base.BigIntAuditBase):
     """Investigation model."""
 
     __tablename__ = "investigations"
@@ -322,7 +324,7 @@ class Investigations(base.UUIDAuditBase):
     person: Mapped[Persons] = relationship(back_populates="investigations")
 
 
-class Inquiries(base.UUIDAuditBase):
+class Inquiries(base.BigIntAuditBase):
     """Inquiry model."""
 
     __tablename__ = "inquiries"
@@ -342,6 +344,6 @@ config = SQLAlchemyAsyncConfig(
     before_send_handler=async_autocommit_before_send_handler,
     connection_string=DATABASE_URI,
     create_all=True,
-    metadata=base.UUIDAuditBase.metadata,
+    metadata=base.BigIntAuditBase.metadata,
 )
 alchemy_plugin = SQLAlchemyInitPlugin(config=config)

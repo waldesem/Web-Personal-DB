@@ -51,11 +51,12 @@ async function switchStatus(): Promise<void> {
     return;
   }
   status.value = "pending";
-  const { message } = await $api<Record<string, string>>(
+  const response = await $api.raw<Record<string, string>>(
     "/routes/status/" + candId.value,
+    { method: "PATCH", body: {} },
   );
-  status.value = message as "success" | "error";
-  if (message == "success") {
+  status.value = "success";
+  if (response.status == 201) {
     refresh();
   } else {
     toasts.create();

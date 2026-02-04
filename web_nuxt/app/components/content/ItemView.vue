@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Items, Status } from "@/types";
+import type { Items } from "@/types";
 
 const { $api } = useNuxtApp();
 
@@ -54,16 +54,16 @@ async function getItem() {
 async function submitItem(form: typeof item.value) {
   status.value = "pending";
   modal.value = false;
-  const { message } = (await $api(
+  const response = (await $api.raw(
     `/routes/items/${props.view}/${candId.value}`,
     {
       method: "POST",
       body: { item: { ...form, item: props.view } }, // add discriminator for backend validation
     },
-  )) as Status;
+  ));
   item.value = {};
   await getItem();
-  if (message === "success") {
+  if (response.status === 201) {
     toasts.create("success", "Информация успешно обновлена");
   } else toasts.create();
 }

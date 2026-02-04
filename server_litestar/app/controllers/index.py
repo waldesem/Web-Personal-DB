@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from litestar import Request, get
+from litestar import Request, get, patch
 from litestar.security.jwt import Token
 from pydantic import TypeAdapter
 from sqlalchemy import func, not_, select, update
@@ -43,7 +43,7 @@ async def get_candidates(query: Index, db_session: AsyncSession) -> list[Candida
         return TypeAdapter(list[Candidates]).validate_python(candidates)
 
 
-@get(
+@patch(
     "/status/{person_id:int}",
     guards=[role_guard],
     opt={"roles": Roles.user.value},
@@ -60,4 +60,4 @@ async def switch_status(
             .where(Persons.id == person_id)
             .values(editable=not_(Persons.editable), user_id=request.user.id),
         )
-        return {"message": "success"}
+

@@ -1,6 +1,6 @@
 """Auth module."""
 
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
 from litestar.exceptions import NotAuthorizedException
@@ -28,14 +28,14 @@ def role_guard(connection: ASGIConnection, route_handler: BaseRouteHandler) -> N
 
 
 async def get_current_user(user_id: int, session: AsyncSession) -> User | None:
-    """Retrieve the current user stored in the global variable."""
+    """Retrieve the current user."""
     async with session.begin():
         if (
             (user := await session.get(Users, user_id))
             and not user.blocked
             and not user.deleted
             and not user.change_pswd
-            and user.pswd_create + timedelta(days=365) > datetime.now()
+            and user.pswd_create + timedelta(days=365) > datetime.now(tz=UTC)
         ):
             return User.model_validate(user)
         return None

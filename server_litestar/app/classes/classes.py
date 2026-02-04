@@ -1,9 +1,9 @@
 """Enums and classes module."""
 
-from enum import Enum, StrEnum
+from enum import StrEnum
 
 
-class Roles(Enum):
+class Roles(StrEnum):
     """Users roles."""
 
     admin = "admin"
@@ -12,7 +12,7 @@ class Roles(Enum):
     guest = "guest"
 
 
-class Conclusions(Enum):
+class Conclusions(StrEnum):
     """Checks conclusions."""
 
     agreed = "СОГЛАСОВАНО"
@@ -21,7 +21,7 @@ class Conclusions(Enum):
     cancel = "СНЯТ С ПРОВЕРКИ"
 
 
-class Decisions(Enum):
+class Decisions(StrEnum):
     """Poligrafs decisions."""
 
     agreed = "БЕЗ ЗАМЕЧАНИЙ"

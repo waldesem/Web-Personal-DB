@@ -83,7 +83,6 @@ class ItemsController(Controller):
                 # Если нет, создаем запрос на вставку новой записи
                 stmt = table.insert().values(json_dict)
             await db_session.execute(stmt)
-            return {"message": "success"}
 
     @delete(
         "/{item:str}/{item_id:int}",

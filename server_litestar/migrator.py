@@ -2,7 +2,9 @@
 
 import asyncio
 import sqlite3
+from datetime import UTC
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import typer
 from rich import print  # noqa: A004
@@ -11,13 +13,19 @@ from app.classes.classes import ItemCategory
 from app.models.models import ItemModel, PersonOut, User
 from app.tables.tables import Persons, Users, config
 
+if TYPE_CHECKING:
+    from datetime import datetime
+
 cli = typer.Typer()
 
 tables = config.metadata.tables
 
 
-def make_dicts(cursor: sqlite3.Cursor, row: sqlite3.Row) -> dict:
-    """Convert SQL row to dictionary."""
+def _check_tz(data: datetime) -> datetime:
+    return data if data.tzinfo else data.replace(tzinfo=UTC)
+
+
+def _make_dicts(cursor: sqlite3.Cursor, row: sqlite3.Row) -> dict:
     return {cursor.description[idx][0]: value for idx, value in enumerate(row)}
 
 
@@ -25,15 +33,16 @@ async def migrate(path: str) -> None:
     """MIgrate data from sqlite to postgresql.
 
     Example:
-        python.exe migrator.py "database.db"
+        python.exe migrator.py "/path/database.db"
 
     """
     async with config.get_engine().begin() as conn:
+        await conn.run_sync(config.metadata.drop_all)
         await conn.run_sync(config.metadata.create_all)
 
     with sqlite3.connect(Path(path)) as conn:
         async with config.get_session() as db_session:
-            conn.row_factory = make_dicts
+            conn.row_factory = _make_dicts
             cur = conn.cursor()
             users: list[dict] = cur.execute("SELECT * FROM users").fetchall()
             new_users = []
@@ -41,19 +50,18 @@ async def migrate(path: str) -> None:
                 new_user = User(**user).model_dump(
                     exclude={"id", "created_at", "updated_at"},
                 )
-                new_user["pswd_create"] = new_user["pswd_create"].replace(tzinfo=None)
+                new_user["pswd_create"] = _check_tz(new_user["pswd_create"])
                 new_users.append(Users(**new_user))
             db_session.add_all(new_users)
 
             persons: list[dict] = cur.execute("SELECT * FROM persons").fetchall()
             for person in persons:
                 person["created_at"] = person.pop("created", None)
-                valid_person = PersonOut(**person).model_dump(exclude={"id"})
-                valid_person["created_at"] = valid_person["created_at"].replace(
-                    tzinfo=None,
+                new_person = PersonOut(**person).model_dump(exclude={"id"})
+                new_person["updated_at"] = new_person["created_at"] = _check_tz(
+                    new_person["created_at"],
                 )
-                valid_person["updated_at"] = valid_person["created_at"]
-                new_person = Persons(**valid_person)
+                new_person = Persons(**new_person)
                 db_session.add(new_person)
                 await db_session.flush()
 
@@ -67,14 +75,13 @@ async def migrate(path: str) -> None:
                     for data in items:
                         data["item"] = table.value
                         data["created_at"] = data.pop("created", None)
-                        data["person_id"] = new_person.id
-                        new_data = ItemModel(**data).model_dump(
-                            exclude={"id", "item", "updated_at"},
+                        new_data = ItemModel(item=data).item.model_dump(
+                            exclude={"id", "item"},
                         )
-                        new_data["created_at"] = new_data["created_at"].replace(
-                            tzinfo=None,
+                        new_data["updated_at"] = new_data["created_at"] = _check_tz(
+                            new_data["created_at"],
                         )
-                        new_data["updated_at"] = new_data["created_at"]
+                        new_data["person_id"] = new_person.id
                         insertions.append(new_data)
 
                     if insertions:

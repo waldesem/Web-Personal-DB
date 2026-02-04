@@ -1,7 +1,5 @@
 """Initialize the Flask application."""
 
-from __future__ import annotations
-
 from litestar import Litestar, get
 from litestar.exceptions import HTTPException
 from litestar.logging import LoggingConfig
