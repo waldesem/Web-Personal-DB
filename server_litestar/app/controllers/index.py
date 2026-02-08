@@ -52,7 +52,7 @@ async def switch_status(
     person_id: int,
     request: Request[User, Token, Any],
     db_session: AsyncSession,
-) -> dict:
+) -> None:
     """Toggle the editable status of a person."""
     async with db_session.begin():
         await db_session.execute(
@@ -60,4 +60,3 @@ async def switch_status(
             .where(Persons.id == person_id)
             .values(editable=not_(Persons.editable), user_id=request.user.id),
         )
-

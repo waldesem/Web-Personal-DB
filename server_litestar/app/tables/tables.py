@@ -4,10 +4,10 @@ from datetime import UTC, datetime
 
 from advanced_alchemy.types import DateTimeUTC
 from litestar.plugins.sqlalchemy import (
+    BigIntAuditBase,
     SQLAlchemyAsyncConfig,
     SQLAlchemyInitPlugin,
     async_autocommit_before_send_handler,
-    base,
 )
 from sqlalchemy import (
     Boolean,
@@ -24,7 +24,7 @@ from app.utils.security import generate_password_hash
 from constants import DATABASE_URI, DEFAULT_PASSWORD
 
 
-class Users(base.BigIntAuditBase):
+class Users(BigIntAuditBase):
     """User model."""
 
     __tablename__ = "users"
@@ -48,23 +48,23 @@ class Users(base.BigIntAuditBase):
     persons: Mapped[list[Persons]] = relationship(back_populates="user")
 
 
-class Persons(base.BigIntAuditBase):
+class Persons(BigIntAuditBase):
     """Person model."""
 
     __tablename__ = "persons"
 
     surname: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     firstname: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
-    patronymic: Mapped[str] = mapped_column(String(255), index=True)
+    patronymic: Mapped[str] = mapped_column(String(255), nullable=True, index=True)
     birthday: Mapped[Date] = mapped_column(Date, nullable=False)
-    birthplace: Mapped[str] = mapped_column(Text)
-    citizenship: Mapped[str] = mapped_column(String(255))
-    dual: Mapped[str] = mapped_column(String(255))
-    snils: Mapped[str] = mapped_column(String(255))
-    inn: Mapped[str] = mapped_column(String(255))
-    marital: Mapped[str] = mapped_column(String(255))
-    addition: Mapped[str] = mapped_column(Text)
-    destination: Mapped[str] = mapped_column(Text)
+    birthplace: Mapped[str] = mapped_column(Text, nullable=True)
+    citizenship: Mapped[str] = mapped_column(String(255), nullable=True)
+    dual: Mapped[str] = mapped_column(String(255), nullable=True)
+    snils: Mapped[str] = mapped_column(String(255), nullable=True)
+    inn: Mapped[str] = mapped_column(String(255), nullable=True)
+    marital: Mapped[str] = mapped_column(String(255), nullable=True)
+    addition: Mapped[str] = mapped_column(Text, nullable=True)
+    destination: Mapped[str] = mapped_column(Text, nullable=True)
     editable: Mapped[bool] = mapped_column(Boolean(), default=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     user: Mapped[Users] = relationship(back_populates="persons")
@@ -130,7 +130,7 @@ class Persons(base.BigIntAuditBase):
     )
 
 
-class Previous(base.BigIntAuditBase):
+class Previous(BigIntAuditBase):
     """Previous model."""
 
     __tablename__ = "previous"
@@ -148,7 +148,7 @@ class Previous(base.BigIntAuditBase):
     person: Mapped[Persons] = relationship(back_populates="previous")
 
 
-class Educations(base.BigIntAuditBase):
+class Educations(BigIntAuditBase):
     """Education model."""
 
     __tablename__ = "educations"
@@ -165,13 +165,13 @@ class Educations(base.BigIntAuditBase):
     person: Mapped[Persons] = relationship(back_populates="educations")
 
 
-class Staffs(base.BigIntAuditBase):
+class Staffs(BigIntAuditBase):
     """Staff model."""
 
     __tablename__ = "staffs"
 
     position: Mapped[str] = mapped_column(Text)
-    department: Mapped[str] = mapped_column(Text)
+    department: Mapped[str] = mapped_column(Text, nullable=True)
     person_id: Mapped[int] = mapped_column(
         ForeignKey("persons.id"),
         index=True,
@@ -180,15 +180,15 @@ class Staffs(base.BigIntAuditBase):
     person: Mapped[Persons] = relationship(back_populates="staffs")
 
 
-class Documents(base.BigIntAuditBase):
+class Documents(BigIntAuditBase):
     """Document model."""
 
     __tablename__ = "documents"
 
     view: Mapped[str] = mapped_column(String(255), default="Паспорт")
-    series: Mapped[str] = mapped_column(String(255))
+    series: Mapped[str] = mapped_column(String(255), nullable=True)
     digits: Mapped[str] = mapped_column(String(255))
-    agency: Mapped[str] = mapped_column(Text)
+    agency: Mapped[str] = mapped_column(Text, nullable=True)
     issue: Mapped[Date] = mapped_column(Date)
     person_id: Mapped[int] = mapped_column(
         ForeignKey("persons.id"),
@@ -198,7 +198,7 @@ class Documents(base.BigIntAuditBase):
     person: Mapped[Persons] = relationship(back_populates="documents")
 
 
-class Addresses(base.BigIntAuditBase):
+class Addresses(BigIntAuditBase):
     """Address model."""
 
     __tablename__ = "addresses"
@@ -213,7 +213,7 @@ class Addresses(base.BigIntAuditBase):
     person: Mapped[Persons] = relationship(back_populates="addresses")
 
 
-class Contacts(base.BigIntAuditBase):
+class Contacts(BigIntAuditBase):
     """Create model for contacts."""
 
     __tablename__ = "contacts"
@@ -228,18 +228,18 @@ class Contacts(base.BigIntAuditBase):
     person: Mapped[Persons] = relationship(back_populates="contacts")
 
 
-class Workplaces(base.BigIntAuditBase):
+class Workplaces(BigIntAuditBase):
     """Workplace model."""
 
     __tablename__ = "workplaces"
 
-    now_work: Mapped[bool] = mapped_column(Boolean, default=False)
+    now_work: Mapped[bool | None] = mapped_column(Boolean, default=False)
     starts: Mapped[Date | None] = mapped_column(Date)
     finished: Mapped[Date | None] = mapped_column(Date)
     workplace: Mapped[str] = mapped_column(String(255))
-    address: Mapped[str] = mapped_column(Text)
+    address: Mapped[str] = mapped_column(Text, nullable=True)
     position: Mapped[str] = mapped_column(Text)
-    reason: Mapped[str] = mapped_column(Text)
+    reason: Mapped[str] = mapped_column(Text, nullable=True)
     person_id: Mapped[int] = mapped_column(
         ForeignKey("persons.id"),
         index=True,
@@ -248,14 +248,14 @@ class Workplaces(base.BigIntAuditBase):
     person: Mapped[Persons] = relationship(back_populates="workplaces")
 
 
-class Affilations(base.BigIntAuditBase):
+class Affilations(BigIntAuditBase):
     """Affiliation model."""
 
     __tablename__ = "affilations"
 
     view: Mapped[str] = mapped_column(String(255))
     organization: Mapped[str] = mapped_column(Text)
-    inn: Mapped[str] = mapped_column(String(255))
+    inn: Mapped[str] = mapped_column(String(255), nullable=True)
     person_id: Mapped[int] = mapped_column(
         ForeignKey("persons.id"),
         index=True,
@@ -264,27 +264,27 @@ class Affilations(base.BigIntAuditBase):
     person: Mapped[Persons] = relationship(back_populates="affilations")
 
 
-class Checks(base.BigIntAuditBase):
+class Checks(BigIntAuditBase):
     """Check model."""
 
     __tablename__ = "checks"
 
-    workplace: Mapped[str] = mapped_column(Text)
-    document: Mapped[str] = mapped_column(Text)
-    inn: Mapped[str] = mapped_column(Text)
-    debt: Mapped[str] = mapped_column(Text)
-    bankruptcy: Mapped[str] = mapped_column(Text)
-    bki: Mapped[str] = mapped_column(Text)
-    courts: Mapped[str] = mapped_column(Text)
-    affilation: Mapped[str] = mapped_column(Text)
-    terrorist: Mapped[str] = mapped_column(Text)
-    mvd: Mapped[str] = mapped_column(Text)
-    internet: Mapped[str] = mapped_column(Text)
-    cronos: Mapped[str] = mapped_column(Text)
-    cros: Mapped[str] = mapped_column(Text)
-    addition: Mapped[str] = mapped_column(Text)
-    comment: Mapped[str] = mapped_column(Text)
-    conclusion: Mapped[str] = mapped_column(Text)
+    workplace: Mapped[str] = mapped_column(Text, nullable=True)
+    document: Mapped[str] = mapped_column(Text, nullable=True)
+    inn: Mapped[str] = mapped_column(Text, nullable=True)
+    debt: Mapped[str] = mapped_column(Text, nullable=True)
+    bankruptcy: Mapped[str] = mapped_column(Text, nullable=True)
+    bki: Mapped[str] = mapped_column(Text, nullable=True)
+    courts: Mapped[str] = mapped_column(Text, nullable=True)
+    affilation: Mapped[str] = mapped_column(Text, nullable=True)
+    terrorist: Mapped[str] = mapped_column(Text, nullable=True)
+    mvd: Mapped[str] = mapped_column(Text, nullable=True)
+    internet: Mapped[str] = mapped_column(Text, nullable=True)
+    cronos: Mapped[str] = mapped_column(Text, nullable=True)
+    cros: Mapped[str] = mapped_column(Text, nullable=True)
+    addition: Mapped[str] = mapped_column(Text, nullable=True)
+    comment: Mapped[str] = mapped_column(Text, nullable=True)
+    conclusion: Mapped[str] = mapped_column(Text, nullable=False)
     person_id: Mapped[int] = mapped_column(
         ForeignKey("persons.id"),
         index=True,
@@ -293,7 +293,7 @@ class Checks(base.BigIntAuditBase):
     person: Mapped[Persons] = relationship(back_populates="checks")
 
 
-class Poligrafs(base.BigIntAuditBase):
+class Poligrafs(BigIntAuditBase):
     """Poligraf model."""
 
     __tablename__ = "poligrafs"
@@ -309,7 +309,7 @@ class Poligrafs(base.BigIntAuditBase):
     person: Mapped[Persons] = relationship(back_populates="poligrafs")
 
 
-class Investigations(base.BigIntAuditBase):
+class Investigations(BigIntAuditBase):
     """Investigation model."""
 
     __tablename__ = "investigations"
@@ -324,14 +324,14 @@ class Investigations(base.BigIntAuditBase):
     person: Mapped[Persons] = relationship(back_populates="investigations")
 
 
-class Inquiries(base.BigIntAuditBase):
+class Inquiries(BigIntAuditBase):
     """Inquiry model."""
 
     __tablename__ = "inquiries"
 
     info: Mapped[str] = mapped_column(Text)
     initiator: Mapped[str] = mapped_column(String(255))
-    origins: Mapped[str] = mapped_column(String(255))
+    origins: Mapped[str] = mapped_column(String(255), nullable=True)
     person_id: Mapped[int] = mapped_column(
         ForeignKey("persons.id"),
         index=True,
@@ -344,6 +344,6 @@ config = SQLAlchemyAsyncConfig(
     before_send_handler=async_autocommit_before_send_handler,
     connection_string=DATABASE_URI,
     create_all=True,
-    metadata=base.BigIntAuditBase.metadata,
+    metadata=BigIntAuditBase.metadata,
 )
 alchemy_plugin = SQLAlchemyInitPlugin(config=config)

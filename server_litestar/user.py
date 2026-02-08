@@ -3,6 +3,7 @@
 import asyncio
 
 import typer
+from advanced_alchemy.base import BigIntAuditBase
 from rich import print  # noqa: A004
 from sqlalchemy import select
 
@@ -21,7 +22,7 @@ async def create(fullname: str, username: str, email: str, role: Roles) -> None:
 
     """
     async with config.get_engine().begin() as conn:
-        await conn.run_sync(config.metadata.create_all)
+        await conn.run_sync(BigIntAuditBase.metadata.create_all)
 
     data = UserForm(fullname=fullname, username=username, email=email, role=role)
     async with config.get_session() as db_session:

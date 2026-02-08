@@ -8,12 +8,12 @@ from typing import Any, Literal
 
 from litestar import Controller, Request, Response, get, post
 from litestar.di import Provide
-from litestar.exceptions import NotAuthorizedException
+from litestar.exceptions import NotAuthorizedException, NotFoundException
 from litestar.security.jwt import Token
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.depends.auth import get_current_user, jwt_auth, token_store, user_store
+from app.depends.auth import get_current_user, jwt_auth, token_store
 from app.models.models import Login, User
 from app.tables.tables import Users
 from app.utils.security import check_password_hash, generate_password_hash
@@ -73,7 +73,7 @@ class AuthController(Controller):
                 user.attempt = 0
                 return {"message": "updated"}
 
-            delta_change = datetime.now() - user.pswd_create
+            delta_change = datetime.now(UTC) - user.pswd_create
             if not user.change_pswd and delta_change.days < 365:
                 user.attempt = 0
                 refresh = Token(
@@ -104,22 +104,24 @@ class AuthController(Controller):
             return {"message": "denied"}
 
     @post("/logout", dependencies={"refresh": Provide(decode_token)})
-    async def logout(self, request: Request[User, Token, Any], refresh: Token) -> dict:
+    async def logout(self, request: Request[User, Token, Any], refresh: Token) -> None:
         """Logout the user."""
-        await token_store.set(
-            "jti",
-            request.auth.jti,
-            expires_in=timedelta(
-                minutes=ACCESS_SECRET_KEY_LIVE,
-            ),
-        )
-        await token_store.set(
-            "jti",
-            refresh.jti,
-            expires_in=timedelta(
-                minutes=REFRESH_SECRET_KEY_LIVE,
-            ),
-        )
+        if isinstance(request.auth.jti, str):
+            await token_store.set(
+                "jti",
+                request.auth.jti,
+                expires_in=timedelta(
+                    minutes=ACCESS_SECRET_KEY_LIVE,
+                ),
+            )
+        if isinstance(refresh.jti, str):
+            await token_store.set(
+                "jti",
+                refresh.jti,
+                expires_in=timedelta(
+                    minutes=REFRESH_SECRET_KEY_LIVE,
+                ),
+            )
 
     @post("/refresh", dependencies={"refresh": Provide(decode_token)})
     async def refresh_token(self, refresh: Token) -> Response:
@@ -139,8 +141,11 @@ class AuthController(Controller):
         self,
         request: Request[User, Token, Any],
         db_session: AsyncSession,
-    ) -> dict | Exception:
+    ) -> User | Exception:
         """Retrieve an item from the database based on the provided item ID."""
-        if not request.user:
+        if not request.user or not isinstance(request.user.id, int):
             raise NotAuthorizedException
-        return await get_current_user(request.user.id, db_session)
+        current_user = await get_current_user(request.user.id, db_session)
+        if not current_user:
+            raise NotFoundException
+        return current_user

@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import typer
+from advanced_alchemy.base import BigIntAuditBase
 from rich import print  # noqa: A004
 
 from app.classes.classes import ItemCategory
@@ -18,7 +19,7 @@ if TYPE_CHECKING:
 
 cli = typer.Typer()
 
-tables = config.metadata.tables
+tables = BigIntAuditBase.metadata.tables
 
 
 def _check_tz(data: datetime) -> datetime:
@@ -37,8 +38,8 @@ async def migrate(path: str) -> None:
 
     """
     async with config.get_engine().begin() as conn:
-        await conn.run_sync(config.metadata.drop_all)
-        await conn.run_sync(config.metadata.create_all)
+        await conn.run_sync(BigIntAuditBase.metadata.drop_all)
+        await conn.run_sync(BigIntAuditBase.metadata.create_all)
 
     with sqlite3.connect(Path(path)) as conn:
         async with config.get_session() as db_session:
@@ -74,7 +75,10 @@ async def migrate(path: str) -> None:
                     insertions = []
                     for data in items:
                         data["item"] = table.value
-                        data["created_at"] = data.pop("created", None)
+                        for k, v in data.items():
+                            if v == "":
+                                data[k] = None
+                        data["created_at"] = data.pop("created")
                         new_data = ItemModel(item=data).item.model_dump(
                             exclude={"id", "item"},
                         )
@@ -85,10 +89,11 @@ async def migrate(path: str) -> None:
                         insertions.append(new_data)
 
                     if insertions:
+                        print(insertions)
                         stmt = tables[table.value].insert().values(insertions)
                         await db_session.execute(stmt)
 
-            await db_session.commit()
+                await db_session.commit()
             print("Migration fifnished!")
 
 

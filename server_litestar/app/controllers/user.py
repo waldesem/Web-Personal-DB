@@ -41,7 +41,7 @@ class UserController(Controller):
             ).all()
             if user:
                 return {"message": "error"}
-            await db_session.add(Users(**data.model_dump()))
+            db_session.add(Users(**data.model_dump()))
             return {"message": "success"}
 
     @post("/user/{user_id:int}")

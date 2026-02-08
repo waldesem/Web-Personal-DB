@@ -129,6 +129,7 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
       refresh.value = refresh_token;
       return navigateTo("/persons");
     } else if (message === "updated") {
+      action.value = "login";
       defineAlert(
         "success",
         "Информация",

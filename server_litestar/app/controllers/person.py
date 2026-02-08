@@ -68,7 +68,7 @@ class PersonController(Controller):
                 ).scalar_one_or_none()
             )
 
-            if person.editable and person.user_id == user_id:
+            if person and person.editable and person.user_id == user_id:
                 return None, True
 
             resume = cand.model_dump(exclude_none=True) | {"user_id": user_id}
@@ -95,7 +95,9 @@ class PersonController(Controller):
         """Retrieve an item from the database based on the provided item ID."""
         async with db_session.begin():
             person = await db_session.get(Persons, person_id)
-            if not person.destination or not Path(person.destination).exists():
+            if person and (
+                not person.destination or not Path(person.destination).exists()
+            ):
                 person.destination = self.create_destination(person)
             return PersonOut.model_validate(person)
 

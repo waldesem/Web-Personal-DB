@@ -43,8 +43,8 @@ class UserForm(Model):
 
     fullname: str
     username: str
-    email: str #= Field(pattern=email_pattern)
-    role: Roles = Roles.guest.value
+    email: str = Field(pattern=email_pattern)
+    role: Roles
 
     @field_validator("username")
     @classmethod
@@ -102,7 +102,7 @@ class PersonIn(Model):
     surname: str = Field(alias="lastName", pattern=name_pattern)
     firstname: str = Field(alias="firstName", pattern=name_pattern)
     patronymic: str | None = Field(default="", alias="midName")
-    birthday: date = None
+    birthday: date
     birthplace: str | None = ""
     citizenship: str | None = Field(default="", alias="citizen")
     dual: str | None = Field(default="", alias="additionalCitizenship")
@@ -111,7 +111,7 @@ class PersonIn(Model):
     marital: str | None = Field(default="", alias="maritalStatus")
     addition: str | None = ""
     destination: str | None = ""
-    editable: bool = True
+    editable: bool | None = True
 
     @field_validator("surname", "firstname", "patronymic")
     @classmethod
@@ -162,7 +162,7 @@ class Prev(Items):
     patronymic: str | None = Field(default="", alias="midNameBeforeChange")
     changed: str | int | None = Field(default="", alias="yearOfChange")
     reason: str | None = ""
-    item: Literal["previous"] = None
+    item: Literal["previous"]
 
 
 class Education(Items):
@@ -172,7 +172,7 @@ class Education(Items):
     institution: str = Field(default="", alias="institutionName")
     finished: str | int | None = Field(default="", alias="endYear")
     specialty: str | None = ""
-    item: Literal["educations"] = None
+    item: Literal["educations"]
 
 
 class Staff(Items):
@@ -180,7 +180,7 @@ class Staff(Items):
 
     position: str
     department: str | None = ""
-    item: Literal["staffs"] = None
+    item: Literal["staffs"]
 
 
 class Document(Items):
@@ -191,7 +191,7 @@ class Document(Items):
     digits: str
     agency: str | None = ""
     issue: date | None
-    item: Literal["documents"] = None
+    item: Literal["documents"]
 
 
 class Address(Items):
@@ -199,7 +199,7 @@ class Address(Items):
 
     view: str
     address: str
-    item: Literal["addresses"] = None
+    item: Literal["addresses"]
 
 
 class Contact(Items):
@@ -207,7 +207,7 @@ class Contact(Items):
 
     view: str
     contact: str
-    item: Literal["contacts"] = None
+    item: Literal["contacts"]
 
 
 class Workplace(Items):
@@ -219,8 +219,8 @@ class Workplace(Items):
     workplace: str | None = Field(alias="name")
     address: str | None = ""
     position: str
-    reason: str | None = Field(default="", alias="fireReason")
-    item: Literal["workplaces"] = None
+    reason: str | None = Field(alias="fireReason")
+    item: Literal["workplaces"]
 
 
 class Affilation(Items):
@@ -229,7 +229,7 @@ class Affilation(Items):
     view: str | None = Field(default="", alias="organizationType")
     organization: str | None = Field(default="", alias="name")
     inn: str | None = ""
-    item: Literal["affilations"] = None
+    item: Literal["affilations"]
 
 
 class Check(Items):
@@ -251,7 +251,7 @@ class Check(Items):
     addition: str | None = ""
     comment: str | None = ""
     conclusion: Conclusions
-    item: Literal["checks"] = None
+    item: Literal["checks"]
 
 
 class Poligraf(Items):
@@ -260,7 +260,7 @@ class Poligraf(Items):
     theme: str
     results: str | None
     conclusion: Decisions
-    item: Literal["poligrafs"] = None
+    item: Literal["poligrafs"]
 
 
 class Investigation(Items):
@@ -268,7 +268,7 @@ class Investigation(Items):
 
     theme: str
     info: str
-    item: Literal["investigations"] = None
+    item: Literal["investigations"]
 
 
 class Inquiry(Items):
@@ -277,7 +277,7 @@ class Inquiry(Items):
     info: str
     initiator: str
     origins: str | None = ""
-    item: Literal["inquiries"] = None
+    item: Literal["inquiries"]
 
 
 class AnketaJson(PersonIn):

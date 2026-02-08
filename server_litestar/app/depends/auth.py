@@ -9,36 +9,36 @@ from litestar.stores.memory import MemoryStore
 
 from app.models.models import User
 from app.tables.tables import Users, config
-from constants import ACCESS_SECRET_KEY, ACCESS_SECRET_KEY_LIVE
+from constants import ACCESS_SECRET_KEY
 
 if TYPE_CHECKING:
     from litestar.connection import ASGIConnection
     from litestar.handlers import BaseRouteHandler
     from sqlalchemy.ext.asyncio import AsyncSession
 
-
 token_store = MemoryStore()
-user_store = MemoryStore()
 
 
-def role_guard(connection: ASGIConnection, route_handler: BaseRouteHandler) -> None:
+def role_guard(
+    connection: ASGIConnection[Any, Any, Any, Any],
+    route_handler: BaseRouteHandler,
+) -> None:
     """Check if the user has the required role."""
-    if connection.user.role not in route_handler.opt.get("roles"):
+    if connection.user.role != route_handler.opt.get("roles"):
         raise NotAuthorizedException
 
 
 async def get_current_user(user_id: int, session: AsyncSession) -> User | None:
     """Retrieve the current user."""
-    async with session.begin():
-        if (
-            (user := await session.get(Users, user_id))
-            and not user.blocked
-            and not user.deleted
-            and not user.change_pswd
-            and user.pswd_create + timedelta(days=365) > datetime.now(tz=UTC)
-        ):
-            return User.model_validate(user)
-        return None
+    if (
+        (user := await session.get(Users, user_id))
+        and not user.blocked
+        and not user.deleted
+        and not user.change_pswd
+        and user.pswd_create + timedelta(days=365) > datetime.now(tz=UTC)
+    ):
+        return User.model_validate(user)
+    return None
 
 
 async def retrieve_user_handler(
@@ -46,18 +46,12 @@ async def retrieve_user_handler(
     _: ASGIConnection[Any, Any, Any, Any],
 ) -> User | None:
     """Retrieve the current user."""
-    if current_user := await user_store.get(token.sub):
-        return current_user
-
     session_maker = config.create_session_maker()
     async with session_maker() as db_session:
         current_user = await get_current_user(int(token.sub), db_session)
-        await user_store.set(
-            str(token.sub),
-            current_user,
-            expires_in=timedelta(minutes=ACCESS_SECRET_KEY_LIVE),
-        )
-        return current_user
+        if current_user:
+            return current_user
+        return None
 
 
 async def revoked_token_handler(

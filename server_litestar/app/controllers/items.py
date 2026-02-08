@@ -1,12 +1,14 @@
 """Items routes."""
 
+from tkinter import N
+
 from litestar import Controller, delete, get, post
 from sqlalchemy import label, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.classes.classes import ItemCategory, Roles
 from app.depends.auth import role_guard
-from app.models.models import ItemModel, ItemsModel
+from app.models.models import ItemModel, ItemsModel, ItemType
 from app.tables.tables import config
 
 
@@ -21,24 +23,23 @@ class ItemsController(Controller):
         item: ItemCategory,
         person_id: int,
         db_session: AsyncSession,
-    ) -> list[ItemsModel]:
+    ) -> list[ItemType]:
         """Retrieve an item from the database based on the provided item."""
         table = ItemsController.tables[item]
-        async with db_session.begin():
-            stmt = (
-                select(table, label("item", item))
-                .filter(table.c.person_id == person_id)
-                .order_by(table.c.id.desc())
-            )
-            items = (await db_session.execute(stmt)).all()
-            return ItemsModel.model_validate({"item": items}).item
+        stmt = (
+            select(table, label("item", lambda: item))
+            .filter(table.c.person_id == person_id)
+            .order_by(table.c.id.desc())
+        )
+        items = (await db_session.execute(stmt)).all()
+        return ItemsModel.model_validate({"item": items}).item
 
     @get("/{person_id:int}")
     async def get_items(
         self,
         person_id: int,
         db_session: AsyncSession,
-    ) -> dict[ItemCategory, ItemsModel]:
+    ) -> dict[ItemCategory, list[ItemType]]:
         """Retrieve an all items from the database."""
         return {
             item.value: await self.select_item(item.value, person_id, db_session)
@@ -51,7 +52,7 @@ class ItemsController(Controller):
         item: ItemCategory,
         person_id: int,
         db_session: AsyncSession,
-    ) -> ItemsModel:
+    ) -> list[ItemType]:
         """Get result of query based on the provided item."""
         return await self.select_item(item, person_id, db_session)
 
@@ -66,7 +67,7 @@ class ItemsController(Controller):
         person_id: int,
         data: ItemModel,
         db_session: AsyncSession,
-    ) -> dict:
+    ) -> None:
         """Insert or replaces a record in the specified table with the given item ID."""
         async with db_session.begin():
             json_dict = data.item.model_dump(
