@@ -1,7 +1,5 @@
 """Items routes."""
 
-from tkinter import N
-
 from litestar import Controller, delete, get, post
 from sqlalchemy import label, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -69,21 +67,20 @@ class ItemsController(Controller):
         db_session: AsyncSession,
     ) -> None:
         """Insert or replaces a record in the specified table with the given item ID."""
-        async with db_session.begin():
-            json_dict = data.item.model_dump(
-                exclude_none=True,
-                exclude={"created_at", "updated_at", "item"},
-            )
-            json_dict["person_id"] = person_id
-            table = ItemsController.tables[item]
-            # Проверяем, есть ли ключ "id" в словаре json_dict
-            if item_id := json_dict.pop("id", None):
-                # Если есть, создаем запрос на обновление записи с указанным id
-                stmt = table.update().where(table.c.id == item_id).values(json_dict)
-            else:
-                # Если нет, создаем запрос на вставку новой записи
-                stmt = table.insert().values(json_dict)
-            await db_session.execute(stmt)
+        json_dict = data.item.model_dump(
+            exclude_none=True,
+            exclude={"created_at", "updated_at", "item"},
+        )
+        json_dict["person_id"] = person_id
+        table = ItemsController.tables[item]
+        # Проверяем, есть ли ключ "id" в словаре json_dict
+        if item_id := json_dict.pop("id", None):
+            # Если есть, создаем запрос на обновление записи с указанным id
+            stmt = table.update().where(table.c.id == item_id).values(json_dict)
+        else:
+            # Если нет, создаем запрос на вставку новой записи
+            stmt = table.insert().values(json_dict)
+        await db_session.execute(stmt)
 
     @delete(
         "/{item:str}/{item_id:int}",
@@ -98,7 +95,6 @@ class ItemsController(Controller):
     ) -> None:
         """Delete an item from the database with item name and item ID."""
         table = ItemsController.tables[item]
-        async with db_session.begin():
-            await db_session.execute(
-                table.delete().where(table.c.id == item_id),
-            )
+        await db_session.execute(
+            table.delete().where(table.c.id == item_id),
+        )

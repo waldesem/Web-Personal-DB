@@ -8,6 +8,7 @@ dependencies = [
     "asyncpg>=0.31.0",
     "litestar[standard, jwt, pydantic, sqlalchemy]>=2.19.0",
     "python-dotenv>=1.2.1",
+    "trio>=0.32.0",
     "typer>=0.21.1",
 ]
 

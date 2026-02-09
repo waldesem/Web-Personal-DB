@@ -49,59 +49,58 @@ class AuthController(Controller):
         db_session: AsyncSession,
     ) -> dict:
         """Handle the login process."""
-        async with db_session.begin():
-            user = (
-                await db_session.execute(
-                    select(Users).filter_by(username=data.username),
-                )
-            ).scalar_one_or_none()
+        user = (
+            await db_session.execute(
+                select(Users).filter_by(username=data.username),
+            )
+        ).scalar_one_or_none()
 
-            if not user or user.blocked or user.deleted:
-                return {"message": "invalid"}
+        if not user or user.blocked or user.deleted:
+            return {"message": "invalid"}
 
-            if not check_password_hash(user.passhash, data.password):
-                if user.attempt < 5:
-                    user.attempt += 1
-                else:
-                    user.blocked = True
-                return {"message": "invalid"}
+        if not check_password_hash(user.passhash, data.password):
+            if user.attempt < 5:
+                user.attempt += 1
+            else:
+                user.blocked = True
+            return {"message": "invalid"}
 
-            if action == "update" and data.new_pswd:
-                user.passhash = generate_password_hash(data.new_pswd)
-                user.pswd_create = datetime.now(tz=UTC)
-                user.change_pswd = False
-                user.attempt = 0
-                return {"message": "updated"}
+        if action == "update" and data.new_pswd:
+            user.passhash = generate_password_hash(data.new_pswd)
+            user.pswd_create = datetime.now(tz=UTC)
+            user.change_pswd = False
+            user.attempt = 0
+            return {"message": "updated"}
 
-            delta_change = datetime.now(UTC) - user.pswd_create
-            if not user.change_pswd and delta_change.days < 365:
-                user.attempt = 0
-                refresh = Token(
-                    exp=datetime.now(tz=UTC)
-                    + timedelta(minutes=REFRESH_SECRET_KEY_LIVE),
-                    jti=secrets.token_hex(10),
-                    sub=str(user.id),
-                    iat=datetime.now(tz=UTC),
-                )
-                return {
-                    "message": "success",
-                    "access_token": f"Bearer {
-                        jwt_auth.create_token(
-                            identifier=str(user.id),
-                            token_unique_jwt_id=secrets.token_hex(10),
-                            token_expiration=timedelta(
-                                minutes=ACCESS_SECRET_KEY_LIVE,
-                            ),
-                        )
-                    }",
-                    "refresh_token": f"Bearer {
-                        refresh.encode(
-                            REFRESH_SECRET_KEY,
-                            algorithm='HS256',
-                        )
-                    }",
-                }
-            return {"message": "denied"}
+        delta_change = datetime.now(UTC) - user.pswd_create
+        if not user.change_pswd and delta_change.days < 365:
+            user.attempt = 0
+            refresh = Token(
+                exp=datetime.now(tz=UTC)
+                + timedelta(minutes=REFRESH_SECRET_KEY_LIVE),
+                jti=secrets.token_hex(10),
+                sub=str(user.id),
+                iat=datetime.now(tz=UTC),
+            )
+            return {
+                "message": "success",
+                "access_token": f"Bearer {
+                    jwt_auth.create_token(
+                        identifier=str(user.id),
+                        token_unique_jwt_id=secrets.token_hex(10),
+                        token_expiration=timedelta(
+                            minutes=ACCESS_SECRET_KEY_LIVE,
+                        ),
+                    )
+                }",
+                "refresh_token": f"Bearer {
+                    refresh.encode(
+                        REFRESH_SECRET_KEY,
+                        algorithm='HS256',
+                    )
+                }",
+            }
+        return {"message": "denied"}
 
     @post("/logout", dependencies={"refresh": Provide(decode_token)})
     async def logout(self, request: Request[User, Token, Any], refresh: Token) -> None:
@@ -129,7 +128,6 @@ class AuthController(Controller):
         if not refresh:
             raise NotAuthorizedException
         await token_store.delete_expired()
-        await user_store.delete_expired()
         return jwt_auth.login(
             identifier=str(refresh.sub),
             token_unique_jwt_id=secrets.token_hex(10),

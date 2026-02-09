@@ -46,8 +46,7 @@ async def retrieve_user_handler(
     _: ASGIConnection[Any, Any, Any, Any],
 ) -> User | None:
     """Retrieve the current user."""
-    session_maker = config.create_session_maker()
-    async with session_maker() as db_session:
+    async with config.get_session() as db_session:
         current_user = await get_current_user(int(token.sub), db_session)
         if current_user:
             return current_user

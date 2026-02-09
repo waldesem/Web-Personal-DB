@@ -19,28 +19,27 @@ from app.tables.tables import Persons, Users, config
 @get("/candidates")
 async def get_candidates(query: Index, db_session: AsyncSession) -> list[Candidates]:
     """Retrieve a paginated list of persons from the database."""
-    async with db_session.begin():
-        stmt = select(
-            config.metadata.tables["persons"],
-            Users.fullname.label("username"),
-            func.count().over().label("total"),
+    stmt = select(
+        config.metadata.tables["persons"],
+        Users.fullname.label("username"),
+        func.count().over().label("total"),
+    )
+    if query.search:
+        stmt = stmt.filter(Persons.surname == query.search[0])
+        if len(query.search) > 1:
+            stmt = stmt.filter(Persons.firstname == query.search[1])
+            if len(query.search) > 2:
+                stmt = stmt.filter(Persons.patronymic == query.search[2])
+    # Пагинация списка кандидатов
+    candidates = (
+        await db_session.execute(
+            stmt.filter(Users.id == Persons.user_id)
+            .order_by(Persons.id.desc())
+            .offset((query.page - 1) * query.per_page)
+            .limit(query.per_page),
         )
-        if query.search:
-            stmt = stmt.filter(Persons.surname == query.search[0])
-            if len(query.search) > 1:
-                stmt = stmt.filter(Persons.firstname == query.search[1])
-                if len(query.search) > 2:
-                    stmt = stmt.filter(Persons.patronymic == query.search[2])
-        # Пагинация списка кандидатов
-        candidates = (
-            await db_session.execute(
-                stmt.filter(Users.id == Persons.user_id)
-                .order_by(Persons.id.desc())
-                .offset((query.page - 1) * query.per_page)
-                .limit(query.per_page),
-            )
-        ).all()
-        return TypeAdapter(list[Candidates]).validate_python(candidates)
+    ).all()
+    return TypeAdapter(list[Candidates]).validate_python(candidates)
 
 
 @patch(
@@ -54,9 +53,8 @@ async def switch_status(
     db_session: AsyncSession,
 ) -> None:
     """Toggle the editable status of a person."""
-    async with db_session.begin():
-        await db_session.execute(
-            update(Persons)
-            .where(Persons.id == person_id)
-            .values(editable=not_(Persons.editable), user_id=request.user.id),
-        )
+    await db_session.execute(
+        update(Persons)
+        .where(Persons.id == person_id)
+        .values(editable=not_(Persons.editable), user_id=request.user.id),
+    )
