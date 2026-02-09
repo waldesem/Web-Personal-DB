@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import typer
 from advanced_alchemy.base import BigIntAuditBase
-from rich import print  # noqa: A004
+from rich import print as rprint
 
 from app.classes.classes import ItemCategory
 from app.models.models import ItemModel, PersonOut, User
@@ -72,7 +72,7 @@ async def migrate(path: str) -> None:
                         (person["id"],),
                     ).fetchall()
 
-                    insertions = []
+                    insertions: list[dict] = []
                     for data in items:
                         data["item"] = table.value
                         for k, v in data.items():
@@ -89,12 +89,11 @@ async def migrate(path: str) -> None:
                         insertions.append(new_data)
 
                     if insertions:
-                        print(insertions)
                         stmt = tables[table.value].insert().values(insertions)
                         await db_session.execute(stmt)
 
-                await db_session.commit()
-            print("Migration fifnished!")
+            await db_session.commit()
+            rprint("Migration finished!")
 
 
 @cli.command()
