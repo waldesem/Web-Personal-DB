@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from advanced_alchemy.base import BigIntAuditBase
 from litestar import Request, get, patch
 from litestar.security.jwt import Token
 from pydantic import TypeAdapter
@@ -13,14 +14,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.classes.classes import Roles
 from app.depends.auth import role_guard
 from app.models.models import Candidates, Index, User
-from app.tables.tables import Persons, Users, config
+from app.tables.tables import Persons, Users
 
 
 @get("/candidates")
 async def get_candidates(query: Index, db_session: AsyncSession) -> list[Candidates]:
     """Retrieve a paginated list of persons from the database."""
+    tables = BigIntAuditBase.metadata.tables
     stmt = select(
-        config.metadata.tables["persons"],
+        tables["persons"],
         Users.fullname.label("username"),
         func.count().over().label("total"),
     )

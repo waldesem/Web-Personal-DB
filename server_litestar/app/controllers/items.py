@@ -1,5 +1,6 @@
 """Items routes."""
 
+from advanced_alchemy.base import BigIntAuditBase
 from litestar import Controller, delete, get, post
 from sqlalchemy import label, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,14 +8,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.classes.classes import ItemCategory, Roles
 from app.depends.auth import role_guard
 from app.models.models import ItemModel, ItemsModel, ItemType
-from app.tables.tables import config
 
 
 class ItemsController(Controller):
     """Items controller."""
 
     path = "/items"
-    tables = config.metadata.tables
+    tables = BigIntAuditBase.metadata.tables
 
     @staticmethod
     async def select_item(

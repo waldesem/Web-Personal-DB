@@ -1,4 +1,4 @@
-"""Configuration class."""
+"""Configuration constants."""
 
 import os
 import secrets
