@@ -1,5 +1,7 @@
 import { fileURLToPath } from "url";
 
+const SSR = process.env.SSR === "true" || true;
+
 export default defineNuxtConfig({
   alias: {
     "@/": fileURLToPath(new URL("./src/app", import.meta.url)),
@@ -32,12 +34,14 @@ export default defineNuxtConfig({
   routeRules: {
     "/routes/**": { proxy: "http://127.0.0.1:8000/routes/**" },
   },
+  ssr: SSR,
   ui: {
     fonts: false,
   },
   vite: {
     build: {
       emptyOutDir: true,
+      outDir: !SSR ? "server_litestar/app/static" : undefined,
     },
   },
 });

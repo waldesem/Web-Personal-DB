@@ -80,15 +80,29 @@ chmod +x folders.sh
 
 ### Build frontend
 
-First install Node.js. Then run in terminal:
+First install latest stable NodeJS version.
+Change in `.env` variable `SSR` as you needs then run in terminal:
 
 ```
 cd Web-Personal-DB/web_nuxt
 npm i
+```
+
+#### For SSR mode
+
+```
 npx nuxt build
 ```
 
-Builded files can be found in `web_nux/.output`.
+Builded files can be found in `web_nux/.output`
+
+#### For CSR mode
+
+```
+npx nuxi generate
+```
+
+Builded files can be found in `server_litestar\app\static`
 
 ### Start backend server
 
@@ -104,7 +118,7 @@ or for production:
 uvicorn app:app
 ```
 
-### Start frontend server
+### Start frontend server (only SSR mode)
 
 For starting frontend in SSR mode run
 

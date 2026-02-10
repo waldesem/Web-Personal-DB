@@ -4,6 +4,7 @@ from litestar import Litestar
 from litestar.config.compression import CompressionConfig
 from litestar.config.cors import CORSConfig
 from litestar.logging import LoggingConfig
+from litestar.static_files import create_static_files_router
 
 from app.controllers import base_router, index
 from app.depends.auth import jwt_auth
@@ -17,7 +18,15 @@ logging_config = LoggingConfig(
 
 app = Litestar(
     on_app_init=[jwt_auth.on_app_init],
-    route_handlers=[index, base_router],
+    route_handlers=[
+        index,
+        base_router,
+        create_static_files_router(
+            path="/static",
+            directories=["static"],
+            html_mode=True,
+        ),
+    ],
     compression_config=CompressionConfig(backend="gzip", gzip_compress_level=6),
     cors_config=cors_config,
     logging_config=logging_config,
