@@ -37,9 +37,9 @@ async def migrate(path: str) -> None:
         python.exe migrator.py "/path/database.db"
 
     """
-    async with config.get_engine().begin() as conn:
-        await conn.run_sync(BigIntAuditBase.metadata.drop_all)
-        await conn.run_sync(BigIntAuditBase.metadata.create_all)
+    async with config.get_engine().begin() as async_conn:
+        await async_conn.run_sync(BigIntAuditBase.metadata.drop_all)
+        await async_conn.run_sync(BigIntAuditBase.metadata.create_all)
 
     with sqlite3.connect(Path(path)) as conn:
         async with config.get_session() as db_session:
