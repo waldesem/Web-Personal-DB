@@ -62,6 +62,7 @@ async def migrate(path: str) -> None:
                 new_person["updated_at"] = new_person["created_at"] = _check_tz(
                     new_person["created_at"],
                 )
+                new_person = {k: None if v == "" else v for k, v in new_person.items()}
                 new_person = Persons(**new_person)
                 db_session.add(new_person)
                 await db_session.flush()
@@ -86,6 +87,9 @@ async def migrate(path: str) -> None:
                             new_data["created_at"],
                         )
                         new_data["person_id"] = new_person.id
+                        new_data = {
+                            k: None if v == "" else v for k, v in new_data.items()
+                        }
                         insertions.append(new_data)
 
                     if insertions:
