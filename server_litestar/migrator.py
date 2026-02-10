@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 import typer
 from advanced_alchemy.base import BigIntAuditBase
+from pydantic import ValidationError
 from rich import print as rprint
 
 from app.classes.classes import ItemCategory
@@ -62,7 +63,6 @@ async def migrate(path: str) -> None:
                 new_person["updated_at"] = new_person["created_at"] = _check_tz(
                     new_person["created_at"],
                 )
-                new_person = {k: None if v == "" else v for k, v in new_person.items()}
                 new_person = Persons(**new_person)
                 db_session.add(new_person)
                 await db_session.flush()
@@ -75,22 +75,19 @@ async def migrate(path: str) -> None:
 
                     insertions: list[dict] = []
                     for data in items:
-                        data["item"] = table.value
-                        for k, v in data.items():
-                            if v == "":
-                                data[k] = None
-                        data["created_at"] = data.pop("created")
-                        new_data = ItemModel(item=data).item.model_dump(
-                            exclude={"id", "item"},
-                        )
-                        new_data["updated_at"] = new_data["created_at"] = _check_tz(
-                            new_data["created_at"],
-                        )
-                        new_data["person_id"] = new_person.id
-                        new_data = {
-                            k: None if v == "" else v for k, v in new_data.items()
-                        }
-                        insertions.append(new_data)
+                        try:
+                            data["item"] = table.value
+                            data["created_at"] = data.pop("created")
+                            new_data = ItemModel(item=data).item.model_dump(
+                                exclude={"id", "item"},
+                            )
+                            new_data["updated_at"] = new_data["created_at"] = _check_tz(
+                                new_data["created_at"],
+                            )
+                            new_data["person_id"] = new_person.id
+                            insertions.append(new_data)
+                        except ValidationError as e:
+                            rprint(e)
 
                     if insertions:
                         stmt = tables[table.value].insert().values(insertions)

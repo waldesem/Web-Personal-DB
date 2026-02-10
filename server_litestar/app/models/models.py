@@ -127,6 +127,11 @@ class Items(Model):
     created_at: datetime | None = None
     updated_at: datetime | None = None
 
+    @field_validator("*")
+    @classmethod
+    def none_check(cls, v: str) -> str | None:
+        """Check username."""
+        return None if v == "" else v
 
 class PersonOut(Items):
     """Pydantic model for person."""
@@ -276,7 +281,6 @@ class Inquiry(Items):
 
     info: str
     initiator: str
-    origins: str | None = ""
     item: Literal["inquiries"]
 
 
