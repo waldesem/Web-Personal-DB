@@ -1,6 +1,6 @@
 import { fileURLToPath } from "url";
 
-const SSR = process.env.SSR === "true" || true;
+const SSR = process.env.SSR === "true" || false;
 
 export default defineNuxtConfig({
   alias: {
