@@ -29,7 +29,7 @@ class Login(BaseModel):
 
     username: str
     password: str
-    new_pswd: str | None = None
+    new_pswd: str | None
 
     @field_validator("username")
     @classmethod
@@ -63,14 +63,14 @@ class User(UserForm):
     """Pydantic model for user form."""
 
     id: int | None
-    passhash: str | None = None
+    passhash: str | None
     pswd_create: datetime
     change_pswd: bool
     blocked: bool
     deleted: bool
     attempt: int
-    created_at: datetime | None = None
-    updated_at: datetime | None = None
+    created_at: datetime | None
+    updated_at: datetime | None
 
 
 class Actions(Model):
@@ -84,7 +84,7 @@ class Index(BaseModel):
 
     page: int
     per_page: int
-    search: str | None = None
+    search: str | None
 
     @field_validator("search")
     @classmethod
@@ -98,19 +98,19 @@ class Index(BaseModel):
 class PersonIn(Model):
     """Person schema."""
 
-    id: int | None = None
+    id: int | None
     surname: str = Field(alias="lastName", pattern=name_pattern)
     firstname: str = Field(alias="firstName", pattern=name_pattern)
-    patronymic: str | None = Field(default="", alias="midName")
+    patronymic: str | None = Field(alias="midName")
     birthday: date
-    birthplace: str | None = ""
-    citizenship: str | None = Field(default="", alias="citizen")
-    dual: str | None = Field(default="", alias="additionalCitizenship")
-    snils: str | None = ""
-    inn: str | None = ""
-    marital: str | None = Field(default="", alias="maritalStatus")
-    addition: str | None = ""
-    destination: str | None = ""
+    birthplace: str | None
+    citizenship: str | None = Field(alias="citizen")
+    dual: str | None = Field(alias="additionalCitizenship")
+    snils: str | None
+    inn: str | None
+    marital: str | None = Field(alias="maritalStatus")
+    addition: str | None
+    destination: str | None
     editable: bool | None = True
 
     @field_validator("surname", "firstname", "patronymic")
@@ -123,9 +123,9 @@ class PersonIn(Model):
 class Items(Model):
     """Pydantic model for items."""
 
-    id: int | None = None
-    created_at: datetime | None = None
-    updated_at: datetime | None = None
+    id: int | None
+    created_at: datetime | None
+    updated_at: datetime | None
 
     @field_validator("*")
     @classmethod
@@ -138,16 +138,16 @@ class PersonOut(Items):
 
     surname: str
     firstname: str
-    patronymic: str | None = ""
+    patronymic: str | None
     birthday: date
-    birthplace: str | None = ""
-    citizenship: str | None = ""
-    dual: str | None = ""
-    snils: str | None = ""
-    inn: str | None = ""
-    marital: str | None = ""
-    addition: str | None = ""
-    destination: str | None = ""
+    birthplace: str | None
+    citizenship: str | None
+    dual: str | None
+    snils: str | None
+    inn: str | None
+    marital: str | None
+    addition: str | None
+    destination: str | None
     editable: bool = False
     user_id: int
 
@@ -164,19 +164,19 @@ class Prev(Items):
 
     surname: str | None = Field(alias="lastNameBeforeChange")
     firstname: str | None = Field(alias="firstNameBeforeChange")
-    patronymic: str | None = Field(default="", alias="midNameBeforeChange")
-    changed: str | int | None = Field(default="", alias="yearOfChange")
-    reason: str | None = ""
+    patronymic: str | None = Field(alias="midNameBeforeChange")
+    changed: str | None = Field(alias="yearOfChange")
+    reason: str | None
     item: Literal["previous"]
 
 
 class Education(Items):
     """Educations schema."""
 
-    view: str | None = Field(default="", alias="educationType")
-    institution: str = Field(default="", alias="institutionName")
-    finished: str | int | None = Field(default="", alias="endYear")
-    specialty: str | None = ""
+    view: str | None = Field(alias="educationType")
+    institution: str = Field(alias="institutionName")
+    finished: str | None = Field(alias="endYear")
+    specialty: str | None
     item: Literal["educations"]
 
 
@@ -184,17 +184,17 @@ class Staff(Items):
     """Staffs schema."""
 
     position: str
-    department: str | None = ""
+    department: str | None
     item: Literal["staffs"]
 
 
 class Document(Items):
     """Documents schema."""
 
-    view: str | None = Field(default="", alias="documentType")
-    series: str | None = ""
+    view: str | None = Field(alias="documentType")
+    series: str | None
     digits: str
-    agency: str | None = ""
+    agency: str | None
     issue: date | None
     item: Literal["documents"]
 
@@ -222,7 +222,7 @@ class Workplace(Items):
     starts: date | None = Field(alias="beginDate")
     finished: date | None = Field(default=None, alias="endDate")
     workplace: str | None = Field(alias="name")
-    address: str | None = ""
+    address: str | None
     position: str
     reason: str | None = Field(alias="fireReason")
     item: Literal["workplaces"]
@@ -231,30 +231,30 @@ class Workplace(Items):
 class Affilation(Items):
     """Affilations schema."""
 
-    view: str | None = Field(default="", alias="organizationType")
-    organization: str | None = Field(default="", alias="name")
-    inn: str | None = ""
+    view: str | None = Field(alias="organizationType")
+    organization: str | None = Field(alias="name")
+    inn: str | None
     item: Literal["affilations"]
 
 
 class Check(Items):
     """Checks schema."""
 
-    workplace: str | None = ""
-    document: str | None = ""
-    inn: str | None = ""
-    debt: str | None = ""
-    bankruptcy: str | None = ""
-    bki: str | None = ""
-    courts: str | None = ""
-    affilation: str | None = ""
-    terrorist: str | None = ""
-    mvd: str | None = ""
-    internet: str | None = ""
-    cronos: str | None = ""
-    cros: str | None = ""
-    addition: str | None = ""
-    comment: str | None = ""
+    workplace: str | None
+    document: str | None
+    inn: str | None
+    debt: str | None
+    bankruptcy: str | None
+    bki: str | None
+    courts: str | None
+    affilation: str | None
+    terrorist: str | None
+    mvd: str | None
+    internet: str | None
+    cronos: str | None
+    cros: str | None
+    addition: str | None
+    comment: str | None
     conclusion: Conclusions
     item: Literal["checks"]
 
@@ -288,15 +288,15 @@ class AnketaJson(PersonIn):
     """Candidate anketa schema."""
 
     email: str | None = Field(pattern=email_pattern)
-    department: str | None = ""
-    position: str = Field(default="", alias="positionName")
-    series: str | None = Field(default="", alias="passportSerial")
-    digits: str = Field(default="", alias="passportNumber")
+    department: str | None
+    position: str = Field(alias="positionName")
+    series: str | None = Field(alias="passportSerial")
+    digits: str = Field(alias="passportNumber")
     issue: date | None = Field(default=None, alias="passportIssueDate")
-    agency: str | None = Field(default="", alias="passportIssuedBy")
-    valid_address: str = Field(default="", alias="validAddress")
-    reg_address: str = Field(default="", alias="regAddress")
-    contact_phone: str = Field(default="", alias="contactPhone")
+    agency: str | None = Field(alias="passportIssuedBy")
+    valid_address: str = Field(alias="validAddress")
+    reg_address: str = Field(alias="regAddress")
+    contact_phone: str = Field(alias="contactPhone")
     education: list[Education] = []
     experience: list[Workplace] = []
     organizations: list[Affilation] = []
