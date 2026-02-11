@@ -30,6 +30,9 @@ export default defineNuxtConfig({
   modules: ["@nuxt/ui", "@nuxt/eslint", "@vueuse/nuxt", "nuxt-security"],
   nitro: {
     compressPublicAssets: { brotli: true },
+    output: {
+      publicDir: "../server_litestar/app/static",
+    },
   },
   routeRules: {
     "/routes/**": { proxy: "http://127.0.0.1:8000/routes/**" },
@@ -41,7 +44,6 @@ export default defineNuxtConfig({
   vite: {
     build: {
       emptyOutDir: true,
-      outDir: !SSR ? "server_litestar/app/static" : undefined,
     },
   },
 });
