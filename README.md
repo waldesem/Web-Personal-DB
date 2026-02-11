@@ -81,7 +81,8 @@ chmod +x folders.sh
 ### Build frontend
 
 First install latest stable NodeJS version.
-Change in `.env` variable `SSR` as you needs then run in terminal:
+Add `.env` file with variable `SSR=true` an uncomment all `ClientOnly` components
+then run in terminal:
 
 ```
 cd Web-Personal-DB/web_nuxt

@@ -168,54 +168,51 @@ const columns: TableColumn<Candidate>[] = [
 
 <template>
   <UContainer>
-    <UPageHeader
-      title="КАНДИДАТЫ"
-      :ui="{ title: 'text-red-800' }"
-    >
+    <UPageHeader title="КАНДИДАТЫ" :ui="{ title: 'text-red-800' }">
       <template #links>
-        <ClientOnly>
-          <!-- меню для действий -->
-          <UDropdownMenu
-            v-if="user?.role === 'user'"
-            :items="[
-              {
-                label: 'Создать анкету',
-                icon: 'i-lucide-user-plus',
-                onSelect() {
-                  modal = true;
-                },
+        <!--<ClientOnly>-->
+        <!-- меню для действий -->
+        <UDropdownMenu
+          v-if="user?.role === 'user'"
+          :items="[
+            {
+              label: 'Создать анкету',
+              icon: 'i-lucide-user-plus',
+              onSelect() {
+                modal = true;
               },
-              {
-                label: 'Загрузить json',
-                icon: 'i-lucide-upload',
-                onSelect() {
-                  open();
-                },
+            },
+            {
+              label: 'Загрузить json',
+              icon: 'i-lucide-upload',
+              onSelect() {
+                open();
               },
-            ]"
-            :content="{ align: 'end' }"
-          >
-            <UButton
-              icon="i-lucide-menu"
-              variant="ghost"
-              title="Действия"
-              :loading="status === 'pending'"
+            },
+          ]"
+          :content="{ align: 'end' }"
+        >
+          <UButton
+            icon="i-lucide-menu"
+            variant="ghost"
+            title="Действия"
+            :loading="status === 'pending'"
+          />
+        </UDropdownMenu>
+        <!-- Модальное окно для добавления анкеты -->
+        <UModal
+          v-model:open="modal"
+          title="Анкета"
+          description="Введите анкетные данные кандидата"
+        >
+          <template #body>
+            <FormsResumeForm
+              @update="proceedSubmit"
+              @pending="status === 'pending'"
             />
-          </UDropdownMenu>
-          <!-- Модальное окно для добавления анкеты -->
-          <UModal
-            v-model:open="modal"
-            title="Анкета"
-            description="Введите анкетные данные кандидата"
-          >
-            <template #body>
-              <FormsResumeForm
-                @update="proceedSubmit"
-                @pending="status === 'pending'"
-              />
-            </template>
-          </UModal>
-        </ClientOnly>
+          </template>
+        </UModal>
+        <!--</ClientOnly>-->
       </template>
     </UPageHeader>
 

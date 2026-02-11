@@ -38,30 +38,30 @@ async function logout() {
         <ElementLogoDiv />
       </template>
       <template #default>
-        <ClientOnly>
-          <UNavigationMenu
-            v-if="user.role === 'admin'"
-            :items="[
-              {
-                label: 'Пользователи',
-                icon: 'i-lucide-users',
-                to: '/users',
-              },
-            ]"
-            variant="link"
-          />
-        </ClientOnly>
+        <!--<ClientOnly>-->
+        <UNavigationMenu
+          v-if="user.role === 'admin'"
+          :items="[
+            {
+              label: 'Пользователи',
+              icon: 'i-lucide-users',
+              to: '/users',
+            },
+          ]"
+          variant="link"
+        />
+        <!--</ClientOnly>-->
       </template>
       <template #right>
-        <ClientOnly>
-          <UButton
-            class="rounded-full"
-            :label="user.username ?? 'Выйти'"
-            color="error"
-            icon="i-lucide-log-out"
-            @click="logout()"
-          />
-        </ClientOnly>
+        <!--<ClientOnly>-->
+        <UButton
+          class="rounded-full"
+          :label="user.username ?? 'Выйти'"
+          color="error"
+          icon="i-lucide-log-out"
+          @click="logout()"
+        />
+        <!--</ClientOnly>-->
       </template>
     </UHeader>
 

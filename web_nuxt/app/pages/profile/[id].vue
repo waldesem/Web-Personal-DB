@@ -71,37 +71,37 @@ async function switchStatus(): Promise<void> {
       :ui="{ title: 'text-red-800' }"
     >
       <template #links>
-        <ClientOnly>
-          <!-- Кнопки переключения режима редактирования -->
-          <div v-if="user?.role == 'user'" class="flex items-center space-x-4">
-            <UButton
-              variant="outline"
-              :loading="status === 'pending'"
-              :color="
-                !data?.editable
-                  ? 'secondary'
-                  : data.user_id == user?.id
-                    ? 'success'
-                    : 'error'
-              "
-              :label="
-                !data?.editable
-                  ? 'Доступно'
-                  : data.user_id == user?.id
-                    ? 'Изменение'
-                    : 'Закрыто'
-              "
-              :icon="
-                !data?.editable
-                  ? 'i-lucide-lock-open'
-                  : data.user_id == user?.id
-                    ? 'i-lucide-edit'
-                    : 'i-lucide-lock'
-              "
-              @click="switchStatus"
-            />
-          </div>
-        </ClientOnly>
+        <!--<ClientOnly>-->
+        <!-- Кнопки переключения режима редактирования -->
+        <div v-if="user?.role == 'user'" class="flex items-center space-x-4">
+          <UButton
+            variant="outline"
+            :loading="status === 'pending'"
+            :color="
+              !data?.editable
+                ? 'secondary'
+                : data.user_id == user?.id
+                  ? 'success'
+                  : 'error'
+            "
+            :label="
+              !data?.editable
+                ? 'Доступно'
+                : data.user_id == user?.id
+                  ? 'Изменение'
+                  : 'Закрыто'
+            "
+            :icon="
+              !data?.editable
+                ? 'i-lucide-lock-open'
+                : data.user_id == user?.id
+                  ? 'i-lucide-edit'
+                  : 'i-lucide-lock'
+            "
+            @click="switchStatus"
+          />
+        </div>
+        <!--</ClientOnly>-->
       </template>
     </UPageHeader>
     <ContentTabsView />
