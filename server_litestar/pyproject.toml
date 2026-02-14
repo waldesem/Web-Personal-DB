@@ -6,6 +6,7 @@ requires-python = ">=3.14"
 dependencies = [
     "advanced-alchemy>=1.8.2",
     "asyncpg>=0.31.0",
+    "granian>=2.7.1",
     "litestar[standard, jwt, pydantic, sqlalchemy]>=2.19.0",
     "python-dotenv>=1.2.1",
     "trio>=0.32.0",

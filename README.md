@@ -116,7 +116,8 @@ litestar run --reload
 or for production:
 
 ```
-uvicorn app:app
+uvicorn app:app # for uvicorn ASGI server
+granian --interface asgi app:app # for Granian Rust-based ASGI server
 ```
 
 ### Start frontend server (only SSR mode)
