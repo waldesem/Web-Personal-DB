@@ -62,27 +62,26 @@ exit
 
 ### Settings
 
-For creating .env file run in terminal (Linux, macOS и WSL):
+Create in server_litestar folder `.env` file with content as you needs:
 
 ```
-chmod +x dotenv.sh
-./dotenv.sh
-```
+BASE_PATH=/home/MyProjects/Web-Personal-DB/server_litestar/PersonalDB
 
-CHANGE DESTIONATION FOR `BASE_PATH` AS YOU NEED
+DEFAULT_PASSWORD=88888888
 
-For creating alphabeth folders in destination directory run (Linux, macOS и WSL):
-
-```
-chmod +x folders.sh
-./folders.sh
+HOST=localhost
+PORT=5433
+DATABASE=personal
+PGUSER=webapp
+PASSWORD=webapp
 ```
 
 ### Build frontend
 
 First install latest stable NodeJS version.
-Add `.env` file with variable `SSR=true` an uncomment all `ClientOnly` components
-then run in terminal:
+Add in web_nuxt folder `.env` file with variable `SSR=true` for SSR mode.
+Uncomment all `ClientOnly` components for SSR mode
+Then run in terminal:
 
 ```
 cd Web-Personal-DB/web_nuxt
