@@ -8,8 +8,6 @@ const { data: user } = useNuxtData<Session>("session");
 
 const toasts = useToasts();
 
-const editable = useEditable();
-
 // Получаем данные id кандидата из URL
 const route = useRoute();
 
@@ -25,13 +23,14 @@ const { data, status, refresh } = await useAsyncData(
 );
 
 // Вычисляем статус редактирования анкеты
-editable.value = computed(() => {
+const editable = computed(() => {
   return (
     data.value.editable &&
     user.value?.role === "user" &&
     user.value?.id === data.value.user_id
   );
-}).value;
+});
+provide("editable", editable)
 
 // Определяем функцию для переключения режима редактирования
 async function switchStatus(): Promise<void> {

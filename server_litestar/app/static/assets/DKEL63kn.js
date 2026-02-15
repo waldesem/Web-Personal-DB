@@ -1,1 +1,0 @@
-import{o as n,c as o,a2 as c}from"./BgGndC-V.js";import{_ as e}from"./DlAUqK2U.js";const _={};function s(a,r){const t=c;return n(),o(t,{label:"Принять",color:"success",variant:"outline",type:"submit"})}const u=Object.assign(e(_,[["render",s]]),{__name:"ElementSubmitButton"});export{u as _};

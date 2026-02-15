@@ -8,7 +8,7 @@ const { data: person } = useNuxtData<Person>("person");
 
 const toasts = useToasts();
 
-const editable = useEditable();
+const editable = inject("editable");
 
 const modal = ref(false); // Объявляем переменную модального окна
 
@@ -66,7 +66,7 @@ async function deletePerson() {
     <!-- Выводим данные или скелетный элемент -->
     <Suspense>
       <template #default>
-        <ItemsPersonItem :item="person" />
+        <ItemsPersonDiv :item="person" />
       </template>
       <template #fallback>
         <ElementSkeletonDiv :rows="12" />

@@ -48,6 +48,7 @@ async def get_candidates(query: Index, db_session: AsyncSession) -> list[Candida
     "/status/{person_id:int}",
     guards=[role_guard],
     opt={"roles": Roles.user.value},
+    status_code=201,
 )
 async def switch_status(
     person_id: int,

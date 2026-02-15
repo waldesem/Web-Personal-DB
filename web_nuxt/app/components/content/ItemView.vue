@@ -5,7 +5,7 @@ const { $api } = useNuxtApp();
 
 const toasts = useToasts();
 
-const editable = useEditable();
+const editable = inject("editable");
 
 // Определяем данные которые передаются из родительского компонента
 const props = defineProps({

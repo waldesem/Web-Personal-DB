@@ -123,9 +123,9 @@ class PersonIn(Model):
 class Items(Model):
     """Pydantic model for items."""
 
-    id: int | None
-    created_at: datetime | None
-    updated_at: datetime | None
+    id: int | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
     @field_validator("*")
     @classmethod
@@ -175,7 +175,7 @@ class Education(Items):
 
     view: str | None = Field(alias="educationType")
     institution: str = Field(alias="institutionName")
-    finished: str | None = Field(alias="endYear")
+    finished: str | int | None = Field(alias="endYear")
     specialty: str | None
     item: Literal["educations"]
 
