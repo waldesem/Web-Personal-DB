@@ -29,7 +29,7 @@ class Login(BaseModel):
 
     username: str
     password: str
-    new_pswd: str | None
+    new_pswd: str | None = None
 
     @field_validator("username")
     @classmethod

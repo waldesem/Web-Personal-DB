@@ -71,6 +71,7 @@ jwt_auth = JWTAuth[User](
     revoked_token_handler=revoked_token_handler,
     token_secret=ACCESS_SECRET_KEY,
     exclude=[
+        "/assets/*",
         "/routes/auth/login",
         "/routes/auth/update",
         "/routes/auth/refresh",

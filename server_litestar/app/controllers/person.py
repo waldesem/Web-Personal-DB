@@ -3,7 +3,6 @@
 from pathlib import Path
 from typing import Any
 
-import trio
 from litestar import Controller, Request, delete, get, post
 from litestar.security.jwt import Token
 from sqlalchemy import select
@@ -80,7 +79,7 @@ class PersonController(Controller):
             person.destination = cls.create_destination(person)
             return person.id, False
 
-        if not person.destination or not trio.Path(person.destination).is_dir():
+        if not person.destination:
             resume["destination"] = cls.create_destination(person)
         for k, v in resume.items():
             setattr(person, k, v)
@@ -94,9 +93,7 @@ class PersonController(Controller):
     ) -> PersonOut:
         """Retrieve an item from the database based on the provided item ID."""
         person = await db_session.get(Persons, person_id)
-        if person and (
-            not person.destination or not trio.Path(person.destination).exists()
-        ):
+        if person and not person.destination:
             person.destination = self.create_destination(person)
         return PersonOut.model_validate(person)
 

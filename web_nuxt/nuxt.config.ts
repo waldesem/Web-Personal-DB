@@ -7,6 +7,7 @@ export default defineNuxtConfig({
     "@/": fileURLToPath(new URL("./src/app", import.meta.url)),
   },
   app: {
+    buildAssetsDir: "assets",
     keepalive: { include: "persons" },
     pageTransition: { name: "page", mode: "out-in" },
     head: {
@@ -29,7 +30,6 @@ export default defineNuxtConfig({
   },
   modules: ["@nuxt/ui", "@nuxt/eslint", "@vueuse/nuxt", "nuxt-security"],
   nitro: {
-    compressPublicAssets: { brotli: true },
     output: {
       publicDir: "../server_litestar/app/static",
     },

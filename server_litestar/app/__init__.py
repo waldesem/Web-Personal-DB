@@ -6,19 +6,19 @@ from litestar.config.cors import CORSConfig
 from litestar.logging import LoggingConfig
 from litestar.static_files import create_static_files_router
 
-from app.controllers import base_router, index
+from app.controllers import base_router
 from app.depends.auth import jwt_auth
 from app.tables.tables import alchemy_plugin
 
 app = Litestar(
     on_app_init=[jwt_auth.on_app_init],
     route_handlers=[
-        index,
         base_router,
         create_static_files_router(
-            path="/static",
-            directories=["static"],
-            send_as_attachment=True,
+            path="/",
+            directories=["app/static"],
+            html_mode=True,
+            opt={"exclude_from_auth": "exclude_opt_key"},
         ),
     ],
     compression_config=CompressionConfig(
@@ -39,4 +39,5 @@ app = Litestar(
     ),
     openapi_config=None,
     plugins=[alchemy_plugin],
+    debug=True,
 )

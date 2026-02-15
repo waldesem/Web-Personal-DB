@@ -93,7 +93,7 @@ const accordion = [
     <!-- Слот вкладки для отображения анкеты -->
     <template #anketa>
       <div class="mt-4">
-        <ContentPersonView />
+        <ContentPersonDiv />
       </div>
       <USeparator />
       <!-- Aккордеон с данными staffs, educations и т.д. -->

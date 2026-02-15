@@ -107,7 +107,7 @@ async function proceedSubmit(person_id: string, exists: boolean) {
 const columns: TableColumn<Candidate>[] = [
   { accessorKey: "id", header: "#" },
   {
-    accessorKey: "fullname",
+    accessorKey: "surname",
     header: "Фамилия",
   },
   {

@@ -1,7 +1,6 @@
 """Routes."""
 
-from litestar import Router, get
-from litestar.exceptions import HTTPException
+from litestar import Router
 
 from .index import get_candidates, switch_status
 from .items import ItemsController
@@ -20,9 +19,3 @@ base_router = Router(
         UserController,
     ],
 )
-
-
-@get("/")
-async def index() -> None:
-    """Index page."""
-    raise HTTPException(detail="an error occurred", status_code=400)

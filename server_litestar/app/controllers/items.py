@@ -25,7 +25,7 @@ class ItemsController(Controller):
         """Retrieve an item from the database based on the provided item."""
         table = ItemsController.tables[item]
         stmt = (
-            select(table, label("item", lambda: item))
+            select(table, label("item", item))
             .filter(table.c.person_id == person_id)
             .order_by(table.c.id.desc())
         )
