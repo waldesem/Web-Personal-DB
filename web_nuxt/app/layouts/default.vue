@@ -77,12 +77,20 @@ async function logout() {
       </template>
 
       <template #right>
-        <UButton
-          label="GitHub"
-          color="neutral"
-          variant="ghost"
-          to="https://github.com/waldesem/Web-Personal-DB"
-          target="_blank"
+        <UNavigationMenu
+          :items="[
+            {
+              label: 'OpenAPI',
+              to: '/schema/swagger',
+              target: '_blank',
+            },
+            {
+              label: 'GitHub',
+              to: 'https://github.com/waldesem/Web-Personal-DB',
+              target: '_blank',
+            },
+          ]"
+          variant="link"
         />
       </template>
     </UFooter>

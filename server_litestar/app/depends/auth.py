@@ -75,5 +75,6 @@ jwt_auth = JWTAuth[User](
         "/routes/auth/login",
         "/routes/auth/update",
         "/routes/auth/refresh",
+        "/schema",
     ],
 )
