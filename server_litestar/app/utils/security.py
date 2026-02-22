@@ -6,6 +6,8 @@ import hashlib
 import hmac
 import secrets
 
+from constants import DEFAULT_PASSWORD
+
 """https://github.com/pallets/werkzeug/blob/main/src/werkzeug/security.py"""
 
 SALT_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -80,7 +82,7 @@ def _hash_internal(method: str, salt: str, password: str) -> tuple[str, str]:
 
 
 def generate_password_hash(
-    password: str,
+    password: str = DEFAULT_PASSWORD,
     method: str = "scrypt",
     salt_length: int = 16,
 ) -> str:

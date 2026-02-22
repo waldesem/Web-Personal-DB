@@ -5,6 +5,8 @@ const { $api } = useNuxtApp();
 
 const visibility = useDocumentVisibility();
 
+const path = computed(() => window.location.origin);
+
 const { data: user } = await useAsyncData(
   "session",
   () => $api<Session>("/routes/auth/session"),
@@ -81,7 +83,7 @@ async function logout() {
           :items="[
             {
               label: 'OpenAPI',
-              to: '/schema/swagger',
+              to: `${path}/schema`,
               target: '_blank',
             },
             {

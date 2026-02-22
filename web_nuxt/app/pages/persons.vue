@@ -67,6 +67,7 @@ onChange(async (files) => {
     person_id: string;
     exists: boolean;
   };
+  console.log(person_id, exists);
   proceedSubmit(person_id, exists);
 });
 
@@ -97,8 +98,8 @@ async function proceedSubmit(person_id: string, exists: boolean) {
     toast.add({
       icon: "i-lucide-triangle-alert",
       title: "Ошибка",
-      description: "Анкета успешно загружена",
-      color: "success",
+      description: "Ошибка данных",
+      color: "error",
     });
   }
 }

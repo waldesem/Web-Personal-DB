@@ -53,19 +53,15 @@ class PersonController(Controller):
     ) -> tuple[int | None, bool]:
         """Upload a resume to the database."""
         person = (
-            await db_session.get(Persons, cand.id)
-            if cand.id
-            else (
-                await db_session.execute(
-                    select(Persons).where(
-                        Persons.surname == cand.surname,
-                        Persons.firstname == cand.firstname,
-                        Persons.patronymic == cand.patronymic,
-                        Persons.birthday == cand.birthday,
-                    ),
-                )
-            ).scalar_one_or_none()
-        )
+            await db_session.execute(
+                select(Persons).where(
+                    Persons.surname == cand.surname,
+                    Persons.firstname == cand.firstname,
+                    Persons.patronymic == cand.patronymic,
+                    Persons.birthday == cand.birthday,
+                ),
+            )
+        ).scalar_one_or_none()
 
         if person and person.editable and person.user_id == user_id:
             return None, True

@@ -44,7 +44,7 @@ class UserForm(Model):
     fullname: str
     username: str
     email: str = Field(pattern=email_pattern)
-    role: Roles
+    role: Roles = Roles.guest
 
     @field_validator("username")
     @classmethod
@@ -63,7 +63,7 @@ class User(UserForm):
     """Pydantic model for user form."""
 
     id: int | None
-    passhash: str | None
+    passhash: str | None = None
     pswd_create: datetime
     change_pswd: bool
     blocked: bool
@@ -84,7 +84,7 @@ class Index(BaseModel):
 
     page: int
     per_page: int
-    search: str | None
+    search: str | None = None
 
     @field_validator("search")
     @classmethod
@@ -98,19 +98,19 @@ class Index(BaseModel):
 class PersonIn(Model):
     """Person schema."""
 
-    id: int | None
+    id: int | None = None
     surname: str = Field(alias="lastName", pattern=name_pattern)
     firstname: str = Field(alias="firstName", pattern=name_pattern)
-    patronymic: str | None = Field(alias="midName")
+    patronymic: str | None = Field(default=None, alias="midName")
     birthday: date
-    birthplace: str | None
-    citizenship: str | None = Field(alias="citizen")
-    dual: str | None = Field(alias="additionalCitizenship")
-    snils: str | None
-    inn: str | None
-    marital: str | None = Field(alias="maritalStatus")
-    addition: str | None
-    destination: str | None
+    birthplace: str | None = None
+    citizenship: str | None = Field(default=None, alias="citizen")
+    dual: str | None = Field(default=None, alias="additionalCitizenship")
+    snils: str | None = Field(default=None, max_length=11)
+    inn: str | None = Field(default=None, max_length=12)
+    marital: str | None = Field(default=None, alias="maritalStatus")
+    addition: str | None = None
+    destination: str | None = None
     editable: bool | None = True
 
     @field_validator("surname", "firstname", "patronymic")
@@ -133,23 +133,23 @@ class Items(Model):
         """Check username."""
         return None if v == "" else v
 
+
 class PersonOut(Items):
     """Pydantic model for person."""
 
     surname: str
     firstname: str
-    patronymic: str | None
+    patronymic: str | None = None
     birthday: date
-    birthplace: str | None
-    citizenship: str | None
-    dual: str | None
-    snils: str | None
-    inn: str | None
-    marital: str | None
-    addition: str | None
-    destination: str | None
+    birthplace: str | None = None
+    citizenship: str | None = None
+    dual: str | None = None
+    snils: str | None = None
+    inn: str | None = None
+    marital: str | None = None
+    addition: str | None = None
+    destination: str | None = None
     editable: bool = False
-    user_id: int
 
 
 class Candidates(PersonOut):
@@ -162,41 +162,41 @@ class Candidates(PersonOut):
 class Prev(Items):
     """Previous schema."""
 
-    surname: str | None = Field(alias="lastNameBeforeChange")
-    firstname: str | None = Field(alias="firstNameBeforeChange")
-    patronymic: str | None = Field(alias="midNameBeforeChange")
-    changed: str | None = Field(alias="yearOfChange")
-    reason: str | None
-    item: Literal["previous"]
+    surname: str = Field(alias="lastNameBeforeChange")
+    firstname: str | None = Field(default=None, alias="firstNameBeforeChange")
+    patronymic: str | None = Field(default=None, alias="midNameBeforeChange")
+    changed: str | None = Field(default=None, alias="yearOfChange", max_length=4)
+    reason: str | None = None
+    item: Literal["previous"] = "previous"
 
 
 class Education(Items):
     """Educations schema."""
 
-    view: str | None = Field(alias="educationType")
+    view: str | None = Field(default=None, alias="educationType")
     institution: str = Field(alias="institutionName")
-    finished: str | int | None = Field(alias="endYear")
-    specialty: str | None
-    item: Literal["educations"]
+    finished: str | int | None = Field(default=None, alias="endYear")
+    specialty: str | None = None
+    item: Literal["educations"] = "educations"
 
 
 class Staff(Items):
     """Staffs schema."""
 
     position: str
-    department: str | None
-    item: Literal["staffs"]
+    department: str | None = None
+    item: Literal["staffs"] = "staffs"
 
 
 class Document(Items):
     """Documents schema."""
 
-    view: str | None = Field(alias="documentType")
-    series: str | None
+    view: str | None = Field(default="Паспорт", alias="documentType")
+    series: str | None = None
     digits: str
-    agency: str | None
-    issue: date | None
-    item: Literal["documents"]
+    agency: str | None = None
+    issue: date | None = None
+    item: Literal["documents"] = "documents"
 
 
 class Address(Items):
@@ -204,7 +204,7 @@ class Address(Items):
 
     view: str
     address: str
-    item: Literal["addresses"]
+    item: Literal["addresses"] = "addresses"
 
 
 class Contact(Items):
@@ -212,7 +212,7 @@ class Contact(Items):
 
     view: str
     contact: str
-    item: Literal["contacts"]
+    item: Literal["contacts"] = "contacts"
 
 
 class Workplace(Items):
@@ -221,40 +221,40 @@ class Workplace(Items):
     now_work: bool | None = Field(default=False, alias="currentJob")
     starts: date | None = Field(alias="beginDate")
     finished: date | None = Field(default=None, alias="endDate")
-    workplace: str | None = Field(alias="name")
-    address: str | None
+    workplace: str | None = Field(default=None, alias="name")
+    address: str | None = None
     position: str
-    reason: str | None = Field(alias="fireReason")
-    item: Literal["workplaces"]
+    reason: str | None = Field(default=None, alias="fireReason")
+    item: Literal["workplaces"] = "workplaces"
 
 
 class Affilation(Items):
     """Affilations schema."""
 
-    view: str | None = Field(alias="organizationType")
-    organization: str | None = Field(alias="name")
-    inn: str | None
-    item: Literal["affilations"]
+    view: str | None = Field(default=None, alias="organizationType")
+    organization: str = Field(alias="name")
+    inn: str | None = None
+    item: Literal["affilations"] = "affilations"
 
 
 class Check(Items):
     """Checks schema."""
 
-    workplace: str | None
-    document: str | None
-    inn: str | None
-    debt: str | None
-    bankruptcy: str | None
-    bki: str | None
-    courts: str | None
-    affilation: str | None
-    terrorist: str | None
-    mvd: str | None
-    internet: str | None
-    cronos: str | None
-    cros: str | None
-    addition: str | None
-    comment: str | None
+    workplace: str | None = None
+    document: str | None = None
+    inn: str | None = None
+    debt: str | None = None
+    bankruptcy: str | None = None
+    bki: str | None = None
+    courts: str | None = None
+    affilation: str | None = None
+    terrorist: str | None = None
+    mvd: str | None = None
+    internet: str | None = None
+    cronos: str | None = None
+    cros: str | None = None
+    addition: str | None = None
+    comment: str | None = None
     conclusion: Conclusions
     item: Literal["checks"]
 
@@ -263,7 +263,7 @@ class Poligraf(Items):
     """Poligraf schema."""
 
     theme: str
-    results: str | None
+    results: str
     conclusion: Decisions
     item: Literal["poligrafs"]
 
@@ -288,12 +288,12 @@ class AnketaJson(PersonIn):
     """Candidate anketa schema."""
 
     email: str | None = Field(pattern=email_pattern)
-    department: str | None
+    department: str | None = None
     position: str = Field(alias="positionName")
-    series: str | None = Field(alias="passportSerial")
+    series: str | None = Field(default=None, alias="passportSerial")
     digits: str = Field(alias="passportNumber")
     issue: date | None = Field(default=None, alias="passportIssueDate")
-    agency: str | None = Field(alias="passportIssuedBy")
+    agency: str | None = Field(default=None, alias="passportIssuedBy")
     valid_address: str = Field(alias="validAddress")
     reg_address: str = Field(alias="regAddress")
     contact_phone: str = Field(alias="contactPhone")
