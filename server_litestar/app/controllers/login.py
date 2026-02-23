@@ -76,8 +76,7 @@ class AuthController(Controller):
         if not user.change_pswd and delta_change.days < 365:
             user.attempt = 0
             refresh = Token(
-                exp=datetime.now(tz=UTC)
-                + timedelta(minutes=REFRESH_SECRET_KEY_LIVE),
+                exp=datetime.now(tz=UTC) + timedelta(minutes=REFRESH_SECRET_KEY_LIVE),
                 jti=secrets.token_hex(10),
                 sub=str(user.id),
                 iat=datetime.now(tz=UTC),
