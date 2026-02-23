@@ -19,6 +19,7 @@ const { data: user } = await useAsyncData(
 // Объявляем функцию для выхода из системы и очистки данных пользователя
 async function logout() {
   if (!confirm("Вы действительно хотите выйти?")) return;
+  const access = useCookie("access");
   const refresh = useCookie("refresh");
   await $api("/routes/auth/logout", {
     method: "POST",
@@ -26,7 +27,6 @@ async function logout() {
       refresh_token: refresh.value,
     },
   });
-  const access = useCookie("access");
   access.value = null;
   refresh.value = null;
   return navigateTo("/login");
@@ -83,7 +83,7 @@ async function logout() {
           :items="[
             {
               label: 'OpenAPI',
-              to: `${path}/schema`,
+              to: `${path}/schema/swagger`,
               target: '_blank',
             },
             {

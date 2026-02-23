@@ -12,7 +12,6 @@ from litestar.plugins.sqlalchemy import (
 from sqlalchemy import (
     Boolean,
     Date,
-    Enum,
     ForeignKey,
     Integer,
     String,
@@ -20,7 +19,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.classes.classes import Conclusions, Decisions, Roles
+from app.classes.classes import Roles
 from app.utils.security import generate_password_hash
 from constants import DATABASE_URI
 
@@ -42,7 +41,7 @@ class Users(BigIntAuditBase):
     blocked: Mapped[bool] = mapped_column(Boolean, default=False)
     deleted: Mapped[bool] = mapped_column(Boolean, default=False)
     attempt: Mapped[int] = mapped_column(Integer, default=0)
-    role: Mapped[Roles] = mapped_column(Enum, default=Roles.guest.value)
+    role: Mapped[str] = mapped_column(String(255), default=Roles.guest.value)
     persons: Mapped[list[Persons]] = relationship(back_populates="user")
 
 
@@ -282,7 +281,7 @@ class Checks(BigIntAuditBase):
     cros: Mapped[str | None] = mapped_column(Text, nullable=True)
     addition: Mapped[str | None] = mapped_column(Text, nullable=True)
     comment: Mapped[str | None] = mapped_column(Text, nullable=True)
-    conclusion: Mapped[Conclusions] = mapped_column(Enum, nullable=False)
+    conclusion: Mapped[str] = mapped_column(String(255), nullable=False)
     person_id: Mapped[int] = mapped_column(
         ForeignKey("persons.id"),
         index=True,
@@ -298,7 +297,7 @@ class Poligrafs(BigIntAuditBase):
 
     theme: Mapped[str] = mapped_column(String(255), nullable=False)
     results: Mapped[str] = mapped_column(Text, nullable=False)
-    conclusion: Mapped[Decisions] = mapped_column(Enum, nullable=False)
+    conclusion: Mapped[str] = mapped_column(String(255), nullable=False)
     person_id: Mapped[int] = mapped_column(
         ForeignKey("persons.id"),
         index=True,

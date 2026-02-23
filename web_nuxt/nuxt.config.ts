@@ -38,9 +38,6 @@ export default defineNuxtConfig({
     "/routes/**": {
       proxy: "http://127.0.0.1:8000/routes/**",
     },
-    "/schema": {
-      proxy: "http://localhost:8000//schema/swagger",
-    },
   },
   ssr: SSR,
   ui: {
