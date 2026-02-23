@@ -1,4 +1,4 @@
-"""Initialize the Flask application."""
+"""Initialize the Litestar application."""
 
 from litestar import Litestar
 from litestar.config.compression import CompressionConfig
