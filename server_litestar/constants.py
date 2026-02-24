@@ -16,9 +16,9 @@ REFRESH_SECRET_KEY_LIVE = 30 * 24 * 60  # minutes
 BASE_PATH = os.getenv("BASE_PATH") or Path(__file__).parent.joinpath("Personal")
 DEFAULT_PASSWORD = os.getenv("DEFAULT_PASSWORD") or "88888888"
 DATABASE_URI = "postgresql+asyncpg://{}:{}@{}:{}/{}".format(
-    os.getenv("PGUSER"),
-    os.getenv("PASSWORD"),
-    os.getenv("HOST"),
-    os.getenv("PORT"),
-    os.getenv("DATABASE"),
+    os.getenv("PG_USER"),
+    os.getenv("PG_PASSWORD"),
+    os.getenv("PG_HOST"),
+    os.getenv("PG_PORT"),
+    os.getenv("PG_DATABASE"),
 )

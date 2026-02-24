@@ -69,11 +69,11 @@ BASE_PATH=/home/MyProjects/Web-Personal-DB/server_litestar/PersonalDB
 
 DEFAULT_PASSWORD=88888888
 
-HOST=localhost
-PORT=5433
-DATABASE=personal
-PGUSER=webapp
-PASSWORD=webapp
+PG_HOST=localhost
+PG_PORT=5433
+PG_DATABASE=personal
+PG_USER=webapp
+PG_PASSWORD=webapp
 ```
 
 ### Build frontend
