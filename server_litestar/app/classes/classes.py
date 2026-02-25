@@ -1,6 +1,15 @@
 """Enums and classes module."""
 
+from dataclasses import dataclass
 from enum import StrEnum
+
+
+@dataclass
+class Tokens:
+    """Tokens."""
+
+    access_token: str
+    refresh_token: str
 
 
 class Roles(StrEnum):

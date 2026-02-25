@@ -8,6 +8,7 @@ from litestar.exceptions import InternalServerException
 from litestar.testing import AsyncTestClient
 
 from app import app
+from app.classes.classes import Tokens
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
@@ -15,6 +16,7 @@ if TYPE_CHECKING:
     from litestar import Litestar
 
 app.debug = True
+app.openapi_config = None
 
 
 @pytest_asyncio.fixture(scope="session")
@@ -24,17 +26,17 @@ async def test_client() -> AsyncIterator[AsyncTestClient[Litestar]]:
 
 
 @pytest_asyncio.fixture(scope="session")
-async def test_token(test_client: AsyncTestClient[Litestar]) -> dict:
+async def test_token(test_client: AsyncTestClient[Litestar]) -> Tokens:
     response = await test_client.post(
         "/routes/auth/login",
         json={
-            "username": "vsemenenko",
-            "password": "Truxan0va",
+            "username": "",
+            "password": "",
         },
     )
     resp = response.json()
     if resp.pop("message") == "success":
-        return resp
+        return Tokens(**resp)
     raise InternalServerException
 
 

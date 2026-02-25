@@ -3,7 +3,7 @@ from litestar import Litestar
 from litestar.status_codes import HTTP_200_OK
 from litestar.testing import AsyncTestClient
 
-from app.classes.classes import ItemCategory
+from app.classes.classes import ItemCategory, Tokens
 
 
 @pytest.mark.asyncio
@@ -13,13 +13,13 @@ from app.classes.classes import ItemCategory
 )
 async def test_get_items(
     test_client: AsyncTestClient[Litestar],
-    test_token: dict,
+    test_token: Tokens,
     item: str,
     person_id: int,
 ) -> None:
     resp = await test_client.get(
         f"/routes/items/{item}/{person_id}",
-        headers={"Authorization": test_token["access_token"]},
+        headers={"Authorization": test_token.access_token},
     )
     assert resp.status_code == HTTP_200_OK
 
@@ -31,11 +31,11 @@ async def test_get_items(
 )
 async def test_get_item(
     test_client: AsyncTestClient[Litestar],
-    test_token: dict,
+    test_token: Tokens,
     person_id: int,
 ) -> None:
     resp = await test_client.get(
         f"/routes/items/{person_id}",
-        headers={"Authorization": test_token["access_token"]},
+        headers={"Authorization": test_token.access_token},
     )
     assert resp.status_code == HTTP_200_OK
