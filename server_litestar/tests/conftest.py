@@ -1,8 +1,5 @@
-import json
-from pathlib import Path
 from typing import TYPE_CHECKING
 
-import pytest
 import pytest_asyncio
 from litestar.exceptions import InternalServerException
 from litestar.testing import AsyncTestClient
@@ -38,9 +35,3 @@ async def test_token(test_client: AsyncTestClient[Litestar]) -> Tokens:
     if resp.pop("message") == "success":
         return Tokens(**resp)
     raise InternalServerException
-
-
-@pytest.fixture
-def test_json(file: str) -> dict:
-    with Path(file).open(encoding="utf-8") as f:
-        return json.loads(f.readline())

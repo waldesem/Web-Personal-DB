@@ -1,18 +1,23 @@
+import json
+from pathlib import Path
+
 import pytest
 from faker import Faker
 from litestar import Litestar
 from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED
 from litestar.testing import AsyncTestClient
 
-from app.classes.classes import Tokens
+from app.classes.classes import ItemCategory, Tokens
 
 fake = Faker("ru-RU")
+
+TEST_DIR = ""
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "person_id",
-    [(1), (2)],
+    list(range(len(ItemCategory))),
 )
 async def test_get_person(
     test_client: AsyncTestClient[Litestar],
@@ -43,7 +48,7 @@ async def test_get_person(
             "marital": fake.sentence(2) if i == 0 else None,
             "addition": fake.sentence(5) if i != 0 else None,
         }
-        for i in range(3)
+        for i in range(len(ItemCategory))
     ],
 )
 async def test_post_person(
@@ -60,15 +65,17 @@ async def test_post_person(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("data", [])
+@pytest.mark.parametrize("file", [list(Path(TEST_DIR).glob("*.json"))])
 async def test_post_json(
     test_client: AsyncTestClient[Litestar],
     test_token: dict,
-    data: dict,
+    file: Path,
 ) -> None:
-    resp = await test_client.post(
-        "/routes/persons/json",
-        headers={"Authorization": test_token["access_token"]},
-        json=data,
-    )
-    assert resp.status_code == HTTP_200_OK
+    with file.open(encoding="utf-8") as f:
+        anketa = json.loads(f.readline())
+        resp = await test_client.post(
+            "/routes/persons/json",
+            headers={"Authorization": test_token["access_token"]},
+            json=anketa,
+        )
+        assert resp.status_code == HTTP_201_CREATED
