@@ -3,7 +3,7 @@ from litestar import Litestar
 from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED
 from litestar.testing import AsyncTestClient
 
-from app.classes.classes import ItemCategory, Tokens
+from app.classes.classes import ItemCategory
 
 
 @pytest.mark.asyncio
@@ -12,14 +12,12 @@ from app.classes.classes import ItemCategory, Tokens
     [(item.value, idx) for idx, item in enumerate(ItemCategory)],
 )
 async def test_get_items(
-    test_client: AsyncTestClient[Litestar],
-    test_token: Tokens,
+    test_auth_client: AsyncTestClient[Litestar],
     item: str,
     person_id: int,
 ) -> None:
-    resp = await test_client.get(
+    resp = await test_auth_client.get(
         f"/routes/items/{item}/{person_id}",
-        headers={"Authorization": test_token.access_token},
     )
     assert resp.status_code == HTTP_200_OK
 
@@ -30,13 +28,11 @@ async def test_get_items(
     list(range(len(ItemCategory))),
 )
 async def test_get_item(
-    test_client: AsyncTestClient[Litestar],
-    test_token: Tokens,
+    test_auth_client: AsyncTestClient[Litestar],
     person_id: int,
 ) -> None:
-    resp = await test_client.get(
+    resp = await test_auth_client.get(
         f"/routes/items/{person_id}",
-        headers={"Authorization": test_token.access_token},
     )
     assert resp.status_code == HTTP_200_OK
 
@@ -47,14 +43,12 @@ async def test_get_item(
     [("staffs", 1, {})],
 )
 async def test_post_item(
-    test_client: AsyncTestClient[Litestar],
-    test_token: Tokens,
+    test_auth_client: AsyncTestClient[Litestar],
     person_id: int,
     data: dict,
 ) -> None:
-    resp = await test_client.post(
+    resp = await test_auth_client.post(
         f"/routes/items/{person_id}",
-        headers={"Authorization": test_token.access_token},
         json=data,
     )
     assert resp.status_code == HTTP_201_CREATED
