@@ -48,7 +48,7 @@ class PersonController(Controller):
     async def upload_resume(
         cls,
         cand: PersonIn,
-        user_id: int |None,
+        user_id: int | None,
         db_session: AsyncSession,
     ) -> tuple[int | None, bool]:
         """Upload a resume to the database."""
@@ -104,7 +104,6 @@ class PersonController(Controller):
         cand_id, existed = await self.upload_resume(data, request.user.id, db_session)
         return {"person_id": cand_id, "exists": existed}
 
-
     @patch(
         "/status/{person_id:int}",
         guards=[role_guard],
@@ -123,7 +122,6 @@ class PersonController(Controller):
             .where(Persons.id == person_id)
             .values(editable=not_(Persons.editable), user_id=request.user.id),
         )
-
 
     @delete(
         "/{person_id:int}",

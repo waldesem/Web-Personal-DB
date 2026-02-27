@@ -185,7 +185,7 @@ class Staff(Items):
 
     position: str
     department: str | None = None
-    item: Literal["staffs"] = "staffs"
+    item: Literal["staffs"]
 
 
 class Document(Items):
@@ -196,7 +196,7 @@ class Document(Items):
     digits: str
     agency: str | None = None
     issue: date | None = None
-    item: Literal["documents"] = "documents"
+    item: Literal["documents"]
 
 
 class Address(Items):
@@ -204,7 +204,7 @@ class Address(Items):
 
     view: str
     address: str
-    item: Literal["addresses"] = "addresses"
+    item: Literal["addresses"]
 
 
 class Contact(Items):
@@ -212,7 +212,7 @@ class Contact(Items):
 
     view: str
     contact: str
-    item: Literal["contacts"] = "contacts"
+    item: Literal["contacts"]
 
 
 class Workplace(Items):

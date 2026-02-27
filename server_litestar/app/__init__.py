@@ -20,12 +20,13 @@ route_handlers = [
         opt={"exclude_from_auth": "exclude_opt_key"},
     ),
 ]
+
 compression_config = CompressionConfig(
     backend="gzip",
     minimum_size=1000,
     gzip_compress_level=6,
 )
-cors_config = (CORSConfig(),)
+
 logging_config = LoggingConfig(
     disable_stack_trace={404, ValueError},
     formatters={
