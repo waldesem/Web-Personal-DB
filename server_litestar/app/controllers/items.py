@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.classes.classes import ItemCategory, Roles
 from app.depends.auth import role_guard
-from app.models.models import ItemModel, ItemsModel, ItemType
+from app.models.models import ItemModel, ItemsModel
 
 
 class ItemsController(Controller):
@@ -21,7 +21,7 @@ class ItemsController(Controller):
         item: ItemCategory,
         person_id: int,
         db_session: AsyncSession,
-    ) -> list[ItemType]:
+    ) -> list[ItemModel]:
         """Retrieve an item from the database based on the provided item."""
         table = ItemsController.tables[item]
         stmt = (
@@ -30,14 +30,14 @@ class ItemsController(Controller):
             .order_by(table.c.id.desc())
         )
         items = (await db_session.execute(stmt)).all()
-        return ItemsModel.model_validate({"item": items}).item
+        return ItemsModel.model_validate({"item": items}).items
 
     @get("/{person_id:int}")
     async def get_items(
         self,
         person_id: int,
         db_session: AsyncSession,
-    ) -> dict[ItemCategory, list[ItemType]]:
+    ) -> dict[ItemCategory, list[ItemModel]]:
         """Retrieve an all items from the database."""
         return {
             item.value: await self.select_item(item.value, person_id, db_session)
@@ -50,7 +50,7 @@ class ItemsController(Controller):
         item: ItemCategory,
         person_id: int,
         db_session: AsyncSession,
-    ) -> list[ItemType]:
+    ) -> list[ItemModel]:
         """Get result of query based on the provided item."""
         return await self.select_item(item, person_id, db_session)
 

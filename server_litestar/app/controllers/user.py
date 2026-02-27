@@ -15,6 +15,8 @@ from app.tables.tables import Users
 from app.utils.security import generate_password_hash
 from constants import DEFAULT_PASSWORD
 
+adapter = TypeAdapter(list[User])
+
 
 class UserController(Controller):
     """User Controller."""
@@ -27,7 +29,7 @@ class UserController(Controller):
         """Retrieve a list of users from the database."""
         async with db_session.begin():
             users = (await db_session.execute(select(Users))).scalars()
-            return TypeAdapter(list[User]).validate_python(users)
+            return adapter.validate_python(users)
 
     @post("/user")
     async def post_user(self, data: UserForm, db_session: AsyncSession) -> dict:

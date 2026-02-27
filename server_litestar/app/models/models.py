@@ -43,7 +43,7 @@ class UserForm(Model):
 
     fullname: str
     username: str
-    email: str = Field(pattern=email_pattern)
+    email: Annotated[str, Field(pattern=email_pattern)]
     role: Roles = Roles.guest
 
     @field_validator("username")
@@ -318,30 +318,26 @@ class AnketaJson(PersonIn):
     )
 
 
-ItemType = Annotated[
-    Address
-    | Affilation
-    | Check
-    | Contact
-    | Document
-    | Education
-    | Inquiry
-    | Investigation
-    | Prev
-    | Poligraf
-    | Staff
-    | Workplace,
-    Field(discriminator="item"),
-]
-
-
 class ItemModel(BaseModel):
     """Base model for item."""
 
-    item: ItemType
+    item: (
+        Address
+        | Affilation
+        | Check
+        | Contact
+        | Document
+        | Education
+        | Inquiry
+        | Investigation
+        | Prev
+        | Poligraf
+        | Staff
+        | Workplace
+    ) = Field(discriminator="item")
 
 
 class ItemsModel(BaseModel):
     """Base model for items list."""
 
-    item: list[ItemType]
+    items: list[ItemModel]
