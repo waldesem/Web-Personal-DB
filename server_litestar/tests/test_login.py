@@ -7,6 +7,23 @@ from app.classes.classes import Tokens
 
 
 @pytest.mark.asyncio
+async def test_relogin(
+    test_client: AsyncTestClient[Litestar],
+) -> None:
+    response = await test_client.post(
+        "/routes/auth/update",
+        json={
+            "username": "",
+            "password": "",
+            "new_pswd": "",
+        },
+    )
+    resp = response.json()
+    assert resp.pop("message") == "updated"
+    assert response.status_code == HTTP_201_CREATED
+
+
+@pytest.mark.asyncio
 async def test_logout(
     test_client: AsyncTestClient[Litestar],
     test_token: Tokens,

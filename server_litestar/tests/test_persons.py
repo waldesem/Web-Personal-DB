@@ -73,3 +73,16 @@ async def test_post_json(
             json=anketa,
         )
         assert resp.status_code == HTTP_201_CREATED
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("person_id", [(1, 2)])
+async def test_switch_user(
+    test_auth_client: AsyncTestClient[Litestar],
+    person_id: int,
+) -> None:
+    resp = await test_auth_client.patch(
+        f"/routes/persons/status/{person_id}",
+        json={},
+    )
+    assert resp.status_code == HTTP_201_CREATED

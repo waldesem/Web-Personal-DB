@@ -51,7 +51,7 @@ async function switchStatus(): Promise<void> {
   }
   status.value = "pending";
   const response = await $api.raw<Record<string, string>>(
-    "/routes/status/" + candId.value,
+    "/routes/persons/status/" + candId.value,
     { method: "PATCH", body: {} },
   );
   status.value = "success";

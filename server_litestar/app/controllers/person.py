@@ -3,9 +3,9 @@
 from pathlib import Path
 from typing import Any
 
-from litestar import Controller, Request, delete, get, post
+from litestar import Controller, Request, delete, get, patch, post
 from litestar.security.jwt import Token
-from sqlalchemy import select
+from sqlalchemy import not_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.classes.classes import Roles
@@ -48,7 +48,7 @@ class PersonController(Controller):
     async def upload_resume(
         cls,
         cand: PersonIn,
-        user_id: int,
+        user_id: int |None,
         db_session: AsyncSession,
     ) -> tuple[int | None, bool]:
         """Upload a resume to the database."""
@@ -63,7 +63,7 @@ class PersonController(Controller):
             )
         ).scalar_one_or_none()
 
-        if person and person.editable and person.user_id == user_id:
+        if person and person.editable and user_id and person.user_id == user_id:
             return None, True
 
         resume = cand.model_dump(exclude_none=True) | {"user_id": user_id}
@@ -103,6 +103,27 @@ class PersonController(Controller):
         """Replace a record in persons table."""
         cand_id, existed = await self.upload_resume(data, request.user.id, db_session)
         return {"person_id": cand_id, "exists": existed}
+
+
+    @patch(
+        "/status/{person_id:int}",
+        guards=[role_guard],
+        opt={"roles": Roles.user.value},
+        status_code=201,
+    )
+    async def switch_status(
+        self,
+        person_id: int,
+        request: Request[User, Token, Any],
+        db_session: AsyncSession,
+    ) -> None:
+        """Toggle the editable status of a person."""
+        await db_session.execute(
+            update(Persons)
+            .where(Persons.id == person_id)
+            .values(editable=not_(Persons.editable), user_id=request.user.id),
+        )
+
 
     @delete(
         "/{person_id:int}",

@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING
 
 import pytest_asyncio
-from httpx._models import Response
 from litestar.exceptions import InternalServerException
 from litestar.testing import AsyncTestClient
 
@@ -17,42 +16,16 @@ app.debug = True
 app.openapi_config = None
 
 
-async def login(
-    test_client: AsyncTestClient[Litestar],
-    username: str,
-    password: str,
-) -> Response:
-    return await test_client.post(
+async def create_tokens(test_client: AsyncTestClient[Litestar]) -> Tokens | None:
+    response = await test_client.post(
         "/routes/auth/login",
         json={
-            "username": username,
-            "password": password,
+            "username": "",
+            "password": "",
         },
     )
-
-
-async def create_tokens(test_client: AsyncTestClient[Litestar]) -> Tokens | None:
-    username, password = "", ""
-    response = await login(test_client, username, password)
     resp = response.json()
-    if resp.pop("message") == "success":
-        return Tokens(**resp)
-    if resp.get("message") == "denied":
-        new_pswd = ""
-        response = await test_client.post(
-            "/routes/auth/update",
-            json={
-                "username": username,
-                "password": password,
-                "new_pswd": new_pswd,
-            },
-        )
-        resp = response.json()
-        if resp.pop("message") == "updated":
-            response = await login(test_client, username, new_pswd)
-            resp = response.json()
-            return Tokens(**resp)
-    return None
+    return Tokens(**resp)
 
 
 @pytest_asyncio.fixture(scope="session")

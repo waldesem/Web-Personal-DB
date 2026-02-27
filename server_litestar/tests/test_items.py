@@ -40,7 +40,7 @@ async def test_get_item(
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("item", "person_id", "data"),
-    [("staffs", 1, {})],
+    [("staffs", 1, {"item": "staffs"})],
 )
 async def test_post_item(
     test_auth_client: AsyncTestClient[Litestar],

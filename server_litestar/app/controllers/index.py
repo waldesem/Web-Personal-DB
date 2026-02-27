@@ -2,18 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 from advanced_alchemy.base import BigIntAuditBase
-from litestar import Request, get, patch
-from litestar.security.jwt import Token
+from litestar import get
 from pydantic import TypeAdapter
-from sqlalchemy import func, not_, select, update
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.classes.classes import Roles
-from app.depends.auth import role_guard
-from app.models.models import Candidates, Index, User
+from app.models.models import Candidates, Index
 from app.tables.tables import Persons, Users
 
 
@@ -42,22 +37,3 @@ async def get_candidates(query: Index, db_session: AsyncSession) -> list[Candida
         )
     ).all()
     return TypeAdapter(list[Candidates]).validate_python(candidates)
-
-
-@patch(
-    "/status/{person_id:int}",
-    guards=[role_guard],
-    opt={"roles": Roles.user.value},
-    status_code=201,
-)
-async def switch_status(
-    person_id: int,
-    request: Request[User, Token, Any],
-    db_session: AsyncSession,
-) -> None:
-    """Toggle the editable status of a person."""
-    await db_session.execute(
-        update(Persons)
-        .where(Persons.id == person_id)
-        .values(editable=not_(Persons.editable), user_id=request.user.id),
-    )
