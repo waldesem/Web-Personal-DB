@@ -11,7 +11,7 @@ from app.classes.classes import ItemCategory
 
 fake = Faker("ru-RU")
 
-TEST_DIR = ""
+TEST_DIR = "../../XData"
 
 
 @pytest.mark.asyncio
@@ -61,7 +61,7 @@ async def test_post_person(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("file", [list(Path(TEST_DIR).glob("*.json"))])
+@pytest.mark.parametrize("file", list(Path(TEST_DIR).glob("*.json")))
 async def test_post_json(
     test_auth_client: AsyncTestClient[Litestar],
     file: Path,

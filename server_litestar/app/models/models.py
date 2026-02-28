@@ -8,10 +8,10 @@ from typing import Annotated, Literal
 from pydantic import (
     AfterValidator,
     BaseModel,
+    BeforeValidator,
     ConfigDict,
     Field,
     computed_field,
-    field_validator,
 )
 
 from app.classes.classes import Conclusions, Decisions, Roles
@@ -78,31 +78,39 @@ class Index(BaseModel):
 
     page: int
     per_page: int
-    search: Annotated[str | None, Field(None, max_length=255)]
-
-    @field_validator("search", mode="after")
-    @classmethod
-    def search_check(cls, v: str) -> list | None:
-        """Check username."""
-        if v:
-            return v.upper().split(maxsplit=3)[:3]
-        return None
+    search: Annotated[
+        str | None,
+        Field(None, max_length=255),
+        AfterValidator(lambda v: v.upper().split(maxsplit=3)[:3] if v else None),
+    ]
 
 
-class FullName(Model):
-    """Fullname schema."""
+class Items(Model):
+    """Pydantic model for items."""
 
-    surname: Annotated[str, Field(alias="lastName", pattern=name_pattern)]
-    firstname: Annotated[str, Field(alias="firstName", pattern=name_pattern)]
-    patronymic: Annotated[str | None, Field(default=None, alias="midName")]
-
-    model_config = ConfigDict(str_to_upper=True)
+    id: Annotated[int | None, Field(None)]
+    created_at: Annotated[datetime | None, Field(None)]
+    updated_at: Annotated[datetime | None, Field(None)]
 
 
-class PersonIn(FullName):
+class Person(Items):
     """Person schema."""
 
-    id: int | None = None
+    surname: Annotated[
+        str,
+        Field(alias="lastName", pattern=name_pattern),
+        AfterValidator(lambda v: v.upper()),
+    ]
+    firstname: Annotated[
+        str,
+        Field(alias="firstName", pattern=name_pattern),
+        AfterValidator(lambda v: v.upper()),
+    ]
+    patronymic: Annotated[
+        str | None,
+        Field(default=None, alias="midName"),
+        AfterValidator(lambda v: v.upper() if v else None),
+    ]
     birthday: date
     birthplace: Annotated[str | None, Field(None, max_length=255)]
     citizenship: Annotated[
@@ -124,44 +132,12 @@ class PersonIn(FullName):
     editable: bool | None = True
 
 
-class Items(Model):
-    """Pydantic model for items."""
-
-    id: int | None = None
-    created_at: datetime | None = None
-    updated_at: datetime | None = None
-
-    @field_validator("*", mode="before")
-    @classmethod
-    def none_check(cls, v: str) -> str | None:
-        """Check username."""
-        return None if v == "" else v
-
-
-class PersonOut(Items):
-    """Pydantic model for person."""
-
-    surname: str
-    firstname: str
-    patronymic: str | None = None
-    birthday: date
-    birthplace: str | None = None
-    citizenship: str | None = None
-    dual: str | None = None
-    snils: str | None = None
-    inn: str | None = None
-    marital: str | None = None
-    addition: str | None = None
-    destination: str | None = None
-    editable: bool = False
-
-
 class Candidates(Items):
     """Pydantic model for candidates."""
 
     surname: str
     firstname: str
-    patronymic: str | None = None
+    patronymic: str | None
     birthday: date
     editable: bool
     username: str
@@ -201,8 +177,12 @@ class Education(Items):
         str | None,
         Field(default=None, alias="educationType", max_length=255),
     ]
-    institution: str = Field(alias="institutionName", max_length=255)
-    finished: str | int | None = Field(default=None, alias="endYear", max_length=4)
+    institution: Annotated[str, Field(alias="institutionName")]
+    finished: Annotated[
+        str | None,
+        Field(default=None, alias="endYear"),
+        BeforeValidator(lambda v: str(v)),
+    ]
     specialty: str | None = None
     item: Literal["educations"] = "educations"
 
@@ -220,8 +200,8 @@ class Document(Items):
 
     view: Annotated[str | None, Field(default="Паспорт", alias="documentType")]
     series: str | None = None
-    digits: str
-    agency: str | None = None
+    digits: Annotated[str, Field(max_length=12)]
+    agency: Annotated[str | None, Field(default=None, alias="endYear", max_length=255)]
     issue: date | None = None
     item: Literal["documents"]
 
@@ -229,28 +209,28 @@ class Document(Items):
 class Address(Items):
     """Addresses schema."""
 
-    view: str
-    address: str
+    view: Annotated[str, Field(max_length=255)]
+    address: Annotated[str, Field(max_length=255)]
     item: Literal["addresses"]
 
 
 class Contact(Items):
     """Contacts schema."""
 
-    view: str
-    contact: str
+    view: Annotated[str, Field(max_length=255)]
+    contact: Annotated[str, Field(max_length=255)]
     item: Literal["contacts"]
 
 
 class Workplace(Items):
     """Workplaces schema."""
 
-    now_work: bool | None = Field(default=False, alias="currentJob")
-    starts: date | None = Field(alias="beginDate")
-    finished: date | None = Field(default=None, alias="endDate")
+    now_work: Annotated[bool | None, Field(default=False, alias="currentJob")]
+    starts: Annotated[date | None, Field(alias="beginDate")]
+    finished: Annotated[date | None, Field(default=None, alias="endDate")]
     workplace: Annotated[str | None, Field(default=None, alias="name")]
-    address: str | None = None
-    position: str
+    address: Annotated[str | None, Field(None, max_length=255)]
+    position: Annotated[str, Field(max_length=255)]
     reason: Annotated[str | None, Field(default=None, alias="fireReason")]
     item: Literal["workplaces"] = "workplaces"
 
@@ -259,7 +239,7 @@ class Affilation(Items):
     """Affilations schema."""
 
     view: Annotated[str | None, Field(default=None, alias="organizationType")]
-    organization: str = Field(alias="name")
+    organization: Annotated[str, Field(alias="name")]
     inn: str | None = None
     item: Literal["affilations"] = "affilations"
 
@@ -311,19 +291,25 @@ class Inquiry(Items):
     item: Literal["inquiries"]
 
 
-class AnketaJson(PersonIn):
+class AnketaJson(Person):
     """Candidate anketa schema."""
 
     email: Annotated[str | None, Field(pattern=email_pattern)]
     department: str | None = None
-    position: str = Field(alias="positionName")
+    position: Annotated[str, Field(alias="positionName", max_length=255)]
     series: Annotated[str | None, Field(default=None, alias="passportSerial")]
-    digits: str = Field(alias="passportNumber")
-    issue: date | None = Field(default=None, alias="passportIssueDate")
-    agency: Annotated[str | None, Field(default=None, alias="passportIssuedBy")]
-    valid_address: str = Field(alias="validAddress")
-    reg_address: str = Field(alias="regAddress")
-    contact_phone: str = Field(alias="contactPhone")
+    digits: Annotated[str, Field(alias="passportNumber", max_length=12)]
+    issue: Annotated[
+        date | None,
+        Field(default=None, alias="passportIssueDate"),
+    ]
+    agency: Annotated[
+        str | None,
+        Field(default=None, alias="passportIssuedBy", max_length=255),
+    ]
+    valid_address: Annotated[str, Field(alias="validAddress", max_length=255)]
+    reg_address: Annotated[str, Field(alias="regAddress", max_length=255)]
+    contact_phone: Annotated[str, Field(alias="contactPhone", max_length=255)]
     education: list[Education] = []
     experience: list[Workplace] = []
     organizations: list[Affilation] = []

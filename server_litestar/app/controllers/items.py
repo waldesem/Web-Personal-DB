@@ -57,7 +57,7 @@ class ItemsController(Controller):
     @post(
         "/{item:str}/{person_id:int}",
         guards=[role_guard],
-        opt={"roles": Roles.user.value},
+        opt={"role": Roles.user.value},
     )
     async def post_item(
         self,
@@ -85,7 +85,7 @@ class ItemsController(Controller):
     @delete(
         "/{item:str}/{item_id:int}",
         guards=[role_guard],
-        opt={"roles": Roles.user.value},
+        opt={"role": Roles.user.value},
     )
     async def delete_item(
         self,

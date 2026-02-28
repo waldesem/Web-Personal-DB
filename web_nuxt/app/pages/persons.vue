@@ -67,7 +67,6 @@ onChange(async (files) => {
     person_id: string;
     exists: boolean;
   };
-  console.log(person_id, exists);
   proceedSubmit(person_id, exists);
 });
 
@@ -108,19 +107,8 @@ async function proceedSubmit(person_id: string, exists: boolean) {
 const columns: TableColumn<Candidate>[] = [
   { accessorKey: "id", header: "#" },
   {
-    accessorKey: "surname",
-    header: "Фамилия",
-  },
-  {
-    accessorKey: "firstname",
-    header: "Имя",
-  },
-  {
-    accessorKey: "patronymic",
-    header: "Отчество",
-    cell: ({ row }) => {
-      return row.original.patronymic ?? "";
-    },
+    accessorKey: "fullname",
+    header: "Фамилия Имя Отчество",
   },
   {
     accessorKey: "birthday",

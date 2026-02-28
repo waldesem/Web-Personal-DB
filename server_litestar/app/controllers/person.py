@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.classes.classes import Roles
 from app.depends.auth import role_guard
-from app.models.models import AnketaJson, PersonIn, PersonOut, User
+from app.models.models import AnketaJson, Person, User
 from app.tables.tables import (
     Addresses,
     Affilations,
@@ -47,7 +47,7 @@ class PersonController(Controller):
     @classmethod
     async def upload_resume(
         cls,
-        cand: PersonIn,
+        cand: Person,
         user_id: int | None,
         db_session: AsyncSession,
     ) -> tuple[int | None, bool]:
@@ -86,17 +86,17 @@ class PersonController(Controller):
         self,
         person_id: int,
         db_session: AsyncSession,
-    ) -> PersonOut:
+    ) -> Person:
         """Retrieve an item from the database based on the provided item ID."""
         person = await db_session.get(Persons, person_id)
         if person and not person.destination:
             person.destination = self.create_destination(person)
-        return PersonOut.model_validate(person)
+        return Person.model_validate(person)
 
-    @post("/", guards=[role_guard], opt={"roles": Roles.user.value})
+    @post("/", guards=[role_guard], opt={"role": Roles.user.value})
     async def post_person(
         self,
-        data: PersonIn,
+        data: Person,
         request: Request[User, Token, Any],
         db_session: AsyncSession,
     ) -> dict:
@@ -107,7 +107,7 @@ class PersonController(Controller):
     @patch(
         "/status/{person_id:int}",
         guards=[role_guard],
-        opt={"roles": Roles.user.value},
+        opt={"role": Roles.user.value},
         status_code=201,
     )
     async def switch_status(
@@ -126,14 +126,14 @@ class PersonController(Controller):
     @delete(
         "/{person_id:int}",
         guards=[role_guard],
-        opt={"roles": Roles.user.value},
+        opt={"role": Roles.user.value},
     )
     async def delete_person(self, person_id: int, db_session: AsyncSession) -> None:
         """Delete an item from the database with provided item name and item ID."""
         person = await db_session.get(Persons, person_id)
         db_session.delete(person)
 
-    @post("/json", guards=[role_guard], opt={"roles": Roles.user.value})
+    @post("/json", guards=[role_guard], opt={"role": Roles.user.value})
     async def post_json_file(
         self,
         data: AnketaJson,
@@ -141,7 +141,7 @@ class PersonController(Controller):
         request: Request[User, Token, Any],
     ) -> dict:
         """Create a new person or updates an existing person from file."""
-        resume = PersonIn(**data.model_dump())
+        resume = Person(**data.model_dump(exclude={"id", "created_at", "updated_at"}))
         # Загрузка резюме в БД
         cand_id, existed = await self.upload_resume(resume, request.user.id, db_session)
 
@@ -182,21 +182,27 @@ class PersonController(Controller):
                 ),
                 *[
                     Educations(
-                        **education.model_dump(exclude={"item"}),
+                        **education.model_dump(
+                            exclude={"id", "item", "created_at", "updated_at"},
+                        ),
                         person_id=cand_id,
                     )
                     for education in data.education
                 ],
                 *[
                     Workplaces(
-                        **workplace.model_dump(exclude={"item"}),
+                        **workplace.model_dump(
+                            exclude={"id", "item", "created_at", "updated_at"},
+                        ),
                         person_id=cand_id,
                     )
                     for workplace in data.experience
                 ],
                 *[
                     Previous(
-                        **prev.model_dump(exclude={"item"}),
+                        **prev.model_dump(
+                            exclude={"id", "item", "created_at", "updated_at"},
+                        ),
                         person_id=cand_id,
                     )
                     for prev in data.name_was_changed

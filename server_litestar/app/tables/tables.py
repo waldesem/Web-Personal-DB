@@ -2,13 +2,13 @@
 
 from datetime import UTC, datetime
 
-from advanced_alchemy.types import DateTimeUTC
-from litestar.plugins.sqlalchemy import (
-    BigIntAuditBase,
+from advanced_alchemy.base import BigIntAuditBase
+from advanced_alchemy.extensions.litestar import (
     SQLAlchemyAsyncConfig,
     SQLAlchemyInitPlugin,
     async_autocommit_before_send_handler,
 )
+from advanced_alchemy.types import DateTimeUTC
 from sqlalchemy import (
     Boolean,
     Date,
@@ -32,7 +32,10 @@ class Users(BigIntAuditBase):
     fullname: Mapped[str] = mapped_column(String(255), nullable=False)
     username: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     email: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
-    passhash: Mapped[str] = mapped_column(String(255), default=generate_password_hash())
+    passhash: Mapped[str] = mapped_column(
+        String(255),
+        default_factory=lambda: generate_password_hash(),
+    )
     pswd_create: Mapped[datetime] = mapped_column(
         DateTimeUTC(timezone=True),
         default=lambda: datetime.now(UTC),

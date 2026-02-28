@@ -24,7 +24,7 @@ def role_guard(
     route_handler: BaseRouteHandler,
 ) -> None:
     """Check if the user has the required role."""
-    if connection.user.role != route_handler.opt.get("roles"):
+    if connection.user.role != route_handler.opt.get("role"):
         raise NotAuthorizedException
 
 

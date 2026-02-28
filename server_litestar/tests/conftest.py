@@ -25,7 +25,9 @@ async def create_tokens(test_client: AsyncTestClient[Litestar]) -> Tokens | None
         },
     )
     resp = response.json()
-    return Tokens(**resp)
+    if resp.pop("message") == "success":
+        return Tokens(**resp)
+    return None
 
 
 @pytest_asyncio.fixture(scope="session")
@@ -40,12 +42,13 @@ async def test_auth_client() -> AsyncIterator[AsyncTestClient[Litestar]]:
         if tokens := await create_tokens(client):
             client.headers = {"Authorization": tokens.access_token}
             yield client
-        raise InternalServerException
+        else:
+            raise InternalServerException
 
 
 @pytest_asyncio.fixture(scope="function")
-async def test_token() -> Tokens:
+async def test_token() -> Tokens | None:
     async with AsyncTestClient(app=app) as client:
         if tokens := await create_tokens(client):
             return tokens
-        raise InternalServerException
+        return None
