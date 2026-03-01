@@ -17,6 +17,7 @@ app.openapi_config = None
 
 
 async def create_tokens(test_client: AsyncTestClient[Litestar]) -> Tokens | None:
+    """Create tokens for testing."""
     response = await test_client.post(
         "/routes/auth/login",
         json={
@@ -25,19 +26,21 @@ async def create_tokens(test_client: AsyncTestClient[Litestar]) -> Tokens | None
         },
     )
     resp = response.json()
-    if resp.pop("message") == "success":
+    if resp and resp.pop("message", None) == "success":
         return Tokens(**resp)
     return None
 
 
 @pytest_asyncio.fixture(scope="session")
 async def test_client() -> AsyncIterator[AsyncTestClient[Litestar]]:
+    """Test client."""
     async with AsyncTestClient(app=app) as client:
         yield client
 
 
 @pytest_asyncio.fixture(scope="session")
 async def test_auth_client() -> AsyncIterator[AsyncTestClient[Litestar]]:
+    """Test client."""
     async with AsyncTestClient(app=app) as client:
         if tokens := await create_tokens(client):
             client.headers = {"Authorization": tokens.access_token}
@@ -48,6 +51,7 @@ async def test_auth_client() -> AsyncIterator[AsyncTestClient[Litestar]]:
 
 @pytest_asyncio.fixture(scope="function")
 async def test_token() -> Tokens | None:
+    """Test token."""
     async with AsyncTestClient(app=app) as client:
         if tokens := await create_tokens(client):
             return tokens

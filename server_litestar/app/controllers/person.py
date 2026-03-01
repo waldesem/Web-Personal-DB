@@ -39,7 +39,7 @@ class PersonController(Controller):
             "Главный офис",
             person.surname[0],
             (
-                f"{person.id}-{person.surname} {person.firstname} {person.patronymic}"
+                f"{person.id}-{person.surname} {person.firstname} {person.patronymic or ''}"  # noqa: E501
             ).rstrip(),
         )
         destination.mkdir(parents=True, exist_ok=True)

@@ -4,17 +4,17 @@ from __future__ import annotations
 
 import secrets
 from datetime import UTC, datetime, timedelta
-from typing import Any, Literal
+from typing import Any
 
 from litestar import Controller, Request, Response, get, post
 from litestar.di import Provide
-from litestar.exceptions import NotAuthorizedException, NotFoundException
+from litestar.exceptions import NotAuthorizedException
 from litestar.security.jwt import Token
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.depends.auth import get_current_user, jwt_auth, token_store
-from app.models.models import Login, User
+from app.models.models import AuthLogin, AuthResponse, UpdateLogin, User
 from app.tables.tables import Users
 from app.utils.security import check_password_hash, generate_password_hash
 from constants import (
@@ -41,14 +41,12 @@ class AuthController(Controller):
 
     path = "/auth"
 
-    @post("/{action:str}")
-    async def post_login(
-        self,
-        action: Literal["login", "update"],
-        data: Login,
+    @staticmethod
+    async def check_user(
         db_session: AsyncSession,
-    ) -> dict:
-        """Handle the login process."""
+        data: AuthLogin | UpdateLogin,
+    ) -> Users | None:
+        """Check user."""
         user = (
             await db_session.execute(
                 select(Users).filter_by(username=data.username),
@@ -56,24 +54,30 @@ class AuthController(Controller):
         ).scalar_one_or_none()
 
         if not user or user.blocked or user.deleted:
-            return {"message": "invalid"}
+            return None
 
         if not check_password_hash(user.passhash, data.password):
             if user.attempt < 5:
                 user.attempt += 1
             else:
                 user.blocked = True
-            return {"message": "invalid"}
+            return None
 
-        if action == "update" and data.new_pswd:
-            user.passhash = generate_password_hash(data.new_pswd)
-            user.pswd_create = datetime.now(tz=UTC)
-            user.change_pswd = False
-            user.attempt = 0
-            return {"message": "updated"}
+        return user
 
-        delta_change = datetime.now(UTC) - user.pswd_create
-        if not user.change_pswd and delta_change.days < 365:
+    @post("/login")
+    async def post_login_auth(
+        self,
+        data: AuthLogin,
+        db_session: AsyncSession,
+    ) -> AuthResponse:
+        """Handle the login process."""
+        if user := await self.check_user(db_session, data):
+            delta_change = datetime.now(UTC) - user.pswd_create
+
+            if user.change_pswd or delta_change.days > 365:
+                return AuthResponse(message="denied")
+
             user.attempt = 0
             refresh = Token(
                 exp=datetime.now(tz=UTC) + timedelta(minutes=REFRESH_SECRET_KEY_LIVE),
@@ -81,9 +85,9 @@ class AuthController(Controller):
                 sub=str(user.id),
                 iat=datetime.now(tz=UTC),
             )
-            return {
-                "message": "success",
-                "access_token": f"Bearer {
+            return AuthResponse(
+                message="success",
+                access_token=f"Bearer {
                     jwt_auth.create_token(
                         identifier=str(user.id),
                         token_unique_jwt_id=secrets.token_hex(10),
@@ -92,14 +96,29 @@ class AuthController(Controller):
                         ),
                     )
                 }",
-                "refresh_token": f"Bearer {
+                refresh_token=f"Bearer {
                     refresh.encode(
                         REFRESH_SECRET_KEY,
                         algorithm='HS256',
                     )
                 }",
-            }
-        return {"message": "denied"}
+            )
+        raise NotAuthorizedException
+
+    @post("/update")
+    async def post_login(
+        self,
+        data: UpdateLogin,
+        db_session: AsyncSession,
+    ) -> AuthResponse:
+        """Handle the login process."""
+        if user := await self.check_user(db_session, data):
+            user.passhash = generate_password_hash(data.new_pswd)
+            user.pswd_create = datetime.now(tz=UTC)
+            user.change_pswd = False
+            user.attempt = 0
+            return AuthResponse(message="updated")
+        raise NotAuthorizedException
 
     @post("/logout", dependencies={"refresh": Provide(decode_token)})
     async def logout(self, request: Request[User, Token, Any], refresh: Token) -> None:
@@ -138,11 +157,10 @@ class AuthController(Controller):
         self,
         request: Request[User, Token, Any],
         db_session: AsyncSession,
-    ) -> User | Exception:
+    ) -> User:
         """Retrieve an item from the database based on the provided item ID."""
         if not request.user or not isinstance(request.user.id, int):
             raise NotAuthorizedException
-        current_user = await get_current_user(request.user.id, db_session)
-        if not current_user:
-            raise NotFoundException
-        return current_user
+        if current_user := await get_current_user(request.user.id, db_session):
+            return current_user
+        raise NotAuthorizedException

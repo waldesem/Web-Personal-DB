@@ -21,12 +21,28 @@ email_pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
 name_pattern = r"^[А-яЁёIV\-\s\.\,\'\(\)]*$"
 
 
-class Login(BaseModel):
+class AuthResponse(BaseModel):
+    """Tokens."""
+
+    message: str
+    access_token: str | None = None
+    refresh_token: str | None = None
+
+
+class AuthLogin(BaseModel):
     """Pydantic model for login form."""
 
     username: Annotated[str, Field(max_length=255), AfterValidator(lambda v: v.lower())]
     password: Annotated[str, Field(max_length=255)]
-    new_pswd: Annotated[str | None, Field(None, max_length=255)]
+
+
+class UpdateLogin(AuthLogin):
+    """Pydantic model for login form."""
+
+    new_pswd: Annotated[
+        str,
+        Field(max_length=255, pattern=r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,16}$"),
+    ]
 
 
 class UserForm(BaseModel):
