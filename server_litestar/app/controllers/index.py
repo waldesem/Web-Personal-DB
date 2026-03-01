@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from advanced_alchemy.base import BigIntAuditBase
 from litestar import get
 from pydantic import TypeAdapter
 from sqlalchemy import func, select
@@ -17,9 +16,12 @@ ta = TypeAdapter(list[Candidates])
 @get("/candidates")
 async def get_candidates(query: Index, db_session: AsyncSession) -> list[Candidates]:
     """Retrieve a paginated list of persons from the database."""
-    tables = BigIntAuditBase.metadata.tables
     stmt = select(
-        tables["persons"],
+        Persons.surname,
+        Persons.firstname,
+        Persons.patronymic,
+        Persons.birthday,
+        Persons.editable,
         Users.fullname.label("username"),
         func.count().over().label("total"),
     )
@@ -29,7 +31,7 @@ async def get_candidates(query: Index, db_session: AsyncSession) -> list[Candida
             stmt = stmt.filter(Persons.firstname == query.search[1])
             if len(query.search) > 2:
                 stmt = stmt.filter(Persons.patronymic == query.search[2])
-    # Пагинация списка кандидатов
+
     candidates = (
         await db_session.execute(
             stmt.filter(Users.id == Persons.user_id)

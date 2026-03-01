@@ -12,7 +12,7 @@ from pydantic import ValidationError
 from rich import print as rprint
 
 from app.classes.classes import ItemCategory
-from app.models.models import ItemModel, PersonOut, User
+from app.models.models import ItemModel, Person, User
 from app.tables.tables import Persons, Users, config
 
 if TYPE_CHECKING:
@@ -56,7 +56,7 @@ async def migrate(path: str) -> None:
             for person in persons:
                 persona = dict(person)
                 persona["created_at"] = persona.pop("created")
-                new_person = PersonOut(**persona).model_dump(exclude={"id"})
+                new_person = Person(**persona).model_dump(exclude={"id"})
                 new_person["updated_at"] = new_person["created_at"] = _check_tz(
                     new_person["created_at"],
                 )

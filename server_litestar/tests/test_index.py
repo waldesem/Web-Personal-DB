@@ -11,7 +11,7 @@ async def test_candidates(test_auth_client: AsyncTestClient[Litestar]) -> None:
         params={
             "page": 1,
             "per_page": 10,
-            "search": "sdcsacdas",
+            "search": "",
         },
     )
     assert resp.status_code == HTTP_200_OK

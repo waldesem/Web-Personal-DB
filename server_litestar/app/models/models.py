@@ -142,6 +142,31 @@ class Person(Share):
             return inn
         raise ValidationError
 
+    @field_validator("snils", mode="after")
+    @classmethod
+    def validate_snils(cls, snils: str) -> str:
+        """Check snils."""
+        # Получаем первые 9 цифр и контрольное число (последние 2)
+        digits = [int(d) for d in snils]
+        main_part = digits[:9]
+        check_sum = int(snils[9:])
+
+        # Вычисляем контрольную сумму
+        sum_prod = sum(main_part[i] * (9 - i) for i in range(9))
+
+        # Алгоритм проверки контрольного числа
+        calculated_sum = 0
+        if sum_prod < 100:
+            calculated_sum = sum_prod
+        elif sum_prod in {100, 101}:
+            calculated_sum = 0
+        else:
+            remainder = sum_prod % 101
+            calculated_sum = 0 if remainder == 100 else remainder
+        if calculated_sum == check_sum:
+            return snils
+        raise ValidationError
+
 
 class Candidates(Share):
     """Pydantic model for candidates."""
@@ -336,25 +361,37 @@ class AnketaJson(Person):
         str,
         Field(validation_alias="contactPhone", max_length=255),
     ]
-    education: list[Education] = []
-    experience: list[Workplace] = []
-    organizations: list[Affilation] = []
-    name_was_changed: list[Prev] = Field(
-        default=[],
-        validation_alias="nameWasChanged",
-    )
-    related_organizations: list[Affilation] = Field(
-        default=[],
-        validation_alias="relatedPersonsOrganizations",
-    )
-    state_organizations: list[Affilation] = Field(
-        default=[],
-        validation_alias="stateOrganizations",
-    )
-    public_organizations: list[Affilation] = Field(
-        default=[],
-        validation_alias="publicOfficeOrganizations",
-    )
+    education: Annotated[list[Education], Field([])]
+    experience: Annotated[list[Workplace], Field([])]
+    organizations: Annotated[list[Affilation], Field([])]
+    name_was_changed: Annotated[
+        list[Prev],
+        Field(
+            default=[],
+            validation_alias="nameWasChanged",
+        ),
+    ]
+    related_organizations: Annotated[
+        list[Affilation],
+        Field(
+            default=[],
+            validation_alias="relatedPersonsOrganizations",
+        ),
+    ]
+    state_organizations: Annotated[
+        list[Affilation],
+        Field(
+            default=[],
+            validation_alias="stateOrganizations",
+        ),
+    ]
+    public_organizations: Annotated[
+        list[Affilation],
+        Field(
+            default=[],
+            validation_alias="publicOfficeOrganizations",
+        ),
+    ]
 
 
 class ItemModel(BaseModel):

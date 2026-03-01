@@ -4,7 +4,7 @@ import asyncio
 
 import typer
 from advanced_alchemy.base import BigIntAuditBase
-from rich import print  # noqa: A004
+from rich import print as rprint
 from sqlalchemy import select
 
 from app.classes.classes import Roles
@@ -32,11 +32,11 @@ async def create(fullname: str, username: str, email: str, role: Roles) -> None:
             )
         ).scalar()
         if user:
-            print(f"User {username} already exists or email is taken")
+            rprint(f"User {username} already exists or email is taken")
         else:
             db_session.add(Users(**data.model_dump()))
             await db_session.commit()
-            print(f"User {username} created")
+            rprint(f"User {username} created")
 
 
 @app.command()
