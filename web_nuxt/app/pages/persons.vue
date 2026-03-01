@@ -107,8 +107,19 @@ async function proceedSubmit(person_id: string, exists: boolean) {
 const columns: TableColumn<Candidate>[] = [
   { accessorKey: "id", header: "#" },
   {
-    accessorKey: "fullname",
-    header: "Фамилия Имя Отчество",
+    accessorKey: "surname",
+    header: "Фамилия",
+  },
+  {
+    accessorKey: "firstname",
+    header: "Имя",
+  },
+  {
+    accessorKey: "patronymic",
+    header: "Отчество",
+    cell: ({ row }) => {
+      return row.getValue("patronymic") ?? "";
+    },
   },
   {
     accessorKey: "birthday",

@@ -34,7 +34,7 @@ class Users(BigIntAuditBase):
     email: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     passhash: Mapped[str] = mapped_column(
         String(255),
-        default_factory=lambda: generate_password_hash(),
+        default=lambda: generate_password_hash(),
     )
     pswd_create: Mapped[datetime] = mapped_column(
         DateTimeUTC(timezone=True),

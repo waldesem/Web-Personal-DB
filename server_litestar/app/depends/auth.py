@@ -37,7 +37,7 @@ async def get_current_user(user_id: int, session: AsyncSession) -> User | None:
         and not user.change_pswd
         and user.pswd_create + timedelta(days=365) > datetime.now(tz=UTC)
     ):
-        return User.model_validate(user)
+        return User.model_validate(user, from_attributes=True)
     return None
 
 

@@ -2,7 +2,7 @@
 
 from advanced_alchemy.base import BigIntAuditBase
 from litestar import Controller, delete, get, post
-from sqlalchemy import func, label, select
+from sqlalchemy import label, literal, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.classes.classes import ItemCategory, Roles
@@ -25,12 +25,12 @@ class ItemsController(Controller):
         """Retrieve an item from the database based on the provided item."""
         table = ItemsController.tables[item]
         stmt = (
-            select(table, label("item", func.str(item)))
+            select(table, label("item", literal(item)))
             .filter(table.c.person_id == person_id)
             .order_by(table.c.id.desc())
         )
         items = (await db_session.execute(stmt)).all()
-        return ItemsModel.model_validate({"item": items}).items
+        return ItemsModel.model_validate({"items": items}, from_attributes=True).items
 
     @get("/{person_id:int}")
     async def get_items(

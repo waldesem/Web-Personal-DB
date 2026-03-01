@@ -17,7 +17,7 @@ TEST_DIR = "../../XData"
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "person_id",
-    list(range(len(ItemCategory))),
+    [1],
 )
 async def test_get_person(
     test_auth_client: AsyncTestClient[Litestar],

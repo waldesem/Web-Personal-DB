@@ -11,24 +11,14 @@ from pydantic import (
     BeforeValidator,
     ConfigDict,
     Field,
-    computed_field,
+    ValidationError,
+    field_validator,
 )
 
 from app.classes.classes import Conclusions, Decisions, Roles
 
 email_pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
 name_pattern = r"^[А-яЁёIV\-\s\.\,\'\(\)]*$"
-
-
-class Model(BaseModel):
-    """Base Pydantic model."""
-
-    model_config = ConfigDict(
-        validate_by_name=True,
-        str_strip_whitespace=True,
-        from_attributes=True,
-        use_enum_values=True,
-    )
 
 
 class Login(BaseModel):
@@ -39,13 +29,15 @@ class Login(BaseModel):
     new_pswd: Annotated[str | None, Field(None, max_length=255)]
 
 
-class UserForm(Model):
+class UserForm(BaseModel):
     """Pydantic model for user form."""
 
     fullname: Annotated[str, Field(max_length=255)]
     username: Annotated[str, Field(max_length=255), AfterValidator(lambda v: v.lower())]
     email: Annotated[str, Field(pattern=email_pattern)]
     role: Annotated[Roles, Field(Roles.guest)]
+
+    model_config = ConfigDict(str_strip_whitespace=True, use_enum_values=True)
 
 
 class Session(UserForm):
@@ -54,10 +46,9 @@ class Session(UserForm):
     id: int
 
 
-class User(UserForm):
+class User(Session):
     """Pydantic model for user form."""
 
-    id: int | None
     pswd_create: datetime
     change_pswd: bool
     blocked: bool
@@ -67,10 +58,12 @@ class User(UserForm):
     updated_at: datetime | None
 
 
-class Actions(Model):
+class Actions(BaseModel):
     """Pydantic model for user actions form."""
 
     item: Literal["reset", "block", "delete"] | Roles
+
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class Index(BaseModel):
@@ -85,54 +78,72 @@ class Index(BaseModel):
     ]
 
 
-class Items(Model):
-    """Pydantic model for items."""
+class Share(BaseModel):
+    """Pydantic model for Share."""
 
     id: Annotated[int | None, Field(None)]
     created_at: Annotated[datetime | None, Field(None)]
     updated_at: Annotated[datetime | None, Field(None)]
 
+    model_config = ConfigDict(
+        validate_by_name=True,
+        str_strip_whitespace=True,
+        use_enum_values=True,
+    )
 
-class Person(Items):
+
+class Person(Share):
     """Person schema."""
 
     surname: Annotated[
         str,
-        Field(alias="lastName", pattern=name_pattern),
+        Field(validation_alias="lastName", pattern=name_pattern),
         AfterValidator(lambda v: v.upper()),
     ]
     firstname: Annotated[
         str,
-        Field(alias="firstName", pattern=name_pattern),
+        Field(validation_alias="firstName", pattern=name_pattern),
         AfterValidator(lambda v: v.upper()),
     ]
     patronymic: Annotated[
         str | None,
-        Field(default=None, alias="midName"),
+        Field(default=None, validation_alias="midName"),
         AfterValidator(lambda v: v.upper() if v else None),
     ]
     birthday: date
     birthplace: Annotated[str | None, Field(None, max_length=255)]
     citizenship: Annotated[
         str | None,
-        Field(default=None, alias="citizen", max_length=255),
+        Field(default=None, validation_alias="citizen", max_length=255),
     ]
     dual: Annotated[
         str | None,
-        Field(default=None, alias="additionalCitizenship", max_length=255),
+        Field(default=None, validation_alias="additionalCitizenship", max_length=255),
     ]
     snils: Annotated[str | None, Field(default=None, max_length=11)]
     inn: Annotated[str | None, Field(default=None, max_length=12)]
     marital: Annotated[
         str | None,
-        Field(default=None, alias="maritalStatus", max_length=255),
+        Field(default=None, validation_alias="maritalStatus", max_length=255),
     ]
     addition: str | None = None
     destination: str | None = None
     editable: bool | None = True
 
+    @field_validator("inn", mode="after")
+    @classmethod
+    def validate_inn(cls, inn: str) -> str:
+        """Check inn."""
+        c1 = [7, 2, 4, 10, 3, 5, 9, 4, 6, 8, 0, 0]
+        c2 = [3, 7, 2, 4, 10, 3, 5, 9, 4, 6, 8, 0]
+        check1 = sum([int(inn[i]) * c1[i] for i in range(12)]) % 11 % 10
+        check2 = sum([int(inn[i]) * c2[i] for i in range(12)]) % 11 % 10
+        if check1 == int(inn[10]) and check2 == int(inn[11]):
+            return inn
+        raise ValidationError
 
-class Candidates(Items):
+
+class Candidates(Share):
     """Pydantic model for candidates."""
 
     surname: str
@@ -143,51 +154,45 @@ class Candidates(Items):
     username: str
     total: int
 
-    @computed_field
-    @property
-    def fullname(self) -> str:
-        """Compute field."""
-        return f"{self.surname} {self.firstname} {self.patronymic or ''}".rstrip()
 
-
-class Prev(Items):
+class Prev(Share):
     """Previous schema."""
 
-    surname: str = Field(alias="lastNameBeforeChange", max_length=255)
+    surname: str = Field(validation_alias="lastNameBeforeChange", max_length=255)
     firstname: Annotated[
         str | None,
-        Field(default=None, alias="firstNameBeforeChange", max_length=255),
+        Field(default=None, validation_alias="firstNameBeforeChange", max_length=255),
     ]
     patronymic: Annotated[
         str | None,
-        Field(default=None, alias="midNameBeforeChange", max_length=255),
+        Field(default=None, validation_alias="midNameBeforeChange", max_length=255),
     ]
     changed: Annotated[
         str | None,
-        Field(default=None, alias="yearOfChange", max_length=4),
+        Field(default=None, validation_alias="yearOfChange", max_length=4),
     ]
     reason: str | None = None
     item: Literal["previous"] = "previous"
 
 
-class Education(Items):
+class Education(Share):
     """Educations schema."""
 
     view: Annotated[
         str | None,
-        Field(default=None, alias="educationType", max_length=255),
+        Field(default=None, validation_alias="educationType", max_length=255),
     ]
-    institution: Annotated[str, Field(alias="institutionName")]
+    institution: Annotated[str, Field(validation_alias="institutionName")]
     finished: Annotated[
         str | None,
-        Field(default=None, alias="endYear"),
+        Field(default=None, validation_alias="endYear"),
         BeforeValidator(lambda v: str(v)),
     ]
     specialty: str | None = None
     item: Literal["educations"] = "educations"
 
 
-class Staff(Items):
+class Staff(Share):
     """Staffs schema."""
 
     position: str
@@ -195,18 +200,24 @@ class Staff(Items):
     item: Literal["staffs"]
 
 
-class Document(Items):
+class Document(Share):
     """Documents schema."""
 
-    view: Annotated[str | None, Field(default="Паспорт", alias="documentType")]
+    view: Annotated[
+        str | None,
+        Field(default="Паспорт", validation_alias="documentType"),
+    ]
     series: str | None = None
     digits: Annotated[str, Field(max_length=12)]
-    agency: Annotated[str | None, Field(default=None, alias="endYear", max_length=255)]
+    agency: Annotated[
+        str | None,
+        Field(default=None, validation_alias="endYear", max_length=255),
+    ]
     issue: date | None = None
     item: Literal["documents"]
 
 
-class Address(Items):
+class Address(Share):
     """Addresses schema."""
 
     view: Annotated[str, Field(max_length=255)]
@@ -214,7 +225,7 @@ class Address(Items):
     item: Literal["addresses"]
 
 
-class Contact(Items):
+class Contact(Share):
     """Contacts schema."""
 
     view: Annotated[str, Field(max_length=255)]
@@ -222,29 +233,35 @@ class Contact(Items):
     item: Literal["contacts"]
 
 
-class Workplace(Items):
+class Workplace(Share):
     """Workplaces schema."""
 
-    now_work: Annotated[bool | None, Field(default=False, alias="currentJob")]
-    starts: Annotated[date | None, Field(alias="beginDate")]
-    finished: Annotated[date | None, Field(default=None, alias="endDate")]
-    workplace: Annotated[str | None, Field(default=None, alias="name")]
+    now_work: Annotated[
+        bool | None,
+        Field(default=False, validation_alias="currentJob"),
+    ]
+    starts: Annotated[date | None, Field(validation_alias="beginDate")]
+    finished: Annotated[date | None, Field(default=None, validation_alias="endDate")]
+    workplace: Annotated[str | None, Field(default=None, validation_alias="name")]
     address: Annotated[str | None, Field(None, max_length=255)]
     position: Annotated[str, Field(max_length=255)]
-    reason: Annotated[str | None, Field(default=None, alias="fireReason")]
+    reason: Annotated[str | None, Field(default=None, validation_alias="fireReason")]
     item: Literal["workplaces"] = "workplaces"
 
 
-class Affilation(Items):
+class Affilation(Share):
     """Affilations schema."""
 
-    view: Annotated[str | None, Field(default=None, alias="organizationType")]
-    organization: Annotated[str, Field(alias="name")]
+    view: Annotated[
+        str | None,
+        Field(default=None, validation_alias="organizationType"),
+    ]
+    organization: Annotated[str, Field(validation_alias="name")]
     inn: str | None = None
     item: Literal["affilations"] = "affilations"
 
 
-class Check(Items):
+class Check(Share):
     """Checks schema."""
 
     workplace: str | None = None
@@ -266,7 +283,7 @@ class Check(Items):
     item: Literal["checks"]
 
 
-class Poligraf(Items):
+class Poligraf(Share):
     """Poligraf schema."""
 
     theme: str
@@ -275,7 +292,7 @@ class Poligraf(Items):
     item: Literal["poligrafs"]
 
 
-class Investigation(Items):
+class Investigation(Share):
     """Investigations schema."""
 
     theme: str
@@ -283,7 +300,7 @@ class Investigation(Items):
     item: Literal["investigations"]
 
 
-class Inquiry(Items):
+class Inquiry(Share):
     """Inquiries schema."""
 
     info: str
@@ -296,38 +313,47 @@ class AnketaJson(Person):
 
     email: Annotated[str | None, Field(pattern=email_pattern)]
     department: str | None = None
-    position: Annotated[str, Field(alias="positionName", max_length=255)]
-    series: Annotated[str | None, Field(default=None, alias="passportSerial")]
-    digits: Annotated[str, Field(alias="passportNumber", max_length=12)]
+    position: Annotated[str, Field(validation_alias="positionName", max_length=255)]
+    series: Annotated[
+        str | None,
+        Field(default=None, validation_alias="passportSerial"),
+    ]
+    digits: Annotated[str, Field(validation_alias="passportNumber", max_length=12)]
     issue: Annotated[
         date | None,
-        Field(default=None, alias="passportIssueDate"),
+        Field(default=None, validation_alias="passportIssueDate"),
     ]
     agency: Annotated[
         str | None,
-        Field(default=None, alias="passportIssuedBy", max_length=255),
+        Field(default=None, validation_alias="passportIssuedBy", max_length=255),
     ]
-    valid_address: Annotated[str, Field(alias="validAddress", max_length=255)]
-    reg_address: Annotated[str, Field(alias="regAddress", max_length=255)]
-    contact_phone: Annotated[str, Field(alias="contactPhone", max_length=255)]
+    valid_address: Annotated[
+        str,
+        Field(validation_alias="validAddress", max_length=255),
+    ]
+    reg_address: Annotated[str, Field(validation_alias="regAddress", max_length=255)]
+    contact_phone: Annotated[
+        str,
+        Field(validation_alias="contactPhone", max_length=255),
+    ]
     education: list[Education] = []
     experience: list[Workplace] = []
     organizations: list[Affilation] = []
     name_was_changed: list[Prev] = Field(
         default=[],
-        alias="nameWasChanged",
+        validation_alias="nameWasChanged",
     )
     related_organizations: list[Affilation] = Field(
         default=[],
-        alias="relatedPersonsOrganizations",
+        validation_alias="relatedPersonsOrganizations",
     )
     state_organizations: list[Affilation] = Field(
         default=[],
-        alias="stateOrganizations",
+        validation_alias="stateOrganizations",
     )
     public_organizations: list[Affilation] = Field(
         default=[],
-        alias="publicOfficeOrganizations",
+        validation_alias="publicOfficeOrganizations",
     )
 
 
@@ -351,6 +377,6 @@ class ItemModel(BaseModel):
 
 
 class ItemsModel(BaseModel):
-    """Base model for items list."""
+    """Base model for Share list."""
 
     items: list[ItemModel]

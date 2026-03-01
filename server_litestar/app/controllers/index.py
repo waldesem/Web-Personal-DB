@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.models import Candidates, Index
 from app.tables.tables import Persons, Users
 
-adapter = TypeAdapter(list[Candidates])
+ta = TypeAdapter(list[Candidates])
 
 
 @get("/candidates")
@@ -38,4 +38,4 @@ async def get_candidates(query: Index, db_session: AsyncSession) -> list[Candida
             .limit(query.per_page),
         )
     ).all()
-    return adapter.validate_python(candidates)
+    return ta.validate_python(candidates, from_attributes=True)

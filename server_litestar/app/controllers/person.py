@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 
 from litestar import Controller, Request, delete, get, patch, post
+from litestar.exceptions import NotFoundException
 from litestar.security.jwt import Token
 from sqlalchemy import not_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -89,9 +90,11 @@ class PersonController(Controller):
     ) -> Person:
         """Retrieve an item from the database based on the provided item ID."""
         person = await db_session.get(Persons, person_id)
-        if person and not person.destination:
-            person.destination = self.create_destination(person)
-        return Person.model_validate(person)
+        if person:
+            if not person.destination:
+                person.destination = self.create_destination(person)
+            return Person.model_validate(person, from_attributes=True)
+        raise NotFoundException
 
     @post("/", guards=[role_guard], opt={"role": Roles.user.value})
     async def post_person(
