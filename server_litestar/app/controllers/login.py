@@ -134,6 +134,7 @@ class AuthController(Controller):
         return jwt_auth.login(
             identifier=str(request.auth.sub),
             token_unique_jwt_id=secrets.token_hex(10),
+            send_token_as_response_body=True,
         )
 
     @get("/session")

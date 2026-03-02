@@ -11,37 +11,37 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const api = $fetch.create({
     async onRequest({ options }) {
       // Получаем токен доступа
-      const token = useCookie("access", {
+      const access = useCookie("access", {
         maxAge: 60 * 59,
         sameSite: "strict",
         watch: "shallow",
       });
 
       // Если токен доступа не найден, получаем новый токен доступа из API
-      if (!token.value) {
+      if (!access.value) {
         // Получаем токен обновления
         const refresh = useCookie("refresh");
         // Если токен не найден, переходим на страницу логина
         if (!refresh.value) {
           await nuxtApp.runWithContext(() => navigateTo("/login"));
-        }
-
-        try {
-          const res = await $fetch.raw("/routes/auth/refresh", {
-            method: "GET",
-            headers: {
-              Authorization: refresh.value,
-            },
-          });
-          token.value = res.headers?.get("Authorization");
-        } catch (error) {
-          console.error(error);
-          await nuxtApp.runWithContext(() => navigateTo("/login"));
+        } else {
+          try {
+            const { token } = await $fetch<{token: string}>("/routes/auth/refresh", {
+              method: "GET",
+              headers: {
+                Authorization: refresh.value,
+              },
+            });
+            access.value = token;
+          } catch (error) {
+            console.error(error);
+            await nuxtApp.runWithContext(() => navigateTo("/login"));
+          }
         }
       }
 
       // Если токен доступа найден, добавляем его в заголовок запроса
-      options.headers.set("Authorization", token.value as string);
+      options.headers.set("Authorization", access.value as string);
     },
 
     // Обработка ошибок

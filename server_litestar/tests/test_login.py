@@ -3,8 +3,6 @@ from litestar import Litestar
 from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED
 from litestar.testing import AsyncTestClient
 
-from app.classes.classes import Tokens
-
 
 @pytest.mark.asyncio
 async def test_relogin(
@@ -26,26 +24,25 @@ async def test_relogin(
 @pytest.mark.asyncio
 async def test_logout(
     test_client: AsyncTestClient[Litestar],
-    test_token: Tokens,
 ) -> None:
     response = await test_client.post(
         "/routes/auth/logout",
-        headers={"Authorization": test_token.access_token},
-        json={"refresh_token": test_token.refresh_token},
+        json={
+            "refresh_token": "refresh_token",
+            "access_token": "access_token",
+        },
     )
     assert response.status_code == HTTP_201_CREATED
 
 
 @pytest.mark.asyncio
 async def test_refresh(
-    test_client: AsyncTestClient[Litestar],
-    test_token: Tokens,
+    test_auth_client: AsyncTestClient[Litestar],
 ) -> None:
-    response = await test_client.post(
+    response = await test_auth_client.get(
         "/routes/auth/refresh",
-        headers={"Authorization": test_token.access_token},
-        json={"refresh_token": test_token.refresh_token},
     )
+    assert "token"in response.json()
     assert response.status_code == HTTP_201_CREATED
 
 
