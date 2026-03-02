@@ -13,7 +13,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.depends.auth import jwt_auth, jwt_refresh, token_store
-from app.models.models import AuthLogin, AuthResponse, UpdateLogin, User
+from app.models.models import AuthLogin, AuthResponse, Session,  UpdateLogin, User
 from app.tables.tables import Users
 from app.utils.security import check_password_hash, generate_password_hash
 from constants import (
@@ -138,6 +138,6 @@ class AuthController(Controller):
         )
 
     @get("/session")
-    async def get_session(self, request: Request[User, Token, Any]) -> User:
+    async def get_session(self, request: Request[User, Token, Any]) -> Session:
         """Retrieve an item from the database based on the provided item ID."""
-        return request.user
+        return Session.model_obj(request.user)
