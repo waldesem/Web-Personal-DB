@@ -7,33 +7,21 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from litestar import Controller, Request, Response, get, post
-from litestar.di import Provide
 from litestar.exceptions import NotAuthorizedException
 from litestar.security.jwt import Token
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.depends.auth import get_current_user, jwt_auth, token_store
+from app.depends.auth import jwt_auth, jwt_refresh, token_store
 from app.models.models import AuthLogin, AuthResponse, UpdateLogin, User
 from app.tables.tables import Users
 from app.utils.security import check_password_hash, generate_password_hash
 from constants import (
+    ACCESS_SECRET_KEY,
     ACCESS_SECRET_KEY_LIVE,
     REFRESH_SECRET_KEY,
     REFRESH_SECRET_KEY_LIVE,
 )
-
-
-async def decode_token(request: Request) -> Token:
-    """Decode the token."""
-    token: dict = await request.json()
-    if not token:
-        raise NotAuthorizedException
-    return Token.decode(
-        token.get("refresh_token").split()[1],
-        REFRESH_SECRET_KEY,
-        "HS256",
-    )
 
 
 class AuthController(Controller):
@@ -79,27 +67,18 @@ class AuthController(Controller):
                 return AuthResponse(message="denied")
 
             user.attempt = 0
-            refresh = Token(
-                exp=datetime.now(tz=UTC) + timedelta(minutes=REFRESH_SECRET_KEY_LIVE),
-                jti=secrets.token_hex(10),
-                sub=str(user.id),
-                iat=datetime.now(tz=UTC),
-            )
             return AuthResponse(
                 message="success",
                 access_token=f"Bearer {
                     jwt_auth.create_token(
                         identifier=str(user.id),
                         token_unique_jwt_id=secrets.token_hex(10),
-                        token_expiration=timedelta(
-                            minutes=ACCESS_SECRET_KEY_LIVE,
-                        ),
                     )
                 }",
                 refresh_token=f"Bearer {
-                    refresh.encode(
-                        REFRESH_SECRET_KEY,
-                        algorithm='HS256',
+                    jwt_refresh.create_token(
+                        identifier=str(user.id),
+                        token_unique_jwt_id=secrets.token_hex(10),
                     )
                 }",
             )
@@ -120,47 +99,44 @@ class AuthController(Controller):
             return AuthResponse(message="updated")
         raise NotAuthorizedException
 
-    @post("/logout", dependencies={"refresh": Provide(decode_token)})
-    async def logout(self, request: Request[User, Token, Any], refresh: Token) -> None:
+    @post("/logout")
+    async def logout(self, data: AuthResponse) -> None:
         """Logout the user."""
-        if isinstance(request.auth.jti, str):
-            await token_store.set(
-                "jti",
-                request.auth.jti,
-                expires_in=timedelta(
-                    minutes=ACCESS_SECRET_KEY_LIVE,
-                ),
+        if access := data.access_token:
+            access_token = Token.decode(
+                access.split()[1],
+                ACCESS_SECRET_KEY,
+                "HS256",
+                verify_exp=False,
             )
-        if isinstance(refresh.jti, str):
             await token_store.set(
+                str(access_token.jti),
                 "jti",
-                refresh.jti,
-                expires_in=timedelta(
-                    minutes=REFRESH_SECRET_KEY_LIVE,
-                ),
+                timedelta(minutes=ACCESS_SECRET_KEY_LIVE),
+            )
+        if refresh := data.refresh_token:
+            refresh_token = Token.decode(
+                refresh.split()[1],
+                REFRESH_SECRET_KEY,
+                "HS256",
+                verify_exp=False,
+            )
+            await token_store.set(
+                str(refresh_token.jti),
+                "jti",
+                timedelta(minutes=REFRESH_SECRET_KEY_LIVE),
             )
 
-    @post("/refresh", dependencies={"refresh": Provide(decode_token)})
-    async def refresh_token(self, refresh: Token) -> Response:
+    @get("/refresh")
+    async def refresh_token(self, request: Request[User, Token, Any]) -> Response:
         """Refresh the access token."""
-        if not refresh:
-            raise NotAuthorizedException
         await token_store.delete_expired()
         return jwt_auth.login(
-            identifier=str(refresh.sub),
+            identifier=str(request.auth.sub),
             token_unique_jwt_id=secrets.token_hex(10),
-            token_expiration=timedelta(minutes=ACCESS_SECRET_KEY_LIVE),
         )
 
     @get("/session")
-    async def get_session(
-        self,
-        request: Request[User, Token, Any],
-        db_session: AsyncSession,
-    ) -> User:
+    async def get_session(self, request: Request[User, Token, Any]) -> User:
         """Retrieve an item from the database based on the provided item ID."""
-        if not request.user or not isinstance(request.user.id, int):
-            raise NotAuthorizedException
-        if current_user := await get_current_user(request.user.id, db_session):
-            return current_user
-        raise NotAuthorizedException
+        return request.user

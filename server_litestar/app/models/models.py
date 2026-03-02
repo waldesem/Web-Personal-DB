@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from datetime import date, datetime  # noqa: TC003
 from typing import Annotated, Literal
 
@@ -39,10 +40,15 @@ class AuthLogin(BaseModel):
 class UpdateLogin(AuthLogin):
     """Pydantic model for login form."""
 
-    new_pswd: Annotated[
-        str,
-        Field(max_length=255, pattern=r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,16}$"),
-    ]
+    new_pswd: Annotated[str, Field(max_length=255)]
+
+    @field_validator("new_pswd")
+    @classmethod
+    def check_pswd(cls, p: str) -> str:
+        """Check password."""
+        if re.match(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,16}$", p):
+            return p
+        raise ValidationError
 
 
 class UserForm(BaseModel):
@@ -227,7 +233,7 @@ class Education(Share):
     finished: Annotated[
         str | None,
         Field(default=None, validation_alias="endYear"),
-        BeforeValidator(lambda v: str(v)),
+        BeforeValidator(str),
     ]
     specialty: str | None = None
     item: Literal["educations"] = "educations"

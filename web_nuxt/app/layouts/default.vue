@@ -21,9 +21,11 @@ async function logout() {
   if (!confirm("Вы действительно хотите выйти?")) return;
   const access = useCookie("access");
   const refresh = useCookie("refresh");
-  await $api("/routes/auth/logout", {
+  await $fetch("/routes/auth/logout", {
     method: "POST",
     body: {
+      messaage: "delete",
+      access_token: access.value,
       refresh_token: refresh.value,
     },
   });

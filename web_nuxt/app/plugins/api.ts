@@ -28,9 +28,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
         try {
           const res = await $fetch.raw("/routes/auth/refresh", {
-            method: "POST",
-            body: {
-              refresh_token: refresh.value,
+            method: "GET",
+            headers: {
+              Authorization: refresh.value,
             },
           });
           token.value = res.headers?.get("Authorization");
