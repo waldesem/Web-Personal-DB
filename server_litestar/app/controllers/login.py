@@ -140,4 +140,4 @@ class AuthController(Controller):
     @get("/session")
     async def get_session(self, request: Request[User, Token, Any]) -> Session:
         """Retrieve an item from the database based on the provided item ID."""
-        return Session.model_obj(request.user)
+        return Session.model_validate(request.user, from_attributes=True)
