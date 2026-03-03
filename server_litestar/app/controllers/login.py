@@ -13,7 +13,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.depends.auth import jwt_auth, jwt_refresh, token_store
-from app.models.models import AuthLogin, AuthResponse, Session,  UpdateLogin, User
+from app.models.models import AuthLogin, AuthResponse, Session, UpdateLogin, User
 from app.tables.tables import Users
 from app.utils.security import check_password_hash, generate_password_hash
 from constants import (
@@ -22,6 +22,11 @@ from constants import (
     REFRESH_SECRET_KEY,
     REFRESH_SECRET_KEY_LIVE,
 )
+
+
+def key_builder(request: Request) -> str:
+    """Specify a cache key builder."""
+    return request.headers.get("Authorization", "").split(".")[-1]
 
 
 class AuthController(Controller):
@@ -49,9 +54,31 @@ class AuthController(Controller):
                 user.attempt += 1
             else:
                 user.blocked = True
+            await db_session.commit()
             return None
 
         return user
+
+    @staticmethod
+    async def add_expiry(token: str | None, *, access: bool = True) -> None:
+        """Add token to expires store."""
+        await token_store.delete_expired()
+        if token:
+            decoded = Token.decode(
+                token.split()[1],
+                ACCESS_SECRET_KEY if access else REFRESH_SECRET_KEY,
+                "HS256",
+                verify_exp=False,
+            )
+            await token_store.set(
+                str(decoded.jti),
+                b"jti",
+                timedelta(
+                    minutes=ACCESS_SECRET_KEY_LIVE
+                    if access
+                    else REFRESH_SECRET_KEY_LIVE,
+                ),
+            )
 
     @post("/login")
     async def post_login_auth(
@@ -85,12 +112,12 @@ class AuthController(Controller):
         raise NotAuthorizedException
 
     @post("/update")
-    async def post_login(
+    async def post_login_update(
         self,
         data: UpdateLogin,
         db_session: AsyncSession,
     ) -> AuthResponse:
-        """Handle the login process."""
+        """Proceed login process."""
         if user := await self.check_user(db_session, data):
             user.passhash = generate_password_hash(data.new_pswd)
             user.pswd_create = datetime.now(tz=UTC)
@@ -102,42 +129,19 @@ class AuthController(Controller):
     @post("/logout")
     async def logout(self, data: AuthResponse) -> None:
         """Logout the user."""
-        if access := data.access_token:
-            access_token = Token.decode(
-                access.split()[1],
-                ACCESS_SECRET_KEY,
-                "HS256",
-                verify_exp=False,
-            )
-            await token_store.set(
-                str(access_token.jti),
-                "jti",
-                timedelta(minutes=ACCESS_SECRET_KEY_LIVE),
-            )
-        if refresh := data.refresh_token:
-            refresh_token = Token.decode(
-                refresh.split()[1],
-                REFRESH_SECRET_KEY,
-                "HS256",
-                verify_exp=False,
-            )
-            await token_store.set(
-                str(refresh_token.jti),
-                "jti",
-                timedelta(minutes=REFRESH_SECRET_KEY_LIVE),
-            )
+        await self.add_expiry(data.access_token)
+        await self.add_expiry(data.refresh_token, access=False)
 
     @get("/refresh")
     async def refresh_token(self, request: Request[User, Token, Any]) -> Response:
         """Refresh the access token."""
-        await token_store.delete_expired()
         return jwt_auth.login(
             identifier=str(request.auth.sub),
             token_unique_jwt_id=secrets.token_hex(10),
             send_token_as_response_body=True,
         )
 
-    @get("/session")
+    @get("/session", cache=120, cache_key_builder=key_builder)
     async def get_session(self, request: Request[User, Token, Any]) -> Session:
-        """Retrieve an item from the database based on the provided item ID."""
-        return Session.model_validate(request.user, from_attributes=True)
+        """Retrieve user data."""
+        return Session(**request.user.model_dump())

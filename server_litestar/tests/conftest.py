@@ -5,7 +5,7 @@ from litestar.exceptions import InternalServerException
 from litestar.testing import AsyncTestClient
 
 from app import app
-from app.classes.classes import Tokens
+from app.models.models import AuthResponse
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
@@ -35,9 +35,9 @@ async def test_auth_client() -> AsyncIterator[AsyncTestClient[Litestar]]:
             },
         )
         resp = response.json()
-        if resp.pop("message", None) == "success":
-            tokens = Tokens(**resp)
-            client.headers = {"Authorization": tokens.access_token}
+        auth = AuthResponse(**resp)
+        if auth.message == "success" and auth.access_token:
+            client.headers = {"Authorization": auth.access_token}
             yield client
         else:
             raise InternalServerException

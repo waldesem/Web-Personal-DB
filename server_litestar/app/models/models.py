@@ -25,7 +25,7 @@ name_pattern = r"^[А-яЁёIV\-\s\.\,\'\(\)]*$"
 class AuthResponse(BaseModel):
     """Tokens."""
 
-    message: str
+    message: Literal["success", "denied", "updated", "delete"]
     access_token: str | None = None
     refresh_token: str | None = None
 
@@ -416,26 +416,18 @@ class AnketaJson(Person):
     ]
 
 
-class ItemModel(BaseModel):
-    """Base model for item."""
-
-    item: (
-        Address
-        | Affilation
-        | Check
-        | Contact
-        | Document
-        | Education
-        | Inquiry
-        | Investigation
-        | Prev
-        | Poligraf
-        | Staff
-        | Workplace
-    ) = Field(discriminator="item")
-
-
-class ItemsModel(BaseModel):
-    """Base model for Share list."""
-
-    items: list[ItemModel]
+ItemModel = Annotated[
+    Address
+    | Affilation
+    | Check
+    | Contact
+    | Document
+    | Education
+    | Inquiry
+    | Investigation
+    | Prev
+    | Poligraf
+    | Staff
+    | Workplace,
+    Field(discriminator="item"),
+]

@@ -1,20 +1,22 @@
 """Items routes."""
 
-from advanced_alchemy.base import BigIntAuditBase
-from litestar import Controller, delete, get, post
+from litestar import Controller, delete, get, patch, post
+from pydantic import TypeAdapter
 from sqlalchemy import label, literal, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.classes.classes import ItemCategory, Roles
 from app.depends.auth import role_guard
-from app.models.models import ItemModel, ItemsModel
+from app.models.models import ItemModel
+from app.tables.tables import tables
+
+ta = TypeAdapter(list[ItemModel])
 
 
 class ItemsController(Controller):
     """Items controller."""
 
     path = "/items"
-    tables = BigIntAuditBase.metadata.tables
 
     @staticmethod
     async def select_item(
@@ -23,14 +25,14 @@ class ItemsController(Controller):
         db_session: AsyncSession,
     ) -> list[ItemModel]:
         """Retrieve an item from the database based on the provided item."""
-        table = ItemsController.tables[item]
+        table = tables[item]
         stmt = (
             select(table, label("item", literal(item)))
             .filter(table.c.person_id == person_id)
             .order_by(table.c.id.desc())
         )
         items = (await db_session.execute(stmt)).all()
-        return ItemsModel.model_validate({"items": items}, from_attributes=True).items
+        return ta.validate_python(items, from_attributes=True)
 
     @get("/{person_id:int}")
     async def get_items(
@@ -66,20 +68,32 @@ class ItemsController(Controller):
         data: ItemModel,
         db_session: AsyncSession,
     ) -> None:
-        """Insert or replaces a record in the specified table with the given item ID."""
-        json_dict = data.item.model_dump(
-            exclude_none=True,
+        """Insert a record in the specified table."""
+        json_dict = data.model_dump(
             exclude={"created_at", "updated_at", "item"},
-        )
-        json_dict["person_id"] = person_id
-        table = ItemsController.tables[item]
-        # Проверяем, есть ли ключ "id" в словаре json_dict
-        if item_id := json_dict.pop("id", None):
-            # Если есть, создаем запрос на обновление записи с указанным id
-            stmt = table.update().where(table.c.id == item_id).values(json_dict)
-        else:
-            # Если нет, создаем запрос на вставку новой записи
-            stmt = table.insert().values(json_dict)
+        ) | {"person_id": person_id}
+        table = tables[item]
+        stmt = table.insert().values(json_dict)
+        await db_session.execute(stmt)
+
+    @patch(
+        "/{item:str}/{person_id:int}",
+        guards=[role_guard],
+        opt={"role": Roles.user.value},
+    )
+    async def patch_item(
+        self,
+        item: ItemCategory,
+        person_id: int,
+        data: ItemModel,
+        db_session: AsyncSession,
+    ) -> None:
+        """Replace a record in the specified table."""
+        json_dict = data.model_dump(
+            exclude={"created_at", "updated_at", "item"},
+        ) | {"person_id": person_id}
+        table = tables[item]
+        stmt = table.update().where(table.c.id == json_dict["id"]).values(json_dict)
         await db_session.execute(stmt)
 
     @delete(
@@ -94,7 +108,7 @@ class ItemsController(Controller):
         db_session: AsyncSession,
     ) -> None:
         """Delete an item from the database with item name and item ID."""
-        table = ItemsController.tables[item]
+        table = tables[item]
         await db_session.execute(
             table.delete().where(table.c.id == item_id),
         )

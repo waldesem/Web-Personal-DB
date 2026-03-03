@@ -42,6 +42,7 @@ const data = shallowRef(props.data); // Данные для вывода
 const item = shallowRef<object>({}); // Данные для передачи в форму и редактирования
 const modal = ref(false); // Флаг для открытия модального окна
 const status = ref("success"); // Статус запроса
+const method = ref("POST") as Ref<"POST" | "PATCH">;
 
 // Определяем функцию для получения данных из API
 async function getItem() {
@@ -54,13 +55,13 @@ async function getItem() {
 async function submitItem(form: typeof item.value) {
   status.value = "pending";
   modal.value = false;
-  const response = (await $api.raw(
+  const response = await $api.raw(
     `/routes/items/${props.view}/${candId.value}`,
     {
-      method: "POST",
-      body: { item: { ...form, item: props.view } }, // add discriminator for backend validation
+      method: method.value,
+      body: { ...form, item: props.view }, // add discriminator for backend validation
     },
-  ));
+  );
   item.value = {};
   await getItem();
   if (response.status === 201) {
@@ -105,7 +106,10 @@ async function deleteItem(itemId: string) {
         label="Добавить запись"
         variant="outline"
         size="sm"
-        @click="modal = true"
+        @click="
+          modal = true;
+          method = 'POST';
+        "
       />
     </template>
   </UEmpty>
@@ -118,6 +122,7 @@ async function deleteItem(itemId: string) {
           v-if="editable"
           @update="
             item = content;
+            method = 'PATCH';
             modal = true;
           "
           @delete="deleteItem(content['id' as keyof typeof content])"
@@ -152,6 +157,7 @@ async function deleteItem(itemId: string) {
       color="neutral"
       size="sm"
       block
+      @click="method = 'POST'"
     />
     <template #body>
       <component :is="FormComponent" :item="item" @update="submitItem" />
