@@ -7,10 +7,10 @@ from pydantic import TypeAdapter
 from sqlalchemy import label, literal, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.classes.classes import ItemCategory, Roles
 from app.middleware.auth import role_guard
-from app.models.models import ItemModel, ItemsModels
-from app.tables.tables import tables
+from app.structures.classes import ItemCategory, Roles
+from app.structures.models import ItemModel, ItemsModels
+from app.structures.tables import tables
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

@@ -11,9 +11,9 @@ from advanced_alchemy.base import BigIntAuditBase
 from pydantic import TypeAdapter, ValidationError
 from rich import print as rprint
 
-from app.classes.classes import ItemCategory
-from app.models.models import ItemModel, Person, User
-from app.tables.tables import Persons, Users, config
+from app.structures.classes import ItemCategory
+from app.structures.models import ItemModel, Person, User
+from app.structures.tables import Persons, Users, config
 
 if TYPE_CHECKING:
     from datetime import datetime

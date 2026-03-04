@@ -10,7 +10,7 @@ from litestar.static_files import create_static_files_router
 
 from app.controllers import base_router
 from app.middleware.auth import jwt_auth
-from app.tables.tables import alchemy_plugin
+from app.structures.tables import alchemy_plugin
 
 route_handlers = [
     base_router,

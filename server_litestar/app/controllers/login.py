@@ -13,8 +13,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.middleware.auth import jwt_auth, jwt_refresh, token_store
-from app.models.models import AuthLogin, AuthResponse, Session, UpdateLogin, User
-from app.tables.tables import Users
+from app.structures.models import AuthLogin, AuthResponse, Session, UpdateLogin, User
+from app.structures.tables import Users
 from app.utils.security import check_password_hash, generate_password_hash
 from constants import (
     ACCESS_SECRET_KEY,
