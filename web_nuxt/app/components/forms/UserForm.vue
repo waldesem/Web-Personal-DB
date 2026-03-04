@@ -10,11 +10,11 @@ const { $api } = useNuxtApp();
 const form = ref({} as UserForm);
 
 async function submitUser() {
-  const { message } = await $api<Record<string, string>>("/routes/user", {
+  const resp = await $api.raw("/routes/user", {
     method: "POST",
     body: form.value,
   });
-  if (message === "success") {
+  if (resp.status === 201) {
     emit("update");
     form.value = {} as UserForm;
     toasts.create("success", "Пользователь успешно добавлен");

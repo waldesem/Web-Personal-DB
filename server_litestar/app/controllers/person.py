@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.classes.classes import Roles
 from app.depends.auth import role_guard
-from app.models.models import AnketaJson, Person, User
+from app.models.models import AnketaJson, Person, PersonResponse, User
 from app.tables.tables import (
     Addresses,
     Affilations,
@@ -102,10 +102,10 @@ class PersonController(Controller):
         data: Person,
         request: Request[User, Token, Any],
         db_session: AsyncSession,
-    ) -> dict:
+    ) -> PersonResponse:
         """Replace a record in persons table."""
         cand_id, existed = await self.upload_resume(data, request.user.id, db_session)
-        return {"person_id": cand_id, "exists": existed}
+        return PersonResponse(person_id=cand_id, exists=existed)
 
     @patch(
         "/status/{person_id:int}",

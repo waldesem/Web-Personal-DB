@@ -31,14 +31,14 @@ const { data, status, refresh } = await useLazyAsyncData<User[]>(
 async function userAction(item: string, user_id: string) {
   if (!confirm("Подтвердите выполнение действия")) return;
   if (user_id === user.value?.id) return;
-  const { message } = await $api<Record<string, string>>(
+  const resp = await $api.raw(
     "/routes/user/" + user_id,
     {
       method: "POST",
       body: { item: item },
     },
   );
-  if (message == "success") {
+  if (resp.status == 201) {
     toasts.create("success", "Действие успешно выполнено");
   } else {
     toasts.create();

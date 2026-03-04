@@ -1,5 +1,7 @@
 """Items routes."""
 
+from typing import TYPE_CHECKING
+
 from litestar import Controller, delete, get, patch, post
 from pydantic import TypeAdapter
 from sqlalchemy import label, literal, select
@@ -7,8 +9,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.classes.classes import ItemCategory, Roles
 from app.depends.auth import role_guard
-from app.models.models import ItemModel
+from app.models.models import ItemModel, ItemsModels
 from app.tables.tables import tables
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 ta = TypeAdapter(list[ItemModel])
 
@@ -23,7 +28,7 @@ class ItemsController(Controller):
         item: ItemCategory,
         person_id: int,
         db_session: AsyncSession,
-    ) -> list[ItemModel]:
+    ) -> Sequence:
         """Retrieve an item from the database based on the provided item."""
         table = tables[item]
         stmt = (
@@ -31,20 +36,22 @@ class ItemsController(Controller):
             .filter(table.c.person_id == person_id)
             .order_by(table.c.id.desc())
         )
-        items = (await db_session.execute(stmt)).all()
-        return ta.validate_python(items, from_attributes=True)
+        return (await db_session.execute(stmt)).all()
 
     @get("/{person_id:int}")
     async def get_items(
         self,
         person_id: int,
         db_session: AsyncSession,
-    ) -> dict[ItemCategory, list[ItemModel]]:
+    ) -> ItemsModels:
         """Retrieve an all items from the database."""
-        return {
-            item.value: await self.select_item(item.value, person_id, db_session)
-            for item in ItemCategory
-        }
+        return ItemsModels.model_validate(
+            {
+                item.value: await self.select_item(item.value, person_id, db_session)
+                for item in ItemCategory
+            },
+            from_attributes=True,
+        )
 
     @get("/{item:str}/{person_id:int}")
     async def get_item(
@@ -54,7 +61,10 @@ class ItemsController(Controller):
         db_session: AsyncSession,
     ) -> list[ItemModel]:
         """Get result of query based on the provided item."""
-        return await self.select_item(item, person_id, db_session)
+        return ta.validate_python(
+            await self.select_item(item, person_id, db_session),
+            from_attributes=True,
+        )
 
     @post(
         "/{item:str}/{person_id:int}",

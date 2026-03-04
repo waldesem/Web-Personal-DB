@@ -1,8 +1,8 @@
 """User routes."""
-
 from typing import Any, ClassVar
 
 from litestar import Controller, Request, get, post
+from litestar.exceptions import PermissionDeniedException
 from litestar.security.jwt import Token
 from pydantic import TypeAdapter
 from sqlalchemy import select
@@ -32,7 +32,7 @@ class UserController(Controller):
             return ta.validate_python(users, from_attributes=True)
 
     @post("/user")
-    async def post_user(self, data: UserForm, db_session: AsyncSession) -> dict:
+    async def post_user(self, data: UserForm, db_session: AsyncSession) -> None:
         """Handle the POST request to create a user in the database."""
         # Проверить, существует ли уже пользователь с таким именем
         user = (
@@ -41,9 +41,8 @@ class UserController(Controller):
             )
         ).all()
         if user:
-            return {"message": "error"}
+            raise PermissionDeniedException
         db_session.add(Users(**data.model_dump()))
-        return {"message": "success"}
 
     @post("/user/{user_id:int}")
     async def post_user_actions(
@@ -52,12 +51,12 @@ class UserController(Controller):
         data: Actions,
         request: Request[User, Token, Any],
         db_session: AsyncSession,
-    ) -> dict:
+    ) -> None:
         """Change a user's information in the database based on their user ID."""
         user = await db_session.get(Users, user_id)
         # Если пользователь не найден или пытается изменить собственный профиль
         if not user or request.user.id == user.id:
-            return {"message": "error"}
+            raise PermissionDeniedException
 
         if data.item == "reset":
             # Сбросить пароль пользователя и обнулить попытки входа
@@ -75,5 +74,3 @@ class UserController(Controller):
             # Изменить роль пользователя
             user.role = data.item
         db_session.commit()
-        # Очистить кэш для id пользователей
-        return {"message": "success"}

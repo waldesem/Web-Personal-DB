@@ -190,6 +190,13 @@ class Person(Share):
         raise ValidationError
 
 
+class PersonResponse(BaseModel):
+    """Person exists response."""
+
+    person_id: int | None
+    exists: bool
+
+
 class Candidates(Share):
     """Pydantic model for candidates."""
 
@@ -432,14 +439,19 @@ ItemModel = Annotated[
     Field(discriminator="item"),
 ]
 
-class ItemsModels(BaseModel):
-  """Validation class."""
 
-  staffs: Staff[];
-  educations: Education[];
-  workplaces: Work[];
-  documents: Passport[];
-  addresses: Address[];
-  contacts: Contact[];
-  affilations: Affilation[];
-  previous: Previous[];
+class ItemsModels(BaseModel):
+    """Validation class."""
+
+    staffs: list[Staff]
+    educations: list[Education]
+    workplaces: list[Workplace]
+    documents: list[Document]
+    addresses: list[Address]
+    contacts: list[Contact]
+    affilations: list[Affilation]
+    previous: list[Prev]
+    checks: list[Check]
+    poligrafs: list[Poligraf]
+    investigations: list[Investigation]
+    inquiries: list[Inquiry]
