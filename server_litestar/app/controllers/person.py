@@ -10,7 +10,7 @@ from sqlalchemy import not_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.classes.classes import Roles
-from app.depends.auth import role_guard
+from app.middleware.auth import role_guard
 from app.models.models import AnketaJson, Person, PersonResponse, User
 from app.tables.tables import (
     Addresses,

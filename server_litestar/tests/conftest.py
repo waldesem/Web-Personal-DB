@@ -36,7 +36,7 @@ async def test_auth_client() -> AsyncIterator[AsyncTestClient[Litestar]]:
         )
         resp = response.json()
         auth = AuthResponse(**resp)
-        if auth.message == "success" and auth.access_token:
+        if auth.message == "success" and auth.access_token and auth.refresh_token:
             client.headers = {"Authorization": auth.access_token}
             yield client
         else:

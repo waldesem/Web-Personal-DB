@@ -12,7 +12,7 @@ from litestar.security.jwt import Token
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.depends.auth import jwt_auth, jwt_refresh, token_store
+from app.middleware.auth import jwt_auth, jwt_refresh, token_store
 from app.models.models import AuthLogin, AuthResponse, Session, UpdateLogin, User
 from app.tables.tables import Users
 from app.utils.security import check_password_hash, generate_password_hash
@@ -132,7 +132,7 @@ class AuthController(Controller):
         await self.add_expiry(data.access_token)
         await self.add_expiry(data.refresh_token, access=False)
 
-    @get("/refresh")
+    @get("/refresh", middleware=[jwt_refresh.middleware])
     async def refresh_token(self, request: Request[User, Token, Any]) -> Response:
         """Refresh the access token."""
         return jwt_auth.login(

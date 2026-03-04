@@ -8,7 +8,7 @@ from sqlalchemy import label, literal, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.classes.classes import ItemCategory, Roles
-from app.depends.auth import role_guard
+from app.middleware.auth import role_guard
 from app.models.models import ItemModel, ItemsModels
 from app.tables.tables import tables
 
