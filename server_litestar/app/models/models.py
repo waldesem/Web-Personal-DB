@@ -431,3 +431,15 @@ ItemModel = Annotated[
     | Workplace,
     Field(discriminator="item"),
 ]
+
+class ItemsModels(BaseModel):
+  """Validation class."""
+
+  staffs: Staff[];
+  educations: Education[];
+  workplaces: Work[];
+  documents: Passport[];
+  addresses: Address[];
+  contacts: Contact[];
+  affilations: Affilation[];
+  previous: Previous[];
