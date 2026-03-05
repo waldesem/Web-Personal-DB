@@ -30,8 +30,8 @@ async def test_auth_client() -> AsyncIterator[AsyncTestClient[Litestar]]:
         response = await client.post(
             "/routes/auth/login",
             json={
-                "username": "vsemenenko",
-                "password": "Truxan0va",
+                "username": "",
+                "password": "",
             },
         )
         resp = response.json()
