@@ -55,13 +55,10 @@ async function getItem() {
 async function submitItem(form: typeof item.value) {
   status.value = "pending";
   modal.value = false;
-  const response = await $api.raw(
-    `/routes/items/${props.view}/${candId.value}`,
-    {
-      method: method.value,
-      body: {item: { ...form, item: props.view }}, // add discriminator for backend validation
-    },
-  );
+  const response = await $api.raw("/routes/items", {
+    method: method.value,
+    body: { item: { ...form, item: props.view, person_id: candId.value } }, // add discriminator for backend validation
+  });
   item.value = {};
   await getItem();
   if (response.status === 201) {
@@ -125,7 +122,7 @@ async function deleteItem(itemId: string) {
             method = 'PATCH';
             modal = true;
           "
-          @delete="deleteItem(content['id' as keyof typeof content])"
+          @delete="deleteItem(content.id)"
         />
         <!-- Выводим элемент данных -->
         <component :is="ItemComponent" :item="content" />

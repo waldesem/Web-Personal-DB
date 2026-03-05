@@ -12,7 +12,7 @@ from litestar.security.jwt import Token
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.middleware.auth import jwt_auth, jwt_refresh, token_store
+from app.middleware.auth import jwt_access, jwt_refresh, token_store
 from app.structures.models import AuthLogin, AuthResponse, Session, UpdateLogin, User
 from app.structures.tables import Users
 from app.utils.security import check_password_hash, generate_password_hash
@@ -97,7 +97,7 @@ class AuthController(Controller):
             return AuthResponse(
                 message="success",
                 access_token=f"Bearer {
-                    jwt_auth.create_token(
+                    jwt_access.create_token(
                         identifier=str(user.id),
                         token_unique_jwt_id=secrets.token_hex(10),
                     )
@@ -135,7 +135,7 @@ class AuthController(Controller):
     @get("/refresh", middleware=[jwt_refresh.middleware])
     async def refresh_token(self, request: Request[User, Token, Any]) -> Response:
         """Refresh the access token."""
-        return jwt_auth.login(
+        return jwt_access.login(
             identifier=str(request.auth.sub),
             token_unique_jwt_id=secrets.token_hex(10),
             send_token_as_response_body=True,

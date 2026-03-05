@@ -14,12 +14,11 @@ To use this project, you will need to have Python 3.14 or higher.
 For installiing the required Python packages run commands:
 
 ```
+wget -qO- https://astral.sh/uv/install.sh | sh
 git clone https://github.com/waldesem/Web-Personal-DB.git
 cd Web-Personal-DB/server_litestar
-wget -qO- https://astral.sh/uv/install.sh | sh
-uv venv
-source .venv/bin/activate
 uv sync
+source .venv/bin/activate
 ```
 
 ### Database
@@ -62,7 +61,7 @@ exit
 
 ### Settings
 
-Create in server_litestar folder `.env` file with content as you needs:
+Create in server_litestar folder `.env` file with content:
 
 ```
 BASE_PATH=/home/MyProjects/Web-Personal-DB/server_litestar/PersonalDB

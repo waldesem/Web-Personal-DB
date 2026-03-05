@@ -10,13 +10,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.middleware.auth import role_guard
 from app.structures.classes import ItemCategory, Roles
-from app.structures.models import ItemModel, ItemsModels, ItemType
+from app.structures.models import ItemModelIn, ItemsOutModels, ItemTypeOut
 from app.structures.tables import tables
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-ta = TypeAdapter(list[ItemType])
+ta = TypeAdapter(list[ItemTypeOut])
 
 
 class ItemsController(Controller):
@@ -44,9 +44,9 @@ class ItemsController(Controller):
         self,
         person_id: int,
         db_session: AsyncSession,
-    ) -> ItemsModels:
+    ) -> ItemsOutModels:
         """Retrieve an all items from the database."""
-        return ItemsModels.model_validate(
+        return ItemsOutModels.model_validate(
             {
                 item.value: await self.select_item(item.value, person_id, db_session)
                 for item in ItemCategory
@@ -60,51 +60,41 @@ class ItemsController(Controller):
         item: ItemCategory,
         person_id: int,
         db_session: AsyncSession,
-    ) -> list[ItemType]:
+    ) -> list[ItemTypeOut]:
         """Get result of query based on the provided item."""
         return ta.validate_python(
             await self.select_item(item, person_id, db_session),
             from_attributes=True,
         )
 
-    @post(
-        "/{item:str}/{person_id:int}",
-        guards=[role_guard],
-        opt={"role": Roles.user.value},
-    )
+    @post(guards=[role_guard], opt={"role": Roles.user.value})
     async def post_item(
         self,
-        item: ItemCategory,
-        person_id: int,
-        data: ItemModel,
+        data: ItemModelIn,
         db_session: AsyncSession,
     ) -> None:
         """Insert a record in the specified table."""
+        item = data.item.item
         json_dict = data.item.model_dump(
-            exclude={"id", "created_at", "updated_at", "item"},
-        ) | {"person_id": person_id}
-        table = tables[item]
-        stmt = table.insert().values(json_dict)
+            exclude_none=True,
+            exclude={"item"},
+        )
+        stmt = tables[item].insert().values(json_dict)
         await db_session.execute(stmt)
 
     @patch(
-        "/{item:str}/{person_id:int}",
         guards=[role_guard],
         opt={"role": Roles.user.value},
         status_code=HTTP_201_CREATED,
     )
     async def patch_item(
         self,
-        item: ItemCategory,
-        person_id: int,
-        data: ItemModel,
+        data: ItemModelIn,
         db_session: AsyncSession,
     ) -> None:
         """Replace a record in the specified table."""
-        json_dict = data.item.model_dump(
-            exclude={"created_at", "updated_at", "item"},
-        ) | {"person_id": person_id}
-        table = tables[item]
+        json_dict = data.item.model_dump(exclude={"created_at", "updated_at"})
+        table = tables[json_dict.pop("item")]
         stmt = table.update().where(table.c.id == json_dict["id"]).values(json_dict)
         await db_session.execute(stmt)
 

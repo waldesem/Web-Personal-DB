@@ -9,7 +9,7 @@ from litestar.openapi import OpenAPIConfig
 from litestar.static_files import create_static_files_router
 
 from app.controllers import base_router
-from app.middleware.auth import jwt_auth
+from app.middleware.auth import jwt_access
 from app.structures.tables import alchemy_plugin
 
 route_handlers = [
@@ -41,7 +41,7 @@ logging_middleware_config = LoggingMiddlewareConfig()
 
 
 app = Litestar(
-    on_app_init=[jwt_auth.on_app_init],
+    on_app_init=[jwt_access.on_app_init],
     route_handlers=route_handlers,
     compression_config=compression_config,
     cors_config=CORSConfig(),

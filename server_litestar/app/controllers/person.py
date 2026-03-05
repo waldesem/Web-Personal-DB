@@ -79,7 +79,8 @@ class PersonController(Controller):
         if not person.destination:
             resume["destination"] = cls.create_destination(person)
         for k, v in resume.items():
-            setattr(person, k, v)
+            if v:
+                setattr(person, k, v)
         return person.id, True
 
     @get("/{person_id:int}")
@@ -184,30 +185,15 @@ class PersonController(Controller):
                     person_id=cand_id,
                 ),
                 *[
-                    Educations(
-                        **education.model_dump(
-                            exclude={"id", "item", "created_at", "updated_at"},
-                        ),
-                        person_id=cand_id,
-                    )
+                    Educations(**education.model_dump(), person_id=cand_id)
                     for education in data.education
                 ],
                 *[
-                    Workplaces(
-                        **workplace.model_dump(
-                            exclude={"id", "item", "created_at", "updated_at"},
-                        ),
-                        person_id=cand_id,
-                    )
+                    Workplaces(**workplace.model_dump(), person_id=cand_id)
                     for workplace in data.experience
                 ],
                 *[
-                    Previous(
-                        **prev.model_dump(
-                            exclude={"id", "item", "created_at", "updated_at"},
-                        ),
-                        person_id=cand_id,
-                    )
+                    Previous(**prev.model_dump(), person_id=cand_id)
                     for prev in data.name_was_changed
                 ],
                 *[

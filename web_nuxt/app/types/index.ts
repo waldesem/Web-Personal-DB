@@ -85,19 +85,23 @@ export interface Previous {
   patronymic?: string;
   changed?: string;
   reason?: string;
+  person_id?: string;
 }
+
 export interface Education {
   id: string;
   view?: string;
   institution: string;
   finished?: string;
   specialty: string;
+  person_id?: string;
 }
 
 export interface Staff {
   id: string;
   position: string;
   department?: string;
+  person_id?: string;
 }
 
 export interface Passport {
@@ -107,18 +111,21 @@ export interface Passport {
   digits: string;
   agency?: string;
   issue: string;
+  person_id?: string;
 }
 
 export interface Address {
   id: string;
   view: string;
   address: string;
+  person_id?: string;
 }
 
 export interface Contact {
   id: string;
   view: string;
   contact: string;
+  person_id?: string;
 }
 
 export interface Work {
@@ -130,8 +137,7 @@ export interface Work {
   address?: string;
   reason?: string;
   position: string;
-  created_at: string;
-  updated_at: string;
+  person_id?: string;
 }
 
 export interface Affilation {
@@ -139,6 +145,7 @@ export interface Affilation {
   view: string;
   organization: string;
   inn?: string;
+  person_id?: string;
 }
 
 export interface Verification {
@@ -160,6 +167,7 @@ export interface Verification {
   comment?: string;
   created_at: string;
   updated_at: string;
+  person_id?: string;
 }
 
 export interface Pfo {
@@ -169,6 +177,7 @@ export interface Pfo {
   conclusion: Decisions;
   created_at: string;
   updated_at: string;
+  person_id?: string;
 }
 
 export interface Inquisition {
@@ -177,6 +186,7 @@ export interface Inquisition {
   info: string;
   created_at: string;
   updated_at: string;
+  person_id?: string;
 }
 
 export interface Needs {
@@ -186,6 +196,7 @@ export interface Needs {
   origins?: string;
   created_at: string;
   updated_at: string;
+  person_id?: string;
 }
 
 export interface Items {

@@ -61,7 +61,7 @@ async def revoked_token_handler(
     return True
 
 
-jwt_auth = JWTAuth[User](
+jwt_access = JWTAuth[User](
     retrieve_user_handler=retrieve_user_handler,
     revoked_token_handler=revoked_token_handler,
     token_secret=ACCESS_SECRET_KEY,

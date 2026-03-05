@@ -83,6 +83,7 @@ class User(Session):
 class Actions(BaseModel):
     """Pydantic model for user actions form."""
 
+    person_id: int | None = None
     item: Literal["reset", "block", "delete"] | Roles
 
     model_config = ConfigDict(use_enum_values=True)
@@ -100,21 +101,21 @@ class Index(BaseModel):
     ]
 
 
-class Share(BaseModel):
-    """Pydantic model for Share."""
+class SharedModel(BaseModel):
+    """SharedModel schema."""
 
-    id: Annotated[int | None, Field(None)]
-    created_at: Annotated[datetime | None, Field(None)]
-    updated_at: Annotated[datetime | None, Field(None)]
-
-    model_config = ConfigDict(
-        validate_by_name=True,
-        str_strip_whitespace=True,
-        use_enum_values=True,
-    )
+    id: int
+    created_at: datetime
+    updated_at: datetime
 
 
-class Person(Share):
+class ItemShredModel(SharedModel):
+    """ItemModel schema."""
+
+    person_id: int
+
+
+class Person(SharedModel):
     """Person schema."""
 
     surname: Annotated[
@@ -151,6 +152,8 @@ class Person(Share):
     addition: str | None = None
     destination: str | None = None
     editable: bool | None = True
+
+    model_config = ConfigDict(validate_by_name=True, str_strip_whitespace=True)
 
     @field_validator("inn", mode="after")
     @classmethod
@@ -197,20 +200,22 @@ class PersonResponse(BaseModel):
     exists: bool
 
 
-class Candidates(Share):
+class Candidates(BaseModel):
     """Pydantic model for candidates."""
 
+    id: int
     surname: str
     firstname: str
     patronymic: str | None
     birthday: date
     editable: bool
+    updated_at: datetime
     username: str
     total: int
 
 
-class Prev(Share):
-    """Previous schema."""
+class PrevIn(BaseModel):
+    """Previous in schema."""
 
     surname: str = Field(validation_alias="lastNameBeforeChange", max_length=255)
     firstname: Annotated[
@@ -226,11 +231,17 @@ class Prev(Share):
         Field(default=None, validation_alias="yearOfChange", max_length=4),
     ]
     reason: str | None = None
-    item: Literal["previous"] = "previous"
+    item: Literal["previous"]
+
+    model_config = ConfigDict(validate_by_name=True, str_strip_whitespace=True)
 
 
-class Education(Share):
-    """Educations schema."""
+class PrevOut(PrevIn, ItemShredModel):
+    """Previous out schema."""
+
+
+class EducationIn(BaseModel):
+    """Education in schema."""
 
     view: Annotated[
         str | None,
@@ -243,19 +254,31 @@ class Education(Share):
         BeforeValidator(str),
     ]
     specialty: str | None = None
-    item: Literal["educations"] = "educations"
+    item: Literal["educations"]
+
+    model_config = ConfigDict(validate_by_name=True, str_strip_whitespace=True)
 
 
-class Staff(Share):
+class EducationOut(EducationIn, SharedModel):
+    """Educations schema."""
+
+
+class StaffIn(BaseModel):
     """Staffs schema."""
 
     position: str
     department: str | None = None
     item: Literal["staffs"]
 
+    model_config = ConfigDict(validate_by_name=True, str_strip_whitespace=True)
 
-class Document(Share):
-    """Documents schema."""
+
+class StaffOut(StaffIn, ItemShredModel):
+    """Staffs out schema."""
+
+
+class DocumentIn(BaseModel):
+    """Document in schema."""
 
     view: Annotated[
         str | None,
@@ -270,25 +293,43 @@ class Document(Share):
     issue: date | None = None
     item: Literal["documents"]
 
+    model_config = ConfigDict(validate_by_name=True, str_strip_whitespace=True)
 
-class Address(Share):
-    """Addresses schema."""
+
+class DocumentOut(DocumentIn, ItemShredModel):
+    """Document out schema."""
+
+
+class AddressIn(BaseModel):
+    """Address in schema."""
 
     view: Annotated[str, Field(max_length=255)]
     address: Annotated[str, Field(max_length=255)]
     item: Literal["addresses"]
 
+    model_config = ConfigDict(str_strip_whitespace=True)
 
-class Contact(Share):
-    """Contacts schema."""
+
+class AddressOut(AddressIn, ItemShredModel):
+    """Address out schema."""
+
+
+class ContactIn(BaseModel):
+    """Contacts in schema."""
 
     view: Annotated[str, Field(max_length=255)]
     contact: Annotated[str, Field(max_length=255)]
     item: Literal["contacts"]
 
+    model_config = ConfigDict(str_strip_whitespace=True)
 
-class Workplace(Share):
-    """Workplaces schema."""
+
+class ContactOut(ContactIn, ItemShredModel):
+    """Contacts out schema."""
+
+
+class WorkplaceIn(BaseModel):
+    """Workplaces in schema."""
 
     now_work: Annotated[
         bool | None,
@@ -300,11 +341,17 @@ class Workplace(Share):
     address: Annotated[str | None, Field(None, max_length=255)]
     position: Annotated[str, Field(max_length=255)]
     reason: Annotated[str | None, Field(default=None, validation_alias="fireReason")]
-    item: Literal["workplaces"] = "workplaces"
+    item: Literal["workplaces"]
+
+    model_config = ConfigDict(validate_by_name=True, str_strip_whitespace=True)
 
 
-class Affilation(Share):
-    """Affilations schema."""
+class WorkplaceOut(WorkplaceIn, ItemShredModel):
+    """Workplace out schema."""
+
+
+class AffilationIn(BaseModel):
+    """Affilation in schema."""
 
     view: Annotated[
         str | None,
@@ -312,11 +359,17 @@ class Affilation(Share):
     ]
     organization: Annotated[str, Field(validation_alias="name")]
     inn: str | None = None
-    item: Literal["affilations"] = "affilations"
+    item: Literal["affilations"]
+
+    model_config = ConfigDict(validate_by_name=True, str_strip_whitespace=True)
 
 
-class Check(Share):
-    """Checks schema."""
+class AffilationOut(AffilationIn, ItemShredModel):
+    """Affilations out schema."""
+
+
+class CheckIn(SharedModel):
+    """Check in schema."""
 
     workplace: str | None = None
     document: str | None = None
@@ -334,32 +387,53 @@ class Check(Share):
     addition: str | None = None
     comment: str | None = None
     conclusion: Conclusions
+    person_id: int | None = None
     item: Literal["checks"]
 
+    model_config = ConfigDict(use_enum_values=True)
 
-class Poligraf(Share):
-    """Poligraf schema."""
+
+class CheckOut(CheckIn, ItemShredModel):
+    """Checks out schema."""
+
+
+class PoligrafIn(SharedModel):
+    """Poligraf in schema."""
 
     theme: str
     results: str
     conclusion: Decisions
     item: Literal["poligrafs"]
 
+    model_config = ConfigDict(use_enum_values=True)
 
-class Investigation(Share):
-    """Investigations schema."""
+
+class PoligrafOut(PoligrafIn, ItemShredModel):
+    """Poligraf out schema."""
+
+
+class InvestigationIn(BaseModel):
+    """Investigations in schema."""
 
     theme: str
     info: str
     item: Literal["investigations"]
 
 
-class Inquiry(Share):
-    """Inquiries schema."""
+class InvestigationOut(InvestigationIn, ItemShredModel):
+    """Investigation out schema."""
+
+
+class InquiryIn(BaseModel):
+    """Inquiries in schema."""
 
     info: str
     initiator: str
     item: Literal["inquiries"]
+
+
+class InquiryOut(InquiryIn, ItemShredModel):
+    """Inquiries out schema."""
 
 
 class AnketaJson(Person):
@@ -390,32 +464,32 @@ class AnketaJson(Person):
         str,
         Field(validation_alias="contactPhone", max_length=255),
     ]
-    education: Annotated[list[Education], Field([])]
-    experience: Annotated[list[Workplace], Field([])]
-    organizations: Annotated[list[Affilation], Field([])]
+    education: Annotated[list[EducationIn], Field([])]
+    experience: Annotated[list[WorkplaceIn], Field([])]
+    organizations: Annotated[list[AffilationIn], Field([])]
     name_was_changed: Annotated[
-        list[Prev],
+        list[PrevIn],
         Field(
             default=[],
             validation_alias="nameWasChanged",
         ),
     ]
     related_organizations: Annotated[
-        list[Affilation],
+        list[AffilationIn],
         Field(
             default=[],
             validation_alias="relatedPersonsOrganizations",
         ),
     ]
     state_organizations: Annotated[
-        list[Affilation],
+        list[AffilationIn],
         Field(
             default=[],
             validation_alias="stateOrganizations",
         ),
     ]
     public_organizations: Annotated[
-        list[Affilation],
+        list[AffilationIn],
         Field(
             default=[],
             validation_alias="publicOfficeOrganizations",
@@ -423,41 +497,57 @@ class AnketaJson(Person):
     ]
 
 
-ItemType = Annotated[
-    Address
-    | Affilation
-    | Check
-    | Contact
-    | Document
-    | Education
-    | Inquiry
-    | Investigation
-    | Prev
-    | Poligraf
-    | Staff
-    | Workplace,
+ItemTypeIn = Annotated[
+    AddressIn
+    | AffilationIn
+    | CheckIn
+    | ContactIn
+    | DocumentIn
+    | EducationIn
+    | InquiryIn
+    | InvestigationIn
+    | PrevIn
+    | PoligrafIn
+    | StaffIn
+    | WorkplaceIn,
+    Field(discriminator="item"),
+]
+
+ItemTypeOut = Annotated[
+    AddressOut
+    | AffilationOut
+    | CheckOut
+    | ContactOut
+    | DocumentOut
+    | EducationOut
+    | InquiryOut
+    | InvestigationOut
+    | PrevOut
+    | PoligrafOut
+    | StaffOut
+    | WorkplaceOut,
     Field(discriminator="item"),
 ]
 
 
-class ItemModel(BaseModel):
+class ItemModelIn(BaseModel):
     """Validation class."""
 
-    item: ItemType
+    item: ItemTypeIn
 
 
-class ItemsModels(BaseModel):
+class ItemsOutModels(BaseModel):
     """Validation class."""
 
-    staffs: list[Staff]
-    educations: list[Education]
-    workplaces: list[Workplace]
-    documents: list[Document]
-    addresses: list[Address]
-    contacts: list[Contact]
-    affilations: list[Affilation]
-    previous: list[Prev]
-    checks: list[Check]
-    poligrafs: list[Poligraf]
-    investigations: list[Investigation]
-    inquiries: list[Inquiry]
+    staffs: list[StaffOut]
+    educations: list[EducationOut]
+    workplaces: list[WorkplaceOut]
+    documents: list[DocumentOut]
+    addresses: list[AddressOut]
+    contacts: list[ContactOut]
+    affilations: list[AffilationOut]
+    previous: list[PrevOut]
+    checks: list[CheckOut]
+    poligrafs: list[PoligrafOut]
+    investigations: list[InvestigationOut]
+    inquiries: list[InquiryOut]
