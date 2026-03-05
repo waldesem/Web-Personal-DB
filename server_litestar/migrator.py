@@ -12,7 +12,7 @@ from pydantic import TypeAdapter, ValidationError
 from rich import print as rprint
 
 from app.structures.classes import ItemCategory
-from app.structures.models import ItemModel, Person, User
+from app.structures.models import ItemModel, ItemType, Person, User
 from app.structures.tables import Persons, Users, config
 
 if TYPE_CHECKING:
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 cli = typer.Typer()
 
 tables = BigIntAuditBase.metadata.tables
-ta = TypeAdapter(list[ItemModel])
+ta = TypeAdapter(list[ItemType])
 
 
 def _check_tz(data: datetime) -> datetime:
@@ -73,24 +73,23 @@ async def migrate(path: str) -> None:
 
                     inserts: list[dict] = []
                     for itm in items:
-                        data = dict(itm)
-                        data["item"] = table.value
-                        data["created_at"] = data["updated_at"] = _check_tz(
-                            data.pop("created"),
-                        )
-                        data["person_id"] = new_person.id
-                        inserts.append(data)
-
-                    if inserts:
                         try:
-                            new_data = [
-                                valid.model_dump(exclude={"id", "item"})
-                                for valid in ta.validate_python(inserts)
-                            ]
-                            stmt = tables[table.value].insert().values(new_data)
-                            await db_session.execute(stmt)
+                            data = dict(itm)
+                            data["item"] = table.value
+                            data["created_at"] = data["updated_at"] = _check_tz(
+                                data.pop("created"),
+                            )
+                            new_data = ItemModel(**data).item.model_dump(
+                                exclude={"id", "item"},
+                            )
+                            new_data["person_id"] = new_person.id
+                            inserts.append(new_data)
                         except ValidationError as e:
                             rprint(e)
+
+                    if inserts:
+                        stmt = tables[table.value].insert().values(inserts)
+                        await db_session.execute(stmt)
 
             await db_session.commit()
             rprint("Migration finished!")

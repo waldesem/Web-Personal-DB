@@ -59,7 +59,7 @@ async function submitItem(form: typeof item.value) {
     `/routes/items/${props.view}/${candId.value}`,
     {
       method: method.value,
-      body: { ...form, item: props.view }, // add discriminator for backend validation
+      body: {item: { ...form, item: props.view }}, // add discriminator for backend validation
     },
   );
   item.value = {};

@@ -16,7 +16,7 @@ from pydantic import (
     field_validator,
 )
 
-from app.classes.classes import Conclusions, Decisions, Roles
+from app.structures.classes import Conclusions, Decisions, Roles
 
 email_pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
 name_pattern = r"^[А-яЁёIV\-\s\.\,\'\(\)]*$"
@@ -423,7 +423,7 @@ class AnketaJson(Person):
     ]
 
 
-ItemModel = Annotated[
+ItemType = Annotated[
     Address
     | Affilation
     | Check
@@ -438,6 +438,12 @@ ItemModel = Annotated[
     | Workplace,
     Field(discriminator="item"),
 ]
+
+
+class ItemModel(BaseModel):
+    """Validation class."""
+
+    item: ItemType
 
 
 class ItemsModels(BaseModel):

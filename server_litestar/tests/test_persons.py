@@ -7,7 +7,7 @@ from litestar import Litestar
 from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED
 from litestar.testing import AsyncTestClient
 
-from app.classes.classes import ItemCategory
+from app.structures.classes import ItemCategory
 
 fake = Faker("ru-RU")
 

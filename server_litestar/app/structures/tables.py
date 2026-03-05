@@ -19,7 +19,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.classes.classes import Roles
+from app.structures.classes import Roles
 from app.utils.security import generate_password_hash
 from constants import DATABASE_URI
 
