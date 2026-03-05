@@ -82,5 +82,4 @@ jwt_refresh = JWTAuth[User](
     token_secret=REFRESH_SECRET_KEY,
     default_token_expiration=timedelta(minutes=REFRESH_SECRET_KEY_LIVE),
     require_claims=["sub", "jti", "exp"],
-    # exclude=[r"^(?!.*\/routes\/auth\/refresh$).*$"],  # noqa: ERA001
 )
