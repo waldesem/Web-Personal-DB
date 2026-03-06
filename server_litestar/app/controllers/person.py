@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.middleware.auth import role_guard
 from app.structures.classes import Roles
-from app.structures.models import AnketaJson, Person, PersonResponse, User
+from app.structures.models import AnketaJson, PersonIn, PersonOut, PersonResponse, User
 from app.structures.tables import (
     Addresses,
     Affilations,
@@ -48,7 +48,7 @@ class PersonController(Controller):
     @classmethod
     async def upload_resume(
         cls,
-        cand: Person,
+        cand: PersonIn,
         user_id: int | None,
         db_session: AsyncSession,
     ) -> tuple[int | None, bool]:
@@ -88,19 +88,19 @@ class PersonController(Controller):
         self,
         person_id: int,
         db_session: AsyncSession,
-    ) -> Person:
+    ) -> PersonOut:
         """Retrieve an item from the database based on the provided item ID."""
         person = await db_session.get(Persons, person_id)
         if person:
             if not person.destination:
                 person.destination = self.create_destination(person)
-            return Person.model_validate(person, from_attributes=True)
+            return PersonOut.model_validate(person, from_attributes=True)
         raise NotFoundException
 
     @post("/", guards=[role_guard], opt={"role": Roles.user.value})
     async def post_person(
         self,
-        data: Person,
+        data: PersonIn,
         request: Request[User, Token, Any],
         db_session: AsyncSession,
     ) -> PersonResponse:
@@ -145,7 +145,7 @@ class PersonController(Controller):
         request: Request[User, Token, Any],
     ) -> dict:
         """Create a new person or updates an existing person from file."""
-        resume = Person(**data.model_dump(exclude={"id", "created_at", "updated_at"}))
+        resume = PersonIn(**data.model_dump(exclude={"id", "created_at", "updated_at"}))
         # Загрузка резюме в БД
         cand_id, existed = await self.upload_resume(resume, request.user.id, db_session)
 

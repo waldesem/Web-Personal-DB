@@ -40,6 +40,7 @@ const candId = inject("candId") as Ref<string>;
 // Объявляем переменные для работы с данными
 const data = shallowRef(props.data); // Данные для вывода
 const item = shallowRef<object>({}); // Данные для передачи в форму и редактирования
+const itemId = ref<string | null>(null);
 const modal = ref(false); // Флаг для открытия модального окна
 const status = ref("success"); // Статус запроса
 const method = ref("POST") as Ref<"POST" | "PATCH">;
@@ -55,10 +56,14 @@ async function getItem() {
 async function submitItem(form: typeof item.value) {
   status.value = "pending";
   modal.value = false;
-  const response = await $api.raw("/routes/items", {
-    method: method.value,
-    body: { item: { ...form, item: props.view, person_id: candId.value } }, // add discriminator for backend validation
-  });
+  const url = `/routes/items/${candId.value}`;
+  const response = await $api.raw(
+    method.value === "POST" ? url : `${url}/${itemId.value}`,
+    {
+      method: method.value,
+      body: { item: { ...form, item: props.view } }, // add discriminator for backend validation
+    },
+  );
   item.value = {};
   await getItem();
   if (response.status === 201) {
@@ -121,6 +126,7 @@ async function deleteItem(itemId: string) {
             item = content;
             method = 'PATCH';
             modal = true;
+            itemId = content.id
           "
           @delete="deleteItem(content.id)"
         />

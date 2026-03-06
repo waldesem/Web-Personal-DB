@@ -67,35 +67,40 @@ class ItemsController(Controller):
             from_attributes=True,
         )
 
-    @post(guards=[role_guard], opt={"role": Roles.user.value})
+    @post(
+        "/{person_id:int}",
+        guards=[role_guard],
+        opt={"role": Roles.user.value},
+    )
     async def post_item(
         self,
+        person_id: int,
         data: ItemModelIn,
         db_session: AsyncSession,
     ) -> None:
         """Insert a record in the specified table."""
         item = data.item.item
-        json_dict = data.item.model_dump(
-            exclude_none=True,
-            exclude={"item"},
-        )
+        json_dict = data.item.model_dump(exclude={"item"}) | {"person_id": person_id}
         stmt = tables[item].insert().values(json_dict)
         await db_session.execute(stmt)
 
     @patch(
+        "/{person_id:int}/{item_id:int}",
         guards=[role_guard],
         opt={"role": Roles.user.value},
         status_code=HTTP_201_CREATED,
     )
     async def patch_item(
         self,
+        person_id: int,
+        item_id: int,
         data: ItemModelIn,
         db_session: AsyncSession,
     ) -> None:
         """Replace a record in the specified table."""
-        json_dict = data.item.model_dump(exclude={"created_at", "updated_at"})
+        json_dict = data.item.model_dump() | {"person_id": person_id}
         table = tables[json_dict.pop("item")]
-        stmt = table.update().where(table.c.id == json_dict["id"]).values(json_dict)
+        stmt = table.update().where(table.c.id == item_id).values(json_dict)
         await db_session.execute(stmt)
 
     @delete(

@@ -76,14 +76,13 @@ class User(Session):
     blocked: bool
     deleted: bool
     attempt: int
-    created_at: datetime | None
-    updated_at: datetime | None
+    created_at: datetime
+    updated_at: datetime
 
 
 class Actions(BaseModel):
     """Pydantic model for user actions form."""
 
-    person_id: int | None = None
     item: Literal["reset", "block", "delete"] | Roles
 
     model_config = ConfigDict(use_enum_values=True)
@@ -101,59 +100,49 @@ class Index(BaseModel):
     ]
 
 
-class SharedModel(BaseModel):
-    """SharedModel schema."""
+class IdModel(BaseModel):
+    """ItemModel schema."""
 
     id: int
+
+
+class DateIdModel(IdModel):
+    """DateIdModel schema."""
+
     created_at: datetime
     updated_at: datetime
 
 
-class ItemShredModel(SharedModel):
-    """ItemModel schema."""
-
-    person_id: int
-
-
-class Person(SharedModel):
+class PersonIn(BaseModel):
     """Person schema."""
 
     surname: Annotated[
         str,
-        Field(validation_alias="lastName", pattern=name_pattern),
+        Field(pattern=name_pattern),
         AfterValidator(lambda v: v.upper()),
     ]
     firstname: Annotated[
         str,
-        Field(validation_alias="firstName", pattern=name_pattern),
+        Field(pattern=name_pattern),
         AfterValidator(lambda v: v.upper()),
     ]
     patronymic: Annotated[
         str | None,
-        Field(default=None, validation_alias="midName"),
+        Field(default=None),
         AfterValidator(lambda v: v.upper() if v else None),
     ]
     birthday: date
     birthplace: Annotated[str | None, Field(None, max_length=255)]
-    citizenship: Annotated[
-        str | None,
-        Field(default=None, validation_alias="citizen", max_length=255),
-    ]
-    dual: Annotated[
-        str | None,
-        Field(default=None, validation_alias="additionalCitizenship", max_length=255),
-    ]
+    citizenship: Annotated[str | None, Field(default=None, max_length=255)]
+    dual: Annotated[str | None, Field(default=None, max_length=255)]
     snils: Annotated[str | None, Field(default=None, max_length=11)]
     inn: Annotated[str | None, Field(default=None, max_length=12)]
-    marital: Annotated[
-        str | None,
-        Field(default=None, validation_alias="maritalStatus", max_length=255),
-    ]
+    marital: Annotated[str | None, Field(default=None, max_length=255)]
     addition: str | None = None
     destination: str | None = None
     editable: bool | None = True
 
-    model_config = ConfigDict(validate_by_name=True, str_strip_whitespace=True)
+    model_config = ConfigDict(str_strip_whitespace=True)
 
     @field_validator("inn", mode="after")
     @classmethod
@@ -193,6 +182,14 @@ class Person(SharedModel):
         raise ValidationError
 
 
+class PersonOut(PersonIn, DateIdModel):
+    """Person schema."""
+
+    addition: str | None = None
+    destination: str | None = None
+    editable: bool
+
+
 class PersonResponse(BaseModel):
     """Person exists response."""
 
@@ -217,49 +214,33 @@ class Candidates(BaseModel):
 class PrevIn(BaseModel):
     """Previous in schema."""
 
-    surname: str = Field(validation_alias="lastNameBeforeChange", max_length=255)
-    firstname: Annotated[
-        str | None,
-        Field(default=None, validation_alias="firstNameBeforeChange", max_length=255),
-    ]
-    patronymic: Annotated[
-        str | None,
-        Field(default=None, validation_alias="midNameBeforeChange", max_length=255),
-    ]
-    changed: Annotated[
-        str | None,
-        Field(default=None, validation_alias="yearOfChange", max_length=4),
-    ]
+    surname: str = Field(max_length=255)
+    firstname: Annotated[str | None, Field(default=None, max_length=255)]
+    patronymic: Annotated[str | None, Field(default=None, max_length=255)]
+    changed: Annotated[str | None, Field(default=None, max_length=4)]
     reason: str | None = None
     item: Literal["previous"]
 
-    model_config = ConfigDict(validate_by_name=True, str_strip_whitespace=True)
+    model_config = ConfigDict(str_strip_whitespace=True)
 
 
-class PrevOut(PrevIn, ItemShredModel):
+class PrevOut(PrevIn, IdModel):
     """Previous out schema."""
 
 
 class EducationIn(BaseModel):
     """Education in schema."""
 
-    view: Annotated[
-        str | None,
-        Field(default=None, validation_alias="educationType", max_length=255),
-    ]
-    institution: Annotated[str, Field(validation_alias="institutionName")]
-    finished: Annotated[
-        str | None,
-        Field(default=None, validation_alias="endYear"),
-        BeforeValidator(str),
-    ]
+    view: Annotated[str | None, Field(default=None, max_length=255)]
+    institution: Annotated[str, Field(max_length=255)]
+    finished: Annotated[str | None, Field(default=None), BeforeValidator(str)]
     specialty: str | None = None
     item: Literal["educations"]
 
-    model_config = ConfigDict(validate_by_name=True, str_strip_whitespace=True)
+    model_config = ConfigDict(str_strip_whitespace=True)
 
 
-class EducationOut(EducationIn, SharedModel):
+class EducationOut(EducationIn, IdModel):
     """Educations schema."""
 
 
@@ -270,33 +251,27 @@ class StaffIn(BaseModel):
     department: str | None = None
     item: Literal["staffs"]
 
-    model_config = ConfigDict(validate_by_name=True, str_strip_whitespace=True)
+    model_config = ConfigDict(str_strip_whitespace=True)
 
 
-class StaffOut(StaffIn, ItemShredModel):
+class StaffOut(StaffIn, IdModel):
     """Staffs out schema."""
 
 
 class DocumentIn(BaseModel):
     """Document in schema."""
 
-    view: Annotated[
-        str | None,
-        Field(default="Паспорт", validation_alias="documentType"),
-    ]
+    view: str | None = "Паспорт"
     series: str | None = None
     digits: Annotated[str, Field(max_length=12)]
-    agency: Annotated[
-        str | None,
-        Field(default=None, validation_alias="endYear", max_length=255),
-    ]
+    agency: Annotated[str | None, Field(default=None, max_length=255)]
     issue: date | None = None
     item: Literal["documents"]
 
-    model_config = ConfigDict(validate_by_name=True, str_strip_whitespace=True)
+    model_config = ConfigDict(str_strip_whitespace=True)
 
 
-class DocumentOut(DocumentIn, ItemShredModel):
+class DocumentOut(DocumentIn, IdModel):
     """Document out schema."""
 
 
@@ -310,7 +285,7 @@ class AddressIn(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
 
 
-class AddressOut(AddressIn, ItemShredModel):
+class AddressOut(AddressIn, IdModel):
     """Address out schema."""
 
 
@@ -324,51 +299,45 @@ class ContactIn(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
 
 
-class ContactOut(ContactIn, ItemShredModel):
+class ContactOut(ContactIn, IdModel):
     """Contacts out schema."""
 
 
 class WorkplaceIn(BaseModel):
     """Workplaces in schema."""
 
-    now_work: Annotated[
-        bool | None,
-        Field(default=False, validation_alias="currentJob"),
-    ]
-    starts: Annotated[date | None, Field(validation_alias="beginDate")]
-    finished: Annotated[date | None, Field(default=None, validation_alias="endDate")]
-    workplace: Annotated[str | None, Field(default=None, validation_alias="name")]
+    now_work: bool | None = False
+    starts: date | None = None
+    finished: date | None = None
+    workplace: Annotated[str, Field(max_length=255)]
     address: Annotated[str | None, Field(None, max_length=255)]
     position: Annotated[str, Field(max_length=255)]
-    reason: Annotated[str | None, Field(default=None, validation_alias="fireReason")]
+    reason: str | None = None
     item: Literal["workplaces"]
 
-    model_config = ConfigDict(validate_by_name=True, str_strip_whitespace=True)
+    model_config = ConfigDict(str_strip_whitespace=True)
 
 
-class WorkplaceOut(WorkplaceIn, ItemShredModel):
+class WorkplaceOut(WorkplaceIn, IdModel):
     """Workplace out schema."""
 
 
 class AffilationIn(BaseModel):
     """Affilation in schema."""
 
-    view: Annotated[
-        str | None,
-        Field(default=None, validation_alias="organizationType"),
-    ]
-    organization: Annotated[str, Field(validation_alias="name")]
-    inn: str | None = None
+    view: Annotated[str, Field(max_length=255)]
+    organization: Annotated[str, Field(max_length=255)]
+    inn: Annotated[str | None, Field(None, max_length=12)]
     item: Literal["affilations"]
 
-    model_config = ConfigDict(validate_by_name=True, str_strip_whitespace=True)
+    model_config = ConfigDict(str_strip_whitespace=True)
 
 
-class AffilationOut(AffilationIn, ItemShredModel):
+class AffilationOut(AffilationIn, IdModel):
     """Affilations out schema."""
 
 
-class CheckIn(SharedModel):
+class CheckIn(DateIdModel):
     """Check in schema."""
 
     workplace: str | None = None
@@ -393,11 +362,11 @@ class CheckIn(SharedModel):
     model_config = ConfigDict(use_enum_values=True)
 
 
-class CheckOut(CheckIn, ItemShredModel):
+class CheckOut(CheckIn, DateIdModel):
     """Checks out schema."""
 
 
-class PoligrafIn(SharedModel):
+class PoligrafIn(DateIdModel):
     """Poligraf in schema."""
 
     theme: str
@@ -408,7 +377,7 @@ class PoligrafIn(SharedModel):
     model_config = ConfigDict(use_enum_values=True)
 
 
-class PoligrafOut(PoligrafIn, ItemShredModel):
+class PoligrafOut(PoligrafIn, DateIdModel):
     """Poligraf out schema."""
 
 
@@ -420,7 +389,7 @@ class InvestigationIn(BaseModel):
     item: Literal["investigations"]
 
 
-class InvestigationOut(InvestigationIn, ItemShredModel):
+class InvestigationOut(InvestigationIn, DateIdModel):
     """Investigation out schema."""
 
 
@@ -432,69 +401,8 @@ class InquiryIn(BaseModel):
     item: Literal["inquiries"]
 
 
-class InquiryOut(InquiryIn, ItemShredModel):
+class InquiryOut(InquiryIn, DateIdModel):
     """Inquiries out schema."""
-
-
-class AnketaJson(Person):
-    """Candidate anketa schema."""
-
-    email: Annotated[str | None, Field(pattern=email_pattern)]
-    department: str | None = None
-    position: Annotated[str, Field(validation_alias="positionName", max_length=255)]
-    series: Annotated[
-        str | None,
-        Field(default=None, validation_alias="passportSerial"),
-    ]
-    digits: Annotated[str, Field(validation_alias="passportNumber", max_length=12)]
-    issue: Annotated[
-        date | None,
-        Field(default=None, validation_alias="passportIssueDate"),
-    ]
-    agency: Annotated[
-        str | None,
-        Field(default=None, validation_alias="passportIssuedBy", max_length=255),
-    ]
-    valid_address: Annotated[
-        str,
-        Field(validation_alias="validAddress", max_length=255),
-    ]
-    reg_address: Annotated[str, Field(validation_alias="regAddress", max_length=255)]
-    contact_phone: Annotated[
-        str,
-        Field(validation_alias="contactPhone", max_length=255),
-    ]
-    education: Annotated[list[EducationIn], Field([])]
-    experience: Annotated[list[WorkplaceIn], Field([])]
-    organizations: Annotated[list[AffilationIn], Field([])]
-    name_was_changed: Annotated[
-        list[PrevIn],
-        Field(
-            default=[],
-            validation_alias="nameWasChanged",
-        ),
-    ]
-    related_organizations: Annotated[
-        list[AffilationIn],
-        Field(
-            default=[],
-            validation_alias="relatedPersonsOrganizations",
-        ),
-    ]
-    state_organizations: Annotated[
-        list[AffilationIn],
-        Field(
-            default=[],
-            validation_alias="stateOrganizations",
-        ),
-    ]
-    public_organizations: Annotated[
-        list[AffilationIn],
-        Field(
-            default=[],
-            validation_alias="publicOfficeOrganizations",
-        ),
-    ]
 
 
 ItemTypeIn = Annotated[
@@ -513,6 +421,13 @@ ItemTypeIn = Annotated[
     Field(discriminator="item"),
 ]
 
+
+class ItemModelIn(BaseModel):
+    """Validation class."""
+
+    item: ItemTypeIn
+
+
 ItemTypeOut = Annotated[
     AddressOut
     | AffilationOut
@@ -530,12 +445,6 @@ ItemTypeOut = Annotated[
 ]
 
 
-class ItemModelIn(BaseModel):
-    """Validation class."""
-
-    item: ItemTypeIn
-
-
 class ItemsOutModels(BaseModel):
     """Validation class."""
 
@@ -551,3 +460,150 @@ class ItemsOutModels(BaseModel):
     poligrafs: list[PoligrafOut]
     investigations: list[InvestigationOut]
     inquiries: list[InquiryOut]
+
+
+class EducationJson(BaseModel):
+    """Education json model."""
+
+    view: Annotated[str, Field(validation_alias="educationType", max_length=255)]
+    institution: Annotated[
+        str,
+        Field(validation_alias="institutionName", max_length=255),
+    ]
+    finished: Annotated[
+        str | None,
+        Field(default=None, validation_alias="endYear", max_length=4),
+        BeforeValidator(str),
+    ]
+    specialty: Annotated[
+        str | None,
+        Field(None, validation_alias="educationType", max_length=255),
+    ]
+
+
+class PrevJson(BaseModel):
+    """Previous in schema."""
+
+    surname: str = Field(max_length=255)
+    firstname: Annotated[str | None, Field(default=None, max_length=255)]
+    patronymic: Annotated[str | None, Field(default=None, max_length=255)]
+    changed: Annotated[str | None, Field(default=None, max_length=4)]
+    reason: str | None = None
+
+
+class WorkplaceJson(BaseModel):
+    """Workplaces json model."""
+
+    now_work: Annotated[bool, Field(default=False, validation_alias="currentJob")]
+    starts: Annotated[date, Field(validation_alias="beginDate")]
+    finished: Annotated[date | None, Field(default=None, validation_alias="endDate")]
+    workplace: Annotated[str, Field(validation_alias="name", max_length=255)]
+    address: Annotated[str | None, Field(None, max_length=255)]
+    position: Annotated[str, Field(max_length=255)]
+    reason: Annotated[str | None, Field(default=None, validation_alias="fireReason")]
+
+
+class AffilationJson(BaseModel):
+    """Affilation json model."""
+
+    view: Annotated[
+        str | None,
+        Field(default=None, validation_alias="organizationType", max_length=255),
+    ]
+    organization: Annotated[str, Field(validation_alias="name", max_length=255)]
+    inn: Annotated[str | None, Field(None, max_length=12)]
+
+
+class AnketaJson(BaseModel):
+    """Candidate anketa schema."""
+
+    surname: Annotated[
+        str,
+        Field(validation_alias="lastName", pattern=name_pattern, max_length=255),
+        AfterValidator(lambda v: v.upper()),
+    ]
+    firstname: Annotated[
+        str,
+        Field(validation_alias="firstName", pattern=name_pattern, max_length=255),
+        AfterValidator(lambda v: v.upper()),
+    ]
+    patronymic: Annotated[
+        str | None,
+        Field(default=None, validation_alias="midName", max_length=255),
+        AfterValidator(lambda v: v.upper() if v else None),
+    ]
+    birthday: date
+    birthplace: Annotated[str | None, Field(None, max_length=255)]
+    citizenship: Annotated[
+        str | None,
+        Field(default=None, validation_alias="citizen", max_length=255),
+    ]
+    dual: Annotated[
+        str | None,
+        Field(default=None, validation_alias="additionalCitizenship", max_length=255),
+    ]
+    snils: Annotated[str | None, Field(default=None, max_length=11)]
+    inn: Annotated[str | None, Field(default=None, max_length=12)]
+    marital: Annotated[
+        str | None,
+        Field(default=None, validation_alias="maritalStatus", max_length=255),
+    ]
+    email: Annotated[str | None, Field(pattern=email_pattern)]
+    department: str | None = None
+    position: Annotated[str, Field(validation_alias="positionName", max_length=255)]
+    series: Annotated[
+        str | None,
+        Field(default=None, validation_alias="passportSerial", max_length=12),
+    ]
+    digits: Annotated[str, Field(validation_alias="passportNumber", max_length=12)]
+    issue: Annotated[
+        date | None,
+        Field(default=None, validation_alias="passportIssueDate"),
+    ]
+    agency: Annotated[
+        str | None,
+        Field(default=None, validation_alias="passportIssuedBy", max_length=255),
+    ]
+    valid_address: Annotated[
+        str | None,
+        Field(None, validation_alias="validAddress", max_length=255),
+    ]
+    reg_address: Annotated[
+        str | None,
+        Field(None, validation_alias="regAddress", max_length=255),
+    ]
+    contact_phone: Annotated[
+        str | None,
+        Field(None, validation_alias="contactPhone", max_length=255),
+    ]
+    education: Annotated[list[EducationJson], Field([])]
+    experience: Annotated[list[WorkplaceJson], Field([])]
+    name_was_changed: Annotated[
+        list[PrevJson],
+        Field(
+            default=[],
+            validation_alias="nameWasChanged",
+        ),
+    ]
+    organizations: Annotated[list[AffilationJson], Field([])]
+    related_organizations: Annotated[
+        list[AffilationJson],
+        Field(
+            default=[],
+            validation_alias="relatedPersonsOrganizations",
+        ),
+    ]
+    state_organizations: Annotated[
+        list[AffilationJson],
+        Field(
+            default=[],
+            validation_alias="stateOrganizations",
+        ),
+    ]
+    public_organizations: Annotated[
+        list[AffilationJson],
+        Field(
+            default=[],
+            validation_alias="publicOfficeOrganizations",
+        ),
+    ]
