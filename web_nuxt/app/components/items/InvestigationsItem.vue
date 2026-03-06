@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { Inquisition } from "@/types";
+import type { InquisitionExt } from "@/types";
 
 const props = defineProps({
   item: {
-    type: Object as PropType<Inquisition>,
+    type: Object as PropType<InquisitionExt>,
     required: true,
   },
 });

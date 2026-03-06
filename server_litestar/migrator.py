@@ -8,11 +8,11 @@ from typing import TYPE_CHECKING
 
 import typer
 from advanced_alchemy.base import BigIntAuditBase
-from pydantic import TypeAdapter, ValidationError
+from pydantic import ValidationError
 from rich import print as rprint
 
 from app.structures.classes import ItemCategory
-from app.structures.models import ItemModel, ItemType, Person, User
+from app.structures.models import ItemModelIn, PersonOut, User
 from app.structures.tables import Persons, Users, config
 
 if TYPE_CHECKING:
@@ -21,7 +21,6 @@ if TYPE_CHECKING:
 cli = typer.Typer()
 
 tables = BigIntAuditBase.metadata.tables
-ta = TypeAdapter(list[ItemType])
 
 
 def _check_tz(data: datetime) -> datetime:
@@ -57,7 +56,7 @@ async def migrate(path: str) -> None:
             for person in persons:
                 persona = dict(person)
                 persona["created_at"] = persona.pop("created")
-                new_person = Person(**persona).model_dump(exclude={"id"})
+                new_person = PersonOut(**persona).model_dump(exclude={"id"})
                 new_person["updated_at"] = new_person["created_at"] = _check_tz(
                     new_person["created_at"],
                 )
@@ -76,12 +75,11 @@ async def migrate(path: str) -> None:
                         try:
                             data = dict(itm)
                             data["item"] = table.value
-                            data["created_at"] = data["updated_at"] = _check_tz(
-                                data.pop("created"),
+                            created = _check_tz(data.pop("created"))
+                            new_data = ItemModelIn(**data).item.model_dump(
+                                exclude={"item"},
                             )
-                            new_data = ItemModel(**data).item.model_dump(
-                                exclude={"id", "item"},
-                            )
+                            new_data["created_at"] = new_data["updated_at"] = created
                             new_data["person_id"] = new_person.id
                             inserts.append(new_data)
                         except ValidationError as e:

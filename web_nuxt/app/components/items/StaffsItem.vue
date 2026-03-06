@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { Staff } from "@/types";
+import type { StaffExt } from "@/types";
 
 const props = defineProps({
   item: {
-    type: Object as PropType<Staff>,
+    type: Object as PropType<StaffExt>,
     required: true,
   },
 });

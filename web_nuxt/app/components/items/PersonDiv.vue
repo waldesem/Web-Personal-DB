@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { useClipboard } from "@vueuse/core";
-import type { Person } from "@/types";
+import type { PersonExt } from "@/types";
 
 const props = defineProps({
   item: {
-    type: Object as PropType<Person>,
+    type: Object as PropType<PersonExt>,
     default: () => {},
   },
 });

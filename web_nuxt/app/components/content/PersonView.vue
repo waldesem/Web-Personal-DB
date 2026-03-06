@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { Person } from "@/types";
+import type { PersonExt } from "@/types";
 
 // Используем плагин для передачи данных на сервер
 const { $api } = useNuxtApp();
 
-const { data: person } = useNuxtData<Person>("person");
+const { data: person } = useNuxtData<PersonExt>("person");
 
 const toasts = useToasts();
 

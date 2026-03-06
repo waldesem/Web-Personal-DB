@@ -187,6 +187,7 @@ class PersonOut(PersonIn, DateIdModel):
 
     addition: str | None = None
     destination: str | None = None
+    user_id: int
     editable: bool
 
 

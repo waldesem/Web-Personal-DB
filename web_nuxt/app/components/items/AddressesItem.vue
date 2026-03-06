@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { Address } from "@/types";
+import type { AddressExt } from "@/types";
 
 const props = defineProps({
   item: {
-    type: Object as PropType<Address>,
+    type: Object as PropType<AddressExt>,
     required: true,
   },
 });

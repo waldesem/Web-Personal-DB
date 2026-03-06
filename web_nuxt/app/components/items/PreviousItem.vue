@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { Previous } from "@/types";
+import type { PreviousExt } from "@/types";
 
 const props = defineProps({
   item: {
-    type: Object as PropType<Previous>,
+    type: Object as PropType<PreviousExt>,
     required: true,
   },
 });

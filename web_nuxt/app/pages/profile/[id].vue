@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Person, Session } from "@/types";
+import type { PersonExt, Session } from "@/types";
 
 // Используем плагин для передачи данных на сервер
 const { $api } = useNuxtApp();
@@ -18,8 +18,8 @@ provide("candId", candId);
 // Определяем функцию для получения данных из API
 const { data, status, refresh } = await useAsyncData(
   "person",
-  () => $api<Person>("/routes/persons/" + candId.value),
-  { default: () => ({}) as Person },
+  () => $api<PersonExt>("/routes/persons/" + candId.value),
+  { default: () => ({}) as PersonExt },
 );
 
 // Вычисляем статус редактирования анкеты

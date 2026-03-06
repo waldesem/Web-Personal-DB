@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { Needs } from "@/types";
+import type { NeedsExt } from "@/types";
 
 const props = defineProps({
   item: {
-    type: Object as PropType<Needs>,
+    type: Object as PropType<NeedsExt>,
     required: true,
   },
 });

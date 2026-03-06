@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { Verification } from "@/types";
+import type { VerificationExt } from "@/types";
 import { Conclusions } from "@/types";
 
 const props = defineProps({
   item: {
-    type: Object as PropType<Verification>,
+    type: Object as PropType<VerificationExt>,
     required: true,
   },
 });

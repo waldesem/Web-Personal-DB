@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import type { Work } from "@/types";
+import type { WorkExt } from "@/types";
 
 const props = defineProps({
   item: {
-    type: Object as PropType<Work>,
+    type: Object as PropType<WorkExt>,
     required: true,
   },
 });
 
 const experience = computed(() =>
-  workExperience(props.item.starts, props.item.finished, props.item.updated_at),
+  workExperience(props.item.starts, props.item.finished, new Date().toDateString()),
 );
 </script>
 
