@@ -17,10 +17,12 @@ ta = TypeAdapter(list[Candidates])
 async def get_candidates(query: Index, db_session: AsyncSession) -> list[Candidates]:
     """Retrieve a paginated list of persons from the database."""
     stmt = select(
+        Persons.id,
         Persons.surname,
         Persons.firstname,
         Persons.patronymic,
         Persons.birthday,
+        Persons.updated_at,
         Persons.editable,
         Users.fullname.label("username"),
         func.count().over().label("total"),

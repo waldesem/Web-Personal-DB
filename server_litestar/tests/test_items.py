@@ -9,7 +9,7 @@ from app.structures.classes import ItemCategory
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("item", "person_id"),
-    [(item.value, 1) for item in ItemCategory],
+    [(item.value, 44) for item in ItemCategory],
 )
 async def test_get_item(
     test_auth_client: AsyncTestClient[Litestar],
@@ -25,7 +25,7 @@ async def test_get_item(
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "person_id",
-    [1],
+    [44],
 )
 async def test_get_items(
     test_auth_client: AsyncTestClient[Litestar],
@@ -39,11 +39,10 @@ async def test_get_items(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    ("item", "person_id", "data"),
+    ("person_id", "data"),
     [
         (
-            "staffs",
-            1,
+            44,
             {
                 "item": {
                     "position": "Officer",
@@ -56,12 +55,41 @@ async def test_get_items(
 )
 async def test_post_item(
     test_auth_client: AsyncTestClient[Litestar],
-    item: str,
     person_id: int,
     data: dict,
 ) -> None:
+    resp = await test_auth_client.post(
+        f"/routes/items/{person_id}",
+        json=data,
+    )
+    assert resp.status_code == HTTP_201_CREATED
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("person_id", "item_id", "data"),
+    [
+        (
+            44,
+            5,
+            {
+                "item": {
+                    "position": "Chief",
+                    "department": "Banking",
+                    "item": "staffs",
+                },
+            },
+        ),
+    ],
+)
+async def test_patch_item(
+    test_auth_client: AsyncTestClient[Litestar],
+    person_id: int,
+    item_id: int,
+    data: dict,
+) -> None:
     resp = await test_auth_client.patch(
-        f"/routes/items/{item}/{person_id}",
+        f"/routes/items/{person_id}/{item_id}",
         json=data,
     )
     assert resp.status_code == HTTP_201_CREATED

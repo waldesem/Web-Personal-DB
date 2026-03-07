@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-import re
-from datetime import date, datetime  # noqa: TC003
-from typing import Annotated, Literal
+from datetime import UTC, date, datetime
+from typing import Annotated, Literal, Self
 
 from pydantic import (
     AfterValidator,
@@ -14,12 +13,18 @@ from pydantic import (
     Field,
     ValidationError,
     field_validator,
+    model_validator,
 )
 
 from app.structures.classes import Conclusions, Decisions, Roles
 
 email_pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
 name_pattern = r"^[А-яЁёIV\-\s\.\,\'\(\)]*$"
+
+
+def check_tz(v: datetime) -> datetime:
+    """Check ts."""
+    return v if v.tzinfo else v.replace(tzinfo=UTC)
 
 
 class AuthResponse(BaseModel):
@@ -33,33 +38,41 @@ class AuthResponse(BaseModel):
 class AuthLogin(BaseModel):
     """Pydantic model for login form."""
 
-    username: Annotated[str, Field(max_length=255), AfterValidator(lambda v: v.lower())]
-    password: Annotated[str, Field(max_length=255)]
+    model_config = ConfigDict(str_max_length=255, regex_engine="python-re")
+
+    username: Annotated[str, AfterValidator(lambda v: v.lower())]
+    password: str
 
 
 class UpdateLogin(AuthLogin):
     """Pydantic model for login form."""
 
-    new_pswd: Annotated[str, Field(max_length=255)]
+    new_pswd: Annotated[
+        str,
+        Field(pattern=r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,16}$"),
+    ]
 
-    @field_validator("new_pswd")
-    @classmethod
-    def check_pswd(cls, p: str) -> str:
-        """Check password."""
-        if re.match(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,16}$", p):
-            return p
-        raise ValidationError
+    @model_validator(mode="after")
+    def check_password(self) -> Self:
+        """Check passwords combinations."""
+        if self.password == self.new_pswd:
+            raise ValidationError
+        return self
 
 
 class UserForm(BaseModel):
     """Pydantic model for user form."""
 
-    fullname: Annotated[str, Field(max_length=255)]
-    username: Annotated[str, Field(max_length=255), AfterValidator(lambda v: v.lower())]
-    email: Annotated[str, Field(pattern=email_pattern)]
-    role: Annotated[Roles, Field(Roles.guest)]
+    model_config = ConfigDict(
+        use_enum_values=True,
+        str_strip_whitespace=True,
+        str_max_length=255,
+    )
 
-    model_config = ConfigDict(str_strip_whitespace=True, use_enum_values=True)
+    fullname: str
+    username: Annotated[str, AfterValidator(lambda v: v.lower())]
+    email: Annotated[str, Field(pattern=email_pattern)]
+    role: Annotated[Roles, Field(Roles.guest.value)]
 
 
 class Session(UserForm):
@@ -71,21 +84,21 @@ class Session(UserForm):
 class User(Session):
     """Pydantic model for user form."""
 
-    pswd_create: datetime
+    pswd_create: Annotated[datetime, AfterValidator(check_tz)]
     change_pswd: bool
     blocked: bool
     deleted: bool
     attempt: int
-    created_at: datetime
-    updated_at: datetime
+    created_at: Annotated[datetime, AfterValidator(check_tz)]
+    updated_at: Annotated[datetime, AfterValidator(check_tz)]
 
 
 class Actions(BaseModel):
     """Pydantic model for user actions form."""
 
-    item: Literal["reset", "block", "delete"] | Roles
-
     model_config = ConfigDict(use_enum_values=True)
+
+    item: Literal["reset", "block", "delete"] | Roles
 
 
 class Index(BaseModel):
@@ -109,12 +122,14 @@ class IdModel(BaseModel):
 class DateIdModel(IdModel):
     """DateIdModel schema."""
 
-    created_at: datetime
-    updated_at: datetime
+    created_at: Annotated[datetime, AfterValidator(check_tz)]
+    updated_at: Annotated[datetime, AfterValidator(check_tz)]
 
 
 class PersonIn(BaseModel):
     """Person schema."""
+
+    model_config = ConfigDict(str_strip_whitespace=True)
 
     surname: Annotated[
         str,
@@ -142,24 +157,26 @@ class PersonIn(BaseModel):
     destination: str | None = None
     editable: bool | None = True
 
-    model_config = ConfigDict(str_strip_whitespace=True)
-
     @field_validator("inn", mode="after")
     @classmethod
-    def validate_inn(cls, inn: str) -> str:
+    def validate_inn(cls, inn: str) -> str | None:
         """Check inn."""
-        c1 = [7, 2, 4, 10, 3, 5, 9, 4, 6, 8, 0, 0]
-        c2 = [3, 7, 2, 4, 10, 3, 5, 9, 4, 6, 8, 0]
-        check1 = sum([int(inn[i]) * c1[i] for i in range(12)]) % 11 % 10
-        check2 = sum([int(inn[i]) * c2[i] for i in range(12)]) % 11 % 10
-        if check1 == int(inn[10]) and check2 == int(inn[11]):
-            return inn
-        raise ValidationError
+        if inn:
+            c1 = [7, 2, 4, 10, 3, 5, 9, 4, 6, 8, 0, 0]
+            c2 = [3, 7, 2, 4, 10, 3, 5, 9, 4, 6, 8, 0]
+            check1 = sum([int(inn[i]) * c1[i] for i in range(12)]) % 11 % 10
+            check2 = sum([int(inn[i]) * c2[i] for i in range(12)]) % 11 % 10
+            if check1 == int(inn[10]) and check2 == int(inn[11]):
+                return inn
+            raise ValidationError
+        return None
 
     @field_validator("snils", mode="after")
     @classmethod
-    def validate_snils(cls, snils: str) -> str:
+    def validate_snils(cls, snils: str) -> str | None:
         """Check snils."""
+        if not snils:
+            return None
         # Получаем первые 9 цифр и контрольное число (последние 2)
         digits = [int(d) for d in snils]
         main_part = digits[:9]
@@ -187,8 +204,8 @@ class PersonOut(PersonIn, DateIdModel):
 
     addition: str | None = None
     destination: str | None = None
-    user_id: int
     editable: bool
+    user_id: int
 
 
 class PersonResponse(BaseModel):
@@ -215,14 +232,18 @@ class Candidates(BaseModel):
 class PrevIn(BaseModel):
     """Previous in schema."""
 
+    model_config = ConfigDict(str_strip_whitespace=True)
+
     surname: str = Field(max_length=255)
     firstname: Annotated[str | None, Field(default=None, max_length=255)]
     patronymic: Annotated[str | None, Field(default=None, max_length=255)]
-    changed: Annotated[str | None, Field(default=None, max_length=4)]
+    changed: Annotated[
+        str | None,
+        Field(default=None, max_length=4),
+        BeforeValidator(str),
+    ]
     reason: str | None = None
     item: Literal["previous"]
-
-    model_config = ConfigDict(str_strip_whitespace=True)
 
 
 class PrevOut(PrevIn, IdModel):
@@ -232,13 +253,13 @@ class PrevOut(PrevIn, IdModel):
 class EducationIn(BaseModel):
     """Education in schema."""
 
+    model_config = ConfigDict(str_strip_whitespace=True)
+
     view: Annotated[str | None, Field(default=None, max_length=255)]
     institution: Annotated[str, Field(max_length=255)]
     finished: Annotated[str | None, Field(default=None), BeforeValidator(str)]
     specialty: str | None = None
     item: Literal["educations"]
-
-    model_config = ConfigDict(str_strip_whitespace=True)
 
 
 class EducationOut(EducationIn, IdModel):
@@ -248,11 +269,11 @@ class EducationOut(EducationIn, IdModel):
 class StaffIn(BaseModel):
     """Staffs schema."""
 
+    model_config = ConfigDict(str_strip_whitespace=True)
+
     position: str
     department: str | None = None
     item: Literal["staffs"]
-
-    model_config = ConfigDict(str_strip_whitespace=True)
 
 
 class StaffOut(StaffIn, IdModel):
@@ -262,14 +283,14 @@ class StaffOut(StaffIn, IdModel):
 class DocumentIn(BaseModel):
     """Document in schema."""
 
+    model_config = ConfigDict(str_strip_whitespace=True)
+
     view: str | None = "Паспорт"
     series: str | None = None
     digits: Annotated[str, Field(max_length=12)]
     agency: Annotated[str | None, Field(default=None, max_length=255)]
     issue: date | None = None
     item: Literal["documents"]
-
-    model_config = ConfigDict(str_strip_whitespace=True)
 
 
 class DocumentOut(DocumentIn, IdModel):
@@ -279,11 +300,11 @@ class DocumentOut(DocumentIn, IdModel):
 class AddressIn(BaseModel):
     """Address in schema."""
 
-    view: Annotated[str, Field(max_length=255)]
-    address: Annotated[str, Field(max_length=255)]
-    item: Literal["addresses"]
+    model_config = ConfigDict(str_strip_whitespace=True, str_max_length=255)
 
-    model_config = ConfigDict(str_strip_whitespace=True)
+    view: str
+    address: str
+    item: Literal["addresses"]
 
 
 class AddressOut(AddressIn, IdModel):
@@ -293,11 +314,11 @@ class AddressOut(AddressIn, IdModel):
 class ContactIn(BaseModel):
     """Contacts in schema."""
 
-    view: Annotated[str, Field(max_length=255)]
-    contact: Annotated[str, Field(max_length=255)]
-    item: Literal["contacts"]
+    model_config = ConfigDict(str_strip_whitespace=True, str_max_length=255)
 
-    model_config = ConfigDict(str_strip_whitespace=True)
+    view: str
+    contact: str
+    item: Literal["contacts"]
 
 
 class ContactOut(ContactIn, IdModel):
@@ -307,16 +328,19 @@ class ContactOut(ContactIn, IdModel):
 class WorkplaceIn(BaseModel):
     """Workplaces in schema."""
 
-    now_work: bool | None = False
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    now_work: Annotated[bool | None, BeforeValidator(bool)]
     starts: date | None = None
-    finished: date | None = None
+    finished: Annotated[
+        date | None | str,
+        AfterValidator(lambda v: None if isinstance(v, str) else v),
+    ]
     workplace: Annotated[str, Field(max_length=255)]
     address: Annotated[str | None, Field(None, max_length=255)]
     position: Annotated[str, Field(max_length=255)]
     reason: str | None = None
     item: Literal["workplaces"]
-
-    model_config = ConfigDict(str_strip_whitespace=True)
 
 
 class WorkplaceOut(WorkplaceIn, IdModel):
@@ -326,12 +350,12 @@ class WorkplaceOut(WorkplaceIn, IdModel):
 class AffilationIn(BaseModel):
     """Affilation in schema."""
 
+    model_config = ConfigDict(str_strip_whitespace=True)
+
     view: Annotated[str, Field(max_length=255)]
     organization: Annotated[str, Field(max_length=255)]
     inn: Annotated[str | None, Field(None, max_length=12)]
     item: Literal["affilations"]
-
-    model_config = ConfigDict(str_strip_whitespace=True)
 
 
 class AffilationOut(AffilationIn, IdModel):
@@ -340,6 +364,8 @@ class AffilationOut(AffilationIn, IdModel):
 
 class CheckIn(DateIdModel):
     """Check in schema."""
+
+    model_config = ConfigDict(use_enum_values=True)
 
     workplace: str | None = None
     document: str | None = None
@@ -360,8 +386,6 @@ class CheckIn(DateIdModel):
     person_id: int | None = None
     item: Literal["checks"]
 
-    model_config = ConfigDict(use_enum_values=True)
-
 
 class CheckOut(CheckIn, DateIdModel):
     """Checks out schema."""
@@ -370,12 +394,12 @@ class CheckOut(CheckIn, DateIdModel):
 class PoligrafIn(DateIdModel):
     """Poligraf in schema."""
 
+    model_config = ConfigDict(use_enum_values=True)
+
     theme: str
     results: str
     conclusion: Decisions
     item: Literal["poligrafs"]
-
-    model_config = ConfigDict(use_enum_values=True)
 
 
 class PoligrafOut(PoligrafIn, DateIdModel):
@@ -444,6 +468,12 @@ ItemTypeOut = Annotated[
     | WorkplaceOut,
     Field(discriminator="item"),
 ]
+
+
+class ItemModelOut(BaseModel):
+    """Validation class."""
+
+    item: ItemTypeOut
 
 
 class ItemsOutModels(BaseModel):

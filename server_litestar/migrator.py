@@ -2,29 +2,20 @@
 
 import asyncio
 import sqlite3
-from datetime import UTC
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import typer
 from advanced_alchemy.base import BigIntAuditBase
-from pydantic import ValidationError
 from rich import print as rprint
 
 from app.structures.classes import ItemCategory
-from app.structures.models import ItemModelIn, PersonOut, User
+from app.structures.models import ItemModelOut, PersonOut, User
 from app.structures.tables import Persons, Users, config
-
-if TYPE_CHECKING:
-    from datetime import datetime
 
 cli = typer.Typer()
 
 tables = BigIntAuditBase.metadata.tables
-
-
-def _check_tz(data: datetime) -> datetime:
-    return data if data.tzinfo else data.replace(tzinfo=UTC)
 
 
 async def migrate(path: str) -> None:
@@ -45,20 +36,20 @@ async def migrate(path: str) -> None:
             users = cur.execute("SELECT * FROM users").fetchall()
             new_users = []
             for user in users:
-                new_user = User(**dict(user)).model_dump(
-                    exclude={"id", "created_at", "updated_at"},
-                )
-                new_user["pswd_create"] = _check_tz(new_user["pswd_create"])
+                new_user = User(
+                    **dict(user),
+                    created_at=datetime.now(UTC),
+                    updated_at=datetime.now(UTC),
+                ).model_dump(exclude={"id"})
                 new_users.append(Users(**new_user))
             db_session.add_all(new_users)
 
             persons = cur.execute("SELECT * FROM persons").fetchall()
             for person in persons:
                 persona = dict(person)
-                persona["created_at"] = persona.pop("created")
-                new_person = PersonOut(**persona).model_dump(exclude={"id"})
-                new_person["updated_at"] = new_person["created_at"] = _check_tz(
-                    new_person["created_at"],
+                persona["created_at"] = persona["updated_at"] = persona.pop("created")
+                new_person = PersonOut(**persona).model_dump(
+                    exclude={"id"},
                 )
                 new_person = Persons(**new_person)
                 db_session.add(new_person)
@@ -72,18 +63,21 @@ async def migrate(path: str) -> None:
 
                     inserts: list[dict] = []
                     for itm in items:
-                        try:
+                        if itm:
                             data = dict(itm)
                             data["item"] = table.value
-                            created = _check_tz(data.pop("created"))
-                            new_data = ItemModelIn(**data).item.model_dump(
+                            if data.get("created"):
+                                data["created_at"] = data["updated_at"] = data[
+                                    "created"
+                                ]
+                            data = {"item": data}
+                            new_data = ItemModelOut.model_validate(
+                                data,
+                            ).item.model_dump(
                                 exclude={"item"},
                             )
-                            new_data["created_at"] = new_data["updated_at"] = created
                             new_data["person_id"] = new_person.id
                             inserts.append(new_data)
-                        except ValidationError as e:
-                            rprint(e)
 
                     if inserts:
                         stmt = tables[table.value].insert().values(inserts)

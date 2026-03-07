@@ -15,3 +15,4 @@ async def test_candidates(test_auth_client: AsyncTestClient[Litestar]) -> None:
         },
     )
     assert resp.status_code == HTTP_200_OK
+    assert len(resp.json()) != 0
