@@ -7,9 +7,9 @@ from advanced_alchemy.base import BigIntAuditBase
 from rich import print as rprint
 from sqlalchemy import select
 
-from app.structures.classes import Roles
-from app.structures.models import UserForm
-from app.structures.tables import Users, config
+from app.classes.classes import Roles
+from app.models.models import UserForm
+from app.tables.tables import Users, config
 
 app = typer.Typer()
 

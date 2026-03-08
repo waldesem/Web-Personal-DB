@@ -7,8 +7,8 @@ from pydantic import TypeAdapter
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.structures.models import Candidates, Index
-from app.structures.tables import Persons, Users
+from app.models.person import Candidates, Index
+from app.tables.tables import Persons, Users
 
 ta = TypeAdapter(list[Candidates])
 

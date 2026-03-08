@@ -10,10 +10,10 @@ from pydantic import TypeAdapter
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.classes.classes import Roles
 from app.middleware.auth import role_guard
-from app.structures.classes import Roles
-from app.structures.models import Actions, User, UserForm
-from app.structures.tables import Users
+from app.models.auth import Actions, User, UserForm
+from app.tables.tables import Users
 from constants import DEFAULT_PASSWORD
 
 ta = TypeAdapter(list[User])

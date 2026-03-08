@@ -5,7 +5,7 @@ from litestar.exceptions import InternalServerException
 from litestar.testing import AsyncTestClient
 
 from app import app
-from app.structures.models import AuthResponse
+from app.models.models import AuthResponse
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator

@@ -6,10 +6,12 @@ from litestar import Controller, Request, post
 from litestar.security.jwt import Token
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.classes.classes import Roles
 from app.middleware.auth import role_guard
-from app.structures.classes import Roles
-from app.structures.models import AnketaJson, PersonIn, PersonResponse, User
-from app.structures.tables import (
+from app.models.auth import User
+from app.models.jsons import AnketaJson
+from app.models.person import PersonIn, PersonResponse
+from app.tables.tables import (
     Addresses,
     Affilations,
     Contacts,

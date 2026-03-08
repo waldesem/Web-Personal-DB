@@ -21,7 +21,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.structures.classes import Roles
+from app.classes.classes import Roles
 from constants import DATABASE_URI, DEFAULT_PASSWORD
 
 

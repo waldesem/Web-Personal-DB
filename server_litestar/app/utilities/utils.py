@@ -6,8 +6,8 @@ from pathlib import Path
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.structures.models import PersonIn
-from app.structures.tables import Persons
+from app.models.person import PersonIn
+from app.tables.tables import Persons
 from constants import BASE_PATH
 
 

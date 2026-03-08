@@ -10,9 +10,11 @@ import typer
 from advanced_alchemy.base import BigIntAuditBase
 from rich import print as rprint
 
-from app.structures.classes import ItemCategory
-from app.structures.models import ItemModelOut, PersonOut, User
-from app.structures.tables import Persons, Users, config
+from app.classes.classes import ItemCategory
+from app.models.auth import User
+from app.models.items import ItemModelOut
+from app.models.person import PersonOut
+from app.tables.tables import Persons, Users, config
 from constants import DEFAULT_PASSWORD
 
 cli = typer.Typer()
@@ -39,7 +41,16 @@ async def migrate(path: str) -> None:
             new_users = []
             for user in users:
                 new_user = User(
-                    **dict(user),
+                    id=user["id"],
+                    fullname=user["fullname"],
+                    username=user["username"],
+                    email=user["email"],
+                    role=user["role"],
+                    blocked=False,
+                    deleted=False,
+                    attempt=0,
+                    change_pswd=True,
+                    pswd_create=datetime.now(UTC),
                     created_at=datetime.now(UTC),
                     updated_at=datetime.now(UTC),
                 ).model_dump(exclude={"id"})
@@ -56,6 +67,11 @@ async def migrate(path: str) -> None:
                 persona["created_at"] = persona["updated_at"] = persona.pop("created")
                 new_person = PersonOut(**persona).model_dump(
                     exclude={"id"},
+                )
+                new_person["created_at"] = new_person["updated_at"] = (
+                    new_person["updated_at"]
+                    if new_person["updated_at"].tzinfo
+                    else new_person["updated_at"].replace(tzinfo=UTC)
                 )
                 new_person = Persons(**new_person)
                 db_session.add(new_person)
@@ -82,6 +98,12 @@ async def migrate(path: str) -> None:
                             ).item.model_dump(
                                 exclude={"id", "item"},
                             )
+                            if "created_at" in new_data and "updated_at" in new_data:
+                                new_data["created_at"] = new_data["updated_at"] = (
+                                    new_data["updated_at"]
+                                    if new_data["updated_at"].tzinfo
+                                    else new_data["updated_at"].replace(tzinfo=UTC)
+                                )
                             new_data["person_id"] = new_person.id
                             inserts.append(new_data)
 

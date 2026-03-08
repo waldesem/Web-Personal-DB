@@ -8,10 +8,11 @@ from litestar.security.jwt import Token
 from sqlalchemy import not_, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.classes.classes import Roles
 from app.middleware.auth import role_guard
-from app.structures.classes import Roles
-from app.structures.models import PersonIn, PersonOut, PersonResponse, User
-from app.structures.tables import Persons
+from app.models.auth import User
+from app.models.person import PersonIn, PersonOut, PersonResponse
+from app.tables.tables import Persons
 from app.utilities.utils import create_destination, upload_resume
 
 
