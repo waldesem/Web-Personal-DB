@@ -27,14 +27,31 @@ class UserController(Controller):
 
     @get("/users")
     async def get_users(self, db_session: AsyncSession) -> list[User]:
-        """Retrieve a list of users from the database."""
+        """Retrieve a list of users from the database.
+
+        Args:
+            db_session: AsyncSession.
+
+        Returns:
+            Response with status code 200 and a list of users.
+
+        """
         async with db_session.begin():
             users = (await db_session.execute(select(Users))).scalars()
             return ta.validate_python(users, from_attributes=True)
 
     @post("/user")
     async def post_user(self, data: UserForm, db_session: AsyncSession) -> None:
-        """Handle the POST request to create a user in the database."""
+        """Handle the POST request to create a user in the database.
+
+        Args:
+            data: UserForm.
+            db_session: AsyncSession.
+
+        Returns:
+            Response with status code 201.
+
+        """
         # Проверить, существует ли уже пользователь с таким именем
         user = (
             await db_session.execute(
@@ -53,7 +70,18 @@ class UserController(Controller):
         request: Request[User, Token, Any],
         db_session: AsyncSession,
     ) -> None:
-        """Change a user's information in the database based on their user ID."""
+        """Change a user's information in the database based on their user ID.
+
+        Args:
+            user_id: User ID.
+            data: Actions.
+            request: Request.
+            db_session: AsyncSession.
+
+        Returns:
+            Response with status code 201.
+
+        """
         user = await db_session.get(Users, user_id)
         # Если пользователь не найден или пытается изменить собственный профиль
         if not user or request.user.id == user.id:

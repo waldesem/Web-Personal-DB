@@ -60,7 +60,7 @@ const { open, onChange } = useFileDialog({
 onChange(async (files) => {
   status.value = "pending";
   const str = (await files?.[0]?.text()) as string;
-  const { person_id, exists } = (await $api("/routes/persons/json", {
+  const { person_id, exists } = (await $api("/routes/json", {
     method: "POST",
     body: JSON.parse(str),
   })) as {
@@ -170,7 +170,6 @@ const columns: TableColumn<Candidate>[] = [
   <UContainer>
     <UPageHeader title="КАНДИДАТЫ" :ui="{ title: 'text-red-800' }">
       <template #links>
-        <!--<ClientOnly>-->
         <!-- меню для действий -->
         <UDropdownMenu
           v-if="user?.role === 'user'"
@@ -212,7 +211,6 @@ const columns: TableColumn<Candidate>[] = [
             />
           </template>
         </UModal>
-        <!--</ClientOnly>-->
       </template>
     </UPageHeader>
 

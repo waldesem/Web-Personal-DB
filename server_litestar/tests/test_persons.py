@@ -17,7 +17,7 @@ TEST_DIR = "../../XData"
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "person_id",
-    [44],
+    [1],
 )
 async def test_get_person(
     test_auth_client: AsyncTestClient[Litestar],
@@ -42,7 +42,7 @@ async def test_get_person(
             "citizenship": fake.country() if i == 0 else None,
             "dual": fake.country() if i != 0 else None,
             "snils": fake.snils() if i != 0 else None,
-            "inn": fake.individuals_inn() if i == 0 else None,
+            "inn": "530401048147",
             "marital": fake.sentence(2) if i == 0 else None,
             "addition": fake.sentence(5) if i != 0 else None,
         }

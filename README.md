@@ -10,7 +10,7 @@ StaffSec is a web interface for managing a candidates database.
 
 ### Installation
 
-To use this project, you will need to have Python 3.14 or higher.
+To use this project, you will need to have Python 3.14 version.
 For installiing the required Python packages run commands:
 
 ```
@@ -19,6 +19,17 @@ git clone https://github.com/waldesem/Web-Personal-DB.git
 cd Web-Personal-DB/server_litestar
 uv sync
 source .venv/bin/activate
+```
+
+#### Build rust module for validating inn and snils (Optional):
+
+You needs instal rust language first.
+
+```
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+cd rust_module
+maturin build --release --interpreter $(which python)
+uv pip install target/wheels/rust_module-0.1.0-cp314-cp314-manylinux_2_34_x86_64.whl
 ```
 
 ### Database
@@ -78,26 +89,11 @@ PG_PASSWORD=webapp
 ### Build frontend
 
 First install latest stable NodeJS version.
-Add in web_nuxt folder `.env` file with variable `SSR=true` for SSR mode.
-Uncomment all `ClientOnly` components for SSR mode
 Then run in terminal:
 
 ```
 cd Web-Personal-DB/web_nuxt
 npm i
-```
-
-#### For SSR mode
-
-```
-npx nuxt build
-```
-
-Builded files can be found in `web_nux/.output`
-
-#### For CSR mode
-
-```
 npx nuxi generate
 ```
 
@@ -117,13 +113,3 @@ or for production:
 uvicorn app:app # for uvicorn ASGI server
 granian --interface asgi app:app # for Granian Rust-based ASGI server
 ```
-
-### Start frontend server (only SSR mode)
-
-For starting frontend in SSR mode run
-
-```
-HOST=localhost PORT=8000 node .output/server/index.mjs
-```
-
-Nitro server should be run behind a reverse proxy like nginx.

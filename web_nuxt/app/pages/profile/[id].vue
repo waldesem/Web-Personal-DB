@@ -30,7 +30,7 @@ const editable = computed(() => {
     user.value?.id === data.value.user_id
   );
 });
-provide("editable", editable)
+provide("editable", editable);
 
 // Определяем функцию для переключения режима редактирования
 async function switchStatus(): Promise<void> {
@@ -55,7 +55,7 @@ async function switchStatus(): Promise<void> {
     { method: "PATCH", body: {} },
   );
   status.value = "success";
-  if (response.status == 201) {
+  if (response.status == 200) {
     refresh();
   } else {
     toasts.create();
@@ -70,7 +70,6 @@ async function switchStatus(): Promise<void> {
       :ui="{ title: 'text-red-800' }"
     >
       <template #links>
-        <!--<ClientOnly>-->
         <!-- Кнопки переключения режима редактирования -->
         <div v-if="user?.role == 'user'" class="flex items-center space-x-4">
           <UButton
@@ -100,7 +99,6 @@ async function switchStatus(): Promise<void> {
             @click="switchStatus"
           />
         </div>
-        <!--</ClientOnly>-->
       </template>
     </UPageHeader>
     <ContentTabsView />

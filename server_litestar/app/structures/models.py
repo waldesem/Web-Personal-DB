@@ -150,8 +150,8 @@ class PersonIn(BaseModel):
     birthplace: Annotated[str | None, Field(None, max_length=255)]
     citizenship: Annotated[str | None, Field(default=None, max_length=255)]
     dual: Annotated[str | None, Field(default=None, max_length=255)]
-    snils: Annotated[str | None, Field(default=None, max_length=11)]
-    inn: Annotated[str | None, Field(default=None, max_length=12)]
+    snils: str | None = None
+    inn: str | None = None
     marital: Annotated[str | None, Field(default=None, max_length=255)]
     addition: str | None = None
     destination: str | None = None
@@ -159,44 +159,29 @@ class PersonIn(BaseModel):
 
     @field_validator("inn", mode="after")
     @classmethod
-    def validate_inn(cls, inn: str) -> str | None:
+    def validate_inn(cls, inn: str | None) -> str | None:
         """Check inn."""
-        if inn:
-            c1 = [7, 2, 4, 10, 3, 5, 9, 4, 6, 8, 0, 0]
-            c2 = [3, 7, 2, 4, 10, 3, 5, 9, 4, 6, 8, 0]
-            check1 = sum([int(inn[i]) * c1[i] for i in range(12)]) % 11 % 10
-            check2 = sum([int(inn[i]) * c2[i] for i in range(12)]) % 11 % 10
-            if check1 == int(inn[10]) and check2 == int(inn[11]):
-                return inn
-            raise ValidationError
-        return None
+        try:
+            from rust_module import validate_inn  # ty:ignore[unresolved-import]
+
+            return validate_inn(inn)
+        except ImportError:
+            from app.utilities.utils import validate_inn
+
+            return validate_inn(inn)
 
     @field_validator("snils", mode="after")
     @classmethod
-    def validate_snils(cls, snils: str) -> str | None:
+    def validate_snils(cls, snils: str | None) -> str | None:
         """Check snils."""
-        if not snils:
-            return None
-        # Получаем первые 9 цифр и контрольное число (последние 2)
-        digits = [int(d) for d in snils]
-        main_part = digits[:9]
-        check_sum = int(snils[9:])
+        try:
+            from rust_module import validate_snils  # ty:ignore[unresolved-import]
 
-        # Вычисляем контрольную сумму
-        sum_prod = sum(main_part[i] * (9 - i) for i in range(9))
+            return validate_snils(snils)
+        except ImportError:
+            from app.utilities.utils import validate_snils
 
-        # Алгоритм проверки контрольного числа
-        calculated_sum = 0
-        if sum_prod < 100:
-            calculated_sum = sum_prod
-        elif sum_prod in {100, 101}:
-            calculated_sum = 0
-        else:
-            remainder = sum_prod % 101
-            calculated_sum = 0 if remainder == 100 else remainder
-        if calculated_sum == check_sum:
-            return snils
-        raise ValidationError
+            return validate_snils(snils)
 
 
 class PersonOut(PersonIn, DateIdModel):
@@ -206,6 +191,16 @@ class PersonOut(PersonIn, DateIdModel):
     destination: str | None = None
     editable: bool
     user_id: int
+
+    @classmethod
+    def validate_inn(cls, inn: str | None) -> str | None:
+        """Check inn."""
+        return inn
+
+    @classmethod
+    def validate_snils(cls, snils: str | None) -> str | None:
+        """Check snils."""
+        return snils
 
 
 class PersonResponse(BaseModel):

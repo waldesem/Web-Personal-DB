@@ -23,9 +23,9 @@ async function logout() {
   const refresh = useCookie("refresh");
   if (access.value || refresh.value) {
     await $fetch("/routes/auth/logout", {
-      method: "POST",
+      method: "PATCH",
       body: {
-        messaage: "delete",
+        message: "delete",
         access_token: access.value,
         refresh_token: refresh.value,
       },
@@ -44,7 +44,6 @@ async function logout() {
         <ElementLogoDiv />
       </template>
       <template #default>
-        <!--<ClientOnly>-->
         <UNavigationMenu
           v-if="user.role === 'admin'"
           :items="[
@@ -56,10 +55,8 @@ async function logout() {
           ]"
           variant="link"
         />
-        <!--</ClientOnly>-->
       </template>
       <template #right>
-        <!--<ClientOnly>-->
         <UButton
           class="rounded-full"
           :label="user.username ?? 'Выйти'"
@@ -67,7 +64,6 @@ async function logout() {
           icon="i-lucide-log-out"
           @click="logout()"
         />
-        <!--</ClientOnly>-->
       </template>
     </UHeader>
 

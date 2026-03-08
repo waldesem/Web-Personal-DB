@@ -80,7 +80,7 @@ async def migrate(path: str) -> None:
                             new_data = ItemModelOut.model_validate(
                                 data,
                             ).item.model_dump(
-                                exclude={"item"},
+                                exclude={"id", "item"},
                             )
                             new_data["person_id"] = new_person.id
                             inserts.append(new_data)

@@ -7,7 +7,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import bcrypt
-from litestar import Controller, Request, Response, get, post
+from litestar import Controller, Request, Response, get, patch, post
 from litestar.exceptions import NotAuthorizedException
 from litestar.security.jwt import Token
 from sqlalchemy import select
@@ -39,7 +39,16 @@ class AuthController(Controller):
         db_session: AsyncSession,
         data: AuthLogin | UpdateLogin,
     ) -> Users | None:
-        """Check user."""
+        """Check user.
+
+        Args:
+            db_session: AsyncSession.
+            data: AuthLogin | UpdateLogin.
+
+        Returns:
+            Users | None.
+
+        """
         user = (
             await db_session.execute(
                 select(Users).filter_by(username=data.username),
@@ -61,7 +70,16 @@ class AuthController(Controller):
 
     @staticmethod
     async def add_expiry(token: str | None, *, access: bool = True) -> None:
-        """Add token to expires store."""
+        """Add token to expires store.
+
+        Args:
+            token: str | None.
+            access: bool = True.
+
+        Returns:
+            None.
+
+        """
         await token_store.delete_expired()
         if token:
             decoded = Token.decode(
@@ -86,7 +104,16 @@ class AuthController(Controller):
         data: AuthLogin,
         db_session: AsyncSession,
     ) -> AuthResponse:
-        """Handle the login process."""
+        """Handle the login process.
+
+        Args:
+            data: AuthLogin.
+            db_session: AsyncSession.
+
+        Returns:
+            Response with status code 200 and AuthResponse.
+
+        """
         if user := await self.check_user(db_session, data):
             delta_change = datetime.now(UTC) - user.pswd_create
 
@@ -117,7 +144,16 @@ class AuthController(Controller):
         data: UpdateLogin,
         db_session: AsyncSession,
     ) -> AuthResponse:
-        """Proceed login process."""
+        """Proceed login process.
+
+        Args:
+            data: UpdateLogin.
+            db_session: AsyncSession.
+
+        Returns:
+            Response with status code 200 and AuthResponse.
+
+        """
         if user := await self.check_user(db_session, data):
             user.passhash = bcrypt.hashpw(
                 data.new_pswd.encode(),
@@ -129,15 +165,31 @@ class AuthController(Controller):
             return AuthResponse(message="updated")
         raise NotAuthorizedException
 
-    @post("/logout")
+    @patch("/logout")
     async def logout(self, data: AuthResponse) -> None:
-        """Logout the user."""
+        """Logout the user.
+
+        Args:
+            data: AuthResponse.
+
+        Returns:
+            Response with status code 20o.
+
+        """
         await self.add_expiry(data.access_token)
         await self.add_expiry(data.refresh_token, access=False)
 
     @get("/refresh", middleware=[jwt_refresh.middleware])
     async def refresh_token(self, request: Request[User, Token, Any]) -> Response:
-        """Refresh the access token."""
+        """Refresh the access token.
+
+        Args:
+            request: Request.
+
+        Returns:
+            Response with status code 201 and access token.
+
+        """
         return jwt_access.login(
             identifier=str(request.auth.sub),
             token_unique_jwt_id=secrets.token_hex(10),
@@ -146,5 +198,13 @@ class AuthController(Controller):
 
     @get("/session", cache=120, cache_key_builder=key_builder)
     async def get_session(self, request: Request[User, Token, Any]) -> Session:
-        """Retrieve user data."""
+        """Retrieve user data.
+
+        Args:
+            request: Request.
+
+        Returns:
+            Session.
+
+        """
         return Session(**request.user.model_dump())

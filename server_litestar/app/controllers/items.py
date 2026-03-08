@@ -64,13 +64,11 @@ class ItemsController(Controller):
             Response with status code 200 and serialized ItemsOutModels.
 
         """
-        return ItemsOutModels.model_validate(
-            {
-                item.value: await self.select_item(item.value, person_id, db_session)
-                for item in ItemCategory
-            },
-            from_attributes=True,
-        )
+        selection = {
+            item.value: await self.select_item(item.value, person_id, db_session)
+            for item in ItemCategory
+        }
+        return ItemsOutModels.model_validate(selection, from_attributes=True)
 
     @get("/{item:str}/{person_id:int}")
     async def get_item(
@@ -90,10 +88,8 @@ class ItemsController(Controller):
             Response with status code 200 and serialized list of ItemTypeOut.
 
         """
-        return ta.validate_python(
-            await self.select_item(item, person_id, db_session),
-            from_attributes=True,
-        )
+        selection = await self.select_item(item, person_id, db_session)
+        return ta.validate_python(selection, from_attributes=True)
 
     @post(
         "/{person_id:int}",
@@ -174,6 +170,4 @@ class ItemsController(Controller):
 
         """
         table = tables[item]
-        await db_session.execute(
-            table.delete().where(table.c.id == item_id),
-        )
+        await db_session.execute(table.delete().where(table.c.id == item_id))

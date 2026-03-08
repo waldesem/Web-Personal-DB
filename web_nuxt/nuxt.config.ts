@@ -1,7 +1,5 @@
 import { fileURLToPath } from "url";
 
-const SSR = process.env.SSR === "true" || false;
-
 export default defineNuxtConfig({
   alias: {
     "@/": fileURLToPath(new URL("./src/app", import.meta.url)),
@@ -17,7 +15,7 @@ export default defineNuxtConfig({
   build: {
     analyze: true,
   },
-  compatibilityDate: "2026-01-31",
+  compatibilityDate: "2026-03-08",
   css: ["~/assets/css/main.css"],
   devtools: { enabled: true },
   experimental: {
@@ -39,7 +37,7 @@ export default defineNuxtConfig({
       proxy: "http://127.0.0.1:8000/routes/**",
     },
   },
-  ssr: SSR,
+  ssr: false,
   ui: {
     fonts: false,
   },
