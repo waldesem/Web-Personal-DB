@@ -5,6 +5,7 @@ import sqlite3
 from datetime import UTC, datetime
 from pathlib import Path
 
+import bcrypt
 import typer
 from advanced_alchemy.base import BigIntAuditBase
 from rich import print as rprint
@@ -12,6 +13,7 @@ from rich import print as rprint
 from app.structures.classes import ItemCategory
 from app.structures.models import ItemModelOut, PersonOut, User
 from app.structures.tables import Persons, Users, config
+from constants import DEFAULT_PASSWORD
 
 cli = typer.Typer()
 
@@ -41,6 +43,10 @@ async def migrate(path: str) -> None:
                     created_at=datetime.now(UTC),
                     updated_at=datetime.now(UTC),
                 ).model_dump(exclude={"id"})
+                new_user["passhash"] = bcrypt.hashpw(
+                    DEFAULT_PASSWORD.encode(),
+                    bcrypt.gensalt(),
+                )
                 new_users.append(Users(**new_user))
             db_session.add_all(new_users)
 

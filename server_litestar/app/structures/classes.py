@@ -1,6 +1,5 @@
 """Enums and classes module."""
 
-from dataclasses import dataclass
 from enum import StrEnum
 
 

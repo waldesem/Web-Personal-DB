@@ -3,7 +3,6 @@
 from typing import TYPE_CHECKING
 
 from litestar import Controller, delete, get, patch, post
-from litestar.status_codes import HTTP_201_CREATED
 from pydantic import TypeAdapter
 from sqlalchemy import label, literal, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -30,7 +29,17 @@ class ItemsController(Controller):
         person_id: int,
         db_session: AsyncSession,
     ) -> Sequence:
-        """Retrieve an item from the database based on the provided item."""
+        """Select rows from the database based on the provided item and person ID.
+
+        Args:
+            item: ItemCategory.
+            person_id: Person ID.
+            db_session: AsyncSession.
+
+        Returns:
+            Sequence of rows from the database.
+
+        """
         table = tables[item]
         stmt = (
             select(table, label("item", literal(item)))
@@ -45,7 +54,16 @@ class ItemsController(Controller):
         person_id: int,
         db_session: AsyncSession,
     ) -> ItemsOutModels:
-        """Retrieve an all items from the database."""
+        """Get all items for a person.
+
+        Args:
+            person_id: Person ID.
+            db_session: AsyncSession.
+
+        Returns:
+            Response with status code 200 and serialized ItemsOutModels.
+
+        """
         return ItemsOutModels.model_validate(
             {
                 item.value: await self.select_item(item.value, person_id, db_session)
@@ -61,7 +79,17 @@ class ItemsController(Controller):
         person_id: int,
         db_session: AsyncSession,
     ) -> list[ItemTypeOut]:
-        """Get result of query based on the provided item."""
+        """Get an item for a person.
+
+        Args:
+            item: ItemCategory.
+            person_id: Person ID.
+            db_session: AsyncSession.
+
+        Returns:
+            Response with status code 200 and serialized list of ItemTypeOut.
+
+        """
         return ta.validate_python(
             await self.select_item(item, person_id, db_session),
             from_attributes=True,
@@ -78,7 +106,17 @@ class ItemsController(Controller):
         data: ItemModelIn,
         db_session: AsyncSession,
     ) -> None:
-        """Insert a record in the specified table."""
+        """Add a new item to the database.
+
+        Args:
+            person_id: Person ID.
+            data: ItemModelIn.
+            db_session: AsyncSession.
+
+        Returns:
+            Response with status code 201.
+
+        """
         item = data.item.item
         json_dict = data.item.model_dump(exclude={"item"}) | {"person_id": person_id}
         stmt = tables[item].insert().values(json_dict)
@@ -88,7 +126,6 @@ class ItemsController(Controller):
         "/{person_id:int}/{item_id:int}",
         guards=[role_guard],
         opt={"role": Roles.user.value},
-        status_code=HTTP_201_CREATED,
     )
     async def patch_item(
         self,
@@ -97,7 +134,18 @@ class ItemsController(Controller):
         data: ItemModelIn,
         db_session: AsyncSession,
     ) -> None:
-        """Replace a record in the specified table."""
+        """Update an item in the database.
+
+        Args:
+            person_id: Person ID.
+            item_id: Item ID.
+            data: ItemModelIn.
+            db_session: AsyncSession.
+
+        Returns:
+            Response with status code 201.
+
+        """
         json_dict = data.item.model_dump() | {"person_id": person_id}
         table = tables[json_dict.pop("item")]
         stmt = table.update().where(table.c.id == item_id).values(json_dict)
@@ -114,7 +162,17 @@ class ItemsController(Controller):
         item_id: int,
         db_session: AsyncSession,
     ) -> None:
-        """Delete an item from the database with item name and item ID."""
+        """Delete an item from the database.
+
+        Args:
+            item: ItemCategory.
+            item_id: Item ID.
+            db_session: AsyncSession.
+
+        Returns:
+            Response with status code 204.
+
+        """
         table = tables[item]
         await db_session.execute(
             table.delete().where(table.c.id == item_id),

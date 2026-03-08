@@ -15,7 +15,16 @@ ta = TypeAdapter(list[Candidates])
 
 @get("/candidates")
 async def get_candidates(query: Index, db_session: AsyncSession) -> list[Candidates]:
-    """Retrieve a paginated list of persons from the database."""
+    """Retrieve a paginated list of persons from the database.
+
+    Args:
+        query: Index query parameters: search, page, per_page.
+        db_session: Database session.
+
+    Returns:
+            List of persons.
+
+    """
     stmt = select(
         Persons.id,
         Persons.surname,

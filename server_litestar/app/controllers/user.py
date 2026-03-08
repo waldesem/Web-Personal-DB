@@ -1,6 +1,8 @@
 """User routes."""
+
 from typing import Any, ClassVar
 
+import bcrypt
 from litestar import Controller, Request, get, post
 from litestar.exceptions import PermissionDeniedException
 from litestar.security.jwt import Token
@@ -12,7 +14,6 @@ from app.middleware.auth import role_guard
 from app.structures.classes import Roles
 from app.structures.models import Actions, User, UserForm
 from app.structures.tables import Users
-from app.utils.security import generate_password_hash
 from constants import DEFAULT_PASSWORD
 
 ta = TypeAdapter(list[User])
@@ -60,7 +61,7 @@ class UserController(Controller):
 
         if data.item == "reset":
             # Сбросить пароль пользователя и обнулить попытки входа
-            user.passhash = generate_password_hash(DEFAULT_PASSWORD)
+            user.passhash = bcrypt.hashpw(DEFAULT_PASSWORD.encode(), bcrypt.gensalt())
             user.attempt = 0
             user.blocked = False
             user.change_pswd = True

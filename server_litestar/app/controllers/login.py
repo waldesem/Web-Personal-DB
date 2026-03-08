@@ -6,6 +6,7 @@ import secrets
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
+import bcrypt
 from litestar import Controller, Request, Response, get, post
 from litestar.exceptions import NotAuthorizedException
 from litestar.security.jwt import Token
@@ -15,7 +16,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.middleware.auth import jwt_access, jwt_refresh, token_store
 from app.structures.models import AuthLogin, AuthResponse, Session, UpdateLogin, User
 from app.structures.tables import Users
-from app.utils.security import check_password_hash, generate_password_hash
 from constants import (
     ACCESS_SECRET_KEY,
     ACCESS_SECRET_KEY_LIVE,
@@ -49,7 +49,7 @@ class AuthController(Controller):
         if not user or user.blocked or user.deleted:
             return None
 
-        if not check_password_hash(user.passhash, data.password):
+        if not bcrypt.checkpw(data.password.encode(), user.passhash):
             if user.attempt < 5:
                 user.attempt += 1
             else:
@@ -119,7 +119,10 @@ class AuthController(Controller):
     ) -> AuthResponse:
         """Proceed login process."""
         if user := await self.check_user(db_session, data):
-            user.passhash = generate_password_hash(data.new_pswd)
+            user.passhash = bcrypt.hashpw(
+                data.new_pswd.encode(),
+                bcrypt.gensalt(),
+            )
             user.pswd_create = datetime.now(tz=UTC)
             user.change_pswd = False
             user.attempt = 0

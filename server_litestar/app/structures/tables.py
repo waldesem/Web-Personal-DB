@@ -2,6 +2,7 @@
 
 from datetime import UTC, datetime
 
+import bcrypt
 from advanced_alchemy.base import BigIntAuditBase
 from advanced_alchemy.extensions.litestar import (
     SQLAlchemyAsyncConfig,
@@ -14,14 +15,14 @@ from sqlalchemy import (
     Date,
     ForeignKey,
     Integer,
+    LargeBinary,
     String,
     Text,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.structures.classes import Roles
-from app.utils.security import generate_password_hash
-from constants import DATABASE_URI
+from constants import DATABASE_URI, DEFAULT_PASSWORD
 
 
 class Users(BigIntAuditBase):
@@ -32,9 +33,12 @@ class Users(BigIntAuditBase):
     fullname: Mapped[str] = mapped_column(String(255), nullable=False)
     username: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     email: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
-    passhash: Mapped[str] = mapped_column(
-        String(255),
-        default=generate_password_hash,
+    passhash: Mapped[bytes] = mapped_column(
+        LargeBinary,
+        default=bcrypt.hashpw(
+            DEFAULT_PASSWORD.encode(),
+            bcrypt.gensalt(),
+        ),
     )
     pswd_create: Mapped[datetime] = mapped_column(
         DateTimeUTC(timezone=True),

@@ -66,7 +66,7 @@ async function submitItem(form: typeof item.value) {
   );
   item.value = {};
   await getItem();
-  if (response.status === 201) {
+  if (["200", "201"].includes(response.status.toString())) {
     toasts.create("success", "Информация успешно обновлена");
   } else toasts.create();
 }
@@ -126,7 +126,7 @@ async function deleteItem(itemId: string) {
             item = content;
             method = 'PATCH';
             modal = true;
-            itemId = content.id
+            itemId = content.id;
           "
           @delete="deleteItem(content.id)"
         />
