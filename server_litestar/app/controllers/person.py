@@ -124,4 +124,4 @@ class PersonController(Controller):
         person = await db_session.get(Persons, person_id)
         if not person:
             raise NotFoundException
-        db_session.delete(person)
+        await db_session.delete(person)

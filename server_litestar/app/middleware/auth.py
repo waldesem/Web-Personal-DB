@@ -61,6 +61,34 @@ async def revoked_token_handler(
     return True
 
 
+async def jwt_revoke(token: str | None, *, access: bool = True) -> None:
+    """Add token to expires store.
+
+    Args:
+        token: str | None.
+        access: bool = True.
+
+    Returns:
+        None.
+
+    """
+    await token_store.delete_expired()
+    if token:
+        decoded = Token.decode(
+            token.split()[1],
+            ACCESS_SECRET_KEY if access else REFRESH_SECRET_KEY,
+            "HS256",
+            verify_exp=False,
+        )
+        await token_store.set(
+            str(decoded.jti),
+            b"jti",
+            timedelta(
+                minutes=ACCESS_SECRET_KEY_LIVE if access else REFRESH_SECRET_KEY_LIVE,
+            ),
+        )
+
+
 jwt_access = JWTAuth[User](
     retrieve_user_handler=retrieve_user_handler,
     revoked_token_handler=revoked_token_handler,
@@ -70,6 +98,7 @@ jwt_access = JWTAuth[User](
     exclude=[
         "/assets/*",
         "/routes/auth/login",
+        "/routes/auth/logout",
         "/routes/auth/update",
         "/routes/auth/refresh",
         "/schema/swagger",

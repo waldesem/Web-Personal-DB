@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import secrets
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from typing import Any
 
 import bcrypt
@@ -13,15 +13,9 @@ from litestar.security.jwt import Token
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.middleware.auth import jwt_access, jwt_refresh, token_store
+from app.middleware.auth import jwt_access, jwt_refresh, jwt_revoke
 from app.models.user import AuthLogin, AuthResponse, Session, UpdateLogin, User
 from app.tables.tables import Users
-from constants import (
-    ACCESS_SECRET_KEY,
-    ACCESS_SECRET_KEY_LIVE,
-    REFRESH_SECRET_KEY,
-    REFRESH_SECRET_KEY_LIVE,
-)
 
 
 def key_builder(request: Request) -> str:
@@ -34,8 +28,9 @@ class AuthController(Controller):
 
     path = "/auth"
 
-    @staticmethod
+    @classmethod
     async def check_user(
+        cls,
         db_session: AsyncSession,
         data: AuthLogin | UpdateLogin,
     ) -> Users | None:
@@ -67,36 +62,6 @@ class AuthController(Controller):
             return None
 
         return user
-
-    @staticmethod
-    async def add_expiry(token: str | None, *, access: bool = True) -> None:
-        """Add token to expires store.
-
-        Args:
-            token: str | None.
-            access: bool = True.
-
-        Returns:
-            None.
-
-        """
-        await token_store.delete_expired()
-        if token:
-            decoded = Token.decode(
-                token.split()[1],
-                ACCESS_SECRET_KEY if access else REFRESH_SECRET_KEY,
-                "HS256",
-                verify_exp=False,
-            )
-            await token_store.set(
-                str(decoded.jti),
-                b"jti",
-                timedelta(
-                    minutes=ACCESS_SECRET_KEY_LIVE
-                    if access
-                    else REFRESH_SECRET_KEY_LIVE,
-                ),
-            )
 
     @post("/login")
     async def post_login_auth(
@@ -173,11 +138,11 @@ class AuthController(Controller):
             data: AuthResponse.
 
         Returns:
-            Response with status code 20o.
+            Response with status code 200.
 
         """
-        await self.add_expiry(data.access_token)
-        await self.add_expiry(data.refresh_token, access=False)
+        await jwt_revoke(data.access_token)
+        await jwt_revoke(data.refresh_token, access=False)
 
     @get("/refresh", middleware=[jwt_refresh.middleware])
     async def refresh_token(self, request: Request[User, Token, Any]) -> Response:
