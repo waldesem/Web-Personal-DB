@@ -14,7 +14,7 @@ from pydantic import (
 )
 
 try:
-    from rust_module import validate_inn, validate_snils  # ty:ignore[unresolved-import]
+    from checksum import validate_inn, validate_snils  # ty:ignore[unresolved-import]
 
 except ImportError:
     from app.utilities.utils import validate_inn, validate_snils

@@ -23,13 +23,14 @@ source .venv/bin/activate
 
 #### Build rust module for validating inn and snils (Optional):
 
-You needs instal rust language first.
+You needs instal rust language and maturin package.
 
 ```
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-cd rust_module
+pipx install maturin
+cd rust
 maturin build --release --interpreter $(which python)
-uv pip install target/wheels/rust_module-0.1.0-cp314-cp314-manylinux_2_34_x86_64.whl
+uv pip install target/wheels/checksum-0.1.0-cp314-cp314-manylinux_2_34_x86_64.whl
 ```
 
 ### Database

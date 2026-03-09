@@ -96,22 +96,17 @@ async def upload_resume(
 
 def validate_inn(inn: str | None) -> str | None:
     """Check inn."""
-    try:
-        from rust_module import validate_inn  # ty:ignore[unresolved-import]
-
-        return validate_inn(inn)
-    except ImportError:
-        if inn:
-            inn = inn.replace("-", "").replace(" ", "")
-            if len(inn) != 12 and not inn.isdigit():
-                return None
-            c1 = [7, 2, 4, 10, 3, 5, 9, 4, 6, 8, 0, 0]
-            c2 = [3, 7, 2, 4, 10, 3, 5, 9, 4, 6, 8, 0]
-            check1 = sum([int(inn[i]) * c1[i] for i in range(12)]) % 11 % 10
-            check2 = sum([int(inn[i]) * c2[i] for i in range(12)]) % 11 % 10
-            if check1 == int(inn[10]) and check2 == int(inn[11]):
-                return inn
-        return None
+    if inn:
+        inn = inn.replace("-", "").replace(" ", "")
+        if len(inn) != 12 and not inn.isdigit():
+            return None
+        c1 = [7, 2, 4, 10, 3, 5, 9, 4, 6, 8, 0, 0]
+        c2 = [3, 7, 2, 4, 10, 3, 5, 9, 4, 6, 8, 0]
+        check1 = sum([int(inn[i]) * c1[i] for i in range(12)]) % 11 % 10
+        check2 = sum([int(inn[i]) * c2[i] for i in range(12)]) % 11 % 10
+        if check1 == int(inn[10]) and check2 == int(inn[11]):
+            return inn
+    return None
 
 
 def validate_snils(snils: str | None) -> str | None:

@@ -2,7 +2,7 @@
 name = "server-litestar"
 version = "1.0.0"
 description = "StaffSec"
-requires-python = "==3.14"
+requires-python = ">=3.14,<3.15"
 dependencies = [
     "advanced-alchemy>=1.8.2",
     "asyncpg>=0.31.0",

@@ -87,7 +87,7 @@ fn validate_inn(inn: Option<&str>) -> PyResult<Option<String>> {
 }
 
 #[pymodule]
-fn rust_module(_py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn checksum(_py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(validate_snils, m)?)?;
     m.add_function(wrap_pyfunction!(validate_inn, m)?)?;
     Ok(())

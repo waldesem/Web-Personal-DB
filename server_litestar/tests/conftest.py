@@ -5,7 +5,7 @@ from litestar.exceptions import InternalServerException
 from litestar.testing import AsyncTestClient
 
 from app import app
-from app.models.models import AuthResponse
+from app.models.user import AuthResponse
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
@@ -30,8 +30,8 @@ async def test_auth_client() -> AsyncIterator[AsyncTestClient[Litestar]]:
         response = await client.post(
             "/routes/auth/login",
             json={
-                "username": "",
-                "password": "",
+                "username": "vsemenenko",
+                "password": "Truxan0va",
             },
         )
         resp = response.json()
