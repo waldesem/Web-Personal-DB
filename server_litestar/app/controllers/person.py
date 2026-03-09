@@ -10,8 +10,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.classes.classes import Roles
 from app.middleware.auth import role_guard
-from app.models.auth import User
 from app.models.person import PersonIn, PersonOut, PersonResponse
+from app.models.user import User
 from app.tables.tables import Persons
 from app.utilities.utils import create_destination, upload_resume
 

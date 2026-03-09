@@ -10,7 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@iconify-json/lucide": "^1.2.82",
+    "@iconify-json/lucide": "^1.2.96",
     "@nuxt/icon": "^2.2.1",
     "@nuxt/ui": "^4.5.1",
     "@vueuse/core": "^14.2.1",
@@ -20,10 +20,10 @@
     "vue": "^3.5.29"
   },
   "devDependencies": {
-    "@nuxt/eslint": "^1.15.1",
-    "@types/node": "^25.2.3",
+    "@nuxt/eslint": "^1.15.2",
+    "@types/node": "^25.3.5",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "vue-tsc": "^3.2.4"
+    "vue-tsc": "^3.2.5"
   }
 }

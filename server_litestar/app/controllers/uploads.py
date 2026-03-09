@@ -8,9 +8,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.classes.classes import Roles
 from app.middleware.auth import role_guard
-from app.models.auth import User
 from app.models.jsons import AnketaJson
 from app.models.person import PersonIn, PersonResponse
+from app.models.user import User
 from app.tables.tables import (
     Addresses,
     Affilations,

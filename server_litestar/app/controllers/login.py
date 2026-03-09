@@ -14,7 +14,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.middleware.auth import jwt_access, jwt_refresh, token_store
-from app.models.auth import AuthLogin, AuthResponse, Session, UpdateLogin, User
+from app.models.user import AuthLogin, AuthResponse, Session, UpdateLogin, User
 from app.tables.tables import Users
 from constants import (
     ACCESS_SECRET_KEY,

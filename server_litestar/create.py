@@ -2,14 +2,16 @@
 
 import asyncio
 
+import bcrypt
 import typer
 from advanced_alchemy.base import BigIntAuditBase
 from rich import print as rprint
 from sqlalchemy import select
 
 from app.classes.classes import Roles
-from app.models.models import UserForm
+from app.models.user import UserForm
 from app.tables.tables import Users, config
+from constants import DEFAULT_PASSWORD
 
 app = typer.Typer()
 
@@ -18,7 +20,7 @@ async def create(fullname: str, username: str, email: str, role: Roles) -> None:
     """Create a new user.
 
     Example:
-        python3 user.py "Super User" superadmin super@host.ru admin
+        python3 create.py "Super User" superadmin super@host.ru admin
 
     """
     async with config.get_engine().begin() as conn:
@@ -34,7 +36,10 @@ async def create(fullname: str, username: str, email: str, role: Roles) -> None:
         if user:
             rprint(f"User {username} already exists or email is taken")
         else:
-            db_session.add(Users(**data.model_dump()))
+            new_user = data.model_dump() | {
+                "passhash": bcrypt.hashpw(DEFAULT_PASSWORD.encode(), bcrypt.gensalt()),
+            }
+            db_session.add(Users(**new_user))
             await db_session.commit()
             rprint(f"User {username} created")
 

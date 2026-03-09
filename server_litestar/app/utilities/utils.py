@@ -63,7 +63,7 @@ async def upload_resume(
     )
     person = (await db_session.execute(stmt)).scalar_one_or_none()
 
-    if person and person.editable and user_id and person.user_id == user_id:
+    if person and person.editable and user_id and person.user_id != user_id:
         return None, True
 
     resume = cand.model_dump(exclude_none=True) | {"user_id": user_id}

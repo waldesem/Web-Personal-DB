@@ -10,11 +10,12 @@ const props = defineProps({
   },
 });
 
-const form = toRef(props.item);
-
-form.value.issue = form.value.issue
-  ? new Date(form.value.issue).toLocaleDateString()
-  : "";
+const form = ref<Passport>({
+  ...props.item,
+  issue: props.item.issue
+    ? useDateFormat(props.item.issue, "YYYY-MM-DD").value
+    : "",
+});
 </script>
 
 <template>

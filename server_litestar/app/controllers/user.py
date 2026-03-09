@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.classes.classes import Roles
 from app.middleware.auth import role_guard
-from app.models.auth import Actions, User, UserForm
+from app.models.user import Actions, User, UserForm
 from app.tables.tables import Users
 from constants import DEFAULT_PASSWORD
 
@@ -60,7 +60,10 @@ class UserController(Controller):
         ).all()
         if user:
             raise PermissionDeniedException
-        db_session.add(Users(**data.model_dump()))
+        new_user = data.model_dump() | {
+            "passhash": bcrypt.hashpw(DEFAULT_PASSWORD.encode(), bcrypt.gensalt()),
+        }
+        db_session.add(Users(**new_user))
 
     @post("/user/{user_id:int}")
     async def post_user_actions(
@@ -102,4 +105,3 @@ class UserController(Controller):
         elif data.item in [reg.value for reg in Roles]:
             # Изменить роль пользователя
             user.role = data.item
-        db_session.commit()

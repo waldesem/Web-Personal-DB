@@ -2,7 +2,6 @@
 
 from datetime import UTC, datetime
 
-import bcrypt
 from advanced_alchemy.base import BigIntAuditBase
 from advanced_alchemy.extensions.litestar import (
     SQLAlchemyAsyncConfig,
@@ -22,7 +21,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.classes.classes import Roles
-from constants import DATABASE_URI, DEFAULT_PASSWORD
+from constants import DATABASE_URI
 
 
 class Users(BigIntAuditBase):
@@ -33,13 +32,7 @@ class Users(BigIntAuditBase):
     fullname: Mapped[str] = mapped_column(String(255), nullable=False)
     username: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     email: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
-    passhash: Mapped[bytes] = mapped_column(
-        LargeBinary,
-        default=bcrypt.hashpw(
-            DEFAULT_PASSWORD.encode(),
-            bcrypt.gensalt(),
-        ),
-    )
+    passhash: Mapped[bytes] = mapped_column(LargeBinary)
     pswd_create: Mapped[datetime] = mapped_column(
         DateTimeUTC(timezone=True),
         default=lambda: datetime.now(UTC),
@@ -65,7 +58,7 @@ class Persons(BigIntAuditBase):
     citizenship: Mapped[str | None] = mapped_column(String(255), nullable=True)
     dual: Mapped[str | None] = mapped_column(String(255), nullable=True)
     snils: Mapped[str | None] = mapped_column(String(11), nullable=True)
-    inn: Mapped[str | None] = mapped_column(String(12), nullable=True, index=True)
+    inn: Mapped[str | None] = mapped_column(String(12), nullable=True)
     marital: Mapped[str | None] = mapped_column(String(255), nullable=True)
     addition: Mapped[str | None] = mapped_column(Text, nullable=True)
     destination: Mapped[str | None] = mapped_column(Text, nullable=True)
@@ -75,62 +68,62 @@ class Persons(BigIntAuditBase):
     previous: Mapped[list[Previous]] = relationship(
         back_populates="person",
         cascade="all, delete",
-        lazy="dynamic",
+        lazy="selectin",
     )
     educations: Mapped[list[Educations]] = relationship(
         back_populates="person",
         cascade="all, delete",
-        lazy="dynamic",
+        lazy="selectin",
     )
     staffs: Mapped[list[Staffs]] = relationship(
         back_populates="person",
         cascade="all, delete",
-        lazy="dynamic",
+        lazy="selectin",
     )
     addresses: Mapped[list[Addresses]] = relationship(
         back_populates="person",
         cascade="all, delete",
-        lazy="dynamic",
+        lazy="selectin",
     )
     documents: Mapped[list[Documents]] = relationship(
         back_populates="person",
         cascade="all, delete",
-        lazy="dynamic",
+        lazy="selectin",
     )
     contacts: Mapped[list[Contacts]] = relationship(
         back_populates="person",
         cascade="all, delete",
-        lazy="dynamic",
+        lazy="selectin",
     )
     workplaces: Mapped[list[Workplaces]] = relationship(
         back_populates="person",
         cascade="all, delete",
-        lazy="dynamic",
+        lazy="selectin",
     )
     affilations: Mapped[list[Affilations]] = relationship(
         back_populates="person",
         cascade="all, delete",
-        lazy="dynamic",
+        lazy="selectin",
     )
     checks: Mapped[list[Checks]] = relationship(
         back_populates="person",
         cascade="all, delete",
-        lazy="dynamic",
+        lazy="selectin",
     )
     poligrafs: Mapped[list[Poligrafs]] = relationship(
         back_populates="person",
         cascade="all, delete",
-        lazy="dynamic",
+        lazy="selectin",
     )
     investigations: Mapped[list[Investigations]] = relationship(
         back_populates="person",
         cascade="all, delete",
-        lazy="dynamic",
+        lazy="selectin",
     )
     inquiries: Mapped[list[Inquiries]] = relationship(
         back_populates="person",
         cascade="all, delete",
-        lazy="dynamic",
+        lazy="selectin",
     )
 
 

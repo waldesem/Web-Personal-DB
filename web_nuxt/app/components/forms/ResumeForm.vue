@@ -10,18 +10,18 @@ const props = defineProps({
   },
 });
 
-const form = toRef(props.resume);
-
 const { $api } = useNuxtApp();
 
-// Преобразование даты в формат YYYY-MM-DD
-form.value.birthday = form.value.birthday
-  ? new Date(form.value.birthday).toLocaleDateString()
-  : "";
+const form = ref<Person>({
+  ...props.resume,
+  birthday: props.resume.birthday
+    ? useDateFormat(props.resume.birthday, "YYYY-MM-DD").value
+    : "",
+});
 
 async function submitPerson() {
   const { person_id, exists } = await $api<{
-    person_id: number;
+    person_id: number | null;
     exists: boolean;
   }>("/routes/persons", {
     method: "POST",

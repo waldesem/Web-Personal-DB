@@ -49,4 +49,5 @@ app = Litestar(
     middleware=[logging_middleware_config.middleware],
     openapi_config=OpenAPIConfig(title="STAFFSEC API", version="1.0.0"),
     plugins=[alchemy_plugin],
+    debug=True,
 )

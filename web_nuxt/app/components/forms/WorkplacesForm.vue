@@ -10,17 +10,17 @@ const props = defineProps({
   },
 });
 
-const form = toRef(props.item);
-
 const workNow = ref(false);
 
-// Преобразование даты в формат YYYY-MM-DD для корректного отображения в форме
-form.value.starts = form.value.starts
-  ? new Date(form.value.starts).toLocaleDateString()
-  : "";
-form.value.finished = form.value.finished
-  ? new Date(form.value.finished).toLocaleDateString()
-  : "";
+const form = ref<Work>({
+  ...props.item,
+  starts: props.item.starts
+    ? useDateFormat(props.item.starts, "YYYY-MM-DD").value
+    : "",
+  finished: props.item.finished
+    ? useDateFormat(props.item.finished, "YYYY-MM-DD").value
+    : "",
+});
 </script>
 
 <template>

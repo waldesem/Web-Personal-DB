@@ -7,7 +7,7 @@ from litestar.exceptions import NotAuthorizedException
 from litestar.security.jwt import JWTAuth, Token
 from litestar.stores.memory import MemoryStore
 
-from app.models.auth import User
+from app.models.user import User
 from app.tables.tables import Users, config
 from constants import (
     ACCESS_SECRET_KEY,
