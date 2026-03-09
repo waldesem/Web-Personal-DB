@@ -1,9 +1,7 @@
 """Command line module."""
 
-import asyncio
-
 import bcrypt
-import typer
+import click
 from advanced_alchemy.base import BigIntAuditBase
 from rich import print as rprint
 from sqlalchemy import select
@@ -11,11 +9,16 @@ from sqlalchemy import select
 from app.classes.classes import Roles
 from app.models.user import UserForm
 from app.tables.tables import Users, config
+from app.utilities.utils import async_cmd
 from constants import DEFAULT_PASSWORD
 
-app = typer.Typer()
 
-
+@click.command()
+@click.argument("fullname")
+@click.argument("username")
+@click.argument("email")
+@click.argument("role", type=click.Choice(Roles.__members__))
+@async_cmd
 async def create(fullname: str, username: str, email: str, role: Roles) -> None:
     """Create a new user.
 
@@ -44,11 +47,5 @@ async def create(fullname: str, username: str, email: str, role: Roles) -> None:
             rprint(f"User {username} created")
 
 
-@app.command()
-def run_task(fullname: str, username: str, email: str, role: Roles) -> None:
-    """Type command that runs an async function."""
-    asyncio.run(create(fullname, username, email, role))
-
-
 if __name__ == "__main__":
-    app()
+    create()

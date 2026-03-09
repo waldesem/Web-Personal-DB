@@ -1,28 +1,32 @@
 """Migration from sqlite to postgresql."""
 
-import asyncio
 import sqlite3
 from datetime import UTC, datetime
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import bcrypt
-import typer
+import click
 from advanced_alchemy.base import BigIntAuditBase
 from rich import print as rprint
 
 from app.classes.classes import ItemCategory
-from app.models.auth import User
 from app.models.items import ItemModelOut
 from app.models.person import PersonOut
+from app.models.user import User
 from app.tables.tables import Persons, Users, config
+from app.utilities.utils import async_cmd
 from constants import DEFAULT_PASSWORD
 
-cli = typer.Typer()
+if TYPE_CHECKING:
+    from pathlib import Path
 
 tables = BigIntAuditBase.metadata.tables
 
 
-async def migrate(path: str) -> None:
+@click.command()
+@click.argument("path", type=click.Path(exists=True))
+@async_cmd
+async def migrate(path: Path) -> None:
     """MIgrate data from sqlite to postgresql.
 
     Example:
@@ -33,7 +37,7 @@ async def migrate(path: str) -> None:
         await async_conn.run_sync(BigIntAuditBase.metadata.drop_all)
         await async_conn.run_sync(BigIntAuditBase.metadata.create_all)
 
-    with sqlite3.connect(Path(path)) as conn:
+    with sqlite3.connect(path) as conn:
         async with config.get_session() as db_session:
             conn.row_factory = sqlite3.Row
             cur = conn.cursor()
@@ -115,11 +119,5 @@ async def migrate(path: str) -> None:
             rprint("Migration finished!")
 
 
-@cli.command()
-def run_task(path: str) -> None:
-    """Type command that runs an async function."""
-    asyncio.run(migrate(path))
-
-
 if __name__ == "__main__":
-    cli()
+    migrate()

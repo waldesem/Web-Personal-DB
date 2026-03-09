@@ -1,7 +1,9 @@
 """Utils."""
 
 import asyncio
+from functools import wraps
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,6 +11,19 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.person import PersonIn
 from app.tables.tables import Persons
 from constants import BASE_PATH
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+
+def async_cmd(f: Callable) -> Callable:
+    """Async command decorator."""
+
+    @wraps(f)
+    def wrapper(*args: tuple, **kwargs: dict) -> None:
+        return asyncio.run(f(*args, **kwargs))
+
+    return wrapper
 
 
 async def create_destination(

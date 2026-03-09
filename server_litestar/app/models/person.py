@@ -14,7 +14,7 @@ from pydantic import (
 )
 
 try:
-    from checksum import validate_inn, validate_snils  # ty:ignore[unresolved-import]
+    from check_sum import validate_inn, validate_snils  # ty:ignore[unresolved-import]
 
 except ImportError:
     from app.utilities.utils import validate_inn, validate_snils

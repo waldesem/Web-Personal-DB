@@ -21,9 +21,9 @@ uv sync
 source .venv/bin/activate
 ```
 
-#### Build rust module for validating inn and snils (Optional):
+#### Build Rust module for validating inn and snils (Optional):
 
-You needs instal rust language and maturin package.
+You needs instal Rust language and maturin package.
 
 ```
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
@@ -76,7 +76,7 @@ exit
 Create in server_litestar folder `.env` file with content:
 
 ```
-BASE_PATH=/home/MyProjects/Web-Personal-DB/server_litestar/PersonalDB
+BASE_PATH=/home/user/PersonalDB
 
 DEFAULT_PASSWORD=88888888
 
