@@ -76,9 +76,12 @@ async function deleteItem(itemId: string) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   status.value = "pending";
   try {
-    const resp = await $api.raw(`/routes/items/${props.view}/${itemId}`, {
-      method: "DELETE",
-    });
+    const resp = await $api.raw(
+      `/routes/items/${props.view}/${candId.value}/${itemId}`,
+      {
+        method: "DELETE",
+      },
+    );
     if (resp.status === 204) {
       await getItem();
       toasts.create("success", "Информация успешно удалена");
