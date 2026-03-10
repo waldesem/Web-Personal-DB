@@ -11,7 +11,7 @@ const { data: user } = await useAsyncData(
   "session",
   () => $api<Session>("/routes/auth/session"),
   {
-    watch: [refThrottled(visibility, 600000)],
+    watch: [visibility],
     default: () => ({}) as Session,
   },
 );
@@ -22,7 +22,7 @@ async function logout() {
   const access = useCookie("access");
   const refresh = useCookie("refresh");
   if (access.value || refresh.value) {
-    await $fetch("/routes/auth/logout", {
+    await $fetch.raw("/routes/auth/logout", {
       method: "PATCH",
       body: {
         message: "delete",
@@ -30,9 +30,9 @@ async function logout() {
         refresh_token: refresh.value,
       },
     });
-    access.value = null;
-    refresh.value = null;
   }
+  access.value = null;
+  refresh.value = null;
   return navigateTo("/login");
 }
 </script>
