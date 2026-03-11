@@ -3,11 +3,9 @@
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
-from litestar import Request
 from litestar.exceptions import NotAuthorizedException, NotFoundException
 from litestar.security.jwt import JWTAuth, Token
 from litestar.stores.memory import MemoryStore
-from litestar.types import ASGIApp, Receive, Scope, Send
 
 from app.models.user import User
 from app.tables.tables import Persons, Users, config
@@ -25,24 +23,19 @@ if TYPE_CHECKING:
 token_store = MemoryStore()
 
 
-def person_guard(app: ASGIApp) -> ASGIApp:
+async def person_guard(
+    connection: ASGIConnection[Any, User, Token, Any],
+    _: BaseRouteHandler,
+) -> None:
     """Check assotiation user ID with person's user_id."""
-
-    async def middleware(scope: Scope, receive: Receive, send: Send) -> None:
-        # do something here
-        async with config.get_session() as db_session:
-            req: Request[User, Token, Any] = Request(scope)
-            person_id = req.path_params.get("person_id")
-            if (
-                not (person := await db_session.get(Persons, person_id))
-                or not person.editable
-                or req.auth.sub != str(person.id)
-            ):
-                raise NotFoundException
-
-        await app(scope, receive, send)
-
-    return middleware
+    async with config.get_session() as db_session:
+        person_id = connection.path_params.get("person_id")
+        if (
+            not (person := await db_session.get(Persons, person_id))
+            or not person.editable
+            or connection.auth.sub != str(person.id)
+        ):
+            raise NotFoundException
 
 
 def role_guard(

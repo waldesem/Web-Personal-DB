@@ -48,7 +48,7 @@ class ItemsController(Controller):
         )
         return (await db_session.execute(stmt)).all()
 
-    @get("/{person_id:int}", middleware=[person_guard])
+    @get("/{person_id:int}")
     async def get_items(
         self,
         person_id: int,
@@ -93,9 +93,8 @@ class ItemsController(Controller):
 
     @post(
         "/{person_id:int}",
-        guards=[role_guard],
+        guards=[role_guard, person_guard],
         opt={"role": Roles.user.value},
-        middleware=[person_guard],
     )
     async def post_item(
         self,
@@ -124,9 +123,8 @@ class ItemsController(Controller):
 
     @patch(
         "/{person_id:int}/{item_id:int}",
-        guards=[role_guard],
+        guards=[role_guard, person_guard],
         opt={"role": Roles.user.value},
-        middleware=[person_guard],
     )
     async def patch_item(
         self,
@@ -155,9 +153,8 @@ class ItemsController(Controller):
 
     @delete(
         "/{item:str}/{person_id:int}/{item_id:int}",
-        guards=[role_guard],
+        guards=[role_guard, person_guard],
         opt={"role": Roles.user.value},
-        middleware=[person_guard],
     )
     async def delete_item(
         self,
