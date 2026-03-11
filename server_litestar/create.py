@@ -1,4 +1,7 @@
 """Command line module."""
+import asyncio
+from functools import wraps
+from typing import TYPE_CHECKING
 
 import bcrypt
 import click
@@ -9,8 +12,20 @@ from sqlalchemy import select
 from app.classes.classes import Roles
 from app.models.user import UserForm
 from app.tables.tables import Users, config
-from app.utilities.utils import async_cmd
 from constants import DEFAULT_PASSWORD
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+
+def async_cmd(f: Callable) -> Callable:
+    """Async command decorator."""
+
+    @wraps(f)
+    def wrapper(*args: tuple, **kwargs: dict) -> None:
+        return asyncio.run(f(*args, **kwargs))
+
+    return wrapper
 
 
 @click.command()

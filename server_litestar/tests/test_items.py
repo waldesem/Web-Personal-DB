@@ -25,7 +25,7 @@ async def test_get_item(
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "person_id",
-    [44],
+    [1],
 )
 async def test_get_items(
     test_auth_client: AsyncTestClient[Litestar],

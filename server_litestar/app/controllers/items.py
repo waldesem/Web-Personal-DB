@@ -1,18 +1,16 @@
 """Items routes."""
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
-from litestar import Controller, Request, delete, get, patch, post
-from litestar.exceptions import NotFoundException
-from litestar.security.jwt import Token
+from litestar import Controller, delete, get, patch, post
 from pydantic import TypeAdapter
 from sqlalchemy import label, literal, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.classes.classes import ItemCategory, Roles
-from app.middleware.auth import User, role_guard
+from app.middleware.auth import person_guard, role_guard
 from app.models.items import ItemModelIn, ItemsOutModels, ItemTypeOut
-from app.tables.tables import Persons, tables
+from app.tables.tables import tables
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -50,16 +48,7 @@ class ItemsController(Controller):
         )
         return (await db_session.execute(stmt)).all()
 
-    @staticmethod
-    async def get_user_id(
-        person_id: int,
-        db_session: AsyncSession,
-    ) -> int:
-        """Get user ID assotiated with person."""
-        stmt = select(Persons.user_id).filter(Persons.id == person_id)
-        return (await db_session.execute(stmt)).scalar_one()
-
-    @get("/{person_id:int}")
+    @get("/{person_id:int}", middleware=[person_guard])
     async def get_items(
         self,
         person_id: int,
@@ -106,12 +95,12 @@ class ItemsController(Controller):
         "/{person_id:int}",
         guards=[role_guard],
         opt={"role": Roles.user.value},
+        middleware=[person_guard],
     )
     async def post_item(
         self,
         person_id: int,
         data: ItemModelIn,
-        request: Request[User, Token, Any],
         db_session: AsyncSession,
     ) -> None:
         """Add a new item to the database.
@@ -126,26 +115,24 @@ class ItemsController(Controller):
             Response with status code 201.
 
         """
-        if self.get_user_id(person_id, db_session) == request.user.id:
-            item = data.item.item
-            json_dict = data.item.model_dump(exclude={"item"}) | {
-                "person_id": person_id,
-            }
-            stmt = tables[item].insert().values(json_dict)
-            await db_session.execute(stmt)
-        raise NotFoundException
+        item = data.item.item
+        json_dict = data.item.model_dump(exclude={"item"}) | {
+            "person_id": person_id,
+        }
+        stmt = tables[item].insert().values(json_dict)
+        await db_session.execute(stmt)
 
     @patch(
         "/{person_id:int}/{item_id:int}",
         guards=[role_guard],
         opt={"role": Roles.user.value},
+        middleware=[person_guard],
     )
     async def patch_item(
         self,
         person_id: int,
         item_id: int,
         data: ItemModelIn,
-        request: Request[User, Token, Any],
         db_session: AsyncSession,
     ) -> None:
         """Update an item in the database.
@@ -161,24 +148,21 @@ class ItemsController(Controller):
             Response with status code 201.
 
         """
-        if self.get_user_id(person_id, db_session) == request.user.id:
-            json_dict = data.item.model_dump() | {"person_id": person_id}
-            table = tables[json_dict.pop("item")]
-            stmt = table.update().where(table.c.id == item_id).values(json_dict)
-            await db_session.execute(stmt)
-        raise NotFoundException
+        json_dict = data.item.model_dump() | {"person_id": person_id}
+        table = tables[json_dict.pop("item")]
+        stmt = table.update().where(table.c.id == item_id).values(json_dict)
+        await db_session.execute(stmt)
 
     @delete(
         "/{item:str}/{person_id:int}/{item_id:int}",
         guards=[role_guard],
         opt={"role": Roles.user.value},
+        middleware=[person_guard],
     )
     async def delete_item(
         self,
         item: ItemCategory,
-        person_id: int,
         item_id: int,
-        request: Request[User, Token, Any],
         db_session: AsyncSession,
     ) -> None:
         """Delete an item from the database.
@@ -194,7 +178,5 @@ class ItemsController(Controller):
             Response with status code 204.
 
         """
-        if self.get_user_id(person_id, db_session) == request.user.id:
-            table = tables[item]
-            await db_session.execute(table.delete().where(table.c.id == item_id))
-        raise NotFoundException
+        table = tables[item]
+        await db_session.execute(table.delete().where(table.c.id == item_id))

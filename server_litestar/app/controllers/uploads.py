@@ -21,7 +21,7 @@ from app.tables.tables import (
     Staffs,
     Workplaces,
 )
-from app.utilities.utils import upload_resume
+from app.utilities.person import upload_resume
 
 
 class JsonController(Controller):

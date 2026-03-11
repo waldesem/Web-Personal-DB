@@ -13,7 +13,7 @@ from app.middleware.auth import role_guard
 from app.models.person import PersonIn, PersonOut, PersonResponse
 from app.models.user import User
 from app.tables.tables import Persons
-from app.utilities.utils import create_destination, upload_resume
+from app.utilities.person import create_destination, upload_resume
 
 
 class PersonController(Controller):

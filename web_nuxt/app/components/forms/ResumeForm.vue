@@ -87,7 +87,7 @@ const validate = (state: Partial<Person>) => {
         v-model="form.birthday"
         type="date"
         :max="new Date().toISOString().split('T')[0]"
-        min="1990-01-01"
+        min="1900-01-01"
         required
       />
     </UFormField>

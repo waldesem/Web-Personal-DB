@@ -1,7 +1,8 @@
 """Migration from sqlite to postgresql."""
-
+import asyncio
 import sqlite3
 from datetime import UTC, datetime
+from functools import wraps
 from typing import TYPE_CHECKING
 
 import bcrypt
@@ -14,13 +15,25 @@ from app.models.items import ItemModelOut
 from app.models.person import PersonOut
 from app.models.user import User
 from app.tables.tables import Persons, Users, config
-from app.utilities.utils import async_cmd
 from constants import DEFAULT_PASSWORD
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from pathlib import Path
 
 tables = BigIntAuditBase.metadata.tables
+
+
+
+
+def async_cmd(f: Callable) -> Callable:
+    """Async command decorator."""
+
+    @wraps(f)
+    def wrapper(*args: tuple, **kwargs: dict) -> None:
+        return asyncio.run(f(*args, **kwargs))
+
+    return wrapper
 
 
 @click.command()
