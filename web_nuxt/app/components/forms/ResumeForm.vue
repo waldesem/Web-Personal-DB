@@ -40,6 +40,7 @@ async function submitPerson() {
       body: form.value,
     },
   );
+  resp.json()
   emit("update", resp);
 }
 

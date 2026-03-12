@@ -72,10 +72,6 @@ class JsonController(Controller):
             person = Persons(**resume)
             db_session.add(person)
             await db_session.flush()
-        else:
-            for k, v in resume.items():
-                if v:
-                    setattr(person, k, v)
 
         # Сохранение дополнительной информации о кандидате в БД
         items_to_add = [

@@ -70,23 +70,16 @@ onChange(async (files) => {
 // Обработчик результата загрузки данных
 async function proceedSubmit(response: FetchResponse) {
   modal.value = false;
-  if (response.status === 200) {
-    toast.add({
-      icon: "i-lucide-octagon-alert",
-      title: "Внимание",
-      description:
-        "Анкета была загружена ранее. Проверьте, какие данные были загружены",
-      color: "info",
-    });
-    status.value = "success";
-  } else if (response.status === 201) {
+  if (response.status === 201) {
     toast.add({
       icon: "i-lucide-triangle-alert",
       title: "Успех",
-      description: "Анкета успешно загружена",
+      description: "Анкета загружена. Проверьте все ли данные корректны, если анкета уже существовала ранее",
       color: "success",
     });
-    return navigateTo("/profile/" + response.json()["person_id"]);
+    response.json().then((data: Record<"person_id", string>) => {
+      return navigateTo("/profile/" + data.person_id);
+    });
   } else {
     status.value = "error";
     toast.add({
