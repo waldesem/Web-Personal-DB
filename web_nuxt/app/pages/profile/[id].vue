@@ -27,7 +27,8 @@ const editable = computed(() => {
   return (
     data.value.editable &&
     user.value?.role === "user" &&
-    user.value?.id === data.value.user_id
+    user.value?.id === data.value.user_id &&
+    !data.value.locked
   );
 });
 provide("editable", editable);
@@ -52,7 +53,6 @@ async function switchStatus(): Promise<void> {
   status.value = "pending";
   const response = await $api.raw<Record<string, string>>(
     "/routes/persons/status/" + candId.value,
-    { method: "PATCH", body: {} },
   );
   status.value = "success";
   if (response.status == 200) {
@@ -71,7 +71,10 @@ async function switchStatus(): Promise<void> {
     >
       <template #links>
         <!-- Кнопки переключения режима редактирования -->
-        <div v-if="user?.role == 'user'" class="flex items-center space-x-4">
+        <div
+          v-if="user?.role == 'user' && !data.locked"
+          class="flex items-center space-x-4"
+        >
           <UButton
             variant="outline"
             :loading="status === 'pending'"

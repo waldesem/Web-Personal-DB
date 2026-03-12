@@ -1,12 +1,21 @@
 <script setup lang="ts">
-import type { Person } from "@/types";
+import type { Person, PersonExt } from "@/types";
+import type { PropType } from "vue";
 
 const emit = defineEmits(["update"]);
 
 const props = defineProps({
   resume: {
-    type: Object as PropType<Person>,
+    type: Object as PropType<PersonExt>,
     default: () => ({}),
+  },
+  method: {
+    type: String as PropType<"POST" | "PATCH">,
+    default: "POST",
+  },
+  candId: {
+    type: Object as PropType<string | null>,
+    default: null,
   },
 });
 
@@ -20,14 +29,18 @@ const form = ref<Person>({
 });
 
 async function submitPerson() {
-  const { person_id, exists } = await $api<{
+  const url = "/routes/persons";
+  const resp = await $api.raw<{
     person_id: number | null;
     exists: boolean;
-  }>("/routes/persons", {
-    method: "POST",
-    body: form.value,
-  });
-  emit("update", person_id, exists);
+  }>(
+    props.method === "POST" ? "/routes/persons" : `${url}/${props.resume.id}`,
+    {
+      method: props.method,
+      body: form.value,
+    },
+  );
+  emit("update", resp);
 }
 
 const validate = (state: Partial<Person>) => {

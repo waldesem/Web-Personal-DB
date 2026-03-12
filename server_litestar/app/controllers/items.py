@@ -114,11 +114,10 @@ class ItemsController(Controller):
             Response with status code 201.
 
         """
-        item = data.item.item
         json_dict = data.item.model_dump(exclude={"item"}) | {
             "person_id": person_id,
         }
-        stmt = tables[item].insert().values(json_dict)
+        stmt = tables[data.item.item].insert().values(json_dict)
         await db_session.execute(stmt)
 
     @patch(

@@ -60,38 +60,33 @@ const { open, onChange } = useFileDialog({
 onChange(async (files) => {
   status.value = "pending";
   const str = (await files?.[0]?.text()) as string;
-  const { person_id, exists } = (await $api("/routes/json", {
+  const response = await $api.raw("/routes/json", {
     method: "POST",
     body: JSON.parse(str),
-  })) as {
-    person_id: string;
-    exists: boolean;
-  };
-  proceedSubmit(person_id, exists);
+  });
+  proceedSubmit(response);
 });
 
 // Обработчик результата загрузки данных
-async function proceedSubmit(person_id: string, exists: boolean) {
+async function proceedSubmit(response: FetchResponse) {
   modal.value = false;
-  if (person_id) {
-    if (exists) {
-      toast.add({
-        icon: "i-lucide-octagon-alert",
-        title: "Внимание",
-        description:
-          "Анкета была загружена ранее или назначена другому пользователю",
-        color: "info",
-      });
-    } else {
-      toast.add({
-        icon: "i-lucide-triangle-alert",
-        title: "Успех",
-        description: "Анкета успешно загружена",
-        color: "success",
-      });
-    }
+  if (response.status === 200) {
+    toast.add({
+      icon: "i-lucide-octagon-alert",
+      title: "Внимание",
+      description:
+        "Анкета была загружена ранее. Проверьте, какие данные были загружены",
+      color: "info",
+    });
     status.value = "success";
-    return navigateTo("/profile/" + person_id);
+  } else if (response.status === 201) {
+    toast.add({
+      icon: "i-lucide-triangle-alert",
+      title: "Успех",
+      description: "Анкета успешно загружена",
+      color: "success",
+    });
+    return navigateTo("/profile/" + response.json()["person_id"]);
   } else {
     status.value = "error";
     toast.add({

@@ -33,17 +33,18 @@ async def person_guard(
         if (
             not (person := await db_session.get(Persons, person_id))
             or not person.editable
-            or connection.auth.sub != str(person.id)
+            or person.locked
+            or connection.auth.sub != str(person.user_id)
         ):
             raise NotFoundException
 
 
 def role_guard(
-    connection: ASGIConnection[Any, Any, Any, Any],
+    connection: ASGIConnection[Any, User, Token, Any],
     route_handler: BaseRouteHandler,
 ) -> None:
     """Check if the user has the required role."""
-    if connection.user.role != route_handler.opt.get("role"):
+    if (roles := route_handler.opt.get("role")) and connection.user.role not in roles:
         raise NotAuthorizedException
 
 

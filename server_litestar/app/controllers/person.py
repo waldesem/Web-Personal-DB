@@ -1,19 +1,21 @@
 """Person routes."""
 
+import asyncio
+from pathlib import Path
 from typing import Any
 
 from litestar import Controller, Request, delete, get, patch, post
-from litestar.exceptions import NotFoundException
+from litestar.exceptions import NotFoundException, ValidationException
 from litestar.security.jwt import Token
-from sqlalchemy import not_, update
+from sqlalchemy import not_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.classes.classes import Roles
-from app.middleware.auth import role_guard
+from app.middleware.auth import person_guard, role_guard
 from app.models.person import PersonIn, PersonOut, PersonResponse
 from app.models.user import User
 from app.tables.tables import Persons
-from app.utilities.person import create_destination, upload_resume
+from constants import BASE_PATH
 
 
 class PersonController(Controller):
@@ -43,12 +45,18 @@ class PersonController(Controller):
         person = await db_session.get(Persons, person_id)
         if person:
             if not person.destination:
-                person.destination = await create_destination(
-                    person.id,
-                    person.surname,
-                    person.firstname,
-                    person.patronymic,
+                destination = Path(
+                    BASE_PATH,
+                    "Главный офис",
+                    person.surname[0],
+                    (
+                        f"{person_id}-{person.surname} {person.firstname} {
+                            person.patronymic or ''
+                        }"
+                    ).rstrip(),
                 )
+                await asyncio.to_thread(destination.mkdir, parents=True, exist_ok=True)
+                person.destination = str(destination)
             return PersonOut.model_validate(person, from_attributes=True)
         raise NotFoundException
 
@@ -70,10 +78,49 @@ class PersonController(Controller):
             Response with status code 201.
 
         """
-        cand_id, existed = await upload_resume(data, request.user.id, db_session)
-        return PersonResponse(person_id=cand_id, exists=existed)
+        stmt = select(Persons).where(
+            Persons.surname == data.surname,
+            Persons.firstname == data.firstname,
+            Persons.patronymic == data.patronymic,
+            Persons.birthday == data.birthday,
+        )
+        if person := (await db_session.execute(stmt)).scalar_one_or_none():
+            raise ValidationException
+
+        person = Persons(**data.model_dump() | {"user_id": request.user.id})
+        db_session.add(person)
+        return PersonResponse(person_id=person.id)
 
     @patch(
+        "/{person_id:int}",
+        guards=[role_guard, person_guard],
+        opt={"role": Roles.user.value},
+    )
+    async def patch_person(
+        self,
+        person_id: int,
+        data: PersonIn,
+        request: Request[User, Token, Any],
+        db_session: AsyncSession,
+    ) -> None:
+        """Create a new person or updates an existing person.
+
+        Args:
+            person_id: int,
+            data: PersonIn.
+            request: Request.
+            db_session: AsyncSession.
+
+        Returns:
+            Response with status code 201.
+
+        """
+        resume = data.model_dump(exclude_none=True) | {"user_id": request.user.id}
+        await db_session.execute(
+            update(Persons).values(resume).where(Persons.id == person_id),
+        )
+
+    @get(
         "/status/{person_id:int}",
         guards=[role_guard],
         opt={"role": Roles.user.value},
@@ -97,8 +144,8 @@ class PersonController(Controller):
         """
         await db_session.execute(
             update(Persons)
-            .where(Persons.id == person_id)
-            .values(editable=not_(Persons.editable), user_id=request.user.id),
+            .where(Persons.id == person_id, not_(Persons.locked))
+            .values(editable=True, user_id=request.user.id),
         )
 
     @delete(
@@ -122,6 +169,6 @@ class PersonController(Controller):
 
         """
         person = await db_session.get(Persons, person_id)
-        if not person:
+        if not person or person.locked:
             raise NotFoundException
         await db_session.delete(person)

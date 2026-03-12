@@ -32,7 +32,7 @@ def async_cmd(f: Callable) -> Callable:
 @click.argument("fullname")
 @click.argument("username")
 @click.argument("email")
-@click.argument("role", type=click.Choice(Roles.__members__))
+@click.argument("role", type=click.Choice(Roles))
 @async_cmd
 async def create(fullname: str, username: str, email: str, role: Roles) -> None:
     """Create a new user.

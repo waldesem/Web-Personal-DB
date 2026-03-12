@@ -104,7 +104,6 @@ class PersonResponse(BaseModel):
     """Person exists response."""
 
     person_id: int | None
-    exists: bool
 
 
 class Candidates(BaseModel):

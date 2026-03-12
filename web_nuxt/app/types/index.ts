@@ -72,6 +72,7 @@ export interface PersonExt extends Person {
   user_id: string;
   destination?: string;
   editable: boolean;
+  locked: boolean;
   created_at: string;
   updated_at: string;
 }

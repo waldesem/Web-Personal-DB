@@ -15,12 +15,12 @@ const modal = ref(false); // Объявляем переменную модал�
 const status = ref("success"); // Объявляем переменную статуса
 
 // Определяем функцию для отправки данных формы на сервер
-function submitPerson(person_id: number | null) {
+function submitPerson(response: FetchResponse) {
   modal.value = false;
   status.value = "pending";
   refreshNuxtData("person");
   status.value = "success";
-  if (person_id) {
+  if (response.status === 200) {
     toasts.create("success", "Информация успешно обновлена");
   } else {
     toasts.create();
@@ -82,6 +82,7 @@ async function deletePerson() {
       <template #body>
         <FormsResumeForm
           :resume="person"
+          :method="'PATCH'"
           @pending="status = 'pending'"
           @update="submitPerson"
         />
