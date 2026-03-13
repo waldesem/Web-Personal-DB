@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Person, PersonExt } from "@/types";
+import type { Person, PersonId, PersonExt } from "@/types";
 import type { PropType } from "vue";
 
 const emit = defineEmits(["update"]);
@@ -30,17 +30,13 @@ const form = ref<Person>({
 
 async function submitPerson() {
   const url = "/routes/persons";
-  const resp = await $api.raw<{
-    person_id: number | null;
-    exists: boolean;
-  }>(
+  const resp = await $api.raw<Partial<PersonId>>(
     props.method === "POST" ? "/routes/persons" : `${url}/${props.resume.id}`,
     {
       method: props.method,
       body: form.value,
     },
   );
-  resp.json()
   emit("update", resp);
 }
 

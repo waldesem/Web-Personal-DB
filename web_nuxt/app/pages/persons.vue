@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import type { FetchResponse } from "ofetch";
 import type { TableColumn } from "@nuxt/ui";
-import type { Candidate, Session } from "@/types";
+import type { Candidate, PersonId, Session } from "@/types";
 
 const toast = useToast();
 const { $api } = useNuxtApp();
@@ -60,7 +61,7 @@ const { open, onChange } = useFileDialog({
 onChange(async (files) => {
   status.value = "pending";
   const str = (await files?.[0]?.text()) as string;
-  const response = await $api.raw("/routes/json", {
+  const response = await $api.raw<Partial<PersonId>>("/routes/json", {
     method: "POST",
     body: JSON.parse(str),
   });
@@ -68,24 +69,23 @@ onChange(async (files) => {
 });
 
 // Обработчик результата загрузки данных
-async function proceedSubmit(response: FetchResponse) {
+async function proceedSubmit(response: FetchResponse<Partial<PersonId>>) {
   modal.value = false;
   if (response.status === 201) {
     toast.add({
       icon: "i-lucide-triangle-alert",
       title: "Успех",
-      description: "Анкета загружена. Проверьте все ли данные корректны, если анкета уже существовала ранее",
+      description: "Анкета загружена. Проверьте корректность данных, если анкета была содана ранее",
       color: "success",
     });
-    response.json().then((data: Record<"person_id", string>) => {
-      return navigateTo("/profile/" + data.person_id);
-    });
+    const data = await response.json();
+    return navigateTo("/profile/" + data.person_id);
   } else {
     status.value = "error";
     toast.add({
       icon: "i-lucide-triangle-alert",
       title: "Ошибка",
-      description: "Ошибка данных",
+      description: "Ошибка данных или анкета существуетю",
       color: "error",
     });
   }

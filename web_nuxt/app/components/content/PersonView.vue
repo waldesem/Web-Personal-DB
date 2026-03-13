@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { PersonExt } from "@/types";
+import type { FetchResponse } from "ofetch";
+import type { PersonExt, PersonId } from "@/types";
 
 // Используем плагин для передачи данных на сервер
 const { $api } = useNuxtApp();
@@ -15,7 +16,7 @@ const modal = ref(false); // Объявляем переменную модал�
 const status = ref("success"); // Объявляем переменную статуса
 
 // Определяем функцию для отправки данных формы на сервер
-function submitPerson(response: FetchResponse) {
+function submitPerson(response: FetchResponse<Partial<PersonId>>) {
   modal.value = false;
   status.value = "pending";
   refreshNuxtData("person");

@@ -77,6 +77,10 @@ export interface PersonExt extends Person {
   updated_at: string;
 }
 
+export interface PersonId {
+  person_id: number | null;
+}
+
 export interface Candidate extends PersonExt {
   username: string;
   total: number;
