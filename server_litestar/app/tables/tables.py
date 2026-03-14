@@ -63,7 +63,8 @@ class Persons(BigIntAuditBase):
     addition: Mapped[str | None] = mapped_column(Text, nullable=True)
     destination: Mapped[str | None] = mapped_column(Text, nullable=True)
     editable: Mapped[bool] = mapped_column(Boolean, default=False)
-    locked: Mapped[bool] = mapped_column(Boolean, default=False)
+    protected: Mapped[bool] = mapped_column(Boolean, default=False)
+    deleted: Mapped[bool] = mapped_column(Boolean, default=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     user: Mapped[Users] = relationship(back_populates="persons")
     previous: Mapped[list[Previous]] = relationship(

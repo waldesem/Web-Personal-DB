@@ -80,6 +80,7 @@ class PersonOut(PersonIn):
     addition: str | None = None
     destination: str | None = None
     editable: bool
+    protected: bool
     user_id: int
     created_at: datetime
     updated_at: datetime

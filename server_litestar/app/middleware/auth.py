@@ -33,7 +33,8 @@ async def person_guard(
         if (
             not (person := await db_session.get(Persons, person_id))
             or not person.editable
-            or person.locked
+            or person.protected
+            or person.deleted
             or connection.auth.sub != str(person.user_id)
         ):
             raise NotFoundException

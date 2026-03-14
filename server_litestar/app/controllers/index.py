@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from litestar import get
 from pydantic import TypeAdapter
-from sqlalchemy import func, select
+from sqlalchemy import func, not_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.person import Candidates, Index
@@ -45,7 +45,7 @@ async def get_candidates(query: Index, db_session: AsyncSession) -> list[Candida
 
     candidates = (
         await db_session.execute(
-            stmt.filter(Users.id == Persons.user_id)
+            stmt.where(Users.id == Persons.user_id, not_(Persons.deleted))
             .order_by(Persons.id.desc())
             .offset((query.page - 1) * query.per_page)
             .limit(query.per_page),

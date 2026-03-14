@@ -43,8 +43,8 @@ class PersonController(Controller):
 
         """
         person = await db_session.get(Persons, person_id)
-        if person:
-            if not person.destination:
+        if person and not person.deleted:
+            if not person.destination and not person.protected:
                 destination = Path(
                     BASE_PATH,
                     "Главный офис",
@@ -144,7 +144,7 @@ class PersonController(Controller):
         """
         await db_session.execute(
             update(Persons)
-            .where(Persons.id == person_id, not_(Persons.locked))
+            .where(Persons.id == person_id, not_(Persons.protected and Persons.deleted))
             .values(editable=True, user_id=request.user.id),
         )
 
@@ -169,6 +169,6 @@ class PersonController(Controller):
 
         """
         person = await db_session.get(Persons, person_id)
-        if not person or person.locked:
+        if not person or person.protected or person.deleted:
             raise NotFoundException
-        await db_session.delete(person)
+        person.deleted = True
