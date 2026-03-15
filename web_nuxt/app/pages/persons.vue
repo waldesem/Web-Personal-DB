@@ -75,7 +75,8 @@ async function proceedSubmit(response: FetchResponse<Partial<PersonId>>) {
     toast.add({
       icon: "i-lucide-triangle-alert",
       title: "Успех",
-      description: "Анкета загружена. Проверьте корректность данных, если анкета была содана ранее",
+      description:
+        "Анкета загружена. Проверьте корректность данных, если анкета была содана ранее",
       color: "success",
     });
     const data = await response.json();
@@ -135,11 +136,11 @@ const columns: TableColumn<Candidate>[] = [
     },
   },
   {
-    accessorKey: "created_at",
+    accessorKey: "updated_at",
     header: "Обновлено",
     cell: ({ row }) => {
       return h(resolveComponent("NuxtTime"), {
-        datetime: new Date(row.getValue("created_at")).getTime() - 60000,
+        datetime: new Date(row.getValue("updated_at")).getTime() - 60000,
         relative: true,
       });
     },

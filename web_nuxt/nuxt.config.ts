@@ -20,6 +20,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   experimental: {
     entryImportMap: false,
+    payloadExtraction: true,
   },
   icon: {
     clientBundle: {

@@ -1,4 +1,5 @@
 """Migration from sqlite to postgresql."""
+
 import asyncio
 import sqlite3
 from datetime import UTC, datetime
@@ -24,8 +25,6 @@ if TYPE_CHECKING:
 tables = BigIntAuditBase.metadata.tables
 
 
-
-
 def async_cmd(f: Callable) -> Callable:
     """Async command decorator."""
 
@@ -43,7 +42,7 @@ async def migrate(path: Path) -> None:
     """MIgrate data from sqlite to postgresql.
 
     Example:
-        python.exe migrator.py "/path/database.db"
+        python3 migrator.py "/path/database.db"
 
     """
     async with config.get_engine().begin() as async_conn:
