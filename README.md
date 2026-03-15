@@ -4,9 +4,10 @@ StaffSec is a web interface for managing a candidates database.
 
 ### The technology stack used in this project:
 
-- Litestar;
-- PostreSQL;
-- Nuxt;
+- Litestar is a powerful, lightweight and flexible ASGI framework;
+- Piccolo is a modern, async query builder and ORM (experimental);
+- PostreSQL is a powerful, open source object-relational database system;
+- Nuxt is a free and open-source framework with Vue.js;
 
 ### Installation
 
