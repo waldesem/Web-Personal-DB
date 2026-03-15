@@ -1,0 +1,164 @@
+"""Person routes."""
+
+import asyncio
+from pathlib import Path
+from typing import Any
+
+from litestar import Controller, Request, delete, get, patch, post
+from litestar.exceptions import NotFoundException, ValidationException
+from litestar.security.jwt import Token
+
+from app.classes.classes import Roles
+from app.middleware.auth import person_guard, role_guard
+from app.models.person import PersonIn, PersonOut, PersonResponse
+from app.models.user import User
+from app.tables.tables import Persons
+from constants import BASE_PATH
+
+
+class PersonController(Controller):
+    """Controller for person routes."""
+
+    path = "/persons"
+
+    @get("/{person_id:int}")
+    async def get_person(
+        self,
+        person_id: int,
+    ) -> PersonOut:
+        """Retrieve an item from the database based on the provided item ID.
+
+        Args:
+            person_id: Person ID.
+
+        Returns:
+            Response with status code 200 and serialized PersonOut.
+
+        Raises:
+            NotFoundException: If the person is not found.
+
+        """
+        person = await Persons.objects().where(Persons.id == person_id).first()
+        if person:  # and not person.deleted:
+            if not person.destination:  # and not person.protected:
+                destination = Path(
+                    BASE_PATH,
+                    "Главный офис",
+                    person.surname[0],
+                    (
+                        f"{person_id}-{person.surname} {person.firstname} {
+                            person.patronymic or ''
+                        }"
+                    ).rstrip(),
+                )
+                await asyncio.to_thread(destination.mkdir, parents=True, exist_ok=True)
+                person.destination = str(destination)
+                await person.save()
+            return PersonOut.model_validate(person, from_attributes=True)
+        raise NotFoundException
+
+    @post("/", guards=[role_guard], opt={"role": Roles.user.value})
+    async def post_person(
+        self,
+        data: PersonIn,
+        request: Request[User, Token, Any],
+    ) -> PersonResponse:
+        """Create a new person or updates an existing person.
+
+        Args:
+            data: PersonIn.
+            request: Request.
+
+        Returns:
+            Response with status code 201.
+
+        """
+        person = (
+            await Persons.select()
+            .where(
+                Persons.surname == data.surname
+                and Persons.firstname == data.firstname
+                and Persons.patronymic == data.patronymic
+                and Persons.birthday == data.birthday,
+            )
+            .first()
+        )
+        if person:
+            raise ValidationException
+
+        person = Persons(**data.model_dump() | {"user_id": request.user.id})
+        await person.save()
+        return PersonResponse(person_id=person.id)
+
+    @patch(
+        "/{person_id:int}",
+        guards=[role_guard, person_guard],
+        opt={"role": Roles.user.value},
+    )
+    async def patch_person(
+        self,
+        person_id: int,
+        data: PersonIn,
+        request: Request[User, Token, Any],
+    ) -> None:
+        """Create a new person or updates an existing person.
+
+        Args:
+            person_id: int,
+            data: PersonIn.
+            request: Request.
+
+        Returns:
+            Response with status code 201.
+
+        """
+        resume = data.model_dump(exclude_none=True) | {"user_id": request.user.id}
+        await Persons.update(resume).where(Persons.id == person_id)
+
+    @get(
+        "/status/{person_id:int}",
+        guards=[role_guard],
+        opt={"role": Roles.user.value},
+    )
+    async def switch_status(
+        self,
+        person_id: int,
+        request: Request[User, Token, Any],
+    ) -> None:
+        """Toggle the editable status of a person.
+
+        Args:
+            person_id: Person ID.
+            request: Request.
+
+        Returns:
+            Response with status code 200.
+
+        """
+        await Persons.update({"editable": True, "user_id": request.user.id}).where(
+            Persons.id == person_id | (not Persons.protected) | (not Persons.deleted),
+        )
+
+    @delete(
+        "/{person_id:int}",
+        guards=[role_guard],
+        opt={"role": Roles.user.value},
+    )
+    async def delete_person(
+        self,
+        person_id: int,
+    ) -> None:
+        """Delete an item from the database with provided item name and item ID.
+
+        Args:
+            person_id: Person ID.
+
+        Returns:
+            Response with status code 204.
+
+        """
+        person = await Persons.objects().where(Persons.id == person_id).first()
+        if not person or person.protected or person.deleted:
+            raise NotFoundException
+        person.deleted = True
+        await person.save()
