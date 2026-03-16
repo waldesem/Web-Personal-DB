@@ -3,6 +3,7 @@
 import os
 
 from dotenv import load_dotenv
+from piccolo.conf.apps import AppRegistry
 from piccolo.engine.postgres import PostgresEngine
 
 load_dotenv()
@@ -15,4 +16,11 @@ DB = PostgresEngine(
         "user": os.getenv("PG_USER"),
         "password": os.getenv("PG_PASSWORD"),
     },
+)
+
+APP_REGISTRY = AppRegistry(
+    apps=[
+        "app.piccolo_app",
+        "piccolo_admin.piccolo_app",
+    ],
 )

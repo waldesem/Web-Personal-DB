@@ -39,8 +39,8 @@ class PersonController(Controller):
 
         """
         person = await Persons.objects().where(Persons.id == person_id).first()
-        if person:  # and not person.deleted:
-            if not person.destination:  # and not person.protected:
+        if person and not person.deleted:
+            if not person.destination and not person.protected:
                 destination = Path(
                     BASE_PATH,
                     "Главный офис",
@@ -73,8 +73,8 @@ class PersonController(Controller):
             Response with status code 201.
 
         """
-        person = (
-            await Persons.select()
+        if (
+            await Persons.objects()
             .where(
                 Persons.surname == data.surname
                 and Persons.firstname == data.firstname
@@ -82,13 +82,12 @@ class PersonController(Controller):
                 and Persons.birthday == data.birthday,
             )
             .first()
-        )
-        if person:
+        ):
             raise ValidationException
 
-        person = Persons(**data.model_dump() | {"user_id": request.user.id})
-        await person.save()
-        return PersonResponse(person_id=person.id)
+        new_person = Persons(**data.model_dump() | {"user_id": request.user.id})
+        await new_person.save()
+        return PersonResponse(person_id=new_person.id)
 
     @patch(
         "/{person_id:int}",
@@ -112,8 +111,8 @@ class PersonController(Controller):
             Response with status code 201.
 
         """
-        resume = data.model_dump(exclude_none=True) | {"user_id": request.user.id}
-        await Persons.update(resume).where(Persons.id == person_id)
+        resume = data.model_dump() | {"user_id": request.user.id}
+        await Persons.update(**resume).where(Persons.id == person_id)
 
     @get(
         "/status/{person_id:int}",
@@ -135,13 +134,17 @@ class PersonController(Controller):
             Response with status code 200.
 
         """
-        await Persons.update({"editable": True, "user_id": request.user.id}).where(
-            Persons.id == person_id | (not Persons.protected) | (not Persons.deleted),
-        )
+        person = await Persons.objects().where(Persons.id == person_id).first()
+        if not person or (person and (person.protected or person.deleted)):
+            raise NotFoundException
+
+        person.user_id = request.user.id
+        person.editable = not person.editable
+        await person.save()
 
     @delete(
         "/{person_id:int}",
-        guards=[role_guard],
+        guards=[person_guard, role_guard],
         opt={"role": Roles.user.value},
     )
     async def delete_person(
@@ -157,8 +160,7 @@ class PersonController(Controller):
             Response with status code 204.
 
         """
-        person = await Persons.objects().where(Persons.id == person_id).first()
-        if not person or person.protected or person.deleted:
-            raise NotFoundException
-        person.deleted = True
-        await person.save()
+        if person := await Persons.objects().where(Persons.id == person_id).first():
+            person.deleted = True
+            await person.save()
+        raise NotFoundException

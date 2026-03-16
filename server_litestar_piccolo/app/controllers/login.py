@@ -77,8 +77,9 @@ class AuthController(Controller):
             if user.change_pswd or delta_change.days > 365:
                 return AuthResponse(message="denied")
 
-            user.attempt = 0
-            await user.save()
+            if user.attempt > 0:
+                user.attempt = 0
+                await user.save()
             return AuthResponse(
                 message="success",
                 access_token=f"Bearer {

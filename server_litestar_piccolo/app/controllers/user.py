@@ -52,7 +52,7 @@ class UserController(Controller):
         new_user = data.model_dump() | {
             "passhash": bcrypt.hashpw(DEFAULT_PASSWORD.encode(), bcrypt.gensalt()),
         }
-        await Users.insert(Users(**new_user))
+        await Users(**new_user).save()
 
     @post("/user/{user_id:int}")
     async def post_user_actions(
