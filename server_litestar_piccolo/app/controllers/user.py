@@ -4,7 +4,7 @@ from typing import Any, ClassVar
 
 import bcrypt
 from litestar import Controller, Request, get, post
-from litestar.exceptions import PermissionDeniedException
+from litestar.exceptions import ValidationException
 from litestar.security.jwt import Token
 from pydantic import TypeAdapter
 
@@ -46,13 +46,20 @@ class UserController(Controller):
 
         """
         # Проверить, существует ли уже пользователь с таким именем
-        user = await Users.objects().where(Users.username == data.username).first()
-        if user:
-            raise PermissionDeniedException
-        new_user = data.model_dump() | {
-            "passhash": bcrypt.hashpw(DEFAULT_PASSWORD.encode(), bcrypt.gensalt()),
-        }
-        await Users(**new_user).save()
+        user = (
+            await Users.insert(
+                Users(
+                    username=data.username,
+                    email=data.email,
+                    passhash=bcrypt.hashpw(DEFAULT_PASSWORD.encode(), bcrypt.gensalt()),
+                    role=data.role,
+                ),
+            )
+            .on_conflict(action="DO NOTHING")
+            .returning(Users.id)
+        )
+        if not user:
+            raise ValidationException
 
     @post("/user/{user_id:int}")
     async def post_user_actions(
@@ -75,7 +82,7 @@ class UserController(Controller):
         user = await Users.objects().where(Users.id == user_id).first()
         # Если пользователь не найден или пытается изменить собственный профиль
         if not user or request.user.id == user["id"]:
-            raise PermissionDeniedException
+            raise ValidationException
 
         if data.item == "reset":
             # Сбросить пароль пользователя и обнулить попытки входа

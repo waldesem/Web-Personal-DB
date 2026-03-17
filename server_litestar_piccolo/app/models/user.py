@@ -63,7 +63,7 @@ class UserForm(BaseModel):
     fullname: str
     username: Annotated[str, AfterValidator(lambda v: v.lower())]
     email: EmailStr
-    role: Annotated[Roles, Field(Roles.guest.value)]
+    role: Annotated[Roles | None, Field(Roles.guest.value)]
 
 
 class Session(UserForm):

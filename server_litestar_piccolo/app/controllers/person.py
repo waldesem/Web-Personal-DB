@@ -73,21 +73,17 @@ class PersonController(Controller):
             Response with status code 201.
 
         """
-        if (
-            await Persons.objects()
-            .where(
-                Persons.surname == data.surname
-                and Persons.firstname == data.firstname
-                and Persons.patronymic == data.patronymic
-                and Persons.birthday == data.birthday,
+        person = (
+            await Persons.insert(
+                Persons(**data.model_dump(), user_id=request.user.id),
             )
-            .first()
-        ):
+            .on_conflict(action="DO NOTHING", target="person_data")
+            .returning(Persons.id)
+        )
+        if not person:
             raise ValidationException
 
-        new_person = Persons(**data.model_dump() | {"user_id": request.user.id})
-        await new_person.save()
-        return PersonResponse(person_id=new_person.id)
+        return PersonResponse(person_id=person[0]["id"])
 
     @patch(
         "/{person_id:int}",

@@ -25,7 +25,7 @@ class Users(Table, tablename="users"):
     id = Serial(primary_key=True, index=True)
     fullname = Varchar(length=255)
     username = Varchar(length=255, unique=True, index=True)
-    email = Varchar(length=255, unique=True, index=True)
+    email = Varchar(length=255, unique=True)
     passhash = Bytea(default=b"", secret=True)
     pswd_create = Timestamptz(default=TimestamptzNow())
     change_pswd = Boolean(default=False)

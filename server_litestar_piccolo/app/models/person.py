@@ -17,7 +17,7 @@ try:
     from check_sum import validate_inn, validate_snils  # ty:ignore[unresolved-import]
 
 except ImportError:
-    pass
+    from app.utilities.utils import validate_inn, validate_snils
 
 
 name_pattern = r"^[А-яЁёIV\-\s\.\,\'\(\)]*$"

@@ -32,10 +32,10 @@ async def test_get_person(
     "data",
     [
         {
-            "surname": fake.last_name_female(),
-            "firstname": fake.first_name_female(),
-            "patronymic": fake.middle_name_female() if i != 0 else None,
-            "birthday": fake.date(),
+            "surname": "Иванович",
+            "firstname": "Ивано",
+            "patronymic": "Иванович",
+            "birthday": "2000-01-01",
             "birthplace": fake.city() if i == 0 else None,
             "citizenship": fake.country() if i == 0 else None,
             "dual": fake.country() if i != 0 else None,

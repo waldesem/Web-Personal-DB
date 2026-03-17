@@ -153,7 +153,7 @@ class AffilationIn(BaseModel):
 
     view: Annotated[str, Field(max_length=255)]
     organization: Annotated[str, Field(max_length=255)]
-    inn: Annotated[str | None, Field(None, max_length=12)]
+    inn: Annotated[str | None, Field(None, min_length=10, max_length=12)]
     item: Literal["affilations"]
 
 

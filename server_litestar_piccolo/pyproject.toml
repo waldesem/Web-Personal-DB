@@ -14,7 +14,7 @@ dependencies = [
 
 [tool.ruff]
 select = ["ALL"]
-ignore = ["DTZ005", "PLC0415", "PLR2004", "RUF003", "RUF001", "B009", "TC001", "TC002"]
+ignore = ["ERA001", "DTZ005", "PLC0415", "PLR2004", "RUF003", "RUF001", "B009", "TC001", "TC002"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["D", "S101", "S311"]
