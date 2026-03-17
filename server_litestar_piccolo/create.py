@@ -6,13 +6,11 @@ from typing import TYPE_CHECKING
 
 import bcrypt
 import click
-from piccolo.conf.apps import table_finder
-from piccolo.table import create_db_tables, drop_db_tables
 from rich import print as rprint
 
 from app.classes.classes import Roles
 from app.models.user import UserForm
-from app.tables.tables import Persons, Users
+from app.tables.tables import Users
 from constants import DEFAULT_PASSWORD
 
 if TYPE_CHECKING:
@@ -42,18 +40,6 @@ async def create(fullname: str, username: str, email: str, role: Roles) -> None:
         python3 create.py "Super User" superadmin super@host.ru admin
 
     """
-    tables = table_finder(modules=["app.tables.tables"])
-    await drop_db_tables(*tables)
-    await create_db_tables(*tables, if_not_exists=True)
-
-    await Persons.raw(
-        """
-        ALTER TABLE persons
-        ADD CONSTRAINT person_data
-        UNIQUE (surname, firstname, patronymic, birthday)
-        """,
-    )
-
     data = UserForm(fullname=fullname, username=username, email=email, role=role)
     user = (
         await Users.insert(

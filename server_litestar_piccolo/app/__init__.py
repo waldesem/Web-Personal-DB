@@ -10,13 +10,29 @@ from litestar.logging import LoggingConfig
 from litestar.middleware.logging import LoggingMiddlewareConfig
 from litestar.openapi import OpenAPIConfig
 from litestar.static_files import create_static_files_router
+from piccolo.conf.apps import table_finder
 from piccolo.engine import engine_finder
+from piccolo.table import Table, create_db_tables
 
 from app.controllers import base_router
 from app.middleware.auth import jwt_access
 
 if TYPE_CHECKING:
     from types import AsyncGeneratorType
+
+
+async def init_db() -> None:
+    """Init database."""
+    tables = table_finder(modules=["app.tables.tables"])
+    await create_db_tables(*tables, if_not_exists=True)
+    await Table.raw(
+        """
+        ALTER TABLE persons DROP CONSTRAINT IF EXISTS person_data;
+        ALTER TABLE persons
+        ADD CONSTRAINT person_data
+        UNIQUE (surname, firstname, patronymic, birthday)
+        """,
+    )
 
 route_handlers = [
     base_router,
@@ -64,6 +80,7 @@ app = Litestar(
     lifespan=[lifespan],
     logging_config=logging_config,
     middleware=[logging_middleware_config.middleware],
+    on_startup=[init_db],
     openapi_config=OpenAPIConfig(title="STAFFSEC API", version="1.0.0"),
     debug=True,
 )

@@ -46,15 +46,7 @@ async def migrate(path: Path) -> None:
     """
     tables = table_finder(modules=["app.tables.tables"])
     await drop_db_tables(*tables)
-    await create_db_tables(*tables, if_not_exists=True)
-
-    await Persons.raw(
-        """
-        ALTER TABLE persons
-        ADD CONSTRAINT person_data
-        UNIQUE (surname, firstname, patronymic, birthday)
-        """,
-    )
+    await create_db_tables(*tables)
 
     with sqlite3.connect(path) as conn:
         conn.row_factory = sqlite3.Row
