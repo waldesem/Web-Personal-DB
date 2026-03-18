@@ -224,24 +224,27 @@ class InquiryOut(InquiryIn, ItemModel):
     """Inquiries out schema."""
 
 
+ItemType = Annotated[
+    AddressIn
+    | AffilationIn
+    | CheckIn
+    | ContactIn
+    | DocumentIn
+    | EducationIn
+    | InquiryIn
+    | InvestigationIn
+    | PrevIn
+    | PoligrafIn
+    | StaffIn
+    | WorkplaceIn,
+    Field(discriminator="item"),
+]
+
+
 class ItemModelIn(BaseModel):
     """Validation class."""
 
-    item = Annotated[
-        AddressIn
-        | AffilationIn
-        | CheckIn
-        | ContactIn
-        | DocumentIn
-        | EducationIn
-        | InquiryIn
-        | InvestigationIn
-        | PrevIn
-        | PoligrafIn
-        | StaffIn
-        | WorkplaceIn,
-        Field(discriminator="item"),
-    ]
+    item: ItemType
 
 
 ItemTypeOut = Annotated[

@@ -12,6 +12,7 @@ from pydantic import (
     ConfigDict,
     Field,
     PastDate,
+    SkipValidation,
     field_validator,
 )
 
@@ -109,12 +110,12 @@ class PersonResponse(BaseModel):
 class Candidates(BaseModel):
     """Pydantic model for candidates."""
 
-    id: int
-    surname: str
-    firstname: str
-    patronymic: str | None
-    birthday: date
-    editable: bool
-    updated_at: datetime
-    username: str
-    total: int
+    id: Annotated[int, SkipValidation]
+    surname: Annotated[str, SkipValidation]
+    firstname: Annotated[str, SkipValidation]
+    patronymic: Annotated[str | None, SkipValidation]
+    birthday: Annotated[date, SkipValidation]
+    editable: Annotated[bool, SkipValidation]
+    updated_at: Annotated[datetime, SkipValidation]
+    username: Annotated[str, SkipValidation]
+    total: Annotated[int, SkipValidation]

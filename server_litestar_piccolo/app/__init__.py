@@ -62,14 +62,14 @@ logging_config = LoggingConfig(
 logging_middleware_config = LoggingMiddlewareConfig()
 
 
-@asynccontextmanager
-async def lifespan(_: Litestar) -> AsyncGeneratorType:
-    """Use a connection pool."""
-    engine = engine_finder()
-    assert engine
-    await engine.start_connection_pool()
-    yield
-    await engine.close_connection_pool()
+# @asynccontextmanager
+# async def lifespan(_: Litestar) -> AsyncGeneratorType:
+#     """Use a connection pool."""
+#     engine = engine_finder()
+#     assert engine
+#     await engine.start_connection_pool()
+#     yield
+#     await engine.close_connection_pool()
 
 
 app = Litestar(
@@ -77,10 +77,10 @@ app = Litestar(
     route_handlers=route_handlers,
     compression_config=compression_config,
     cors_config=CORSConfig(),
-    lifespan=[lifespan],
+    # lifespan=[lifespan],
     logging_config=logging_config,
     middleware=[logging_middleware_config.middleware],
-    on_startup=[init_db],
+    # on_startup=[init_db],
     openapi_config=OpenAPIConfig(title="STAFFSEC API", version="1.0.0"),
     debug=True,
 )
