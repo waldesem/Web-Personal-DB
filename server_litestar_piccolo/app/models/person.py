@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from datetime import date, datetime  # noqa: TC003
 from typing import Annotated
 
@@ -10,6 +11,7 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
+    PastDate,
     field_validator,
 )
 
@@ -18,9 +20,6 @@ try:
 
 except ImportError:
     from app.utilities.utils import validate_inn, validate_snils
-
-
-name_pattern = r"^[А-яЁёIV\-\s\.\,\'\(\)]*$"
 
 
 class Index(BaseModel):
@@ -40,10 +39,10 @@ class PersonIn(BaseModel):
 
     model_config = ConfigDict(str_strip_whitespace=True)
 
-    surname: Annotated[str, Field(pattern=name_pattern, max_length=255)]
-    firstname: Annotated[str, Field(pattern=name_pattern, max_length=255)]
+    surname: Annotated[str, Field(max_length=255)]
+    firstname: Annotated[str, Field(max_length=255)]
     patronymic: Annotated[str | None, Field(default=None, max_length=255)]
-    birthday: date
+    birthday: PastDate
     birthplace: Annotated[str | None, Field(None, max_length=255)]
     citizenship: Annotated[str | None, Field(default=None, max_length=255)]
     dual: Annotated[str | None, Field(default=None, max_length=255)]
@@ -58,7 +57,7 @@ class PersonIn(BaseModel):
     @classmethod
     def normalize_name(cls, v: str | None) -> str | None:
         """Normalize name."""
-        return v.upper() if v else None
+        return v.upper() if v and re.match(r"^[А-яЁёIV\-\s\.\,\'\(\)]*$", v) else None
 
     @field_validator("inn", mode="after")
     @classmethod
@@ -80,7 +79,7 @@ class PersonOut(PersonIn):
     addition: str | None = None
     destination: str | None = None
     editable: bool
-    protected: bool | None = False
+    protected: bool | None
     user_id: int
     created_at: datetime
     updated_at: datetime
@@ -104,7 +103,7 @@ class PersonOut(PersonIn):
 class PersonResponse(BaseModel):
     """Person exists response."""
 
-    person_id: int | None
+    person_id: int
 
 
 class Candidates(BaseModel):
