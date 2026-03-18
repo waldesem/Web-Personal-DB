@@ -30,7 +30,7 @@ export default defineNuxtConfig({
   modules: ["@nuxt/ui", "@nuxt/eslint", "@vueuse/nuxt", "nuxt-security"],
   nitro: {
     output: {
-      publicDir: "../server_litestar/app/static",
+      publicDir: "../server_litestar_piccolo/app/static",
     },
   },
   routeRules: {

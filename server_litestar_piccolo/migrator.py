@@ -1,5 +1,4 @@
 """Migration from sqlite to postgresql."""
-
 import asyncio
 import sqlite3
 from datetime import UTC, datetime
@@ -10,10 +9,11 @@ import bcrypt
 import click
 from piccolo.conf.apps import table_finder
 from piccolo.table import create_db_tables, drop_db_tables
+from pydantic import BaseModel
 from rich import print as rprint
 
 from app.classes.classes import ItemCategory
-from app.models.items import ItemModelOut
+from app.models.items import ItemTypeOut
 from app.models.person import PersonOut
 from app.models.user import User
 from app.tables.tables import Persons, Users
@@ -22,6 +22,12 @@ from constants import DEFAULT_PASSWORD
 if TYPE_CHECKING:
     from collections.abc import Callable
     from pathlib import Path
+
+
+class ItemModelOut(BaseModel):
+    """Validation class."""
+
+    item: ItemTypeOut
 
 
 def async_cmd(f: Callable) -> Callable:

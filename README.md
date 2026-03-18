@@ -5,7 +5,7 @@ StaffSec is a web interface for managing a candidates database.
 ### The technology stack used in this project:
 
 - Litestar is a powerful, lightweight and flexible ASGI framework;
-- Piccolo is a modern, async query builder and ORM (experimental);
+- Piccolo is a modern, async query builder and ORM;
 - PostreSQL is a powerful, open source object-relational database system;
 - Nuxt is a free and open-source framework with Vue.js;
 
@@ -17,7 +17,7 @@ For installiing the required Python packages run commands:
 ```
 wget -qO- https://astral.sh/uv/install.sh | sh
 git clone https://github.com/waldesem/Web-Personal-DB.git
-cd Web-Personal-DB/server_litestar
+cd Web-Personal-DB/server_litestar_piccolo
 uv sync
 source .venv/bin/activate
 ```
@@ -71,7 +71,7 @@ exit
 
 ### Settings
 
-Create in server_litestar folder `.env` file with content:
+Create in server_litestar_piccolo folder `.env` file with content:
 
 ```
 BASE_PATH=/home/user/PersonalDB
@@ -96,7 +96,7 @@ npm i
 npx nuxi generate
 ```
 
-Builded files can be found in `server_litestar\app\static`
+Builded files can be found in `server_litestar_piccolo\app\static`
 
 ### Start backend server
 
@@ -110,5 +110,6 @@ or for production:
 
 ```
 uvicorn app:app # for uvicorn ASGI server
+
 granian --interface asgi app:app # for Granian Rust-based ASGI server
 ```

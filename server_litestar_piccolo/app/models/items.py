@@ -15,15 +15,10 @@ from pydantic import (
 from app.classes.classes import Conclusions, Decisions
 
 
-class IdModel(BaseModel):
-    """ItemModel schema."""
+class ItemModel(BaseModel):
+    """Date Id Model schema."""
 
     id: int
-
-
-class DateIdModel(IdModel):
-    """DateIdModel schema."""
-
     created_at: datetime
     updated_at: datetime
 
@@ -45,7 +40,7 @@ class PrevIn(BaseModel):
     item: Literal["previous"]
 
 
-class PrevOut(PrevIn, IdModel):
+class PrevOut(PrevIn, ItemModel):
     """Previous out schema."""
 
 
@@ -61,7 +56,7 @@ class EducationIn(BaseModel):
     item: Literal["educations"]
 
 
-class EducationOut(EducationIn, IdModel):
+class EducationOut(EducationIn, ItemModel):
     """Educations schema."""
 
 
@@ -75,7 +70,7 @@ class StaffIn(BaseModel):
     item: Literal["staffs"]
 
 
-class StaffOut(StaffIn, IdModel):
+class StaffOut(StaffIn, ItemModel):
     """Staffs out schema."""
 
 
@@ -92,7 +87,7 @@ class DocumentIn(BaseModel):
     item: Literal["documents"]
 
 
-class DocumentOut(DocumentIn, IdModel):
+class DocumentOut(DocumentIn, ItemModel):
     """Document out schema."""
 
 
@@ -106,7 +101,7 @@ class AddressIn(BaseModel):
     item: Literal["addresses"]
 
 
-class AddressOut(AddressIn, IdModel):
+class AddressOut(AddressIn, ItemModel):
     """Address out schema."""
 
 
@@ -120,7 +115,7 @@ class ContactIn(BaseModel):
     item: Literal["contacts"]
 
 
-class ContactOut(ContactIn, IdModel):
+class ContactOut(ContactIn, ItemModel):
     """Contacts out schema."""
 
 
@@ -142,7 +137,7 @@ class WorkplaceIn(BaseModel):
     item: Literal["workplaces"]
 
 
-class WorkplaceOut(WorkplaceIn, IdModel):
+class WorkplaceOut(WorkplaceIn, ItemModel):
     """Workplace out schema."""
 
 
@@ -153,15 +148,15 @@ class AffilationIn(BaseModel):
 
     view: Annotated[str, Field(max_length=255)]
     organization: Annotated[str, Field(max_length=255)]
-    inn: Annotated[str | None, Field(None, min_length=10, max_length=12)]
+    inn: Annotated[str | None, Field(None, max_length=12)]
     item: Literal["affilations"]
 
 
-class AffilationOut(AffilationIn, IdModel):
+class AffilationOut(AffilationIn, ItemModel):
     """Affilations out schema."""
 
 
-class CheckIn(DateIdModel):
+class CheckIn(ItemModel):
     """Check in schema."""
 
     model_config = ConfigDict(use_enum_values=True)
@@ -186,11 +181,11 @@ class CheckIn(DateIdModel):
     item: Literal["checks"]
 
 
-class CheckOut(CheckIn, DateIdModel):
+class CheckOut(CheckIn, ItemModel):
     """Checks out schema."""
 
 
-class PoligrafIn(DateIdModel):
+class PoligrafIn(ItemModel):
     """Poligraf in schema."""
 
     model_config = ConfigDict(use_enum_values=True)
@@ -201,7 +196,7 @@ class PoligrafIn(DateIdModel):
     item: Literal["poligrafs"]
 
 
-class PoligrafOut(PoligrafIn, DateIdModel):
+class PoligrafOut(PoligrafIn, ItemModel):
     """Poligraf out schema."""
 
 
@@ -213,7 +208,7 @@ class InvestigationIn(BaseModel):
     item: Literal["investigations"]
 
 
-class InvestigationOut(InvestigationIn, DateIdModel):
+class InvestigationOut(InvestigationIn, ItemModel):
     """Investigation out schema."""
 
 
@@ -225,31 +220,28 @@ class InquiryIn(BaseModel):
     item: Literal["inquiries"]
 
 
-class InquiryOut(InquiryIn, DateIdModel):
+class InquiryOut(InquiryIn, ItemModel):
     """Inquiries out schema."""
-
-
-ItemTypeIn = Annotated[
-    AddressIn
-    | AffilationIn
-    | CheckIn
-    | ContactIn
-    | DocumentIn
-    | EducationIn
-    | InquiryIn
-    | InvestigationIn
-    | PrevIn
-    | PoligrafIn
-    | StaffIn
-    | WorkplaceIn,
-    Field(discriminator="item"),
-]
 
 
 class ItemModelIn(BaseModel):
     """Validation class."""
 
-    item: ItemTypeIn
+    item = Annotated[
+        AddressIn
+        | AffilationIn
+        | CheckIn
+        | ContactIn
+        | DocumentIn
+        | EducationIn
+        | InquiryIn
+        | InvestigationIn
+        | PrevIn
+        | PoligrafIn
+        | StaffIn
+        | WorkplaceIn,
+        Field(discriminator="item"),
+    ]
 
 
 ItemTypeOut = Annotated[
@@ -267,12 +259,6 @@ ItemTypeOut = Annotated[
     | WorkplaceOut,
     Field(discriminator="item"),
 ]
-
-
-class ItemModelOut(BaseModel):
-    """Validation class."""
-
-    item: ItemTypeOut
 
 
 class ItemsOutModels(BaseModel):

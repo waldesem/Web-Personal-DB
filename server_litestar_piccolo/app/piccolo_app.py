@@ -4,7 +4,6 @@ from pathlib import Path
 
 from piccolo.conf.apps import AppConfig, table_finder
 
-# from apps.tasks.tables
 from constants import BASE_PATH
 
 APP_CONFIG = AppConfig(

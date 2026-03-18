@@ -18,11 +18,20 @@ from piccolo.columns.defaults.date import DateNow
 from piccolo.columns.defaults.timestamptz import TimestamptzNow
 from piccolo.table import Table
 
+from app.classes.classes import Conclusions, Decisions, Roles
 
-class Users(Table, tablename="users"):
-    """Table users."""
+
+class CreateUpdateIdMixin:
+    """Create Update Id Mixin."""
 
     id = Serial(primary_key=True, index=True)
+    created_at = Timestamptz(default=TimestamptzNow())
+    updated_at = Timestamptz(default=TimestamptzNow(), auto_update=datetime.now)
+
+
+class Users(CreateUpdateIdMixin, Table):
+    """Table users."""
+
     fullname = Varchar(length=255)
     username = Varchar(length=255, unique=True, index=True)
     email = Varchar(length=255, unique=True)
@@ -32,9 +41,7 @@ class Users(Table, tablename="users"):
     blocked = Boolean(default=False)
     deleted = Boolean(default=False)
     attempt = Integer(default=0)
-    role = Varchar(length=255)
-    created_at = Timestamptz(default=TimestamptzNow())
-    updated_at = Timestamptz(default=TimestamptzNow(), auto_update=datetime.now)
+    role = Varchar(length=255, choices=Roles)
 
 
 class AlembicVersion(Table, tablename="alembic_version"):
@@ -43,10 +50,9 @@ class AlembicVersion(Table, tablename="alembic_version"):
     version_num = Varchar(length=32, primary_key=True, index=True)
 
 
-class Persons(Table, tablename="persons"):
+class Persons(CreateUpdateIdMixin, Table):
     """Table persons."""
 
-    id = Serial(primary_key=True, unique=True)
     surname = Varchar(length=255, index=True)
     firstname = Varchar(length=255, index=True)
     patronymic = Varchar(length=255, null=True, index=True)
@@ -63,47 +69,37 @@ class Persons(Table, tablename="persons"):
     protected = Boolean(default=False)
     deleted = Boolean(default=False)
     user_id = ForeignKey(references=Users)
-    created_at = Timestamptz(default=TimestamptzNow())
-    updated_at = Timestamptz(default=TimestamptzNow(), auto_update=datetime.now)
 
 
-class Addresses(Table, tablename="addresses", tags=["addresses"]):
-    """Table addresses."""
+class ItemMixin(CreateUpdateIdMixin):
+    """Item Mixin."""
 
-    id = Serial(primary_key=True, index=True)
-    view = Varchar(length=255)
-    address = Varchar(length=255)
     person_id = ForeignKey(
         references=Persons,
         on_delete=OnDelete.no_action,
         on_update=OnUpdate.no_action,
         index=True,
     )
-    created_at = Timestamptz(default=TimestamptzNow())
-    updated_at = Timestamptz(default=TimestamptzNow(), auto_update=datetime.now)
 
 
-class Affilations(Table, tablename="affilations", tags=["affilations"]):
+class Addresses(ItemMixin, Table, tags=["addresses"]):
+    """Table addresses."""
+
+    view = Varchar(length=255)
+    address = Varchar(length=255)
+
+
+class Affilations(ItemMixin, Table, tags=["affilations"]):
     """Table affilations."""
 
-    id = Serial(primary_key=True, index=True)
     view = Varchar(length=255)
     organization = Varchar(length=255)
     inn = Varchar(length=255, null=True)
-    person_id = ForeignKey(
-        references=Persons,
-        on_delete=OnDelete.no_action,
-        on_update=OnUpdate.no_action,
-        index=True,
-    )
-    created_at = Timestamptz(default=TimestamptzNow())
-    updated_at = Timestamptz(default=TimestamptzNow(), auto_update=datetime.now)
 
 
-class Checks(Table, tablename="checks", tags=["checks"]):
+class Checks(ItemMixin, Table, tags=["checks"]):
     """Table checks."""
 
-    id = Serial(primary_key=True, index=True)
     workplace = Text(null=True)
     document = Text(null=True)
     inn = Text(null=True)
@@ -119,158 +115,77 @@ class Checks(Table, tablename="checks", tags=["checks"]):
     cros = Text(null=True)
     addition = Text(null=True)
     comment = Text(null=True)
-    conclusion = Varchar(length=255)
-    person_id = ForeignKey(
-        references=Persons,
-        on_delete=OnDelete.no_action,
-        on_update=OnUpdate.no_action,
-        index=True,
-    )
-    created_at = Timestamptz(default=TimestamptzNow())
-    updated_at = Timestamptz(default=TimestamptzNow(), auto_update=datetime.now)
+    conclusion = Varchar(length=255, choices=Conclusions)
 
 
-class Contacts(Table, tablename="contacts", tags=["contacts"]):
+class Contacts(ItemMixin, Table, tags=["contacts"]):
     """Table contacts."""
 
-    id = Serial(primary_key=True, index=True)
     view = Varchar(length=255)
     contact = Varchar(length=255)
-    person_id = ForeignKey(
-        references=Persons,
-        on_delete=OnDelete.no_action,
-        on_update=OnUpdate.no_action,
-        index=True,
-    )
-    created_at = Timestamptz(default=TimestamptzNow())
-    updated_at = Timestamptz(default=TimestamptzNow(), auto_update=datetime.now)
 
 
-class Documents(Table, tablename="documents", tags=["documents"]):
+class Documents(ItemMixin, Table, tags=["documents"]):
     """Table documents."""
 
-    id = Serial(primary_key=True, index=True)
     view = Varchar(length=255)
     series = Varchar(length=12, null=True)
     digits = Varchar(length=24)
     agency = Varchar(length=255, null=True)
     issue = Date(default=DateNow(), null=True)
-    person_id = ForeignKey(
-        references=Persons,
-        on_delete=OnDelete.no_action,
-        on_update=OnUpdate.no_action,
-        index=True,
-    )
-    created_at = Timestamptz(default=TimestamptzNow())
-    updated_at = Timestamptz(default=TimestamptzNow(), auto_update=datetime.now)
 
 
-class Educations(Table, tablename="educations", tags=["educations"]):
+class Educations(ItemMixin, Table, tags=["educations"]):
     """Table educations."""
 
-    id = Serial(primary_key=True, index=True)
     view = Varchar(length=255, null=True)
     institution = Text(null=False)
     finished = Varchar(length=4, null=True)
     specialty = Varchar(length=255, null=True)
-    person_id = ForeignKey(
-        references=Persons,
-        on_delete=OnDelete.no_action,
-        on_update=OnUpdate.no_action,
-        index=True,
-    )
-    created_at = Timestamptz(default=TimestamptzNow())
-    updated_at = Timestamptz(default=TimestamptzNow(), auto_update=datetime.now)
 
 
-class Inquiries(Table, tablename="inquiries", tags=["inquiries"]):
+class Inquiries(ItemMixin, Table, tags=["inquiries"]):
     """Table inquiries."""
 
-    id = Serial(primary_key=True, index=True)
     info = Text(null=False)
     initiator = Varchar(length=255)
-    person_id = ForeignKey(
-        references=Persons,
-        on_delete=OnDelete.no_action,
-        on_update=OnUpdate.no_action,
-        index=True,
-    )
-    created_at = Timestamptz(default=TimestamptzNow())
-    updated_at = Timestamptz(default=TimestamptzNow(), auto_update=datetime.now)
 
 
-class Investigations(Table, tablename="investigations", tags=["investigations"]):
+class Investigations(ItemMixin, Table, tags=["investigations"]):
     """Table investigations."""
 
-    id = Serial(primary_key=True, index=True)
     theme = Varchar(length=255)
     info = Text(null=False)
-    person_id = ForeignKey(
-        references=Persons,
-        on_delete=OnDelete.no_action,
-        on_update=OnUpdate.no_action,
-        index=True,
-    )
-    created_at = Timestamptz(default=TimestamptzNow())
-    updated_at = Timestamptz(default=TimestamptzNow(), auto_update=datetime.now)
 
 
-class Poligrafs(Table, tablename="poligrafs", tags=["poligrafs"]):
+class Poligrafs(ItemMixin, Table, tags=["poligrafs"]):
     """Table poligrafs."""
 
-    id = Serial(primary_key=True, index=True)
     theme = Varchar(length=255)
     results = Text(null=False)
-    conclusion = Varchar(length=255)
-    person_id = ForeignKey(
-        references=Persons,
-        on_delete=OnDelete.no_action,
-        on_update=OnUpdate.no_action,
-        index=True,
-    )
-    created_at = Timestamptz(default=TimestamptzNow())
-    updated_at = Timestamptz(default=TimestamptzNow(), auto_update=datetime.now)
+    conclusion = Varchar(length=255, choices=Decisions)
 
 
-class Previous(Table, tablename="previous", tags=["previous"]):
+class Previous(ItemMixin, Table, tags=["previous"]):
     """Table previous."""
 
-    id = Serial(primary_key=True, index=True)
     surname = Varchar(length=255)
     firstname = Varchar(length=255, null=True)
     patronymic = Varchar(length=255, null=True)
     changed = Varchar(length=4, null=True)
     reason = Text(null=True)
-    person_id = ForeignKey(
-        references=Persons,
-        on_delete=OnDelete.no_action,
-        on_update=OnUpdate.no_action,
-        index=True,
-    )
-    created_at = Timestamptz(default=TimestamptzNow())
-    updated_at = Timestamptz(default=TimestamptzNow(), auto_update=datetime.now)
 
 
-class Staffs(Table, tablename="staffs", tags=["staffs"]):
+class Staffs(ItemMixin, Table, tags=["staffs"]):
     """Table staffs."""
 
-    id = Serial(primary_key=True, index=True)
     position = Varchar(length=255)
     department = Varchar(length=255, null=True)
-    person_id = ForeignKey(
-        references=Persons,
-        on_delete=OnDelete.no_action,
-        on_update=OnUpdate.no_action,
-        index=True,
-    )
-    created_at = Timestamptz(default=TimestamptzNow())
-    updated_at = Timestamptz(default=TimestamptzNow(), auto_update=datetime.now)
 
 
-class Workplaces(Table, tablename="workplaces", tags=["workplaces"]):
+class Workplaces(ItemMixin, Table, tags=["workplaces"]):
     """Table workplaces."""
 
-    id = Serial(primary_key=True, index=True)
     now_work = Boolean(default=False)
     starts = Date(default=DateNow())
     finished = Date(default=DateNow(), null=True)
@@ -278,11 +193,3 @@ class Workplaces(Table, tablename="workplaces", tags=["workplaces"]):
     address = Varchar(length=255, null=True)
     position = Varchar(length=255)
     reason = Text(null=True)
-    person_id = ForeignKey(
-        references=Persons,
-        on_delete=OnDelete.no_action,
-        on_update=OnUpdate.no_action,
-        index=True,
-    )
-    created_at = Timestamptz(default=TimestamptzNow())
-    updated_at = Timestamptz(default=TimestamptzNow(), auto_update=datetime.now)
