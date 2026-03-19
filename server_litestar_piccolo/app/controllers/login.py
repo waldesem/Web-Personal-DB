@@ -165,4 +165,10 @@ class AuthController(Controller):
             Session.
 
         """
-        return Session(**request.user.model_dump())
+        return Session(
+            id=request.user.id,
+            fullname=request.user.fullname,
+            username=request.user.username,
+            email=request.user.email,
+            role=request.user.role,
+        )

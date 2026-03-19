@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import re
+from dataclasses import dataclass
 from datetime import date, datetime  # noqa: TC003
-from typing import Annotated
+from typing import Annotated, TypedDict
 
 from pydantic import (
     AfterValidator,
@@ -12,7 +13,6 @@ from pydantic import (
     ConfigDict,
     Field,
     PastDate,
-    SkipValidation,
     field_validator,
 )
 
@@ -35,7 +35,46 @@ class Index(BaseModel):
     ]
 
 
-class PersonIn(BaseModel):
+class Candidates(TypedDict):
+    """Typed Dict for candidates."""
+
+    id: int
+    surname: str
+    firstname: str
+    patronymic: str | None
+    birthday: date
+    editable: bool
+    updated_at: datetime
+    username: str
+    total: int
+
+
+@dataclass(frozen=True)
+class Person:
+    """Person schema."""
+
+    id: int
+    surname: str
+    firstname: str
+    patronymic: str | None
+    birthday: date
+    birthplace: str | None
+    citizenship: str | None
+    dual: str | None
+    snils: str | None
+    inn: str | None
+    marital: str | None
+    addition: str | None
+    destination: str
+    editable: bool
+    protected: bool
+    deleted: bool
+    user_id: int
+    created_at: datetime
+    updated_at: datetime
+
+
+class PersonForm(BaseModel):
     """Person schema."""
 
     model_config = ConfigDict(str_strip_whitespace=True)
@@ -51,8 +90,6 @@ class PersonIn(BaseModel):
     inn: str | None = None
     marital: Annotated[str | None, Field(default=None, max_length=255)]
     addition: str | None = None
-    destination: str | None = None
-    editable: bool | None = True
 
     @field_validator("surname", "firstname", "patronymic")
     @classmethod
@@ -73,49 +110,8 @@ class PersonIn(BaseModel):
         return validate_snils(snils)
 
 
-class PersonOut(PersonIn):
-    """Person schema."""
-
-    id: int
-    addition: str | None = None
-    destination: str | None = None
-    editable: bool
-    protected: bool | None
-    user_id: int
-    created_at: datetime
-    updated_at: datetime
-
-    @classmethod
-    def normalize_name(cls, v: str | None) -> str | None:
-        """Normalize name."""
-        return v
-
-    @classmethod
-    def check_inn(cls, inn: str | None) -> str | None:
-        """Check inn."""
-        return inn
-
-    @classmethod
-    def check_snils(cls, snils: str | None) -> str | None:
-        """Check snils."""
-        return snils
-
-
-class PersonResponse(BaseModel):
+@dataclass
+class PersonResponse:
     """Person exists response."""
 
     person_id: int
-
-
-class Candidates(BaseModel):
-    """Pydantic model for candidates."""
-
-    id: Annotated[int, SkipValidation]
-    surname: Annotated[str, SkipValidation]
-    firstname: Annotated[str, SkipValidation]
-    patronymic: Annotated[str | None, SkipValidation]
-    birthday: Annotated[date, SkipValidation]
-    editable: Annotated[bool, SkipValidation]
-    updated_at: Annotated[datetime, SkipValidation]
-    username: Annotated[str, SkipValidation]
-    total: Annotated[int, SkipValidation]

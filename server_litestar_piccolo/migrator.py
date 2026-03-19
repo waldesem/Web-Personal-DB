@@ -1,4 +1,5 @@
 """Migration from sqlite to postgresql."""
+
 import asyncio
 import sqlite3
 from datetime import UTC, datetime
@@ -8,20 +9,46 @@ from typing import TYPE_CHECKING
 import bcrypt
 import click
 from piccolo.conf.apps import table_finder
-from piccolo.table import create_db_tables, drop_db_tables
+from piccolo.table import Table, create_db_tables, drop_db_tables
 from pydantic import BaseModel
 from rich import print as rprint
 
 from app.classes.classes import ItemCategory
 from app.models.items import ItemTypeOut
-from app.models.person import PersonOut
-from app.models.user import User
+from app.models.person import PersonForm
 from app.tables.tables import Persons, Users
 from constants import DEFAULT_PASSWORD
 
 if TYPE_CHECKING:
     from collections.abc import Callable
     from pathlib import Path
+
+
+class PersonOut(PersonForm):
+    """Person schema."""
+
+    id: int
+    destination: str | None = None
+    editable: bool
+    protected: bool | None
+    user_id: int
+    created_at: datetime
+    updated_at: datetime
+
+    @classmethod
+    def normalize_name(cls, v: str | None) -> str | None:
+        """Normalize name."""
+        return v
+
+    @classmethod
+    def check_inn(cls, inn: str | None) -> str | None:
+        """Check inn."""
+        return inn
+
+    @classmethod
+    def check_snils(cls, snils: str | None) -> str | None:
+        """Check snils."""
+        return snils
 
 
 class ItemModelOut(BaseModel):
@@ -53,31 +80,37 @@ async def migrate(path: Path) -> None:
     tables = table_finder(modules=["app.tables.tables"])
     await drop_db_tables(*tables)
     await create_db_tables(*tables)
+    await Table.raw(
+        """
+        ALTER TABLE persons DROP CONSTRAINT IF EXISTS person_data;
+        ALTER TABLE persons
+        ADD CONSTRAINT person_data
+        UNIQUE (surname, firstname, patronymic, birthday)
+        """,
+    )
 
     with sqlite3.connect(path) as conn:
         conn.row_factory = sqlite3.Row
         cur = conn.cursor()
         users = cur.execute("SELECT * FROM users").fetchall()
         for user in users:
-            new_user = User(
-                id=user["id"],
-                fullname=user["fullname"],
-                username=user["username"],
-                email=user["email"],
-                role=user["role"],
-                blocked=False,
-                deleted=False,
-                attempt=0,
-                change_pswd=True,
-                pswd_create=datetime.now(UTC),
-                created_at=datetime.now(UTC),
-                updated_at=datetime.now(UTC),
-            ).model_dump(exclude={"id"})
-            new_user["passhash"] = bcrypt.hashpw(
-                DEFAULT_PASSWORD.encode(),
-                bcrypt.gensalt(),
+            await Users.insert(
+                Users(
+                    id=user["id"],
+                    fullname=user["fullname"],
+                    username=user["username"],
+                    email=user["email"],
+                    role=user["role"],
+                    passhash=bcrypt.hashpw(DEFAULT_PASSWORD.encode(), bcrypt.gensalt()),
+                    blocked=False,
+                    deleted=False,
+                    attempt=0,
+                    change_pswd=True,
+                    pswd_create=datetime.now(UTC),
+                    created_at=datetime.now(UTC),
+                    updated_at=datetime.now(UTC),
+                ),
             )
-            await Users.insert(Users(new_user))
 
         persons = cur.execute("SELECT * FROM persons").fetchall()
         for person in persons:

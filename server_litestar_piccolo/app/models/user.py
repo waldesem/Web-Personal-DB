@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import datetime  # noqa: TC003
 from typing import Annotated, Literal, Self
 
@@ -17,8 +18,9 @@ from pydantic import (
 from app.classes.classes import Roles
 
 
-class AuthResponse(BaseModel):
-    """Tokens."""
+@dataclass
+class AuthResponse:
+    """Tokens and message class."""
 
     message: Literal["success", "denied", "updated", "delete"]
     access_token: str | None = None
@@ -66,15 +68,22 @@ class UserForm(BaseModel):
     role: Annotated[Roles | None, Field(Roles.guest.value)]
 
 
-class Session(UserForm):
-    """Pydantic model for session."""
+@dataclass(frozen=True)
+class Session:
+    """Dataclass for session."""
 
     id: int
+    fullname: str
+    username: str
+    email: str
+    role: Roles
 
 
+@dataclass(frozen=True)
 class User(Session):
-    """Pydantic model for user form."""
+    """Dataclass for user."""
 
+    passhash: bytes
     pswd_create: datetime
     change_pswd: bool
     blocked: bool

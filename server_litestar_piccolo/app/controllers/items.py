@@ -1,11 +1,11 @@
 """Items routes."""
 
 from litestar import Controller, delete, get, patch, post
+from litestar.repository.exceptions import NotFoundError
 from piccolo.columns.combination import WhereRaw
 from piccolo.conf.apps import table_finder
 from piccolo.query import OrderByRaw
 from piccolo.query.functions import Lower
-from piccolo.table import Table
 from pydantic import TypeAdapter
 
 from app.classes.classes import ItemCategory, Roles
@@ -14,15 +14,16 @@ from app.models.items import ItemModelIn, ItemsOutModels, ItemTypeOut
 
 ta = TypeAdapter(list[ItemTypeOut])
 
+tables = {
+    item.value: table_finder(modules=["app.tables.tables"], include_tags=[item])[0]
+    for item in ItemCategory
+}
+
 
 class ItemsController(Controller):
     """Items controller."""
 
     path = "/items"
-
-    @classmethod
-    async def _get_table(cls, item: str) -> type[Table]:
-        return table_finder(modules=["app.tables.tables"], include_tags=[item])[0]
 
     @classmethod
     async def select_item(
@@ -40,12 +41,13 @@ class ItemsController(Controller):
             Sequence of rows from the database.
 
         """
-        table = await cls._get_table(item)
-        return (
-            await table.select(table.all_columns(), Lower(item, alias="item"))  # ty:ignore[invalid-argument-type]
-            .where(WhereRaw("id={}", person_id))
-            .order_by(OrderByRaw("id"), ascending=False)
-        )
+        if table := tables.get(item):
+            return (
+                await table.select(*table.all_columns(), Lower(item, alias="item"))
+                .where(WhereRaw("id={}", person_id))
+                .order_by(OrderByRaw("id"), ascending=False)
+            )
+        raise NotFoundError
 
     @get("/{item:str}/{person_id:int}")
     async def get_item(
@@ -110,7 +112,7 @@ class ItemsController(Controller):
         json_dict = data.item.model_dump(exclude={"item"}) | {
             "person_id": person_id,
         }
-        table = await self._get_table(data.item.item)
+        table = tables[data.item.item]
         await table.insert(table(json_dict))
 
     @patch(
@@ -137,7 +139,7 @@ class ItemsController(Controller):
 
         """
         json_dict = data.item.model_dump(exclude={"item"}) | {"person_id": person_id}
-        table = await self._get_table(data.item.item)
+        table = tables[data.item.item]
         await table.update(json_dict).where(WhereRaw("id={}", item_id))
 
     @delete(
@@ -162,5 +164,6 @@ class ItemsController(Controller):
             Response with status code 204.
 
         """
-        table = await self._get_table(item)
+        table = tables[item]
         await table.delete().where(WhereRaw("id={}", item_id))
+

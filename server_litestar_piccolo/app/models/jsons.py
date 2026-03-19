@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import date  # noqa: TC003
 from typing import Annotated
 
-from pydantic import BaseModel, BeforeValidator, EmailStr, Field
+from pydantic import BaseModel, BeforeValidator, ConfigDict, EmailStr, Field
 
 
 class EducationJson(BaseModel):
@@ -40,6 +40,8 @@ class PrevJson(BaseModel):
 class WorkplaceJson(BaseModel):
     """Workplaces json model."""
 
+    model_config = ConfigDict(str_strip_whitespace=True)
+
     now_work: Annotated[bool, Field(default=False, validation_alias="currentJob")]
     starts: Annotated[date, Field(validation_alias="beginDate")]
     finished: Annotated[date | None, Field(default=None, validation_alias="endDate")]
@@ -52,6 +54,8 @@ class WorkplaceJson(BaseModel):
 class AffilationJson(BaseModel):
     """Affilation json model."""
 
+    model_config = ConfigDict(str_strip_whitespace=True)
+
     view: Annotated[
         str | None,
         Field(default=None, validation_alias="organizationType", max_length=255),
@@ -63,27 +67,27 @@ class AffilationJson(BaseModel):
 class AnketaJson(BaseModel):
     """Candidate anketa schema."""
 
-    surname: Annotated[str, Field(validation_alias="lastName", max_length=255)]
-    firstname: Annotated[str, Field(validation_alias="firstName", max_length=255)]
+    surname: Annotated[str, Field(validation_alias="lastName")]
+    firstname: Annotated[str, Field(validation_alias="firstName")]
     patronymic: Annotated[
         str | None,
-        Field(default=None, validation_alias="midName", max_length=255),
+        Field(default=None, validation_alias="midName"),
     ]
     birthday: date
-    birthplace: Annotated[str | None, Field(None, max_length=255)]
+    birthplace: str | None = None
     citizenship: Annotated[
         str | None,
-        Field(default=None, validation_alias="citizen", max_length=255),
+        Field(default=None, validation_alias="citizen"),
     ]
     dual: Annotated[
         str | None,
-        Field(default=None, validation_alias="additionalCitizenship", max_length=255),
+        Field(default=None, validation_alias="additionalCitizenship"),
     ]
-    snils: Annotated[str | None, Field(default=None)]
-    inn: Annotated[str | None, Field(default=None)]
+    snils: str | None = None
+    inn: str | None = None
     marital: Annotated[
         str | None,
-        Field(default=None, validation_alias="maritalStatus", max_length=255),
+        Field(default=None, validation_alias="maritalStatus"),
     ]
     email: EmailStr | None = None
     department: str | None = None

@@ -10,7 +10,7 @@ from litestar.security.jwt import Token
 
 from app.classes.classes import Roles
 from app.middleware.auth import person_guard, role_guard
-from app.models.person import PersonIn, PersonOut, PersonResponse
+from app.models.person import Person, PersonForm, PersonResponse
 from app.models.user import User
 from app.tables.tables import Persons
 from constants import BASE_PATH
@@ -25,7 +25,7 @@ class PersonController(Controller):
     async def get_person(
         self,
         person_id: int,
-    ) -> PersonOut:
+    ) -> Person:
         """Retrieve an item from the database based on the provided item ID.
 
         Args:
@@ -54,19 +54,19 @@ class PersonController(Controller):
                 await asyncio.to_thread(destination.mkdir, parents=True, exist_ok=True)
                 person.destination = str(destination)
                 await person.save()
-            return PersonOut.model_validate(person, from_attributes=True)
+            return Person(**person.to_dict())
         raise NotFoundException
 
     @post("/", guards=[role_guard], opt={"role": Roles.user.value})
     async def post_person(
         self,
-        data: PersonIn,
+        data: PersonForm,
         request: Request[User, Token, Any],
     ) -> PersonResponse:
         """Create a new person or updates an existing person.
 
         Args:
-            data: PersonIn.
+            data: PersonForm.
             request: Request.
 
         Returns:
@@ -93,14 +93,14 @@ class PersonController(Controller):
     async def patch_person(
         self,
         person_id: int,
-        data: PersonIn,
+        data: PersonForm,
         request: Request[User, Token, Any],
     ) -> None:
         """Create a new person or updates an existing person.
 
         Args:
             person_id: int,
-            data: PersonIn.
+            data: PersonForm.
             request: Request.
 
         Returns:
