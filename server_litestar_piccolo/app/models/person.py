@@ -51,7 +51,7 @@ class Candidates(TypedDict):
 
 @dataclass(frozen=True)
 class Person:
-    """Person schema."""
+    """Person dataclass schema."""
 
     id: int
     surname: str
@@ -111,7 +111,7 @@ class PersonForm(BaseModel):
 
 
 @dataclass
-class PersonResponse:
+class PersonResp:
     """Person exists response."""
 
     person_id: int

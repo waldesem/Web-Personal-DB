@@ -10,7 +10,7 @@ from litestar.security.jwt import Token
 
 from app.classes.classes import Roles
 from app.middleware.auth import person_guard, role_guard
-from app.models.person import Person, PersonForm, PersonResponse
+from app.models.person import Person, PersonForm, PersonResp
 from app.models.user import User
 from app.tables.tables import Persons
 from constants import BASE_PATH
@@ -62,7 +62,7 @@ class PersonController(Controller):
         self,
         data: PersonForm,
         request: Request[User, Token, Any],
-    ) -> PersonResponse:
+    ) -> PersonResp:
         """Create a new person or updates an existing person.
 
         Args:
@@ -83,7 +83,7 @@ class PersonController(Controller):
         if not person:
             raise ValidationException
 
-        return PersonResponse(person_id=person[0]["id"])
+        return PersonResp(person_id=person[0]["id"])
 
     @patch(
         "/{person_id:int}",

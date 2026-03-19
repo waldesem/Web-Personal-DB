@@ -31,8 +31,8 @@ class UserController(Controller):
             Response with status code 200 and a list of users.
 
         """
-        users = await Users.objects()
-        return ta.validate_python(users, from_attributes=True)
+        users = await Users.select()
+        return ta.validate_python(users)
 
     @post("/user")
     async def post_user(self, data: UserForm) -> None:

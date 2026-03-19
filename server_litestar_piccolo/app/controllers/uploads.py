@@ -9,7 +9,7 @@ from litestar.security.jwt import Token
 from app.classes.classes import Roles
 from app.middleware.auth import role_guard
 from app.models.jsons import AnketaJson
-from app.models.person import PersonResponse
+from app.models.person import PersonForm, PersonResp
 from app.models.user import User
 from app.tables.tables import (
     Addresses,
@@ -36,7 +36,7 @@ class JsonController(Controller):
         self,
         data: AnketaJson,
         request: Request[User, Token, Any],
-    ) -> PersonResponse:
+    ) -> PersonResp:
         """Create a new person or updates an existing person from json.
 
         Args:
@@ -47,9 +47,10 @@ class JsonController(Controller):
             Response with status code 201.
 
         """
+        resume = PersonForm.model_validate(data, from_attributes=True)
         person = (
             await Persons.insert(
-                Persons(**data.model_dump(), user_id=request.user.id),
+                Persons(**resume.model_dump(), user_id=request.user.id),
             )
             .on_conflict(action="DO NOTHING", target="person_data")
             .returning(Persons.id)
@@ -57,6 +58,7 @@ class JsonController(Controller):
         if not person:
             raise ValidationException
 
+        person_id = person[0]["id"]
         # Сохранение дополнительной информации о кандидате в БД
         await Documents.insert(
             Documents(
@@ -64,59 +66,59 @@ class JsonController(Controller):
                 series=data.series,
                 issue=data.issue,
                 agency=data.agency,
-                person_id=person[0]["id"],
+                person_id=person_id,
             ),
         )
         await Staffs.insert(
             Staffs(
                 position=data.position,
                 department=data.department,
-                person_id=person[0]["id"],
+                person_id=person_id,
             ),
         )
         await Addresses.insert(
             Addresses(
                 view="Адрес проживания",
                 address=data.valid_address,
-                person_id=person[0]["id"],
+                person_id=person_id,
             ),
         )
         await Addresses.insert(
             Addresses(
                 view="Адрес регистрации",
                 address=data.reg_address,
-                person_id=person[0]["id"],
+                person_id=person_id,
             ),
         )
         await Contacts.insert(
             Contacts(
                 view="Телефон",
                 contact=data.contact_phone,
-                person_id=person[0]["id"],
+                person_id=person_id,
             ),
         )
         await Contacts.insert(
             Contacts(
                 view="Электронная почта",
                 contact=data.email,
-                person_id=person[0]["id"],
+                person_id=person_id,
             ),
         )
         [
             await Educations.insert(
-                Educations(**education.model_dump(), person_id=person[0]["id"]),
+                Educations(**education.model_dump(), person_id=person_id),
             )
             for education in data.education
         ]
         [
             await Workplaces.insert(
-                Workplaces(**workplace.model_dump(), person_id=person[0]["id"]),
+                Workplaces(**workplace.model_dump(), person_id=person_id),
             )
             for workplace in data.experience
         ]
         [
             await Previous.insert(
-                Previous(**prev.model_dump(), person_id=person[0]["id"]),
+                Previous(**prev.model_dump(), person_id=person_id),
             )
             for prev in data.name_was_changed
         ]
@@ -126,7 +128,7 @@ class JsonController(Controller):
                     view="Участвует в деятельности коммерческих организаций",
                     organization=aff.organization,
                     inn=aff.inn,
-                    person_id=person[0]["id"],
+                    person_id=person_id,
                 ),
             )
             for aff in data.organizations
@@ -136,7 +138,7 @@ class JsonController(Controller):
                 Affilations(
                     view="Являлся государственным должностным лицом",
                     organization=aff.organization,
-                    person_id=person[0]["id"],
+                    person_id=person_id,
                 ),
             )
             for aff in data.state_organizations
@@ -146,21 +148,19 @@ class JsonController(Controller):
                 Affilations(
                     view="Связанные лица работают в госструктурах",
                     organization=aff.organization,
-                    person_id=person[0]["id"],
+                    person_id=person_id,
                 ),
             )
             for aff in data.related_organizations
         ]
-        (
-            [
-                await Affilations.insert(
-                    Affilations(
-                        view="Являлся государственным/муниципальным служащим",
-                        organization=aff.organization,
-                        person_id=person[0]["id"],
-                    ),
-                )
-                for aff in data.public_organizations
-            ],
-        )
-        return PersonResponse(person_id=person[0]["id"])
+        [
+            await Affilations.insert(
+                Affilations(
+                    view="Являлся государственным/муниципальным служащим",
+                    organization=aff.organization,
+                    person_id=person_id,
+                ),
+            )
+            for aff in data.public_organizations
+        ]
+        return PersonResp(person_id=person_id)
