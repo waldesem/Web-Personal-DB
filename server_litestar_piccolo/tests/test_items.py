@@ -42,12 +42,10 @@ async def test_get_items(
     ("person_id", "data"),
     [
         (
-            3,
+            4,
             {
                 "item": {
-                    "position": "Officer",
-                    "department": "Investing",
-                    "item": "staffs",
+                    "item": "checks",
                 },
             },
         ),

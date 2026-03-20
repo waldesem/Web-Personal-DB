@@ -1,7 +1,6 @@
 """Items routes."""
 
 from litestar import Controller, delete, get, patch, post
-from litestar.repository.exceptions import NotFoundError
 from piccolo.columns.combination import WhereRaw
 from piccolo.conf.apps import table_finder
 from piccolo.query import OrderByRaw
@@ -41,13 +40,12 @@ class ItemsController(Controller):
             Sequence of rows from the database.
 
         """
-        if table := tables.get(item):
-            return (
-                await table.select(*table.all_columns(), Lower(item, alias="item"))
-                .where(WhereRaw("id={}", person_id))
-                .order_by(OrderByRaw("id"), ascending=False)
-            )
-        raise NotFoundError
+        table = tables[item]
+        return (
+            await table.select(*table.all_columns(), Lower(item, alias="item"))
+            .where(WhereRaw("id={}", person_id))
+            .order_by(OrderByRaw("id"), ascending=False)
+        )
 
     @get("/{item:str}/{person_id:int}")
     async def get_item(
@@ -109,11 +107,9 @@ class ItemsController(Controller):
             Response with status code 201.
 
         """
-        json_dict = data.item.model_dump(exclude={"item"}) | {
-            "person_id": person_id,
-        }
+        json_dict = data.item.model_dump(exclude={"item"})
         table = tables[data.item.item]
-        await table.insert(table(json_dict))
+        await table.insert(table(**json_dict, person_id=person_id))
 
     @patch(
         "/{person_id:int}/{item_id:int}",
@@ -164,6 +160,5 @@ class ItemsController(Controller):
             Response with status code 204.
 
         """
-        table = tables[item]
-        await table.delete().where(WhereRaw("id={}", item_id))
+        await tables[item].delete().where(WhereRaw("id={}", item_id))
 
