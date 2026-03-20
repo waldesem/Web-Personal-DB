@@ -82,8 +82,6 @@ class JsonController(Controller):
                 address=data.valid_address,
                 person_id=person_id,
             ),
-        )
-        await Addresses.insert(
             Addresses(
                 view="Адрес регистрации",
                 address=data.reg_address,
@@ -96,71 +94,63 @@ class JsonController(Controller):
                 contact=data.contact_phone,
                 person_id=person_id,
             ),
-        )
-        await Contacts.insert(
             Contacts(
                 view="Электронная почта",
                 contact=data.email,
                 person_id=person_id,
             ),
         )
-        [
-            await Educations.insert(
-                Educations(**education.model_dump(), person_id=person_id),
-            )
-            for education in data.education
-        ]
-        [
-            await Workplaces.insert(
-                Workplaces(**workplace.model_dump(), person_id=person_id),
-            )
-            for workplace in data.experience
-        ]
-        [
-            await Previous.insert(
-                Previous(**prev.model_dump(), person_id=person_id),
-            )
-            for prev in data.name_was_changed
-        ]
-        [
-            await Affilations.insert(
+        await Educations.insert(
+            *[
+                Educations(**education.model_dump(), person_id=person_id)
+                for education in data.education
+            ],
+        )
+        await Workplaces.insert(
+            *[
+                Workplaces(**workplace.model_dump(), person_id=person_id)
+                for workplace in data.experience
+            ],
+        )
+        await Previous.insert(
+            *[
+                Previous(**prev.model_dump(), person_id=person_id)
+                for prev in data.name_was_changed
+            ],
+        )
+        await Affilations.insert(
+            *[
                 Affilations(
                     view="Участвует в деятельности коммерческих организаций",
                     organization=aff.organization,
                     inn=aff.inn,
                     person_id=person_id,
-                ),
-            )
-            for aff in data.organizations
-        ]
-        [
-            await Affilations.insert(
+                )
+                for aff in data.organizations
+            ]
+            + [
                 Affilations(
                     view="Являлся государственным должностным лицом",
                     organization=aff.organization,
                     person_id=person_id,
-                ),
-            )
-            for aff in data.state_organizations
-        ]
-        [
-            await Affilations.insert(
+                )
+                for aff in data.state_organizations
+            ]
+            + [
                 Affilations(
                     view="Связанные лица работают в госструктурах",
                     organization=aff.organization,
                     person_id=person_id,
-                ),
-            )
-            for aff in data.related_organizations
-        ]
-        [
-            await Affilations.insert(
+                )
+                for aff in data.related_organizations
+            ]
+            + [
                 Affilations(
                     view="Являлся государственным/муниципальным служащим",
                     organization=aff.organization,
                     person_id=person_id,
-                ),
-            )
-            for aff in data.public_organizations
-        ]
+                )
+                for aff in data.public_organizations
+            ],
+        )
         return PersonResp(person_id=person_id)

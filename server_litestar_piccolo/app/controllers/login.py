@@ -156,7 +156,7 @@ class AuthController(Controller):
 
     @get("/session", cache=120, cache_key_builder=key_builder)
     async def get_session(self, request: Request[User, Token, Any]) -> Session:
-        """Retrieve user data.
+        """Retrieve user session data.
 
         Args:
             request: Request.

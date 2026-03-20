@@ -46,19 +46,16 @@ class UserController(Controller):
 
         """
         # Проверить, существует ли уже пользователь с таким именем
-        user = (
+        if not (
             await Users.insert(
                 Users(
-                    username=data.username,
-                    email=data.email,
+                    **data.model_dump(),
                     passhash=bcrypt.hashpw(DEFAULT_PASSWORD.encode(), bcrypt.gensalt()),
-                    role=data.role,
                 ),
             )
             .on_conflict(action="DO NOTHING")
             .returning(Users.id)
-        )
-        if not user:
+        ):
             raise ValidationException
 
     @post("/user/{user_id:int}")
@@ -81,7 +78,7 @@ class UserController(Controller):
         """
         user = await Users.objects().where(Users.id == user_id).first()
         # Если пользователь не найден или пытается изменить собственный профиль
-        if not user or request.user.id == user["id"]:
+        if not user or request.user.id == user.id:
             raise ValidationException
 
         if data.item == "reset":
