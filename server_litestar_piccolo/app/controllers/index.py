@@ -22,6 +22,7 @@ async def get_candidates(query: Index) -> list[Candidates]:
             List of persons.
 
     """
+    params = []
     stmt = """
         SELECT
         p.id,
@@ -37,17 +38,18 @@ async def get_candidates(query: Index) -> list[Candidates]:
     JOIN users u ON u.id = p.user_id
     WHERE NOT p.deleted
     """
-    search = []
+    if query.last_seen_id:
+        stmt += " p.id < {}"
+        params.append(query.last_seen_id)
     if query.search:
         stmt += " AND p.surname = {}"
-        search.append(query.search[0])
+        params.append(query.search[0])
         if query.search and len(query.search) > 1:
             stmt += " AND p.firstname = {}"
-            search.append(query.search[1])
+            params.append(query.search[1])
             if query.search and len(query.search) > 2:
                 stmt += " AND p.patronymic = {}"
-                search.append(query.search[2])
-    stmt += f" ORDER BY p.id DESC OFFSET {(query.page - 1) * query.per_page}"
-    stmt += f" LIMIT {query.per_page}"
-    candidates = await Persons.raw(stmt, *search)
+                params.append(query.search[2])
+    stmt += f" ORDER BY p.id DESC LIMIT {query.per_page}"
+    candidates = await Persons.raw(stmt, *params)
     return ta.validate_python(candidates)

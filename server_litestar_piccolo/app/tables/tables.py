@@ -24,7 +24,7 @@ from app.classes.classes import Conclusions, Decisions, Roles
 class CreateUpdateIdMixin:
     """Create Update Id Mixin."""
 
-    id = Serial(primary_key=True, index=True)
+    id = Serial(primary_key=True)
     created_at = Timestamptz(default=TimestamptzNow())
     updated_at = Timestamptz(default=TimestamptzNow(), auto_update=datetime.now)
 
@@ -53,15 +53,15 @@ class AlembicVersion(Table, tablename="alembic_version"):
 class Persons(CreateUpdateIdMixin, Table):
     """Table persons."""
 
-    surname = Varchar(length=255, index=True)
-    firstname = Varchar(length=255, index=True)
-    patronymic = Varchar(length=255, null=True, index=True)
-    birthday = Date(default=DateNow(), index=True)
+    surname = Varchar(length=255)
+    firstname = Varchar(length=255)
+    patronymic = Varchar(length=255, null=True)
+    birthday = Date(default=DateNow())
     birthplace = Varchar(length=255, null=True)
     citizenship = Varchar(length=255, null=True)
     dual = Varchar(length=255, null=True)
     snils = Varchar(length=11, null=True)
-    inn = Varchar(length=12, null=True, index=True)
+    inn = Varchar(length=12, null=True)
     marital = Varchar(length=255, null=True)
     addition = Text(null=True)
     destination = Text(null=True)

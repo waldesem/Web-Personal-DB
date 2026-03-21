@@ -9,6 +9,7 @@ const { data: user } = useNuxtData<Session>("session");
 
 // Объявляем переменные для работы с данными
 const modal = ref(false); // Состояние модального окна
+const lastSeenId = ref<null | string>(null);
 const page = ref(1); // Страница таблицы
 const per_page = 10; // Количество строк в таблице
 const search = ref(""); // Поисковый запрос
@@ -20,7 +21,7 @@ const { data, status, refresh } = await useLazyAsyncData(
   () =>
     $api<Candidate[]>("/routes/candidates", {
       query: {
-        page: page.value,
+        last_seen_id: lastSeenId.value,
         per_page: per_page,
         search: search.value,
       },
@@ -35,8 +36,12 @@ const { data, status, refresh } = await useLazyAsyncData(
 
 // Вычисляем количество страниц
 const total = computed(() => {
-  return data.value[0] ? data.value[0].total : 1;
+  return data.value[0]?.total ?? 1;
 });
+
+lastSeenId.value = computed(() => {
+  return data.value.at(-1)?.id ?? null;
+}).value;
 
 // Наблюдаем: поиск
 watch(refDebounced(search, 1000), () => {

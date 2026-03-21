@@ -8,14 +8,13 @@ from typing import TYPE_CHECKING
 
 import bcrypt
 import click
-from piccolo.conf.apps import table_finder
-from piccolo.table import Table, create_db_tables, drop_db_tables
+from piccolo.utils.pydantic import create_pydantic_model
 from pydantic import BaseModel
 from rich import print as rprint
 
 from app.classes.classes import ItemCategory
+from app.controllers.items import tables
 from app.models.items import ItemTypeOut
-from app.models.person import PersonForm
 from app.tables.tables import Persons, Users
 from constants import DEFAULT_PASSWORD
 
@@ -24,31 +23,8 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 
-class PersonOut(PersonForm):
+class Person(create_pydantic_model(Persons)):  # ty:ignore[unsupported-base]
     """Person schema."""
-
-    id: int
-    destination: str | None = None
-    editable: bool
-    protected: bool | None
-    user_id: int
-    created_at: datetime
-    updated_at: datetime
-
-    @classmethod
-    def normalize_name(cls, v: str | None) -> str | None:
-        """Normalize name."""
-        return v
-
-    @classmethod
-    def check_inn(cls, inn: str | None) -> str | None:
-        """Check inn."""
-        return inn
-
-    @classmethod
-    def check_snils(cls, snils: str | None) -> str | None:
-        """Check snils."""
-        return snils
 
 
 class ItemModelOut(BaseModel):
@@ -74,29 +50,16 @@ async def migrate(path: Path) -> None:
     """MIgrate data from sqlite to postgresql.
 
     Example:
-        python.exe migrator.py "/path/database.db"
+        python3 cli_migrator.py "/path/database.db"
 
     """
-    tables = table_finder(modules=["app.tables.tables"])
-    await drop_db_tables(*tables)
-    await create_db_tables(*tables)
-    await Table.raw(
-        """
-        ALTER TABLE persons DROP CONSTRAINT IF EXISTS person_data;
-        ALTER TABLE persons
-        ADD CONSTRAINT person_data
-        UNIQUE (surname, firstname, patronymic, birthday)
-        """,
-    )
-
     with sqlite3.connect(path) as conn:
         conn.row_factory = sqlite3.Row
         cur = conn.cursor()
         users = cur.execute("SELECT * FROM users").fetchall()
-        for user in users:
-            await Users.insert(
+        await Users.insert(
+            *[
                 Users(
-                    id=user["id"],
                     fullname=user["fullname"],
                     username=user["username"],
                     email=user["email"],
@@ -109,14 +72,17 @@ async def migrate(path: Path) -> None:
                     pswd_create=datetime.now(UTC),
                     created_at=datetime.now(UTC),
                     updated_at=datetime.now(UTC),
-                ),
-            )
+                )
+                for user in users
+            ],
+        )
 
         persons = cur.execute("SELECT * FROM persons").fetchall()
         for person in persons:
             persona = dict(person)
+            persona["protected"] = persona["deleted"] = False
             persona["created_at"] = persona["updated_at"] = persona.pop("created")
-            new_person = PersonOut(**persona).model_dump(
+            new_person = Person(**persona).model_dump(
                 exclude={"id"},
             )
             new_person["created_at"] = new_person["updated_at"] = (
@@ -152,11 +118,8 @@ async def migrate(path: Path) -> None:
                                 else new_data["updated_at"].replace(tzinfo=UTC)
                             )
                         new_data["person_id"] = new_person.id
-                        data_table = table_finder(
-                            modules=["app.tables.tables"],
-                            include_tags=[table],
-                        )[0]
-                        data_table.insert(data_table(new_data))
+                        if data_table := tables.get(table.value):
+                            data_table.insert(data_table(**new_data))
 
         rprint("Migration finished!")
 
