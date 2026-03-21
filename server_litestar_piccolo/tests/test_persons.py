@@ -15,7 +15,7 @@ TEST_DIR = "/home/semenenko/MyProjects/XData"
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "person_id",
-    [6],
+    [1],
 )
 async def test_get_person(
     test_auth_client: AsyncTestClient[Litestar],
@@ -32,19 +32,19 @@ async def test_get_person(
     "data",
     [
         {
-            "surname": "Иванович",
-            "firstname": "Ивано",
-            "patronymic": "Иванович",
+            "surname": fake.name_male(),
+            "firstname": fake.first_name_male(),
+            "patronymic": fake.middle_name_male(),
             "birthday": "2000-01-01",
             "birthplace": fake.city() if i == 0 else None,
             "citizenship": fake.country() if i == 0 else None,
             "dual": fake.country() if i != 0 else None,
             "snils": fake.snils() if i != 0 else None,
-            "inn": "530401048147",
+            "inn": fake.individuals_inn(),
             "marital": fake.sentence(2) if i == 0 else None,
             "addition": fake.sentence(5) if i != 0 else None,
         }
-        for i in range(1)
+        for i in range(5)
     ],
 )
 async def test_post_person(
@@ -61,7 +61,7 @@ async def test_post_person(
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "person_id",
-    [4],
+    [2],
 )
 async def test_delete_person(
     test_auth_client: AsyncTestClient[Litestar],
@@ -97,4 +97,4 @@ async def test_switch_user(
     resp = await test_auth_client.get(
         f"/routes/persons/status/{person_id}",
     )
-    assert resp.status_code == HTTP_201_CREATED
+    assert resp.status_code == HTTP_200_OK

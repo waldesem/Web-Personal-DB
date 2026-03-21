@@ -9,8 +9,8 @@ async def test_candidates(test_auth_client: AsyncTestClient[Litestar]) -> None:
     resp = await test_auth_client.get(
         "/routes/candidates",
         params={
-            "page": 1,
-            "per_page": 10,
+            "last_seen_id": 3,
+            "per_page": 2,
             "search": "",
         },
     )

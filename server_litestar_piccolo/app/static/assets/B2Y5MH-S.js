@@ -1,0 +1,1 @@
+import{aP as o}from"./j1-4jVRg.js";function a(){const e={error:"i-lucide-triangle-alert",info:"i-lucide-octagon-alert",success:"i-lucide-circle-alert"},r={error:"Ошибка",info:"Внимание",success:"Успех"},i=o();function s(t="error",c="Невозможно выполнить действие или операция завершилась ошибкой"){i.add({icon:e[t],title:r[t],description:c,color:t})}return{create:s}}export{a as u};

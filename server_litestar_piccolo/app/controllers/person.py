@@ -77,7 +77,10 @@ class PersonController(Controller):
             await Persons.insert(
                 Persons(**data.model_dump(), user_id=request.user.id),
             )
-            .on_conflict(action="DO NOTHING", target="person_data")
+            .on_conflict(
+                action="DO NOTHING",
+                target="constraint_persons_surname_firstname_patronymic_birthday",
+            )
             .returning(Persons.id)
         )
         if not person:
@@ -159,4 +162,5 @@ class PersonController(Controller):
         if person := await Persons.objects().where(Persons.id == person_id).first():
             person.deleted = True
             await person.save()
-        raise NotFoundException
+        else:
+            raise NotFoundException

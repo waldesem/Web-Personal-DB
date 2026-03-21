@@ -17,7 +17,7 @@ async def test_relogin(
         },
     )
     resp = response.json()
-    assert resp.pop("message") == "updated"
+    assert resp.pop("message", None) == "updated"
     assert response.status_code == HTTP_201_CREATED
 
 
@@ -42,7 +42,7 @@ async def test_refresh(
     response = await test_auth_client.get(
         "/routes/auth/refresh",
     )
-    assert "token"in response.json()
+    assert "token" in response.json()
     assert response.status_code == HTTP_201_CREATED
 
 

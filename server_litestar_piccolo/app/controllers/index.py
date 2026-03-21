@@ -16,10 +16,10 @@ async def get_candidates(query: Index) -> list[Candidates]:
     """Retrieve a paginated list of persons from the database.
 
     Args:
-        query: Index query parameters: search, page, per_page.
+        query: Index query parameters: search, last_seen_id, per_page.
 
     Returns:
-            List of persons.
+        List of persons.
 
     """
     params = []
@@ -39,8 +39,8 @@ async def get_candidates(query: Index) -> list[Candidates]:
     WHERE NOT p.deleted
     """
     if query.last_seen_id:
-        stmt += " p.id < {}"
-        params.append(query.last_seen_id)
+        stmt += " AND p.id < {}"
+        params.append(int(query.last_seen_id))
     if query.search:
         stmt += " AND p.surname = {}"
         params.append(query.search[0])

@@ -70,5 +70,4 @@ app = Litestar(
     logging_config=logging_config,
     middleware=[logging_middleware_config.middleware],
     openapi_config=OpenAPIConfig(title="STAFFSEC API", version="1.0.0"),
-    debug=True,
 )

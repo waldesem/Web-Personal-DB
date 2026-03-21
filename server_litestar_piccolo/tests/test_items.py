@@ -9,7 +9,7 @@ from app.classes.classes import ItemCategory
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("item", "person_id"),
-    [(item.value, 44) for item in ItemCategory],
+    [(item.value, 5) for item in ItemCategory],
 )
 async def test_get_item(
     test_auth_client: AsyncTestClient[Litestar],
@@ -25,7 +25,7 @@ async def test_get_item(
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "person_id",
-    [1],
+    [5],
 )
 async def test_get_items(
     test_auth_client: AsyncTestClient[Litestar],
@@ -42,10 +42,11 @@ async def test_get_items(
     ("person_id", "data"),
     [
         (
-            4,
+            5,
             {
                 "item": {
                     "item": "checks",
+                    "conclusion": "СОГЛАСОВАНО",
                 },
             },
         ),
@@ -68,13 +69,12 @@ async def test_post_item(
     ("person_id", "item_id", "data"),
     [
         (
-            44,
             5,
+            1,
             {
                 "item": {
-                    "position": "Chief",
-                    "department": "Banking",
-                    "item": "staffs",
+                    "item": "checks",
+                    "conclusion": "ОТКАЗАНО В СОГЛАСОВАНИИ",
                 },
             },
         ),
@@ -90,4 +90,4 @@ async def test_patch_item(
         f"/routes/items/{person_id}/{item_id}",
         json=data,
     )
-    assert resp.status_code == HTTP_201_CREATED
+    assert resp.status_code == HTTP_200_OK

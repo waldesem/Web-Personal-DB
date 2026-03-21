@@ -26,7 +26,7 @@ except ImportError:
 class Index(BaseModel):
     """Schema for query params."""
 
-    last_seen_id: int | None = None
+    last_seen_id: str | None = None
     per_page: int
     search: Annotated[
         str | None,

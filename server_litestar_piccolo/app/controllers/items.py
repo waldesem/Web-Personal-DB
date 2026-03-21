@@ -43,7 +43,7 @@ class ItemsController(Controller):
         table = tables[item]
         return (
             await table.select(*table.all_columns(), Lower(item, alias="item"))
-            .where(WhereRaw("id={}", person_id))
+            .where(WhereRaw("person_id={}", person_id))
             .order_by(OrderByRaw("id"), ascending=False)
         )
 
@@ -64,7 +64,7 @@ class ItemsController(Controller):
 
         """
         selection = await self.select_item(item, person_id)
-        return ta.validate_python(selection, from_attributes=True)
+        return ta.validate_python(selection)
 
     @get("/{person_id:int}")
     async def get_items(
@@ -161,4 +161,3 @@ class ItemsController(Controller):
 
         """
         await tables[item].delete().where(WhereRaw("id={}", item_id))
-

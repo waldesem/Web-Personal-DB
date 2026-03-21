@@ -156,7 +156,7 @@ class AffilationOut(AffilationIn, ItemModel):
     """Affilations out schema."""
 
 
-class CheckIn(ItemModel):
+class CheckIn(BaseModel):
     """Check in schema."""
 
     model_config = ConfigDict(use_enum_values=True)
@@ -177,7 +177,6 @@ class CheckIn(ItemModel):
     addition: str | None = None
     comment: str | None = None
     conclusion: Conclusions
-    person_id: int | None = None
     item: Literal["checks"]
 
 
@@ -185,7 +184,7 @@ class CheckOut(CheckIn, ItemModel):
     """Checks out schema."""
 
 
-class PoligrafIn(ItemModel):
+class PoligrafIn(BaseModel):
     """Poligraf in schema."""
 
     model_config = ConfigDict(use_enum_values=True)

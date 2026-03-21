@@ -52,7 +52,10 @@ class JsonController(Controller):
             await Persons.insert(
                 Persons(**resume.model_dump(), user_id=request.user.id),
             )
-            .on_conflict(action="DO NOTHING", target="person_data")
+            .on_conflict(
+                action="DO NOTHING",
+                target="constraint_persons_surname_firstname_patronymic_birthday",
+            )
             .returning(Persons.id)
         )
         if not person:
@@ -100,57 +103,66 @@ class JsonController(Controller):
                 person_id=person_id,
             ),
         )
-        await Educations.insert(
-            *[
-                Educations(**education.model_dump(), person_id=person_id)
-                for education in data.education
-            ],
-        )
-        await Workplaces.insert(
-            *[
-                Workplaces(**workplace.model_dump(), person_id=person_id)
-                for workplace in data.experience
-            ],
-        )
-        await Previous.insert(
-            *[
-                Previous(**prev.model_dump(), person_id=person_id)
-                for prev in data.name_was_changed
-            ],
-        )
-        await Affilations.insert(
-            *[
-                Affilations(
-                    view="Участвует в деятельности коммерческих организаций",
-                    organization=aff.organization,
-                    inn=aff.inn,
-                    person_id=person_id,
-                )
-                for aff in data.organizations
-            ]
-            + [
-                Affilations(
-                    view="Являлся государственным должностным лицом",
-                    organization=aff.organization,
-                    person_id=person_id,
-                )
-                for aff in data.state_organizations
-            ]
-            + [
-                Affilations(
-                    view="Связанные лица работают в госструктурах",
-                    organization=aff.organization,
-                    person_id=person_id,
-                )
-                for aff in data.related_organizations
-            ]
-            + [
-                Affilations(
-                    view="Являлся государственным/муниципальным служащим",
-                    organization=aff.organization,
-                    person_id=person_id,
-                )
-                for aff in data.public_organizations
-            ],
-        )
+        if data.education:
+            await Educations.insert(
+                *[
+                    Educations(**education.model_dump(), person_id=person_id)
+                    for education in data.education
+                ],
+            )
+        if data.experience:
+            await Workplaces.insert(
+                *[
+                    Workplaces(**workplace.model_dump(), person_id=person_id)
+                    for workplace in data.experience
+                ],
+            )
+        if data.name_was_changed:
+            await Previous.insert(
+                *[
+                    Previous(**prev.model_dump(), person_id=person_id)
+                    for prev in data.name_was_changed
+                ],
+            )
+        if (
+            data.organizations
+            or data.state_organizations
+            or data.related_organizations
+            or data.public_organizations
+        ):
+            await Affilations.insert(
+                *[
+                    Affilations(
+                        view="Участвует в деятельности коммерческих организаций",
+                        organization=aff.organization,
+                        inn=aff.inn,
+                        person_id=person_id,
+                    )
+                    for aff in data.organizations
+                ]
+                + [
+                    Affilations(
+                        view="Являлся государственным должностным лицом",
+                        organization=aff.organization,
+                        person_id=person_id,
+                    )
+                    for aff in data.state_organizations
+                ]
+                + [
+                    Affilations(
+                        view="Связанные лица работают в госструктурах",
+                        organization=aff.organization,
+                        person_id=person_id,
+                    )
+                    for aff in data.related_organizations
+                ]
+                + [
+                    Affilations(
+                        view="Являлся государственным/муниципальным служащим",
+                        organization=aff.organization,
+                        person_id=person_id,
+                    )
+                    for aff in data.public_organizations
+                ],
+            )
         return PersonResp(person_id=person_id)

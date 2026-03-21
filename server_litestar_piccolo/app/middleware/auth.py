@@ -3,7 +3,7 @@
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
-from litestar.exceptions import NotAuthorizedException, NotFoundException
+from litestar.exceptions import NotAuthorizedException
 from litestar.security.jwt import JWTAuth, Token
 from litestar.stores.memory import MemoryStore
 
@@ -36,7 +36,7 @@ async def person_guard(
         or person.deleted
         or connection.auth.sub != str(person.user_id)
     ):
-        raise NotFoundException
+        raise NotAuthorizedException
 
 
 def role_guard(
