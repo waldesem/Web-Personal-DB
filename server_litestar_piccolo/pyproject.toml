@@ -6,7 +6,6 @@ requires-python = ">=3.14,<3.15"
 dependencies = [
     "asyncpg>=0.31.0",
     "bcrypt>=5.0.0",
-    "granian>=2.7.1",
     "litestar[jwt,pydantic,standard]>=2.19.0",
     "piccolo[postgres]>=1.33.0",
     "python-dotenv>=1.2.1",

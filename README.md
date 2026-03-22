@@ -9,7 +9,7 @@ StaffSec is a web interface for managing a candidates database.
 - PostreSQL is a powerful, open source object-relational database system;
 - Nuxt is a free and open-source framework with Vue.js;
 
-### Installation
+### Installation (Linux)
 
 To use this project, you will need to have Python 3.14 version.
 For installiing the required Python packages run commands:
@@ -27,8 +27,7 @@ source .venv/bin/activate
 ```
 uv tool install maturin
 cd rust
-maturin build -r --interpreter $(which python)
-uv pip install target/wheels/checksum-0.1.0-cp314-cp314-manylinux_2_34_x86_64.whl
+maturin develop
 ```
 
 ### Database
@@ -85,7 +84,7 @@ PG_USER=webapp
 PG_PASSWORD=webapp
 ```
 
-### Build frontend
+### Build frontend (Optional)
 
 First install latest stable NodeJS version.
 Then run in terminal:
@@ -111,5 +110,5 @@ or for production:
 ```
 uvicorn app:app # for uvicorn ASGI server
 
-granian --interface asgi app:app # for Granian Rust-based ASGI server
+granian --interface asgi app:app # Rust-based ASGI server (needs to install: uv add granian)
 ```

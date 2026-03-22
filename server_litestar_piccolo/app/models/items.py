@@ -10,6 +10,7 @@ from pydantic import (
     BeforeValidator,
     ConfigDict,
     Field,
+    RootModel,
 )
 
 from app.classes.classes import Conclusions, Decisions
@@ -240,10 +241,8 @@ ItemType = Annotated[
 ]
 
 
-class ItemModelIn(BaseModel):
+class ItemModelIn(RootModel[ItemType]):
     """Validation class."""
-
-    item: ItemType
 
 
 ItemTypeOut = Annotated[

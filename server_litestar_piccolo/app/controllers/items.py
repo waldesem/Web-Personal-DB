@@ -87,18 +87,20 @@ class ItemsController(Controller):
         return ItemsOutModels.model_validate(selections, from_attributes=True)
 
     @post(
-        "/{person_id:int}",
+        "/{item:str}/{person_id:int}",
         guards=[role_guard, person_guard],
         opt={"role": Roles.user.value},
     )
     async def post_item(
         self,
+        item: ItemCategory,
         person_id: int,
         data: ItemModelIn,
     ) -> None:
         """Add a new item to the database.
 
         Args:
+            item: str.
             person_id: Person ID.
             data: ItemModelIn.
             request: Request.
@@ -107,17 +109,18 @@ class ItemsController(Controller):
             Response with status code 201.
 
         """
-        json_dict = data.item.model_dump(exclude={"item"})
-        table = tables[data.item.item]
+        json_dict = data.model_dump(exclude={"item"})
+        table = tables[item]
         await table.insert(table(**json_dict, person_id=person_id))
 
     @patch(
-        "/{person_id:int}/{item_id:int}",
+        "/{item:str}/{person_id:int}/{item_id:int}",
         guards=[role_guard, person_guard],
         opt={"role": Roles.user.value},
     )
     async def patch_item(
         self,
+        item: ItemCategory,
         person_id: int,
         item_id: int,
         data: ItemModelIn,
@@ -125,6 +128,7 @@ class ItemsController(Controller):
         """Update an item in the database.
 
         Args:
+            item: str.
             person_id: Person ID.
             item_id: Item ID.
             data: ItemModelIn.
@@ -134,8 +138,8 @@ class ItemsController(Controller):
             Response with status code 201.
 
         """
-        json_dict = data.item.model_dump(exclude={"item"}) | {"person_id": person_id}
-        table = tables[data.item.item]
+        json_dict = data.model_dump(exclude={"item"}) | {"person_id": person_id}
+        table = tables[item]
         await table.update(json_dict).where(WhereRaw("id={}", item_id))
 
     @delete(

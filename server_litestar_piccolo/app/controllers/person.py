@@ -22,8 +22,8 @@ from constants import BASE_PATH
 
 
 async def person_depend(person_id: int) -> Persons:
-    """Check assotiation user ID with person's user_id."""
-    person = await Persons.objects().where(Persons.id == person_id).first()
+    """Check person's."""
+    person = await Persons.objects().get(Persons.id == person_id)
     if not person or person.deleted:
         raise NotFoundException
     return person
@@ -91,7 +91,7 @@ class PersonController(Controller):
             )
             .on_conflict(
                 action="DO NOTHING",
-                target="constraint_persons_surname_firstname_patronymic_birthday",
+                target="constraint_surname_firstname_patronymic_birthday",
             )
             .returning(Persons.id)
         )

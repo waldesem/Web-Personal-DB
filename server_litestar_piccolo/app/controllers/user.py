@@ -76,7 +76,7 @@ class UserController(Controller):
             Response with status code 201.
 
         """
-        user = await Users.objects().where(Users.id == user_id).first()
+        user = await Users.objects().get(Users.id == user_id)
         # Если пользователь не найден или пытается изменить собственный профиль
         if not user or request.user.id == user.id:
             raise ValidationException

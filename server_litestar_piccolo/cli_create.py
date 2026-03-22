@@ -38,14 +38,14 @@ async def create() -> None:
 
     await Table.raw(
         """ALTER TABLE persons
-        ADD CONSTRAINT constraint_persons_surname_firstname_patronymic_birthday
+        ADD CONSTRAINT constraint_surname_firstname_patronymic_birthday
         UNIQUE (surname, firstname, patronymic, birthday);
         """,
     )
 
     await Table.raw(
         """CREATE INDEX idx_persons_search_active
-            ON persons(surname, firstname, patronymic, id DESC)
+            ON persons(surname, firstname, patronymic)
             WHERE NOT deleted;
         """,
     )

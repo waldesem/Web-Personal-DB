@@ -41,7 +41,7 @@ class AuthController(Controller):
             Users | None.
 
         """
-        user = await Users.objects().where(Users.username == data.username).first()
+        user = await Users.objects().get(Users.username == data.username)
 
         if not user or user.blocked or user.deleted:
             return None

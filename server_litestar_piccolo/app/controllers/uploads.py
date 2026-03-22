@@ -54,7 +54,7 @@ class JsonController(Controller):
             )
             .on_conflict(
                 action="DO NOTHING",
-                target="constraint_persons_surname_firstname_patronymic_birthday",
+                target="constraint_surname_firstname_patronymic_birthday",
             )
             .returning(Persons.id)
         )

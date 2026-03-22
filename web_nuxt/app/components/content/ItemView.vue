@@ -58,10 +58,10 @@ async function submitItem(form: typeof item.value) {
   modal.value = false;
   const url = `/routes/items/${candId.value}`;
   const response = await $api.raw(
-    method.value === "POST" ? url : `${url}/${itemId.value}`,
+    method.value === "POST" ? url : `${url}/${props.view}/${itemId.value}`,
     {
       method: method.value,
-      body: { item: { ...form, item: props.view } }, // add discriminator for backend validation
+      body: { ...form, item: props.view }, // add discriminator for backend validation
     },
   );
   item.value = {};

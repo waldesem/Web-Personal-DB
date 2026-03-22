@@ -29,7 +29,7 @@ async def person_guard(
 ) -> None:
     """Check assotiation user ID with person's user_id."""
     person_id = connection.path_params.get("person_id")
-    person = await Persons.objects().where(Persons.id == person_id).first()
+    person = await Persons.objects().get(Persons.id == person_id)
     if not person:
         raise NotFoundException
     if (

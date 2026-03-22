@@ -39,26 +39,26 @@ async def test_get_items(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    ("person_id", "data"),
+    ("item", "person_id", "data"),
     [
         (
+            "checks",
             5,
             {
-                "item": {
-                    "item": "checks",
-                    "conclusion": "СОГЛАСОВАНО",
-                },
+                "item": "checks",
+                "conclusion": "СОГЛАСОВАНО",
             },
         ),
     ],
 )
 async def test_post_item(
     test_auth_client: AsyncTestClient[Litestar],
+    item: str,
     person_id: int,
     data: dict,
 ) -> None:
     resp = await test_auth_client.post(
-        f"/routes/items/{person_id}",
+        f"/routes/items/{item}/{person_id}",
         json=data,
     )
     assert resp.status_code == HTTP_201_CREATED
@@ -66,28 +66,27 @@ async def test_post_item(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    ("person_id", "item_id", "data"),
+    ("item", "person_id", "data"),
     [
         (
+            "checks",
             5,
-            1,
             {
-                "item": {
-                    "item": "checks",
-                    "conclusion": "ОТКАЗАНО В СОГЛАСОВАНИИ",
-                },
+                "item": "checks",
+                "conclusion": "ОТКАЗАНО В СОГЛАСОВАНИИ",
             },
         ),
     ],
 )
 async def test_patch_item(
     test_auth_client: AsyncTestClient[Litestar],
+    item: str,
     person_id: int,
     item_id: int,
     data: dict,
 ) -> None:
     resp = await test_auth_client.patch(
-        f"/routes/items/{person_id}/{item_id}",
+        f"/routes/items/{item}/{person_id}/{item_id}",
         json=data,
     )
     assert resp.status_code == HTTP_200_OK
