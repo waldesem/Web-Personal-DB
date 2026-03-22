@@ -60,6 +60,38 @@ async def test_post_person(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
+    ("person_id", "data"),
+    [
+        (
+            1,
+            {
+                "surname": fake.last_name_male(),
+                "firstname": fake.first_name_male(),
+                "patronymic": fake.middle_name_male(),
+                "birthday": "2000-01-01",
+                "birthplace": fake.city(),
+                "citizenship": fake.country(),
+                "dual": fake.country(),
+                "marital": fake.sentence(2),
+                "addition": fake.sentence(5),
+            },
+        ),
+    ],
+)
+async def test_patch_person(
+    test_auth_client: AsyncTestClient[Litestar],
+    person_id: int,
+    data: dict,
+) -> None:
+    resp = await test_auth_client.patch(
+        f"/routes/persons/{person_id}",
+        json=data,
+    )
+    assert resp.status_code == HTTP_200_OK
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
     "person_id",
     [2],
 )

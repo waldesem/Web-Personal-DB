@@ -3,7 +3,7 @@
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
-from litestar.exceptions import NotAuthorizedException
+from litestar.exceptions import NotAuthorizedException, NotFoundException
 from litestar.security.jwt import JWTAuth, Token
 from litestar.stores.memory import MemoryStore
 
@@ -29,9 +29,11 @@ async def person_guard(
 ) -> None:
     """Check assotiation user ID with person's user_id."""
     person_id = connection.path_params.get("person_id")
+    person = await Persons.objects().where(Persons.id == person_id).first()
+    if not person:
+        raise NotFoundException
     if (
-        not (person := await Persons.objects().where(Persons.id == person_id).first())
-        or not person.editable
+        not person.editable
         or person.protected
         or person.deleted
         or connection.auth.sub != str(person.user_id)
