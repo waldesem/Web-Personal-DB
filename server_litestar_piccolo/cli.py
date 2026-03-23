@@ -20,6 +20,7 @@ from app.models.items import ItemTypeOut
 from app.models.user import UserForm
 from app.tables.tables import Persons, Users
 from constants import DEFAULT_PASSWORD
+from piccolo_conf import DB
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -97,6 +98,7 @@ async def migrate(path: Path) -> None:
     with sqlite3.connect(path) as conn:
         conn.row_factory = sqlite3.Row
         cur = conn.cursor()
+
         users = cur.execute("SELECT * FROM users").fetchall()
         await Users.insert(
             *[
@@ -118,33 +120,36 @@ async def migrate(path: Path) -> None:
             ],
         )
 
-        persons = cur.execute("SELECT * FROM persons").fetchall()
-        for person in persons:
-            persona = dict(person)
-            persona["protected"] = persona["deleted"] = False
-            persona["created_at"] = persona["updated_at"] = persona.get("created")
-            new_person = Person(**persona).model_dump(
-                exclude={"id"},
-            )
-            new_person = Persons(**new_person)
-            await new_person.save()
+        async with DB.transaction():
+            persons = cur.execute("SELECT * FROM persons").fetchall()
+            for person in persons:
+                persona = dict(person)
+                persona["protected"] = persona["deleted"] = False
+                persona["created_at"] = persona["updated_at"] = persona.get("created")
+                new_person = Person(**persona).model_dump(
+                    exclude={"id"},
+                )
+                new_person = Persons(**new_person)
+                await new_person.save()
 
-            for category in ItemCategory:
-                table = tables[category.value]
-                items = cur.execute(
-                    f"SELECT * FROM {category.value} WHERE person_id = ?",  # noqa: S608
-                    (persona["id"],),
-                ).fetchall()
+                for category in ItemCategory:
+                    table = tables[category.value]
+                    items = cur.execute(
+                        f"SELECT * FROM {category.value} WHERE person_id = ?",  # noqa: S608
+                        (persona["id"],),
+                    ).fetchall()
 
-                for itm in items:
-                    data = dict(itm) | {"item": category.value}
-                    data["created_at"] = data["updated_at"] = (
-                        data["created"] if data.get("created") else datetime.now(UTC)
-                    )
-                    new_data = ItemModel.model_validate(data).model_dump(
-                        exclude={"id", "item"},
-                    )
-                    await table.insert(table(**new_data, person_id=new_person.id))
+                    for itm in items:
+                        data = dict(itm) | {"item": category.value}
+                        data["created_at"] = data["updated_at"] = (
+                            data["created"]
+                            if data.get("created")
+                            else datetime.now(UTC)
+                        )
+                        new_data = ItemModel.model_validate(data).model_dump(
+                            exclude={"id", "item"},
+                        )
+                        await table.insert(table(**new_data, person_id=new_person.id))
 
         rprint("Migration finished!")
 
