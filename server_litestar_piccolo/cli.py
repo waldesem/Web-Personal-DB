@@ -32,12 +32,18 @@ class Person(create_pydantic_model(Persons)):  # ty:ignore[unsupported-base]
     @field_validator("updated_at", "created_at")
     @classmethod
     def check_date(cls, v: datetime) -> datetime:
-        """Check date ts."""
+        """Check date tz."""
         return v if v.tzinfo else v.replace(tzinfo=UTC)
 
 
-class ItemModelOut(RootModel[ItemTypeOut]):
+class ItemModel(RootModel[ItemTypeOut]):
     """Validation class."""
+
+    @field_validator("updated_at", "created_at")
+    @classmethod
+    def check_date(cls, v: datetime) -> datetime:
+        """Check date tz."""
+        return v if v.tzinfo else v.replace(tzinfo=UTC)
 
 
 def async_decorator(f: Callable) -> Callable:
@@ -72,13 +78,6 @@ async def create() -> None:
         """ALTER TABLE persons
         ADD CONSTRAINT constraint_surname_firstname_patronymic_birthday
         UNIQUE (surname, firstname, patronymic, birthday);
-        """,
-    )
-
-    await Table.raw(
-        """CREATE INDEX idx_persons_search_active
-            ON persons(surname, firstname, patronymic)
-            WHERE NOT deleted;
         """,
     )
 
@@ -123,38 +122,29 @@ async def migrate(path: Path) -> None:
         for person in persons:
             persona = dict(person)
             persona["protected"] = persona["deleted"] = False
-            persona["created_at"] = persona["updated_at"] = persona.pop("created")
+            persona["created_at"] = persona["updated_at"] = persona.get("created")
             new_person = Person(**persona).model_dump(
                 exclude={"id"},
-            )
-            new_person["created_at"] = new_person["updated_at"] = (
-                new_person["updated_at"]
-                if new_person["updated_at"].tzinfo
-                else new_person["updated_at"].replace(tzinfo=UTC)
             )
             new_person = Persons(**new_person)
             await new_person.save()
 
-            for table in ItemCategory:
+            for category in ItemCategory:
+                table = tables[category.value]
                 items = cur.execute(
-                    f"SELECT * FROM {table.value} WHERE person_id = ?",  # noqa: S608
+                    f"SELECT * FROM {category.value} WHERE person_id = ?",  # noqa: S608
                     (persona["id"],),
                 ).fetchall()
 
                 for itm in items:
-                    if itm:
-                        data = dict(itm)
-                        data["item"] = table.value
-                        if data.get("created"):
-                            data["created_at"] = data["updated_at"] = data["created"]
-                        else:
-                            data["created_at"] = data["updated_at"] = datetime.now(UTC)
-                        new_data = ItemModelOut.model_validate(data).model_dump(
-                            exclude={"id", "item"},
-                        )
-                        new_data["person_id"] = new_person.id
-                        if data_table := tables.get(table.value):
-                            data_table.insert(data_table(**new_data))
+                    data = dict(itm) | {"item": category.value}
+                    data["created_at"] = data["updated_at"] = (
+                        data["created"] if data.get("created") else datetime.now(UTC)
+                    )
+                    new_data = ItemModel.model_validate(data).model_dump(
+                        exclude={"id", "item"},
+                    )
+                    await table.insert(table(**new_data, person_id=new_person.id))
 
         rprint("Migration finished!")
 
