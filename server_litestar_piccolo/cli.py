@@ -1,4 +1,4 @@
-"""Migration from sqlite to postgresql."""
+"""Command line module."""
 
 import asyncio
 import sqlite3
@@ -8,13 +8,16 @@ from typing import TYPE_CHECKING
 
 import bcrypt
 import click
+from piccolo.conf.apps import table_finder
+from piccolo.table import Table, create_db_tables, drop_db_tables
 from piccolo.utils.pydantic import create_pydantic_model
-from pydantic import BaseModel, field_validator
+from pydantic import RootModel, field_validator
 from rich import print as rprint
 
-from app.classes.classes import ItemCategory
+from app.classes.classes import ItemCategory, Roles
 from app.controllers.items import tables
 from app.models.items import ItemTypeOut
+from app.models.user import UserForm
 from app.tables.tables import Persons, Users
 from constants import DEFAULT_PASSWORD
 
@@ -33,13 +36,11 @@ class Person(create_pydantic_model(Persons)):  # ty:ignore[unsupported-base]
         return v if v.tzinfo else v.replace(tzinfo=UTC)
 
 
-class ItemModelOut(BaseModel):
+class ItemModelOut(RootModel[ItemTypeOut]):
     """Validation class."""
 
-    item: ItemTypeOut
 
-
-def async_cmd(f: Callable) -> Callable:
+def async_decorator(f: Callable) -> Callable:
     """Async command decorator."""
 
     @wraps(f)
@@ -49,14 +50,49 @@ def async_cmd(f: Callable) -> Callable:
     return wrapper
 
 
-@click.command()
+@click.group()
+def cli() -> None:
+    """Cli group."""
+
+
+@cli.command("create")
+@async_decorator
+async def create() -> None:
+    """MIgrate data from sqlite to postgresql.
+
+    Example:
+        python3 cli.py create
+
+    """
+    tables = table_finder(modules=["app.tables.tables"])
+    await drop_db_tables(*tables)
+    await create_db_tables(*tables)
+
+    await Table.raw(
+        """ALTER TABLE persons
+        ADD CONSTRAINT constraint_surname_firstname_patronymic_birthday
+        UNIQUE (surname, firstname, patronymic, birthday);
+        """,
+    )
+
+    await Table.raw(
+        """CREATE INDEX idx_persons_search_active
+            ON persons(surname, firstname, patronymic)
+            WHERE NOT deleted;
+        """,
+    )
+
+    rprint("DB tables creations finished!")
+
+
+@cli.command("migrate")
 @click.argument("path", type=click.Path(exists=True))
-@async_cmd
+@async_decorator
 async def migrate(path: Path) -> None:
     """MIgrate data from sqlite to postgresql.
 
     Example:
-        python3 cli_migrate.py "/path/database.db"
+        python3 cli.py migrate "/path/database.db"
 
     """
     with sqlite3.connect(path) as conn:
@@ -113,10 +149,7 @@ async def migrate(path: Path) -> None:
                             data["created_at"] = data["updated_at"] = data["created"]
                         else:
                             data["created_at"] = data["updated_at"] = datetime.now(UTC)
-                        data = {"item": data}
-                        new_data = ItemModelOut.model_validate(
-                            data,
-                        ).item.model_dump(
+                        new_data = ItemModelOut.model_validate(data).model_dump(
                             exclude={"id", "item"},
                         )
                         new_data["person_id"] = new_person.id
@@ -126,5 +159,37 @@ async def migrate(path: Path) -> None:
         rprint("Migration finished!")
 
 
+@cli.command("user")
+@click.argument("fullname")
+@click.argument("username")
+@click.argument("email")
+@click.argument("role", type=click.Choice(Roles))
+@async_decorator
+async def user(fullname: str, username: str, email: str, role: Roles) -> None:
+    """Create a new user.
+
+    Example:
+        python3 cli.py user "Super User" superadmin super@host.ru admin
+
+    """
+    data = UserForm(fullname=fullname, username=username, email=email, role=role)
+    user = (
+        await Users.insert(
+            Users(
+                username=data.username,
+                email=data.email,
+                passhash=bcrypt.hashpw(DEFAULT_PASSWORD.encode(), bcrypt.gensalt()),
+                role=data.role,
+            ),
+        )
+        .on_conflict(action="DO NOTHING")
+        .returning(Users.id)
+    )
+    if not user:
+        rprint(f"User {username} already exists or email is taken")
+    else:
+        rprint(f"User {username} created")
+
+
 if __name__ == "__main__":
-    migrate()
+    cli()
