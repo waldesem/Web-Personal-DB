@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 
-class Person(create_pydantic_model(Persons)):  # ty:ignore[unsupported-base]
+class Person(create_pydantic_model(Persons, exclude_columns=(Persons.id,))):  # ty:ignore[unsupported-base]
     """Person schema."""
 
     @field_validator("updated_at", "created_at")
@@ -160,30 +160,28 @@ async def migrate(path: Path) -> None:
 @click.argument("email")
 @click.argument("role", type=click.Choice(Roles))
 @async_decorator
-async def user(fullname: str, username: str, email: str, role: Roles) -> None:
+async def user(**arguments: dict) -> None:
     """Create a new user.
 
     Example:
         python3 cli.py user "Super User" superadmin super@host.ru admin
 
     """
-    data = UserForm(fullname=fullname, username=username, email=email, role=role)
+    data = UserForm.model_validate(arguments).model_dump()
     user = (
         await Users.insert(
             Users(
-                username=data.username,
-                email=data.email,
+                **data,
                 passhash=bcrypt.hashpw(DEFAULT_PASSWORD.encode(), bcrypt.gensalt()),
-                role=data.role,
             ),
         )
         .on_conflict(action="DO NOTHING")
         .returning(Users.id)
     )
     if not user:
-        rprint(f"User {username} already exists or email is taken")
+        rprint(f"User {data.username} already exists or email is taken")
     else:
-        rprint(f"User {username} created")
+        rprint(f"User {data.username} created")
 
 
 if __name__ == "__main__":
