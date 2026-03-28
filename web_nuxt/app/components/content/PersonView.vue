@@ -1,15 +1,12 @@
 <script setup lang="ts">
 import type { FetchResponse } from "ofetch";
-import type { PersonExt, PersonId } from "@/types";
+import type { PersonId } from "@/types";
 
-// Используем плагин для передачи данных на сервер
-const { $api } = useNuxtApp();
+const personStore = usePersonStore();
 
-const { data: person } = useNuxtData<PersonExt>("person");
+const editStore = useEditStore();
 
 const toasts = useToasts();
-
-const editable = inject("editable");
 
 const modal = ref(false); // Объявляем переменную модального окна
 
@@ -34,20 +31,11 @@ async function deletePerson() {
     return;
   if (!confirm("Все данные будут удалены безвозвратно!?")) return;
   status.value = "pending";
-  try {
-    const { status } = await $api.raw<Record<string, string>>(
-      `/routes/persons/${person.value?.id}`,
-      {
-        method: "DELETE",
-      },
-    );
-    if (status === 204) {
-      toasts.create("success", "Информация успешно удалена");
-      refreshNuxtData("candidates");
-      return navigateTo("/persons");
-    }
-  } catch (error) {
-    console.error(error);
+  const response = await personStore.deletePerson();
+  if (response?.status === 204) {
+    toasts.create("success", "Информация успешно удалена");
+    refreshNuxtData("candidates");
+    return navigateTo("/persons");
   }
   refreshNuxtData("person");
   toasts.create();
@@ -59,7 +47,7 @@ async function deletePerson() {
   <div class="ms-2 mt-2">
     <!-- Выводим кнопки редактирования или удаления данных -->
     <LazyElementDivMenu
-      v-if="editable"
+      v-if="editStore.editable"
       @update="modal = true"
       @delete="deletePerson()"
     />
@@ -67,7 +55,7 @@ async function deletePerson() {
     <!-- Выводим данные или скелетный элемент -->
     <Suspense>
       <template #default>
-        <ItemsPersonDiv :item="person" />
+        <ItemsPersonDiv :item="personStore.person" />
       </template>
       <template #fallback>
         <ElementSkeletonDiv :rows="12" />
@@ -82,7 +70,7 @@ async function deletePerson() {
     >
       <template #body>
         <FormsResumeForm
-          :resume="person"
+          :resume="personStore.person"
           :method="'PATCH'"
           @pending="status = 'pending'"
           @update="submitPerson"

@@ -1,20 +1,15 @@
 <script setup lang="ts">
-import type { Session } from "@/types";
+import { useUserStore } from "@/stores/user";
 
-const { $api } = useNuxtApp();
+const userStore = useUserStore();
 
 const visibility = useDocumentVisibility();
 
 const path = computed(() => window.location.origin);
 
-const { data: user } = await useAsyncData(
-  "session",
-  () => $api<Session>("/routes/auth/session"),
-  {
-    watch: [visibility],
-    default: () => ({}) as Session,
-  },
-);
+await useAsyncData("session", () => userStore.getUser(), {
+  watch: [visibility],
+});
 
 // Объявляем функцию для выхода из системы и очистки данных пользователя
 async function logout() {
@@ -45,7 +40,7 @@ async function logout() {
       </template>
       <template #default>
         <UNavigationMenu
-          v-if="user.role === 'admin'"
+          v-if="userStore.user?.role === 'admin'"
           :items="[
             {
               label: 'Пользователи',
@@ -59,7 +54,7 @@ async function logout() {
       <template #right>
         <UButton
           class="rounded-full"
-          :label="user.username ?? 'Выйти'"
+          :label="userStore.user?.username ?? 'Выйти'"
           color="error"
           icon="i-lucide-log-out"
           @click="logout()"

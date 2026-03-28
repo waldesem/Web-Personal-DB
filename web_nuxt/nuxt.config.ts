@@ -15,7 +15,7 @@ export default defineNuxtConfig({
   build: {
     analyze: true,
   },
-  compatibilityDate: "2026-03-08",
+  compatibilityDate: "2026-03-28",
   css: ["~/assets/css/main.css"],
   devtools: { enabled: true },
   experimental: {
@@ -27,7 +27,13 @@ export default defineNuxtConfig({
       scan: true,
     },
   },
-  modules: ["@nuxt/ui", "@nuxt/eslint", "@vueuse/nuxt", "nuxt-security"],
+  modules: [
+    "@nuxt/ui",
+    "@nuxt/eslint",
+    "@vueuse/nuxt",
+    "nuxt-security",
+    "@pinia/nuxt",
+  ],
   nitro: {
     output: {
       publicDir: "../server_litestar_piccolo/app/static",

@@ -1,42 +1,21 @@
 <script setup lang="ts">
-import type { PersonExt, Session } from "@/types";
+const personStore = usePersonStore();
 
-// Используем плагин для передачи данных на сервер
-const { $api } = useNuxtApp();
-
-const { data: user } = useNuxtData<Session>("session");
+const userStore = useUserStore();
 
 const toasts = useToasts();
 
-// Получаем данные id кандидата из URL
-const route = useRoute();
-
-const candId = computed(() => route.params.id as string);
-
-provide("candId", candId);
+personStore.person.id = computed(() => useRoute().params.id as string).value;
 
 // Определяем функцию для получения данных из API
-const { data, status, refresh } = await useAsyncData(
-  "person",
-  () => $api<PersonExt>("/routes/persons/" + candId.value),
-  { default: () => ({}) as PersonExt },
+const { status, refresh } = await useAsyncData("person", () =>
+  personStore.getPerson(),
 );
-
-// Вычисляем статус редактирования анкеты
-const editable = computed(() => {
-  return (
-    data.value.editable &&
-    user.value?.role === "user" &&
-    user.value?.id === data.value.user_id &&
-    !data.value.locked
-  );
-});
-provide("editable", editable);
 
 // Определяем функцию для переключения режима редактирования
 async function switchStatus(): Promise<void> {
-  if (data.value && data.value.user_id != user.value?.id) {
-    if (data.value.editable) {
+  if (personStore.person && personStore.person.user_id != userStore.user?.id) {
+    if (personStore.person.editable) {
       if (
         !confirm(
           "Анкета редактируется другим пользователем. Переключить режим?",
@@ -51,11 +30,9 @@ async function switchStatus(): Promise<void> {
     return;
   }
   status.value = "pending";
-  const response = await $api.raw<Record<string, string>>(
-    "/routes/persons/status/" + candId.value,
-  );
+  const response = await personStore.switchStatus();
   status.value = "success";
-  if (response.status == 200) {
+  if (response?.status == 200) {
     refresh();
   } else {
     toasts.create();
@@ -66,36 +43,36 @@ async function switchStatus(): Promise<void> {
 <template>
   <UContainer>
     <UPageHeader
-      :title="`${data?.surname} ${data?.firstname} ${data?.patronymic ?? ''}`"
+      :title="`${personStore.person.surname} ${personStore.person.firstname} ${personStore.person.patronymic ?? ''}`"
       :ui="{ title: 'text-red-800' }"
     >
       <template #links>
         <!-- Кнопки переключения режима редактирования -->
         <div
-          v-if="user?.role == 'user' && !data.locked"
+          v-if="userStore.user?.role == 'user' && !personStore.person.locked"
           class="flex items-center space-x-4"
         >
           <UButton
             variant="outline"
             :loading="status === 'pending'"
             :color="
-              !data?.editable
+              !personStore.person.editable
                 ? 'secondary'
-                : data.user_id == user?.id
+                : personStore.person.user_id == userStore.user?.id
                   ? 'success'
                   : 'error'
             "
             :label="
-              !data?.editable
+              !personStore.person.editable
                 ? 'Доступно'
-                : data.user_id == user?.id
+                : personStore.person.user_id == userStore.user?.id
                   ? 'Изменение'
                   : 'Закрыто'
             "
             :icon="
-              !data?.editable
+              !personStore.person.editable
                 ? 'i-lucide-lock-open'
-                : data.user_id == user?.id
+                : personStore.person.user_id == userStore.user?.id
                   ? 'i-lucide-edit'
                   : 'i-lucide-lock'
             "

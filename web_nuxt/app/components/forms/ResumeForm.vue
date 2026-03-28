@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Person, PersonId, PersonExt } from "@/types";
+import type { Person, PersonExt } from "@/types";
 import type { PropType } from "vue";
 
 const emit = defineEmits(["update"]);
@@ -19,7 +19,7 @@ const props = defineProps({
   },
 });
 
-const { $api } = useNuxtApp();
+const personStore = usePersonStore();
 
 const form = ref<Person>({
   ...props.resume,
@@ -29,14 +29,10 @@ const form = ref<Person>({
 });
 
 async function submitPerson() {
-  const url = "/routes/persons";
-  const resp = await $api.raw<Partial<PersonId>>(
-    props.method === "POST" ? "/routes/persons" : `${url}/${props.resume.id}`,
-    {
-      method: props.method,
-      body: form.value,
-    },
-  );
+  const resp =
+    props.method === "POST"
+      ? await personStore.addPerson(form.value)
+      : await personStore.editPerson(form.value);
   emit("update", resp);
 }
 

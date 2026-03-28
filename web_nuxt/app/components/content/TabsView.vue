@@ -1,17 +1,9 @@
 <script setup lang="ts">
 import type { Items } from "@/types";
 
-const candId = inject("candId") as Ref<string>;
+const itemStore = useItemStore();
 
-const { $api } = useNuxtApp();
-
-const { data } = await useAsyncData(
-  "items",
-  () => $api<Items>("/routes/items/" + candId.value),
-  {
-    default: () => ({} as Items),
-  }
-);
+await itemStore.getItems();
 
 // Определяем массив элементов табов
 const tabs = [
@@ -101,8 +93,7 @@ const accordion = [
         <template v-for="accord in accordion" #[accord.slot] :key="accord.slot">
           <ContentItemView
             :icon="accord.icon"
-            :data="data[accord.slot]"
-            :view="(accord.slot as keyof Items)"
+            :view="accord.slot as keyof Items"
             :title="accord.label"
           />
         </template>
@@ -114,8 +105,7 @@ const accordion = [
       <div class="mt-2">
         <ContentItemView
           :icon="tab.icon"
-          :data="data[tab.slot as keyof Items]"
-          :view="(tab.slot as keyof Items)"
+          :view="tab.slot as keyof Items"
           :title="tab.label"
         />
       </div>
