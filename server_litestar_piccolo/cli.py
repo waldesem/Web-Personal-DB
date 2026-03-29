@@ -65,7 +65,7 @@ def cli() -> None:
 @cli.command("create")
 @async_decorator
 async def create() -> None:
-    """MIgrate data from sqlite to postgresql.
+    """Create postgres database tables.
 
     Example:
         python3 cli.py create
