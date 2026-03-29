@@ -2,47 +2,27 @@
 import type { FetchResponse } from "ofetch";
 import type { TableColumn } from "@nuxt/ui";
 import type { Candidate, PersonId } from "@/types";
-import { useUserStore } from "@/stores/user";
 
 const toast = useToast();
 const { $api } = useNuxtApp();
-const userStore = useUserStore();
+const candidates = useCandidateStore();
+const session = useSessionStore();
 
 // Объявляем переменные для работы с данными
 const modal = ref(false); // Состояние модального окна
-const lastSeenId = ref<null | string>(null);
 const page = ref(1); // Страница таблицы
 const per_page = 10; // Количество строк в таблице
 const search = ref(""); // Поисковый запрос
-const updated = ref(Date.now()); // Дата обновления данных
 
 // Определяем функцию для получения списка кандидатов из API
-const { data, status, refresh } = await useLazyAsyncData(
+const { status, refresh } = await useLazyAsyncData(
   "candidates",
-  () =>
-    $api<Candidate[]>("/routes/candidates", {
-      query: {
-        last_seen_id: lastSeenId.value,
-        per_page: per_page,
-        search: search.value,
-      },
-    }),
-
-  // Наблюдаем: переключение страницы.
+  () => candidates.getData(per_page, search.value),
   {
     watch: [page],
     default: () => [] as Candidate[],
   },
 );
-
-// Вычисляем количество страниц
-const total = computed(() => {
-  return data.value[0]?.total ?? 1;
-});
-
-lastSeenId.value = computed(() => {
-  return data.value.at(-1)?.id ?? null;
-}).value;
 
 // Наблюдаем: поиск
 watch(refDebounced(search, 1000), () => {
@@ -51,10 +31,6 @@ watch(refDebounced(search, 1000), () => {
   } else {
     page.value = 1;
   }
-});
-
-watch(data, () => {
-  updated.value = Date.now();
 });
 
 // Определяем обработчики диалогового окна для загрузки JSON
@@ -167,7 +143,7 @@ const columns: TableColumn<Candidate>[] = [
       <template #links>
         <!-- меню для действий -->
         <UDropdownMenu
-          v-if="userStore.user?.role === 'user'"
+          v-if="session.user?.role === 'user'"
           :items="[
             {
               label: 'Создать анкету',
@@ -226,7 +202,7 @@ const columns: TableColumn<Candidate>[] = [
       empty="Данные не найдены"
       :loading="status === 'pending'"
       :columns="columns"
-      :data="data"
+      :data="candidates.data"
       :meta="{ class: { tr: 'cursor-pointer' } }"
       @select="(_, row) => navigateTo(`/profile/${row.original.id}`)"
     >
@@ -245,7 +221,7 @@ const columns: TableColumn<Candidate>[] = [
         @click="refresh()"
       >
         Обновлено:
-        <NuxtTime :datetime="updated" relative />
+        <NuxtTime :datetime="candidates.updated" relative />
       </UButton>
     </div>
 
@@ -254,7 +230,7 @@ const columns: TableColumn<Candidate>[] = [
       <UPagination
         v-model:page="page"
         :items-per-page="per_page"
-        :total="total"
+        :total="candidates.total"
         :sibling-count="-1"
         @update:page="(p) => (page = p)"
       />

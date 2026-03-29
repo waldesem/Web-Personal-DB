@@ -5,12 +5,12 @@ export const usePersonStore = defineStore("person", () => {
 
   const person = ref({} as PersonExt);
 
+  const personId = computed(() => useRoute().params.id as string);
+
   // Определяем функцию для получения данных из API
   async function getPerson() {
     try {
-      person.value = await $api<PersonExt>(
-        "/routes/persons/" + person.value?.id,
-      );
+      person.value = await $api<PersonExt>("/routes/persons/" + personId.value);
     } catch (error) {
       console.error(error);
     }
@@ -19,33 +19,41 @@ export const usePersonStore = defineStore("person", () => {
   // Определяем функцию для переключения режима редактирования
   async function switchStatus() {
     try {
-      return await $api.raw("/routes/persons/status/" + person.value?.id);
+      return await $api.raw("/routes/persons/status/" + personId.value);
     } catch (error) {
       console.error(error);
     }
   }
 
   async function addPerson(form: Person) {
-    return await $api.raw<Partial<PersonId>>("/routes/persons", {
-      method: "POST",
-      body: form,
-    });
+    try {
+      return await $api.raw<Partial<PersonId>>("/routes/persons", {
+        method: "POST",
+        body: form,
+      });
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   async function editPerson(form: Person) {
-    return await $api.raw<Partial<PersonId>>(
-      "/routes/persons" + person.value?.id,
-      {
-        method: "PATCH",
-        body: form,
-      },
-    );
+    try {
+      return await $api.raw<Partial<PersonId>>(
+        "/routes/persons" + personId.value,
+        {
+          method: "PATCH",
+          body: form,
+        },
+      );
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   // Определяем функцию для удаления данных
   async function deletePerson() {
     try {
-      return await $api.raw(`/routes/persons/${person.value?.id}`, {
+      return await $api.raw(`/routes/persons/${personId.value}`, {
         method: "DELETE",
       });
     } catch (error) {
@@ -55,6 +63,7 @@ export const usePersonStore = defineStore("person", () => {
 
   return {
     person,
+    personId,
     getPerson,
     switchStatus,
     addPerson,

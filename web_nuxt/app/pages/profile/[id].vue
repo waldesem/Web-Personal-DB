@@ -1,11 +1,9 @@
 <script setup lang="ts">
 const personStore = usePersonStore();
 
-const userStore = useUserStore();
+const session = useSessionStore();
 
 const toasts = useToasts();
-
-personStore.person.id = computed(() => useRoute().params.id as string).value;
 
 // Определяем функцию для получения данных из API
 const { status, refresh } = await useAsyncData("person", () =>
@@ -14,7 +12,7 @@ const { status, refresh } = await useAsyncData("person", () =>
 
 // Определяем функцию для переключения режима редактирования
 async function switchStatus(): Promise<void> {
-  if (personStore.person && personStore.person.user_id != userStore.user?.id) {
+  if (personStore.person && personStore.person.user_id != session.user?.id) {
     if (personStore.person.editable) {
       if (
         !confirm(
@@ -49,7 +47,7 @@ async function switchStatus(): Promise<void> {
       <template #links>
         <!-- Кнопки переключения режима редактирования -->
         <div
-          v-if="userStore.user?.role == 'user' && !personStore.person.locked"
+          v-if="session.user?.role == 'user' && !personStore.person.locked"
           class="flex items-center space-x-4"
         >
           <UButton
@@ -58,21 +56,21 @@ async function switchStatus(): Promise<void> {
             :color="
               !personStore.person.editable
                 ? 'secondary'
-                : personStore.person.user_id == userStore.user?.id
+                : personStore.person.user_id == session.user?.id
                   ? 'success'
                   : 'error'
             "
             :label="
               !personStore.person.editable
                 ? 'Доступно'
-                : personStore.person.user_id == userStore.user?.id
+                : personStore.person.user_id == session.user?.id
                   ? 'Изменение'
                   : 'Закрыто'
             "
             :icon="
               !personStore.person.editable
                 ? 'i-lucide-lock-open'
-                : personStore.person.user_id == userStore.user?.id
+                : personStore.person.user_id == session.user?.id
                   ? 'i-lucide-edit'
                   : 'i-lucide-lock'
             "

@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { useUserStore } from "@/stores/user";
+import { useSessionStore } from "@/stores/session";
 
-const userStore = useUserStore();
+const sessionStore = useSessionStore();
 
 const visibility = useDocumentVisibility();
 
 const path = computed(() => window.location.origin);
 
-await useAsyncData("session", () => userStore.getUser(), {
+await useAsyncData("session", () => sessionStore.getUser(), {
   watch: [visibility],
 });
 
@@ -40,7 +40,7 @@ async function logout() {
       </template>
       <template #default>
         <UNavigationMenu
-          v-if="userStore.user?.role === 'admin'"
+          v-if="sessionStore.user?.role === 'admin'"
           :items="[
             {
               label: 'Пользователи',
@@ -54,7 +54,7 @@ async function logout() {
       <template #right>
         <UButton
           class="rounded-full"
-          :label="userStore.user?.username ?? 'Выйти'"
+          :label="sessionStore.user?.username ?? 'Выйти'"
           color="error"
           icon="i-lucide-log-out"
           @click="logout()"

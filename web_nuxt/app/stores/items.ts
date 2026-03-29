@@ -9,7 +9,7 @@ export const useItemStore = defineStore("items", () => {
 
   async function getItems() {
     try {
-      items.value = await $api<Items>("/routes/items/" + personStore.person.id);
+      items.value = await $api<Items>("/routes/items/" + personStore.personId);
     } catch (error) {
       console.error(error);
     }
@@ -19,7 +19,7 @@ export const useItemStore = defineStore("items", () => {
   async function getItem(view: keyof Items) {
     try {
       items.value[view] = await $api(
-        `/routes/items/${view}/${personStore.person.id}`,
+        `/routes/items/${view}/${personStore.personId}`,
       );
     } catch (error) {
       console.error(error);
@@ -28,7 +28,7 @@ export const useItemStore = defineStore("items", () => {
 
   async function addItem(view: keyof Items, form: object) {
     try {
-      return await $api.raw(`/routes/items/${view}/${personStore.person.id}`, {
+      return await $api.raw(`/routes/items/${view}/${personStore.personId}`, {
         method: "POST",
         body: { ...form, item: view }, // add discriminator for backend validation
       });
@@ -40,7 +40,7 @@ export const useItemStore = defineStore("items", () => {
   async function editItem(view: keyof Items, itemId: string, form: object) {
     try {
       return await $api.raw(
-        `/routes/items/${view}/${personStore.person.id}/${itemId}`,
+        `/routes/items/${view}/${personStore.personId}/${itemId}`,
         {
           method: "PATCH",
           body: { ...form, item: view }, // add discriminator for backend validation
@@ -55,7 +55,7 @@ export const useItemStore = defineStore("items", () => {
   async function deleteItem(view: keyof Items, itemId: string) {
     try {
       return await $api.raw(
-        `/routes/items/${view}/${personStore.person.id}/${itemId}`,
+        `/routes/items/${view}/${personStore.personId}/${itemId}`,
         {
           method: "DELETE",
         },

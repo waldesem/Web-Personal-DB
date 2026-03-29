@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { TableColumn } from "@nuxt/ui";
 import type { User } from "@/types";
-import { useUserStore } from "@/stores/user";
+import { useSessionStore } from "@/stores/session";
 
 // Объявляем переменные для рендера компонентов
 const UIcon = resolveComponent("UIcon");
@@ -11,7 +11,7 @@ const UDropdownMenu = resolveComponent("UDropdownMenu");
 
 const toasts = useToasts();
 
-const userStore = useUserStore();
+const sessionStore = useSessionStore();
 
 // Вызываем плагин для работы с API
 const { $api } = useNuxtApp();
@@ -31,7 +31,7 @@ const { data, status, refresh } = await useLazyAsyncData<User[]>(
 // Объявляем функцию для действия с пользователем
 async function userAction(item: string, user_id: string) {
   if (!confirm("Подтвердите выполнение действия")) return;
-  if (user_id === userStore.user?.id) return;
+  if (user_id === sessionStore.user?.id) return;
   const resp = await $api.raw("/routes/user/" + user_id, {
     method: "POST",
     body: { item: item },
