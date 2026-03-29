@@ -1,19 +1,19 @@
 <script setup lang="ts">
-const personStore = usePersonStore();
+const toasts = useToasts();
+
+const person = usePersonStore();
 
 const session = useSessionStore();
 
-const toasts = useToasts();
-
 // Определяем функцию для получения данных из API
 const { status, refresh } = await useAsyncData("person", () =>
-  personStore.getPerson(),
+  person.getPerson(),
 );
 
 // Определяем функцию для переключения режима редактирования
 async function switchStatus(): Promise<void> {
-  if (personStore.person && personStore.person.user_id != session.user?.id) {
-    if (personStore.person.editable) {
+  if (person.data && person.data.user_id != session.user?.id) {
+    if (person.data.editable) {
       if (
         !confirm(
           "Анкета редактируется другим пользователем. Переключить режим?",
@@ -28,7 +28,7 @@ async function switchStatus(): Promise<void> {
     return;
   }
   status.value = "pending";
-  const response = await personStore.switchStatus();
+  const response = await person.switchStatus();
   status.value = "success";
   if (response?.status == 200) {
     refresh();
@@ -41,36 +41,36 @@ async function switchStatus(): Promise<void> {
 <template>
   <UContainer>
     <UPageHeader
-      :title="`${personStore.person.surname} ${personStore.person.firstname} ${personStore.person.patronymic ?? ''}`"
+      :title="`${person.data.surname} ${person.data.firstname} ${person.data.patronymic ?? ''}`"
       :ui="{ title: 'text-red-800' }"
     >
       <template #links>
         <!-- Кнопки переключения режима редактирования -->
         <div
-          v-if="session.user?.role == 'user' && !personStore.person.locked"
+          v-if="session.user?.role == 'user' && !person.data.locked"
           class="flex items-center space-x-4"
         >
           <UButton
             variant="outline"
             :loading="status === 'pending'"
             :color="
-              !personStore.person.editable
+              !person.data.editable
                 ? 'secondary'
-                : personStore.person.user_id == session.user?.id
+                : person.data.user_id == session.user?.id
                   ? 'success'
                   : 'error'
             "
             :label="
-              !personStore.person.editable
+              !person.data.editable
                 ? 'Доступно'
-                : personStore.person.user_id == session.user?.id
+                : person.data.user_id == session.user?.id
                   ? 'Изменение'
                   : 'Закрыто'
             "
             :icon="
-              !personStore.person.editable
+              !person.data.editable
                 ? 'i-lucide-lock-open'
-                : personStore.person.user_id == session.user?.id
+                : person.data.user_id == session.user?.id
                   ? 'i-lucide-edit'
                   : 'i-lucide-lock'
             "

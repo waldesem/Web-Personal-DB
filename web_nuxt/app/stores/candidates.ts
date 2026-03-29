@@ -3,7 +3,7 @@ import type { Candidate } from "@/types";
 export const useCandidateStore = defineStore("candidates", () => {
   const { $api } = useNuxtApp();
 
-  const data = ref({} as Candidate[]);
+  const data = ref([] as Candidate[]);
 
   const updated = ref(Date.now()); // Дата обновления данных
 
@@ -27,7 +27,7 @@ export const useCandidateStore = defineStore("candidates", () => {
         },
       });
       updated.value = Date.now();
-      return response;
+      data.value = response;
     } catch (error) {
       console.error(error);
     }

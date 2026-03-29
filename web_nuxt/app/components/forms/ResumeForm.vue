@@ -19,7 +19,7 @@ const props = defineProps({
   },
 });
 
-const personStore = usePersonStore();
+const person = usePersonStore();
 
 const form = ref<Person>({
   ...props.resume,
@@ -31,8 +31,8 @@ const form = ref<Person>({
 async function submitPerson() {
   const resp =
     props.method === "POST"
-      ? await personStore.addPerson(form.value)
-      : await personStore.editPerson(form.value);
+      ? await person.addPerson(form.value)
+      : await person.editPerson(form.value);
   emit("update", resp);
 }
 

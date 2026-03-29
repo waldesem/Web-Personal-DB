@@ -3,7 +3,11 @@ export function capitalize(str: string) {
   else return "";
 }
 
-export function workExperience(starts: string, finished: string, created: string) {
+export function workExperience(
+  starts: string,
+  finished: string,
+  created: string,
+) {
   const duration = {
     years: 0,
     months: 0,
@@ -22,7 +26,11 @@ export function workExperience(starts: string, finished: string, created: string
   // Коррекция дней, если конечная дата меньше начальной по дням
   if (duration.days < 0) {
     duration.months--;
-    const lastDayOfPrevMonth = new Date(end.getFullYear(), end.getMonth(), 0).getDate();
+    const lastDayOfPrevMonth = new Date(
+      end.getFullYear(),
+      end.getMonth(),
+      0,
+    ).getDate();
     duration.days += lastDayOfPrevMonth;
   }
 

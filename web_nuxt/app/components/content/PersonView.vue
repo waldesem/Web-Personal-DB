@@ -2,7 +2,7 @@
 import type { FetchResponse } from "ofetch";
 import type { PersonId } from "@/types";
 
-const personStore = usePersonStore();
+const person = usePersonStore();
 
 const editStore = useEditStore();
 
@@ -31,7 +31,7 @@ async function deletePerson() {
     return;
   if (!confirm("Все данные будут удалены безвозвратно!?")) return;
   status.value = "pending";
-  const response = await personStore.deletePerson();
+  const response = await person.deletePerson();
   if (response?.status === 204) {
     toasts.create("success", "Информация успешно удалена");
     refreshNuxtData("candidates");
@@ -55,7 +55,7 @@ async function deletePerson() {
     <!-- Выводим данные или скелетный элемент -->
     <Suspense>
       <template #default>
-        <ItemsPersonDiv :item="personStore.person" />
+        <ItemsPersonDiv :item="person.data" />
       </template>
       <template #fallback>
         <ElementSkeletonDiv :rows="12" />
@@ -70,7 +70,7 @@ async function deletePerson() {
     >
       <template #body>
         <FormsResumeForm
-          :resume="personStore.person"
+          :resume="person.data"
           :method="'PATCH'"
           @pending="status = 'pending'"
           @update="submitPerson"

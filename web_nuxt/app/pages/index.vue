@@ -1,7 +1,7 @@
 <script setup lang="ts">
 definePageMeta({
   layout: false,
-  middleware: (from) => {
+  middleware: (from: { path: string }) => {
     if (from.path === "/") {
       return navigateTo("/persons");
     }

@@ -3,14 +3,14 @@ import type { Person, PersonExt, PersonId } from "@/types";
 export const usePersonStore = defineStore("person", () => {
   const { $api } = useNuxtApp();
 
-  const person = ref({} as PersonExt);
+  const data = ref({} as PersonExt);
 
   const personId = computed(() => useRoute().params.id as string);
 
   // Определяем функцию для получения данных из API
   async function getPerson() {
     try {
-      person.value = await $api<PersonExt>("/routes/persons/" + personId.value);
+      data.value = await $api<PersonExt>("/routes/persons/" + personId.value);
     } catch (error) {
       console.error(error);
     }
@@ -62,7 +62,7 @@ export const usePersonStore = defineStore("person", () => {
   }
 
   return {
-    person,
+    data,
     personId,
     getPerson,
     switchStatus,
