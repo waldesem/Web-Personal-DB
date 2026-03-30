@@ -3,13 +3,13 @@ import type { Items } from "@/types";
 export const useItemStore = defineStore("items", () => {
   const { $api } = useNuxtApp();
 
-  const personStore = usePersonStore();
+  const person = usePersonStore();
 
   const items = ref<Items>({} as Items);
 
   async function getItems() {
     try {
-      items.value = await $api<Items>("/routes/items/" + personStore.personId);
+      items.value = await $api<Items>("/routes/items/" + person.personId);
     } catch (error) {
       console.error(error);
     }
@@ -19,7 +19,7 @@ export const useItemStore = defineStore("items", () => {
   async function getItem(view: keyof Items) {
     try {
       items.value[view] = await $api(
-        `/routes/items/${view}/${personStore.personId}`,
+        `/routes/items/${view}/${person.personId}`,
       );
     } catch (error) {
       console.error(error);
@@ -28,7 +28,7 @@ export const useItemStore = defineStore("items", () => {
 
   async function addItem(view: keyof Items, form: object) {
     try {
-      return await $api.raw(`/routes/items/${view}/${personStore.personId}`, {
+      return await $api.raw(`/routes/items/${view}/${person.personId}`, {
         method: "POST",
         body: { ...form, item: view }, // add discriminator for backend validation
       });
@@ -40,7 +40,7 @@ export const useItemStore = defineStore("items", () => {
   async function editItem(view: keyof Items, itemId: string, form: object) {
     try {
       return await $api.raw(
-        `/routes/items/${view}/${personStore.personId}/${itemId}`,
+        `/routes/items/${view}/${person.personId}/${itemId}`,
         {
           method: "PATCH",
           body: { ...form, item: view }, // add discriminator for backend validation
@@ -55,7 +55,7 @@ export const useItemStore = defineStore("items", () => {
   async function deleteItem(view: keyof Items, itemId: string) {
     try {
       return await $api.raw(
-        `/routes/items/${view}/${personStore.personId}/${itemId}`,
+        `/routes/items/${view}/${person.personId}/${itemId}`,
         {
           method: "DELETE",
         },

@@ -7,27 +7,25 @@ export const useCandidateStore = defineStore("candidates", () => {
 
   const updated = ref(Date.now()); // Дата обновления данных
 
+  const search = ref(); // Дата обновления данных
+
   // Вычисляем количество страниц
   const total = computed(() => {
     return data.value[0]?.total ?? 1;
   });
 
-  const lastId = computed(() => {
-    return data.value.at(-1)?.id ?? null;
-  });
-
   // Определяем функцию для получения данных из API
-  async function getData(per_page: number, search: string) {
+  async function getData(per_page: number) {
     try {
       const response = await $api<Candidate[]>("/routes/candidates", {
         query: {
-          last_seen_id: lastId.value,
+          last_seen_id: data.value.at(-1)?.id ?? null,
           per_page: per_page,
-          search: search,
+          search: search.value,
         },
       });
-      updated.value = Date.now();
       data.value = response;
+      updated.value = Date.now();
     } catch (error) {
       console.error(error);
     }
@@ -35,8 +33,9 @@ export const useCandidateStore = defineStore("candidates", () => {
 
   return {
     data,
-    updated,
+    search,
     total,
+    updated,
     getData,
   };
 });

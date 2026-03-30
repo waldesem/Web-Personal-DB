@@ -12,12 +12,11 @@ const session = useSessionStore();
 const modal = ref(false); // Состояние модального окна
 const page = ref(1); // Страница таблицы
 const per_page = 10; // Количество строк в таблице
-const search = ref(""); // Поисковый запрос
 
 // Определяем функцию для получения списка кандидатов из API
 const { status, refresh } = await useLazyAsyncData(
   "candidates",
-  () => candidates.getData(per_page, search.value),
+  () => candidates.getData(per_page),
   {
     watch: [page],
     default: () => [] as Candidate[],
@@ -25,12 +24,9 @@ const { status, refresh } = await useLazyAsyncData(
 );
 
 // Наблюдаем: поиск
-watch(refDebounced(search, 1000), () => {
-  if (page.value === 1) {
-    refresh();
-  } else {
-    page.value = 1;
-  }
+watch(refDebounced(candidates.search, 1000), () => {
+  if (page.value === 1) refresh();
+  else page.value = 1;
 });
 
 // Определяем обработчики диалогового окна для загрузки JSON
@@ -189,7 +185,7 @@ const columns: TableColumn<Candidate>[] = [
     <div class="my-6">
       <UInput
         id="search"
-        v-model="search"
+        v-model="candidates.search"
         type="search"
         icon="i-lucide-search"
         placeholder="поиск по фаимилии, имени, отчеству"
