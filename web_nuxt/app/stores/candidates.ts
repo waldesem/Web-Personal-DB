@@ -5,9 +5,7 @@ export const useCandidateStore = defineStore("candidates", () => {
 
   const data = ref([] as Candidate[]);
 
-  const updated = ref(Date.now()); // Дата обновления данных
-
-  const search = ref(); // Дата обновления данных
+  const updated = ref(Date.now());
 
   // Вычисляем количество страниц
   const total = computed(() => {
@@ -15,13 +13,13 @@ export const useCandidateStore = defineStore("candidates", () => {
   });
 
   // Определяем функцию для получения данных из API
-  async function getData(per_page: number) {
+  async function getData(per_page: number, search: string) {
     try {
       const response = await $api<Candidate[]>("/routes/candidates", {
         query: {
           last_seen_id: data.value.at(-1)?.id ?? null,
           per_page: per_page,
-          search: search.value,
+          search: search,
         },
       });
       data.value = response;
@@ -33,7 +31,6 @@ export const useCandidateStore = defineStore("candidates", () => {
 
   return {
     data,
-    search,
     total,
     updated,
     getData,
