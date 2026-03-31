@@ -207,6 +207,21 @@ export interface Needs {
 
 export interface NeedsExt extends Needs, Extend {}
 
+export interface Item {
+  staffs: StaffExt;
+  educations: EducationExt;
+  workplaces: WorkExt;
+  documents: PassportExt;
+  addresses: AddressExt;
+  contacts: ContactExt;
+  affilations: AffilationExt;
+  previous: PreviousExt;
+  checks: VerificationExt;
+  poligrafs: PfoExt;
+  investigations: InquisitionExt;
+  inquiries: NeedsExt;
+}
+
 export interface Items {
   staffs: StaffExt[];
   educations: EducationExt[];

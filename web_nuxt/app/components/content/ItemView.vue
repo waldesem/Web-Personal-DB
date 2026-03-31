@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Items } from "@/types";
+import type { Item, Items } from "@/types";
 
 const toasts = useToasts();
 
@@ -31,7 +31,7 @@ const FormComponent = defineAsyncComponent<Component>(
 );
 
 // Объявляем переменные для работы с данными
-const item = shallowRef<object>({}); // Данные для передачи в форму и редактирования
+const item = shallowRef({} as Item[keyof Item]); // Данные для передачи в форму и редактирования
 const itemId = ref<string>("");
 const modal = ref(false); // Флаг для открытия модального окна
 const status = ref("success"); // Статус запроса
@@ -55,21 +55,21 @@ async function submitItem(form: typeof item.value) {
   if (response?.status === 200 || response?.status === 201) {
     toasts.create("success", "Информация успешно обновлена");
   } else toasts.create();
-  item.value = {};
+  item.value = ({} as Item[keyof Item]);
   await getItem();
 }
 
 // Определяем функцию для удаления данных
-async function deleteItem(itemId: string) {
+async function deleteItem(id: string) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   status.value = "pending";
-  const resp = await itemStore.deleteItem(props.view, itemId);
+  const resp = await itemStore.deleteItem(props.view, id);
   if (resp?.status === 204) {
-    await getItem();
     toasts.create("success", "Информация успешно удалена");
   } else {
     toasts.create();
   }
+  await getItem();
   status.value = "success";
 }
 </script>

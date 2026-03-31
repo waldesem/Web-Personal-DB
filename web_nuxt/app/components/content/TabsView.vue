@@ -3,7 +3,7 @@ import type { Items } from "@/types";
 
 const itemStore = useItemStore();
 
-await itemStore.getItems();
+await callOnce(async() => await itemStore.getItems());
 
 // Определяем массив элементов табов
 const tabs = [

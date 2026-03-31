@@ -2,11 +2,11 @@
 import type { FetchResponse } from "ofetch";
 import type { PersonId } from "@/types";
 
+const toasts = useToasts();
+
 const person = usePersonStore();
 
 const editStore = useEditStore();
-
-const toasts = useToasts();
 
 const modal = ref(false); // Объявляем переменную модального окна
 
@@ -37,7 +37,6 @@ async function deletePerson() {
     refreshNuxtData("candidates");
     return navigateTo("/persons");
   }
-  refreshNuxtData("person");
   toasts.create();
   status.value = "error";
 }
