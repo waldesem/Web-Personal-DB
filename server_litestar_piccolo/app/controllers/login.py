@@ -57,7 +57,7 @@ class AuthController(Controller):
         return user
 
     @post("/login")
-    async def post_login_auth(
+    async def post_login(
         self,
         data: AuthLogin,
     ) -> AuthResponse:
@@ -97,11 +97,11 @@ class AuthController(Controller):
             )
         raise NotAuthorizedException
 
-    @post("/update")
-    async def post_login_update(
+    @patch("/login")
+    async def patch_login(
         self,
         data: UpdateLogin,
-    ) -> AuthResponse:
+    ) -> None:
         """Proceed login process.
 
         Args:
@@ -120,8 +120,8 @@ class AuthController(Controller):
             user.change_pswd = False
             user.attempt = 0
             await user.save()
-            return AuthResponse(message="updated")
-        raise NotAuthorizedException
+        else:
+            raise NotAuthorizedException
 
     @patch("/logout")
     async def logout(self, data: AuthResponse) -> None:

@@ -7,7 +7,7 @@ definePageMeta({ layout: false });
 onBeforeMount(() => clearNuxtData());
 
 // Объявляем переменные для формы и состояния
-const action = ref("login");
+const method = ref<"POST" | "PATCH">("POST");
 
 // Объявляем переменную для показа алерта
 const alert = ref({
@@ -65,7 +65,7 @@ const update = login.concat([
 // Объявляем функцию для валидации формы
 const validate = (state: Partial<Login>) => {
   const errors = [];
-  if (action.value === "update") {
+  if (method.value === "PATCH") {
     if (
       state.new_pswd &&
       !state.new_pswd.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,16}$/)
@@ -107,41 +107,41 @@ const validate = (state: Partial<Login>) => {
 // Объявляем функцию для отправки формы
 async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
   try {
-    const { message, access_token, refresh_token } = (await $fetch(
-      "/routes/auth/" + action.value,
-      {
-        method: "POST",
-        body: payload.data,
-      },
-    )) as { message: string; access_token: string; refresh_token: string };
-    if (message === "success") {
-      const token = useCookie("access", {
-        maxAge: 60 * 59,
-        sameSite: "strict",
-        watch: "shallow",
-      });
-      const refresh = useCookie("refresh", {
-        maxAge: 60 * 60 * 24 * 30,
-        sameSite: "strict",
-        watch: "shallow",
-      });
-      token.value = access_token;
-      refresh.value = refresh_token;
-      return navigateTo("/persons");
-    } else if (message === "updated") {
-      action.value = "login";
+    const resp = await $fetch.raw("/routes/auth/login", {
+      method: method.value,
+      body: payload.data,
+    });
+    if (resp.status === 200) {
+      method.value = "POST";
       defineAlert(
         "success",
         "Информация",
         "Пароль успешно изменен. Войдите с новым паролем.",
       );
-    } else if (message === "denied") {
-      defineAlert(
-        "warning",
-        "Предупреждение",
-        "Пароль просрочен. Измените пароль.",
-      );
-      action.value = "update";
+    } else if (resp.status === 201) {
+      const { message, access_token, refresh_token } = await resp.json();
+      if (message === "success") {
+        const token = useCookie("access", {
+          maxAge: 60 * 59,
+          sameSite: "strict",
+          watch: "shallow",
+        });
+        const refresh = useCookie("refresh", {
+          maxAge: 60 * 60 * 24 * 30,
+          sameSite: "strict",
+          watch: "shallow",
+        });
+        token.value = access_token;
+        refresh.value = refresh_token;
+        return navigateTo("/persons");
+      } else {
+        defineAlert(
+          "warning",
+          "Предупреждение",
+          "Пароль просрочен. Измените пароль.",
+        );
+        method.value = "PATCH";
+      }
     } else {
       defineAlert(
         "error",
@@ -162,9 +162,9 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
       description="Доступ в систему кадровой безопасности."
       icon="i-lucide-user-lock"
       :validate="validate"
-      :fields="action == 'login' ? login : update"
+      :fields="method == 'POST' ? login : update"
       :submit="{
-        label: action === 'login' ? 'Войти' : 'Изменить',
+        label: method === 'POST' ? 'Войти' : 'Изменить',
         color: 'success',
         variant: 'outline',
       }"
@@ -184,21 +184,21 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
       </template>
       <template #footer>
         <UButton
-          :label="action == 'login' ? 'Изменить' : 'Отмена'"
+          :label="method == 'POST' ? 'Изменить' : 'Отмена'"
           color="secondary"
           variant="outline"
           block
           @click="
             () => {
-              if (action == 'login') {
-                action = 'update';
+              if (method == 'POST') {
+                method = 'PATCH';
                 defineAlert(
                   'info',
                   'Информация',
                   'Введите новый пароль и подтверждение.',
                 );
               } else {
-                action = 'login';
+                method = 'POST';
                 defineAlert('success', 'Информация', 'Введите логин и пароль');
               }
             }
