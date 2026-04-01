@@ -1,28 +1,15 @@
 <script setup lang="ts">
-import type { AlertProps, AuthFormField, FormSubmitEvent } from "@nuxt/ui";
+import type { AuthFormField, FormSubmitEvent } from "@nuxt/ui";
 import type { Login } from "@/types";
 
 definePageMeta({ layout: false });
 
 onBeforeMount(() => clearNuxtData());
 
+const alerts = useAlertStore();
+
 // Объявляем переменные для формы и состояния
 const method = ref<"POST" | "PATCH">("POST");
-
-// Объявляем переменную для показа алерта
-const alert = ref({
-  color: "success",
-  title: "Информация",
-  description: "Введите логин и пароль",
-}) as Ref<AlertProps>;
-
-function defineAlert(color: string, title: string, description: string) {
-  alert.value = {
-    color,
-    title,
-    description,
-  };
-}
 
 const login: AuthFormField[] = [
   {
@@ -113,7 +100,7 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
     });
     if (resp.status === 200) {
       method.value = "POST";
-      defineAlert(
+      alerts.setAlert(
         "success",
         "Информация",
         "Пароль успешно изменен. Войдите с новым паролем.",
@@ -135,7 +122,7 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
         refresh.value = refresh_token;
         return navigateTo("/persons");
       } else {
-        defineAlert(
+        alerts.setAlert(
           "warning",
           "Предупреждение",
           "Пароль просрочен. Измените пароль.",
@@ -143,7 +130,7 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
         method.value = "PATCH";
       }
     } else {
-      defineAlert(
+      alerts.setAlert(
         "error",
         "Ошибка",
         "Неправильный логин или пароль. Попробуйте еще раз.",
@@ -151,7 +138,7 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
     }
   } catch (error) {
     console.error(error);
-    defineAlert("error", "Внимание", "Ошибка соединения с сервером.");
+    alerts.setAlert("error", "Внимание", "Ошибка соединения с сервером.");
   }
 }
 </script>
@@ -177,9 +164,9 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
       <template #validation>
         <UAlert
           variant="subtle"
-          :color="alert.color"
-          :title="alert.title"
-          :description="alert.description"
+          :color="alerts.alert.color"
+          :title="alerts.alert.title"
+          :description="alerts.alert.description"
         />
       </template>
       <template #footer>
@@ -192,14 +179,18 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
             () => {
               if (method == 'POST') {
                 method = 'PATCH';
-                defineAlert(
+                alerts.setAlert(
                   'info',
                   'Информация',
                   'Введите новый пароль и подтверждение.',
                 );
               } else {
                 method = 'POST';
-                defineAlert('success', 'Информация', 'Введите логин и пароль');
+                alerts.setAlert(
+                  'success',
+                  'Информация',
+                  'Введите логин и пароль',
+                );
               }
             }
           "

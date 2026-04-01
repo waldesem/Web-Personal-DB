@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { TableColumn } from "@nuxt/ui";
-import type { User } from "@/types";
-import { useSessionStore } from "@/stores/session";
+import { Actions, Roles, type User } from "@/types";
 
 // Объявляем переменные для рендера компонентов
 const UIcon = resolveComponent("UIcon");
@@ -11,7 +10,7 @@ const UDropdownMenu = resolveComponent("UDropdownMenu");
 
 const toasts = useToasts();
 
-const sessionStore = useSessionStore();
+const session = useSessionStore();
 
 // Вызываем плагин для работы с API
 const { $api } = useNuxtApp();
@@ -29,9 +28,9 @@ const { data, status, refresh } = await useLazyAsyncData<User[]>(
 );
 
 // Объявляем функцию для действия с пользователем
-async function userAction(item: string, user_id: string) {
+async function userAction(item: Actions | Roles, user_id: string) {
   if (!confirm("Подтвердите выполнение действия")) return;
-  if (user_id === sessionStore.user?.id) return;
+  if (user_id === session.user?.id) return;
   const resp = await $api.raw("/routes/user/" + user_id, {
     method: "POST",
     body: { item: item },
@@ -50,19 +49,19 @@ function getRowItems(user: User) {
     {
       label: user.deleted ? "Восстановить" : "Удалить",
       onSelect() {
-        userAction("delete", user.id);
+        userAction(Actions.delete, user.id);
       },
     },
     {
       label: user.blocked ? "Разблокировать" : "Заблокировать",
       onSelect() {
-        userAction("block", user.id);
+        userAction(Actions.block, user.id);
       },
     },
     {
       label: "Сбросить пароль",
       onSelect() {
-        userAction("reset", user.id);
+        userAction(Actions.reset, user.id);
       },
     },
     {
@@ -71,25 +70,25 @@ function getRowItems(user: User) {
         {
           label: "admin",
           onSelect() {
-            userAction("admin", user.id);
+            userAction(Roles.admin, user.id);
           },
         },
         {
           label: "api",
           onSelect() {
-            userAction("api", user.id);
+            userAction(Roles.api, user.id);
           },
         },
         {
           label: "user",
           onSelect() {
-            userAction("user", user.id);
+            userAction(Roles.user, user.id);
           },
         },
         {
           label: "guest",
           onSelect() {
-            userAction("guest", user.id);
+            userAction(Roles.guest, user.id);
           },
         },
       ],

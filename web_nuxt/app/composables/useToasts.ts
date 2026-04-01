@@ -7,12 +7,15 @@ export function useToasts() {
     info: "i-lucide-octagon-alert",
     success: "i-lucide-circle-alert",
   };
+
   const title = {
     error: "Ошибка",
     info: "Внимание",
     success: "Успех",
   };
+
   const toast = useToast();
+
   function create(
     color: ToastProps["color"] = "error",
     description = "Невозможно выполнить действие или операция завершилась ошибкой",
@@ -20,8 +23,8 @@ export function useToasts() {
     toast.add({
       icon: icon[color as keyof typeof icon],
       title: title[color as keyof typeof title],
-      description: description,
-      color: color,
+      description,
+      color,
     });
   }
   return { create };

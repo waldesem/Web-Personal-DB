@@ -4,6 +4,12 @@ export interface Status {
   message: AsyncDataRequestStatus;
 }
 
+export enum Actions {
+  delete = "delete",
+  block = "block",
+  reset = "reset",
+}
+
 export enum Roles {
   admin = "admin",
   api = "api",
