@@ -1,7 +1,7 @@
 import type { AuthFormField } from "@nuxt/ui";
-import type { Items } from "@/types";
+import type { Items, Login, Person } from "@/types";
 
-export const login: AuthFormField[] = [
+export const fieldsLogin: AuthFormField[] = [
   {
     name: "username",
     label: "Имя пользователя",
@@ -20,7 +20,7 @@ export const login: AuthFormField[] = [
   },
 ];
 
-export const update = login.concat([
+export const fieldsUpdate = fieldsLogin.concat([
   {
     name: "new_pswd",
     label: "Новый пароль",
@@ -40,7 +40,7 @@ export const update = login.concat([
 ]);
 
 // Определяем массив элементов табов
-export const tabs = [
+export const tabsItems = [
   {
     label: "Анкета",
     icon: "i-lucide-user",
@@ -69,7 +69,7 @@ export const tabs = [
 ];
 
 // Определяем массив элементов аккордеона
-export const accordion = [
+export const accordionItems = [
   {
     label: "Должности",
     icon: "i-lucide-workflow",
@@ -111,3 +111,72 @@ export const accordion = [
     slot: "affilations" as keyof Items,
   },
 ];
+
+export const validatorLogin = (state: Partial<Login>) => {
+  const errors = [];
+  if (!state.username) {
+    errors.push({
+      name: "username",
+      message: "Введите имя пользователя",
+    });
+  }
+  if (!state.password) {
+    errors.push({
+      name: "password",
+      message: "Введите пароль",
+    });
+  }
+  return errors;
+};
+
+export const validatorUpdate = (state: Partial<Login>) => {
+  const errors = validatorLogin(state);
+  if (
+    state.new_pswd &&
+    !state.new_pswd.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,16}$/)
+  ) {
+    errors.push({
+      name: "new_pswd",
+      message: "От 8 до 16 цифр и латинских букв в нижнем и верхнем регистре",
+    });
+  }
+  if (state.password === state.new_pswd) {
+    errors.push({
+      name: "new_pswd",
+      message: "Старый и новый пароли совпадают",
+    });
+  }
+  if (state.conf_pswd !== state.new_pswd) {
+    errors.push({
+      name: "conf_pswd",
+      message: "Новый пароль и подтверждение не совпадают",
+    });
+  }
+  return errors;
+};
+
+export const validatorResume = (state: Partial<Person>) => {
+  const errors = [];
+  if (!state.surname?.match(/^[А-ЯЁ][А-ЯЁIV\-.,'()\s]*[А-ЯЁ]$/)) {
+    errors.push({
+      name: "surname",
+      message: "Введите корректную фамилию",
+    });
+  }
+  if (!state.firstname?.match(/^[А-ЯЁ][А-ЯЁIV\-.,'()\s]*[А-ЯЁ]$/)) {
+    errors.push({
+      name: "firstname",
+      message: "Введите корректное имя",
+    });
+  }
+  if (
+    state.patronymic &&
+    !state.patronymic?.match(/^[А-ЯЁ][А-ЯЁIV\-.,'()\s]*[А-ЯЁ]$/)
+  ) {
+    errors.push({
+      name: "patronymic",
+      message: "Введите корректное отчество",
+    });
+  }
+  return errors;
+};

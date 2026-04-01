@@ -36,35 +36,10 @@ async function submitPerson() {
   emit("update", resp);
 }
 
-const validate = (state: Partial<Person>) => {
-  const errors = [];
-  if (!state.surname?.match(/^[А-ЯЁ][А-ЯЁIV\-.,'()\s]*[А-ЯЁ]$/)) {
-    errors.push({
-      name: "surname",
-      message: "Введите корректную фамилию",
-    });
-  }
-  if (!state.firstname?.match(/^[А-ЯЁ][А-ЯЁIV\-.,'()\s]*[А-ЯЁ]$/)) {
-    errors.push({
-      name: "firstname",
-      message: "Введите корректное имя",
-    });
-  }
-  if (
-    state.patronymic &&
-    !state.patronymic?.match(/^[А-ЯЁ][А-ЯЁIV\-.,'()\s]*[А-ЯЁ]$/)
-  ) {
-    errors.push({
-      name: "patronymic",
-      message: "Введите корректное отчество",
-    });
-  }
-  return errors;
-};
 </script>
 
 <template>
-  <UForm :state="form" :validate="validate" @submit.prevent="submitPerson()">
+  <UForm :state="form" :validate="validatorResume" @submit.prevent="submitPerson()">
     <UFormField label="Фамилия" name="surname" required>
       <UInput
         v-model.lazy.trim="form.surname"

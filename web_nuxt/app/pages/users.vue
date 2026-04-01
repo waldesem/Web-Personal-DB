@@ -18,7 +18,7 @@ const { $api } = useNuxtApp();
 // Определяем переменные для работы с данными
 const modal = ref(false);
 const expanded = ref({ 1: false });
-// const globalFilter = ref("");
+const globalFilter = ref("");
 
 // Определяем функцию для получения данных из API
 const { data, status, refresh } = await useLazyAsyncData<User[]>(
@@ -247,12 +247,12 @@ const columns: TableColumn<User>[] = [
 
     <!-- Строка поиска -->
     <div class="my-6">
-      <!-- <UInput
+      <UInput
         v-model="globalFilter"
         icon="i-lucide-search"
         placeholder="Поиск пользователей"
         type="search"
-      /> -->
+      />
     </div>
     <!-- Таблица с данными пользователей -->
     <UTable

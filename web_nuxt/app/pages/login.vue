@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from "@nuxt/ui";
 import type { Login } from "@/types";
-import { login, update } from "@/utils";
 
 definePageMeta({ layout: false });
 
@@ -11,48 +10,6 @@ const alerts = useAlertStore();
 
 // Объявляем переменные для формы и состояния
 const method = ref<"POST" | "PATCH">("POST");
-
-// Объявляем функцию для валидации формы
-const validate = (state: Partial<Login>) => {
-  const errors = [];
-  if (method.value === "PATCH") {
-    if (
-      state.new_pswd &&
-      !state.new_pswd.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,16}$/)
-    ) {
-      errors.push({
-        name: "new_pswd",
-        message: "От 8 до 16 цифр и латинских букв в нижнем и верхнем регистре",
-      });
-    }
-    if (state.password === state.new_pswd) {
-      errors.push({
-        name: "new_pswd",
-        message: "Старый и новый пароли совпадают",
-      });
-    }
-    if (state.conf_pswd !== state.new_pswd) {
-      errors.push({
-        name: "conf_pswd",
-        message: "Новый пароль и подтверждение не совпадают",
-      });
-    }
-  } else {
-    if (!state.username) {
-      errors.push({
-        name: "username",
-        message: "Введите имя пользователя",
-      });
-    }
-    if (!state.password) {
-      errors.push({
-        name: "password",
-        message: "Введите пароль",
-      });
-    }
-  }
-  return errors;
-};
 
 // Объявляем функцию для отправки формы
 async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
@@ -111,8 +68,8 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
     <UAuthForm
       description="Доступ в систему кадровой безопасности."
       icon="i-lucide-user-lock"
-      :validate="validate"
-      :fields="method == 'POST' ? login : update"
+      :validate="method === 'POST' ? validatorLogin : validatorUpdate"
+      :fields="method == 'POST' ? fieldsLogin : fieldsUpdate"
       :submit="{
         label: method === 'POST' ? 'Войти' : 'Изменить',
         color: 'success',
