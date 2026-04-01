@@ -23,6 +23,11 @@ const props = defineProps({
   },
 });
 
+function capitalize(str: string) {
+  if (typeof str == "string") return str.charAt(0).toUpperCase() + str.slice(1);
+  else return "";
+}
+
 const ItemComponent = defineAsyncComponent<Component>(
   () => import(`../items/${capitalize(props.view)}Item.vue`),
 );
@@ -55,7 +60,7 @@ async function submitItem(form: typeof item.value) {
   if (response?.status === 200 || response?.status === 201) {
     toasts.create("success", "Информация успешно обновлена");
   } else toasts.create();
-  item.value = ({} as Item[keyof Item]);
+  item.value = {} as Item[keyof Item];
   await getItem();
 }
 

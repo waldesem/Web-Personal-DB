@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import type { AuthFormField, FormSubmitEvent } from "@nuxt/ui";
+import type { FormSubmitEvent } from "@nuxt/ui";
 import type { Login } from "@/types";
+import { login, update } from "@/utils";
 
 definePageMeta({ layout: false });
 
@@ -10,44 +11,6 @@ const alerts = useAlertStore();
 
 // Объявляем переменные для формы и состояния
 const method = ref<"POST" | "PATCH">("POST");
-
-const login: AuthFormField[] = [
-  {
-    name: "username",
-    label: "Имя пользователя",
-    placeholder: "Имя пользователя",
-    icon: "i-lucide-user",
-    type: "text",
-    required: true,
-  },
-  {
-    name: "password",
-    label: "Пароль",
-    placeholder: "Пароль",
-    icon: "i-lucide-lock",
-    type: "password",
-    required: true,
-  },
-];
-
-const update = login.concat([
-  {
-    name: "new_pswd",
-    label: "Новый пароль",
-    placeholder: "Новый пароль",
-    icon: "i-lucide-lock",
-    type: "password",
-    required: true,
-  },
-  {
-    name: "conf_pswd",
-    label: "Подтверждение пароля",
-    placeholder: "Подтверждение пароля",
-    icon: "i-lucide-lock",
-    type: "password",
-    required: true,
-  },
-]);
 
 // Объявляем функцию для валидации формы
 const validate = (state: Partial<Login>) => {

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useExperience } from "@/composables/useExperience";
 import type { WorkExt } from "@/types";
 
 const props = defineProps({
@@ -8,8 +9,12 @@ const props = defineProps({
   },
 });
 
-const experience = computed(() =>
-  workExperience(props.item.starts, props.item.finished, new Date().toDateString()),
+const workExperience = useExperience();
+
+const experience = workExperience.experience(
+  props.item.starts,
+  props.item.finished,
+  new Date().toDateString(),
 );
 </script>
 
