@@ -19,27 +19,20 @@ const props = defineProps({
   },
 });
 
-const person = usePersonStore();
-
 const form = ref<Person>({
   ...props.resume,
   birthday: props.resume.birthday
     ? useDateFormat(props.resume.birthday, "YYYY-MM-DD").value
     : "",
 });
-
-async function submitPerson() {
-  const resp =
-    props.method === "POST"
-      ? await person.addPerson(form.value)
-      : await person.editPerson(form.value);
-  emit("update", resp);
-}
-
 </script>
 
 <template>
-  <UForm :state="form" :validate="validatorResume" @submit.prevent="submitPerson()">
+  <UForm
+    :state="form"
+    :validate="validatorResume"
+    @submit.prevent="emit('update', form)"
+  >
     <UFormField label="Фамилия" name="surname" required>
       <UInput
         v-model.lazy.trim="form.surname"

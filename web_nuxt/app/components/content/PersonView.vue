@@ -1,24 +1,24 @@
 <script setup lang="ts">
-import type { FetchResponse } from "ofetch";
-import type { PersonId } from "@/types";
+import type { Person } from "@/types";
 
 const toasts = useToasts();
 
 const person = usePersonStore();
 
-const editStore = useEditStore();
+const edit = useEditStore();
 
 const modal = ref(false); // Объявляем переменную модального окна
 
 const status = ref("success"); // Объявляем переменную статуса
 
 // Определяем функцию для отправки данных формы на сервер
-function submitPerson(response: FetchResponse<Partial<PersonId>>) {
+async function submitPerson(form: Person) {
   modal.value = false;
   status.value = "pending";
   refreshNuxtData("person");
   status.value = "success";
-  if (response.status === 200) {
+  const response = await person.editPerson(form)
+  if (response?.status === 200) {
     toasts.create("success", "Информация успешно обновлена");
   } else {
     toasts.create();
@@ -46,7 +46,7 @@ async function deletePerson() {
   <div class="ms-2 mt-2">
     <!-- Выводим кнопки редактирования или удаления данных -->
     <LazyElementDivMenu
-      v-if="editStore.editable"
+      v-if="edit.editable"
       @update="modal = true"
       @delete="deletePerson()"
     />
@@ -70,7 +70,6 @@ async function deletePerson() {
       <template #body>
         <FormsResumeForm
           :resume="person.data"
-          :method="'PATCH'"
           @pending="status = 'pending'"
           @update="submitPerson"
         />

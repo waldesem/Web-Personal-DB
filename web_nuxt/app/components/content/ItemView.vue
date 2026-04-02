@@ -32,7 +32,7 @@ const FormComponent = defineAsyncComponent<Component>(
 
 // Объявляем переменные для работы с данными
 const item = shallowRef({} as Item[keyof Item]); // Данные для передачи в форму
-const method = ref<"POST" | "PATCH">("POST");
+const option = ref<"create" | "edit">("create");
 const modal = ref(false); // Флаг для открытия модального окна
 const status = ref("success"); // Статус запроса
 
@@ -48,7 +48,7 @@ async function submitItem(form: typeof item.value) {
   status.value = "pending";
   modal.value = false;
   const response =
-    method.value === "POST"
+    option.value === "create"
       ? await itemStore.addItem(props.view, form)
       : await itemStore.editItem(props.view, item.value.id, form);
   if (response?.status === 200 || response?.status === 201) {
@@ -92,7 +92,7 @@ async function deleteItem(id: string) {
         size="sm"
         @click="
           modal = true;
-          method = 'POST';
+          option = 'create';
         "
       />
     </template>
@@ -105,13 +105,13 @@ async function deleteItem(id: string) {
         :key="index"
         class="mx-2 py-2"
       >
-        <!-- Выводим кнопки редактирования/удаления данных, в режиме редактирования -->
+        <!-- Выводим кнопки редактирования/удаления данных -->
         <LazyElementDivMenu
           v-if="editStore.editable"
           @update="
             item = content;
-            method = 'PATCH';
             modal = true;
+            option = 'edit';
           "
           @delete="deleteItem(content.id)"
         />
@@ -145,7 +145,7 @@ async function deleteItem(id: string) {
       color="neutral"
       size="sm"
       block
-      @click="method = 'POST'"
+      @click="option = 'create'"
     />
     <template #body>
       <component :is="FormComponent" :item="item" @update="submitItem" />

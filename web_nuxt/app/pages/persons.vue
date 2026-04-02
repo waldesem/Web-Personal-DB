@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import type { FetchResponse } from "ofetch";
 import type { TableColumn } from "@nuxt/ui";
-import type { Candidate, PersonId } from "@/types";
+import type { Candidate, Person, PersonId } from "@/types";
 
 const toast = useToast();
 const { $api } = useNuxtApp();
 const candidates = useCandidateStore();
+const person = usePersonStore();
 const session = useSessionStore();
 
 // Объявляем переменные для работы с данными
@@ -40,16 +41,25 @@ const { open, onChange } = useFileDialog({
 onChange(async (files) => {
   status.value = "pending";
   const str = (await files?.[0]?.text()) as string;
-  const response = await $api.raw<Partial<PersonId>>("/routes/json", {
-    method: "POST",
-    body: JSON.parse(str),
-  });
-  proceedSubmit(response);
+  try {
+    const response = await $api.raw<Partial<PersonId>>("/routes/json", {
+      method: "POST",
+      body: JSON.parse(str),
+    });
+    proceedSubmit(response);
+  } catch (error) {
+    console.error(error);
+  }
 });
+
+async function personSubmit(form: Person) {
+  modal.value = false;
+  const response = await person.addPerson(form);
+  proceedSubmit(response);
+}
 
 // Обработчик результата загрузки данных
 async function proceedSubmit(response: FetchResponse<Partial<PersonId>>) {
-  modal.value = false;
   if (response.status === 201) {
     toast.add({
       icon: "i-lucide-triangle-alert",
@@ -174,7 +184,7 @@ const columns: TableColumn<Candidate>[] = [
         >
           <template #body>
             <FormsResumeForm
-              @update="proceedSubmit"
+              @update="personSubmit"
               @pending="status === 'pending'"
             />
           </template>

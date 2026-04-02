@@ -27,7 +27,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         } else {
           try {
             const { token } = await $fetch<{token: string}>("/routes/auth/refresh", {
-              method: "GET",
               headers: {
                 Authorization: refresh.value,
               },

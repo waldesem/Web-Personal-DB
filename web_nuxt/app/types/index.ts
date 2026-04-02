@@ -1,8 +1,8 @@
-import type { AsyncDataRequestStatus } from "nuxt/app";
+// import type { AsyncDataRequestStatus } from "nuxt/app";
 
-export interface Status {
-  message: AsyncDataRequestStatus;
-}
+// export interface Status {
+//   message: AsyncDataRequestStatus;
+// }
 
 export enum Actions {
   delete = "delete",

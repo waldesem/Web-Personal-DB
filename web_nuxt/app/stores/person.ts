@@ -9,56 +9,33 @@ export const usePersonStore = defineStore("person", () => {
 
   // Определяем функцию для получения данных из API
   async function getPerson() {
-    try {
-      data.value = await $api<PersonExt>("/routes/persons/" + personId.value);
-    } catch (error) {
-      console.error(error);
-    }
+    data.value = await $api<PersonExt>("/routes/persons/" + personId.value);
   }
 
   // Определяем функцию для переключения режима редактирования
   async function switchStatus() {
-    try {
-      return await $api.raw("/routes/persons/status/" + personId.value);
-    } catch (error) {
-      console.error(error);
-    }
+    return await $api.raw("/routes/persons/status/" + personId.value);
   }
 
   async function addPerson(form: Person) {
-    try {
-      return await $api.raw<Partial<PersonId>>("/routes/persons", {
-        method: "POST",
-        body: form,
-      });
-    } catch (error) {
-      console.error(error);
-    }
+    return await $api.raw<Partial<PersonId>>("/routes/persons", {
+      method: "POST",
+      body: form,
+    });
   }
 
   async function editPerson(form: Person) {
-    try {
-      return await $api.raw<Partial<PersonId>>(
-        "/routes/persons" + personId.value,
-        {
-          method: "PATCH",
-          body: form,
-        },
-      );
-    } catch (error) {
-      console.error(error);
-    }
+    return await $api.raw("/routes/persons" + personId.value, {
+      method: "PATCH",
+      body: form,
+    });
   }
 
   // Определяем функцию для удаления данных
   async function deletePerson() {
-    try {
-      return await $api.raw(`/routes/persons/${personId.value}`, {
-        method: "DELETE",
-      });
-    } catch (error) {
-      console.error(error);
-    }
+    return await $api.raw(`/routes/persons/${personId.value}`, {
+      method: "DELETE",
+    });
   }
 
   return {

@@ -13,52 +13,67 @@ const method = ref<"POST" | "PATCH">("POST");
 
 // Объявляем функцию для отправки формы
 async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
-  try {
-    const resp = await $fetch.raw("/routes/auth/login", {
+  const resp = await $fetch
+    .raw("/routes/auth/login", {
       method: method.value,
       body: payload.data,
-    });
-    if (resp.status === 200) {
-      method.value = "POST";
-      alerts.setAlert(
-        "success",
-        "Информация",
-        "Пароль успешно изменен. Войдите с новым паролем.",
-      );
-    } else if (resp.status === 201) {
-      const { message, access_token, refresh_token } = await resp.json();
-      if (message === "success") {
-        const token = useCookie("access", {
-          maxAge: 60 * 59,
-          sameSite: "strict",
-          watch: "shallow",
-        });
-        const refresh = useCookie("refresh", {
-          maxAge: 60 * 60 * 24 * 30,
-          sameSite: "strict",
-          watch: "shallow",
-        });
-        token.value = access_token;
-        refresh.value = refresh_token;
-        return navigateTo("/persons");
-      } else {
+    })
+    .catch((error) => {
+      if (error.data.status_code === 401) {
         alerts.setAlert(
-          "warning",
-          "Предупреждение",
-          "Пароль просрочен. Измените пароль.",
+          "i-lucide-triangle-alert",
+          "error",
+          "Ошибка",
+          "Неправильный логин или пароль. Попробуйте еще раз.",
         );
-        method.value = "PATCH";
-      }
+      } else console.error(error.data);
+      alerts.setAlert(
+        "i-lucide-triangle-alert",
+        "error",
+        "Внимание",
+        "Ошибка соединения с сервером.",
+      );
+    });
+  if (resp?.status === 200) {
+    method.value = "POST";
+    alerts.setAlert(
+      "i-lucide-octagon-alert",
+      "success",
+      "Информация",
+      "Пароль успешно изменен. Войдите с новым паролем.",
+    );
+  } else if (resp?.status === 201) {
+    const { message, access_token, refresh_token } = await resp.json();
+    if (message === "success") {
+      const token = useCookie("access", {
+        maxAge: 60 * 59,
+        sameSite: "strict",
+        watch: "shallow",
+      });
+      const refresh = useCookie("refresh", {
+        maxAge: 60 * 60 * 24 * 30,
+        sameSite: "strict",
+        watch: "shallow",
+      });
+      token.value = access_token;
+      refresh.value = refresh_token;
+      return navigateTo("/persons");
     } else {
       alerts.setAlert(
-        "error",
-        "Ошибка",
-        "Неправильный логин или пароль. Попробуйте еще раз.",
+        "i-lucide-octagon-alert",
+        "warning",
+        "Предупреждение",
+        "Пароль просрочен. Измените пароль.",
       );
+      method.value = "PATCH";
     }
-  } catch (error) {
-    console.error(error);
-    alerts.setAlert("error", "Внимание", "Ошибка соединения с сервером.");
+  } else {
+    alerts.setAlert(
+      "i-lucide-triangle-alert",
+      "error",
+      "Ошибка",
+      "Неправильный логин или пароль. Попробуйте еще раз.",
+    );
   }
 }
 </script>
@@ -84,6 +99,7 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
       <template #validation>
         <UAlert
           variant="subtle"
+          :icon="alerts.alert.icon"
           :color="alerts.alert.color"
           :title="alerts.alert.title"
           :description="alerts.alert.description"
@@ -100,6 +116,7 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
               if (method == 'POST') {
                 method = 'PATCH';
                 alerts.setAlert(
+                  'i-lucide-octagon-alert',
                   'info',
                   'Информация',
                   'Введите новый пароль и подтверждение.',
@@ -107,6 +124,7 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
               } else {
                 method = 'POST';
                 alerts.setAlert(
+                  'i-lucide-circle-alert',
                   'success',
                   'Информация',
                   'Введите логин и пароль',
