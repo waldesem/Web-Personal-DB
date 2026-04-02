@@ -28,7 +28,7 @@ const { data, status, refresh } = await useLazyAsyncData<User[]>(
 );
 
 // Объявляем функцию для действия с пользователем
-async function userAction(item: Actions | Roles, user_id: string) {
+async function editUser(item: Actions | Roles, user_id: string) {
   if (!confirm("Подтвердите выполнение действия")) return;
   if (user_id === session.user?.id) return;
   const resp = await $api.raw("/routes/user/" + user_id, {
@@ -43,25 +43,25 @@ async function userAction(item: Actions | Roles, user_id: string) {
   refresh();
 }
 
-// Объявляем функцию для изменения данных таблицы
+// Объявляем функцию для изменения данных
 function getRowItems(user: User) {
   return [
     {
       label: user.deleted ? "Восстановить" : "Удалить",
       onSelect() {
-        userAction(Actions.delete, user.id);
+        editUser(Actions.delete, user.id);
       },
     },
     {
       label: user.blocked ? "Разблокировать" : "Заблокировать",
       onSelect() {
-        userAction(Actions.block, user.id);
+        editUser(Actions.block, user.id);
       },
     },
     {
       label: "Сбросить пароль",
       onSelect() {
-        userAction(Actions.reset, user.id);
+        editUser(Actions.reset, user.id);
       },
     },
     {
@@ -70,25 +70,25 @@ function getRowItems(user: User) {
         {
           label: "admin",
           onSelect() {
-            userAction(Roles.admin, user.id);
+            editUser(Roles.admin, user.id);
           },
         },
         {
           label: "api",
           onSelect() {
-            userAction(Roles.api, user.id);
+            editUser(Roles.api, user.id);
           },
         },
         {
           label: "user",
           onSelect() {
-            userAction(Roles.user, user.id);
+            editUser(Roles.user, user.id);
           },
         },
         {
           label: "guest",
           onSelect() {
-            userAction(Roles.guest, user.id);
+            editUser(Roles.guest, user.id);
           },
         },
       ],

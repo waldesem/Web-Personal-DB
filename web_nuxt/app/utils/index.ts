@@ -1,6 +1,11 @@
 import type { AuthFormField } from "@nuxt/ui";
 import type { Items, Login, Person } from "@/types";
 
+export function capitalize(str: string) {
+  if (typeof str == "string") return str.charAt(0).toUpperCase() + str.slice(1);
+  else return "";
+}
+
 export const fieldsLogin: AuthFormField[] = [
   {
     name: "username",

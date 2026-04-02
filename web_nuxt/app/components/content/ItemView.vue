@@ -23,11 +23,6 @@ const props = defineProps({
   },
 });
 
-function capitalize(str: string) {
-  if (typeof str == "string") return str.charAt(0).toUpperCase() + str.slice(1);
-  else return "";
-}
-
 const ItemComponent = defineAsyncComponent<Component>(
   () => import(`../items/${capitalize(props.view)}Item.vue`),
 );
@@ -36,11 +31,10 @@ const FormComponent = defineAsyncComponent<Component>(
 );
 
 // Объявляем переменные для работы с данными
-const item = shallowRef({} as Item[keyof Item]); // Данные для передачи в форму и редактирования
-const itemId = ref<string>("");
+const item = shallowRef({} as Item[keyof Item]); // Данные для передачи в форму
+const method = ref<"POST" | "PATCH">("POST");
 const modal = ref(false); // Флаг для открытия модального окна
 const status = ref("success"); // Статус запроса
-const method = ref<"POST" | "PATCH">("POST");
 
 // Определяем функцию для получения данных из API
 async function getItem() {
@@ -56,7 +50,7 @@ async function submitItem(form: typeof item.value) {
   const response =
     method.value === "POST"
       ? await itemStore.addItem(props.view, form)
-      : await itemStore.editItem(props.view, itemId.value, form);
+      : await itemStore.editItem(props.view, item.value.id, form);
   if (response?.status === 200 || response?.status === 201) {
     toasts.create("success", "Информация успешно обновлена");
   } else toasts.create();
@@ -118,7 +112,6 @@ async function deleteItem(id: string) {
             item = content;
             method = 'PATCH';
             modal = true;
-            itemId = content.id;
           "
           @delete="deleteItem(content.id)"
         />
