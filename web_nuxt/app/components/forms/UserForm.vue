@@ -5,15 +5,12 @@ const emit = defineEmits(["update"]);
 
 const toasts = useToasts();
 
-const { $api } = useNuxtApp();
+const users = useUserStore();
 
 const form = ref({} as UserForm);
 
 async function submitUser() {
-  const resp = await $api.raw("/routes/user", {
-    method: "POST",
-    body: form.value,
-  });
+  const resp = await users.submitUser(form.value);
   if (resp.status === 201) {
     emit("update");
     form.value = {} as UserForm;

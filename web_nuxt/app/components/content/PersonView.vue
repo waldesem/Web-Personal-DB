@@ -3,23 +3,22 @@ import type { Person } from "@/types";
 
 const toasts = useToasts();
 
-const person = usePersonStore();
-
 const edit = useEditStore();
 
-const modal = ref(false); // Объявляем переменную модального окна
+const person = usePersonStore();
 
+const modal = ref(false); // Объявляем переменную модального окна
 const status = ref("success"); // Объявляем переменную статуса
 
 // Определяем функцию для отправки данных формы на сервер
 async function submitPerson(form: Person) {
   modal.value = false;
   status.value = "pending";
-  refreshNuxtData("person");
   status.value = "success";
   const response = await person.editPerson(form)
   if (response?.status === 200) {
     toasts.create("success", "Информация успешно обновлена");
+    refreshNuxtData("person");
   } else {
     toasts.create();
   }
@@ -68,11 +67,7 @@ async function deletePerson() {
       description="Редактирование анкетные данные"
     >
       <template #body>
-        <FormsResumeForm
-          :resume="person.data"
-          @pending="status = 'pending'"
-          @update="submitPerson"
-        />
+        <FormsResumeForm :resume="person.data" @update="submitPerson" />
       </template>
     </UModal>
   </div>

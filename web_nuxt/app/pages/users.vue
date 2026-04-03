@@ -10,10 +10,7 @@ const UDropdownMenu = resolveComponent("UDropdownMenu");
 
 const toasts = useToasts();
 
-const session = useSessionStore();
-
-// Вызываем плагин для работы с API
-const { $api } = useNuxtApp();
+const users = useUserStore();
 
 // Определяем переменные для работы с данными
 const modal = ref(false);
@@ -21,21 +18,17 @@ const expanded = ref({ 1: false });
 const globalFilter = ref("");
 
 // Определяем функцию для получения данных из API
-const { data, status, refresh } = await useLazyAsyncData<User[]>(
+const { status, refresh } = await useLazyAsyncData(
   "users",
-  () => $api("/routes/users"),
+  () => users.getUsers(),
   { default: () => [] as User[] },
 );
 
 // Объявляем функцию для действия с пользователем
 async function editUser(item: Actions | Roles, user_id: string) {
   if (!confirm("Подтвердите выполнение действия")) return;
-  if (user_id === session.user?.id) return;
-  const resp = await $api.raw("/routes/user/" + user_id, {
-    method: "POST",
-    body: { item: item },
-  });
-  if (resp.status == 201) {
+  const resp = await users.editUser(item, user_id);
+  if (resp?.status == 201) {
     toasts.create("success", "Действие успешно выполнено");
   } else {
     toasts.create();
@@ -259,7 +252,7 @@ const columns: TableColumn<User>[] = [
       v-model:expanded="expanded"
       sticky
       class="flex-1 max-h-[800px]"
-      :data="data"
+      :data="users.data"
       :columns="columns"
       :loading="status === 'pending'"
       loading-animation="carousel"

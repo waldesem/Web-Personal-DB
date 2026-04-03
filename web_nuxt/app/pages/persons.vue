@@ -183,10 +183,7 @@ const columns: TableColumn<Candidate>[] = [
           description="Введите анкетные данные кандидата"
         >
           <template #body>
-            <FormsResumeForm
-              @update="personSubmit"
-              @pending="status === 'pending'"
-            />
+            <FormsResumeForm @update="personSubmit" />
           </template>
         </UModal>
       </template>
