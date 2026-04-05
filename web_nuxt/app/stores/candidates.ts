@@ -13,10 +13,10 @@ export const useCandidateStore = defineStore("candidates", () => {
   });
 
   // Определяем функцию для получения данных из API
-  async function getData(per_page: number, search: string) {
+  async function getData(page: number, per_page: number, search: string) {
     const response = await $api<Candidate[]>("/routes/candidates", {
       query: {
-        last_seen_id: data.value.at(-1)?.id ?? null,
+        page: page - 1,
         per_page: per_page,
         search: search,
       },

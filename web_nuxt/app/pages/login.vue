@@ -43,7 +43,10 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
       "Пароль успешно изменен. Войдите с новым паролем.",
     );
   } else if (resp?.status === 201) {
-    const { message, access_token, refresh_token } = await resp.json();
+    const { message, access_token, refresh_token } = resp._data as Record<
+      string,
+      string
+    >;
     if (message === "success") {
       const token = useCookie("access", {
         maxAge: 60 * 59,

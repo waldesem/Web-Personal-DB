@@ -16,7 +16,7 @@ async def get_candidates(query: Index) -> list[Candidates]:
     """Retrieve a paginated list of persons from the database.
 
     Args:
-        query: Index query parameters: search, last_seen_id, per_page.
+        query: Index query parameters: search, page, per_page.
 
     Returns:
         List of persons.
@@ -38,9 +38,6 @@ async def get_candidates(query: Index) -> list[Candidates]:
     JOIN users u ON u.id = p.user_id
     WHERE NOT p.deleted
     """
-    if query.last_seen_id:
-        stmt += " AND p.id < {}"
-        params.append(int(query.last_seen_id))
     if query.search:
         stmt += " AND p.surname = {}"
         params.append(query.search[0])
@@ -50,6 +47,8 @@ async def get_candidates(query: Index) -> list[Candidates]:
             if query.search and len(query.search) > 2:
                 stmt += " AND p.patronymic = {}"
                 params.append(query.search[2])
-    stmt += f" ORDER BY p.id DESC LIMIT {query.per_page}"
+    stmt += " ORDER BY p.id DESC LIMIT {} OFFSET {}"
+    params.append(query.per_page)
+    params.append(query.per_page * query.page)
     candidates = await Persons.raw(stmt, *params)
     return ta.validate_python(candidates)

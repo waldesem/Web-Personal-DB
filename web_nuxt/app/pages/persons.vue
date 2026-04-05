@@ -18,7 +18,7 @@ const search = ref("");
 // Определяем функцию для получения списка кандидатов из API
 const { status, refresh } = await useLazyAsyncData(
   "candidates",
-  () => candidates.getData(per_page, search.value),
+  () => candidates.getData(page.value, per_page, search.value),
   {
     watch: [page],
     default: () => [] as Candidate[],
