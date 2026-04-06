@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { PfoExt } from "@/types";
+import type { Pfo } from "@/types";
 import { Decisions } from "@/types";
 
 const props = defineProps({
   item: {
-    type: Object as PropType<PfoExt>,
+    type: Object as PropType<Pfo>,
     required: true,
   },
 });

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { useExperience } from "@/composables/useExperience";
-import type { WorkExt } from "@/types";
+import type { Work } from "@/types";
 
 const props = defineProps({
   item: {
-    type: Object as PropType<WorkExt>,
+    type: Object as PropType<Work>,
     required: true,
   },
 });

@@ -9,7 +9,7 @@ export const usePersonStore = defineStore("person", () => {
 
   // Определяем функцию для получения данных из API
   async function getPerson() {
-    data.value = await $api<PersonExt>("/routes/persons/" + personId.value);
+    data.value = await $api<Person>("/routes/persons/" + personId.value);
   }
 
   // Определяем функцию для переключения режима редактирования

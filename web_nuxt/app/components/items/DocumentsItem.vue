@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { PassportExt } from "@/types";
+import type { Passport } from "@/types";
 
 const props = defineProps({
   item: {
-    type: Object as PropType<PassportExt>,
+    type: Object as PropType<Passport>,
     required: true,
   },
 });

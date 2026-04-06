@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { AffilationExt } from "@/types";
+import type { Affilation } from "@/types";
 
 const props = defineProps({
   item: {
-    type: Object as PropType<AffilationExt>,
+    type: Object as PropType<Affilation>,
     required: true,
   },
 });

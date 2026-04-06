@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { ContactExt } from "@/types";
+import type { Contact } from "@/types";
 
 const props = defineProps({
   item: {
-    type: Object as PropType<ContactExt>,
+    type: Object as PropType<Contact>,
     required: true,
   },
 });

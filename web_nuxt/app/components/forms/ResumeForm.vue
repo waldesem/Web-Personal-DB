@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { Person, PersonExt } from "@/types";
+import type { Person } from "@/types";
 import type { PropType } from "vue";
 
 const emit = defineEmits(["update"]);
 
 const props = defineProps({
   resume: {
-    type: Object as PropType<PersonExt>,
+    type: Object as PropType<Person>,
     default: () => ({}),
   },
   method: {

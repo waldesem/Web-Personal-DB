@@ -60,6 +60,7 @@ export interface User extends Session {
 }
 
 export interface Person {
+  id: string;
   surname: string;
   firstname: string;
   patronymic?: string;
@@ -71,10 +72,6 @@ export interface Person {
   inn?: string;
   marital?: string;
   addition?: string;
-}
-
-export interface PersonExt extends Person {
-  id: string;
   user_id: string;
   destination?: string;
   editable: boolean;
@@ -83,16 +80,13 @@ export interface PersonExt extends Person {
   updated_at: string;
 }
 
-export interface PersonId {
-  person_id: number | null;
-}
-
-export interface Candidate extends PersonExt {
+export interface Candidate extends Person {
   username: string;
   total: number;
 }
 
 export interface Previous {
+  id: string;
   surname: string;
   firstname?: string;
   patronymic?: string;
@@ -100,29 +94,22 @@ export interface Previous {
   reason?: string;
 }
 
-export interface Id {
-  id: string;
-}
-
-export interface PreviousExt extends Previous, Id {}
-
 export interface Education {
+  id: string;
   view?: string;
   institution: string;
   finished?: string;
   specialty: string;
 }
 
-export interface EducationExt extends Education, Id {}
-
 export interface Staff {
+  id: string;
   position: string;
   department?: string;
 }
 
-export interface StaffExt extends Staff, Id {}
-
 export interface Passport {
+  id: string;
   view: string;
   series?: string;
   digits: string;
@@ -130,23 +117,20 @@ export interface Passport {
   issue: string;
 }
 
-export interface PassportExt extends Passport, Id {}
-
 export interface Address {
+  id: string;
   view: string;
   address: string;
 }
 
-export interface AddressExt extends Address, Id {}
-
 export interface Contact {
+  id: string;
   view: string;
   contact: string;
 }
 
-export interface ContactExt extends Contact, Id {}
-
 export interface Work {
+  id: string;
   now_work: boolean;
   starts: string;
   finished: string;
@@ -156,17 +140,15 @@ export interface Work {
   position: string;
 }
 
-export interface WorkExt extends Work, Id {}
-
 export interface Affilation {
+  id: string;
   view: string;
   organization: string;
   inn?: string;
 }
 
-export interface AffilationExt extends Affilation, Id {}
-
 export interface Verification {
+  id: string;
   workplace?: string;
   document?: string;
   inn?: string;
@@ -182,63 +164,61 @@ export interface Verification {
   addition?: string;
   conclusion: Conclusions;
   comment?: string;
-}
-
-export interface Extend extends Id {
   created_at: string;
   updated_at: string;
 }
 
-export interface VerificationExt extends Verification, Extend {}
-
 export interface Pfo {
+  id: string;
   theme: string;
   results: string;
   conclusion: Decisions;
+  created_at: string;
+  updated_at: string;
 }
-
-export interface PfoExt extends Pfo, Extend {}
 
 export interface Inquisition {
+  id: string;
   theme: string;
   info: string;
+  created_at: string;
+  updated_at: string;
 }
-
-export interface InquisitionExt extends Inquisition, Extend {}
 
 export interface Needs {
+  id: string;
   info: string;
   initiator: string;
+  created_at: string;
+  updated_at: string;
 }
 
-export interface NeedsExt extends Needs, Extend {}
-
 export interface Item {
-  staffs: StaffExt;
-  educations: EducationExt;
-  workplaces: WorkExt;
-  documents: PassportExt;
-  addresses: AddressExt;
-  contacts: ContactExt;
-  affilations: AffilationExt;
-  previous: PreviousExt;
-  checks: VerificationExt;
-  poligrafs: PfoExt;
-  investigations: InquisitionExt;
-  inquiries: NeedsExt;
+  staffs: Staff;
+  educations: Education;
+  workplaces: Work;
+  documents: Passport;
+  addresses: Address;
+  contacts: Contact;
+  affilations: Affilation;
+  previous: Previous;
+  checks: Verification;
+  poligrafs: Pfo;
+  investigations: Inquisition;
+  inquiries: Needs;
 }
 
 export interface Items {
-  staffs: StaffExt[];
-  educations: EducationExt[];
-  workplaces: WorkExt[];
-  documents: PassportExt[];
-  addresses: AddressExt[];
-  contacts: ContactExt[];
-  affilations: AffilationExt[];
-  previous: PreviousExt[];
-  checks: VerificationExt[];
-  poligrafs: PfoExt[];
-  investigations: InquisitionExt[];
-  inquiries: NeedsExt[];
+  staffs: Staff[];
+  educations: Education[];
+  workplaces: Work[];
+  documents: Passport[];
+  addresses: Address[];
+  contacts: Contact[];
+  affilations: Affilation[];
+  previous: Previous[];
+  checks: Verification[];
+  poligrafs: Pfo[];
+  investigations: Inquisition[];
+  inquiries: Needs[];
 }

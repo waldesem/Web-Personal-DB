@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import type { FetchResponse } from "ofetch";
 import type { TableColumn } from "@nuxt/ui";
-import type { Candidate, Person, PersonId } from "@/types";
+import type { Candidate, Person } from "@/types";
 
-const toast = useToast();
+interface PersonId {
+  person_id: string;
+}
+
 const { $api } = useNuxtApp();
+const toast = useToast();
 const candidates = useCandidateStore();
 const person = usePersonStore();
 const session = useSessionStore();
