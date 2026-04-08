@@ -1,2 +1,0 @@
-import{aN as o}from"./DL7kkOf2.js";function a(){const e={error:"i-lucide-triangle-alert",info:"i-lucide-octagon-alert",success:"i-lucide-circle-alert"},r={error:"Ошибка",info:"Внимание",success:"Успех"},i=o();function s(t="error",c="Невозможно выполнить действие или операция завершилась ошибкой"){i.add({icon:e[t],title:r[t],description:c,color:t})}return{create:s}}export{a as u};
-//# sourceMappingURL=CPpGTrQ6.js.map

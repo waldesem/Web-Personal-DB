@@ -1,0 +1,2 @@
+import{_ as s}from"./CZt39DUI.js";import{o,B as n,$ as t}from"./B3kF21_G.js";const c={},r={class:"flex inline-flex items-center text-xl font-bold space-x-1"};function _(a,e){return o(),n("h3",r,[...e[0]||(e[0]=[t("div",{class:"text-blue-600"},"STAFFSEC",-1),t("div",{class:"text-red-600"},"ФИНТЕХ",-1)])])}const x=Object.assign(s(c,[["render",_]]),{__name:"ElementLogoDiv"});export{x as _};
+//# sourceMappingURL=D7QobRSa.js.map

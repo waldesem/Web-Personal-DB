@@ -19,7 +19,6 @@ export default defineNuxtConfig({
   css: ["~/assets/css/main.css"],
   devtools: { enabled: true },
   experimental: {
-    //   entryImportMap: false,
     payloadExtraction: true,
   },
   icon: {
@@ -45,7 +44,7 @@ export default defineNuxtConfig({
     },
   },
   ssr: false,
-  sourcemap: true,
+  sourcemap: { client: true, server: false },
   ui: {
     fonts: false,
   },
