@@ -6,16 +6,23 @@ export default defineNuxtConfig({
   },
   app: {
     buildAssetsDir: "assets",
-    keepalive: { include: "persons" },
-    pageTransition: { name: "page", mode: "out-in" },
     head: {
+      link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
+      meta: [
+        { name: "description", content: "Кадровая безопасность" },
+        { name: "viewport", content: "width=device-width, initial-scale=1" },
+        { charset: "utf-8" },
+      ],
+      noscript: [{ textContent: "JavaScript is required" }],
       title: "StaffSec - кадровая безопасность",
     },
+    keepalive: { include: "persons" },
+    pageTransition: { name: "page", mode: "out-in" },
   },
   build: {
     analyze: true,
   },
-  compatibilityDate: "2026-03-28",
+  compatibilityDate: "2026-04-08",
   css: ["~/assets/css/main.css"],
   devtools: { enabled: true },
   experimental: {
