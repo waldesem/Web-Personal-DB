@@ -43,7 +43,6 @@ class Candidates(TypedDict):
     firstname: str
     patronymic: str | None
     birthday: date
-    locked: bool
     updated_at: datetime
     username: str
     total: int
@@ -66,9 +65,6 @@ class Person:
     marital: str | None
     addition: str | None
     destination: str
-    locked: bool
-    protected: bool
-    deleted: bool
     user_id: int
     created_at: datetime
     updated_at: datetime

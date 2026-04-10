@@ -1,40 +1,18 @@
 <script setup lang="ts">
-const toasts = useToasts();
-
 const person = usePersonStore();
 
-const session = useSessionStore();
+const personId = computed(() => useRoute().params.id as string);
 
 // Определяем функцию для получения данных из API
-const { status, refresh } = await useAsyncData("person", () =>
-  person.getPerson(),
+const { status } = await useAsyncData("person", () =>
+  person.getPerson(personId.value),
 );
 
 // Определяем функцию для переключения режима редактирования
 async function switchStatus(): Promise<void> {
-  if (person.data && person.data.user_id != session.user?.id) {
-    if (person.data.locked) {
-      if (
-        !confirm(
-          "Анкета редактируется другим пользователем. Переключить режим?",
-        )
-      ) {
-        return;
-      }
-    } else if (!confirm("Вы хотите назначить анкету на себя?")) {
-      return;
-    }
-  } else if (!confirm("Переключить режим редактирования?")) {
-    return;
-  }
   status.value = "pending";
-  const response = await person.switchStatus();
+  await person.switchStatus();
   status.value = "success";
-  if (response?.status == 200) {
-    refresh();
-  } else {
-    toasts.create();
-  }
 }
 </script>
 
@@ -46,31 +24,24 @@ async function switchStatus(): Promise<void> {
     >
       <template #links>
         <!-- Кнопки переключения режима редактирования -->
-        <div
-          v-if="session.user?.role == 'user' && !person.data.locked"
-          class="flex items-center space-x-4"
-        >
+        <div v-if="!person.blocked" class="flex items-center space-x-4">
           <UButton
             variant="outline"
             :loading="status === 'pending'"
             :color="
-              !person.data.locked
-                ? 'secondary'
-                : person.data.user_id == session.user?.id
-                  ? 'success'
-                  : 'error'
+              !person.locked ? 'success' : !person.lock ? 'secondary' : 'error'
             "
             :label="
-              !person.data.locked
+              !person.locked
                 ? 'Доступно'
-                : person.data.user_id == session.user?.id
+                : !person.lock
                   ? 'Изменение'
                   : 'Закрыто'
             "
             :icon="
-              !person.data.locked
+              !person.locked
                 ? 'i-lucide-lock-open'
-                : person.data.user_id == session.user?.id
+                : !person.lock
                   ? 'i-lucide-edit'
                   : 'i-lucide-lock'
             "

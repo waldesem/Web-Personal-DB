@@ -24,7 +24,7 @@ from constants import BASE_PATH
 async def person_depend(person_id: int) -> Persons:
     """Check person's."""
     person = await Persons.objects().get(Persons.id == person_id)
-    if not person or person.deleted:
+    if not person:
         raise NotFoundException
     return person
 
@@ -53,7 +53,7 @@ class PersonController(Controller):
             NotFoundException: If the person is not found.
 
         """
-        if not person.destination and not person.protected:
+        if not person.destination:
             destination = Path(
                 BASE_PATH,
                 "Главный офис",
@@ -125,11 +125,7 @@ class PersonController(Controller):
             Response with status code 201.
 
         """
-        if (
-            request.auth.sub != str(person.user_id)
-            or not person.locked
-            or person.protected
-        ):
+        if request.auth.sub != str(person.user_id):
             raise NotAuthorizedException
 
         resume = data.model_dump() | {"user_id": request.user.id}
@@ -149,7 +145,7 @@ class PersonController(Controller):
         person: Persons,
         request: Request[User, Token, Any],
     ) -> None:
-        """Toggle the locked status of a person.
+        """Toggle the user status of a person.
 
         Args:
             person_id: Person ID for Dependency Injection.
@@ -160,11 +156,7 @@ class PersonController(Controller):
             Response with status code 200.
 
         """
-        if person.protected:
-            raise NotAuthorizedException
-
         person.user_id = request.user.id
-        person.locked = not person.locked
         await person.save()
 
     @delete(
@@ -190,12 +182,7 @@ class PersonController(Controller):
             Response with status code 204.
 
         """
-        if (
-            request.auth.sub != str(person.user_id)
-            or not person.locked
-            or person.protected
-        ):
+        if request.auth.sub != str(person.user_id):
             raise NotAuthorizedException
 
-        person.deleted = True
-        await person.save()
+        await person.delete()

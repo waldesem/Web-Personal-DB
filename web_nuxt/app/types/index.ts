@@ -74,8 +74,6 @@ export interface Person {
   addition?: string;
   user_id: string;
   destination?: string;
-  locked: boolean;
-  locked: boolean;
   created_at: string;
   updated_at: string;
 }

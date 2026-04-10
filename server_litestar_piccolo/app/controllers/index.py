@@ -31,15 +31,13 @@ async def get_candidates(query: Index) -> list[Candidates]:
         p.patronymic,
         p.birthday,
         p.updated_at,
-        p.locked,
         u.fullname AS username,
         COUNT(*) OVER () AS total
     FROM persons p
     JOIN users u ON u.id = p.user_id
-    WHERE NOT p.deleted
     """
     if query.search:
-        stmt += " AND p.surname = {}"
+        stmt += " WHERE p.surname = {}"
         params.append(query.search[0])
         if query.search and len(query.search) > 1:
             stmt += " AND p.firstname = {}"

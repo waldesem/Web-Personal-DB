@@ -4,7 +4,9 @@ import type { TableColumn } from "@nuxt/ui";
 import type { Candidate, Person } from "@/types";
 
 const { $api } = useNuxtApp();
-const toast = useToast();
+
+const toasts = useToasts();
+
 const candidates = useCandidateStore();
 const person = usePersonStore();
 const session = useSessionStore();
@@ -58,23 +60,11 @@ async function personSubmit(form: Person) {
 async function proceedSubmit(response: FetchResponse<unknown>) {
   status.value = "success";
   if (response.status === 201) {
-    toast.add({
-      icon: "i-lucide-triangle-alert",
-      title: "Успех",
-      description:
-        "Анкета загружена. Проверьте корректность данных, если анкета была содана ранее",
-      color: "success",
-    });
+    toasts.create("success", "Анкета загружена!");
     const data = await response.json();
     return navigateTo("/profile/" + data.person_id);
-  } else {
-    toast.add({
-      icon: "i-lucide-triangle-alert",
-      title: "Ошибка",
-      description: "Ошибка данных или анкета существуетю",
-      color: "error",
-    });
   }
+  toasts.create();
 }
 
 // Определяем массив данных для таблицы кандидатов
@@ -100,24 +90,6 @@ const columns: TableColumn<Candidate>[] = [
     header: "Дата рождения",
     cell: ({ row }) => {
       return new Date(row.getValue("birthday")).toLocaleDateString();
-    },
-  },
-  {
-    accessorKey: "locked",
-    header: "Статус",
-    cell: ({ row }) => {
-      return h(resolveComponent("UIcon"), {
-        name: !row.getValue("locked")
-          ? "i-lucide-circle-check"
-          : "i-lucide-triangle-alert",
-
-        class: !row.getValue("locked")
-          ? "text-start w-5 h-5 text-blue-600"
-          : "text-start w-5 h-5 text-red-600",
-        title: !row.getValue("locked")
-          ? "Анкета доступна для редактирования"
-          : "Анкета в режиме редактирования",
-      });
     },
   },
   {

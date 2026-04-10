@@ -32,12 +32,7 @@ async def person_guard(
     person = await Persons.objects().get(Persons.id == person_id)
     if not person:
         raise NotFoundException
-    if (
-        not person.locked
-        or person.protected
-        or person.deleted
-        or connection.auth.sub != str(person.user_id)
-    ):
+    if connection.auth.sub != str(person.user_id):
         raise NotAuthorizedException
 
 
@@ -58,7 +53,6 @@ async def retrieve_user_handler(
     if (
         (user := await Users.objects().where(Users.id == int(token.sub)).first())
         and not user.blocked
-        and not user.deleted
         and not user.change_pswd
         and user.pswd_create + timedelta(days=365) > datetime.now(tz=UTC)
     ):

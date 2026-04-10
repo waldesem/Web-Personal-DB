@@ -97,7 +97,7 @@ npx nuxi generate
 
 Builded files can be found in `server_litestar_piccolo\app\static`
 
-### Start backend server
+## Start server
 
 To start server run the command in terminal:
 

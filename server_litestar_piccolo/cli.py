@@ -109,7 +109,6 @@ async def migrate(path: Path) -> None:
                     role=user["role"],
                     passhash=bcrypt.hashpw(DEFAULT_PASSWORD.encode(), bcrypt.gensalt()),
                     blocked=False,
-                    deleted=False,
                     attempt=0,
                     change_pswd=True,
                     pswd_create=datetime.now(UTC),
@@ -124,7 +123,6 @@ async def migrate(path: Path) -> None:
             persons = cur.execute("SELECT * FROM persons").fetchall()
             for person in persons:
                 persona = dict(person)
-                persona["protected"] = persona["deleted"] = False
                 persona["created_at"] = persona["updated_at"] = persona.get("created")
                 new_person = Person(**persona).model_dump(
                     exclude={"id"},

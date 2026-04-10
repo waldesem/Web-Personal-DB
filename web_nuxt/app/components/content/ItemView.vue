@@ -5,7 +5,7 @@ const toasts = useToasts();
 
 const itemStore = useItemStore();
 
-const editStore = useEditStore();
+const person = usePersonStore();
 
 // Определяем данные которые передаются из родительского компонента
 const props = defineProps({
@@ -83,7 +83,7 @@ async function deleteItem(id: string) {
   >
     <template #body>
       <UButton
-        v-if="editStore.locked"
+        v-if="!person.locked"
         :loading="state == 'pending'"
         icon="i-lucide-list-plus"
         label="Добавить запись"
@@ -106,7 +106,7 @@ async function deleteItem(id: string) {
       >
         <!-- Выводим кнопки редактирования/удаления данных -->
         <LazyElementDivMenu
-          v-if="editStore.locked"
+          v-if="!person.locked"
           @update="
             item = content;
             modal = true;
@@ -135,7 +135,7 @@ async function deleteItem(id: string) {
     description="Добавить/редактировать данные"
   >
     <UButton
-      v-if="editStore.locked && itemStore.items[props.view]?.length"
+      v-if="!person.locked && itemStore.items[props.view]?.length"
       :loading="state == 'pending'"
       class="mb-2"
       label="Добавить запись"

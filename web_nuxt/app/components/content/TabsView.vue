@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const itemStore = useItemStore();
 
-await callOnce(async () => await itemStore.getItems());
+await useAsyncData("items", () => itemStore.getItems());
 </script>
 
 <template>
