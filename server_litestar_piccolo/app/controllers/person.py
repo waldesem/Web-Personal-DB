@@ -127,7 +127,7 @@ class PersonController(Controller):
         """
         if (
             request.auth.sub != str(person.user_id)
-            or not person.editable
+            or not person.locked
             or person.protected
         ):
             raise NotAuthorizedException
@@ -149,7 +149,7 @@ class PersonController(Controller):
         person: Persons,
         request: Request[User, Token, Any],
     ) -> None:
-        """Toggle the editable status of a person.
+        """Toggle the locked status of a person.
 
         Args:
             person_id: Person ID for Dependency Injection.
@@ -164,7 +164,7 @@ class PersonController(Controller):
             raise NotAuthorizedException
 
         person.user_id = request.user.id
-        person.editable = not person.editable
+        person.locked = not person.locked
         await person.save()
 
     @delete(
@@ -192,7 +192,7 @@ class PersonController(Controller):
         """
         if (
             request.auth.sub != str(person.user_id)
-            or not person.editable
+            or not person.locked
             or person.protected
         ):
             raise NotAuthorizedException

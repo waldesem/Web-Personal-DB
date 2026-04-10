@@ -14,7 +14,11 @@ const form = toRef(props.item);
 </script>
 
 <template>
-  <UForm :state="form" @submit.prevent="emit('update', form)">
+  <UForm
+    :state="form"
+    :validate="validatorResume"
+    @submit.prevent="emit('update', form)"
+  >
     <UFormField label="Фамилия" name="surname" required>
       <UInput
         v-model.trim.lazy="form.surname"

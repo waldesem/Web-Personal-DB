@@ -33,7 +33,7 @@ async def person_guard(
     if not person:
         raise NotFoundException
     if (
-        not person.editable
+        not person.locked
         or person.protected
         or person.deleted
         or connection.auth.sub != str(person.user_id)

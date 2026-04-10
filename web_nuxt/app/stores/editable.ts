@@ -1,15 +1,15 @@
-export const useEditStore = defineStore("editable", () => {
+export const useEditStore = defineStore("locked", () => {
   const person = usePersonStore();
   const session = useSessionStore();
 
-  const editable = computed(() => {
+  const locked = computed(() => {
     return (
-      person.data.editable &&
+      person.data.locked &&
       session.user?.role === "user" &&
       session.user?.id === person.data.user_id &&
       !person.data.locked
     );
   });
 
-  return { editable };
+  return { locked };
 });

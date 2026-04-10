@@ -13,7 +13,7 @@ const { status, refresh } = await useAsyncData("person", () =>
 // Определяем функцию для переключения режима редактирования
 async function switchStatus(): Promise<void> {
   if (person.data && person.data.user_id != session.user?.id) {
-    if (person.data.editable) {
+    if (person.data.locked) {
       if (
         !confirm(
           "Анкета редактируется другим пользователем. Переключить режим?",
@@ -54,21 +54,21 @@ async function switchStatus(): Promise<void> {
             variant="outline"
             :loading="status === 'pending'"
             :color="
-              !person.data.editable
+              !person.data.locked
                 ? 'secondary'
                 : person.data.user_id == session.user?.id
                   ? 'success'
                   : 'error'
             "
             :label="
-              !person.data.editable
+              !person.data.locked
                 ? 'Доступно'
                 : person.data.user_id == session.user?.id
                   ? 'Изменение'
                   : 'Закрыто'
             "
             :icon="
-              !person.data.editable
+              !person.data.locked
                 ? 'i-lucide-lock-open'
                 : person.data.user_id == session.user?.id
                   ? 'i-lucide-edit'

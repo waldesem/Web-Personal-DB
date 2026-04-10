@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from "@nuxt/ui";
-import type { Login } from "@/types";
+import type { Auth, Login } from "@/types";
 
 definePageMeta({ layout: false });
 
@@ -43,10 +43,7 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
       "Пароль успешно изменен. Войдите с новым паролем.",
     );
   } else if (resp?.status === 201) {
-    const { message, access_token, refresh_token } = resp._data as Record<
-      string,
-      string
-    >;
+    const { message, access_token, refresh_token } = resp._data as Auth;
     if (message === "success") {
       const token = useCookie("access", {
         maxAge: 60 * 59,
@@ -58,8 +55,7 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
         sameSite: "strict",
         watch: "shallow",
       });
-      token.value = access_token;
-      refresh.value = refresh_token;
+      [token.value, refresh.value] = [access_token, refresh_token];
       return navigateTo("/persons");
     } else {
       alerts.setAlert(

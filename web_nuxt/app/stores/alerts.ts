@@ -15,6 +15,7 @@ export const useAlertStore = defineStore("alert", () => {
     description: string,
   ) {
     alert.value = {
+      icon,
       color,
       title,
       description,

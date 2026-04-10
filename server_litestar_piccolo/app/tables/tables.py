@@ -65,7 +65,7 @@ class Persons(CreateUpdateIdMixin, Table):
     marital = Varchar(length=255, null=True)
     addition = Text(null=True)
     destination = Text(null=True)
-    editable = Boolean(default=False)
+    locked = Boolean(default=False)
     protected = Boolean(default=False)
     deleted = Boolean(default=False)
     user_id = ForeignKey(references=Users)

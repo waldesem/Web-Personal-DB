@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { Items } from "@/types";
-
 const itemStore = useItemStore();
 
 await callOnce(async () => await itemStore.getItems());
@@ -9,7 +7,7 @@ await callOnce(async () => await itemStore.getItems());
 <template>
   <!-- Меню для переключения между вкладками -->
   <UTabs
-    :items="tabsItems"
+    :items="[...tabAnketa, ...tabsItems]"
     :unmount-on-hide="false"
     variant="pill"
     class="mt-4"
@@ -29,7 +27,7 @@ await callOnce(async () => await itemStore.getItems());
         >
           <ContentItemView
             :icon="accordion.icon"
-            :view="accordion.slot as keyof Items"
+            :view="accordion.slot"
             :title="accordion.label"
           />
         </template>
@@ -37,13 +35,9 @@ await callOnce(async () => await itemStore.getItems());
     </template>
 
     <!-- Вкладки проверки, полиграф и др. -->
-    <template v-for="tab in tabsItems.slice(1)" #[tab.slot] :key="tab.slot">
+    <template v-for="tab in tabsItems" #[tab.slot] :key="tab.slot">
       <div class="mt-2">
-        <ContentItemView
-          :icon="tab.icon"
-          :view="tab.slot as keyof Items"
-          :title="tab.label"
-        />
+        <ContentItemView :icon="tab.icon" :view="tab.slot" :title="tab.label" />
       </div>
     </template>
   </UTabs>

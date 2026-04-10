@@ -43,13 +43,16 @@ export const fieldsUpdate = fieldsLogin.concat([
   },
 ]);
 
-// Определяем массив элементов табов
-export const tabsItems = [
+export const tabAnketa = [
   {
     label: "Анкета",
     icon: "i-lucide-user",
     slot: "anketa" as const,
   },
+];
+
+// Определяем массив элементов табов
+export const tabsItems = [
   {
     label: "Проверки",
     icon: "i-lucide-shield-check",

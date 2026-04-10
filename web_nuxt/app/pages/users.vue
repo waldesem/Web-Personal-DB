@@ -2,15 +2,15 @@
 import type { TableColumn } from "@nuxt/ui";
 import { Actions, Roles, type User } from "@/types";
 
+const toasts = useToasts();
+
+const users = useUserStore();
+
 // Объявляем переменные для рендера компонентов
 const UIcon = resolveComponent("UIcon");
 const UBadge = resolveComponent("UBadge");
 const UButton = resolveComponent("UButton");
 const UDropdownMenu = resolveComponent("UDropdownMenu");
-
-const toasts = useToasts();
-
-const users = useUserStore();
 
 // Определяем переменные для работы с данными
 const modal = ref(false);
@@ -26,7 +26,8 @@ const { status, refresh } = await useLazyAsyncData(
 
 // Объявляем функцию для действия с пользователем
 async function editUser(item: Actions | Roles, user_id: string) {
-  if (!confirm("Подтвердите выполнение действия")) return;
+  if (!confirm("Подтвердить действие?")) return;
+  status.value = "pending";
   const resp = await users.editUser(item, user_id);
   if (resp?.status == 201) {
     toasts.create("success", "Действие успешно выполнено");
@@ -59,32 +60,14 @@ function getRowItems(user: User) {
     },
     {
       label: "Изменить роль",
-      children: [
-        {
-          label: "admin",
+      children: (Object.keys(Roles.admin) as Array<Roles>).map((element) => {
+        return {
+          label: element,
           onSelect() {
-            editUser(Roles.admin, user.id);
+            editUser(element, user.id);
           },
-        },
-        {
-          label: "api",
-          onSelect() {
-            editUser(Roles.api, user.id);
-          },
-        },
-        {
-          label: "user",
-          onSelect() {
-            editUser(Roles.user, user.id);
-          },
-        },
-        {
-          label: "guest",
-          onSelect() {
-            editUser(Roles.guest, user.id);
-          },
-        },
-      ],
+        };
+      }),
     },
   ];
 }

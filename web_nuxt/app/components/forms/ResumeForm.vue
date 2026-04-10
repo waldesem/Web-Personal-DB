@@ -9,14 +9,6 @@ const props = defineProps({
     type: Object as PropType<Person>,
     default: () => ({}),
   },
-  method: {
-    type: String as PropType<"POST" | "PATCH">,
-    default: "POST",
-  },
-  candId: {
-    type: Object as PropType<string | null>,
-    default: null,
-  },
 });
 
 const form = ref<Person>({

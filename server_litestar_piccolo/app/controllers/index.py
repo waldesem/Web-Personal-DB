@@ -31,7 +31,7 @@ async def get_candidates(query: Index) -> list[Candidates]:
         p.patronymic,
         p.birthday,
         p.updated_at,
-        p.editable,
+        p.locked,
         u.fullname AS username,
         COUNT(*) OVER () AS total
     FROM persons p

@@ -1,9 +1,9 @@
-import type { Person, PersonExt, PersonId } from "@/types";
+import type { Person } from "@/types";
 
 export const usePersonStore = defineStore("person", () => {
   const { $api } = useNuxtApp();
 
-  const data = ref({} as PersonExt);
+  const data = ref({} as Person);
 
   const personId = computed(() => useRoute().params.id as string);
 
@@ -18,7 +18,7 @@ export const usePersonStore = defineStore("person", () => {
   }
 
   async function addPerson(form: Person) {
-    return await $api.raw<Partial<PersonId>>("/routes/persons", {
+    return await $api.raw("/routes/persons", {
       method: "POST",
       body: form,
     });

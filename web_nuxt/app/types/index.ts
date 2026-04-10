@@ -1,9 +1,3 @@
-// import type { AsyncDataRequestStatus } from "nuxt/app";
-
-// export interface Status {
-//   message: AsyncDataRequestStatus;
-// }
-
 export enum Actions {
   delete = "delete",
   block = "block",
@@ -29,6 +23,12 @@ export enum Decisions {
   comments = "С КОММЕНТАРИЯМИ",
   cancel = "ОТКАЗ ОТ ПРОВЕРКИ",
   denied = "НЕГАТИВ",
+}
+
+export interface Auth {
+  message: string;
+  access_token: string;
+  refresh_token: string;
 }
 
 export interface Login {
@@ -74,7 +74,7 @@ export interface Person {
   addition?: string;
   user_id: string;
   destination?: string;
-  editable: boolean;
+  locked: boolean;
   locked: boolean;
   created_at: string;
   updated_at: string;

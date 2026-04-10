@@ -3,10 +3,6 @@ import type { FetchResponse } from "ofetch";
 import type { TableColumn } from "@nuxt/ui";
 import type { Candidate, Person } from "@/types";
 
-interface PersonId {
-  person_id: string;
-}
-
 const { $api } = useNuxtApp();
 const toast = useToast();
 const candidates = useCandidateStore();
@@ -45,15 +41,11 @@ const { open, onChange } = useFileDialog({
 onChange(async (files) => {
   status.value = "pending";
   const str = (await files?.[0]?.text()) as string;
-  try {
-    const response = await $api.raw<Partial<PersonId>>("/routes/json", {
-      method: "POST",
-      body: JSON.parse(str),
-    });
-    proceedSubmit(response);
-  } catch (error) {
-    console.error(error);
-  }
+  const response = await $api.raw("/routes/json", {
+    method: "POST",
+    body: JSON.parse(str),
+  });
+  proceedSubmit(response);
 });
 
 async function personSubmit(form: Person) {
@@ -63,7 +55,8 @@ async function personSubmit(form: Person) {
 }
 
 // Обработчик результата загрузки данных
-async function proceedSubmit(response: FetchResponse<Partial<PersonId>>) {
+async function proceedSubmit(response: FetchResponse<unknown>) {
+  status.value = "success";
   if (response.status === 201) {
     toast.add({
       icon: "i-lucide-triangle-alert",
@@ -75,7 +68,6 @@ async function proceedSubmit(response: FetchResponse<Partial<PersonId>>) {
     const data = await response.json();
     return navigateTo("/profile/" + data.person_id);
   } else {
-    status.value = "error";
     toast.add({
       icon: "i-lucide-triangle-alert",
       title: "Ошибка",
@@ -111,18 +103,18 @@ const columns: TableColumn<Candidate>[] = [
     },
   },
   {
-    accessorKey: "editable",
+    accessorKey: "locked",
     header: "Статус",
     cell: ({ row }) => {
       return h(resolveComponent("UIcon"), {
-        name: !row.getValue("editable")
+        name: !row.getValue("locked")
           ? "i-lucide-circle-check"
           : "i-lucide-triangle-alert",
 
-        class: !row.getValue("editable")
+        class: !row.getValue("locked")
           ? "text-start w-5 h-5 text-blue-600"
           : "text-start w-5 h-5 text-red-600",
-        title: !row.getValue("editable")
+        title: !row.getValue("locked")
           ? "Анкета доступна для редактирования"
           : "Анкета в режиме редактирования",
       });

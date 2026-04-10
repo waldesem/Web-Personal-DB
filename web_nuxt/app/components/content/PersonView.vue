@@ -8,20 +8,21 @@ const edit = useEditStore();
 const person = usePersonStore();
 
 const modal = ref(false); // Объявляем переменную модального окна
-const status = ref("success"); // Объявляем переменную статуса
+
+const state = ref(""); // Объявляем переменную статуса
 
 // Определяем функцию для отправки данных формы на сервер
 async function submitPerson(form: Person) {
   modal.value = false;
-  status.value = "pending";
-  status.value = "success";
-  const response = await person.editPerson(form)
-  if (response?.status === 200) {
+  state.value = "pending";
+  const { status } = await person.editPerson(form);
+  if (status === 200) {
     toasts.create("success", "Информация успешно обновлена");
     refreshNuxtData("person");
   } else {
     toasts.create();
   }
+  state.value = "";
 }
 
 // Определяем функцию для удаления данных
@@ -29,15 +30,15 @@ async function deletePerson() {
   if (!confirm("Вы действительно хотите удалить профиль и связанные записи?"))
     return;
   if (!confirm("Все данные будут удалены безвозвратно!?")) return;
-  status.value = "pending";
-  const response = await person.deletePerson();
-  if (response?.status === 204) {
+  state.value = "pending";
+  const { status } = await person.deletePerson();
+  state.value = "";
+  if (status === 204) {
     toasts.create("success", "Информация успешно удалена");
     refreshNuxtData("candidates");
     return navigateTo("/persons");
   }
   toasts.create();
-  status.value = "error";
 }
 </script>
 
@@ -45,7 +46,7 @@ async function deletePerson() {
   <div class="ms-2 mt-2">
     <!-- Выводим кнопки редактирования или удаления данных -->
     <LazyElementDivMenu
-      v-if="edit.editable"
+      v-if="edit.locked"
       @update="modal = true"
       @delete="deletePerson()"
     />

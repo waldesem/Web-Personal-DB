@@ -34,24 +34,24 @@ const FormComponent = defineAsyncComponent<Component>(
 const item = shallowRef({} as Item[keyof Item]); // Данные для передачи в форму
 const option = ref<"create" | "edit">("create");
 const modal = ref(false); // Флаг для открытия модального окна
-const status = ref("success"); // Статус запроса
+const state = ref(""); // Статус запроса
 
 // Определяем функцию для получения данных из API
 async function getItem() {
-  status.value = "pending";
+  state.value = "pending";
   await itemStore.getItem(props.view);
-  status.value = "success";
+  state.value = "";
 }
 
 // Определяем функцию для отправки данных формы на сервер
 async function submitItem(form: typeof item.value) {
-  status.value = "pending";
+  state.value = "pending";
   modal.value = false;
-  const response =
+  const { status } =
     option.value === "create"
       ? await itemStore.addItem(props.view, form)
       : await itemStore.editItem(props.view, item.value.id, form);
-  if (response?.status === 200 || response?.status === 201) {
+  if (status === 200 || status === 201) {
     toasts.create("success", "Информация успешно обновлена");
   } else toasts.create();
   item.value = {} as Item[keyof Item];
@@ -61,15 +61,14 @@ async function submitItem(form: typeof item.value) {
 // Определяем функцию для удаления данных
 async function deleteItem(id: string) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  status.value = "pending";
-  const resp = await itemStore.deleteItem(props.view, id);
-  if (resp?.status === 204) {
+  state.value = "pending";
+  const { status } = await itemStore.deleteItem(props.view, id);
+  if (status === 204) {
     toasts.create("success", "Информация успешно удалена");
   } else {
     toasts.create();
   }
   await getItem();
-  status.value = "success";
 }
 </script>
 
@@ -84,8 +83,8 @@ async function deleteItem(id: string) {
   >
     <template #body>
       <UButton
-        v-if="editStore.editable"
-        :loading="status == 'pending'"
+        v-if="editStore.locked"
+        :loading="state == 'pending'"
         icon="i-lucide-list-plus"
         label="Добавить запись"
         variant="outline"
@@ -107,7 +106,7 @@ async function deleteItem(id: string) {
       >
         <!-- Выводим кнопки редактирования/удаления данных -->
         <LazyElementDivMenu
-          v-if="editStore.editable"
+          v-if="editStore.locked"
           @update="
             item = content;
             modal = true;
@@ -136,8 +135,8 @@ async function deleteItem(id: string) {
     description="Добавить/редактировать данные"
   >
     <UButton
-      v-if="editStore.editable && itemStore.items[props.view]?.length"
-      :loading="status == 'pending'"
+      v-if="editStore.locked && itemStore.items[props.view]?.length"
+      :loading="state == 'pending'"
       class="mb-2"
       label="Добавить запись"
       icon="i-lucide-plus"
