@@ -96,5 +96,4 @@ class UserController(Controller):
         elif data.item in [reg.value for reg in Roles]:
             # Изменить роль пользователя
             user.role = data.item
-            user.change_pswd = True
         await user.save()

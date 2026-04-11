@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import type { FetchResponse } from "ofetch";
 import type { TableColumn } from "@nuxt/ui";
-import type { Candidate, Person, Session } from "@/types";
+import type { Candidate, Person } from "@/types";
 
 const { $api } = useNuxtApp();
 
 const toasts = useToasts();
 
-const { data: session } = useNuxtData<Session>("session");
+const session = useSessionStore();
 
 // Объявляем переменные для работы с данными
 const modal = ref(false);
@@ -133,7 +133,7 @@ const columns: TableColumn<Candidate>[] = [
       <template #links>
         <!-- меню для действий -->
         <UDropdownMenu
-          v-if="session?.role === 'user'"
+          v-if="session.user?.role === 'user'"
           :items="[
             {
               label: 'Создать анкету',

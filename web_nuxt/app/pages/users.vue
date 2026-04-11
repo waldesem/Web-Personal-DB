@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import type { TableColumn } from "@nuxt/ui";
-import { Actions, Roles, type Session, type User } from "@/types";
+import { Actions, Roles, type User } from "@/types";
 
 const { $api } = useNuxtApp();
 
 const toasts = useToasts();
 
-const { data: session } = useNuxtData<Session>("session");
+const session = useSessionStore();
 
 // Объявляем переменные для рендера компонентов
 const UIcon = resolveComponent("UIcon");
@@ -28,7 +28,7 @@ const { data, status, refresh } = await useLazyAsyncData<User[]>(
 
 // Объявляем функцию для действия с пользователем
 async function editUser(item: Actions | Roles, user_id: string) {
-  if (user_id === session.value?.id) return;
+  if (user_id === session.user?.id) return;
   if (!confirm("Подтвердить действие?")) return;
   status.value = "pending";
   const resp = await $api.raw("/routes/user/" + user_id, {

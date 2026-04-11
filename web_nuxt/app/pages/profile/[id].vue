@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { Roles, type Person, type Session } from "@/types";
+import { Roles, type Person } from "@/types";
 
 const { $api } = useNuxtApp();
 
-const { data: session } = useNuxtData<Session>("session");
+const session = useSessionStore();
 
 const personId = computed(() => useRoute().params.id as string);
 
@@ -21,7 +21,7 @@ provide("person", data);
 const lock = ref(true);
 
 const locked = computed(() => {
-  return lock.value || session.value?.id !== data.value.user_id;
+  return lock.value || session.user?.id !== data.value.user_id;
 });
 
 provide("locked", locked);
@@ -29,7 +29,7 @@ provide("locked", locked);
 // Определяем функцию для переключения режима редактирования
 async function switchStatus(): Promise<void> {
   status.value = "pending";
-  if (session.value?.id !== data.value.user_id) {
+  if (session.user?.id !== data.value.user_id) {
     if (!confirm("Анкета значится за другим пользователем. Продолжить?")) {
       return;
     }
@@ -50,7 +50,7 @@ async function switchStatus(): Promise<void> {
       <template #links>
         <!-- Кнопки переключения режима редактирования -->
         <div
-          v-if="session?.role === Roles.user"
+          v-if="session.user?.role === Roles.user"
           class="flex items-center space-x-4"
         >
           <UButton
