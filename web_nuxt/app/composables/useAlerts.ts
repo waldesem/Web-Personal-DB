@@ -1,6 +1,6 @@
 import type { AlertProps } from "@nuxt/ui";
 
-export const useAlertStore = defineStore("alert", () => {
+export function useAlert() {
   const alert = ref({
     icon: "i-lucide-circle-alert",
     color: "success",
@@ -23,4 +23,4 @@ export const useAlertStore = defineStore("alert", () => {
   }
 
   return { alert, setAlert };
-});
+}

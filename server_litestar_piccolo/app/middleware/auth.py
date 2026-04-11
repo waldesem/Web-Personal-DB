@@ -57,7 +57,7 @@ async def retrieve_user_handler(
         and user.pswd_create + timedelta(days=365) > datetime.now(tz=UTC)
     ):
         return User(**user.to_dict())
-    return None
+    raise NotAuthorizedException
 
 
 async def revoked_token_handler(

@@ -3,14 +3,21 @@ import type { Person } from "@/types";
 
 const toasts = useToasts();
 
-const person = usePersonStore();
+const { $api } = useNuxtApp();
+
+const person = inject("person") as Ref<Person>;
+
+const locked = inject("locked") as Ref<boolean>;
 
 const modal = ref(false); // Объявляем переменную модального окна
 
 // Определяем функцию для отправки данных формы на сервер
 async function submitPerson(form: Person) {
   modal.value = false;
-  const { status } = await person.editPerson(form);
+  const { status } = await $api.raw("/routes/persons/" + person.value.id, {
+    method: "PATCH",
+    body: form,
+  });
   if (status === 200) {
     toasts.create("success", "Информация успешно обновлена");
     refreshNuxtData("person");
@@ -24,7 +31,9 @@ async function deletePerson() {
   if (!confirm("Вы действительно хотите удалить профиль и связанные записи?"))
     return;
   if (!confirm("Все данные будут удалены безвозвратно!?")) return;
-  const { status } = await person.deletePerson();
+  const { status } = await $api.raw(`/routes/persons/${person.value.id}`, {
+    method: "DELETE",
+  });
   if (status === 204) {
     toasts.create("success", "Информация успешно удалена");
     refreshNuxtData("candidates");
@@ -38,14 +47,14 @@ async function deletePerson() {
   <div class="ms-2 mt-2">
     <!-- Выводим кнопки редактирования или удаления данных -->
     <LazyElementDivMenu
-      v-if="!person.locked"
+      v-if="!locked"
       @update="modal = true"
       @delete="deletePerson()"
     />
 
     <!-- Выводим данные или скелетный элемент -->
     <Suspense>
-      <ItemsPersonDiv :item="person.data" />
+      <ItemsPersonDiv :item="person" />
       <template #fallback>
         <ElementSkeletonDiv :rows="12" />
       </template>
@@ -58,7 +67,7 @@ async function deletePerson() {
       description="Редактирование анкетные данные"
     >
       <template #body>
-        <FormsResumeForm :resume="person.data" @update="submitPerson" />
+        <FormsResumeForm :resume="person" @update="submitPerson" />
       </template>
     </UModal>
   </div>

@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import type { TableColumn } from "@nuxt/ui";
-import { Actions, Roles, type User } from "@/types";
+import { Actions, Roles, type Session, type User } from "@/types";
+
+const { $api } = useNuxtApp();
 
 const toasts = useToasts();
 
-const users = useUserStore();
+const { data: session } = useNuxtData<Session>("session");
 
 // Объявляем переменные для рендера компонентов
 const UIcon = resolveComponent("UIcon");
@@ -18,17 +20,21 @@ const expanded = ref({ 1: false });
 const globalFilter = ref("");
 
 // Определяем функцию для получения данных из API
-const { status, refresh } = await useLazyAsyncData(
+const { data, status, refresh } = await useLazyAsyncData<User[]>(
   "users",
-  () => users.getUsers(),
+  () => $api("/routes/users"),
   { default: () => [] as User[] },
 );
 
 // Объявляем функцию для действия с пользователем
 async function editUser(item: Actions | Roles, user_id: string) {
+  if (user_id === session.value?.id) return;
   if (!confirm("Подтвердить действие?")) return;
   status.value = "pending";
-  const resp = await users.editUser(item, user_id);
+  const resp = await $api.raw("/routes/user/" + user_id, {
+    method: "POST",
+    body: { item: item },
+  });
   if (resp?.status == 201) {
     toasts.create("success", "Действие успешно выполнено");
   } else {
@@ -235,7 +241,7 @@ const columns: TableColumn<User>[] = [
       v-model:expanded="expanded"
       sticky
       class="flex-1 max-h-[800px]"
-      :data="users.data"
+      :data="data"
       :columns="columns"
       :loading="status === 'pending'"
       loading-animation="carousel"

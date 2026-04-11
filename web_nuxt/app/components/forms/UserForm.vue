@@ -3,14 +3,17 @@ import type { UserForm } from "@/types";
 
 const emit = defineEmits(["update"]);
 
-const toasts = useToasts();
+const { $api } = useNuxtApp();
 
-const users = useUserStore();
+const toasts = useToasts();
 
 const form = ref({} as UserForm);
 
 async function submitUser() {
-  const resp = await users.submitUser(form.value);
+  const resp = await await $api.raw("/routes/user", {
+    method: "POST",
+    body: form.value,
+  });
   if (resp.status === 201) {
     emit("update");
     form.value = {} as UserForm;

@@ -1,14 +1,21 @@
 <script setup lang="ts">
 import type { Item, Items } from "@/types";
+import type { PropType } from "vue";
+
+const { $api } = useNuxtApp();
 
 const toasts = useToasts();
 
-const itemStore = useItemStore();
+const personId = inject("personId") as Ref<string>;
 
-const person = usePersonStore();
+const locked = inject("locked") as Ref<boolean>;
 
 // Определяем данные которые передаются из родительского компонента
 const props = defineProps({
+  data: {
+    type: Object as PropType<Items[keyof Items]>,
+    required: true,
+  },
   icon: {
     type: String,
     required: true,
@@ -31,6 +38,7 @@ const FormComponent = defineAsyncComponent<Component>(
 );
 
 // Объявляем переменные для работы с данными
+const items = toRef(props.data);
 const item = shallowRef({} as Item[keyof Item]); // Данные для передачи в форму
 const option = ref<"create" | "edit">("create");
 const modal = ref(false); // Флаг для открытия модального окна
@@ -39,8 +47,22 @@ const state = ref(""); // Статус запроса
 // Определяем функцию для получения данных из API
 async function getItem() {
   state.value = "pending";
-  await itemStore.getItem(props.view);
+  items.value = await $api(`/routes/items/${props.view}/${personId.value}`);
   state.value = "";
+}
+
+async function addItem(view: keyof Items, form: object) {
+  return await $api.raw(`/routes/items/${view}/${personId.value}`, {
+    method: "POST",
+    body: { ...form, item: view }, // add discriminator for backend validation
+  });
+}
+
+async function editItem(view: keyof Items, itemId: string, form: object) {
+  return await $api.raw(`/routes/items/${view}/${personId.value}/${itemId}`, {
+    method: "PATCH",
+    body: { ...form, item: view }, // add discriminator for backend validation
+  });
 }
 
 // Определяем функцию для отправки данных формы на сервер
@@ -49,8 +71,8 @@ async function submitItem(form: typeof item.value) {
   modal.value = false;
   const { status } =
     option.value === "create"
-      ? await itemStore.addItem(props.view, form)
-      : await itemStore.editItem(props.view, item.value.id, form);
+      ? await addItem(props.view, form)
+      : await editItem(props.view, item.value.id, form);
   if (status === 200 || status === 201) {
     toasts.create("success", "Информация успешно обновлена");
   } else toasts.create();
@@ -62,7 +84,12 @@ async function submitItem(form: typeof item.value) {
 async function deleteItem(id: string) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   state.value = "pending";
-  const { status } = await itemStore.deleteItem(props.view, id);
+  const { status } = await $api.raw(
+    `/routes/items/${props.view}/${personId.value}/${id}`,
+    {
+      method: "DELETE",
+    },
+  );
   if (status === 204) {
     toasts.create("success", "Информация успешно удалена");
   } else {
@@ -75,7 +102,7 @@ async function deleteItem(id: string) {
 <template>
   <!-- Выводим сообщение если данные отсутствуют -->
   <UEmpty
-    v-if="!itemStore.items[props.view]?.length"
+    v-if="!items.length"
     :icon="props.icon"
     class="m-4"
     title="Данные отсутствуют"
@@ -83,7 +110,7 @@ async function deleteItem(id: string) {
   >
     <template #body>
       <UButton
-        v-if="!person.locked"
+        v-if="!locked"
         :loading="state == 'pending'"
         icon="i-lucide-list-plus"
         label="Добавить запись"
@@ -99,14 +126,10 @@ async function deleteItem(id: string) {
 
   <Suspense>
     <template #default>
-      <div
-        v-for="(content, index) in itemStore.items[props.view]"
-        :key="index"
-        class="mx-2 py-2"
-      >
+      <div v-for="(content, index) in items" :key="index" class="mx-2 py-2">
         <!-- Выводим кнопки редактирования/удаления данных -->
         <LazyElementDivMenu
-          v-if="!person.locked"
+          v-if="!locked"
           @update="
             item = content;
             modal = true;
@@ -116,14 +139,14 @@ async function deleteItem(id: string) {
         />
         <!-- Выводим элемент данных -->
         <component :is="ItemComponent" :item="content" />
-        <USeparator v-if="index + 1 < itemStore.items[props.view].length" />
+        <USeparator v-if="index + 1 < items.length" />
       </div>
     </template>
 
     <template #fallback>
-      <div v-for="len in itemStore.items[props.view]?.length + 1" :key="len">
+      <div v-for="len in items.length + 1" :key="len">
         <ElementSkeletonDiv />
-        <USeparator v-if="len < itemStore.items[props.view].length" />
+        <USeparator v-if="len < items.length" />
       </div>
     </template>
   </Suspense>
@@ -135,7 +158,7 @@ async function deleteItem(id: string) {
     description="Добавить/редактировать данные"
   >
     <UButton
-      v-if="!person.locked && itemStore.items[props.view]?.length"
+      v-if="!locked && items.length"
       :loading="state == 'pending'"
       class="mb-2"
       label="Добавить запись"

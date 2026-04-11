@@ -6,7 +6,7 @@ definePageMeta({ layout: false });
 
 onBeforeMount(() => clearNuxtData());
 
-const alerts = useAlertStore();
+const alerts = useAlert();
 
 // Объявляем переменные для формы и состояния
 const method = ref<"POST" | "PATCH">("POST");
@@ -98,10 +98,10 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
       <template #validation>
         <UAlert
           variant="subtle"
-          :icon="alerts.alert.icon"
-          :color="alerts.alert.color"
-          :title="alerts.alert.title"
-          :description="alerts.alert.description"
+          :icon="alerts.alert.value.icon"
+          :color="alerts.alert.value.color"
+          :title="alerts.alert.value.title"
+          :description="alerts.alert.value.description"
         />
       </template>
       <template #footer>

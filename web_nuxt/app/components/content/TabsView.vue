@@ -1,7 +1,15 @@
 <script setup lang="ts">
-const itemStore = useItemStore();
+import type { Items } from "@/types";
 
-await useAsyncData("items", () => itemStore.getItems());
+const { $api } = useNuxtApp();
+
+const personId = inject("personId") as Ref<string>;
+
+const { data } = await useAsyncData(
+  "items",
+  () => $api<Items>("/routes/items/" + personId.value),
+  { default: () => ({}) as Items },
+);
 </script>
 
 <template>
@@ -26,6 +34,7 @@ await useAsyncData("items", () => itemStore.getItems());
           :key="accordion.slot"
         >
           <ContentItemView
+            :data="data[accordion.slot]"
             :icon="accordion.icon"
             :view="accordion.slot"
             :title="accordion.label"
@@ -37,7 +46,12 @@ await useAsyncData("items", () => itemStore.getItems());
     <!-- Вкладки проверки, полиграф и др. -->
     <template v-for="tab in tabsItems" #[tab.slot] :key="tab.slot">
       <div class="mt-2">
-        <ContentItemView :icon="tab.icon" :view="tab.slot" :title="tab.label" />
+        <ContentItemView
+          :data="data[tab.slot]"
+          :icon="tab.icon"
+          :view="tab.slot"
+          :title="tab.label"
+        />
       </div>
     </template>
   </UTabs>
