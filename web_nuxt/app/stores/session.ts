@@ -1,14 +1,16 @@
 import type { Session } from "@/types";
 
-export const useSessionStore = defineStore("session", {
-  state: () => ({
-    user: {} as Session,
-  }),
+export const useSessionStore = defineStore("session", () => {
+  const user = ref({} as Session);
 
-  actions: {
-    async getUser() {
-      const { $api } = useNuxtApp();
-      this.user = await $api<Session>("/routes/auth/session");
-    },
-  },
+  async function getUser() {
+    const { $api } = useNuxtApp();
+    user.value = await $api<Session>("/routes/auth/session");
+  }
+
+  function $reset() {
+    user.value = {} as Session;
+  }
+
+  return { user, getUser, $reset };
 });

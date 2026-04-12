@@ -1,13 +1,19 @@
 <script setup lang="ts">
-import type { Items } from "@/types";
+import type { Items, Person } from "@/types";
+import type { PropType } from "vue";
 
 const { $api } = useNuxtApp();
 
-const personId = inject("personId") as Ref<string>;
+const props = defineProps({
+  person: {
+    type: Object as PropType<Person>,
+    required: true,
+  },
+});
 
 const { data } = await useAsyncData(
   "items",
-  () => $api<Items>("/routes/items/" + personId.value),
+  () => $api<Items>("/routes/items/" + props.person.id),
   { default: () => ({}) as Items },
 );
 </script>
@@ -23,7 +29,7 @@ const { data } = await useAsyncData(
     <!-- Слот вкладки для отображения анкеты -->
     <template #anketa>
       <div class="mt-4">
-        <ContentPersonView />
+        <ContentPersonView :person="props.person" />
       </div>
       <USeparator />
       <!-- Aккордеон с данными staffs, educations и т.д. -->
@@ -34,6 +40,7 @@ const { data } = await useAsyncData(
           :key="accordion.slot"
         >
           <ContentItemView
+            :person-id="props.person.id"
             :data="data[accordion.slot]"
             :icon="accordion.icon"
             :view="accordion.slot"
@@ -47,6 +54,7 @@ const { data } = await useAsyncData(
     <template v-for="tab in tabsItems" #[tab.slot] :key="tab.slot">
       <div class="mt-2">
         <ContentItemView
+          :person-id="props.person.id"
           :data="data[tab.slot]"
           :icon="tab.icon"
           :view="tab.slot"

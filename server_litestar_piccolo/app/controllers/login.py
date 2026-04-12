@@ -134,8 +134,10 @@ class AuthController(Controller):
             Response with status code 200.
 
         """
-        await jwt_revoke(data.access_token)
-        await jwt_revoke(data.refresh_token, access=False)
+        if data.access_token:
+            await jwt_revoke(data.access_token)
+        if data.refresh_token:
+            await jwt_revoke(data.refresh_token, access=False)
 
     @get("/refresh", middleware=[jwt_refresh.middleware])
     async def refresh_token(self, request: Request[User, Token, Any]) -> Response:

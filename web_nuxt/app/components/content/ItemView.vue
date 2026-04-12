@@ -6,12 +6,14 @@ const { $api } = useNuxtApp();
 
 const toasts = useToasts();
 
-const personId = inject("personId") as Ref<string>;
-
-const locked = inject("locked") as Ref<boolean>;
+const lock = inject("lock") as Ref<boolean>;
 
 // Определяем данные которые передаются из родительского компонента
 const props = defineProps({
+  personId: {
+    type: Number,
+    required: true,
+  },
   data: {
     type: Object as PropType<Items[keyof Items]>,
     required: true,
@@ -47,19 +49,19 @@ const state = ref(""); // Статус запроса
 // Определяем функцию для получения данных из API
 async function getItem() {
   state.value = "pending";
-  items.value = await $api(`/routes/items/${props.view}/${personId.value}`);
+  items.value = await $api(`/routes/items/${props.view}/${props.personId}`);
   state.value = "";
 }
 
 async function addItem(view: keyof Items, form: object) {
-  return await $api.raw(`/routes/items/${view}/${personId.value}`, {
+  return await $api.raw(`/routes/items/${view}/${props.personId}`, {
     method: "POST",
     body: { ...form, item: view }, // add discriminator for backend validation
   });
 }
 
 async function editItem(view: keyof Items, itemId: string, form: object) {
-  return await $api.raw(`/routes/items/${view}/${personId.value}/${itemId}`, {
+  return await $api.raw(`/routes/items/${view}/${props.personId}/${itemId}`, {
     method: "PATCH",
     body: { ...form, item: view }, // add discriminator for backend validation
   });
@@ -85,7 +87,7 @@ async function deleteItem(id: string) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   state.value = "pending";
   const { status } = await $api.raw(
-    `/routes/items/${props.view}/${personId.value}/${id}`,
+    `/routes/items/${props.view}/${props.personId}/${id}`,
     {
       method: "DELETE",
     },
@@ -110,7 +112,7 @@ async function deleteItem(id: string) {
   >
     <template #body>
       <UButton
-        v-if="!locked"
+        v-if="!lock"
         :loading="state == 'pending'"
         icon="i-lucide-list-plus"
         label="Добавить запись"
@@ -124,32 +126,21 @@ async function deleteItem(id: string) {
     </template>
   </UEmpty>
 
-  <Suspense>
-    <template #default>
-      <div v-for="(content, index) in items" :key="index" class="mx-2 py-2">
-        <!-- Выводим кнопки редактирования/удаления данных -->
-        <LazyElementDivMenu
-          v-if="!locked"
-          @update="
-            item = content;
-            modal = true;
-            option = 'edit';
-          "
-          @delete="deleteItem(content.id)"
-        />
-        <!-- Выводим элемент данных -->
-        <component :is="ItemComponent" :item="content" />
-        <USeparator v-if="index + 1 < items.length" />
-      </div>
-    </template>
-
-    <template #fallback>
-      <div v-for="len in items.length + 1" :key="len">
-        <ElementSkeletonDiv />
-        <USeparator v-if="len < items.length" />
-      </div>
-    </template>
-  </Suspense>
+  <div v-for="(content, index) in items" :key="index" class="mx-2 py-2">
+    <!-- Выводим кнопки редактирования/удаления данных -->
+    <LazyElementDivMenu
+      v-if="!lock"
+      @update="
+        item = content;
+        modal = true;
+        option = 'edit';
+      "
+      @delete="deleteItem(content.id)"
+    />
+    <!-- Выводим элемент данных -->
+    <component :is="ItemComponent" :item="content" />
+    <USeparator v-if="index + 1 < items.length" />
+  </div>
 
   <!-- Модальное окно для редактирования данных -->
   <UModal
@@ -158,7 +149,7 @@ async function deleteItem(id: string) {
     description="Добавить/редактировать данные"
   >
     <UButton
-      v-if="!locked && items.length"
+      v-if="!lock && items.length"
       :loading="state == 'pending'"
       class="mb-2"
       label="Добавить запись"

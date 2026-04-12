@@ -5,16 +5,21 @@ const toasts = useToasts();
 
 const { $api } = useNuxtApp();
 
-const person = inject("person") as Ref<Person>;
+const props = defineProps({
+  person: {
+    type: Object as PropType<Person>,
+    required: true,
+  },
+});
 
-const locked = inject("locked") as Ref<boolean>;
+const lock = inject("lock") as Ref<boolean>;
 
 const modal = ref(false); // Объявляем переменную модального окна
 
 // Определяем функцию для отправки данных формы на сервер
 async function submitPerson(form: Person) {
   modal.value = false;
-  const { status } = await $api.raw("/routes/persons/" + person.value.id, {
+  const { status } = await $api.raw("/routes/persons/" + props.person.id, {
     method: "PATCH",
     body: form,
   });
@@ -31,7 +36,7 @@ async function deletePerson() {
   if (!confirm("Вы действительно хотите удалить профиль и связанные записи?"))
     return;
   if (!confirm("Все данные будут удалены безвозвратно!?")) return;
-  const { status } = await $api.raw(`/routes/persons/${person.value.id}`, {
+  const { status } = await $api.raw(`/routes/persons/${props.person.id}`, {
     method: "DELETE",
   });
   if (status === 204) {
@@ -47,19 +52,11 @@ async function deletePerson() {
   <div class="ms-2 mt-2">
     <!-- Выводим кнопки редактирования или удаления данных -->
     <LazyElementDivMenu
-      v-if="!locked"
+      v-if="!lock"
       @update="modal = true"
       @delete="deletePerson()"
     />
-
-    <!-- Выводим данные или скелетный элемент -->
-    <Suspense>
-      <ItemsPersonDiv :item="person" />
-      <template #fallback>
-        <ElementSkeletonDiv :rows="12" />
-      </template>
-    </Suspense>
-
+    <ItemsPersonDiv :item="props.person" />
     <!-- Выводим модальное окно для редактирования данных -->
     <UModal
       v-model:open="modal"
@@ -67,7 +64,7 @@ async function deletePerson() {
       description="Редактирование анкетные данные"
     >
       <template #body>
-        <FormsResumeForm :resume="person" @update="submitPerson" />
+        <FormsResumeForm :resume="props.person" @update="submitPerson" />
       </template>
     </UModal>
   </div>

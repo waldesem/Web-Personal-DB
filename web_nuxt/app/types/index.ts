@@ -60,7 +60,7 @@ export interface User extends Session {
 }
 
 export interface Person {
-  id: string;
+  id: number;
   surname: string;
   firstname: string;
   patronymic?: string;

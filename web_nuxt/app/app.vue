@@ -4,7 +4,7 @@ useHead({ htmlAttrs: { lang: "ru" } });
 
 <template>
   <UApp>
-    <NuxtLoadingIndicator color="red" :height="3" />
+    <NuxtLoadingIndicator color="red" />
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>

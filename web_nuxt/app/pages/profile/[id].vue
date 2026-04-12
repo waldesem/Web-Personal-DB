@@ -7,44 +7,40 @@ const session = useSessionStore();
 
 const personId = computed(() => useRoute().params.id as string);
 
-provide("personId", personId);
-
-// Определяем функцию для получения данных из API
 const { data, status, refresh } = await useAsyncData<Person>(
   "person",
   () => $api<Person>("/routes/persons/" + personId.value),
   { default: () => ({}) as Person },
 );
 
-provide("person", data);
-
 const lock = ref(true);
 
 const locked = computed(() => {
-  return lock.value || session.user?.id !== data.value.user_id;
+  return lock.value && session.user?.id !== data.value.user_id;
 });
 
-provide("locked", locked);
+provide("lock", lock);
 
 // Определяем функцию для переключения режима редактирования
 async function switchStatus(): Promise<void> {
-  status.value = "pending";
   if (session.user?.id !== data.value.user_id) {
     if (!confirm("Анкета значится за другим пользователем. Продолжить?")) {
       return;
     }
+    status.value = "pending";
     await $api.raw("/routes/persons/status/" + personId.value);
     await refresh();
   }
   lock.value = !lock.value;
-  status.value = "success";
 }
 </script>
 
 <template>
   <UContainer>
     <UPageHeader
-      :title="`${data.surname} ${data.firstname} ${data.patronymic ?? ''}`"
+      :title="
+        `${data.surname} ${data.firstname} ${data.patronymic ?? ''}`.trimEnd()
+      "
       :ui="{ title: 'text-red-800' }"
     >
       <template #links>
@@ -56,14 +52,14 @@ async function switchStatus(): Promise<void> {
           <UButton
             variant="outline"
             :loading="status === 'pending'"
-            :color="!locked ? 'success' : !lock ? 'secondary' : 'error'"
-            :label="!locked ? 'Доступно' : !lock ? 'Изменение' : 'Закрыто'"
+            :color="locked ? 'error' : lock ? 'secondary' : 'success'"
+            :label="locked ? 'Закрыто' : lock ? 'Доступно' : 'Изменение'"
             :icon="
-              !locked
-                ? 'i-lucide-lock-open'
-                : !lock
-                  ? 'i-lucide-edit'
-                  : 'i-lucide-lock'
+              locked
+                ? 'i-lucide-lock'
+                : lock
+                  ? 'i-lucide-lock-open'
+                  : 'i-lucide-edit'
             "
             @click="switchStatus"
           />
