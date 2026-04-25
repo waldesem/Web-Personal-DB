@@ -15,6 +15,10 @@ const props = defineProps({
     label="Учебное заведение"
     :value="props.item.institution"
   />
-  <ElementLabelValue label="Год окончания" :value="props.item.finished" />
+  <ElementLabelValue
+    v-if="props.item.finished"
+    label="Год окончания"
+    :value="props.item.finished"
+  />
   <ElementLabelValue label="Специальность" :value="props.item.specialty" />
 </template>

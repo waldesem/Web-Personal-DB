@@ -24,12 +24,13 @@ const form = toRef(props.item);
       />
     </UFormField>
     <UFormField label="Адрес" name="address" required>
-      <UTextarea
+      <UInput
         v-model.trim.lazy="form.address"
         placeholder="Адрес"
         required
+        maxlength="255"
       />
     </UFormField>
-    <ElementSubmitButton />
+    <UButton label="Принять" color="success" variant="outline" type="submit" />
   </UForm>
 </template>

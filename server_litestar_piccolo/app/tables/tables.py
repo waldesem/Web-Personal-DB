@@ -92,6 +92,7 @@ class Affilations(ItemMixin, Table, tags=["affilations"]):
     view = Varchar(length=255)
     organization = Varchar(length=255)
     inn = Varchar(length=255, null=True)
+    activity = Text(null=True)
 
 
 class Checks(ItemMixin, Table, tags=["checks"]):

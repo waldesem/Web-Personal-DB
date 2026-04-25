@@ -33,7 +33,7 @@ export default defineNuxtConfig({
       scan: true,
     },
   },
-  modules: ["@nuxt/ui", "@nuxt/eslint", "@vueuse/nuxt", "nuxt-security", "@pinia/nuxt"],
+  modules: ["@nuxt/ui", "@nuxt/eslint", "@vueuse/nuxt", "nuxt-security"],
   nitro: {
     output: {
       publicDir: "../server_litestar_piccolo/app/static",

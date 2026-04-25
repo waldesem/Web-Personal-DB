@@ -42,7 +42,7 @@ const form = toRef(props.item);
       <UInput
         v-model.trim.lazy="form.finished"
         placeholder="Год окончания"
-        pattern="^[0-9]{4}$"
+        pattern="^\d{4}$"
       />
     </UFormField>
     <UFormField label="Специальность" name="specialty">
@@ -52,6 +52,6 @@ const form = toRef(props.item);
         maxlength="255"
       />
     </UFormField>
-    <ElementSubmitButton />
+    <UButton label="Принять" color="success" variant="outline" type="submit" />
   </UForm>
 </template>

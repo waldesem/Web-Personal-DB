@@ -35,6 +35,7 @@ const form = toRef(props.item);
         autoresize
         placeholder="Результат"
         required
+        maxlength="4096"
       />
     </UFormField>
     <UFormField label="Результат" name="conclusion" required>
@@ -45,6 +46,6 @@ const form = toRef(props.item);
         required
       />
     </UFormField>
-    <ElementSubmitButton />
+    <UButton label="Принять" color="success" variant="outline" type="submit" />
   </UForm>
 </template>

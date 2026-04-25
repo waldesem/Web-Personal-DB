@@ -30,6 +30,6 @@ const form = toRef(props.item);
         maxlength="255"
       />
     </UFormField>
-    <ElementSubmitButton />
+    <UButton label="Принять" color="success" variant="outline" type="submit" />
   </UForm>
 </template>

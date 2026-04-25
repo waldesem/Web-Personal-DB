@@ -32,6 +32,6 @@ const form = toRef(props.item);
         :type="form.view === 'Электронная почта' ? 'email' : 'text'"
       />
     </UFormField>
-    <ElementSubmitButton />
+    <UButton label="Принять" color="success" variant="outline" type="submit" />
   </UForm>
 </template>

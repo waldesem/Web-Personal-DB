@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Passport } from "@/types";
+import { schemaDoc } from "@/schema";
 
 const emit = defineEmits(["update"]);
 
@@ -10,38 +11,41 @@ const props = defineProps({
   },
 });
 
-const form = ref<Passport>({
-  ...props.item,
-  issue: props.item.issue
-    ? useDateFormat(props.item.issue, "YYYY-MM-DD").value
-    : "",
+const form = ref({
+  id: props.item.id ?? null,
+  view: props.item.view || "",
+  series: props.item.series || "",
+  digits: props.item.digits || "",
+  agency: props.item.agency || "",
+  issue: props.item.issue || "",
 });
 </script>
 
 <template>
-  <UForm :state="form" @submit.prevent="emit('update', form)">
+  <UForm
+    :state="form"
+    :schema="schemaDoc"
+    @submit.prevent="emit('update', form)"
+  >
     <UFormField label="Вид документа" name="view" required>
       <USelect
         v-model="form.view"
         :items="['Паспорт', 'Иностранный паспорт', 'Другое']"
         placeholder="Выберите вид документа"
-        required
       />
     </UFormField>
     <UFormField label="Серия документа" name="series">
       <UInput
         v-model.trim.lazy="form.series"
         placeholder="Серия документа"
-        maxlength="6"
-        pattern="[0-9]*"
+        maxlength="12"
       />
     </UFormField>
     <UFormField label="Номер документа" name="digits" required>
       <UInput
         v-model.trim.lazy="form.digits"
         placeholder="Номер документа"
-        maxlength="10"
-        pattern="[0-9]*"
+        maxlength="12"
         required
       />
     </UFormField>
@@ -61,6 +65,6 @@ const form = ref<Passport>({
         required
       />
     </UFormField>
-    <ElementSubmitButton />
+    <UButton label="Принять" color="success" variant="outline" type="submit" />
   </UForm>
 </template>

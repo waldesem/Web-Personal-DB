@@ -50,7 +50,7 @@ const experience = workExperience.experience(
     </UBadge>
   </ElementLabelValue>
   <ElementLabelValue label="Место" :value="props.item.workplace" />
-  <ElementLabelValue label="Адрес">
+  <ElementLabelValue v-if="props.item.address" label="Адрес">
     <div class="space-x-4">
       {{ props.item.address }}
       <UButton
@@ -63,5 +63,9 @@ const experience = workExperience.experience(
     </div>
   </ElementLabelValue>
   <ElementLabelValue label="Должность" :value="props.item.position" />
-  <ElementLabelValue label="Причина увольнения" :value="props.item.reason" />
+  <ElementLabelValue
+    v-if="props.item.reason"
+    label="Причина увольнения"
+    :value="props.item.reason"
+  />
 </template>

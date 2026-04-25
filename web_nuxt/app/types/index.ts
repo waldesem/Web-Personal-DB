@@ -143,6 +143,7 @@ export interface Affilation {
   view: string;
   organization: string;
   inn?: string;
+  activity?: string;
 }
 
 export interface Verification {

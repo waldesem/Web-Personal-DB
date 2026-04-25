@@ -12,5 +12,14 @@ const props = defineProps({
 <template>
   <ElementLabelValue label="Тип участия" :value="props.item.view" />
   <ElementLabelValue label="Организация" :value="props.item.organization" />
-  <ElementLabelValue label="ИНН" :value="props.item.inn" />
+  <ElementLabelValue
+    v-if="props.item.inn"
+    label="ИНН"
+    :value="props.item.inn"
+  />
+  <ElementLabelValue
+    v-if="props.item.activity"
+    label="Деятельность"
+    :value="props.item.activity"
+  />
 </template>
