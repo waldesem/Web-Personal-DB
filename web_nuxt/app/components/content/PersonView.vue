@@ -64,7 +64,7 @@ async function deletePerson() {
       description="Редактирование анкетные данные"
     >
       <template #body>
-        <FormsResumeForm :resume="props.person" @update="submitPerson" />
+        <LazyFormsResumeForm :resume="props.person" @update="submitPerson" />
       </template>
     </UModal>
   </div>

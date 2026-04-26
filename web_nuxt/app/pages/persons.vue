@@ -166,7 +166,7 @@ const columns: TableColumn<Candidate>[] = [
           description="Введите анкетные данные кандидата"
         >
           <template #body>
-            <FormsResumeForm @update="personSubmit" />
+            <LazyFormsResumeForm @update="personSubmit" />
           </template>
         </UModal>
       </template>
