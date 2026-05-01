@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useExperience } from "@/composables/useExperience";
+import { localStr } from "@/utils";
 import type { Work } from "@/types";
 
 const props = defineProps({
@@ -24,16 +25,14 @@ const experience = workExperience.experience(
     :value="!props.item.finished ? 'Да' : 'Нет'"
   />
   <ElementLabelValue
-    v-if="props.item.starts"
     label="Начало работы"
-    :value="new Date(props.item.starts).toLocaleDateString()"
+    :value="localStr(props.item.starts)"
   />
   <ElementLabelValue
-    v-if="props.item.finished"
     label="Окончание работы"
-    :value="new Date(props.item.finished).toLocaleDateString()"
+    :value="localStr(props.item.finished)"
   />
-  <ElementLabelValue v-if="experience" label="Стаж на рабочем месте">
+  <ElementLabelSlot v-if="experience" label="Стаж на рабочем месте">
     <UBadge
       variant="outline"
       :color="
@@ -48,9 +47,9 @@ const experience = workExperience.experience(
         `${experience.years} г., ${experience.months} мес., ${experience.days} дн.`
       }}
     </UBadge>
-  </ElementLabelValue>
+  </ElementLabelSlot>
   <ElementLabelValue label="Место" :value="props.item.workplace" />
-  <ElementLabelValue v-if="props.item.address" label="Адрес">
+  <ElementLabelSlot v-if="props.item.address" label="Адрес">
     <div class="space-x-4">
       {{ props.item.address }}
       <UButton
@@ -61,11 +60,7 @@ const experience = workExperience.experience(
         icon="i-lucide-map-pinned"
       />
     </div>
-  </ElementLabelValue>
+  </ElementLabelSlot>
   <ElementLabelValue label="Должность" :value="props.item.position" />
-  <ElementLabelValue
-    v-if="props.item.reason"
-    label="Причина увольнения"
-    :value="props.item.reason"
-  />
+  <ElementLabelValue label="Причина увольнения" :value="props.item.reason" />
 </template>

@@ -4,20 +4,16 @@ const props = defineProps({
     type: String,
     default: "",
   },
-  value: {
-    type: [String, Number, null],
-    default: "",
-  },
 });
 </script>
 
 <template>
-  <div v-if="props.value" class="flex grid grid-cols-12 gap-3 mb-4">
+  <div class="flex grid grid-cols-12 gap-3 mb-4">
     <div class="col-span-3">
       {{ props.label }}
     </div>
-    <div class="col-span-9 wrap-break-word">
-      {{ props.value }}
+    <div class="col-span-9">
+      <slot />
     </div>
   </div>
 </template>

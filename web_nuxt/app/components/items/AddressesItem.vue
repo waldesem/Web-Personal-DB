@@ -11,7 +11,7 @@ const props = defineProps({
 
 <template>
   <ElementLabelValue label="Тип" :value="props.item.view" />
-  <ElementLabelValue label="Адрес">
+  <ElementLabelSlot v-if="props.item.address" label="Адрес">
     <div class="space-x-4">
       {{ props.item.address }}
       <UButton
@@ -22,5 +22,5 @@ const props = defineProps({
         trailing-icon="i-lucide-map-pinned"
       />
     </div>
-  </ElementLabelValue>
+  </ElementLabelSlot>
 </template>

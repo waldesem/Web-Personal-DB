@@ -11,9 +11,5 @@ const props = defineProps({
 
 <template>
   <ElementLabelValue label="Должность" :value="props.item.position" />
-  <ElementLabelValue
-    v-if="props.item.department"
-    label="Департамент"
-    :value="props.item.department"
-  />
+  <ElementLabelValue label="Департамент" :value="props.item.department" />
 </template>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import type { Pfo } from "@/types";
+import { localStr } from "@/utils";
 import { Decisions } from "@/types";
+import type { Pfo } from "@/types";
 
 const props = defineProps({
   item: {
@@ -13,7 +14,7 @@ const props = defineProps({
 <template>
   <ElementLabelValue label="Тема проверки" :value="props.item.theme" />
   <ElementLabelValue label="Результаты" :value="props.item.results" />
-  <ElementLabelValue label="Заключение">
+  <ElementLabelSlot label="Заключение">
     <UBadge
       :color="
         props.item.conclusion === Decisions.agreed
@@ -26,9 +27,9 @@ const props = defineProps({
       "
       :label="props.item.conclusion"
     />
-  </ElementLabelValue>
+  </ElementLabelSlot>
   <ElementLabelValue
     label="Дата записи"
-    :value="new Date(props.item.created_at).toLocaleDateString()"
+    :value="localStr(props.item.created_at)"
   />
 </template>

@@ -192,21 +192,6 @@ export interface Needs {
   updated_at: string;
 }
 
-export interface Item {
-  staffs: Staff;
-  educations: Education;
-  workplaces: Work;
-  documents: Passport;
-  addresses: Address;
-  contacts: Contact;
-  affilations: Affilation;
-  previous: Previous;
-  checks: Verification;
-  poligrafs: Pfo;
-  investigations: Inquisition;
-  inquiries: Needs;
-}
-
 export interface Items {
   staffs: Staff[];
   educations: Education[];

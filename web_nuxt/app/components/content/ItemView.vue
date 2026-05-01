@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Item, Items } from "@/types";
+import type { Items } from "@/types";
 import type { PropType } from "vue";
 
 const { $api } = useNuxtApp();
@@ -41,7 +41,7 @@ const FormComponent = defineAsyncComponent<Component>(
 
 // Объявляем переменные для работы с данными
 const items = toRef(props.data);
-const item = shallowRef({} as Item[keyof Item]); // Данные для передачи в форму
+const item = shallowRef({} as (typeof props.data)[number]); // Данные для передачи в форму
 const option = ref<"create" | "edit">("create");
 const modal = ref(false); // Флаг для открытия модального окна
 const state = ref(""); // Статус запроса
@@ -53,14 +53,18 @@ async function getItem() {
   state.value = "";
 }
 
-async function addItem(view: keyof Items, form: object) {
+async function addItem(view: keyof Items, form: (typeof props.data)[number]) {
   return await $api.raw(`/routes/items/${view}/${props.personId}`, {
     method: "POST",
     body: { ...form, item: view }, // add discriminator for backend validation
   });
 }
 
-async function editItem(view: keyof Items, itemId: string, form: object) {
+async function editItem(
+  view: keyof Items,
+  itemId: string,
+  form: (typeof props.data)[number],
+) {
   return await $api.raw(`/routes/items/${view}/${props.personId}/${itemId}`, {
     method: "PATCH",
     body: { ...form, item: view }, // add discriminator for backend validation
@@ -78,7 +82,7 @@ async function submitItem(form: typeof item.value) {
   if (status === 200 || status === 201) {
     toasts.create("success", "Информация успешно обновлена");
   } else toasts.create();
-  item.value = {} as Item[keyof Item];
+  item.value = {} as typeof item.value;
   await getItem();
 }
 
@@ -104,7 +108,7 @@ async function deleteItem(id: string) {
 <template>
   <!-- Выводим сообщение если данные отсутствуют -->
   <UEmpty
-    v-if="!items.length"
+    v-if="!items"
     :icon="props.icon"
     class="m-4"
     title="Данные отсутствуют"
@@ -149,7 +153,7 @@ async function deleteItem(id: string) {
     description="Добавить/редактировать данные"
   >
     <UButton
-      v-if="!lock && items.length"
+      v-if="!lock && items"
       :loading="state == 'pending'"
       class="mb-2"
       label="Добавить запись"

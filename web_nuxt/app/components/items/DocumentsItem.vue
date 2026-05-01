@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { localStr } from "@/utils";
 import type { Passport } from "@/types";
 
 const props = defineProps({
@@ -11,19 +12,8 @@ const props = defineProps({
 
 <template>
   <ElementLabelValue label="Вид документа" :value="props.item.view" />
-  <ElementLabelValue
-    v-if="props.item.series"
-    label="Серия документа"
-    :value="props.item.series"
-  />
+  <ElementLabelValue label="Серия документа" :value="props.item.series" />
   <ElementLabelValue label="Номер документа" :value="props.item.digits" />
-  <ElementLabelValue
-    v-if="props.item.agency"
-    label="Кем выдан"
-    :value="props.item.agency"
-  />
-  <ElementLabelValue
-    label="Дата выдачи"
-    :value="new Date(props.item.issue).toLocaleDateString()"
-  />
+  <ElementLabelValue label="Кем выдан" :value="props.item.agency" />
+  <ElementLabelValue label="Дата выдачи" :value="localStr(props.item.issue)" />
 </template>

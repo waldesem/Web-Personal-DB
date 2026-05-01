@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { FetchResponse } from "ofetch";
 import type { TableColumn } from "@nuxt/ui";
+import { localStr, timeAgoStr } from "@/utils";
 import type { Candidate, Person } from "@/types";
 
 const { $api } = useNuxtApp();
@@ -13,34 +14,32 @@ const session = useSessionStore();
 const modal = ref(false);
 const page = ref(1);
 const per_page = 10;
-const search = ref("");
 const updated = ref(Date.now());
+const search = ref("");
+const debounced = refDebounced(search, 1000, { maxWait: 10000 });
 
 // Определяем функцию для получения списка кандидатов из API
 const { data, status, refresh } = await useAsyncData(
   "candidates",
-  () =>
-    $api<Candidate[]>("/routes/candidates", {
+  async () => {
+    const response = $api<Candidate[]>("/routes/candidates", {
       query: {
         page: page.value - 1,
         per_page: per_page,
-        search: search.value,
+        search: debounced.value,
       },
-    }),
+    });
+    updated.value = Date.now();
+    return response;
+  },
   {
     watch: [page],
     default: () => [] as Candidate[],
   },
 );
 
-const total = computed(() => {
-  return data.value[0]?.total ?? 1;
-});
-
-watch(data, () => (updated.value = Date.now()));
-
 // Наблюдаем: поиск
-watch(refDebounced(search, 1000), () => {
+watch(debounced, () => {
   if (page.value === 1) refresh();
   else page.value = 1;
 });
@@ -104,17 +103,14 @@ const columns: TableColumn<Candidate>[] = [
     accessorKey: "birthday",
     header: "Дата рождения",
     cell: ({ row }) => {
-      return new Date(row.getValue("birthday")).toLocaleDateString();
+      return localStr(row.getValue("birthday"));
     },
   },
   {
     accessorKey: "updated_at",
     header: "Обновлено",
     cell: ({ row }) => {
-      return h(resolveComponent("NuxtTime"), {
-        datetime: new Date(row.getValue("updated_at")).getTime() - 60000,
-        relative: true,
-      });
+      return timeAgoStr(row.getValue("updated_at"));
     },
   },
   {
@@ -217,7 +213,7 @@ const columns: TableColumn<Candidate>[] = [
       <UPagination
         v-model:page="page"
         :items-per-page="per_page"
-        :total="total"
+        :total="data[0]?.total ?? 1"
         :sibling-count="-1"
         @update:page="(p) => (page = p)"
       />

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { localStr } from "@/utils";
 import type { Inquisition } from "@/types";
 
 const props = defineProps({
@@ -14,6 +15,6 @@ const props = defineProps({
   <ElementLabelValue label="Информация" :value="props.item.info" />
   <ElementLabelValue
     label="Дата записи"
-    :value="new Date(props.item.created_at).toLocaleDateString()"
+    :value="localStr(props.item.created_at)"
   />
 </template>
