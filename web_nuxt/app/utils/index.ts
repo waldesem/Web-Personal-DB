@@ -1,45 +1,46 @@
 import type { AuthFormField } from "@nuxt/ui";
 import type { Items, Login, Person } from "@/types";
 
-export function capitalize(str: string) {
+export function capitalizeStr(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-export function localStr(data: string): string {
-  return data ? new Date(data).toLocaleDateString() : "";
+export function localStr(str: string): string {
+  return str ? new Date(str).toLocaleDateString() : "";
 }
 
-export function timeAgoStr(dateInput: string) {
-  const date = typeof dateInput === "string" ? new Date(dateInput) : dateInput;
-  const now = Date.now();
-  const diffInMs = now - date.getTime();
-  const diffInSeconds = Math.floor(diffInMs / 1000);
+export function timeAgoStr(str: string) {
+  const date = typeof str === "string" ? new Date(str) : str;
+  const diffSeconds = Math.floor((Date.now() - date.getTime()) / 1000);
 
   // Меньше минуты
-  if (diffInSeconds < 60) {
+  if (diffSeconds < 60) {
     return "менее минуты назад";
   }
 
   // Меньше часа (но больше минуты)
-  const diffInMinutes = Math.floor(diffInSeconds / 60);
-  if (diffInMinutes < 60) {
-    return diffInMinutes + " минут назад";
+  const diffMinutes = Math.floor(diffSeconds / 60);
+  if (diffMinutes < 60) {
+    return diffMinutes + " минут назад";
   }
 
   // Менее суток (но больше часа)
-  const diffInHours = Math.floor(diffInMinutes / 60);
-  if (diffInHours < 24) {
-    return diffInHours + " часов назад";
+  const diffHours = Math.floor(diffMinutes / 60);
+  if (diffHours < 24) {
+    return diffHours + " часов назад";
   }
 
-  const diffInDays = Math.floor(diffInHours / 24);
-  if (diffInDays < 30) {
-    return diffInDays + " дней назад";
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffDays < 7) {
+    return diffDays + " дней назад";
   }
-  if (diffInDays < 365) {
-    return Math.floor(diffInDays / 30) + " месяцев назад";
+  if (diffDays < 30) {
+    return Math.floor(diffDays / 7) + " недели назад";
   }
-  return Math.floor(diffInDays / 365) + " года назад";
+  if (diffDays < 365) {
+    return Math.floor(diffDays / 30) + " месяцев назад";
+  }
+  return Math.floor(diffDays / 365) + " года назад";
 }
 
 export const fieldsLogin: AuthFormField[] = [

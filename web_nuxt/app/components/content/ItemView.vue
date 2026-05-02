@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Items } from "@/types";
+import { capitalizeStr } from "@/utils";
 import type { PropType } from "vue";
 
 const { $api } = useNuxtApp();
@@ -33,10 +34,10 @@ const props = defineProps({
 });
 
 const ItemComponent = defineAsyncComponent<Component>(
-  () => import(`../items/${capitalize(props.view)}Item.vue`),
+  () => import(`../items/${capitalizeStr(props.view)}Item.vue`),
 );
 const FormComponent = defineAsyncComponent<Component>(
-  () => import(`../forms/${capitalize(props.view)}Form.vue`),
+  () => import(`../forms/${capitalizeStr(props.view)}Form.vue`),
 );
 
 // Объявляем переменные для работы с данными
