@@ -10,13 +10,13 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@iconify-json/lucide": "^1.2.103",
+    "@iconify-json/lucide": "^1.2.105",
     "@nuxt/icon": "^2.2.1",
-    "@nuxt/ui": "^4.7.0",
+    "@nuxt/ui": "^4.7.1",
     "@pinia/nuxt": "^0.11.3",
-    "@vueuse/core": "^14.2.1",
-    "@vueuse/nuxt": "^14.2.1",
-    "nuxt": "^4.4.2",
+    "@vueuse/core": "^14.3.0",
+    "@vueuse/nuxt": "^14.3.0",
+    "nuxt": "^4.4.4",
     "nuxt-security": "^2.5.1",
     "valibot": "^1.3.1",
     "vue": "^3.5.33"

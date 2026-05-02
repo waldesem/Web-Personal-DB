@@ -1,0 +1,2 @@
+var r=(e=>(e.delete="delete",e.block="block",e.reset="reset",e))(r||{}),a=(e=>(e.admin="admin",e.api="api",e.user="user",e.guest="guest",e))(a||{}),t=(e=>(e.agreed="СОГЛАСОВАНО",e.comments="СОГЛАСОВАНО С КОММЕНТАРИЕМ",e.cancel="СНЯТ С ПРОВЕРКИ",e.denied="ОТКАЗАНО В СОГЛАСОВАНИИ",e))(t||{}),d=(e=>(e.agreed="БЕЗ ЗАМЕЧАНИЙ",e.comments="С КОММЕНТАРИЯМИ",e.cancel="ОТКАЗ ОТ ПРОВЕРКИ",e.denied="НЕГАТИВ",e))(d||{});export{r as A,t as C,d as D,a as R};
+//# sourceMappingURL=BcPYAIwS.js.map

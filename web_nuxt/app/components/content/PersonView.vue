@@ -12,7 +12,7 @@ const props = defineProps({
   },
 });
 
-const lock = inject("lock") as Ref<boolean>;
+const lock = useLock();
 
 const modal = ref(false); // Объявляем переменную модального окна
 

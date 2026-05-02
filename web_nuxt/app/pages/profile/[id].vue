@@ -5,6 +5,8 @@ const { $api } = useNuxtApp();
 
 const session = useSessionStore();
 
+const lock = useLock();
+
 const personId = computed(() => useRoute().params.id as string);
 
 const { data, status, refresh } = await useAsyncData<Person>(
@@ -12,14 +14,6 @@ const { data, status, refresh } = await useAsyncData<Person>(
   () => $api<Person>("/routes/persons/" + personId.value),
   { default: () => ({}) as Person },
 );
-
-const lock = ref(true);
-
-const locked = computed(() => {
-  return lock.value && session.user?.id !== data.value.user_id;
-});
-
-provide("lock", lock);
 
 // Определяем функцию для переключения режима редактирования
 async function switchStatus(): Promise<void> {
@@ -30,8 +24,10 @@ async function switchStatus(): Promise<void> {
     status.value = "pending";
     await $api.raw("/routes/persons/status/" + personId.value);
     await refresh();
+    lock.value = false;
+  } else {
+    lock.value = !lock.value;
   }
-  lock.value = !lock.value;
 }
 </script>
 
@@ -52,10 +48,22 @@ async function switchStatus(): Promise<void> {
           <UButton
             variant="outline"
             :loading="status === 'pending'"
-            :color="locked ? 'error' : lock ? 'secondary' : 'success'"
-            :label="locked ? 'Закрыто' : lock ? 'Доступно' : 'Изменение'"
+            :color="
+              session.user?.id !== data.user_id
+                ? 'error'
+                : lock
+                  ? 'secondary'
+                  : 'success'
+            "
+            :label="
+              session.user?.id !== data.user_id
+                ? 'Закрыто'
+                : lock
+                  ? 'Доступно'
+                  : 'Изменение'
+            "
             :icon="
-              locked
+              session.user?.id !== data.user_id
                 ? 'i-lucide-lock'
                 : lock
                   ? 'i-lucide-lock-open'
