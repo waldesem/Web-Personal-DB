@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { FormSubmitEvent } from "@nuxt/ui";
+import type { AuthFormField, FormSubmitEvent } from "@nuxt/ui";
+import { schemaLogin, schemaRegister } from "@/schema";
 import type { Auth, Login } from "@/types";
 
 definePageMeta({ layout: false });
@@ -10,6 +11,44 @@ const alerts = useAlert();
 
 // Объявляем переменные для формы и состояния
 const method = ref<"POST" | "PATCH">("POST");
+
+const fieldsLogin: AuthFormField[] = [
+  {
+    name: "username",
+    label: "Имя пользователя",
+    placeholder: "Имя пользователя",
+    icon: "i-lucide-user",
+    type: "text",
+    required: true,
+  },
+  {
+    name: "password",
+    label: "Пароль",
+    placeholder: "Пароль",
+    icon: "i-lucide-lock",
+    type: "password",
+    required: true,
+  },
+];
+
+const fieldsUpdate = fieldsLogin.concat([
+  {
+    name: "new_pswd",
+    label: "Новый пароль",
+    placeholder: "Новый пароль",
+    icon: "i-lucide-lock",
+    type: "password",
+    required: true,
+  },
+  {
+    name: "conf_pswd",
+    label: "Подтверждение пароля",
+    placeholder: "Подтверждение пароля",
+    icon: "i-lucide-lock",
+    type: "password",
+    required: true,
+  },
+]);
 
 // Объявляем функцию для отправки формы
 async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
@@ -82,7 +121,7 @@ async function onSubmit(payload: FormSubmitEvent<Partial<Login>>) {
     <UAuthForm
       description="Доступ в систему кадровой безопасности."
       icon="i-lucide-user-lock"
-      :validate="method === 'POST' ? validatorLogin : validatorUpdate"
+      :schema="method === 'POST' ? schemaLogin : schemaRegister"
       :fields="method == 'POST' ? fieldsLogin : fieldsUpdate"
       :submit="{
         label: method === 'POST' ? 'Войти' : 'Изменить',

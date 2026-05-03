@@ -27,13 +27,20 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   experimental: {
     payloadExtraction: true,
+    viteEnvironmentApi: true,
   },
   icon: {
     clientBundle: {
       scan: true,
     },
   },
-  modules: ["@nuxt/ui", "@nuxt/eslint", "@vueuse/nuxt", "nuxt-security", "@pinia/nuxt"],
+  modules: [
+    "@nuxt/ui",
+    "@nuxt/eslint",
+    "@vueuse/nuxt",
+    "nuxt-security",
+    "@pinia/nuxt",
+  ],
   nitro: {
     output: {
       publicDir: "../server_litestar_piccolo/app/static",
