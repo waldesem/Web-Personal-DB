@@ -58,7 +58,7 @@ class AffilationJson(BaseModel):
 
     view: Annotated[
         str | None,
-        Field(default=None, validation_alias="organizationType", max_length=255),
+        Field(default=None, validation_alias="activity", max_length=255),
     ]
     organization: Annotated[str, Field(validation_alias="name", max_length=255)]
     inn: Annotated[str | None, Field(None, max_length=12)]
@@ -127,24 +127,3 @@ class AnketaJson(BaseModel):
         ),
     ]
     organizations: Annotated[list[AffilationJson], Field([])]
-    related_organizations: Annotated[
-        list[AffilationJson],
-        Field(
-            default=[],
-            validation_alias="relatedPersonsOrganizations",
-        ),
-    ]
-    state_organizations: Annotated[
-        list[AffilationJson],
-        Field(
-            default=[],
-            validation_alias="stateOrganizations",
-        ),
-    ]
-    public_organizations: Annotated[
-        list[AffilationJson],
-        Field(
-            default=[],
-            validation_alias="publicOfficeOrganizations",
-        ),
-    ]

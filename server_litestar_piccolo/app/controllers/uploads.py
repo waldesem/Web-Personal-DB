@@ -124,45 +124,16 @@ class JsonController(Controller):
                     for prev in data.name_was_changed
                 ],
             )
-        if (
-            data.organizations
-            or data.state_organizations
-            or data.related_organizations
-            or data.public_organizations
-        ):
+        if data.organizations:
             await Affilations.insert(
                 *[
                     Affilations(
-                        view="Участвует в деятельности коммерческих организаций",
+                        view=aff.view,
                         organization=aff.organization,
                         inn=aff.inn,
                         person_id=person_id,
                     )
                     for aff in data.organizations
-                ]
-                + [
-                    Affilations(
-                        view="Являлся государственным должностным лицом",
-                        organization=aff.organization,
-                        person_id=person_id,
-                    )
-                    for aff in data.state_organizations
-                ]
-                + [
-                    Affilations(
-                        view="Связанные лица работают в госструктурах",
-                        organization=aff.organization,
-                        person_id=person_id,
-                    )
-                    for aff in data.related_organizations
-                ]
-                + [
-                    Affilations(
-                        view="Являлся государственным/муниципальным служащим",
-                        organization=aff.organization,
-                        person_id=person_id,
-                    )
-                    for aff in data.public_organizations
                 ],
             )
         return PersonResp(person_id=person_id)
