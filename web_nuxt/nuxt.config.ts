@@ -52,7 +52,7 @@ export default defineNuxtConfig({
     },
   },
   ssr: false,
-  sourcemap: { client: true, server: false },
+  sourcemap: { client: true },
   ui: {
     fonts: false,
   },
