@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Affilation } from "@/types";
+import type { Affilation, ItemField } from "@/types";
 
 const props = defineProps({
   item: {
@@ -7,11 +7,15 @@ const props = defineProps({
     required: true,
   },
 });
+
+const fields = [
+  { key: "view", label: "Тип участия" },
+  { key: "organization", label: "Организация" },
+  { key: "inn", label: "ИНН" },
+  { key: "activity", label: "Деятельность" },
+] as ItemField[];
 </script>
 
 <template>
-  <ElementLabelValue label="Тип участия" :value="props.item.view" />
-  <ElementLabelValue label="Организация" :value="props.item.organization" />
-  <ElementLabelValue label="ИНН" :value="props.item.inn" />
-  <ElementLabelValue label="Деятельность" :value="props.item.activity" />
+  <ElementItemCard :fields="fields" :item="props.item" />
 </template>

@@ -25,6 +25,12 @@ export enum Decisions {
   denied = "НЕГАТИВ",
 }
 
+export interface ItemField {
+  key: string;
+  label: string;
+  slot?: boolean;
+}
+
 export interface Auth {
   message: string;
   access_token: string;

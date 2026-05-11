@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Staff } from "@/types";
+import type { ItemField, Staff } from "@/types";
 
 const props = defineProps({
   item: {
@@ -7,9 +7,13 @@ const props = defineProps({
     required: true,
   },
 });
+
+const fields = [
+  { key: "position", label: "Должность" },
+  { key: "department", label: "Департамент" },
+] as ItemField[];
 </script>
 
 <template>
-  <ElementLabelValue label="Должность" :value="props.item.position" />
-  <ElementLabelValue label="Департамент" :value="props.item.department" />
+  <ElementItemCard :fields="fields" :item="props.item" />
 </template>

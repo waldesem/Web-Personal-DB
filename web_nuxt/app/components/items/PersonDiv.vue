@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useClipboard } from "@vueuse/core";
-import { localStr } from "@/utils";
-import type { Person } from "@/types";
+import type { ItemField, Person } from "@/types";
 
 const props = defineProps({
   item: {
@@ -11,43 +10,45 @@ const props = defineProps({
 });
 
 const { copy, copied } = useClipboard();
+
+const fields = [
+  { key: "surname", label: "Фамилия" },
+  { key: "firstname", label: "Имя" },
+  { key: "patronymic", label: "Отчество" },
+  { key: "birthday", label: "Дата рождения" },
+  { key: "birthplace", label: "Место рождения" },
+  { key: "citizenship", label: "Гражданство" },
+  { key: "dual", label: "Двойное гражданство", slot: true },
+  { key: "snils", label: "СНИЛС" },
+  { key: "inn", label: "ИНН" },
+  { key: "marital", label: "Семейное положение" },
+  { key: "created", label: "Дата записи" },
+  { key: "addition", label: "Дополнительная информация" },
+  { key: "destination", label: "Материалы проверок", slot: true },
+] as ItemField[];
+
+const person = computed(() => {
+  return {
+    ...props.item,
+    birthday: localStr(props.item.birthday),
+    created: localStr(props.item.updated_at),
+  };
+});
 </script>
 
 <template>
-  <ElementLabelValue label="Фамилия" :value="props.item.surname" />
-  <ElementLabelValue label="Имя" :value="props.item.firstname" />
-  <ElementLabelValue label="Отчество" :value="props.item.patronymic" />
-  <ElementLabelValue
-    label="Дата рождения"
-    :value="localStr(props.item.birthday)"
-  />
-  <ElementLabelValue label="Место рождения" :value="props.item.birthplace" />
-  <ElementLabelValue label="Гражданство" :value="props.item.citizenship" />
-  <ElementLabelSlot v-if="props.item.dual" label="Двойное гражданство">
-    <UBadge variant="outline" color="info" :label="props.item.dual" />
-  </ElementLabelSlot>
-  <ElementLabelValue label="СНИЛС" :value="props.item.snils" />
-  <ElementLabelValue label="ИНН" :value="props.item.inn" />
-  <ElementLabelValue label="Семейное положение" :value="props.item.marital" />
-  <ElementLabelValue
-    label="Дата записи"
-    :value="localStr(props.item.created_at)"
-  />
-  <ElementLabelValue
-    label="Дата обновления"
-    :value="localStr(props.item.updated_at)"
-  />
-  <ElementLabelValue
-    label="Дополнительная информация"
-    :value="props.item.addition"
-  />
-  <ElementLabelSlot v-if="props.item.destination" label="Материалы проверок">
-    <UButton
-      variant="outline"
-      :color="!copied ? 'info' : 'success'"
-      size="sm"
-      :label="!copied ? 'Копировать ссылку' : 'Скопировано'"
-      @click="copy(props.item.destination)"
-    />
-  </ElementLabelSlot>
+  <ElementItemCard :fields="fields" :item="person">
+    <template v-if="props.item.dual" #dual>
+      <UBadge variant="outline" color="info" :label="props.item.dual" />
+    </template>
+    <template v-if="props.item.destination" #destination>
+      <UButton
+        variant="outline"
+        :color="!copied ? 'info' : 'success'"
+        size="sm"
+        :label="!copied ? 'Копировать ссылку' : 'Скопировано'"
+        @click="copy(props.item.destination)"
+      />
+    </template>
+  </ElementItemCard>
 </template>

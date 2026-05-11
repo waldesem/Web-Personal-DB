@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Education } from "@/types";
+import type { Education, ItemField } from "@/types";
 
 const props = defineProps({
   item: {
@@ -7,14 +7,15 @@ const props = defineProps({
     required: true,
   },
 });
+
+const fields = [
+  { key: "view", label: "Уровень образования" },
+  { key: "institution", label: "Учебное заведение" },
+  { key: "finished", label: "Год окончания" },
+  { key: "specialty", label: "Специальность" },
+] as ItemField[];
 </script>
 
 <template>
-  <ElementLabelValue label="Уровень образования" :value="props.item.view" />
-  <ElementLabelValue
-    label="Учебное заведение"
-    :value="props.item.institution"
-  />
-  <ElementLabelValue label="Год окончания" :value="props.item.finished" />
-  <ElementLabelValue label="Специальность" :value="props.item.specialty" />
+  <ElementItemCard :fields="fields" :item="props.item" />
 </template>

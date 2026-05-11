@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { localStr } from "@/utils";
-import type { Needs } from "@/types";
+import type { ItemField, Needs } from "@/types";
 
 const props = defineProps({
   item: {
@@ -8,13 +7,21 @@ const props = defineProps({
     required: true,
   },
 });
+
+const fields = [
+  { key: "info", label: "Информация" },
+  { key: "initiator", label: "Инициатор" },
+  { key: "created", label: "Дата записи" },
+] as ItemField[];
+
+const inquiry = computed(() => {
+  return {
+    ...props.item,
+    created: localStr(props.item.updated_at),
+  };
+});
 </script>
 
 <template>
-  <ElementLabelValue label="Информация" :value="props.item.info" />
-  <ElementLabelValue label="Иннициатор" :value="props.item.initiator" />
-  <ElementLabelValue
-    label="Дата записи"
-    :value="localStr(props.item.created_at)"
-  />
+  <ElementItemCard :fields="fields" :item="inquiry" />
 </template>

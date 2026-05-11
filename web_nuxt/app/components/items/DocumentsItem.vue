@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { localStr } from "@/utils";
-import type { Passport } from "@/types";
+import type { ItemField, Passport } from "@/types";
 
 const props = defineProps({
   item: {
@@ -8,12 +7,23 @@ const props = defineProps({
     required: true,
   },
 });
+
+const fields = [
+  { key: "view", label: "Вид документа" },
+  { key: "series", label: "Серия документа" },
+  { key: "digits", label: "Номер документа" },
+  { key: "agency", label: "Кем выдан" },
+  { key: "issue", label: "Дата выдачи" },
+] as ItemField[];
+
+const doc = computed(() => {
+  return {
+    ...props.item,
+    issue: localStr(props.item.issue),
+  };
+});
 </script>
 
 <template>
-  <ElementLabelValue label="Вид документа" :value="props.item.view" />
-  <ElementLabelValue label="Серия документа" :value="props.item.series" />
-  <ElementLabelValue label="Номер документа" :value="props.item.digits" />
-  <ElementLabelValue label="Кем выдан" :value="props.item.agency" />
-  <ElementLabelValue label="Дата выдачи" :value="localStr(props.item.issue)" />
+  <ElementItemCard :fields="fields" :item="doc" />
 </template>

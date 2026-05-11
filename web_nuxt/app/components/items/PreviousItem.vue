@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Previous } from "@/types";
+import type { ItemField, Previous } from "@/types";
 
 const props = defineProps({
   item: {
@@ -7,12 +7,16 @@ const props = defineProps({
     required: true,
   },
 });
+
+const fields = [
+  { key: "surname", label: "Фамилия" },
+  { key: "firstname", label: "Имя" },
+  { key: "patronymic", label: "Отчество" },
+  { key: "changed", label: "Год изменения" },
+  { key: "reason", label: "Причина" },
+] as ItemField[];
 </script>
 
 <template>
-  <ElementLabelValue label="Фамилия" :value="props.item.surname" />
-  <ElementLabelValue label="Имя" :value="props.item.firstname" />
-  <ElementLabelValue label="Отчество" :value="props.item.patronymic" />
-  <ElementLabelValue label="Год изменения" :value="props.item.changed" />
-  <ElementLabelValue label="Причина" :value="props.item.reason" />
+  <ElementItemCard :fields="fields" :item="props.item" />
 </template>

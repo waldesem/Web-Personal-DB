@@ -16,13 +16,13 @@ export default defineNuxtConfig({
       noscript: [{ textContent: "JavaScript is required" }],
       title: "StaffSec - кадровая безопасность",
     },
-    keepalive: { include: "persons" },
+    keepalive: { include: "persons", max: 1 },
     pageTransition: { name: "page", mode: "out-in" },
   },
   build: {
     analyze: true,
   },
-  compatibilityDate: "2026-04-08",
+  compatibilityDate: "2026-05-08",
   css: ["~/assets/css/main.css"],
   devtools: { enabled: true },
   experimental: {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Contact } from "@/types";
+import type { Contact, ItemField } from "@/types";
 
 const props = defineProps({
   item: {
@@ -7,9 +7,13 @@ const props = defineProps({
     required: true,
   },
 });
+
+const fields = [
+  { key: "view", label: "Вид" },
+  { key: "contact", label: "Контакт" },
+] as ItemField[];
 </script>
 
 <template>
-  <ElementLabelValue label="Вид" :value="props.item.view" />
-  <ElementLabelValue label="Контакт" :value="props.item.contact" />
+  <ElementItemCard :fields="fields" :item="props.item" />
 </template>

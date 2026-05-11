@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { localStr } from "@/utils";
-import { Conclusions } from "@/types";
-import type { Verification } from "@/types";
+import { Conclusions, type ItemField, type Verification } from "@/types";
 
 const props = defineProps({
   item: {
@@ -9,58 +7,47 @@ const props = defineProps({
     required: true,
   },
 });
+
+const fields = [
+  { key: "workplace", label: "Место работы" },
+  { key: "document", label: "Документы" },
+  { key: "debt", label: "Задолженности" },
+  { key: "bankruptcy", label: "Банкротство" },
+  { key: "bki", label: "Проверка по БКИ" },
+  { key: "courts", label: "Судебные решения" },
+  { key: "affilation", label: "Аффилированность" },
+  { key: "terrorist", label: "Проверка списка террористов" },
+  { key: "internet", label: "Проверка в открытых источниках" },
+  { key: "cronos", label: "Проверка Кронос" },
+  { key: "addition", label: "Дополнительная информация" },
+  { key: "comment", label: "Комментарии" },
+  { key: "conclusion", label: "Заключение", slot: true },
+  { key: "created", label: "Дата записи" },
+] as ItemField[];
+
+const check = computed(() => {
+  return {
+    ...props.item,
+    created: localStr(props.item.updated_at),
+  };
+});
 </script>
 
 <template>
-  <ElementLabelValue
-    label="Проверка по местам работы"
-    :value="props.item.workplace"
-  />
-  <ElementLabelValue label="Проверка документов" :value="props.item.document" />
-  <ElementLabelValue label="Проверка задолженностей" :value="props.item.debt" />
-  <ElementLabelValue
-    label="Проверка банкротства"
-    :value="props.item.bankruptcy"
-  />
-  <ElementLabelValue label="Проверка по БКИ" :value="props.item.bki" />
-  <ElementLabelValue
-    label="Проверка судебных решений"
-    :value="props.item.courts"
-  />
-  <ElementLabelValue
-    label="Проверка аффилированности"
-    :value="props.item.affilation"
-  />
-  <ElementLabelValue
-    label="Проверка по списку террористов"
-    :value="props.item.terrorist"
-  />
-  <ElementLabelValue
-    label="Проверка в открытых источниках"
-    :value="props.item.internet"
-  />
-  <ElementLabelValue label="Проверка Кронос" :value="props.item.cronos" />
-  <ElementLabelValue
-    label="Дополнительная информация"
-    :value="props.item.addition"
-  />
-  <ElementLabelValue label="Комментарии" :value="props.item.comment" />
-  <ElementLabelSlot v-if="props.item.conclusion" label="Результат">
-    <UBadge
-      :color="
-        props.item.conclusion === Conclusions.agreed
-          ? 'success'
-          : props.item.conclusion === Conclusions.comments
-            ? 'warning'
-            : props.item.conclusion === Conclusions.cancel
-              ? 'neutral'
-              : 'error'
-      "
-      :label="props.item.conclusion"
-    />
-  </ElementLabelSlot>
-  <ElementLabelValue
-    label="Дата записи"
-    :value="localStr(props.item.created_at)"
-  />
+  <ElementItemCard :fields="fields" :item="check">
+    <template v-if="props.item.conclusion" #conclusion>
+      <UBadge
+        :color="
+          props.item.conclusion === Conclusions.agreed
+            ? 'success'
+            : props.item.conclusion === Conclusions.comments
+              ? 'warning'
+              : props.item.conclusion === Conclusions.cancel
+                ? 'neutral'
+                : 'error'
+        "
+        :label="props.item.conclusion"
+      />
+    </template>
+  </ElementItemCard>
 </template>
