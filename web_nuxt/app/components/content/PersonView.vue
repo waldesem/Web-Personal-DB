@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { divsPerson, formPerson } from "@/schema/persona";
 import type { Person } from "@/types";
 
 const toasts = useToasts();
@@ -13,6 +14,8 @@ const props = defineProps({
 });
 
 const lock = useLock();
+
+const { copy, copied } = useClipboard();
 
 const modal = ref(false); // Объявляем переменную модального окна
 
@@ -56,7 +59,20 @@ async function deletePerson() {
       @update="modal = true"
       @delete="deletePerson()"
     />
-    <ItemsPersonDiv :item="props.person" />
+    <ElementItemCard :item="props.person" :fields="divsPerson">
+      <template v-if="props.person.dual" #dual>
+        <UBadge variant="outline" color="info" :label="props.person.dual" />
+      </template>
+      <template v-if="props.person.destination" #destination>
+        <UButton
+          variant="outline"
+          :color="!copied ? 'info' : 'success'"
+          size="sm"
+          :label="!copied ? 'Копировать ссылку' : 'Скопировано'"
+          @click="copy(props.person.destination)"
+        />
+      </template>
+    </ElementItemCard>
     <!-- Выводим модальное окно для редактирования данных -->
     <UModal
       v-model:open="modal"
@@ -64,7 +80,11 @@ async function deletePerson() {
       description="Редактирование анкетные данные"
     >
       <template #body>
-        <LazyFormsResumeForm :resume="props.person" @update="submitPerson" />
+        <LazyElementFormCard
+          :resume="props.person"
+          :fields="formPerson"
+          @update="submitPerson"
+        />
       </template>
     </UModal>
   </div>

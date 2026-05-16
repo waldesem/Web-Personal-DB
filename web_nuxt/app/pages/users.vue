@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { TableColumn } from "@nuxt/ui";
-import { Actions, Roles, type User } from "@/types";
+import { Actions, Roles, type User, type UserForm } from "@/types";
 
 const { $api } = useNuxtApp();
 
@@ -18,6 +18,7 @@ const UDropdownMenu = resolveComponent("UDropdownMenu");
 const modal = ref(false);
 const expanded = ref({ 1: false });
 const globalFilter = ref("");
+const form = ref({} as UserForm);
 
 // Определяем функцию для получения данных из API
 const { data, status, refresh } = await useLazyAsyncData<User[]>(
@@ -41,6 +42,20 @@ async function editUser(item: Actions | Roles, user_id: string) {
     toasts.create();
   }
   refresh();
+}
+
+async function submitUser() {
+  const resp = await $api.raw("/routes/user", {
+    method: "POST",
+    body: form.value,
+  });
+  if (resp.status === 201) {
+    refresh();
+    form.value = {} as UserForm;
+    toasts.create("success", "Пользователь успешно добавлен");
+  } else {
+    toasts.create();
+  }
 }
 
 // Объявляем функцию для изменения данных
@@ -216,6 +231,33 @@ const columns: TableColumn<User>[] = [
           />
           <!-- Вставляем форму для добавления пользователя -->
           <template #body>
+            <UForm :state="form" @submit.prevent="submitUser">
+              <UFormField label="Имя пользователя" name="fullname" required>
+                <UInput
+                  v-model.lazy.trim="form.fullname"
+                  placeholder="Имя пользователя"
+                  maxlength="255"
+                  required
+                  pattern="^[а-яёЁА-Я-\s]+$"
+                />
+              </UFormField>
+              <UFormField label="Логин" name="username" required>
+                <UInput
+                  v-model.lazy.trim="form.username"
+                  placeholder="Логин"
+                  required
+                  pattern="^[a-z0-9_-]{3,255}$"
+                />
+              </UFormField>
+              <UFormField label="Email" name="email" type="email" required>
+                <UInput
+                  v-model.lazy.trim="form.email"
+                  placeholder="Email"
+                  required
+                />
+              </UFormField>
+              <ElementSubmitButton />
+            </UForm>
             <FormsUserForm
               @update="
                 modal = false;

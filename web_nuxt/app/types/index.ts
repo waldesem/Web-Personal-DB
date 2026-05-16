@@ -29,6 +29,40 @@ export interface ItemField {
   key: string;
   label: string;
   slot?: boolean;
+  div?: (div: string) => string;
+}
+
+export interface FormField {
+  element: "input" | "select" | "textarea";
+  key:
+    | keyof Previous
+    | keyof Education
+    | keyof Work
+    | keyof Passport
+    | keyof Address
+    | keyof Contact
+    | keyof Affilation
+    | keyof Staff
+    | keyof Verification
+    | keyof Pfo
+    | keyof Inquisition
+    | keyof Needs;
+  label: string;
+  attrs?: {
+    [K in
+      | "pattern"
+      | "type"
+      | "required"
+      | "name"
+      | "disabled"
+      | "placeholder"
+      | "autofocus"
+      | "max"
+      | "maxlength"
+      | "min"
+      | "minlength"]?: never;
+  };
+  items?: string[];
 }
 
 export interface Auth {

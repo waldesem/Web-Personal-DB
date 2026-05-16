@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { divsFields } from "@/schema/items";
+import { formFields } from "@/schema/forms";
 import type { Items } from "@/types";
-import { capitalizeStr } from "@/utils";
 import type { PropType } from "vue";
 
 const { $api } = useNuxtApp();
@@ -32,13 +33,6 @@ const props = defineProps({
     required: true,
   },
 });
-
-const ItemComponent = defineAsyncComponent<Component>(
-  () => import(`../items/${capitalizeStr(props.view)}Item.vue`),
-);
-const FormComponent = defineAsyncComponent<Component>(
-  () => import(`../forms/${capitalizeStr(props.view)}Form.vue`),
-);
 
 // Объявляем переменные для работы с данными
 const items = toRef(props.data);
@@ -143,7 +137,7 @@ async function deleteItem(id: string) {
       @delete="deleteItem(content.id)"
     />
     <!-- Выводим элемент данных -->
-    <component :is="ItemComponent" :item="content" />
+    <ElementItemCard :item="content" :fields="divsFields[view]" />
     <USeparator v-if="index + 1 < items.length" />
   </div>
 
@@ -166,7 +160,11 @@ async function deleteItem(id: string) {
       @click="option = 'create'"
     />
     <template #body>
-      <component :is="FormComponent" :item="item" @update="submitItem" />
+      <LazyElementFormCard
+        :item="item"
+        :fields="formFields[view]"
+        @update="submitItem"
+      />
     </template>
   </UModal>
 </template>

@@ -3,6 +3,7 @@ import type { FetchResponse } from "ofetch";
 import type { TableColumn } from "@nuxt/ui";
 import { localStr, timeAgoStr } from "@/utils";
 import type { Candidate, Person } from "@/types";
+import { formPerson } from "@/schema/persona";
 
 const { $api } = useNuxtApp();
 
@@ -162,7 +163,7 @@ const columns: TableColumn<Candidate>[] = [
           description="Введите анкетные данные кандидата"
         >
           <template #body>
-            <LazyFormsResumeForm @update="personSubmit" />
+            <LazyElementFormCard :fields="formPerson" @update="personSubmit" />
           </template>
         </UModal>
       </template>

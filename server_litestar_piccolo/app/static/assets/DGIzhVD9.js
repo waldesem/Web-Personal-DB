@@ -1,2 +1,0 @@
-function a(t){return t.charAt(0).toUpperCase()+t.slice(1)}function i(t){return t?new Date(t).toLocaleDateString():""}function c(t){const n=Date.now()-new Date(t).getTime(),f=Math.floor(n/1e3);if(f<60)return"менее минуты назад";const r=Math.floor(f/60);if(r<60)return r+" минут назад";const e=Math.floor(r/60);if(e<24)return e+" часов назад";const o=Math.floor(e/24);return o<7?o+" дней назад":o<30?Math.floor(o/7)+" недели назад":o<365?Math.floor(o/30)+" месяцев назад":Math.floor(o/365)+" года назад"}export{a as c,i as l,c as t};
-//# sourceMappingURL=DGIzhVD9.js.map
