@@ -27,7 +27,6 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   experimental: {
     payloadExtraction: true,
-    viteEnvironmentApi: true,
   },
   icon: {
     clientBundle: {
