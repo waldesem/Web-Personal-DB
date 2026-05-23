@@ -7,11 +7,21 @@ const session = useSessionStore();
 
 const lock = useLock();
 
-const personId = computed(() => useRoute().params.id as string);
+definePageMeta({
+  path: "/profile/:id",
+  props: true,
+});
+
+const props = defineProps({
+  id: {
+    type: String,
+    required: true,
+  },
+});
 
 const { data, status, refresh } = await useAsyncData<Person>(
   "person",
-  () => $api<Person>("/routes/persons/" + personId.value),
+  () => $api<Person>("/routes/persons/" + props.id),
   { default: () => ({}) as Person },
 );
 
@@ -22,7 +32,7 @@ async function switchStatus(): Promise<void> {
       return;
     }
     status.value = "pending";
-    await $api.raw("/routes/persons/status/" + personId.value);
+    await $api.raw("/routes/persons/status/" + props.id);
     await refresh();
     lock.value = false;
   } else {
@@ -74,6 +84,9 @@ async function switchStatus(): Promise<void> {
         </div>
       </template>
     </UPageHeader>
-    <ContentTabsView :person="data" />
+
+    <UPageBody>
+      <ContentTabsView :person="data" />
+    </UPageBody>
   </UContainer>
 </template>

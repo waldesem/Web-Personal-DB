@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import type { FetchResponse } from "ofetch";
-import type { TableColumn } from "@nuxt/ui";
-import { localStr, timeAgoStr } from "@/utils";
 import type { Candidate, Person } from "@/types";
-import { formPerson } from "@/schema/persona";
+import { personColumns } from "@/schema/elements";
+import { person } from "@/schema/forms";
 
 const { $api } = useNuxtApp();
 
@@ -81,47 +80,6 @@ async function proceedSubmit(response: FetchResponse<unknown>) {
   }
   toasts.create();
 }
-
-// Определяем массив данных для таблицы кандидатов
-const columns: TableColumn<Candidate>[] = [
-  { accessorKey: "id", header: "#" },
-  {
-    accessorKey: "surname",
-    header: "Фамилия",
-  },
-  {
-    accessorKey: "firstname",
-    header: "Имя",
-  },
-  {
-    accessorKey: "patronymic",
-    header: "Отчество",
-    cell: ({ row }) => {
-      return row.getValue("patronymic") ?? "";
-    },
-  },
-  {
-    accessorKey: "birthday",
-    header: "Дата рождения",
-    cell: ({ row }) => {
-      return localStr(row.getValue("birthday"));
-    },
-  },
-  {
-    accessorKey: "updated_at",
-    header: "Обновлено",
-    cell: ({ row }) => {
-      return timeAgoStr(row.getValue("updated_at"));
-    },
-  },
-  {
-    accessorKey: "username",
-    header: "Сотрудник",
-    cell: ({ row }) => {
-      return row.original.username.split(" ")[0];
-    },
-  },
-];
 </script>
 
 <template>
@@ -163,14 +121,14 @@ const columns: TableColumn<Candidate>[] = [
           description="Введите анкетные данные кандидата"
         >
           <template #body>
-            <LazyElementFormCard :fields="formPerson" @update="personSubmit" />
+            <LazyElementFormDiv :fields="person" @update="personSubmit" />
           </template>
         </UModal>
       </template>
     </UPageHeader>
 
-    <!-- Строка поиска -->
-    <div class="my-6">
+    <UPageBody>
+      <!-- Поиск по фамилии, имени, отчеству -->
       <UInput
         id="search"
         v-model="search"
@@ -178,46 +136,46 @@ const columns: TableColumn<Candidate>[] = [
         icon="i-lucide-search"
         placeholder="поиск по фаимилии, имени, отчеству"
       />
-    </div>
 
-    <!-- Таблица с данными кандидатов -->
-    <UTable
-      loading-animation="swing"
-      empty="Данные не найдены"
-      :loading="status === 'pending'"
-      :columns="columns"
-      :data="data"
-      :meta="{ class: { tr: 'cursor-pointer' } }"
-      @select="(_, row) => navigateTo(`/profile/${row.original.id}`)"
-    >
-      <template #loading>
-        <UIcon name="i-lucide-refresh-ccw" mode="css" class="animate-spin" />
-      </template>
-    </UTable>
-
-    <!-- Кнопка обновления и показа времени обновления -->
-    <div class="my-2">
-      <UButton
-        variant="ghost"
-        icon="i-lucide-refresh-ccw"
-        title="Обновить данные"
+      <!-- Таблица с данными кандидатов -->
+      <UTable
+        loading-animation="swing"
+        empty="Данные не найдены"
         :loading="status === 'pending'"
-        @click="refresh()"
+        :columns="personColumns"
+        :data="data"
+        :meta="{ class: { tr: 'cursor-pointer' } }"
+        @select="(_, row) => navigateTo(`/profile/${row.original.id}`)"
       >
-        Обновлено:
-        <NuxtTime :datetime="updated" relative />
-      </UButton>
-    </div>
+        <template #loading>
+          <UIcon name="i-lucide-refresh-ccw" mode="css" class="animate-spin" />
+        </template>
+      </UTable>
 
-    <!-- Пагинация -->
-    <div class="flex justify-center border-t border-default space-x-2 py-4">
-      <UPagination
-        v-model:page="page"
-        :items-per-page="per_page"
-        :total="data[0]?.total ?? 1"
-        :sibling-count="-1"
-        @update:page="(p) => (page = p)"
-      />
-    </div>
+      <!-- Кнопка обновления и показа времени обновления -->
+      <div class="my-2">
+        <UButton
+          variant="ghost"
+          icon="i-lucide-refresh-ccw"
+          title="Обновить данные"
+          :loading="status === 'pending'"
+          @click="refresh()"
+        >
+          Обновлено:
+          <NuxtTime :datetime="updated" relative />
+        </UButton>
+      </div>
+
+      <!-- Пагинация -->
+      <div class="flex justify-center border-t border-default space-x-2 py-4">
+        <UPagination
+          v-model:page="page"
+          :items-per-page="per_page"
+          :total="data[0]?.total ?? 1"
+          :sibling-count="-1"
+          @update:page="(p) => (page = p)"
+        />
+      </div>
+    </UPageBody>
   </UContainer>
 </template>

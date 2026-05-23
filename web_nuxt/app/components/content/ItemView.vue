@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { divsFields } from "@/schema/items";
-import { formFields } from "@/schema/forms";
+import { itemsFields } from "@/schema/items";
+import { itemsForms } from "@/schema/forms";
 import type { Items } from "@/types";
 import type { PropType } from "vue";
 
@@ -35,8 +35,8 @@ const props = defineProps({
 });
 
 // Объявляем переменные для работы с данными
-const items = toRef(props.data);
-const item = shallowRef({} as (typeof props.data)[number]); // Данные для передачи в форму
+const item = shallowRef({} as Items[keyof Items]);
+const items = shallowRef([] as (typeof item.value)[]);
 const option = ref<"create" | "edit">("create");
 const modal = ref(false); // Флаг для открытия модального окна
 const state = ref(""); // Статус запроса
@@ -48,7 +48,7 @@ async function getItem() {
   state.value = "";
 }
 
-async function addItem(view: keyof Items, form: (typeof props.data)[number]) {
+async function addItem(view: keyof Items, form: typeof props.data) {
   return await $api.raw(`/routes/items/${view}/${props.personId}`, {
     method: "POST",
     body: { ...form, item: view }, // add discriminator for backend validation
@@ -57,8 +57,8 @@ async function addItem(view: keyof Items, form: (typeof props.data)[number]) {
 
 async function editItem(
   view: keyof Items,
-  itemId: string,
-  form: (typeof props.data)[number],
+  itemId: string | number,
+  form: typeof props.data,
 ) {
   return await $api.raw(`/routes/items/${view}/${props.personId}/${itemId}`, {
     method: "PATCH",
@@ -82,7 +82,7 @@ async function submitItem(form: typeof item.value) {
 }
 
 // Определяем функцию для удаления данных
-async function deleteItem(id: string) {
+async function deleteItem(id: string | number) {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   state.value = "pending";
   const { status } = await $api.raw(
@@ -105,7 +105,7 @@ async function deleteItem(id: string) {
   <UEmpty
     v-if="!items"
     :icon="props.icon"
-    class="m-4"
+    class="m-2"
     title="Данные отсутствуют"
     size="sm"
   >
@@ -125,7 +125,11 @@ async function deleteItem(id: string) {
     </template>
   </UEmpty>
 
-  <div v-for="(content, index) in items" :key="index" class="mx-2 py-2">
+  <div
+    v-for="(content, index) in items"
+    :key="index"
+    :class="{ 'animate-pulse': state }"
+  >
     <!-- Выводим кнопки редактирования/удаления данных -->
     <LazyElementDivMenu
       v-if="!lock"
@@ -137,7 +141,7 @@ async function deleteItem(id: string) {
       @delete="deleteItem(content.id)"
     />
     <!-- Выводим элемент данных -->
-    <ElementItemCard :item="content" :fields="divsFields[view]" />
+    <ElementItemDiv :item="content" :fields="itemsFields[view]" />
     <USeparator v-if="index + 1 < items.length" />
   </div>
 
@@ -160,9 +164,9 @@ async function deleteItem(id: string) {
       @click="option = 'create'"
     />
     <template #body>
-      <LazyElementFormCard
+      <LazyElementFormDiv
         :item="item"
-        :fields="formFields[view]"
+        :fields="itemsForms[view]"
         @update="submitItem"
       />
     </template>

@@ -1,186 +1,267 @@
-import type { FormField, Items } from "@/types";
 import { Conclusions, Decisions } from "@/types";
+import type { Items, FormFields } from "@/types";
 
-export const formFields = {
-  addresses: [
-    {
-      element: "select",
-      key: "view",
-      label: "Вид адреса",
+const pattern = "^[А-ЯЁ][А-ЯЁ\\-.,' ]+[А-ЯЁ]$";
+
+export const person = [
+  {
+    key: "surname",
+    label: "Фамилия",
+    props: {
+      pattern: pattern,
+      placeholder: "Фамилия (заглавными буквами)",
+      maxlength: 255,
+      required: true,
+    },
+  },
+  {
+    key: "firstname",
+    label: "Имя",
+    props: {
+      pattern: pattern,
+      placeholder: "Имя (заглавными буквами)",
+      maxlength: 255,
+      required: true,
+    },
+  },
+  {
+    key: "patronymic",
+    label: "Отчество",
+    props: {
+      pattern: pattern,
+      placeholder: "Отчество (заглавными буквами)",
+      maxlength: 255,
+    },
+  },
+  {
+    key: "birthday",
+    label: "Дата рождения",
+    props: { type: "date", required: true },
+  },
+  {
+    key: "birthplace",
+    label: "Место рождения",
+    props: { placeholder: "Место рождения", maxlength: 255 },
+  },
+  {
+    key: "citizenship",
+    label: "Гражданство",
+    props: { placeholder: "Гражданство", maxlength: 255 },
+  },
+  {
+    key: "dual",
+    label: "Двойное гражданство",
+    props: { placeholder: "Двойное гражданство", maxlength: 255 },
+  },
+  {
+    key: "snils",
+    label: "СНИЛС",
+    props: { pattern: "^\\d{11}$", placeholder: "СНИЛС" },
+  },
+  {
+    key: "inn",
+    label: "ИНН",
+    props: { pattern: "^\\d{12}$", placeholder: "ИНН" },
+  },
+  {
+    key: "marital",
+    label: "Семейное положение",
+    props: { placeholder: "Семейное положение", maxlength: 255 },
+  },
+  {
+    element: "textarea",
+    key: "addition",
+    label: "Дополнительно",
+    props: { placeholder: "Дополнительная информация", maxlength: 4096 },
+  },
+] as FormFields<Items["person"]>[];
+
+const addresses = [
+  {
+    element: "select",
+    key: "view",
+    label: "Вид адреса",
+    props: {
       items: ["Адрес регистрации", "Адрес проживания", "Другое"],
-      attrs: { placeholder: "Выберите адрес", required: true },
+      placeholder: "Выберите адрес",
+      required: true,
     },
-    {
-      element: "textarea",
-      key: "address",
-      label: "Адрес",
-      attrs: { placeholder: "Введите адрес", maxlength: 4096, required: true },
-    },
-  ],
-  affilations: [
-    {
-      element: "input",
-      key: "view",
-      label: "Вид участия",
-      attrs: { placeholder: "Вид участия", maxlength: 255, required: true },
-    },
-    {
-      element: "input",
-      key: "organization",
-      label: "Организация",
-      attrs: { placeholder: "Организация", maxlength: 255, required: true },
-    },
-    {
-      element: "input",
-      key: "inn",
-      label: "ИНН",
-      attrs: { placeholder: "Организация", pattern: "^\\d{10,12}$" },
-    },
-    {
-      element: "textarea",
-      key: "activity",
-      label: "Деятельность",
-      attrs: { placeholder: "Деятельность", maxlength: 4096 },
-    },
-  ],
-  checks: [
-    {
-      element: "textarea",
-      key: "workplace",
-      label: "Проверка по местам работы",
-      attrs: { placeholder: "Проверка по местам работы", maxlength: 4096 },
-    },
-    {
-      element: "textarea",
-      key: "document",
-      label: "Проверка документов",
-      attrs: { placeholder: "Проверка документов", maxlength: 4096 },
-    },
-    {
-      element: "textarea",
-      key: "debt",
-      label: "Проверка задолженностей",
-      attrs: { placeholder: "Проверка задолженностей", maxlength: 4096 },
-    },
-    {
-      element: "textarea",
-      key: "bankruptcy",
-      label: "Проверка банкротства",
-      attrs: { placeholder: "Проверка банкротства", maxlength: 4096 },
-    },
-    {
-      element: "textarea",
-      key: "bki",
-      label: "Проверка Кредитной истории",
-      attrs: { placeholder: "Проверка Кредитной истории", maxlength: 4096 },
-    },
-    {
-      element: "textarea",
-      key: "courts",
-      label: "Проверка судебных дел",
-      attrs: { placeholder: "Проверка судебных дел", maxlength: 4096 },
-    },
-    {
-      element: "textarea",
-      key: "affilation",
-      label: "Проверка аффилированности",
-      attrs: { placeholder: "Проверка аффилированности", maxlength: 4096 },
-    },
-    {
-      element: "textarea",
-      key: "terrorist",
-      label: "Проверка в списке террористов",
-      attrs: { placeholder: "Проверка в списке террористов", maxlength: 4096 },
-    },
-    {
-      element: "textarea",
-      key: "internet",
-      label: "Проверка в открытых источниках",
-      attrs: { placeholder: "Проверка в открытых источниках", maxlength: 4096 },
-    },
-    {
-      element: "textarea",
-      key: "cronos",
-      label: "Проверка в Кронос",
-      attrs: { placeholder: "Проверка в Кронос", maxlength: 4096 },
-    },
-    {
-      element: "textarea",
-      key: "addition",
-      label: "Дополнительная информация",
-      attrs: { placeholder: "Дополнительная информация", maxlength: 4096 },
-    },
-    {
-      element: "textarea",
-      key: "comment",
-      label: "Комментарий",
-      attrs: { placeholder: "Комментарий", maxlength: 4096 },
-    },
-    {
-      element: "select",
-      key: "conclusion",
-      label: "Результат",
+  },
+  {
+    element: "textarea",
+    key: "address",
+    label: "Адрес",
+    props: { placeholder: "Введите адрес", maxlength: 4096, required: true },
+  },
+] as FormFields<Items["addresses"]>[];
+
+const affilations = [
+  {
+    key: "view",
+    label: "Вид участия",
+    props: { placeholder: "Вид участия", maxlength: 255, required: true },
+  },
+  {
+    key: "organization",
+    label: "Организация",
+    props: { placeholder: "Организация", maxlength: 255, required: true },
+  },
+  {
+    key: "inn",
+    label: "ИНН",
+    props: { placeholder: "Организация", pattern: "^\\d{10,12}$" },
+  },
+  {
+    element: "textarea",
+    key: "activity",
+    label: "Деятельность",
+    props: { placeholder: "Деятельность", maxlength: 4096 },
+  },
+] as FormFields<Items["affilations"]>[];
+
+const checks = [
+  {
+    element: "textarea",
+    key: "workplace",
+    label: "Проверка по местам работы",
+    props: { placeholder: "Проверка по местам работы", maxlength: 4096 },
+  },
+  {
+    element: "textarea",
+    key: "document",
+    label: "Проверка документов",
+    props: { placeholder: "Проверка документов", maxlength: 4096 },
+  },
+  {
+    element: "textarea",
+    key: "debt",
+    label: "Проверка задолженностей",
+    props: { placeholder: "Проверка задолженностей", maxlength: 4096 },
+  },
+  {
+    element: "textarea",
+    key: "bankruptcy",
+    label: "Проверка банкротства",
+    props: { placeholder: "Проверка банкротства", maxlength: 4096 },
+  },
+  {
+    element: "textarea",
+    key: "bki",
+    label: "Проверка Кредитной истории",
+    props: { placeholder: "Проверка Кредитной истории", maxlength: 4096 },
+  },
+  {
+    element: "textarea",
+    key: "courts",
+    label: "Проверка судебных дел",
+    props: { placeholder: "Проверка судебных дел", maxlength: 4096 },
+  },
+  {
+    element: "textarea",
+    key: "affilation",
+    label: "Проверка аффилированности",
+    props: { placeholder: "Проверка аффилированности", maxlength: 4096 },
+  },
+  {
+    element: "textarea",
+    key: "terrorist",
+    label: "Проверка в списке террористов",
+    props: { placeholder: "Проверка в списке террористов", maxlength: 4096 },
+  },
+  {
+    element: "textarea",
+    key: "internet",
+    label: "Проверка в открытых источниках",
+    props: { placeholder: "Проверка в открытых источниках", maxlength: 4096 },
+  },
+  {
+    element: "textarea",
+    key: "cronos",
+    label: "Проверка в Кронос",
+    props: { placeholder: "Проверка в Кронос", maxlength: 4096 },
+  },
+  {
+    element: "textarea",
+    key: "addition",
+    label: "Дополнительная информация",
+    props: { placeholder: "Дополнительная информация", maxlength: 4096 },
+  },
+  {
+    element: "textarea",
+    key: "comment",
+    label: "Комментарий",
+    props: { placeholder: "Комментарий", maxlength: 4096 },
+  },
+  {
+    element: "select",
+    key: "conclusion",
+    label: "Результат",
+    props: {
       items: Object.values(Conclusions),
-      attrs: { placeholder: "Выберите результат", required: true },
+      placeholder: "Выберите результат",
+      required: true,
     },
-  ],
-  contacts: [
-    {
-      element: "select",
-      key: "view",
-      label: "Вид контакта",
+  },
+] as FormFields<Items["checks"]>[];
+
+const contacts = [
+  {
+    element: "select",
+    key: "view",
+    label: "Вид контакта",
+    props: {
       items: ["Телефон", "Электронная почта", "Другое"],
-      attrs: {
-        placeholder: "Выберите контакт",
-        maxlength: 255,
-        required: true,
-      },
+      placeholder: "Выберите контакт",
+      maxlength: 255,
+      required: true,
     },
-    {
-      element: "input",
-      key: "contact",
-      label: "Контакт",
-      attrs: { placeholder: "Контакт", maxlength: 255, required: true },
-    },
-  ],
-  documents: [
-    {
-      element: "select",
-      key: "view",
-      label: "Вид документа",
+  },
+  {
+    key: "contact",
+    label: "Контакт",
+    props: { placeholder: "Контакт", maxlength: 255, required: true },
+  },
+] as FormFields<Items["contacts"]>[];
+
+const documents = [
+  {
+    element: "select",
+    key: "view",
+    label: "Вид документа",
+    props: {
       items: ["Паспорт", "Иностранный паспорт", "Другое"],
-      attrs: { placeholder: "Выберите документ", required: true },
+      placeholder: "Выберите документ",
+      required: true,
     },
-    {
-      element: "input",
-      key: "series",
-      label: "Серия",
-      attrs: { placeholder: "Серия", maxlength: 16 },
-    },
-    {
-      element: "input",
-      key: "digits",
-      label: "Номер",
-      attrs: { placeholder: "Номер", maxlength: 16, required: true },
-    },
-    {
-      element: "input",
-      key: "agency",
-      label: "Кем выдан",
-      attrs: { placeholder: "Орган выдавший", maxlength: 255 },
-    },
-    {
-      element: "input",
-      key: "issue",
-      label: "Дата выдачи",
-      attrs: { type: "date", required: true },
-    },
-  ],
-  educations: [
-    {
-      element: "select",
-      key: "view",
-      label: "Вид образования",
+  },
+  {
+    key: "series",
+    label: "Серия",
+    props: { placeholder: "Серия", maxlength: 16 },
+  },
+  {
+    key: "digits",
+    label: "Номер",
+    props: { placeholder: "Номер", maxlength: 16, required: true },
+  },
+  {
+    key: "agency",
+    label: "Кем выдан",
+    props: { placeholder: "Орган выдавший", maxlength: 255 },
+  },
+  {
+    key: "issue",
+    label: "Дата выдачи",
+    props: { type: "date", required: true },
+  },
+] as FormFields<Items["documents"]>[];
+
+const educations = [
+  {
+    element: "select",
+    key: "view",
+    label: "Вид образования",
+    props: {
       items: [
         "Основное общее",
         "Среднее общее",
@@ -189,168 +270,181 @@ export const formFields = {
         "Неоконченное высшее образование",
         "Другое образование",
       ],
-      attrs: { placeholder: "Выберите образование", required: true },
+      placeholder: "Выберите образование",
+      required: true,
     },
-    {
-      element: "input",
-      key: "institution",
-      label: "Учебное заведение",
-      attrs: {
-        placeholder: "Учебное заведение",
-        maxlength: 255,
-        required: true,
-      },
+  },
+  {
+    key: "institution",
+    label: "Учебное заведение",
+    props: {
+      placeholder: "Учебное заведение",
+      maxlength: 255,
+      required: true,
     },
-    {
-      element: "input",
-      key: "finished",
-      label: "Год окончания",
-      attrs: { placeholder: "Год окончания", pattern: "^\\d{4}$" },
-    },
-    {
-      element: "input",
-      key: "specialty",
-      label: "Специальность",
-      attrs: { placeholder: "Специальность", maxlength: 255, required: true },
-    },
-  ],
-  inquiries: [
-    {
-      element: "textarea",
-      key: "info",
-      label: "Информация",
-      attrs: { placeholder: "Информация", maxlength: 4096, required: true },
-    },
-    {
-      element: "input",
-      key: "initiator",
-      label: "Инициатор",
-      attrs: { placeholder: "Инициатор", maxlength: 255, required: true },
-    },
-  ],
-  investigations: [
-    {
-      element: "input",
-      key: "theme",
-      label: "Тема проверки",
-      attrs: { placeholder: "Тема проверки", maxlength: 255, required: true },
-    },
-    {
-      element: "textarea",
-      key: "info",
-      label: "Информация",
-      attrs: { placeholder: "Информация", maxlength: 4096, required: true },
-    },
-  ],
-  poligrafs: [
-    {
-      element: "select",
-      key: "theme",
-      label: "Тема проверки",
+  },
+  {
+    key: "finished",
+    label: "Год окончания",
+    props: { placeholder: "Год окончания", pattern: "^\\d{4}$" },
+  },
+  {
+    key: "specialty",
+    label: "Специальность",
+    props: { placeholder: "Специальность", maxlength: 255, required: true },
+  },
+] as FormFields<Items["educations"]>[];
+
+const inquiries = [
+  {
+    element: "textarea",
+    key: "info",
+    label: "Информация",
+    props: { placeholder: "Информация", maxlength: 4096, required: true },
+  },
+  {
+    key: "initiator",
+    label: "Инициатор",
+    props: { placeholder: "Инициатор", maxlength: 255, required: true },
+  },
+] as FormFields<Items["inquiries"]>[];
+
+const investigations = [
+  {
+    key: "theme",
+    label: "Тема проверки",
+    props: { placeholder: "Тема проверки", maxlength: 255, required: true },
+  },
+  {
+    element: "textarea",
+    key: "info",
+    label: "Информация",
+    props: { placeholder: "Информация", maxlength: 4096, required: true },
+  },
+] as FormFields<Items["investigations"]>[];
+
+const poligrafs = [
+  {
+    element: "select",
+    key: "theme",
+    label: "Тема проверки",
+    props: {
       items: [
         "Проверка кандидата",
         "Служебная проверка",
         "Служебное расследование",
         "Плановое мероприятие",
       ],
-      attrs: { placeholder: "Выберите тему", required: true },
+      placeholder: "Выберите тему",
+      required: true,
     },
-    {
-      element: "textarea",
-      key: "results",
-      label: "Результат",
-      attrs: { placeholder: "Результат", maxlength: 4096, required: true },
-    },
-    {
-      element: "select",
-      key: "conclusion",
-      label: "Результат",
+  },
+  {
+    element: "textarea",
+    key: "results",
+    label: "Результат",
+    props: { placeholder: "Результат", maxlength: 4096, required: true },
+  },
+  {
+    element: "select",
+    key: "conclusion",
+    label: "Результат",
+    props: {
       items: Object.values(Decisions),
-      attrs: { placeholder: "Выберите результат", required: true },
+      placeholder: "Выберите результат",
+      required: true,
     },
-  ],
-  previous: [
-    {
-      element: "input",
-      key: "surname",
-      label: "Фамилия",
-      attrs: { placeholder: "Фамилия", maxlength: 255, required: true },
-    },
-    {
-      element: "input",
-      key: "firstname",
-      label: "Имя",
-      attrs: { placeholder: "Имя", maxlength: 255 },
-    },
-    {
-      element: "input",
-      key: "patronymic",
-      label: "Отчество",
-      attrs: { placeholder: "Отчество", maxlength: 255 },
-    },
-    {
-      element: "input",
-      key: "changed",
-      label: "Год изменения",
-      attrs: { placeholder: "Год изменения", pattern: "^\\d{4}$" },
-    },
-    {
-      element: "textarea",
-      key: "reason",
-      label: "Причина",
-      attrs: { placeholder: "Причина изменения", maxlength: 4096 },
-    },
-  ],
-  staffs: [
-    {
-      element: "input",
-      key: "position",
-      label: "Должность",
-      attrs: { placeholder: "Должность", maxlength: 255, required: true },
-    },
-    {
-      element: "input",
-      key: "department",
-      label: "Подразделение",
-      attrs: { placeholder: "Подразделение", maxlength: 255 },
-    },
-  ],
-  workplaces: [
-    {
-      element: "input",
-      key: "starts",
-      label: "Начало работы",
-      attrs: { type: "date", required: true },
-    },
-    {
-      element: "input",
-      key: "finished",
-      label: "Окончание работы",
-      attrs: { type: "date" },
-    },
-    {
-      element: "input",
-      key: "workplace",
-      label: "Место работы",
-      attrs: { placeholder: "Место работы", maxlength: 255, required: true },
-    },
-    {
-      element: "input",
-      key: "position",
-      label: "Должность",
-      attrs: { placeholder: "Должность", maxlength: 255, required: true },
-    },
-    {
-      element: "input",
-      key: "address",
-      label: "Адрес организации",
-      attrs: { placeholder: "Адрес организации", maxlength: 255 },
-    },
-    {
-      element: "textarea",
-      key: "reason",
-      label: "Причина увольнения",
-      attrs: { placeholder: "Причина увольнения", maxlength: 4096 },
-    },
-  ],
-} as { [key in keyof Items]: FormField[] };
+  },
+] as FormFields<Items["poligrafs"]>[];
+
+const previous = [
+  {
+    key: "surname",
+    label: "Фамилия",
+    props: { placeholder: "Фамилия", maxlength: 255, required: true },
+  },
+  {
+    key: "firstname",
+    label: "Имя",
+    props: { placeholder: "Имя", maxlength: 255 },
+  },
+  {
+    key: "patronymic",
+    label: "Отчество",
+    props: { placeholder: "Отчество", maxlength: 255 },
+  },
+  {
+    key: "changed",
+    label: "Год изменения",
+    props: { placeholder: "Год изменения", pattern: "^\\d{4}$" },
+  },
+  {
+    element: "textarea",
+    key: "reason",
+    label: "Причина",
+    props: { placeholder: "Причина изменения", maxlength: 4096 },
+  },
+] as FormFields<Items["previous"]>[];
+
+const staffs = [
+  {
+    key: "position",
+    label: "Должность",
+    props: { placeholder: "Должность", maxlength: 255, required: true },
+  },
+  {
+    key: "department",
+    label: "Подразделение",
+    props: { placeholder: "Подразделение", maxlength: 255 },
+  },
+] as FormFields<Items["staffs"]>[];
+
+const workplaces = [
+  {
+    key: "starts",
+    label: "Начало работы",
+    props: { type: "date", required: true },
+  },
+  {
+    key: "finished",
+    label: "Окончание работы",
+    props: { type: "date" },
+  },
+  {
+    key: "workplace",
+    label: "Место работы",
+    props: { placeholder: "Место работы", maxlength: 255, required: true },
+  },
+  {
+    key: "position",
+    label: "Должность",
+    props: { placeholder: "Должность", maxlength: 255, required: true },
+  },
+  {
+    key: "address",
+    label: "Адрес организации",
+    props: { placeholder: "Адрес организации", maxlength: 255 },
+  },
+  {
+    element: "textarea",
+    key: "reason",
+    label: "Причина увольнения",
+    props: { placeholder: "Причина увольнения", maxlength: 4096 },
+  },
+] as FormFields<Items["workplaces"]>[];
+
+export const itemsForms = {
+  addresses,
+  affilations,
+  checks,
+  contacts,
+  documents,
+  educations,
+  inquiries,
+  investigations,
+  person,
+  poligrafs,
+  previous,
+  staffs,
+  workplaces,
+} as { [key in keyof Items]: FormFields<Items[keyof Items]>[] };

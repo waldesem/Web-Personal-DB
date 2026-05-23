@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { divsPerson, formPerson } from "@/schema/persona";
+import { itemsForms } from "@/schema/forms";
 import type { Person } from "@/types";
 
 const toasts = useToasts();
@@ -59,7 +59,7 @@ async function deletePerson() {
       @update="modal = true"
       @delete="deletePerson()"
     />
-    <ElementItemCard :item="props.person" :fields="divsPerson">
+    <ElementItemDiv :item="props.person" :fields="itemsForms.person">
       <template v-if="props.person.dual" #dual>
         <UBadge variant="outline" color="info" :label="props.person.dual" />
       </template>
@@ -72,7 +72,7 @@ async function deletePerson() {
           @click="copy(props.person.destination)"
         />
       </template>
-    </ElementItemCard>
+    </ElementItemDiv>
     <!-- Выводим модальное окно для редактирования данных -->
     <UModal
       v-model:open="modal"
@@ -80,10 +80,10 @@ async function deletePerson() {
       description="Редактирование анкетные данные"
     >
       <template #body>
-        <LazyElementFormCard
-          :resume="props.person"
-          :fields="formPerson"
-          @update="submitPerson"
+        <LazyElementFormDiv
+          :fields="itemsForms.person"
+          :item="props.person"
+          @submit="submitPerson"
         />
       </template>
     </UModal>

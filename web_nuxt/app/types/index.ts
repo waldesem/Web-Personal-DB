@@ -1,3 +1,5 @@
+import type { InputProps, SelectProps, TextareaProps } from "@nuxt/ui";
+
 export enum Actions {
   delete = "delete",
   block = "block",
@@ -25,45 +27,34 @@ export enum Decisions {
   denied = "НЕГАТИВ",
 }
 
-export interface ItemField {
-  key: string;
+export type TableColumns<T> = {
+  name: keyof T;
+  header: string;
+  cell?: (row: T) => string;
+};
+
+export type ItemFields<T> = {
+  key: keyof T;
   label: string;
   slot?: boolean;
-  div?: (div: string) => string;
-}
+  div?: (row: T) => string;
+  component?: (row: T) => Component;
+};
 
-export interface FormField {
-  element: "input" | "select" | "textarea";
-  key:
-    | keyof Previous
-    | keyof Education
-    | keyof Work
-    | keyof Passport
-    | keyof Address
-    | keyof Contact
-    | keyof Affilation
-    | keyof Staff
-    | keyof Verification
-    | keyof Pfo
-    | keyof Inquisition
-    | keyof Needs;
-  label: string;
-  attrs?: {
-    [K in
-      | "pattern"
-      | "type"
-      | "required"
-      | "name"
-      | "disabled"
-      | "placeholder"
-      | "autofocus"
-      | "max"
-      | "maxlength"
-      | "min"
-      | "minlength"]?: never;
+export type FormElementAttrs = {
+  input: InputProps;
+  select: SelectProps;
+  textarea: TextareaProps;
+};
+
+export type FormFields<T> = {
+  [K in keyof FormElementAttrs]: {
+    element?: K;
+    key: keyof T;
+    label: string;
+    props: Omit<FormElementAttrs[K], "modelValue" | "defaultValue">;
   };
-  items?: string[];
-}
+}[keyof FormElementAttrs];
 
 export interface Auth {
   message: string;
@@ -232,17 +223,18 @@ export interface Needs {
   updated_at: string;
 }
 
-export interface Items {
-  staffs: Staff[];
-  educations: Education[];
-  workplaces: Work[];
-  documents: Passport[];
-  addresses: Address[];
-  contacts: Contact[];
-  affilations: Affilation[];
-  previous: Previous[];
-  checks: Verification[];
-  poligrafs: Pfo[];
-  investigations: Inquisition[];
-  inquiries: Needs[];
-}
+export type Items = {
+  addresses: Address;
+  affilations: Affilation;
+  checks: Verification;
+  contacts: Contact;
+  documents: Passport;
+  educations: Education;
+  inquiries: Needs;
+  investigations: Inquisition;
+  person: Person;
+  poligrafs: Pfo;
+  previous: Previous;
+  staffs: Staff;
+  workplaces: Work;
+};

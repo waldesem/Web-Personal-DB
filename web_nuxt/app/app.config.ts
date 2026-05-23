@@ -20,6 +20,9 @@ export default defineAppConfig({
         content: "sm:max-w-xl",
       },
     },
+    pageBody: {
+      base: "pb-8 my-4 space-y-4",
+    },
     pageHeader: {
       slots: {
         root: "relative border-none py-4",
@@ -29,6 +32,9 @@ export default defineAppConfig({
     textarea: {
       slots: {
         root: "w-full",
+      },
+      variants: {
+        autoresize: { true: "vertical" },
       },
     },
   },

@@ -269,30 +269,29 @@ const columns: TableColumn<User>[] = [
       </template>
     </UPageHeader>
 
-    <!-- Строка поиска -->
-    <div class="my-6">
+    <UPageBody>
       <UInput
         v-model="globalFilter"
         icon="i-lucide-search"
         placeholder="Поиск пользователей"
         type="search"
       />
-    </div>
-    <!-- Таблица с данными пользователей -->
-    <UTable
-      v-model:expanded="expanded"
-      sticky
-      class="flex-1 max-h-[800px]"
-      :data="data"
-      :columns="columns"
-      :loading="status === 'pending'"
-      loading-animation="carousel"
-      empty="Данные не найдены"
-    >
-      <template #expanded="{ row }">
-        <!-- Выводим подробную информацию о пользователе -->
-        <pre class="text-break">{{ row.original }}</pre>
-      </template>
-    </UTable>
+      <!-- Таблица с данными пользователей -->
+      <UTable
+        v-model:expanded="expanded"
+        sticky
+        class="flex-1 max-h-[800px]"
+        :data="data"
+        :columns="columns"
+        :loading="status === 'pending'"
+        loading-animation="carousel"
+        empty="Данные не найдены"
+      >
+        <template #expanded="{ row }">
+          <!-- Выводим подробную информацию о пользователе -->
+          <pre class="text-break">{{ row.original }}</pre>
+        </template>
+      </UTable>
+    </UPageBody>
   </UContainer>
 </template>
